@@ -9,7 +9,7 @@
 #import "DMImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
 
-static NSInteger kMaxCacheAge = 60*60*24*7; // 1 week
+static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 
 static DMImageCache *instance;
 
@@ -21,19 +21,10 @@ static DMImageCache *instance;
 {
     if (self = [super init])
     {
-        cache = [[NSMutableDictionary alloc] init];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveMemoryWarning:)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification  
-                                                   object:nil];
+        // Init the memory cache
+        memCache = [[NSMutableDictionary alloc] init];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willTerminate)
-                                                     name:UIApplicationWillTerminateNotification  
-                                                   object:nil];
-        
-        // Init the cache
+        // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
         		
@@ -41,6 +32,21 @@ static DMImageCache *instance;
         {
             [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
         }
+
+        // Init the operation queue
+        cacheInQueue = [[NSOperationQueue alloc] init];
+        cacheInQueue.maxConcurrentOperationCount = 2;
+
+        // Subscribe to app events
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning:)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification  
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willTerminate)
+                                                     name:UIApplicationWillTerminateNotification  
+                                                   object:nil];        
     }
 
     return self;
@@ -48,7 +54,9 @@ static DMImageCache *instance;
 
 - (void)dealloc
 {
-    [cache release];
+    [memCache release];
+    [diskCachePath release];
+    [cacheInQueue release];
 
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidReceiveMemoryWarningNotification  
@@ -71,6 +79,18 @@ static DMImageCache *instance;
     [self cleanDisk];
 }
 
+#pragma mark ImageCache (class methods)
+
++ (DMImageCache *)sharedImageCache
+{
+    if (instance == nil)
+    {
+        instance = [[DMImageCache alloc] init];
+    }
+    
+    return instance;
+}
+
 #pragma mark ImageCache (private)
 
 - (NSString *)cachePathForKey:(NSString *)key
@@ -84,17 +104,18 @@ static DMImageCache *instance;
     return [diskCachePath stringByAppendingPathComponent:filename];
 }
 
-#pragma mark ImageCache
-
-+ (DMImageCache *)sharedImageCache
+- (void)storeKeyToDisk:(NSString *)key
 {
-    if (instance == nil)
-    {
-        instance = [[DMImageCache alloc] init];
-    }
+    UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
 
-    return instance;
+    if (image != nil)
+    {
+        [[NSFileManager defaultManager] createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, 1.0) attributes:nil];
+        [image release];
+    }
 }
+
+#pragma mark ImageCache
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
@@ -108,11 +129,11 @@ static DMImageCache *instance;
         return;
     }
 
-    [cache setObject:image forKey:key];
+    [memCache setObject:image forKey:key];
 
     if (toDisk)
-    {
-        [[NSFileManager defaultManager] createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, 1.0) attributes:nil];
+    {        
+        [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(storeKeyToDisk:) object:key] autorelease]];
     }
 }
 
@@ -123,14 +144,14 @@ static DMImageCache *instance;
 
 - (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk
 {
-    UIImage *image = [cache objectForKey:key];
+    UIImage *image = [memCache objectForKey:key];
 
     if (!image && fromDisk)
     {
         image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[self cachePathForKey:key]]];
         if (image != nil)
         {
-            [cache setObject:image forKey:key];
+            [memCache setObject:image forKey:key];
             [image release];
         }
     }
@@ -140,24 +161,26 @@ static DMImageCache *instance;
 
 - (void)removeImageForKey:(NSString *)key
 {
-    [cache removeObjectForKey:key];
+    [memCache removeObjectForKey:key];
     [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
 }
 
 - (void)clearMemory
 {
-    [cache removeAllObjects];
+    [cacheInQueue cancelAllOperations]; // won't be able to complete
+    [memCache removeAllObjects];
 }
 
 - (void)clearDisk
 {
+    [cacheInQueue cancelAllOperations];
     [[NSFileManager defaultManager] removeItemAtPath:diskCachePath error:nil];
     [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];    
 }
 
 - (void)cleanDisk
 {
-    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-kMaxCacheAge];
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-cacheMaxCacheAge];
     NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
     for (NSString *fileName in fileEnumerator)
     {

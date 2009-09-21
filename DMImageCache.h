@@ -10,8 +10,9 @@
 
 @interface DMImageCache : NSObject
 {
-    NSMutableDictionary *cache;
+    NSMutableDictionary *memCache;
     NSString *diskCachePath;
+    NSOperationQueue *cacheInQueue;
 }
 
 + (DMImageCache *)sharedImageCache;
