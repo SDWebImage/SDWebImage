@@ -4,6 +4,7 @@ Dailymotion Web Image
 This library provides a drop-in remplacement for UIImageVIew with support for remote images coming from the web.
 
 It provides:
+- Asynchronous image downloader
 - Drop-in replacement to UIImageView
 - Memory + disk image caching
 - Uses NSOperation to perform parallel downloads and caching
@@ -19,5 +20,5 @@ If in interface builder, an image was configured in the UIImageView, this image 
 Future Enhancements
 -------------------
 
-- Allow setup of the queue size (current default setup is 8 parallel downloads and 2 parallel cache-ins)
 - Easy way to use it with default UITableView styles without requiring to create a custom UITableViewCell
+- LRU memory cache cleanup instead of reset on memory warning
