@@ -1,19 +1,19 @@
 /*
- * This file is part of the DMWebImage package.
- * (c) Dailymotion - Olivier Poitrey <rs@dailymotion.com>
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */ 
 
-#import "DMImageCache.h"
+#import "SDImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 
-static DMImageCache *instance;
+static SDImageCache *instance;
 
-@implementation DMImageCache
+@implementation SDImageCache
 
 #pragma mark NSObject
 
@@ -81,11 +81,11 @@ static DMImageCache *instance;
 
 #pragma mark ImageCache (class methods)
 
-+ (DMImageCache *)sharedImageCache
++ (SDImageCache *)sharedImageCache
 {
     if (instance == nil)
     {
-        instance = [[DMImageCache alloc] init];
+        instance = [[SDImageCache alloc] init];
     }
     
     return instance;

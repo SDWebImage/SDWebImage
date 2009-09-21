@@ -1,6 +1,6 @@
 /*
- * This file is part of the DMWebImage package.
- * (c) Dailymotion - Olivier Poitrey <rs@dailymotion.com>
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -8,14 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@interface DMImageCache : NSObject
+@interface SDImageCache : NSObject
 {
     NSMutableDictionary *memCache;
     NSString *diskCachePath;
     NSOperationQueue *cacheInQueue;
 }
 
-+ (DMImageCache *)sharedImageCache;
++ (SDImageCache *)sharedImageCache;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk;
 - (UIImage *)imageFromKey:(NSString *)key;

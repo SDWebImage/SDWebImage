@@ -1,16 +1,16 @@
 /*
- * This file is part of the DMWebImage package.
- * (c) Dailymotion - Olivier Poitrey <rs@dailymotion.com>
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-#import "DMWebImageDownloader.h"
+#import "SDWebImageDownloader.h"
 
 static NSOperationQueue *downloadQueue;
 
-@implementation DMWebImageDownloader
+@implementation SDWebImageDownloader
 
 @synthesize url, target, action;
 
@@ -22,7 +22,7 @@ static NSOperationQueue *downloadQueue;
 
 + (id)downloaderWithURL:(NSURL *)url target:(id)target action:(SEL)action
 {
-    DMWebImageDownloader *downloader = [[[DMWebImageDownloader alloc] init] autorelease];
+    SDWebImageDownloader *downloader = [[[SDWebImageDownloader alloc] init] autorelease];
     downloader.url = url;
     downloader.target = target;
     downloader.action = action;

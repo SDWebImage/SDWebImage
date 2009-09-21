@@ -1,16 +1,16 @@
 /*
- * This file is part of the DMWebImage package.
- * (c) Dailymotion - Olivier Poitrey <rs@dailymotion.com>
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */ 
 
-#import "DMWebImageView.h"
-#import "DMImageCache.h"
-#import "DMWebImageDownloader.h"
+#import "SDWebImageView.h"
+#import "SDImageCache.h"
+#import "SDWebImageDownloader.h"
 
-@implementation DMWebImageView
+@implementation SDWebImageView
 
 - (void)dealloc
 {
@@ -41,7 +41,7 @@
         self.image = placeHolderImage;
     }
 
-    UIImage *cachedImage = [[DMImageCache sharedImageCache] imageFromKey:[url absoluteString]];
+    UIImage *cachedImage = [[SDImageCache sharedImageCache] imageFromKey:[url absoluteString]];
 
     if (cachedImage)
     {
@@ -49,7 +49,7 @@
     }
     else
     {        
-        downloader = [[DMWebImageDownloader downloaderWithURL:url target:self action:@selector(downloadFinishedWithImage:)] retain];
+        downloader = [[SDWebImageDownloader downloaderWithURL:url target:self action:@selector(downloadFinishedWithImage:)] retain];
     }
 }
 
@@ -59,7 +59,7 @@
     self.image = anImage;
 
     // Store the image in the cache
-    [[DMImageCache sharedImageCache] storeImage:anImage forKey:[downloader.url absoluteString]];
+    [[SDImageCache sharedImageCache] storeImage:anImage forKey:[downloader.url absoluteString]];
 
     // Free the downloader
     [downloader release];
