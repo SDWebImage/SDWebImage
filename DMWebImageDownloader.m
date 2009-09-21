@@ -7,9 +7,8 @@
  */
 
 #import "DMWebImageDownloader.h"
-#import "DMImageCache.h"
 
-static NSOperationQueue *queue;
+static NSOperationQueue *downloadQueue;
 
 @implementation DMWebImageDownloader
 
@@ -28,25 +27,25 @@ static NSOperationQueue *queue;
     downloader.target = target;
     downloader.action = action;
 
-    if (queue == nil)
+    if (downloadQueue == nil)
     {
-        queue = [[NSOperationQueue alloc] init];
-        queue.maxConcurrentOperationCount = 8;
+        downloadQueue = [[NSOperationQueue alloc] init];
+        downloadQueue.maxConcurrentOperationCount = 8;
     }
 
-    [queue addOperation:downloader];
+    [downloadQueue addOperation:downloader];
     
     return downloader;
 }
 
 + (void)setMaxConcurrentDownloads:(NSUInteger)max
 {
-    if (queue == nil)
+    if (downloadQueue == nil)
     {
-        queue = [[NSOperationQueue alloc] init];
+        downloadQueue = [[NSOperationQueue alloc] init];
     }
 
-    queue.maxConcurrentOperationCount = max;
+    downloadQueue.maxConcurrentOperationCount = max;
 }
 
 - (void)main 
@@ -59,8 +58,6 @@ static NSOperationQueue *queue;
     {
         [target performSelector:action withObject:image];
     }
-
-    [[DMImageCache sharedImageCache] storeImage:image forKey:[url absoluteString]];
 
     [pool release];
 }

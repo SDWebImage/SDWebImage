@@ -13,7 +13,7 @@
 @interface DMWebImageView : UIImageView
 {
     UIImage *placeHolderImage;  
-    DMWebImageDownloader *currentOperation;
+    DMWebImageDownloader *downloader;
 }
 
 - (void)setImageWithURL:(NSURL *)url;

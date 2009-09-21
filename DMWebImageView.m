@@ -15,7 +15,7 @@
 - (void)dealloc
 {
     [placeHolderImage release];
-    [currentOperation release];
+    [downloader release];
     [super dealloc];
 }
 
@@ -23,11 +23,12 @@
 
 - (void)setImageWithURL:(NSURL *)url
 {
-    if (currentOperation != nil)
+    if (downloader != nil)
     {
-        [currentOperation cancel]; // remove from queue
-        [currentOperation release];
-        currentOperation = nil;
+        // Remove in progress downloader from queue
+        [downloader cancel];
+        [downloader release];
+        downloader = nil;
     }
 
     // Save the placeholder image in order to re-apply it when view is reused
@@ -48,15 +49,21 @@
     }
     else
     {        
-        currentOperation = [[DMWebImageDownloader downloaderWithURL:url target:self action:@selector(downloadFinishedWithImage:)] retain];
+        downloader = [[DMWebImageDownloader downloaderWithURL:url target:self action:@selector(downloadFinishedWithImage:)] retain];
     }
 }
 
 - (void)downloadFinishedWithImage:(UIImage *)anImage
 {
+    // Apply image to the underlaying UIImageView
     self.image = anImage;
-    [currentOperation release];
-    currentOperation = nil;
+
+    // Store the image in the cache
+    [[DMImageCache sharedImageCache] storeImage:anImage forKey:[downloader.url absoluteString]];
+
+    // Free the downloader
+    [downloader release];
+    downloader = nil;
 }
 
 @end
