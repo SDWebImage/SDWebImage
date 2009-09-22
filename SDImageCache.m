@@ -25,7 +25,7 @@ static SDImageCache *instance;
         memCache = [[NSMutableDictionary alloc] init];
 
         // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
         		
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
