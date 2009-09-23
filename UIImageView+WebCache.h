@@ -8,15 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@class SDWebImageDownloader;
-
-@interface SDWebImageView : UIImageView
-{
-    UIImage *placeHolderImage;  
-    SDWebImageDownloader *downloader;
-}
+@interface UIImageView (WebCache)
 
 - (void)setImageWithURL:(NSURL *)url;
-- (void)downloadFinishedWithImage:(UIImage *)image;
 
 @end

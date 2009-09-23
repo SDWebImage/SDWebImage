@@ -1,8 +1,7 @@
 Web Image
 =========
 
-This library provides a drop-in remplacement for UIImageVIew with support for remote images coming
-from the web.
+This library provides a category for UIImageVIew with support for remote images coming from the web.
 
 It provides:
 
@@ -58,18 +57,39 @@ it, et voila!
 How To Use It
 -------------
 
-### SDWebImageView as UIImageWeb Drop-In Replacement
+### Using UIImageView+WebCache category with UITableView
 
-Most common use is in conjunction with an UITableView:
+Just #import the UIImageView+WebCache.h header, and call the setImageWithURL: method from the
+tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be handled for you,
+from parallel downloads to caching management. If you assigned an image to the view (via the
+`images` property), this image will be used as a placeholder, waiting for the web image to be
+loaded.
 
-- Place an UIImageView as a subview of your UITableViewCell in Interface Builder
-- Set its class to SDImageView in the identity panel.
-- Optionally set an image from your bundle to this UIImageView, it will be used as a placeholder
-  image waiting for the real image to be downloaded.
-- In your tableView:cellForRowAtIndexPath: UITableViewDataSource method, invoke the setImageWithURL:
-  method of the SDWebImage view with the URL of the image to download
+    #import "UIImageView+WebCache.h"
 
-Your done, everything will be handled for you, from parallel downloads to caching management.
+    ...
+
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+    {
+        static NSString *MyIdentifier = @"MyIdentifier";
+
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+
+        if (cell == nil)
+        {
+            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                           reuseIdentifier:MyIdentifier] autorelease];
+
+            // Here we set the placeholder image
+            cell.imageView.image = [UIImage imageNamed:@"placeholder.png"];
+        }
+
+        // Here we use the new provided setImageWithURL: method to load the web image
+        [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]];
+
+        cell.textLabel.text = @"My Text";
+        return cell;
+    }
 
 ### Asynchronous Image Downloader
 
