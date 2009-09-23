@@ -7,19 +7,18 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "SDWebImageDownloaderDelegate.h"
 
 @interface SDWebImageDownloader : NSOperation
 {
     NSURL *url;
-    id target;
-    SEL action;
+    id<SDWebImageDownloaderDelegate> delegate;
 }
 
 @property (retain) NSURL *url;
-@property (assign) id target;
-@property (assign) SEL action;
+@property (assign) id<SDWebImageDownloaderDelegate> delegate;
 
-+ (id)downloaderWithURL:(NSURL *)url target:(id)target action:(SEL)action;
++ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate;
 + (void)setMaxConcurrentDownloads:(NSUInteger)max;
 
 @end

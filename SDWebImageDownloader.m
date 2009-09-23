@@ -12,7 +12,7 @@ static NSOperationQueue *downloadQueue;
 
 @implementation SDWebImageDownloader
 
-@synthesize url, target, action;
+@synthesize url, delegate;
 
 - (void)dealloc
 {
@@ -20,12 +20,11 @@ static NSOperationQueue *downloadQueue;
     [super dealloc];
 }
 
-+ (id)downloaderWithURL:(NSURL *)url target:(id)target action:(SEL)action
++ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate
 {
     SDWebImageDownloader *downloader = [[[SDWebImageDownloader alloc] init] autorelease];
     downloader.url = url;
-    downloader.target = target;
-    downloader.action = action;
+    downloader.delegate = delegate;
 
     if (downloadQueue == nil)
     {
@@ -54,9 +53,9 @@ static NSOperationQueue *downloadQueue;
 
     UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
     
-    if (!self.isCancelled)
+    if (!self.isCancelled && [delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-        [target performSelector:action withObject:image];
+        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
     }
 
     [pool release];

@@ -7,48 +7,42 @@
  */ 
 
 #import "UIImageView+WebCache.h"
-#import "UIImageViewHelper.h"
+#import "SDWebImageManager.h"
 
 @implementation UIImageView (WebCache)
 
 - (void)setImageWithURL:(NSURL *)url
 {
-    UIImageViewHelper *helper = nil;
+    [self setImageWithURL:url placeholderImage:nil];
+}
 
-    if ([self.subviews count] > 0)
-    {
-        helper = [self.subviews objectAtIndex:0];
-    }
-
-    if (helper == nil)
-    {
-        helper = [[[UIImageViewHelper alloc] initWithDelegate:self] autorelease];
-        [self addSubview:helper];
-    }
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
     // Remove in progress downloader from queue
-    [helper cancel];
-    
-    // Save the placeholder image in order to re-apply it when view is reused
-    if (helper.placeHolderImage == nil)
-    {
-        helper.placeHolderImage = self.image;
-    }
-    else
-    {
-        self.image = helper.placeHolderImage;
-    }
-    
-    UIImage *cachedImage = [helper imageWithURL:url];
-    
+    [manager cancelForDelegate:self];
+
+    UIImage *cachedImage = [manager imageWithURL:url];
+
     if (cachedImage)
     {
         self.image = cachedImage;
     }
     else
     {
-        [helper downloadWithURL:url];
+        if (placeholder)
+        {
+            self.image = placeholder;
+        }
+
+        [manager downloadWithURL:url delegate:self];
     }
+}
+
+- (void)imageHelper:(SDWebImageManager *)imageHelper didFinishWithImage:(UIImage *)image
+{
+    self.image = image;
 }
 
 @end

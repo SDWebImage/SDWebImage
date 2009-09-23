@@ -5,9 +5,12 @@ This library provides a category for UIImageVIew with support for remote images 
 
 It provides:
 
-- Drop-in replacement to UIImageView
-- Asynchronous image downloader
-- Asynchronous memory + disk image caching with automatic cache expiration handling
+- An UIImageView category adding web image and cache management to the Cocoa Touch framework
+- An asynchronous image downloader using threads (NSOperation)
+- An asynchronous memory + disk image caching with automatic cache expiration handling
+- A garantie that the same URL won't be downloaded several times
+- A garantie that bogus URLs won't be retried again and again
+- Performances!
 
 Motivation
 ----------
@@ -59,11 +62,9 @@ How To Use It
 
 ### Using UIImageView+WebCache category with UITableView
 
-Just #import the UIImageView+WebCache.h header, and call the setImageWithURL: method from the
-tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be handled for you,
-from parallel downloads to caching management. If you assigned an image to the view (via the
-`images` property), this image will be used as a placeholder, waiting for the web image to be
-loaded.
+Just #import the UIImageView+WebCache.h header, and call the setImageWithURL:placeholderImage:
+method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be
+handled for you, from parallel downloads to caching management.
 
     #import "UIImageView+WebCache.h"
 
@@ -79,31 +80,58 @@ loaded.
         {
             cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                            reuseIdentifier:MyIdentifier] autorelease];
-
-            // Here we set the placeholder image
-            cell.imageView.image = [UIImage imageNamed:@"placeholder.png"];
         }
 
         // Here we use the new provided setImageWithURL: method to load the web image
-        [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]];
+        [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                       placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
 
         cell.textLabel.text = @"My Text";
         return cell;
     }
 
-### Asynchronous Image Downloader
+### Using SDWebImageManager
+
+The SDWebImageManager is the class behind the UIImageView+WebCache category. It ties the
+asynchronous downloader with the image cache store. You can use this classe directly to benefits
+from web image downloading with caching in another context than a UIView (ie: with Cocos).
+
+Here is a simple example of how to use SDWebImageManager:
+
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+
+    UIImage *cachedImage = [manager imageWithURL:url];
+
+    if (cachedImage)
+    {
+        // Use the cached image immediatly
+    }
+    else
+    {
+        // Start an async download
+        [manager downloadWithURL:url delegate:self];
+    }
+
+Your class will have to implement the SDWebImageManagerDelegate protocol, and to implement the
+imageHelper:didFinishWithImage: method from this protocol:
+
+    - (void)imageHelper:(SDWebImageManager *)imageHelper didFinishWithImage:(UIImage *)image
+    {
+        // Do something with the downloaded image
+    }
+
+### Using Asynchronous Image Downloader Independently
 
 It is possible to use the NSOperation based image downloader independently. Just create an instance
 of SDWebImageDownloader using its convenience constructor downloaderWithURL:target:action:.
 
-    downloader = [SDWebImageDownloader downloaderWithURL:url
-                                                  target:self
-                                                  action:@selector(downloadFinishedWithImage:)];
+    downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
 
-The download will by queued immediately and the downloadFinishedWithImage: method will be called as
-soon as the download of image will be completed (prepare not to be called from the main thread).
+The download will by queued immediately and the imageDownloader:didFinishWithImage: method from the
+SDWebImageDownloaderDelegate protocol will be called as soon as the download of image is completed
+(prepare not to be called from the main thread).
 
-### Asynchronous Image Caching
+### Using Asynchronous Image Caching Independently
 
 It is also possible to use the NSOperation based image cache store independently. SDImageCache
 maintains a memory cache and an optional disk cache. Disk cache write operations are performed
@@ -134,9 +162,7 @@ third argument.
 Future Enhancements
 -------------------
 
-- Easy way to use it with default UITableView styles without requiring to create a custom UITableViewCell
 - LRU memory cache cleanup instead of reset on memory warning
-
 
 [Dailymotion]: http://www.dailymotion.com
 [Fraggle]: http://fraggle.squarespace.com
