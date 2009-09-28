@@ -12,6 +12,6 @@
 
 @optional
 
-- (void)imageHelper:(SDWebImageManager *)imageHelper didFinishWithImage:(UIImage *)image;
+- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image;
 
 @end

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SDWebImageDownloaderDelegate.h"
-#import "SDWebImageHelperDelegate.h"
+#import "SDWebImageManagerDelegate.h"
 
 @interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate>
 {

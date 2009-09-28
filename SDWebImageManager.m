@@ -92,7 +92,6 @@ static SDWebImageManager *instance;
 
         if (![downloaders containsObject:downloader])
         {
-            NSLog(@"cancel download");
             // No more delegate are waiting for this download, cancel it
             [downloader cancel];
             [downloaderForURL removeObjectForKey:downloader.url];
@@ -116,9 +115,9 @@ static SDWebImageManager *instance;
             {
                 id<SDWebImageManagerDelegate> delegate = [delegates objectAtIndex:index];
 
-                if (image && [delegate respondsToSelector:@selector(imageHelper:didFinishWithImage:)])
+                if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
                 {
-                    [delegate performSelector:@selector(imageHelper:didFinishWithImage:) withObject:self withObject:image];
+                    [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
                 }
 
                 [downloaders removeObjectAtIndex:index];
