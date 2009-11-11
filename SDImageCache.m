@@ -15,11 +15,23 @@ static SDImageCache *instance;
 
 @implementation SDImageCache
 
+#pragma mark SDImageCache (notification handlers)
+
+- (void)didReceiveMemoryWarning:(void *)object
+{
+    [self clearMemory];
+}
+
+- (void)willTerminate
+{
+    [self cleanDisk];
+}
+
 #pragma mark NSObject
 
 - (id)init
 {
-    if (self = [super init])
+    if ((self = [super init]))
     {
         // Init the memory cache
         memCache = [[NSMutableDictionary alloc] init];
@@ -69,17 +81,7 @@ static SDImageCache *instance;
     [super dealloc];
 }
 
-- (void)didReceiveMemoryWarning:(void *)object
-{
-    [self clearMemory];
-}
-
-- (void)willTerminate
-{
-    [self cleanDisk];
-}
-
-#pragma mark ImageCache (class methods)
+#pragma mark SDImageCache (class methods)
 
 + (SDImageCache *)sharedImageCache
 {
@@ -91,7 +93,7 @@ static SDImageCache *instance;
     return instance;
 }
 
-#pragma mark ImageCache (private)
+#pragma mark SDImageCache (private)
 
 - (NSString *)cachePathForKey:(NSString *)key
 {
@@ -110,7 +112,7 @@ static SDImageCache *instance;
 
     if (image != nil)
     {
-        [[NSFileManager defaultManager] createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, 1.0) attributes:nil];
+        [[NSFileManager defaultManager] createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
         [image release];
     }
 }

@@ -16,7 +16,7 @@ static SDWebImageManager *instance;
 
 - (id)init
 {
-    if (self = [super init])
+    if ((self = [super init]))
     {
         delegates = [[NSMutableArray alloc] init];
         downloaders = [[NSMutableArray alloc] init];
@@ -78,17 +78,17 @@ static SDWebImageManager *instance;
 {
     @synchronized(self)
     {
-        NSUInteger index = [delegates indexOfObjectIdenticalTo:delegate];
+        NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
 
-        if (index == NSNotFound)
+        if (idx == NSNotFound)
         {
             return;
         }
 
-        SDWebImageDownloader *downloader = [[downloaders objectAtIndex:index] retain];
+        SDWebImageDownloader *downloader = [[downloaders objectAtIndex:idx] retain];
     
-        [delegates removeObjectAtIndex:index];
-        [downloaders removeObjectAtIndex:index];
+        [delegates removeObjectAtIndex:idx];
+        [downloaders removeObjectAtIndex:idx];
 
         if (![downloaders containsObject:downloader])
         {
@@ -108,20 +108,20 @@ static SDWebImageManager *instance;
     @synchronized(self)
     {
         // Notify all the delegates with this downloader
-        for (NSInteger index = [downloaders count] - 1; index >= 0; index--)
+        for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx--)
         {
-            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:index];
+            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
             if (aDownloader == downloader)
             {
-                id<SDWebImageManagerDelegate> delegate = [delegates objectAtIndex:index];
+                id<SDWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
 
                 if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
                 {
                     [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
                 }
 
-                [downloaders removeObjectAtIndex:index];
-                [delegates removeObjectAtIndex:index];
+                [downloaders removeObjectAtIndex:idx];
+                [delegates removeObjectAtIndex:idx];
             }
         }
     }
