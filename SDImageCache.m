@@ -126,7 +126,7 @@ static SDImageCache *instance;
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
-    if (image == nil)
+    if (image == nil || key == nil)
     {
         return;
     }
@@ -146,6 +146,11 @@ static SDImageCache *instance;
 
 - (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk
 {
+    if (key == nil)
+    {
+        return nil;
+    }
+
     UIImage *image = [memCache objectForKey:key];
 
     if (!image && fromDisk)
@@ -163,6 +168,11 @@ static SDImageCache *instance;
 
 - (void)removeImageForKey:(NSString *)key
 {
+    if (key == nil)
+    {
+        return;
+    }
+
     [memCache removeObjectForKey:key];
     [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
 }

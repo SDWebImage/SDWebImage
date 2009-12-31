@@ -53,7 +53,7 @@ static SDWebImageManager *instance;
 
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate
 {
-    if ([failedURLs containsObject:url])
+    if (url == nil || [failedURLs containsObject:url])
     {
         return;
     }
