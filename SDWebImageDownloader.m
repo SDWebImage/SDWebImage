@@ -47,11 +47,13 @@ static NSOperationQueue *downloadQueue;
     downloadQueue.maxConcurrentOperationCount = max;
 }
 
-- (void)main 
+- (void)main
 {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+    // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
+    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
+    UIImage *image = [UIImage imageWithData:[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:NULL]];
     
     if (!self.isCancelled && [delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
