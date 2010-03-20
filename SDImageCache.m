@@ -159,7 +159,7 @@ static SDImageCache *instance;
         if (image != nil)
         {
             [memCache setObject:image forKey:key];
-            [image release];
+            [image autorelease];
         }
     }
 
