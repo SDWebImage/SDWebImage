@@ -16,7 +16,7 @@ static NSOperationQueue *downloadQueue;
 
 - (void)dealloc
 {
-    [url release];
+    [url release], url = nil;
     [super dealloc];
 }
 
@@ -33,7 +33,7 @@ static NSOperationQueue *downloadQueue;
     }
 
     [downloadQueue addOperation:downloader];
-    
+
     return downloader;
 }
 
@@ -54,7 +54,7 @@ static NSOperationQueue *downloadQueue;
     // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
     UIImage *image = [UIImage imageWithData:[NSURLConnection sendSynchronousRequest:request returningResponse:nil error:NULL]];
-    
+
     if (!self.isCancelled && [delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];

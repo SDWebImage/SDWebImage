@@ -4,7 +4,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */ 
+ */
 
 #import "SDWebImageManager.h"
 #import "SDImageCache.h"
@@ -26,12 +26,12 @@ static SDWebImageManager *instance;
     return self;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
-    [delegates release];
-    [downloaders release];
-    [downloaderForURL release];
-    [failedURLs release];
+    [delegates release], delegates = nil;
+    [downloaders release], downloaders = nil;
+    [downloaderForURL release], downloaderForURL = nil;
+    [failedURLs release], failedURLs = nil;
     [super dealloc];
 }
 
@@ -86,7 +86,7 @@ static SDWebImageManager *instance;
         }
 
         SDWebImageDownloader *downloader = [[downloaders objectAtIndex:idx] retain];
-    
+
         [delegates removeObjectAtIndex:idx];
         [downloaders removeObjectAtIndex:idx];
 

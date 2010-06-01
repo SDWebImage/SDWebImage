@@ -4,7 +4,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */ 
+ */
 
 #import "SDImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
@@ -39,7 +39,7 @@ static SDImageCache *instance;
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
-        		
+
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
         {
             [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
@@ -52,13 +52,13 @@ static SDImageCache *instance;
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveMemoryWarning:)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification  
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willTerminate)
-                                                     name:UIApplicationWillTerminateNotification  
-                                                   object:nil];        
+                                                     name:UIApplicationWillTerminateNotification
+                                                   object:nil];
     }
 
     return self;
@@ -66,18 +66,18 @@ static SDImageCache *instance;
 
 - (void)dealloc
 {
-    [memCache release];
-    [diskCachePath release];
-    [cacheInQueue release];
+    [memCache release], memCache = nil;
+    [diskCachePath release], diskCachePath = nil;
+    [cacheInQueue release], cacheInQueue = nil;
 
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidReceiveMemoryWarningNotification  
-                                                  object:nil];  
+                                                    name:UIApplicationDidReceiveMemoryWarningNotification
+                                                  object:nil];
 
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationWillTerminateNotification  
-                                                  object:nil];  
-    
+                                                    name:UIApplicationWillTerminateNotification
+                                                  object:nil];
+
     [super dealloc];
 }
 
@@ -89,7 +89,7 @@ static SDImageCache *instance;
     {
         instance = [[SDImageCache alloc] init];
     }
-    
+
     return instance;
 }
 
@@ -134,7 +134,7 @@ static SDImageCache *instance;
     [memCache setObject:image forKey:key];
 
     if (toDisk)
-    {        
+    {
         [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(storeKeyToDisk:) object:key] autorelease]];
     }
 }
@@ -187,7 +187,7 @@ static SDImageCache *instance;
 {
     [cacheInQueue cancelAllOperations];
     [[NSFileManager defaultManager] removeItemAtPath:diskCachePath error:nil];
-    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];    
+    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
 }
 
 - (void)cleanDisk
