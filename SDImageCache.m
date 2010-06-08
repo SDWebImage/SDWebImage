@@ -15,18 +15,6 @@ static SDImageCache *instance;
 
 @implementation SDImageCache
 
-#pragma mark SDImageCache (notification handlers)
-
-- (void)didReceiveMemoryWarning:(void *)object
-{
-    [self clearMemory];
-}
-
-- (void)willTerminate
-{
-    [self cleanDisk];
-}
-
 #pragma mark NSObject
 
 - (id)init
@@ -51,14 +39,24 @@ static SDImageCache *instance;
 
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveMemoryWarning:)
+                                                 selector:@selector(clearMemory)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willTerminate)
+                                                 selector:@selector(cleanDisk)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
+
+        UIDevice *device = [UIDevice currentDevice];
+        if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
+        {
+            // When in background, clean memory in order to have less chance to be killed
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(clearMemory)
+                                                         name:UIApplicationDidEnterBackgroundNotification
+                                                       object:nil];
+        }
     }
 
     return self;
@@ -70,13 +68,7 @@ static SDImageCache *instance;
     [diskCachePath release], diskCachePath = nil;
     [cacheInQueue release], cacheInQueue = nil;
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidReceiveMemoryWarningNotification
-                                                  object:nil];
-
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationWillTerminateNotification
-                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     [super dealloc];
 }
