@@ -30,7 +30,10 @@ static SDImageCache *instance;
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
         {
-            [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
+            [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+                                      withIntermediateDirectories:YES
+                                                       attributes:nil
+                                                            error:NULL];
         }
 
         // Init the operation queue
@@ -179,7 +182,10 @@ static SDImageCache *instance;
 {
     [cacheInQueue cancelAllOperations];
     [[NSFileManager defaultManager] removeItemAtPath:diskCachePath error:nil];
-    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
+    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:NULL];
 }
 
 - (void)cleanDisk
