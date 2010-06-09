@@ -6,7 +6,7 @@ This library provides a category for UIImageVIew with support for remote images 
 It provides:
 
 - An UIImageView category adding web image and cache management to the Cocoa Touch framework
-- An asynchronous image downloader using threads (NSOperation)
+- An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
 - A garantie that the same URL won't be downloaded several times
 - A garantie that bogus URLs won't be retried again and again
@@ -39,23 +39,21 @@ time faster than my own servers... WTF??
 
 In fact, my servers were well but a lot of latency was added to the requests, certainly because my
 application wasn't responsive enough to handle the requests at full speed. At this moment, I
-understood something important, asynchronous NSURLConnections are tied to the main runloop (I
-guess). It's certainly based on the poll multiplexer system call, which allows a single thread to
-handle quite a huge number of simultaneous connections. It works well while nothing blocks in the
-loop, but in this loop, there is also the events handling. A simple test to recognize an application
-using NSURLConnection to load there remote images is to scroll the UITableView with your finger to
-disclose an unloaded image, and to keep your finger pressed on the screen. If the image doesn't load
-until you release you finger, the application is certainly using NSURLConnection (try with the
-Facebook app for instance). I'm not completely clear about the reason of this blocking, I thought
-the iPhone was running a dedicated run-loop for connections, but the fact is, NSURLConnection is
-affected by the application events and/or UI handling (or something else I'm not aware of).
+understood something important, asynchronous NSURLConnections are tied to the main runloop in the
+NSEventTrackingRunLoopMode. As explained in the documentation, this runloop mode is affected by
+UI events:
 
-Thus I explored another path and found this marvelous NSOperation class to handle concurrency with
-love. I ran some quick tests with this tool and I instantly got enhanced responsiveness of the image
-loading in my UITableView by... a lot. Thus I rewrote the [Fraggle][]'s implementation using the
-same concept of drop-in remplacement for UIImageView but with this new technic. I thought the result
-could benefits to a lot of other applications, thus we decided, with [Fraggle][], to open-sourced
-it, et voila!
+> Cocoa uses this mode to restrict incoming events during mouse-dragging loops and other sorts of
+> user interface tracking loops.
+
+A simple test to recognize an application using NSURLConnection in its default mode to load there
+remote images is to scroll the UITableView with your finger to disclose an unloaded image, and to
+keep your finger pressed on the screen. If the image doesn't load until you release you finger,
+you've got one (try with the Facebook app for instance). It took me quite some time to understand
+the reason for this lagging issue. Actually I first used NSOperation to workaround this issue.
+
+This technic combined with an image cache instantly gave a lot of responsiveness to my app.
+I thought this lib could benefits to a lot of other Cocoa Touch application so I open-sourced it.
 
 How To Use It
 -------------
@@ -64,7 +62,7 @@ How To Use It
 
 Just #import the UIImageView+WebCache.h header, and call the setImageWithURL:placeholderImage:
 method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be
-handled for you, from parallel downloads to caching management.
+handled for you, from async downloads to caching management.
 
     #import "UIImageView+WebCache.h"
 
@@ -122,14 +120,13 @@ imageHelper:didFinishWithImage: method from this protocol:
 
 ### Using Asynchronous Image Downloader Independently
 
-It is possible to use the NSOperation based image downloader independently. Just create an instance
-of SDWebImageDownloader using its convenience constructor downloaderWithURL:target:action:.
+It is possible to use the async image downloader independently. You just have to create an instance
+of SDWebImageDownloader using its convenience constructor downloaderWithURL:delegate:.
 
     downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
 
-The download will by queued immediately and the imageDownloader:didFinishWithImage: method from the
-SDWebImageDownloaderDelegate protocol will be called as soon as the download of image is completed
-(prepare not to be called from the main thread).
+The download will start immediately and the imageDownloader:didFinishWithImage: method from the
+SDWebImageDownloaderDelegate protocol will be called as soon as the download of image is completed.
 
 ### Using Asynchronous Image Caching Independently
 

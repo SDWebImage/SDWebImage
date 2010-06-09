@@ -67,62 +67,53 @@ static SDWebImageManager *instance;
         [downloaderForURL setObject:downloader forKey:url];
     }
 
-    @synchronized(self)
-    {
-        [delegates addObject:delegate];
-        [downloaders addObject:downloader];
-    }
+    [delegates addObject:delegate];
+    [downloaders addObject:downloader];
 }
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
 {
-    @synchronized(self)
+    NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
+
+    if (idx == NSNotFound)
     {
-        NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
-
-        if (idx == NSNotFound)
-        {
-            return;
-        }
-
-        SDWebImageDownloader *downloader = [[downloaders objectAtIndex:idx] retain];
-
-        [delegates removeObjectAtIndex:idx];
-        [downloaders removeObjectAtIndex:idx];
-
-        if (![downloaders containsObject:downloader])
-        {
-            // No more delegate are waiting for this download, cancel it
-            [downloader cancel];
-            [downloaderForURL removeObjectForKey:downloader.url];
-        }
-
-        [downloader release];
+        return;
     }
+
+    SDWebImageDownloader *downloader = [[downloaders objectAtIndex:idx] retain];
+
+    [delegates removeObjectAtIndex:idx];
+    [downloaders removeObjectAtIndex:idx];
+
+    if (![downloaders containsObject:downloader])
+    {
+        // No more delegate are waiting for this download, cancel it
+        [downloader cancel];
+        [downloaderForURL removeObjectForKey:downloader.url];
+    }
+
+    [downloader release];
 }
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {
     [downloader retain];
 
-    @synchronized(self)
+    // Notify all the delegates with this downloader
+    for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx--)
     {
-        // Notify all the delegates with this downloader
-        for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx--)
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
+        if (aDownloader == downloader)
         {
-            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
-            if (aDownloader == downloader)
+            id<SDWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
+
+            if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
             {
-                id<SDWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
-
-                if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
-                {
-                    [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
-                }
-
-                [downloaders removeObjectAtIndex:idx];
-                [delegates removeObjectAtIndex:idx];
+                [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
             }
+
+            [downloaders removeObjectAtIndex:idx];
+            [delegates removeObjectAtIndex:idx];
         }
     }
 
