@@ -51,6 +51,7 @@ static SDImageCache *instance;
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
+        #ifdef __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
         {
@@ -60,6 +61,7 @@ static SDImageCache *instance;
                                                          name:UIApplicationDidEnterBackgroundNotification
                                                        object:nil];
         }
+        #endif
     }
 
     return self;
