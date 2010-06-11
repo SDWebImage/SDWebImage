@@ -46,7 +46,7 @@
     }
 }
 
-- (void)cancelCurrentImageLoading
+- (void)cancelCurrentImageLoad
 {
     [[SDWebImageManager sharedManager] cancelForDelegate:self];
 }

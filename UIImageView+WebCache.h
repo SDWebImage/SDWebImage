@@ -13,6 +13,6 @@
 
 - (void)setImageWithURL:(NSURL *)url;
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
-- (void)cancelCurrentImageLoading;
+- (void)cancelCurrentImageLoad;
 
 @end
