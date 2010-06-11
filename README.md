@@ -111,9 +111,9 @@ Here is a simple example of how to use SDWebImageManager:
     }
 
 Your class will have to implement the SDWebImageManagerDelegate protocol, and to implement the
-imageHelper:didFinishWithImage: method from this protocol:
+webImageManager:didFinishWithImage: method from this protocol:
 
-    - (void)imageHelper:(SDWebImageManager *)imageHelper didFinishWithImage:(UIImage *)image
+    - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
     {
         // Do something with the downloaded image
     }
