@@ -23,13 +23,11 @@
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
 
-    if (!url)
+    UIImage *cachedImage = nil;
+    if (url)
     {
-        self.image = nil;
-        return;
+        cachedImage = [manager imageWithURL:url];
     }
-
-    UIImage *cachedImage = [manager imageWithURL:url];
 
     if (cachedImage)
     {
@@ -42,7 +40,10 @@
             self.image = placeholder;
         }
 
-        [manager downloadWithURL:url delegate:self];
+        if (url)
+        {
+            [manager downloadWithURL:url delegate:self];
+        }
     }
 }
 
