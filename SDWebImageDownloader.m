@@ -23,7 +23,7 @@
     SDWebImageDownloader *downloader = [[[SDWebImageDownloader alloc] init] autorelease];
     downloader.url = url;
     downloader.delegate = delegate;
-    [downloader start];
+    [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
     return downloader;
 }
 
