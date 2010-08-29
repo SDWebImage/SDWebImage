@@ -20,6 +20,7 @@
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, assign) id<SDWebImageDownloaderDelegate> delegate;
+@property (nonatomic, retain) NSMutableData *imageData;
 
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate;
 - (void)start;

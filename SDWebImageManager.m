@@ -120,7 +120,10 @@ static SDWebImageManager *instance;
     if (image)
     {
         // Store the image in the cache
-        [[SDImageCache sharedImageCache] storeImage:image forKey:[downloader.url absoluteString]];
+        [[SDImageCache sharedImageCache] storeImage:image
+                                          imageData:downloader.imageData
+                                             forKey:[downloader.url absoluteString]
+                                             toDisk:YES];
     }
     else
     {

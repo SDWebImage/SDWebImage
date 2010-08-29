@@ -10,7 +10,7 @@
 
 @interface SDImageCache : NSObject
 {
-    NSMutableDictionary *memCache;
+    NSMutableDictionary *memCache, *storeDataQueue;
     NSString *diskCachePath;
     NSOperationQueue *cacheInQueue;
 }
@@ -18,6 +18,7 @@
 + (SDImageCache *)sharedImageCache;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk;
+- (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 - (UIImage *)imageFromKey:(NSString *)key;
 - (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;
 - (void)removeImageForKey:(NSString *)key;
