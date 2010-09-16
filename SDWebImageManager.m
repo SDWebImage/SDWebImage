@@ -46,6 +46,9 @@ static SDWebImageManager *instance;
     return instance;
 }
 
+/**
+ * @deprecated
+ */
 - (UIImage *)imageWithURL:(NSURL *)url
 {
     return [[SDImageCache sharedImageCache] imageFromKey:[url absoluteString]];
@@ -53,22 +56,14 @@ static SDWebImageManager *instance;
 
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate
 {
-    if (url == nil || [failedURLs containsObject:url])
+    if (!url || !delegate || [failedURLs containsObject:url])
     {
         return;
     }
 
-    // Share the same downloader for identical URLs so we don't download the same URL several times
-    SDWebImageDownloader *downloader = [downloaderForURL objectForKey:url];
-
-    if (!downloader)
-    {
-        downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
-        [downloaderForURL setObject:downloader forKey:url];
-    }
-
-    [delegates addObject:delegate];
-    [downloaders addObject:downloader];
+    // Check the on-disk cache async so we don't block the main thread
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", nil];
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
 }
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
@@ -94,6 +89,37 @@ static SDWebImageManager *instance;
 
     [downloader release];
 }
+
+#pragma mark SDImageCacheDelegate
+
+- (void)imageCache:(SDImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
+{
+    id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
+    {
+        [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
+    }
+}
+
+- (void)imageCache:(SDImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
+{
+    NSURL *url = [info objectForKey:@"url"];
+    id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+
+    // Share the same downloader for identical URLs so we don't download the same URL several times
+    SDWebImageDownloader *downloader = [downloaderForURL objectForKey:url];
+
+    if (!downloader)
+    {
+        downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
+        [downloaderForURL setObject:downloader forKey:url];
+    }
+
+    [delegates addObject:delegate];
+    [downloaders addObject:downloader];
+}
+
+#pragma mark SDWebImageDownloaderDelegate
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {

@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "SDWebImageDownloaderDelegate.h"
 #import "SDWebImageManagerDelegate.h"
+#import "SDImageCacheDelegate.h"
 
-@interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate>
+@interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
 {
     NSMutableArray *delegates;
     NSMutableArray *downloaders;
