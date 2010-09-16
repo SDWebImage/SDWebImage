@@ -28,6 +28,10 @@
     {
         cachedImage = [manager imageWithURL:url];
     }
+    else
+    {
+        self.image = placeholder;
+    }
 
     if (cachedImage)
     {
