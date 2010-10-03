@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageDownloaderDelegate.h"
 
+extern NSString *const SDWebImageDownloadStartNotification;
+extern NSString *const SDWebImageDownloadStopNotification;
+
 @interface SDWebImageDownloader : NSObject
 {
     @private

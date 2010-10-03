@@ -8,6 +8,9 @@
 
 #import "SDWebImageDownloader.h"
 
+NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
+NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
+
 @interface SDWebImageDownloader ()
 @property (nonatomic, retain) NSURLConnection *connection;
 @end
@@ -19,6 +22,19 @@
 
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate
 {
+    // Bind SDNetworkActivityIndicator if available (download it here: http://github.com/rs/SDNetworkActivityIndicator )
+    // To use it, just add #import "SDNetworkActivityIndicator.h" in addition to the SDWebImage import
+    if (NSClassFromString(@"SDNetworkActivityIndicator"))
+    {
+        id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
+        [[NSNotificationCenter defaultCenter] addObserver:activityIndicator
+                                                 selector:NSSelectorFromString(@"startActivity")
+                                                     name:SDWebImageDownloadStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:activityIndicator
+                                                 selector:NSSelectorFromString(@"stopActivity")
+                                                     name:SDWebImageDownloadStopNotification object:nil];
+    }
+
     SDWebImageDownloader *downloader = [[[SDWebImageDownloader alloc] init] autorelease];
     downloader.url = url;
     downloader.delegate = delegate;
@@ -44,6 +60,7 @@
     if (connection)
     {
         self.imageData = [NSMutableData data];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:nil];
     }
     else
     {
@@ -60,6 +77,7 @@
     {
         [connection cancel];
         self.connection = nil;
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
     }
 }
 
@@ -70,9 +88,12 @@
     [imageData appendData:data];
 }
 
+#pragma GCC diagnostic ignored "-Wundeclared-selector"
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {
     self.connection = nil;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
     if ([delegate respondsToSelector:@selector(imageDownloaderDidFinish:)])
     {
@@ -89,6 +110,8 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
+    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+
     if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
     {
         [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
@@ -102,6 +125,7 @@
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [url release], url = nil;
     [connection release], connection = nil;
     [imageData release], imageData = nil;
