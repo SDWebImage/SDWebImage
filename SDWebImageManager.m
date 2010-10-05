@@ -56,7 +56,12 @@ static SDWebImageManager *instance;
 
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate
 {
-    if (!url || !delegate || [failedURLs containsObject:url])
+    [self downloadWithURL: url delegate:delegate retryFailed:NO];
+}
+
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
+{
+    if (!url || !delegate || (!retryFailed && [failedURLs containsObject:url]))
     {
         return;
     }
