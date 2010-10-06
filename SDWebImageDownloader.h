@@ -19,12 +19,15 @@ extern NSString *const SDWebImageDownloadStopNotification;
     id<SDWebImageDownloaderDelegate> delegate;
     NSURLConnection *connection;
     NSMutableData *imageData;
+	id userInfo;
 }
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, assign) id<SDWebImageDownloaderDelegate> delegate;
 @property (nonatomic, retain) NSMutableData *imageData;
+@property (nonatomic, retain) id userInfo;
 
++ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo;
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate;
 - (void)start;
 - (void)cancel;
