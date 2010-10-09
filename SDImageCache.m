@@ -25,7 +25,6 @@ static SDImageCache *instance;
         memCache = [[NSMutableDictionary alloc] init];
 
         // Init the disk cache
-        storeDataQueue = [[NSMutableDictionary alloc] init];
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
 
@@ -75,7 +74,6 @@ static SDImageCache *instance;
     [memCache release], memCache = nil;
     [diskCachePath release], diskCachePath = nil;
     [cacheInQueue release], cacheInQueue = nil;
-    [storeDataQueue release], storeDataQueue = nil;
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
@@ -107,19 +105,17 @@ static SDImageCache *instance;
     return [diskCachePath stringByAppendingPathComponent:filename];
 }
 
-- (void)storeKeyToDisk:(NSString *)key
+- (void)storeKeyWithDataToDisk:(NSArray *)keyAndData
 {
     // Can't use defaultManager another thread
     NSFileManager *fileManager = [[NSFileManager alloc] init];
 
-    NSData *data = [storeDataQueue objectForKey:key];
+    NSString *key = [keyAndData objectAtIndex:0];
+    NSData *data = [keyAndData count] > 1 ? [keyAndData objectAtIndex:1] : nil;
+
     if (data)
     {
         [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
-        @synchronized(storeDataQueue)
-        {
-            [storeDataQueue removeObjectForKey:key];
-        }
     }
     else
     {
@@ -193,8 +189,18 @@ static SDImageCache *instance;
 
     if (toDisk)
     {
-        [storeDataQueue setObject:data forKey:key];
-        [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(storeKeyToDisk:) object:key] autorelease]];
+        NSArray *keyWithData;
+        if (data)
+        {
+            keyWithData = [NSArray arrayWithObjects:key, data, nil];
+        }
+        else
+        {
+            keyWithData = [NSArray arrayWithObjects:key, nil];
+        }
+        [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self
+                                                                         selector:@selector(storeKeyWithDataToDisk:)
+                                                                           object:keyWithData] autorelease]];
     }
 }
 
