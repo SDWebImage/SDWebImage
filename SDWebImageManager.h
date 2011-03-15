@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
 #import "SDWebImageDownloaderDelegate.h"
 #import "SDWebImageManagerDelegate.h"
 #import "SDImageCacheDelegate.h"

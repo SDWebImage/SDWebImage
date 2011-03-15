@@ -41,7 +41,8 @@ static SDImageCache *instance;
         cacheInQueue.maxConcurrentOperationCount = 1;
         cacheOutQueue = [[NSOperationQueue alloc] init];
         cacheOutQueue.maxConcurrentOperationCount = 1;
-
+#if !TARGET_OS_IPHONE
+#else
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
@@ -64,6 +65,7 @@ static SDImageCache *instance;
                                                        object:nil];
         }
         #endif
+#endif
     }
 
     return self;
@@ -98,7 +100,7 @@ static SDImageCache *instance;
 {
     const char *str = [key UTF8String];
     unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, strlen(str), r);
+    CC_MD5(str, (CC_LONG)strlen(str), r);
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
 
@@ -124,8 +126,14 @@ static SDImageCache *instance;
         UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
         if (image)
         {
+#if !TARGET_OS_IPHONE
+            NSArray*  representations  = [image representations];
+            NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
+            [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
+#else
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
             [image release];
+#endif
         }
     }
 

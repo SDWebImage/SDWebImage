@@ -6,7 +6,7 @@
 //  Copyright 2010 Dailymotion. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
 
 @class SDImageCache;
 
