@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageDownloaderDelegate.h"
+#import "SDWebImageCompat.h"
 
 extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;

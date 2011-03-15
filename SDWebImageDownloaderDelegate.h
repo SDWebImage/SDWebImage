@@ -6,6 +6,8 @@
  * file that was distributed with this source code.
  */
 
+#import "SDWebImageCompat.h"
+
 @class SDWebImageDownloader;
 
 @protocol SDWebImageDownloaderDelegate <NSObject>
