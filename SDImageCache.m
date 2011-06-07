@@ -132,8 +132,8 @@ static SDImageCache *instance;
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
 #else
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
-            [image release];
 #endif
+            [image release];
         }
     }
 
