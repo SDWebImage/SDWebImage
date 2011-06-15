@@ -17,6 +17,10 @@
 }
 
 + (SDImageCache *)sharedImageCache;
+
+- (void)setDiskCachePath:(NSString*)diskCachePath;
+- (NSString*)diskCachePath;
+
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk;
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;

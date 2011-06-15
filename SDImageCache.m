@@ -24,18 +24,6 @@ static SDImageCache *instance;
         // Init the memory cache
         memCache = [[NSMutableDictionary alloc] init];
 
-        // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
-
-        if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
-        {
-            [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
-                                      withIntermediateDirectories:YES
-                                                       attributes:nil
-                                                            error:NULL];
-        }
-
         // Init the operation queue
         cacheInQueue = [[NSOperationQueue alloc] init];
         cacheInQueue.maxConcurrentOperationCount = 1;
@@ -71,6 +59,29 @@ static SDImageCache *instance;
     return self;
 }
 
+- (void)setDiskCachePath:(NSString*)newDiskCachePath {
+    [diskCachePath release];
+    diskCachePath = [newDiskCachePath retain];
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
+    {
+        [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+    }
+    
+}
+
+- (NSString*)diskCachePath {
+    if (!diskCachePath) {
+        // Init the disk cache
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        [self setDiskCachePath:[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"]];
+    }
+    return diskCachePath;
+}
+
 - (void)dealloc
 {
     [memCache release], memCache = nil;
@@ -104,7 +115,7 @@ static SDImageCache *instance;
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
 
-    return [diskCachePath stringByAppendingPathComponent:filename];
+    return [[self diskCachePath] stringByAppendingPathComponent:filename];
 }
 
 - (void)storeKeyWithDataToDisk:(NSArray *)keyAndData
@@ -307,8 +318,8 @@ static SDImageCache *instance;
 - (void)clearDisk
 {
     [cacheInQueue cancelAllOperations];
-    [[NSFileManager defaultManager] removeItemAtPath:diskCachePath error:nil];
-    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+    [[NSFileManager defaultManager] removeItemAtPath:[self diskCachePath] error:nil];
+    [[NSFileManager defaultManager] createDirectoryAtPath:[self diskCachePath]
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:NULL];
@@ -317,10 +328,10 @@ static SDImageCache *instance;
 - (void)cleanDisk
 {
     NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-cacheMaxCacheAge];
-    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:[self diskCachePath]];
     for (NSString *fileName in fileEnumerator)
     {
-        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSString *filePath = [[self diskCachePath] stringByAppendingPathComponent:fileName];
         NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
         if ([[[attrs fileModificationDate] laterDate:expirationDate] isEqualToDate:expirationDate])
         {
