@@ -18,16 +18,21 @@
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setImageWithURL:url placeholderImage:nil memoryCacheOnly:NO];
+}
 
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder memoryCacheOnly:(BOOL)memoryCacheOnly
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
+    
     self.image = placeholder;
-
+    
     if (url)
     {
-        [manager downloadWithURL:url delegate:self];
+        [manager downloadWithURL:url delegate:self retryFailed:NO lowPriority:NO memoryCacheOnly:memoryCacheOnly];
     }
 }
 

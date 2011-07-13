@@ -66,13 +66,18 @@ static SDWebImageManager *instance;
 
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority
 {
+    [self downloadWithURL:url delegate:delegate retryFailed:retryFailed lowPriority:lowPriority memoryCacheOnly:NO];
+}
+
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority memoryCacheOnly:(BOOL)memoryCacheOnly
+{
     if (!url || !delegate || (!retryFailed && [failedURLs containsObject:url]))
     {
         return;
     }
     
     // Check the on-disk cache async so we don't block the main thread
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithBool:lowPriority], @"low_priority", nil];
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithBool:lowPriority], @"low_priority", [NSNumber numberWithBool:memoryCacheOnly], @"memory_cache_only", nil];
     [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];    
 }
 
@@ -124,12 +129,17 @@ static SDWebImageManager *instance;
     {
         downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self userInfo:nil lowPriority:lowPriority];
         [downloaderForURL setObject:downloader forKey:url];
+        
+        NSNumber *memoryCacheOnly = [info objectForKey:@"memory_cache_only"];
+        if ([memoryCacheOnly boolValue]) {
+            downloader.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:memoryCacheOnly, @"memory_cache_only", nil];
+        }
     }
     
     // If we get a normal priority request, make sure to change type since downloader is shared
     if (!lowPriority && downloader.lowPriority)
         downloader.lowPriority = NO;
-    
+        
     [delegates addObject:delegate];
     [downloaders addObject:downloader];
 }
@@ -170,11 +180,12 @@ static SDWebImageManager *instance;
 
     if (image)
     {
+        NSNumber *memoryCacheOnly = [downloader.userInfo objectForKey:@"memory_cache_only"];
         // Store the image in the cache
         [[SDImageCache sharedImageCache] storeImage:image
                                           imageData:downloader.imageData
                                              forKey:[downloader.url absoluteString]
-                                             toDisk:YES];
+                                             toDisk:![memoryCacheOnly boolValue]];
     }
     else
     {
