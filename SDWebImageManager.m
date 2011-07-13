@@ -21,7 +21,6 @@ static SDWebImageManager *instance;
         downloadDelegates = [[NSMutableArray alloc] init];
         downloaders = [[NSMutableArray alloc] init];
         cacheDelegates = [[NSMutableArray alloc] init];
-        cacheURLs = [[NSMutableArray alloc] init];
         downloaderForURL = [[NSMutableDictionary alloc] init];
         failedURLs = [[NSMutableArray alloc] init];
     }
@@ -33,7 +32,6 @@ static SDWebImageManager *instance;
     [downloadDelegates release], downloadDelegates = nil;
     [downloaders release], downloaders = nil;
     [cacheDelegates release], cacheDelegates = nil;
-    [cacheURLs release], cacheURLs = nil;
     [downloaderForURL release], downloaderForURL = nil;
     [failedURLs release], failedURLs = nil;
     [super dealloc];
@@ -77,7 +75,6 @@ static SDWebImageManager *instance;
     
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
-    [cacheURLs addObject:url];
 
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithBool:lowPriority], @"low_priority", nil];
     [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];    
@@ -85,14 +82,9 @@ static SDWebImageManager *instance;
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
 {
+    [cacheDelegates removeObjectIdenticalTo:delegate];
+
     NSUInteger idx;
-
-    while ((idx = [cacheDelegates indexOfObjectIdenticalTo:delegate]) != NSNotFound)
-    {
-        [cacheDelegates removeObjectAtIndex:idx];
-        [cacheURLs removeObjectAtIndex:idx];
-    }
-
     while ((idx = [downloadDelegates indexOfObjectIdenticalTo:delegate]) != NSNotFound)
     {
         SDWebImageDownloader *downloader = [[downloaders objectAtIndex:idx] retain];
@@ -113,24 +105,11 @@ static SDWebImageManager *instance;
 
 #pragma mark SDImageCacheDelegate
 
-- (NSUInteger)indexOfDelegate:(id<SDWebImageManagerDelegate>)delegate waitingForURL:(NSURL *)url {
-    // Do a linear search, simple (even if inefficient)
-    for (NSUInteger idx = 0; idx < [cacheDelegates count]; idx++)
-    {
-        if ([cacheDelegates objectAtIndex:idx] == delegate && [[cacheURLs objectAtIndex:idx] isEqual:url])
-        {
-            return idx;
-        }
-    }
-    return NSNotFound;
-}
-
 - (void)imageCache:(SDImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
 {
     id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
-    NSURL *url = [info objectForKey:@"url"];
 
-    NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
+    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
     if (idx != NSNotFound)
     {
         if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
@@ -138,8 +117,10 @@ static SDWebImageManager *instance;
             [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
         }
 
+        // Remove one instance of delegate from the array, 
+        // not all of them (as |removeObjectIdenticalTo:| would) 
+        // in case multiple requests are issued.
         [cacheDelegates removeObjectAtIndex:idx];
-        [cacheURLs removeObjectAtIndex:idx];
     }
 }
 
@@ -149,7 +130,7 @@ static SDWebImageManager *instance;
     id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
     BOOL lowPriority = [[info objectForKey:@"low_priority"] boolValue];
 
-    NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
+    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
     if (idx == NSNotFound)
     {
         // Request has since been canceled
@@ -157,7 +138,6 @@ static SDWebImageManager *instance;
     }
 
     [cacheDelegates removeObjectAtIndex:idx];
-    [cacheURLs removeObjectAtIndex:idx];
 
     // Share the same downloader for identical URLs so we don't download the same URL several times
     SDWebImageDownloader *downloader = [downloaderForURL objectForKey:url];
