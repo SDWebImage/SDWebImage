@@ -41,8 +41,8 @@ static SDImageCache *instance;
         cacheInQueue.maxConcurrentOperationCount = 1;
         cacheOutQueue = [[NSOperationQueue alloc] init];
         cacheOutQueue.maxConcurrentOperationCount = 1;
-#if !TARGET_OS_IPHONE
-#else
+
+#if TARGET_OS_IPHONE
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
@@ -54,7 +54,7 @@ static SDImageCache *instance;
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
-        #ifdef __IPHONE_4_0
+#ifdef __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
         {
@@ -64,7 +64,7 @@ static SDImageCache *instance;
                                                          name:UIApplicationDidEnterBackgroundNotification
                                                        object:nil];
         }
-        #endif
+#endif
 #endif
     }
 
@@ -126,12 +126,12 @@ static SDImageCache *instance;
         UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
         if (image)
         {
-#if !TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+#else
             NSArray*  representations  = [image representations];
             NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
-#else
-            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
 #endif
             [image release];
         }

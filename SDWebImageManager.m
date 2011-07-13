@@ -70,10 +70,10 @@ static SDWebImageManager *instance;
     {
         return;
     }
-    
+
     // Check the on-disk cache async so we don't block the main thread
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithBool:lowPriority], @"low_priority", nil];
-    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];    
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
 }
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
@@ -125,11 +125,13 @@ static SDWebImageManager *instance;
         downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self userInfo:nil lowPriority:lowPriority];
         [downloaderForURL setObject:downloader forKey:url];
     }
-    
+
     // If we get a normal priority request, make sure to change type since downloader is shared
     if (!lowPriority && downloader.lowPriority)
+    {
         downloader.lowPriority = NO;
-    
+    }
+
     [delegates addObject:delegate];
     [downloaders addObject:downloader];
 }
