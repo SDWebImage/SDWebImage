@@ -82,6 +82,8 @@ static SDWebImageManager *instance;
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
 {
+    // Remove all instances of delegate from cacheDelegates.
+    // (removeObjectIdenticalTo: does this, despite its singular name.)
     [cacheDelegates removeObjectIdenticalTo:delegate];
 
     NSUInteger idx;
