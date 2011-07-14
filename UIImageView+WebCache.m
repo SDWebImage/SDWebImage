@@ -18,7 +18,7 @@
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
 {
-    [self setImageWithURL:url placeholderImage:nil memoryCacheOnly:NO];
+    [self setImageWithURL:url placeholderImage:placeholder memoryCacheOnly:NO];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder memoryCacheOnly:(BOOL)memoryCacheOnly
