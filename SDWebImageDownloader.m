@@ -119,9 +119,23 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-        UIImage *image = [[UIImage alloc] initWithData:imageData];
-        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
-        [image release];
+#if NS_BLOCKS_AVAILABLE
+        if ([[[NSRunLoop currentRunLoop] currentMode] isEqualToString:UITrackingRunLoopMode]) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(void) {
+                UIImage *image = [[UIImage alloc] initWithData:imageData];
+                dispatch_sync(dispatch_get_main_queue(), ^(void) {
+                    [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+                });
+                [image release];
+            });
+        } else {
+#endif
+            UIImage *image = [[UIImage alloc] initWithData:imageData];
+            [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+            [image release];
+#if NS_BLOCKS_AVAILABLE
+        }
+#endif
     }
 }
 
