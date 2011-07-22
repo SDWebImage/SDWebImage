@@ -13,8 +13,9 @@
 
 @interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
 {
-    NSMutableArray *delegates;
+    NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
+    NSMutableArray *cacheDelegates;
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
 }
