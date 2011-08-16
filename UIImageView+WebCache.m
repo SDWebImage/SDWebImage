@@ -24,7 +24,14 @@
     [manager cancelForDelegate:self];
 
     self.image = placeholder;
-
+    
+    self.alpha = 0.5;
+    UIActivityIndicatorView *activityIndicator = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
+    activityIndicator.tag = 1001;
+    activityIndicator.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
+    [self addSubview:activityIndicator];
+    [activityIndicator startAnimating];
+    
     if (url)
     {
         [manager downloadWithURL:url delegate:self];
@@ -38,6 +45,10 @@
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
+ 
+    [[self viewWithTag:1001] removeFromSuperview];
+    
+    self.alpha = 1.0;
     self.image = image;
 }
 
