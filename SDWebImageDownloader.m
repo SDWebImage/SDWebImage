@@ -105,6 +105,21 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     [imageData appendData:data];
 }
 
+// NS_BLOCKS_AVAILBLE checks __IPHONE_OS_VERSION_MAX_ALLOWED, so blocks are 
+// reported as available even if you set a 3.x version of the SDK as the 
+// "iOS Deployment Target". However attempting to use blocks at runtime on 3.x
+// crashes. We could do a runtime check for block availability, but that 
+// requires you to weak-link libSystem which is tedious for a library like
+// SDWebImage. Instead, we only enable blocks-based background image decoding
+// if you set the deployment target (__IPHONE_OS_VERSION_MIN_REQUIRED) to at 
+// least 4.0.
+// For Mac OS X though, stick with the same logic as NS_BLOCKS_AVAILABLE.
+#if NS_BLOCKS_AVAILABLE && (MAC_OS_X_VERSION_10_6 <= MAC_OS_X_VERSION_MAX_ALLOWED || __IPHONE_4_0 <= __IPHONE_OS_VERSION_MIN_REQUIRED)
+    #define BLOCKS_SUPPORTED 1
+#else
+    #define BLOCKS_SUPPORTED 0
+#endif
+
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {
@@ -119,7 +134,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-#if NS_BLOCKS_AVAILABLE
+#if BLOCKS_SUPPORTED
         if ([[[NSRunLoop currentRunLoop] currentMode] isEqualToString:UITrackingRunLoopMode]) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(void) {
                 UIImage *image = [[UIImage alloc] initWithData:imageData];
@@ -133,7 +148,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
             UIImage *image = [[UIImage alloc] initWithData:imageData];
             [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
             [image release];
-#if NS_BLOCKS_AVAILABLE
+#if BLOCKS_SUPPORTED
         }
 #endif
     }
