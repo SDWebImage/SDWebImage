@@ -26,11 +26,18 @@
     self.image = placeholder;
     
     self.alpha = 0.5;
-    UIActivityIndicatorView *activityIndicator = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
-    activityIndicator.tag = 1001;
-    activityIndicator.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
-    [self addSubview:activityIndicator];
-    [activityIndicator startAnimating];
+    UIActivityIndicatorView *activityIndicator = (UIActivityIndicatorView*)[self viewWithTag:1001];
+    if (activityIndicator == nil) {
+        activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        activityIndicator.tag = 1001;
+        activityIndicator.center = CGPointMake(self.frame.size.width/2, self.frame.size.height/2);
+        [self addSubview:activityIndicator];
+        [activityIndicator startAnimating];
+        [activityIndicator release];
+    }
+    else {
+        [activityIndicator startAnimating];    
+    }
     
     if (url)
     {
