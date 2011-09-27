@@ -12,10 +12,14 @@
 @interface SDWebImagePrefetcher : NSObject <SDWebImageManagerDelegate> {
     NSArray     *_prefetchList;    // Array of URLs
     NSUInteger   _skippedCount;
-    NSUInteger   _lastPrefetchedIndex;
+    NSUInteger   _finishedCount;
+    NSUInteger   _requestedCount;
+    NSTimeInterval _startedTime;
 }
 
 + (SDWebImagePrefetcher *)sharedImagePrefetcher;
+
+@property (nonatomic, assign) NSUInteger maxConcurrentDownloads;        // Default is 3
 
 
 // Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
