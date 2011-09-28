@@ -175,7 +175,7 @@ static SDWebImageManager *instance;
         SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
         if (aDownloader == downloader)
         {
-            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
+            id<SDWebImageManagerDelegate> delegate = [[[downloadDelegates objectAtIndex:uidx] retain] autorelease];
 
             if (image)
             {
@@ -228,7 +228,7 @@ static SDWebImageManager *instance;
         SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
         if (aDownloader == downloader)
         {
-            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
+            id<SDWebImageManagerDelegate> delegate = [[[downloadDelegates objectAtIndex:uidx] retain] autorelease];
 
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
             {
