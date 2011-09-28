@@ -33,27 +33,15 @@ static SDWebImageDecoder *sharedInstance;
 - (void)decodeImageWithInfo:(NSDictionary *)decodeInfo {
     UIImage *image = [decodeInfo objectForKey:IMAGE_KEY];
     
-    CGImageRef imageRef = image.CGImage;
-    CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 CGImageGetWidth(imageRef),
-                                                 CGImageGetHeight(imageRef),
-                                                 CGImageGetBitsPerComponent(imageRef),
-                                                 CGImageGetBytesPerRow(imageRef),
-                                                 CGImageGetColorSpace(imageRef),
-                                                 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
-    
-    CGRect rect = (CGRect){CGPointZero, CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)};
-    CGContextDrawImage(context, rect, imageRef);
-    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-    
-    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef];
-    CGImageRelease(decompressedImageRef);
+    UIImage *decompressedImage = [UIImage decodedImageWithImage:image];
+    if ( ! decompressedImage) {
+        // If really have any error occurs, we use the original image at this moment
+        decompressedImage = image;
+    }
     
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
                           decompressedImage, DECOMPRESSED_IMAGE_KEY,
                           decodeInfo, DECODE_INFO_KEY, nil];
-    [decompressedImage release];
 
     [self performSelectorOnMainThread:@selector(notifyDelegateOnMainThreadWithInfo:) withObject:dict waitUntilDone:NO];
 }
@@ -79,7 +67,6 @@ static SDWebImageDecoder *sharedInstance;
 
     NSOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(decodeImageWithInfo:) object:decodeInfo];
     [imageDecodingQueue addOperation:operation];
-    NSLog(@"%d", [imageDecodingQueue operationCount]);
     [operation release];
 }
 
@@ -95,6 +82,37 @@ static SDWebImageDecoder *sharedInstance;
         sharedInstance = [[SDWebImageDecoder alloc] init];
     }
     return sharedInstance;
+}
+
+@end
+
+
+
+@implementation UIImage (ForceDecode)
+
++ (UIImage *)decodedImageWithImage:(UIImage *)image {
+    CGImageRef imageRef = image.CGImage;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(NULL,
+                                                 CGImageGetWidth(imageRef),
+                                                 CGImageGetHeight(imageRef),
+                                                 8,
+                                                 CGImageGetWidth(imageRef) * 4, // Just always return width * 4 will be enough
+                                                 colorSpace,                    // System only supports RGB, set explicitly
+                                                 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little); // kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little makes system don't need to do extra conversion when displayed.
+    CGColorSpaceRelease(colorSpace);
+    if ( ! context) {
+        return nil;
+    }
+    
+    CGRect rect = (CGRect){CGPointZero, CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)};
+    CGContextDrawImage(context, rect, imageRef);
+    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
+    CGContextRelease(context);
+    
+    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef];
+    CGImageRelease(decompressedImageRef);
+    return [decompressedImage autorelease];
 }
 
 @end

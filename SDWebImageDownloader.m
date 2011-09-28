@@ -7,16 +7,23 @@
  */
 
 #import "SDWebImageDownloader.h"
+#import "SDWebImageDecoder.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 
-@interface SDWebImageDownloader ()
+@interface SDWebImageDownloader () <SDWebImageDecoderDelegate>
 @property (nonatomic, retain) NSURLConnection *connection;
 @end
 
 @implementation SDWebImageDownloader
 @synthesize url, delegate, connection, imageData, userInfo, lowPriority;
+
+#pragma mark SDWebImageDecoderDelegate
+
+- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo {
+    [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+}
 
 #pragma mark Public Methods
 
@@ -120,7 +127,9 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         UIImage *image = [[UIImage alloc] initWithData:imageData];
-        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+        
+        [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
+//        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
         [image release];
     }
 }
