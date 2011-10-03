@@ -26,7 +26,7 @@ static SDWebImagePrefetcher *instance;
     }
     _requestedCount++;
     NSURL *url = [self.prefetchList objectAtIndex:index];
-    [imageManager downloadWithURL:url delegate:self retryFailed:NO lowPriority:YES];
+    [imageManager downloadWithURL:url delegate:self options:SDWebImageLowPriority];
 }
 
 - (void)reportStatus {
