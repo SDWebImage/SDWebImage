@@ -11,6 +11,13 @@
 #import "SDWebImageManagerDelegate.h"
 #import "SDImageCacheDelegate.h"
 
+typedef enum
+{
+    SDWebImageRetryFailed = 1,
+    SDWebImageLowPriority,
+    SDWebImageCacheMemoryOnly
+} SDWebImageOptions;
+
 @interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
 {
     NSMutableArray *downloadDelegates;
@@ -23,8 +30,9 @@
 + (id)sharedManager;
 - (UIImage *)imageWithURL:(NSURL *)url;
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate;
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed;
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority;
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate options:(SDWebImageOptions)options;
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed __attribute__ ((deprecated)); // use options:SDWebImageRetryFailed instead
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated)); // use options:SDWebImageRetryFailed|SDWebImageLowPriority instead
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate;
 
 @end
