@@ -7,6 +7,7 @@
  */
 
 #import "SDImageCache.h"
+#import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
@@ -172,8 +173,13 @@ static SDImageCache *instance;
 
     UIImage *image = [[[UIImage alloc] initWithContentsOfFile:[self cachePathForKey:key]] autorelease];
     if (image)
-    {
-        [mutableArguments setObject:image forKey:@"image"];
+    {   
+        UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+        if ( ! decodedImage) {
+            // If really have error occurs, we use original image.
+            decodedImage = image;
+        }
+        [mutableArguments setObject:decodedImage forKey:@"image"];
     }
 
     [self performSelectorOnMainThread:@selector(notifyDelegate:) withObject:mutableArguments waitUntilDone:NO];
