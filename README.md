@@ -8,8 +8,8 @@ It provides:
 - An UIImageView category adding web image and cache management to the Cocoa Touch framework
 - An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
-- A garantie that the same URL won't be downloaded several times
-- A garantie that bogus URLs won't be retried again and again
+- A guarantee that the same URL won't be downloaded several times
+- A guarantee that bogus URLs won't be retried again and again
 - Performances!
 
 Motivation
@@ -17,28 +17,28 @@ Motivation
 
 As a dummy Objective-C developer working on my first iPhone application for my company
 ([Dailymotion][]), I've been very frustrated by the lack of support in the Cocoa Touch framework for
-UITableView with remote images. After some googling, I found lot of forums and blogs coming with
-their solution, most of the time based on asynchronous usage have NSURLConnection, but none provides
+UITableView with remote images. After some Googling, I found lot of forums and blogs coming up with
+their solution, most of the time based on asynchronous usage with NSURLConnection, but none provided
 a simple library doing the work of async image grabbing + caching for you.
 
-Actually there is one in the famous [Three20][] framework by [Joe Hewitt][], but it's yet massive
+Actually there is one in the famous [Three20][] framework by [Joe Hewitt][], but it's a massive
 and undocumented piece of code. You can't import just the the libraries you want without taking the
 whole framework (damn #import "TTGlobal.h"). Anyway, the [Three20][] implementation is based on
-NSURLConnection, and I soon discovered this solution wasn't ideal, keep reading to find out why.
+NSURLConnection, and I soon discovered this solution wasn't ideal. Keep reading to find out why.
 
-As a hurried beginner in iPhone development, I couldn't admit to implement my own async image
-grabber with caching support as my first steps in this new world. Thus, I asked for help to my good
+As a hurried beginner in iPhone development, I couldn't attempt to implement my own async image
+grabber with caching support as my first steps in this new world. Thus, I asked for help from my good
 friend Sebastien Flory ([Fraggle][]), who was working on his great iPhone game ([Urban Rivals][], a
-future app-store hit) since almost a year. He spent quite an amount of time on implementing the very
+future app-store hit) for almost a year. He spent quite an amount of time implementing the very
 same solution for his needs, and was kind enough to give me his implementation for my own use. This
 worked quite well and allowed me to concentrate on other parts of my application. But when I started
 to compare my application with its direct competitor - the built-in Youtube application - I was very
 unhappy with the loading speed of the images. After some network sniffing, I found that every HTTP
-requests for my images was 10 times slower than Youtube's ones... On my own network, Youtube was 10
+requests for my images was 10 times slower than Youtube's... On my own network, Youtube was 10
 time faster than my own servers... WTF??
 
-In fact, my servers were well but a lot of latency was added to the requests, certainly because my
-application wasn't responsive enough to handle the requests at full speed. At this moment, I
+In fact, my servers were fine but a lot of latency was added to the requests, certainly because my
+application wasn't responsive enough to handle the requests at full speed. Right then, I
 understood something important, asynchronous NSURLConnections are tied to the main runloop in the
 NSEventTrackingRunLoopMode. As explained in the documentation, this runloop mode is affected by
 UI events:
@@ -46,14 +46,14 @@ UI events:
 > Cocoa uses this mode to restrict incoming events during mouse-dragging loops and other sorts of
 > user interface tracking loops.
 
-A simple test to recognize an application using NSURLConnection in its default mode to load there
+A simple test to recognize an application using NSURLConnection in its default mode to load
 remote images is to scroll the UITableView with your finger to disclose an unloaded image, and to
 keep your finger pressed on the screen. If the image doesn't load until you release you finger,
 you've got one (try with the Facebook app for instance). It took me quite some time to understand
 the reason for this lagging issue. Actually I first used NSOperation to workaround this issue.
 
-This technic combined with an image cache instantly gave a lot of responsiveness to my app.
-I thought this lib could benefits to a lot of other Cocoa Touch application so I open-sourced it.
+This technique combined with an image cache instantly gave a lot of responsiveness to my app.
+I thought this library could benefit other Cocoa Touch applications so I open-sourced it.
 
 How To Use It
 -------------
@@ -91,8 +91,8 @@ handled for you, from async downloads to caching management.
 ### Using SDWebImageManager
 
 The SDWebImageManager is the class behind the UIImageView+WebCache category. It ties the
-asynchronous downloader with the image cache store. You can use this classe directly to benefits
-from web image downloading with caching in another context than a UIView (ie: with Cocos).
+asynchronous downloader with the image cache store. You can use this class directly to benefit
+from web image downloading with caching in another context than a UIView (ie: with Cocoa).
 
 Here is a simple example of how to use SDWebImageManager:
 
@@ -135,10 +135,10 @@ maintains a memory cache and an optional disk cache. Disk cache write operations
 asynchronous so it doesn't add unnecessary latency to the UI.
 
 The SDImageCache class provides a singleton instance for convenience but you can create your own
-instance if you want to create separated cache namespaces.
+instance if you want to create separated cache namespace.
 
 To lookup the cache, you use the imageForKey: method. If the method returns nil, it means the cache
-doesn't currently own the image. You are thus responsible of generating and caching it. The cache
+doesn't currently own the image. You are thus responsible for generating and caching it. The cache
 key is an application unique identifier for the image to cache. It is generally the absolute URL of
 the image.
 
