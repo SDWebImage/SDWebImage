@@ -59,7 +59,7 @@ static SDImageCache *instance;
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
-#ifdef __IPHONE_4_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
         {
