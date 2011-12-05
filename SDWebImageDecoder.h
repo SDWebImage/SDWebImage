@@ -9,6 +9,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "SDWebImageCompat.h"
 
 @protocol SDWebImageDecoderDelegate;
 
