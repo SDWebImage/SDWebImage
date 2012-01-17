@@ -131,8 +131,12 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
             scale = 2.0;
         }
         
-        UIImage *image = [[[UIImage alloc] initWithData:imageData ] autorelease];
-        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
+        UIImage *image = [[UIImage alloc] initWithData:imageData ];
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+            UIImage *originalImage = image;
+            image = [[UIImage alloc] initWithCGImage:originalImage.CGImage scale:scale orientation:UIImageOrientationUp];
+            [originalImage release];
+        }
 
 #ifdef ENABLE_SDWEBIMAGE_DECODER
         [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
