@@ -126,7 +126,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         CGFloat scale = 1.0;
-        NSString *lastPathComponent = url.lastPathComponent;
+        NSString *lastPathComponent = url.absoluteString;
         if ([lastPathComponent hasSuffix:@"@2x.png"] || [lastPathComponent hasSuffix:@"@2x.jpg"]) {
             scale = 2.0;
         }
