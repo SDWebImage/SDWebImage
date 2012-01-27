@@ -156,6 +156,48 @@ By default, the image will be stored in memory cache as well as on disk cache (a
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
 third argument.
 
+Installation
+------------
+
+You can chose to copy all the files in your project or to import the it as a static library. The
+second solution prefered as allow easier upgrading of the library and make this lib compatible with
+ARC/no-ARC projects with no effort.
+
+The following instruction is adapted from the excelent "Using Open Source Static Libraries in Xcode 4"
+[tutorial][] from Jonah Williams.
+
+### Add the SDWebImage project to your workspace
+
+Right-click on the project navigator and select "Add Files to "Your Project" and select the SDWebImage
+Xcode project.
+
+![Add SDWebImage](http://blog.carbonfive.com/wp-content/uploads/2011/04/adding_an_existing_project.png?w=300)
+
+You should end up with your project and SDWebimage project at the same lever in the workspace.
+
+### Add build target dependancy
+
+Select your project's build target and add the 'libSDWebImage.a' library to the “Link Binary With Libraries”
+build phase.
+
+![Add target dependancy](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
+
+### Add headers
+
+Open the “Build Settings” tab and locate the “User Header Search Paths” setting. Set this to 
+“$(BUILT_PRODUCTS_DIR)” and check the “Recursive” check box.
+
+![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
+
+Add the "-ObjC" flag to the “Other Linker Flags” build setting.
+
+### Fixing indexing
+
+If you have problem with auto-completion of SDWebImage methods, you may have to copy the header files in
+your project.
+
+
+
 Future Enhancements
 -------------------
 
@@ -166,3 +208,4 @@ Future Enhancements
 [Urban Rivals]: http://fraggle.squarespace.com/blog/2009/9/15/almost-done-here-is-urban-rivals-iphone-trailer.html
 [Three20]: http://groups.google.com/group/three20
 [Joe Hewitt]: http://www.joehewitt.com
+[tutorial]: http://blog.carbonfive.com/2011/04/04/using-open-source-static-libraries-in-xcode-4
