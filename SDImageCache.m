@@ -337,4 +337,17 @@ static SDImageCache *instance;
     }
 }
 
+-(int)getSize
+{
+    int size = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator)
+    {
+        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        size += [attrs fileSize];
+    }
+    return size;
+}
+
 @end
