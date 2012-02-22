@@ -28,5 +28,6 @@
 - (void)clearMemory;
 - (void)clearDisk;
 - (void)cleanDisk;
+- (int)getSize;
 
 @end
