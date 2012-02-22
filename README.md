@@ -175,12 +175,12 @@ Xcode project.
 
 You should end up with your project and SDWebimage project at the same lever in the workspace.
 
-### Add build target dependancy
+### Add build target dependency
 
 Select your project's build target and add the 'libSDWebImage.a' library to the “Link Binary With Libraries”
 build phase.
 
-![Add target dependancy](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
+![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
 
 ### Add headers
 
