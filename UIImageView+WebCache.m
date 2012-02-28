@@ -7,6 +7,7 @@
  */
 
 #import "UIImageView+WebCache.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation UIImageView (WebCache)
 
@@ -41,6 +42,11 @@
 }
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
+{
+    self.image = image;
+}
+
+- (void)webImageManager:(SDWebImageManager *)imageManager didUpdatePartialImage:(UIImage *)image
 {
     self.image = image;
 }
