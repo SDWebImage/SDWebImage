@@ -9,6 +9,7 @@
 #import "SDWebImageManager.h"
 #import "SDImageCache.h"
 #import "SDWebImageDownloader.h"
+#import <objc/message.h>
 
 static SDWebImageManager *instance;
 
@@ -165,6 +166,10 @@ static SDWebImageManager *instance;
     {
         [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
     }
+    if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:)])
+    {
+        objc_msgSend(delegate, @selector(webImageManager:didFinishWithImage:forURL:), self, image, url);
+    }
 
     [cacheDelegates removeObjectAtIndex:idx];
     [cacheURLs removeObjectAtIndex:idx];
@@ -229,12 +234,20 @@ static SDWebImageManager *instance;
                 {
                     [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
                 }
+                if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:)])
+                {
+                    objc_msgSend(delegate, @selector(webImageManager:didFinishWithImage:forURL:), self, image, downloader.url);
+                }
             }
             else
             {
                 if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
                 {
                     [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:nil];
+                }
+                if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
+                {
+                    objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:), self, nil, downloader.url);
                 }
             }
 
@@ -282,6 +295,10 @@ static SDWebImageManager *instance;
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
             {
                 [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:error];
+            }
+            if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
+            {
+                objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:), self, error, downloader.url);
             }
 
             [downloaders removeObjectAtIndex:uidx];
