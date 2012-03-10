@@ -169,28 +169,14 @@ static SDImageCache *instance;
         }
     }
 }
-- (UIImage *) imageForFile:(NSString*)fileKey {
-    NSString *file = [self cachePathForKey:fileKey];
-    NSData *imageData = [NSData dataWithContentsOfFile:file];
-    if (imageData) {
-        UIImage *image = [[[UIImage alloc] initWithData:imageData ] autorelease];
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-            CGFloat scale = 1.0;
-            if ([fileKey hasSuffix:@"@2x.png"] || [fileKey hasSuffix:@"@2x.jpg"]) {
-                scale = 2.0;
-            }
-            image = [[[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp] autorelease];
-        }
-        return image;
-    }
-    return nil;
-}
+
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [[arguments mutableCopy] autorelease];
-    
-    UIImage *image = [self imageForFile:key];
+
+    UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+
     if (image)
     {
 #ifdef ENABLE_SDWEBIMAGE_DECODER
@@ -262,7 +248,7 @@ static SDImageCache *instance;
 
     if (!image && fromDisk)
     {
-        UIImage *image = [self imageForFile:key];
+        UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
             [memCache setObject:image forKey:key];
