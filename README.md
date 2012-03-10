@@ -156,14 +156,19 @@ By default, the image will be stored in memory cache as well as on disk cache (a
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
 third argument.
 
+Automatic Reference Counting (ARC)
+----------------------------------
+
+You can use either style in your Cocoa project. SDWebImage Will figure out which you are using at compile
+time and do the right thing.
+
+
 Installation
 ------------
 
-You can chose to copy all the files in your project or to import the it as a static library. The
-second solution prefered as allow easier upgrading of the library and make this lib compatible with
-ARC/no-ARC projects with no effort.
+You can chose to copy all the files in your project or to import the it as a static library.
 
-The following instruction is adapted from the excelent "Using Open Source Static Libraries in Xcode 4"
+The following instructions are adapted from the excellent "Using Open Source Static Libraries in Xcode 4"
 [tutorial][] from Jonah Williams.
 
 ### Add the SDWebImage project to your workspace
@@ -177,19 +182,19 @@ You should end up with your project and SDWebimage project at the same lever in 
 
 ### Add build target dependency
 
-Select your project's build target and add the 'libSDWebImage.a' library to the “Link Binary With Libraries”
+Select your project's build target and add the 'libSDWebImage.a' library to the "Link Binary With Libraries"
 build phase.
 
 ![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
 
 ### Add headers
 
-Open the “Build Settings” tab and locate the “User Header Search Paths” setting. Set this to 
-“$(BUILT_PRODUCTS_DIR)” and check the “Recursive” check box.
+Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to 
+"$(BUILT_PRODUCTS_DIR)" and check the "Recursive" check box.
 
 ![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
 
-Add the "-ObjC" flag to the “Other Linker Flags” build setting.
+Add the "-ObjC" flag to the "Other Linker Flags" build setting.
 
 ### Fixing indexing
 
