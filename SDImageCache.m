@@ -203,7 +203,6 @@ static SDImageCache *instance;
 
     if (toDisk)
     {
-        if (!data) return;
         NSArray *keyWithData;
         if (data)
         {
