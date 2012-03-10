@@ -88,6 +88,20 @@ handled for you, from async downloads to caching management.
         return cell;
     }
 
+### Using blocks
+
+If your project's deployement target is set to iOS 4+, you may want to use the success/failure blocks to be
+notified when image have been retrieved from cache.
+
+    // Here we use the new provided setImageWithURL: method to load the web image
+    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                   placeholderImage:[UIImage imageNamed:@"placeholder.png"]
+                            success:^(UIImage *image) {... success code here ...}
+                            failure:^(NSError *error) {... failure code here ...}];
+];
+
+Note: neither your success nor failure block will be call if your image request is canceled before completion.
+
 ### Using SDWebImageManager
 
 The SDWebImageManager is the class behind the UIImageView+WebCache category. It ties the
