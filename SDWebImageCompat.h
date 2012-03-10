@@ -21,6 +21,30 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#if ! __has_feature(objc_arc)
+#define SDWIAutorelease(__v) ([__v autorelease]);
+#define SDWIReturnAutoreleased SDWIAutorelease
+
+#define SDWIRetain(__v) ([__v retain]);
+#define SDWIReturnRetained SDWIRetain
+
+#define SDWIRelease(__v) ([__v release], __v = nil);
+
+#define SDWIWeak
+#else
+// -fobjc-arc
+#define SDWIAutorelease(__v)
+#define SDWIReturnAutoreleased(__v) (__v)
+
+#define SDWIRetain(__v)
+#define SDWIReturnRetained(__v) (__v)
+
+#define SDWIRelease(__v)
+
+#define SDWIWeak __unsafe_unretained
+#endif
+
+
 NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSData *imageData)
 {
     if (!imageData)
@@ -44,9 +68,9 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSData *imageData)
         }
 
         UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
-        [image release];
+        SDWIRelease(image)
         image = scaledImage;
     }
 
-    return [image autorelease];
+    return SDWIReturnAutoreleased(image);
 }

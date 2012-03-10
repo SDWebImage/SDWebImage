@@ -31,7 +31,7 @@ static SDImageCache *instance;
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
+        diskCachePath = SDWIReturnRetained([[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"]);
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
         {
@@ -78,13 +78,15 @@ static SDImageCache *instance;
 
 - (void)dealloc
 {
-    [memCache release], memCache = nil;
-    [diskCachePath release], diskCachePath = nil;
-    [cacheInQueue release], cacheInQueue = nil;
+    SDWIRelease(memCache);
+    SDWIRelease(diskCachePath);
+    SDWIRelease(cacheInQueue);
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
+#if ! __has_feature(objc_arc)
     [super dealloc];
+#endif
 }
 
 #pragma mark SDImageCache (class methods)
@@ -128,7 +130,7 @@ static SDImageCache *instance;
     {
         // If no data representation given, convert the UIImage in JPEG and store it
         // This trick is more CPU/memory intensive and doesn't preserve alpha channel
-        UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
+        UIImage *image = SDWIReturnRetained([self imageFromKey:key fromDisk:YES]); // be thread safe with no lock
         if (image)
         {
 #if TARGET_OS_IPHONE
@@ -138,11 +140,11 @@ static SDImageCache *instance;
             NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
 #endif
-            [image release];
+            SDWIRelease(image);
         }
     }
 
-    [fileManager release];
+    SDWIRelease(fileManager);
 }
 
 - (void)notifyDelegate:(NSDictionary *)arguments
@@ -173,7 +175,7 @@ static SDImageCache *instance;
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
     NSString *key = [arguments objectForKey:@"key"];
-    NSMutableDictionary *mutableArguments = [[arguments mutableCopy] autorelease];
+    NSMutableDictionary *mutableArguments = SDWIReturnAutoreleased([arguments mutableCopy]);
 
     UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
 
@@ -215,9 +217,11 @@ static SDImageCache *instance;
         {
             keyWithData = [NSArray arrayWithObjects:key, nil];
         }
-        [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self
-                                                                         selector:@selector(storeKeyWithDataToDisk:)
-                                                                           object:keyWithData] autorelease]];
+
+        NSInvocationOperation *operation = SDWIReturnAutoreleased([[NSInvocationOperation alloc] initWithTarget:self
+                                                                                                       selector:@selector(storeKeyWithDataToDisk:)
+                                                                                                         object:keyWithData]);
+        [cacheInQueue addOperation:operation];
     }
 }
 
@@ -293,7 +297,10 @@ static SDImageCache *instance;
     {
         [arguments setObject:info forKey:@"userInfo"];
     }
-    [cacheOutQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(queryDiskCacheOperation:) object:arguments] autorelease]];
+    NSInvocationOperation *operation = SDWIReturnAutoreleased([[NSInvocationOperation alloc] initWithTarget:self
+                                                                                                   selector:@selector(queryDiskCacheOperation:)
+                                                                                                     object:arguments]);
+    [cacheOutQueue addOperation:operation];
 }
 
 - (void)removeImageForKey:(NSString *)key
