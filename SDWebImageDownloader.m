@@ -125,7 +125,6 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     {
         UIImage *image = SDScaledImageForPath(url.absoluteString, imageData);
         [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
-        SDWIRelease(image)
     }
 }
 
