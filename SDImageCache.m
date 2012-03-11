@@ -81,9 +81,7 @@ static SDImageCache *instance;
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISuperDealoc;
 }
 
 #pragma mark SDImageCache (class methods)

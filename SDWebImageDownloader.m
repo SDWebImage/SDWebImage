@@ -157,10 +157,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     SDWIRelease(connection);
     SDWIRelease(imageData);
     SDWIRelease(userInfo);
-
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISuperDealoc;
 }
 
 

@@ -29,6 +29,7 @@
 #define SDWIReturnRetained SDWIRetain
 
 #define SDWIRelease(__v) ([__v release], __v = nil);
+#define SDWISuperDealoc [super dealloc];
 
 #define SDWIWeak
 #else
@@ -40,6 +41,7 @@
 #define SDWIReturnRetained(__v) (__v)
 
 #define SDWIRelease(__v)
+#define SDWISuperDealoc
 
 #define SDWIWeak __unsafe_unretained
 #endif

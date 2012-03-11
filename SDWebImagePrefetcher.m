@@ -106,10 +106,7 @@ static SDWebImagePrefetcher *instance;
 - (void)dealloc
 {
     self.prefetchURLs = nil;
-
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISuperDealoc;
 }
 
 @end

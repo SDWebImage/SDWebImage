@@ -52,10 +52,7 @@ static SDWebImageManager *instance;
     SDWIRelease(cacheURLs);
     SDWIRelease(downloaderForURL);
     SDWIRelease(failedURLs);
-
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISuperDealoc;
 }
 
 
