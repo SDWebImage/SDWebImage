@@ -75,9 +75,9 @@ static SDImageCache *instance;
 
 - (void)dealloc
 {
-    SDWIRelease(memCache);
-    SDWIRelease(diskCachePath);
-    SDWIRelease(cacheInQueue);
+    SDWISafeRelease(memCache);
+    SDWISafeRelease(diskCachePath);
+    SDWISafeRelease(cacheInQueue);
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 

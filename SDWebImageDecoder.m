@@ -76,7 +76,7 @@ static SDWebImageDecoder *sharedInstance;
 
 - (void)dealloc
 {
-    SDWIRelease(imageDecodingQueue);
+    SDWISafeRelease(imageDecodingQueue);
     SDWISuperDealoc;
 }
 

@@ -46,12 +46,12 @@ static SDWebImageManager *instance;
 
 - (void)dealloc
 {
-    SDWIRelease(downloadDelegates);
-    SDWIRelease(downloaders);
-    SDWIRelease(cacheDelegates);
-    SDWIRelease(cacheURLs);
-    SDWIRelease(downloaderForURL);
-    SDWIRelease(failedURLs);
+    SDWISafeRelease(downloadDelegates);
+    SDWISafeRelease(downloaders);
+    SDWISafeRelease(cacheDelegates);
+    SDWISafeRelease(cacheURLs);
+    SDWISafeRelease(downloaderForURL);
+    SDWISafeRelease(failedURLs);
     SDWISuperDealoc;
 }
 

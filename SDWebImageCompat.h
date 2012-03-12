@@ -28,7 +28,8 @@
 #define SDWIRetain(__v) ([__v retain]);
 #define SDWIReturnRetained SDWIRetain
 
-#define SDWIRelease(__v) ([__v release], __v = nil);
+#define SDWIRelease(__v) ([__v release]);
+#define SDWISafeRelease(__v) ([__v release], __v = nil);
 #define SDWISuperDealoc [super dealloc];
 
 #define SDWIWeak
@@ -41,6 +42,7 @@
 #define SDWIReturnRetained(__v) (__v)
 
 #define SDWIRelease(__v)
+#define SDWISafeRelease(__v) (__v = nil);
 #define SDWISuperDealoc
 
 #define SDWIWeak __unsafe_unretained
@@ -70,7 +72,7 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSData *imageData)
         }
 
         UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
-        SDWIRelease(image)
+        SDWISafeRelease(image)
         image = scaledImage;
     }
 

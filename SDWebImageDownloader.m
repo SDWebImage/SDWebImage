@@ -153,10 +153,10 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    SDWIRelease(url);
-    SDWIRelease(connection);
-    SDWIRelease(imageData);
-    SDWIRelease(userInfo);
+    SDWISafeRelease(url);
+    SDWISafeRelease(connection);
+    SDWISafeRelease(imageData);
+    SDWISafeRelease(userInfo);
     SDWISuperDealoc;
 }
 
