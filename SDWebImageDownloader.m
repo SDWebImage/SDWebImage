@@ -104,6 +104,27 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 #pragma mark NSURLConnection (delegate)
 
+- (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
+{
+    if ([((NSHTTPURLResponse *)response) statusCode] >= 400)
+    {
+        [aConnection cancel];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+
+        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
+        {
+            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
+                                                        code:[((NSHTTPURLResponse *)response) statusCode]
+                                                    userInfo:nil];
+            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
+        }
+
+        self.connection = nil;
+        self.imageData = nil;
+    }
+}
+
 - (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
