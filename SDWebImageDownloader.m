@@ -118,6 +118,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
                                                         code:[((NSHTTPURLResponse *)response) statusCode]
                                                     userInfo:nil];
             [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
+            SDWIRelease(error);
         }
 
         self.connection = nil;
