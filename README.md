@@ -170,6 +170,22 @@ By default, the image will be stored in memory cache as well as on disk cache (a
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
 third argument.
 
+Common Problems
+---------------
+
+### No image appear when using UITableViewCell
+
+If choose to use a default cell template provided by UITableViewCell with SDWebImage, ensure you are
+providing a placeholder image, otherwise the cell will be initialized with no image.
+
+### Using dynamic image size with UITableViewCell
+
+UITableView determins the size of the image by the first image set for a cell. If your remote images
+don't have the same size as your placeholder image, you may experience strange anamorphic scaling issue.
+The following article gives a way to workaround this issue:
+
+[http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/](http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/)
+
 Automatic Reference Counting (ARC)
 ----------------------------------
 
