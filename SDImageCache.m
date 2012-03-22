@@ -245,7 +245,7 @@ static SDImageCache *instance;
 
     if (!image && fromDisk)
     {
-        UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+        image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
             [memCache setObject:image forKey:key];
