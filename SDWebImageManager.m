@@ -129,9 +129,11 @@ static SDWebImageManager *instance;
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
-    SuccessBlock successCopy = SDWIAutorelease([success copy]);
-    FailureBlock failureCopy = SDWIAutorelease([failure copy]);
+    SuccessBlock successCopy = [success copy];
+    FailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithInt:options], @"options", successCopy, @"success", failureCopy, @"failure", nil];
+    SDWIRelease(successCopy);
+    SDWIRelease(failureCopy);
     [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
 }
 #endif
