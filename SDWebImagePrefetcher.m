@@ -51,9 +51,9 @@ static SDWebImagePrefetcher *instance;
     self.prefetchURLs = urls;
 
     // Starts prefetching from the very first image on the list with the max allowed concurrency
-    int listCount = [self.prefetchURLs count];
+    NSUInteger listCount = [self.prefetchURLs count];
     SDWebImageManager *manager = [SDWebImageManager sharedManager];
-    for (int i = 0; i < self.maxConcurrentDownloads && _requestedCount < listCount; i++)
+    for (NSUInteger i = 0; i < self.maxConcurrentDownloads && _requestedCount < listCount; i++)
     {
         [self startPrefetchingAtIndex:i withManager:manager];
     }
