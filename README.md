@@ -196,7 +196,7 @@ time and do the right thing.
 Installation
 ------------
 
-You can chose to copy all the files in your project or to import the it as a static library.
+There are two ways to use this in your project: copy all the files into your project, or import the project as a static library.
 
 The following instructions are adapted from the excellent "Using Open Source Static Libraries in Xcode 4"
 [tutorial][] from Jonah Williams.
