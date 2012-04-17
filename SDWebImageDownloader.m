@@ -127,7 +127,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
 {
-int statusCode = [((NSHTTPURLResponse *)response) statusCode];
+    int statusCode = [((NSHTTPURLResponse *)response) statusCode];
     if (statusCode >= 400)
     {
         [aConnection cancel];
@@ -178,7 +178,6 @@ int statusCode = [((NSHTTPURLResponse *)response) statusCode];
 			CGImageRef imgTmp = [self createTransitoryImage:image];
 			if (imgTmp)
 			{
-//				[_delegate downloadedImageUpdated:imgTmp];
                 // Call delegate
                 UIImage *uiImage = [[UIImage alloc] initWithCGImage:imgTmp];
                 [delegate imageDownloader:self didUpdatePartialImage:uiImage];
@@ -186,10 +185,10 @@ int statusCode = [((NSHTTPURLResponse *)response) statusCode];
                 [uiImage release];
 			}
 #else // Mac OS
-//            NSImage *uiImage = [[UIImage alloc] initWithCGImage:image];
-//
-//			[_delegate downloadedImageUpdated:uiImage];
-//            [uiImage release];
+            NSImage *uiImage = [[NSImage alloc] initWithCGImage:image];
+            [delegate imageDownloader:self didUpdatePartialImage:uiImage];
+
+            [uiImage release];
 #endif
 			CGImageRelease(image);
 		}

@@ -31,7 +31,7 @@ extern NSString *const SDWebImageDownloadStopNotification;
 	/// Image height
 	size_t fullHeight;
 
-}
+}   
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, assign) id<SDWebImageDownloaderDelegate> delegate;

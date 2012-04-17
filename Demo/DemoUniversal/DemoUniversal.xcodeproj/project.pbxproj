@@ -1,0 +1,526 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		45890BEE153D509500BA5A3A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890BED153D509500BA5A3A /* UIKit.framework */; };
+		45890BF0153D509500BA5A3A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890BEF153D509500BA5A3A /* Foundation.framework */; };
+		45890BF2153D509500BA5A3A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890BF1153D509500BA5A3A /* CoreGraphics.framework */; };
+		45890BF8153D509500BA5A3A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 45890BF6153D509500BA5A3A /* InfoPlist.strings */; };
+		45890BFA153D509500BA5A3A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 45890BF9153D509500BA5A3A /* main.m */; };
+		45890BFE153D509500BA5A3A /* SDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 45890BFD153D509500BA5A3A /* SDAppDelegate.m */; };
+		45890C01153D509500BA5A3A /* SDViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45890C00153D509500BA5A3A /* SDViewController.m */; };
+		45890C04153D509500BA5A3A /* SDViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 45890C02153D509500BA5A3A /* SDViewController_iPhone.xib */; };
+		45890C07153D509500BA5A3A /* SDViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 45890C05153D509500BA5A3A /* SDViewController_iPad.xib */; };
+		45890C0F153D509600BA5A3A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890C0E153D509600BA5A3A /* SenTestingKit.framework */; };
+		45890C10153D509600BA5A3A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890BED153D509500BA5A3A /* UIKit.framework */; };
+		45890C11153D509600BA5A3A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890BEF153D509500BA5A3A /* Foundation.framework */; };
+		45890C19153D509600BA5A3A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 45890C17153D509600BA5A3A /* InfoPlist.strings */; };
+		45890C1C153D509600BA5A3A /* DemoUniversalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 45890C1B153D509600BA5A3A /* DemoUniversalTests.m */; };
+		45890C31153D510C00BA5A3A /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890C2E153D50B300BA5A3A /* libSDWebImage.a */; };
+		45890C33153D511100BA5A3A /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890C32153D511100BA5A3A /* ImageIO.framework */; };
+		45890C35153D511500BA5A3A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890C34153D511500BA5A3A /* QuartzCore.framework */; };
+		45890C40153D57BA00BA5A3A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45890C3F153D57BA00BA5A3A /* MapKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		45890C12153D509600BA5A3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45890BE0153D509500BA5A3A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45890BE8153D509500BA5A3A;
+			remoteInfo = DemoUniversal;
+		};
+		45890C2D153D50B300BA5A3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45890C26153D50B300BA5A3A /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 53922D6F148C55820056699D;
+			remoteInfo = SDWebImage;
+		};
+		45890C2F153D50C100BA5A3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45890C26153D50B300BA5A3A /* SDWebImage.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 53922D6E148C55810056699D;
+			remoteInfo = SDWebImage;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		45890BE9153D509500BA5A3A /* DemoUniversal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DemoUniversal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		45890BED153D509500BA5A3A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		45890BEF153D509500BA5A3A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		45890BF1153D509500BA5A3A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		45890BF5153D509500BA5A3A /* DemoUniversal-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DemoUniversal-Info.plist"; sourceTree = "<group>"; };
+		45890BF7153D509500BA5A3A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		45890BF9153D509500BA5A3A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		45890BFB153D509500BA5A3A /* DemoUniversal-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DemoUniversal-Prefix.pch"; sourceTree = "<group>"; };
+		45890BFC153D509500BA5A3A /* SDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDAppDelegate.h; sourceTree = "<group>"; };
+		45890BFD153D509500BA5A3A /* SDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDAppDelegate.m; sourceTree = "<group>"; };
+		45890BFF153D509500BA5A3A /* SDViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDViewController.h; sourceTree = "<group>"; };
+		45890C00153D509500BA5A3A /* SDViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDViewController.m; sourceTree = "<group>"; };
+		45890C03153D509500BA5A3A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SDViewController_iPhone.xib; sourceTree = "<group>"; };
+		45890C06153D509500BA5A3A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SDViewController_iPad.xib; sourceTree = "<group>"; };
+		45890C0D153D509600BA5A3A /* DemoUniversalTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DemoUniversalTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		45890C0E153D509600BA5A3A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		45890C16153D509600BA5A3A /* DemoUniversalTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DemoUniversalTests-Info.plist"; sourceTree = "<group>"; };
+		45890C18153D509600BA5A3A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		45890C1A153D509600BA5A3A /* DemoUniversalTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoUniversalTests.h; sourceTree = "<group>"; };
+		45890C1B153D509600BA5A3A /* DemoUniversalTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoUniversalTests.m; sourceTree = "<group>"; };
+		45890C26153D50B300BA5A3A /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = ../../SDWebImage.xcodeproj; sourceTree = "<group>"; };
+		45890C32153D511100BA5A3A /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		45890C34153D511500BA5A3A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		45890C3F153D57BA00BA5A3A /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		45890BE6153D509500BA5A3A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890C40153D57BA00BA5A3A /* MapKit.framework in Frameworks */,
+				45890C35153D511500BA5A3A /* QuartzCore.framework in Frameworks */,
+				45890C33153D511100BA5A3A /* ImageIO.framework in Frameworks */,
+				45890C31153D510C00BA5A3A /* libSDWebImage.a in Frameworks */,
+				45890BEE153D509500BA5A3A /* UIKit.framework in Frameworks */,
+				45890BF0153D509500BA5A3A /* Foundation.framework in Frameworks */,
+				45890BF2153D509500BA5A3A /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45890C09153D509500BA5A3A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890C0F153D509600BA5A3A /* SenTestingKit.framework in Frameworks */,
+				45890C10153D509600BA5A3A /* UIKit.framework in Frameworks */,
+				45890C11153D509600BA5A3A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		45890BDE153D509500BA5A3A = {
+			isa = PBXGroup;
+			children = (
+				45890C26153D50B300BA5A3A /* SDWebImage.xcodeproj */,
+				45890BF3153D509500BA5A3A /* DemoUniversal */,
+				45890C14153D509600BA5A3A /* DemoUniversalTests */,
+				45890BEC153D509500BA5A3A /* Frameworks */,
+				45890BEA153D509500BA5A3A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		45890BEA153D509500BA5A3A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				45890BE9153D509500BA5A3A /* DemoUniversal.app */,
+				45890C0D153D509600BA5A3A /* DemoUniversalTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		45890BEC153D509500BA5A3A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				45890C3F153D57BA00BA5A3A /* MapKit.framework */,
+				45890C34153D511500BA5A3A /* QuartzCore.framework */,
+				45890C32153D511100BA5A3A /* ImageIO.framework */,
+				45890BED153D509500BA5A3A /* UIKit.framework */,
+				45890BEF153D509500BA5A3A /* Foundation.framework */,
+				45890BF1153D509500BA5A3A /* CoreGraphics.framework */,
+				45890C0E153D509600BA5A3A /* SenTestingKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		45890BF3153D509500BA5A3A /* DemoUniversal */ = {
+			isa = PBXGroup;
+			children = (
+				45890BFC153D509500BA5A3A /* SDAppDelegate.h */,
+				45890BFD153D509500BA5A3A /* SDAppDelegate.m */,
+				45890BFF153D509500BA5A3A /* SDViewController.h */,
+				45890C00153D509500BA5A3A /* SDViewController.m */,
+				45890C02153D509500BA5A3A /* SDViewController_iPhone.xib */,
+				45890C05153D509500BA5A3A /* SDViewController_iPad.xib */,
+				45890BF4153D509500BA5A3A /* Supporting Files */,
+			);
+			path = DemoUniversal;
+			sourceTree = "<group>";
+		};
+		45890BF4153D509500BA5A3A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				45890BF5153D509500BA5A3A /* DemoUniversal-Info.plist */,
+				45890BF6153D509500BA5A3A /* InfoPlist.strings */,
+				45890BF9153D509500BA5A3A /* main.m */,
+				45890BFB153D509500BA5A3A /* DemoUniversal-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		45890C14153D509600BA5A3A /* DemoUniversalTests */ = {
+			isa = PBXGroup;
+			children = (
+				45890C1A153D509600BA5A3A /* DemoUniversalTests.h */,
+				45890C1B153D509600BA5A3A /* DemoUniversalTests.m */,
+				45890C15153D509600BA5A3A /* Supporting Files */,
+			);
+			path = DemoUniversalTests;
+			sourceTree = "<group>";
+		};
+		45890C15153D509600BA5A3A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				45890C16153D509600BA5A3A /* DemoUniversalTests-Info.plist */,
+				45890C17153D509600BA5A3A /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		45890C27153D50B300BA5A3A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				45890C2E153D50B300BA5A3A /* libSDWebImage.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		45890BE8153D509500BA5A3A /* DemoUniversal */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45890C1F153D509600BA5A3A /* Build configuration list for PBXNativeTarget "DemoUniversal" */;
+			buildPhases = (
+				45890BE5153D509500BA5A3A /* Sources */,
+				45890BE6153D509500BA5A3A /* Frameworks */,
+				45890BE7153D509500BA5A3A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				45890C30153D50C100BA5A3A /* PBXTargetDependency */,
+			);
+			name = DemoUniversal;
+			productName = DemoUniversal;
+			productReference = 45890BE9153D509500BA5A3A /* DemoUniversal.app */;
+			productType = "com.apple.product-type.application";
+		};
+		45890C0C153D509500BA5A3A /* DemoUniversalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45890C22153D509600BA5A3A /* Build configuration list for PBXNativeTarget "DemoUniversalTests" */;
+			buildPhases = (
+				45890C08153D509500BA5A3A /* Sources */,
+				45890C09153D509500BA5A3A /* Frameworks */,
+				45890C0A153D509500BA5A3A /* Resources */,
+				45890C0B153D509500BA5A3A /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				45890C13153D509600BA5A3A /* PBXTargetDependency */,
+			);
+			name = DemoUniversalTests;
+			productName = DemoUniversalTests;
+			productReference = 45890C0D153D509600BA5A3A /* DemoUniversalTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		45890BE0153D509500BA5A3A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = SD;
+				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = ekohe.com;
+			};
+			buildConfigurationList = 45890BE3153D509500BA5A3A /* Build configuration list for PBXProject "DemoUniversal" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 45890BDE153D509500BA5A3A;
+			productRefGroup = 45890BEA153D509500BA5A3A /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 45890C27153D50B300BA5A3A /* Products */;
+					ProjectRef = 45890C26153D50B300BA5A3A /* SDWebImage.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				45890BE8153D509500BA5A3A /* DemoUniversal */,
+				45890C0C153D509500BA5A3A /* DemoUniversalTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		45890C2E153D50B300BA5A3A /* libSDWebImage.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSDWebImage.a;
+			remoteRef = 45890C2D153D50B300BA5A3A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		45890BE7153D509500BA5A3A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890BF8153D509500BA5A3A /* InfoPlist.strings in Resources */,
+				45890C04153D509500BA5A3A /* SDViewController_iPhone.xib in Resources */,
+				45890C07153D509500BA5A3A /* SDViewController_iPad.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45890C0A153D509500BA5A3A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890C19153D509600BA5A3A /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		45890C0B153D509500BA5A3A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		45890BE5153D509500BA5A3A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890BFA153D509500BA5A3A /* main.m in Sources */,
+				45890BFE153D509500BA5A3A /* SDAppDelegate.m in Sources */,
+				45890C01153D509500BA5A3A /* SDViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45890C08153D509500BA5A3A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45890C1C153D509600BA5A3A /* DemoUniversalTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		45890C13153D509600BA5A3A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 45890BE8153D509500BA5A3A /* DemoUniversal */;
+			targetProxy = 45890C12153D509600BA5A3A /* PBXContainerItemProxy */;
+		};
+		45890C30153D50C100BA5A3A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SDWebImage;
+			targetProxy = 45890C2F153D50C100BA5A3A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		45890BF6153D509500BA5A3A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				45890BF7153D509500BA5A3A /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		45890C02153D509500BA5A3A /* SDViewController_iPhone.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				45890C03153D509500BA5A3A /* en */,
+			);
+			name = SDViewController_iPhone.xib;
+			sourceTree = "<group>";
+		};
+		45890C05153D509500BA5A3A /* SDViewController_iPad.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				45890C06153D509500BA5A3A /* en */,
+			);
+			name = SDViewController_iPad.xib;
+			sourceTree = "<group>";
+		};
+		45890C17153D509600BA5A3A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				45890C18153D509600BA5A3A /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		45890C1D153D509600BA5A3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		45890C1E153D509600BA5A3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		45890C20153D509600BA5A3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DemoUniversal/DemoUniversal-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT)/../../../";
+				INFOPLIST_FILE = "DemoUniversal/DemoUniversal-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		45890C21153D509600BA5A3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DemoUniversal/DemoUniversal-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT)/../../../";
+				INFOPLIST_FILE = "DemoUniversal/DemoUniversal-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		45890C23153D509600BA5A3A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/DemoUniversal.app/DemoUniversal";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DemoUniversal/DemoUniversal-Prefix.pch";
+				INFOPLIST_FILE = "DemoUniversalTests/DemoUniversalTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		45890C24153D509600BA5A3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/DemoUniversal.app/DemoUniversal";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DemoUniversal/DemoUniversal-Prefix.pch";
+				INFOPLIST_FILE = "DemoUniversalTests/DemoUniversalTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		45890BE3153D509500BA5A3A /* Build configuration list for PBXProject "DemoUniversal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45890C1D153D509600BA5A3A /* Debug */,
+				45890C1E153D509600BA5A3A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		45890C1F153D509600BA5A3A /* Build configuration list for PBXNativeTarget "DemoUniversal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45890C20153D509600BA5A3A /* Debug */,
+				45890C21153D509600BA5A3A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		45890C22153D509600BA5A3A /* Build configuration list for PBXNativeTarget "DemoUniversalTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45890C23153D509600BA5A3A /* Debug */,
+				45890C24153D509600BA5A3A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 45890BE0153D509500BA5A3A /* Project object */;
+}
