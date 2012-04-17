@@ -9,6 +9,7 @@
 #import "SDAppDelegate.h"
 
 #import "SDViewController.h"
+#import "SDImageCache.h"
 
 @implementation SDAppDelegate
 
@@ -24,6 +25,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [[SDImageCache sharedImageCache] clearMemory];
+    [[SDImageCache sharedImageCache] clearDisk];
+    [[SDImageCache sharedImageCache] cleanDisk];
+
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
