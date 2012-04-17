@@ -1,16 +1,17 @@
-/*
- * This file is part of the SDWebImage package.
- * (c) Olivier Poitrey <rs@dailymotion.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+//
+//  MKAnnotationView+WebCache.h
+//  SDWebImage
+//
+//  Created by Olivier Poitrey on 14/03/12.
+//  Copyright (c) 2012 Dailymotion. All rights reserved.
+//
 
+#import "MapKit/MapKit.h"
 #import "SDWebImageCompat.h"
 #import "SDWebImageManagerDelegate.h"
 #import "SDWebImageManager.h"
 
-@interface UIButton (WebCache) <SDWebImageManagerDelegate>
+@interface MKAnnotationView (WebCache) <SDWebImageManagerDelegate>
 
 /**
  * Set the imageView `image` with an `url`.

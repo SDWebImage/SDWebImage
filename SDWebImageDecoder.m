@@ -22,7 +22,7 @@ static SDWebImageDecoder *sharedInstance;
 
 - (void)notifyDelegateOnMainThreadWithInfo:(NSDictionary *)dict
 {
-    [dict retain];
+    SDWIRetain(dict);
     NSDictionary *decodeInfo = [dict objectForKey:DECODE_INFO_KEY];
     UIImage *decodedImage = [dict objectForKey:DECOMPRESSED_IMAGE_KEY];
 
@@ -30,7 +30,7 @@ static SDWebImageDecoder *sharedInstance;
     NSDictionary *userInfo = [decodeInfo objectForKey:USER_INFO_KEY];
 
     [delegate imageDecoder:self didFinishDecodingImage:decodedImage userInfo:userInfo];
-    [dict release];
+    SDWIRelease(dict);
 }
 
 - (void)decodeImageWithInfo:(NSDictionary *)decodeInfo
@@ -71,13 +71,13 @@ static SDWebImageDecoder *sharedInstance;
 
     NSOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(decodeImageWithInfo:) object:decodeInfo];
     [imageDecodingQueue addOperation:operation];
-    [operation release];
+    SDWIRelease(operation);
 }
 
 - (void)dealloc
 {
-    [imageDecodingQueue release], imageDecodingQueue = nil;
-    [super dealloc];
+    SDWISafeRelease(imageDecodingQueue);
+    SDWISuperDealoc;
 }
 
 + (SDWebImageDecoder *)sharedImageDecoder
@@ -116,9 +116,9 @@ static SDWebImageDecoder *sharedInstance;
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
 
-    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef];
+    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef scale:image.scale orientation:UIImageOrientationUp];
     CGImageRelease(decompressedImageRef);
-    return [decompressedImage autorelease];
+    return SDWIReturnAutoreleased(decompressedImage);
 }
 
 @end

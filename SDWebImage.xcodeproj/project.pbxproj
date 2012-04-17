@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		45B6DE0914FCD11200D19DD9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45B6DE0814FCD11200D19DD9 /* QuartzCore.framework */; };
 		45B6DE0C14FCD11900D19DD9 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45B6DE0B14FCD11900D19DD9 /* ImageIO.framework */; };
+		535699B615113E7300A4C397 /* MKAnnotationView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */; };
+		535699B715113E7300A4C397 /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */; };
 		53922D73148C55820056699D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53922D72148C55820056699D /* Foundation.framework */; };
 		53922D97148C56230056699D /* SDImageCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D85148C56230056699D /* SDImageCache.h */; };
 		53922D98148C56230056699D /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 53922D86148C56230056699D /* SDImageCache.m */; };
@@ -35,6 +37,8 @@
 /* Begin PBXFileReference section */
 		45B6DE0814FCD11200D19DD9 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		45B6DE0B14FCD11900D19DD9 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+WebCache.h"; sourceTree = SOURCE_ROOT; };
+		535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+WebCache.m"; sourceTree = SOURCE_ROOT; };
 		53922D6F148C55820056699D /* libSDWebImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSDWebImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		53922D72148C55820056699D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		53922D85148C56230056699D /* SDImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCache.h; sourceTree = SOURCE_ROOT; };
@@ -119,6 +123,8 @@
 		53922DA9148C562D0056699D /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */,
+				535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */,
 				53922D93148C56230056699D /* UIButton+WebCache.h */,
 				53922D94148C56230056699D /* UIButton+WebCache.m */,
 				53922D95148C56230056699D /* UIImageView+WebCache.h */,
@@ -179,6 +185,7 @@
 				53922DA3148C56230056699D /* SDWebImagePrefetcher.h in Headers */,
 				53922DA5148C56230056699D /* UIButton+WebCache.h in Headers */,
 				53922DA7148C56230056699D /* UIImageView+WebCache.h in Headers */,
+				535699B615113E7300A4C397 /* MKAnnotationView+WebCache.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,7 +215,7 @@
 		53922D66148C55810056699D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = Dailymotion;
 			};
 			buildConfigurationList = 53922D69148C55810056699D /* Build configuration list for PBXProject "SDWebImage" */;
@@ -240,6 +247,7 @@
 				53922DA4148C56230056699D /* SDWebImagePrefetcher.m in Sources */,
 				53922DA6148C56230056699D /* UIButton+WebCache.m in Sources */,
 				53922DA8148C56230056699D /* UIImageView+WebCache.m in Sources */,
+				535699B715113E7300A4C397 /* MKAnnotationView+WebCache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +297,8 @@
 		53922D7D148C55820056699D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_OBJCPP_ARC_ABI = NO;
 				DSTROOT = /tmp/SDWebImage.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -303,6 +313,8 @@
 		53922D7E148C55820056699D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_OBJCPP_ARC_ABI = NO;
 				DSTROOT = /tmp/SDWebImage.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";

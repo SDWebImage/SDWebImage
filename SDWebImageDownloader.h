@@ -18,7 +18,7 @@ extern NSString *const SDWebImageDownloadStopNotification;
 {
     @private
     NSURL *url;
-    id<SDWebImageDownloaderDelegate> delegate;
+    SDWIWeak id<SDWebImageDownloaderDelegate> delegate;
     NSURLConnection *connection;
     NSMutableData *imageData;
     id userInfo;

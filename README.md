@@ -88,6 +88,20 @@ handled for you, from async downloads to caching management.
         return cell;
     }
 
+### Using blocks
+
+If your project's deployement target is set to iOS 4+, you may want to use the success/failure blocks to be
+notified when image have been retrieved from cache.
+
+    // Here we use the new provided setImageWithURL: method to load the web image
+    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                   placeholderImage:[UIImage imageNamed:@"placeholder.png"]
+                            success:^(UIImage *image) {... success code here ...}
+                            failure:^(NSError *error) {... failure code here ...}];
+];
+
+Note: neither your success nor failure block will be call if your image request is canceled before completion.
+
 ### Using SDWebImageManager
 
 The SDWebImageManager is the class behind the UIImageView+WebCache category. It ties the
@@ -156,14 +170,35 @@ By default, the image will be stored in memory cache as well as on disk cache (a
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
 third argument.
 
+Common Problems
+---------------
+
+### No image appear when using UITableViewCell
+
+If choose to use a default cell template provided by UITableViewCell with SDWebImage, ensure you are
+providing a placeholder image, otherwise the cell will be initialized with no image.
+
+### Using dynamic image size with UITableViewCell
+
+UITableView determins the size of the image by the first image set for a cell. If your remote images
+don't have the same size as your placeholder image, you may experience strange anamorphic scaling issue.
+The following article gives a way to workaround this issue:
+
+[http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/](http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/)
+
+Automatic Reference Counting (ARC)
+----------------------------------
+
+You can use either style in your Cocoa project. SDWebImage Will figure out which you are using at compile
+time and do the right thing.
+
+
 Installation
 ------------
 
-You can chose to copy all the files in your project or to import the it as a static library. The
-second solution prefered as allow easier upgrading of the library and make this lib compatible with
-ARC/no-ARC projects with no effort.
+You can chose to copy all the files in your project or to import the it as a static library.
 
-The following instruction is adapted from the excelent "Using Open Source Static Libraries in Xcode 4"
+The following instructions are adapted from the excellent "Using Open Source Static Libraries in Xcode 4"
 [tutorial][] from Jonah Williams.
 
 ### Add the SDWebImage project to your workspace
@@ -177,19 +212,19 @@ You should end up with your project and SDWebimage project at the same lever in 
 
 ### Add build target dependency
 
-Select your project's build target and add the 'libSDWebImage.a' library to the “Link Binary With Libraries”
+Select your project's build target and add the 'libSDWebImage.a' library to the "Link Binary With Libraries"
 build phase.
 
 ![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
 
 ### Add headers
 
-Open the “Build Settings” tab and locate the “User Header Search Paths” setting. Set this to 
-“$(BUILT_PRODUCTS_DIR)” and check the “Recursive” check box.
+Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to 
+"$(BUILT_PRODUCTS_DIR)" and check the "Recursive" check box.
 
 ![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
 
-Add the "-ObjC" flag to the “Other Linker Flags” build setting.
+Add the "-ObjC" flag to the "Other Linker Flags" build setting.
 
 ### Fixing indexing
 

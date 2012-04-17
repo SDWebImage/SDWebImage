@@ -1,15 +1,14 @@
-/*
- * This file is part of the SDWebImage package.
- * (c) Olivier Poitrey <rs@dailymotion.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+//
+//  MKAnnotationView+WebCache.m
+//  SDWebImage
+//
+//  Created by Olivier Poitrey on 14/03/12.
+//  Copyright (c) 2012 Dailymotion. All rights reserved.
+//
 
-#import "UIButton+WebCache.h"
-#import "SDWebImageManager.h"
+#import "MKAnnotationView+WebCache.h"
 
-@implementation UIButton (WebCache)
+@implementation MKAnnotationView (WebCache)
 
 - (void)setImageWithURL:(NSURL *)url
 {
@@ -24,12 +23,12 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
     SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setImage:placeholder forState:UIControlStateNormal];
-
+    
+    self.image = placeholder;
+    
     if (url)
     {
         [manager downloadWithURL:url delegate:self options:options];
@@ -50,12 +49,12 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
 {
     SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setImage:placeholder forState:UIControlStateNormal];
-
+    
+    self.image = placeholder;
+    
     if (url)
     {
         [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
@@ -70,7 +69,7 @@
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
-    [self setImage:image forState:UIControlStateNormal];
+    self.image = image;
 }
 
 @end

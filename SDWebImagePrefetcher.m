@@ -106,7 +106,7 @@ static SDWebImagePrefetcher *instance;
 - (void)dealloc
 {
     self.prefetchURLs = nil;
-    [super dealloc];
+    SDWISuperDealoc;
 }
 
 @end
