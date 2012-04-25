@@ -71,6 +71,8 @@
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
     [self setImage:image forState:UIControlStateNormal];
+    [self setImage:image forState:UIControlStateSelected];
+    [self setImage:image forState:UIControlStateHighlighted];
 }
 
 @end
