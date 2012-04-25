@@ -203,19 +203,26 @@ The following instructions are adapted from the excellent "Using Open Source Sta
 
 ### Add the SDWebImage project to your workspace
 
-Right-click on the project navigator and select "Add Files to "Your Project" and select the SDWebImage
-Xcode project.
+Make sure your project is in a workspace. If it's not, click File -> Save As Workspace first. 
+
+Right-click on the project navigator and select "Add Files to "Your Project" and select SDWebImage.xcodeproj.
+You may want to include the SDWebImage directory in your workspace repository before adding it to your project. 
 
 ![Add SDWebImage](http://blog.carbonfive.com/wp-content/uploads/2011/04/adding_an_existing_project.png?w=300)
 
-You should end up with your project and SDWebimage project at the same lever in the workspace.
+You should end up with your project and SDWebimage project at the same level in the workspace.
+
+### Build libSDWebImage.a File
+
+Set your build target to iOS Device, then click Build. Make sure the libSDWebImage.a file inside SDWebImage -> Products is not red. 
 
 ### Add build target dependency
 
-Select your project's build target and add the 'libSDWebImage.a' library to the "Link Binary With Libraries"
-build phase.
+Select your project's build target and add the 'libSDWebImage.a' library to the "Link Binary With Libraries" inside the "Build Phases" tab.
 
 ![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
+
+You may also need to add MapKit.framework here too as 'MKAnnotationView_WebCache.h' depends on it. 
 
 ### Add headers
 
@@ -225,6 +232,9 @@ Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting
 ![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
 
 Add the "-ObjC" flag to the "Other Linker Flags" build setting.
+
+### Build Project
+At this point your workspace should build without error. If you are having problem, post to the Issue and the community can help you solve it. 
 
 ### Fixing indexing
 
