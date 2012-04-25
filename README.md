@@ -220,7 +220,7 @@ build phase.
 ### Add headers
 
 Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to 
-"$(BUILT_PRODUCTS_DIR)" and check the "Recursive" check box.
+"$(BUILT_PRODUCTS_DIR)/../../Headers" and check the "Recursive" check box.
 
 ![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
 
