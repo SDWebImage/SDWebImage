@@ -59,4 +59,13 @@
     self.image = image;
 }
 
+-(void)webImageManager:(SDWebImageManager *)imageManager didFailWithError:(NSError *)error 
+{
+    
+    [[self viewWithTag:1001] removeFromSuperview];
+    
+    self.alpha = 1.0;
+    
+}
+
 @end
