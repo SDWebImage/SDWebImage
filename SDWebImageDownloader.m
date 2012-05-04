@@ -115,7 +115,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
 {
-    if ([((NSHTTPURLResponse *)response) statusCode] >= 400)
+    if ([response respondsToSelector:@selector(statusCode)] && [((NSHTTPURLResponse *)response) statusCode] >= 400)
     {
         [aConnection cancel];
 
