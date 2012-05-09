@@ -57,7 +57,10 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     if (NSClassFromString(@"SDNetworkActivityIndicator"))
     {
         
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
+#pragma clang diagnostic pop
 
         // Remove observer in case it was previously added.
         [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SDWebImageDownloadStartNotification object:nil];
@@ -127,29 +130,32 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
 {
-    int statusCode = [((NSHTTPURLResponse *)response) statusCode];
-    if (statusCode >= 400)
-    {
-        [aConnection cancel];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
+    if ([response respondsToSelector:@selector(statusCode)]) {
+        int statusCode = [((NSHTTPURLResponse *)response) statusCode];
+        
+        if (statusCode  >= 400)
         {
-            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
-                                                        code:[((NSHTTPURLResponse *)response) statusCode]
-                                                    userInfo:nil];
-            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
-            SDWIRelease(error);
-        }
-
-        self.connection = nil;
-        self.imageData = nil;
-    } else if (statusCode >= 200 && statusCode < 300) {
-		expectedSize = (NSUInteger)[response expectedContentLength];
-		imageData = [[NSMutableData alloc] initWithCapacity:(expectedSize != NSUIntegerMax) ? expectedSize : 0];
-	}	
-
+            [aConnection cancel];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            
+            if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
+            {
+                NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
+                                                            code:[((NSHTTPURLResponse *)response) statusCode]
+                                                        userInfo:nil];
+                [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
+                SDWIRelease(error);
+            }
+            
+            self.connection = nil;
+            self.imageData = nil;
+        } else if (statusCode >= 200 && statusCode < 300) {
+            expectedSize = (NSUInteger)[response expectedContentLength];
+            imageData = [[NSMutableData alloc] initWithCapacity:(expectedSize != NSUIntegerMax) ? expectedSize : 0];
+        }	
+    }
+    
 }
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data

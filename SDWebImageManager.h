@@ -28,6 +28,12 @@ typedef enum
     NSMutableArray *failedURLs;
 }
 
+#if NS_BLOCKS_AVAILABLE
+typedef NSString *(^CacheKeyFilter)(NSURL *url);
+@property (strong) CacheKeyFilter cacheKeyFilter;
+#endif
+
+
 + (id)sharedManager;
 - (UIImage *)imageWithURL:(NSURL *)url;
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate;

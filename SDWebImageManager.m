@@ -20,6 +20,10 @@ static SDWebImageManager *instance;
 
 @implementation SDWebImageManager
 
+#if NS_BLOCKS_AVAILABLE
+@synthesize cacheKeyFilter;
+#endif
+
 - (id)init
 {
     if ((self = [super init]))
@@ -56,12 +60,28 @@ static SDWebImageManager *instance;
     return instance;
 }
 
+- (NSString *)cacheKeyForURL:(NSURL *)url
+{
+#if NS_BLOCKS_AVAILABLE
+    if (self.cacheKeyFilter)
+    {
+        return self.cacheKeyFilter(url);
+    }
+    else
+    {
+        return [url absoluteString];
+    }
+#else
+    return [url absoluteString];
+#endif
+}
+
 /**
  * @deprecated
  */
 - (UIImage *)imageWithURL:(NSURL *)url
 {
-    return [[SDImageCache sharedImageCache] imageFromKey:[url absoluteString]];
+    return [[SDImageCache sharedImageCache] imageFromKey:[self cacheKeyForURL:url]];
 }
 
 /**
@@ -106,7 +126,7 @@ static SDWebImageManager *instance;
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithInt:options], @"options", nil];
-    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
 }
 
 #if NS_BLOCKS_AVAILABLE
@@ -134,7 +154,7 @@ static SDWebImageManager *instance;
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithInt:options], @"options", successCopy, @"success", failureCopy, @"failure", nil];
     SDWIRelease(successCopy);
     SDWIRelease(failureCopy);
-    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
 }
 #endif
 
@@ -313,7 +333,7 @@ static SDWebImageManager *instance;
         // Store the image in the cache
         [[SDImageCache sharedImageCache] storeImage:image
                                           imageData:downloader.imageData
-                                             forKey:[downloader.url absoluteString]
+                                             forKey:[self cacheKeyForURL:downloader.url]
                                              toDisk:!(options & SDWebImageCacheMemoryOnly)];
     }
     else if (!(options & SDWebImageRetryFailed))
