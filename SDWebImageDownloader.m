@@ -17,12 +17,27 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 @interface SDWebImageDownloader ()
 @property (nonatomic, retain) NSURLConnection *connection;
+- (CGImageRef)createTransitoryImage:(CGImageRef)partialImg;
 @end
 
 @implementation SDWebImageDownloader
 @synthesize url, delegate, connection, imageData, userInfo, lowPriority;
 
 #pragma mark Public Methods
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        imageSource = CGImageSourceCreateIncremental(NULL);
+        if (imageSource == NULL) {
+            [NSException raise:NSMallocException format:@"CGImageSourceCreateIncremental failed in SDWebImageDownloader"];
+            [self release];
+        }
+        
+    }
+    return self;
+}
 
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate
 {
@@ -52,10 +67,10 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
         [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SDWebImageDownloadStopNotification object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:activityIndicator
-                                                 selector:NSSelectorFromString(@"startActivity")
+                                                 selector:@selector(startActivity)
                                                      name:SDWebImageDownloadStartNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:activityIndicator
-                                                 selector:NSSelectorFromString(@"stopActivity")
+                                                 selector:@selector(stopActivity)
                                                      name:SDWebImageDownloadStopNotification object:nil];
     }
 
@@ -89,7 +104,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if (connection)
     {
-        self.imageData = [NSMutableData data];
+//        self.imageData = [NSMutableData data];
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:nil];
     }
     else
@@ -115,30 +130,121 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
 {
-    if ([response respondsToSelector:@selector(statusCode)] && [((NSHTTPURLResponse *)response) statusCode] >= 400)
-    {
-        [aConnection cancel];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
+    if ([response respondsToSelector:@selector(statusCode)]) {
+        int statusCode = [((NSHTTPURLResponse *)response) statusCode];
+        
+        if (statusCode  >= 400)
         {
-            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
-                                                        code:[((NSHTTPURLResponse *)response) statusCode]
-                                                    userInfo:nil];
-            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
-            SDWIRelease(error);
-        }
-
-        self.connection = nil;
-        self.imageData = nil;
+            [aConnection cancel];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            
+            if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
+            {
+                NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
+                                                            code:[((NSHTTPURLResponse *)response) statusCode]
+                                                        userInfo:nil];
+                [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
+                SDWIRelease(error);
+            }
+            
+            self.connection = nil;
+            self.imageData = nil;
+        } else if (statusCode >= 200 && statusCode < 300) {
+            expectedSize = (NSUInteger)[response expectedContentLength];
+            imageData = [[NSMutableData alloc] initWithCapacity:(expectedSize != NSUIntegerMax) ? expectedSize : 0];
+        }	
     }
+    
 }
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
+    
+    
+    //
+    // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
+    // Thanks to the author @Nyx0uf !
+    //
+
+	/// Get the total bytes downloaded
+	const NSUInteger totalSize = [imageData length];
+	/// Update the data source, we must pass ALL the data, not just the new bytes
+	CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+    
+	/// We know the expected size of the image
+	if (fullHeight > 0 && fullWidth > 0)
+	{
+		/// Create the image
+		CGImageRef image = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+		if (image && [delegate respondsToSelector:@selector(imageDownloader:didUpdatePartialImage:)])
+		{
+#ifdef __IPHONE_4_0 // iOS
+			CGImageRef imgTmp = [self createTransitoryImage:image];
+			if (imgTmp)
+			{
+                // Call delegate
+                UIImage *uiImage = [[UIImage alloc] initWithCGImage:imgTmp];
+                [delegate imageDownloader:self didUpdatePartialImage:uiImage];
+				CGImageRelease(imgTmp);
+                [uiImage release];
+			}
+#else // Mac OS
+            NSImage *uiImage = [[NSImage alloc] initWithCGImage:image];
+            [delegate imageDownloader:self didUpdatePartialImage:uiImage];
+
+            [uiImage release];
+#endif
+			CGImageRelease(image);
+		}
+	}
+	else
+	{
+		CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+		if (properties)
+		{
+			CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+			if (val)
+				CFNumberGetValue(val, kCFNumberLongType, &fullHeight);
+			val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+			if (val)
+				CFNumberGetValue(val, kCFNumberLongType, &fullWidth);
+			CFRelease(properties);
+		}
+	}
+
+    //
+    // End of @Nyx0uf's code
+    //
 }
+
+//
+// The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
+// Thanks to the author @Nyx0uf !
+//
+
+-(CGImageRef)createTransitoryImage:(CGImageRef)partialImg
+{
+	const size_t height = CGImageGetHeight(partialImg);
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef bmContext = CGBitmapContextCreate(NULL, fullWidth, fullHeight, 8, fullWidth * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
+	CGColorSpaceRelease(colorSpace);
+	if (!bmContext)
+	{
+		NSLog(@"fail creating context");
+		return NULL;
+	}
+	CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = fullWidth, .size.height = height}, partialImg);
+	CGImageRef goodImageRef = CGBitmapContextCreateImage(bmContext);
+	CGContextRelease(bmContext);
+	return goodImageRef;
+}
+//
+// End of @Nyx0uf's code
+//
+
+
 
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
@@ -184,6 +290,8 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    CFRelease(imageSource);
+
     SDWISafeRelease(url);
     SDWISafeRelease(connection);
     SDWISafeRelease(imageData);

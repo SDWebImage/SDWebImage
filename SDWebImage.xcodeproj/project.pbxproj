@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45B6DE0914FCD11200D19DD9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45B6DE0814FCD11200D19DD9 /* QuartzCore.framework */; };
+		45B6DE0C14FCD11900D19DD9 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45B6DE0B14FCD11900D19DD9 /* ImageIO.framework */; };
 		535699B615113E7300A4C397 /* MKAnnotationView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */; };
 		535699B715113E7300A4C397 /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */; };
 		53922D73148C55820056699D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53922D72148C55820056699D /* Foundation.framework */; };
@@ -33,6 +35,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		45B6DE0814FCD11200D19DD9 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		45B6DE0B14FCD11900D19DD9 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+WebCache.h"; sourceTree = SOURCE_ROOT; };
 		535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+WebCache.m"; sourceTree = SOURCE_ROOT; };
 		53922D6F148C55820056699D /* libSDWebImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSDWebImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45B6DE0C14FCD11900D19DD9 /* ImageIO.framework in Frameworks */,
+				45B6DE0914FCD11200D19DD9 /* QuartzCore.framework in Frameworks */,
 				53FB894914D35E9E0020B787 /* UIKit.framework in Frameworks */,
 				53922D73148C55820056699D /* Foundation.framework in Frameworks */,
 				53FB894714D35E820020B787 /* CoreGraphics.framework in Frameworks */,
@@ -93,6 +99,8 @@
 		53922D71148C55820056699D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				45B6DE0B14FCD11900D19DD9 /* ImageIO.framework */,
+				45B6DE0814FCD11200D19DD9 /* QuartzCore.framework */,
 				53FB893F14D35D1A0020B787 /* CoreGraphics.framework */,
 				53922D72148C55820056699D /* Foundation.framework */,
 				53FB894814D35E9E0020B787 /* UIKit.framework */,

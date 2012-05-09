@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageDownloaderDelegate.h"
 #import "SDWebImageCompat.h"
+#import <ImageIO/ImageIO.h>
 
 extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
@@ -22,7 +23,15 @@ extern NSString *const SDWebImageDownloadStopNotification;
     NSMutableData *imageData;
     id userInfo;
     BOOL lowPriority;
-}
+    
+    CGImageSourceRef imageSource;
+    NSUInteger expectedSize;
+	/// Image width
+	size_t fullWidth;
+	/// Image height
+	size_t fullHeight;
+
+}   
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, assign) id<SDWebImageDownloaderDelegate> delegate;

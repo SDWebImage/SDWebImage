@@ -63,42 +63,44 @@ How To Use It
 Just #import the UIImageView+WebCache.h header, and call the setImageWithURL:placeholderImage:
 method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be
 handled for you, from async downloads to caching management.
+```objective-c
+#import "UIImageView+WebCache.h"
 
-    #import "UIImageView+WebCache.h"
+...
 
-    ...
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *MyIdentifier = @"MyIdentifier";
 
-    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+
+    if (cell == nil)
     {
-        static NSString *MyIdentifier = @"MyIdentifier";
-
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
-
-        if (cell == nil)
-        {
-            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                           reuseIdentifier:MyIdentifier] autorelease];
-        }
-
-        // Here we use the new provided setImageWithURL: method to load the web image
-        [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
-                       placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
-
-        cell.textLabel.text = @"My Text";
-        return cell;
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                       reuseIdentifier:MyIdentifier] autorelease];
     }
+
+    // Here we use the new provided setImageWithURL: method to load the web image
+    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                   placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
+
+    cell.textLabel.text = @"My Text";
+    return cell;
+}
+```
 
 ### Using blocks
 
 If your project's deployement target is set to iOS 4+, you may want to use the success/failure blocks to be
 notified when image have been retrieved from cache.
-
-    // Here we use the new provided setImageWithURL: method to load the web image
-    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
-                   placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                            success:^(UIImage *image) {... success code here ...}
-                            failure:^(NSError *error) {... failure code here ...}];
+```objective-c
+// Here we use the new provided setImageWithURL: method to load the web image
+[cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+               placeholderImage:[UIImage imageNamed:@"placeholder.png"]
+                        success:^(UIImage *image) {... success code here ...}
+                        failure:^(NSError *error) {... failure code here ...}];
 ];
+```
 
 Note: neither your success nor failure block will be call if your image request is canceled before completion.
 
@@ -109,35 +111,38 @@ asynchronous downloader with the image cache store. You can use this class direc
 from web image downloading with caching in another context than a UIView (ie: with Cocoa).
 
 Here is a simple example of how to use SDWebImageManager:
+```objective-c
+SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+UIImage *cachedImage = [manager imageWithURL:url];
 
-    UIImage *cachedImage = [manager imageWithURL:url];
-
-    if (cachedImage)
-    {
-        // Use the cached image immediatly
-    }
-    else
-    {
-        // Start an async download
-        [manager downloadWithURL:url delegate:self];
-    }
+if (cachedImage)
+{
+    // Use the cached image immediatly
+}
+else
+{
+    // Start an async download
+    [manager downloadWithURL:url delegate:self];
+}
+```
 
 Your class will have to implement the SDWebImageManagerDelegate protocol, and to implement the
 webImageManager:didFinishWithImage: method from this protocol:
-
-    - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
-    {
-        // Do something with the downloaded image
-    }
+```objective-c
+- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
+{
+    // Do something with the downloaded image
+}
+```
 
 ### Using Asynchronous Image Downloader Independently
 
 It is possible to use the async image downloader independently. You just have to create an instance
 of SDWebImageDownloader using its convenience constructor downloaderWithURL:delegate:.
-
-    downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
+```objective-c
+downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self];
+```
 
 The download will start immediately and the imageDownloader:didFinishWithImage: method from the
 SDWebImageDownloaderDelegate protocol will be called as soon as the download of image is completed.
@@ -155,16 +160,18 @@ To lookup the cache, you use the imageForKey: method. If the method returns nil,
 doesn't currently own the image. You are thus responsible for generating and caching it. The cache
 key is an application unique identifier for the image to cache. It is generally the absolute URL of
 the image.
-
-    UIImage *myCachedImage = [[SDImageCache sharedImageCache] imageFromKey:myCacheKey];
+```objective-c
+UIImage *myCachedImage = [[SDImageCache sharedImageCache] imageFromKey:myCacheKey];
+```
 
 By default SDImageCache will lookup the disk cache if an image can't be found in the memory cache.
 You can prevent this from happening by calling the alternative method imageFromKey:fromDisk: with a
 negative second argument.
 
 To store an image into the cache, you use the storeImage:forKey: method:
-
-    [[SDImageCache sharedImageCache] storeImage:myImage forKey:myCacheKey];
+```objective-c
+[[SDImageCache sharedImageCache] storeImage:myImage forKey:myCacheKey];
+```
 
 By default, the image will be stored in memory cache as well as on disk cache (asynchronously). If
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
@@ -178,18 +185,19 @@ takes the NSURL as input, and output a cache key NSString.
 
 The following example sets a filter in the application delegate that will remove any query-string from
 the URL before to use it as a cache key:
-
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+```objective-c
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
     {
-        [[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
-        {
-            url = [[[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path] autorelease];
-            return [url absoluteString];
-        }];
+        url = [[[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path] autorelease];
+        return [url absoluteString];
+    }];
 
-        // Your app init code...
-        return YES;
-    }
+    // Your app init code...
+    return YES;
+}
+```
 
 
 Common Problems

@@ -390,4 +390,25 @@ static SDWebImageManager *instance;
     SDWIRelease(downloader);
 }
 
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
+{
+    [downloader retain];
+    
+    // Notify all the downloadDelegates with this downloader
+    for (NSInteger idx = (NSInteger)[downloaders count] - 1; idx >= 0; idx--)
+    {
+        NSUInteger uidx = (NSUInteger)idx;
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
+        if (aDownloader == downloader)
+        {
+            id<SDWebImageManagerDelegate> delegate = [[[downloadDelegates objectAtIndex:uidx] retain] autorelease];
+            
+            if ([delegate respondsToSelector:@selector(webImageManager:didUpdatePartialImage:)])
+                [delegate webImageManager:self didUpdatePartialImage:image];
+        }
+    }
+    
+    [downloader release];
+}
+
 @end
