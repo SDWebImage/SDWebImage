@@ -65,7 +65,7 @@ method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. E
 handled for you, from async downloads to caching management.
 
 ```objective-c
-#import "UIImageView+WebCache.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 
 ...
 
@@ -234,49 +234,75 @@ Installation
 
 You can chose to copy all the files in your project or to import the it as a static library.
 
-The following instructions are adapted from the excellent "Using Open Source Static Libraries in Xcode 4"
-[tutorial][] from Jonah Williams.
+### Add the SDWebImage project to your project
 
-### Add the SDWebImage project to your workspace
+Right-click on the project navigator and select "Add Files to "Your Project":
 
-Make sure your project is in a workspace. If it's not, click File -> Save As Workspace first.
+![Add Library Project](http://dl.dropbox.com/u/123346/SDWebImage/01_add_library_project.jpg)
 
-Right-click on the project navigator and select "Add Files to "Your Project" and select SDWebImage.xcodeproj.
-You may want to include the SDWebImage directory in your workspace repository before adding it to your project.
+In the dialog, select SDWebImage.xcodeproj:
 
-![Add SDWebImage](http://blog.carbonfive.com/wp-content/uploads/2011/04/adding_an_existing_project.png?w=300)
+![Add Library Project Dialog](http://dl.dropbox.com/u/123346/SDWebImage/02_add_library_project_dialog.jpg)
 
-You should end up with your project and SDWebimage project at the same level in the workspace.
+After you’ve added the subproject, it’ll appear below the main project in Xcode’s Navigator tree:
 
-### Build libSDWebImage.a File
+![Library Added](http://dl.dropbox.com/u/123346/SDWebImage/03_library_added.jpg)
 
-Set your build target to iOS Device, then click Build. Make sure the libSDWebImage.a file inside SDWebImage -> Products is not red.
+You may want to add the SDWebImage directory in your project source tree as a submodule before adding it to your project.
 
-### Add build target dependency
+### Add build target dependencies
 
-Select your project's build target and add the 'libSDWebImage.a' library to the "Link Binary With Libraries" inside the "Build Phases" tab.
+In you application project app’s target settings, find the "Build Phases" section and open the "Target Dependencies" block:
 
-![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
+![Add Target Dependencies](http://dl.dropbox.com/u/123346/SDWebImage/04_add_target_dependencies.jpg)
 
-You may also need to add MapKit.framework here too as 'MKAnnotationView_WebCache.h' depends on it.
+Click the "+" button and select "SDWebImage ARC" (you may choose the non ARC target if you want to support iOS <3):
+
+![Add Target Dependencies Dialog](http://dl.dropbox.com/u/123346/SDWebImage/05_add_target_dependencies_dialog.jpg)
+
+Open the "Link Binary With Libraries" block:
+
+![Add Library Link](http://dl.dropbox.com/u/123346/SDWebImage/06_add_library_link.jpg)
+
+Click the "+" button and select "libSDWebImageARC.a" library (use non ARC version if you chose non ARC version in the previous step):
+
+![Add Library Link Dialog](http://dl.dropbox.com/u/123346/SDWebImage/07_add_library_link_dialog.jpg)
+
+Click the "+" button again and select "MapKit.framework", this is used by MKAnnotationView+WebCache category:
+
+![Add ImageIO Framework](http://dl.dropbox.com/u/123346/SDWebImage/08_add_imageio_framework.jpg)
+
+Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
+
+![Add MapKit Framework](http://dl.dropbox.com/u/123346/SDWebImage/09_add_mapkit_framework.jpg)
 
 ### Add headers
 
-Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to
-"$(BUILT_PRODUCTS_DIR)/../../Headers" and check the "Recursive" check box.
+Open the "Build Settings" tab, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
 
-![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
+![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
 
-Add the "-ObjC" flag to the "Other Linker Flags" build setting.
+Locate "User Header Search Paths" and add two settings: ”$(TARGET_BUILD_DIR)/usr/local/lib/include” and ”$(OBJROOT)/UninstalledProducts/include”. Make sure to include the quotes here:
+
+![User Header Search Paths](http://dl.dropbox.com/u/123346/SDWebImage/11_user_header_search_paths.jpg)
+
+### Import headers in your source files
+
+In the source files where you need to use the library, use ``#import <SDWebImage/HeaderFileName.h>``:
+
+```objective-c
+#import <SDWebImage/UIImageView+WebCache.h>
+```
 
 ### Build Project
-At this point your workspace should build without error. If you are having problem, post to the Issue and the community can help you solve it.
+
+At this point your workspace should build without error. If you are having problem, post to the Issue and the
+community can help you solve it.
 
 ### Fixing indexing
 
 If you have problem with auto-completion of SDWebImage methods, you may have to copy the header files in
 your project.
-
 
 
 Future Enhancements
