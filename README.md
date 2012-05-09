@@ -170,6 +170,28 @@ By default, the image will be stored in memory cache as well as on disk cache (a
 you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
 third argument.
 
+### Using cache key filter
+
+Sometime, you may not want to use the image URL as cache key because part of the URL is dynamic
+(i.e.: for access control purpose). SDWebImageManager provides a way to set a cache key filter that
+takes the NSURL as input, and output a cache key NSString.
+
+The following example sets a filter in the application delegate that will remove any query-string from
+the URL before to use it as a cache key:
+
+    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+    {
+        [[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
+        {
+            url = [[[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path] autorelease];
+            return [url absoluteString];
+        }];
+
+        // Your app init code...
+        return YES;
+    }
+
+
 Common Problems
 ---------------
 
@@ -203,10 +225,10 @@ The following instructions are adapted from the excellent "Using Open Source Sta
 
 ### Add the SDWebImage project to your workspace
 
-Make sure your project is in a workspace. If it's not, click File -> Save As Workspace first. 
+Make sure your project is in a workspace. If it's not, click File -> Save As Workspace first.
 
 Right-click on the project navigator and select "Add Files to "Your Project" and select SDWebImage.xcodeproj.
-You may want to include the SDWebImage directory in your workspace repository before adding it to your project. 
+You may want to include the SDWebImage directory in your workspace repository before adding it to your project.
 
 ![Add SDWebImage](http://blog.carbonfive.com/wp-content/uploads/2011/04/adding_an_existing_project.png?w=300)
 
@@ -214,7 +236,7 @@ You should end up with your project and SDWebimage project at the same level in 
 
 ### Build libSDWebImage.a File
 
-Set your build target to iOS Device, then click Build. Make sure the libSDWebImage.a file inside SDWebImage -> Products is not red. 
+Set your build target to iOS Device, then click Build. Make sure the libSDWebImage.a file inside SDWebImage -> Products is not red.
 
 ### Add build target dependency
 
@@ -222,11 +244,11 @@ Select your project's build target and add the 'libSDWebImage.a' library to the 
 
 ![Add target dependency](http://blog.carbonfive.com/wp-content/uploads/2011/04/linkable_libraries.png?w=214)
 
-You may also need to add MapKit.framework here too as 'MKAnnotationView_WebCache.h' depends on it. 
+You may also need to add MapKit.framework here too as 'MKAnnotationView_WebCache.h' depends on it.
 
 ### Add headers
 
-Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to 
+Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting. Set this to
 "$(BUILT_PRODUCTS_DIR)/../../Headers" and check the "Recursive" check box.
 
 ![Header Search Paths](http://blog.carbonfive.com/wp-content/uploads/2011/04/header_search_path_value.png?w=300)
@@ -234,7 +256,7 @@ Open the "Build Settingsæ tab and locate the "User Header Search Paths" setting
 Add the "-ObjC" flag to the "Other Linker Flags" build setting.
 
 ### Build Project
-At this point your workspace should build without error. If you are having problem, post to the Issue and the community can help you solve it. 
+At this point your workspace should build without error. If you are having problem, post to the Issue and the community can help you solve it.
 
 ### Fixing indexing
 
