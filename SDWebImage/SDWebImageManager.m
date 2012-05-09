@@ -264,11 +264,38 @@ static SDWebImageManager *instance;
         downloader.lowPriority = (options & SDWebImageLowPriority);
     }
 
+    if ((options & SDWebImageProgressiveDownload) && !downloader.progressive)
+    {
+        // Turn progressive download support on demand
+        downloader.progressive = YES;
+    }
+
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
 }
 
 #pragma mark SDWebImageDownloaderDelegate
+
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
+{
+    // Notify all the downloadDelegates with this downloader
+    for (NSInteger idx = (NSInteger)[downloaders count] - 1; idx >= 0; idx--)
+    {
+        NSUInteger uidx = (NSUInteger)idx;
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
+        if (aDownloader == downloader)
+        {
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
+            SDWIRetain(delegate);
+            SDWIAutorelease(delegate);
+
+            if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
+            {
+                objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:), self, image, downloader.url);
+            }
+        }
+    }
+}
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {

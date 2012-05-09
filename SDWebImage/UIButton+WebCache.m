@@ -68,6 +68,14 @@
     [[SDWebImageManager sharedManager] cancelForDelegate:self];
 }
 
+- (void)webImageManager:(SDWebImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url
+{
+    [self setImage:image forState:UIControlStateNormal];
+    [self setImage:image forState:UIControlStateSelected];
+    [self setImage:image forState:UIControlStateHighlighted];
+}
+
+
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
     [self setImage:image forState:UIControlStateNormal];

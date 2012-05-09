@@ -7,8 +7,9 @@
  */
 
 #import "SDWebImageDownloader.h"
-
 #import "SDWebImageDecoder.h"
+#import <ImageIO/ImageIO.h>
+
 @interface SDWebImageDownloader (ImageDecoder) <SDWebImageDecoderDelegate>
 @end
 
@@ -20,7 +21,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 @end
 
 @implementation SDWebImageDownloader
-@synthesize url, delegate, connection, imageData, userInfo, lowPriority;
+@synthesize url, delegate, connection, imageData, userInfo, lowPriority, progressive;
 
 #pragma mark Public Methods
 
@@ -89,7 +90,6 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if (connection)
     {
-        self.imageData = [NSMutableData data];
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:nil];
     }
     else
@@ -115,7 +115,12 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
 {
-    if ([response respondsToSelector:@selector(statusCode)] && [((NSHTTPURLResponse *)response) statusCode] >= 400)
+    if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
+    {
+        expectedSize = response.expectedContentLength > 0 ? response.expectedContentLength : 0;
+        self.imageData = SDWIReturnAutoreleased([[NSMutableData alloc] initWithCapacity:expectedSize]);
+    }
+    else
     {
         [aConnection cancel];
 
@@ -138,6 +143,78 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 - (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
+
+    if (CGImageSourceCreateImageAtIndex == NULL)
+    {
+        // ImageIO isn't present in iOS < 4
+        self.progressive = NO;
+    }
+
+    if (self.progressive && expectedSize > 0 && [delegate respondsToSelector:@selector(imageDownloader:didUpdatePartialImage:)])
+    {
+        // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
+        // Thanks to the author @Nyx0uf
+
+        /// Get the total bytes downloaded
+        const NSUInteger totalSize = [imageData length];
+
+        // Update the data source, we must pass ALL the data, not just the new bytes
+        CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
+        CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+
+        if (width + height == 0)
+        {
+            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+            if (properties)
+            {
+                CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+                if (val) CFNumberGetValue(val, kCFNumberLongType, &height);
+                val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+                if (val) CFNumberGetValue(val, kCFNumberLongType, &width);
+                CFRelease(properties);
+            }
+        }
+
+        if (width + height > 0 && totalSize < expectedSize)
+        {
+            /// Create the image
+            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+
+#ifdef TARGET_OS_IPHONE
+            // Workaround for iOS anamorphic image
+            if (partialImageRef)
+            {
+                const size_t partialHeight = CGImageGetHeight(partialImageRef);
+                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+                CGContextRef bmContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
+                CGColorSpaceRelease(colorSpace);
+                if (bmContext)
+                {
+                    CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = width, .size.height = partialHeight}, partialImageRef);
+                    CGImageRelease(partialImageRef);
+                    partialImageRef = CGBitmapContextCreateImage(bmContext);
+                    CGContextRelease(bmContext);
+                }
+                else
+                {
+                    CGImageRelease(partialImageRef);
+                    partialImageRef = nil;
+                }
+            }
+#endif
+
+            if (partialImageRef)
+            {
+                UIImage *image = [[UIImage alloc] initWithCGImage:partialImageRef];
+                [delegate imageDownloader:self didUpdatePartialImage:image];
+                SDWIRelease(image);
+
+                CGImageRelease(partialImageRef);
+            }
+        }
+
+        CFRelease(imageSource);
+    }
 }
 
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
