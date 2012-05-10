@@ -32,7 +32,6 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo
 {
-
     return [self downloaderWithURL:url delegate:delegate userInfo:userInfo lowPriority:NO];
 }
 
@@ -155,7 +154,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
         // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
         // Thanks to the author @Nyx0uf
 
-        /// Get the total bytes downloaded
+        // Get the total bytes downloaded
         const NSUInteger totalSize = [imageData length];
 
         // Update the data source, we must pass ALL the data, not just the new bytes
@@ -177,7 +176,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
         if (width + height > 0 && totalSize < expectedSize)
         {
-            /// Create the image
+            // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
 
 #ifdef TARGET_OS_IPHONE
@@ -205,8 +204,11 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
             if (partialImageRef)
             {
-                UIImage *image = [[UIImage alloc] initWithCGImage:partialImageRef];
-                [delegate imageDownloader:self didUpdatePartialImage:image];
+                UIImage *image = SDScaledImageForPath(url.absoluteString, [UIImage imageWithCGImage:partialImageRef]);
+                [[SDWebImageDecoder sharedImageDecoder] decodeImage:image
+                                                       withDelegate:self
+                                                           userInfo:[NSDictionary dictionaryWithObject:@"partial" forKey:@"type"]];
+
                 SDWIRelease(image);
 
                 CGImageRelease(partialImageRef);
@@ -251,9 +253,16 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 #pragma mark SDWebImageDecoderDelegate
 
-- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo
+- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)aUserInfo
 {
-    [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+    if ([[aUserInfo valueForKey:@"type"] isEqualToString:@"partial"])
+    {
+        [delegate imageDownloader:self didUpdatePartialImage:image];
+    }
+    else
+    {
+        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+    }
 }
 
 #pragma mark NSObject
