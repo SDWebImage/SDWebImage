@@ -58,6 +58,8 @@ I thought this library could benefit other Cocoa Touch applications so I open-so
 How To Use It
 -------------
 
+API documentation is available at [http://hackemist.com/SDWebImage/doc/](http://hackemist.com/SDWebImage/doc/)
+
 ### Using UIImageView+WebCache category with UITableView
 
 Just #import the UIImageView+WebCache.h header, and call the setImageWithURL:placeholderImage:
