@@ -76,7 +76,7 @@ static SDWebImageManager *instance;
 #endif
 }
 
-/**
+/*
  * @deprecated
  */
 - (UIImage *)imageWithURL:(NSURL *)url
@@ -84,7 +84,7 @@ static SDWebImageManager *instance;
     return [[SDImageCache sharedImageCache] imageFromKey:[self cacheKeyForURL:url]];
 }
 
-/**
+/*
  * @deprecated
  */
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
@@ -92,7 +92,7 @@ static SDWebImageManager *instance;
     [self downloadWithURL:url delegate:delegate options:(retryFailed ? SDWebImageRetryFailed : 0)];
 }
 
-/**
+/*
  * @deprecated
  */
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority

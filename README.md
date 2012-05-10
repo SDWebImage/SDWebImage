@@ -115,28 +115,14 @@ Here is a simple example of how to use SDWebImageManager:
 
 ```objective-c
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
-UIImage *cachedImage = [manager imageWithURL:url];
-
-if (cachedImage)
-{
-    // Use the cached image immediatly
-}
-else
-{
-    // Start an async download
-    [manager downloadWithURL:url delegate:self];
-}
-```
-
-Your class will have to implement the SDWebImageManagerDelegate protocol, and to implement the
-webImageManager:didFinishWithImage: method from this protocol:
-
-```objective-c
-- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
-{
-    // Do something with the downloaded image
-}
+[manager downloadWithURL:imageURL
+                delegate:self
+                 options:0
+                 success:^(UIImage *image)
+                 {
+                     // do something with image
+                 }
+                 failure:nil];
 ```
 
 ### Using Asynchronous Image Downloader Independently

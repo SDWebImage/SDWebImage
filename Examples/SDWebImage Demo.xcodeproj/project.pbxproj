@@ -18,7 +18,7 @@
 		537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B4155AB74D005750A4 /* DetailViewController.xib */; };
 		537612E7155ABA44005750A4 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		53761328155AD31B005750A4 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E3155ABA3C005750A4 /* MapKit.framework */; };
-		53A2B4FC155B096D00B12423 /* libSDWebImage ARC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2B4F9155B095800B12423 /* libSDWebImage ARC.a */; };
+		53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2B4F9155B095800B12423 /* libSDWebImageARC.a */; };
 		53A2B50D155B155A00B12423 /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50B155B155A00B12423 /* placeholder.png */; };
 		53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50C155B155A00B12423 /* placeholder@2x.png */; };
 /* End PBXBuildFile section */
@@ -77,7 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53A2B4FC155B096D00B12423 /* libSDWebImage ARC.a in Frameworks */,
+				53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */,
 				53761328155AD31B005750A4 /* MapKit.framework in Frameworks */,
 				537612E7155ABA44005750A4 /* ImageIO.framework in Frameworks */,
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
@@ -222,7 +222,7 @@
 		53A2B4F9155B095800B12423 /* libSDWebImage ARC.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = "libSDWebImage ARC.a";
+			path = libSDWebImageARC.a;
 			remoteRef = 53A2B4F8155B095800B12423 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
