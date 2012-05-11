@@ -128,7 +128,7 @@
 - (int)getDiskCount;
 
 /**
- * Get the number of images in memory cache
+ * Get the total size of images in memory cache
  */
 - (int)getMemorySize;
 
