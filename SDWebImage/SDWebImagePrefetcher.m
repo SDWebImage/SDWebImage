@@ -26,6 +26,7 @@ static SDWebImagePrefetcher *instance;
     {
         instance = [[SDWebImagePrefetcher alloc] init];
         instance.maxConcurrentDownloads = 3;
+        instance.options = (SDWebImageLowPriority);
     }
 
     return instance;
@@ -35,7 +36,7 @@ static SDWebImagePrefetcher *instance;
 {
     if (index >= [self.prefetchURLs count]) return;
     _requestedCount++;
-    [imageManager downloadWithURL:[self.prefetchURLs objectAtIndex:index] delegate:self options:SDWebImageLowPriority];
+    [imageManager downloadWithURL:[self.prefetchURLs objectAtIndex:index] delegate:self options:self.options];
 }
 
 - (void)reportStatus

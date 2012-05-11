@@ -27,6 +27,12 @@
 @property (nonatomic, assign) NSUInteger maxConcurrentDownloads;
 
 /**
+ * SDWebImageOptions for prefetcher. Defaults to SDWebImageLowPriority.
+ */
+@property (nonatomic, assign) SDWebImageOptions options;
+
+
+/**
  * Return the global image prefetcher instance.
  */
 + (SDWebImagePrefetcher *)sharedImagePrefetcher;
