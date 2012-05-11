@@ -153,7 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				53A2B4F7155B095800B12423 /* libSDWebImage.a */,
-				53A2B4F9155B095800B12423 /* libSDWebImage ARC.a */,
+				53A2B4F9155B095800B12423 /* libSDWebImageARC.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,7 +219,7 @@
 			remoteRef = 53A2B4F6155B095800B12423 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		53A2B4F9155B095800B12423 /* libSDWebImage ARC.a */ = {
+		53A2B4F9155B095800B12423 /* libSDWebImageARC.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libSDWebImageARC.a;
