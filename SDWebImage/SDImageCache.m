@@ -360,4 +360,34 @@ static SDImageCache *instance;
     return size;
 }
 
+- (int)getDiskCount
+{
+    int count = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator)
+    {
+        count += 1;
+    }
+    
+    return count;
+}
+
+- (int)getMemorySize
+{
+    int size = 0;
+    
+    for(id key in [memCache allKeys])
+    {
+        UIImage *img = [memCache valueForKey:key];
+        size += [UIImageJPEGRepresentation(img, 0) length];
+    };
+    
+    return size;
+}
+
+- (int)getMemoryCount
+{
+    return [[memCache allKeys] count];
+}
+
 @end
