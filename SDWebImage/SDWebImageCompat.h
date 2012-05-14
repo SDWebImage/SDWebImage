@@ -61,7 +61,7 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
     {
         image = [[UIImage alloc] initWithData:(NSData *)imageOrData];
     }
-    else if ([imageOrData isKindOfClass:[NSData class]])
+    else if ([imageOrData isKindOfClass:[UIImage class]])
     {
         image = SDWIReturnRetained((UIImage *)imageOrData);
     }

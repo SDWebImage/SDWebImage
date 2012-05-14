@@ -19,6 +19,7 @@ static SDWebImagePrefetcher *instance;
 
 @synthesize prefetchURLs;
 @synthesize maxConcurrentDownloads;
+@synthesize options;
 
 + (SDWebImagePrefetcher *)sharedImagePrefetcher
 {

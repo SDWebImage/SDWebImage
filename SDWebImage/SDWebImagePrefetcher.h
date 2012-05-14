@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageManagerDelegate.h"
+#import "SDWebImageManager.h"
 
 /**
  * Prefetch some URLs in the cache for future use. Images are downloaded in low priority.
