@@ -209,8 +209,6 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
                                                        withDelegate:self
                                                            userInfo:[NSDictionary dictionaryWithObject:@"partial" forKey:@"type"]];
 
-                SDWIRelease(image);
-
                 CGImageRelease(partialImageRef);
             }
         }
