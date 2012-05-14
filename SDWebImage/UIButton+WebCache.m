@@ -149,7 +149,7 @@
 }
 
 
-- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image userInfo:(NSDictionary *)info
+- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
 {
     if ([[info valueForKey:@"type"] isEqualToString:@"background"])
     {
