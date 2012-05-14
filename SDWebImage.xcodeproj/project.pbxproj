@@ -336,7 +336,7 @@
 		53761323155AD0D5005750A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				DSTROOT = /tmp/SDWebImage.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -352,7 +352,7 @@
 		53761324155AD0D5005750A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				DSTROOT = /tmp/SDWebImage.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
