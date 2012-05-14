@@ -29,6 +29,9 @@
     [manager cancelForDelegate:self];
 
     [self setImage:placeholder forState:UIControlStateNormal];
+    [self setImage:placeholder forState:UIControlStateSelected];
+    [self setImage:placeholder forState:UIControlStateHighlighted];
+
 
     if (url)
     {
@@ -55,6 +58,8 @@
     [manager cancelForDelegate:self];
 
     [self setImage:placeholder forState:UIControlStateNormal];
+    [self setImage:placeholder forState:UIControlStateSelected];
+    [self setImage:placeholder forState:UIControlStateHighlighted];
 
     if (url)
     {
