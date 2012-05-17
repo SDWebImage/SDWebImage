@@ -10,7 +10,15 @@
 #import "SDWebImageManager.h"
 
 @interface SDWebImagePrefetcher ()
+{
+#if NS_BLOCKS_AVAILABLE
+    SDWebImagePrefetcherCompletion _completion;
+#endif
+}
 @property (nonatomic, retain) NSArray *prefetchURLs;
+#if NS_BLOCKS_AVAILABLE
+@property (nonatomic, copy) SDWebImagePrefetcherCompletion completion;
+#endif
 @end
 
 @implementation SDWebImagePrefetcher
@@ -20,6 +28,9 @@ static SDWebImagePrefetcher *instance;
 @synthesize prefetchURLs;
 @synthesize maxConcurrentDownloads;
 @synthesize options;
+#if NS_BLOCKS_AVAILABLE
+@synthesize completion = _completion;
+#endif
 
 + (SDWebImagePrefetcher *)sharedImagePrefetcher
 {
@@ -61,6 +72,15 @@ static SDWebImagePrefetcher *instance;
     }
 }
 
+#if NS_BLOCKS_AVAILABLE
+- (void)prefetchURLs:(NSArray *)urls completion:(SDWebImagePrefetcherCompletion)completion
+{
+    self.completion = completion;
+    [self prefetchURLs:urls];
+}
+#endif
+
+
 - (void)cancelPrefetching
 {
     self.prefetchURLs = nil;
@@ -84,6 +104,12 @@ static SDWebImagePrefetcher *instance;
     else if (_finishedCount == _requestedCount)
     {
         [self reportStatus];
+#if NS_BLOCKS_AVAILABLE
+        if(self.completion != nil) {
+            self.completion(_finishedCount, _skippedCount);
+            self.completion = nil;
+        }
+#endif
     }
 }
 
@@ -102,12 +128,21 @@ static SDWebImagePrefetcher *instance;
     else if (_finishedCount == _requestedCount)
     {
         [self reportStatus];
+#if NS_BLOCKS_AVAILABLE
+        if(self.completion != nil) {
+            self.completion(_finishedCount, _skippedCount);
+            self.completion = nil;
+        }
+#endif
     }
 }
 
 - (void)dealloc
 {
     self.prefetchURLs = nil;
+#if NS_BLOCKS_AVAILABLE
+    self.completion = nil;
+#endif
     SDWISuperDealoc;
 }
 
