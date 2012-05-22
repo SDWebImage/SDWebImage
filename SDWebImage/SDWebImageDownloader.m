@@ -116,7 +116,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
-        expectedSize = response.expectedContentLength > 0 ? response.expectedContentLength : 0;
+        expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
         self.imageData = SDWIReturnAutoreleased([[NSMutableData alloc] initWithCapacity:expectedSize]);
     }
     else
