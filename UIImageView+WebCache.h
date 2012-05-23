@@ -10,6 +10,8 @@
 #import "SDWebImageManagerDelegate.h"
 #import "SDWebImageManager.h"
 
+#define TAG_ACTIVITY_INDICATOR 6873456
+
 @interface UIImageView (WebCache) <SDWebImageManagerDelegate>
 
 /**
@@ -20,6 +22,16 @@
  * @param url The url for the image.
  */
 - (void)setImageWithURL:(NSURL *)url;
+
+/**
+ * Set the imageView `image` with an `url`.
+ * and put an activity indicator to warn user.
+ *
+ * The downloand is asynchronous and cached.
+ *
+ * @param url The url for the image.
+ */
+-(void) setImageWithURL:(NSURL *)url usingActivityIndicatorStyle : (UIActivityIndicatorViewStyle) activityStyle;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
