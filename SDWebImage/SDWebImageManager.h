@@ -39,6 +39,7 @@ typedef enum
  */
 @interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
 {
+    NSMutableArray *downloadInfo;
     NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
     NSMutableArray *cacheDelegates;
