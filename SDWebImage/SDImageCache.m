@@ -10,8 +10,10 @@
 #import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "SDWebImageDecoder.h"
+#import "free_mem.h"
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
+static natural_t minFreeMemLeft = 1024 * 1024 * 12; // reserve 12MB RAM
 
 static SDImageCache *instance;
 
@@ -151,6 +153,9 @@ static SDImageCache *instance;
 
     if (image)
     {
+        if (get_free_memory() < minFreeMemLeft) {
+            [memCache removeAllObjects];
+        }
         [memCache setObject:image forKey:key];
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
@@ -196,7 +201,10 @@ static SDImageCache *instance;
     {
         return;
     }
-
+    
+    if (get_free_memory() < minFreeMemLeft) {
+        [memCache removeAllObjects];
+    }
     [memCache setObject:image forKey:key];
 
     if (toDisk)
@@ -248,6 +256,9 @@ static SDImageCache *instance;
         image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
+            if (get_free_memory() < minFreeMemLeft) {
+                [memCache removeAllObjects];
+            }
             [memCache setObject:image forKey:key];
         }
     }
