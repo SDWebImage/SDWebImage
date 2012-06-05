@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
 		5376129E155AB74D005750A4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129D155AB74D005750A4 /* CoreGraphics.framework */; };
@@ -16,8 +17,6 @@
 		537612B0155AB74D005750A4 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 537612AF155AB74D005750A4 /* DetailViewController.m */; };
 		537612B3155AB74D005750A4 /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B1155AB74D005750A4 /* MasterViewController.xib */; };
 		537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B4155AB74D005750A4 /* DetailViewController.xib */; };
-		537612E7155ABA44005750A4 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
-		53761328155AD31B005750A4 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E3155ABA3C005750A4 /* MapKit.framework */; };
 		53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2B4F9155B095800B12423 /* libSDWebImageARC.a */; };
 		53A2B50D155B155A00B12423 /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50B155B155A00B12423 /* placeholder.png */; };
 		53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50C155B155A00B12423 /* placeholder@2x.png */; };
@@ -78,8 +77,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */,
-				53761328155AD31B005750A4 /* MapKit.framework in Frameworks */,
-				537612E7155ABA44005750A4 /* ImageIO.framework in Frameworks */,
+				531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */,
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
 				5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */,
 				5376129E155AB74D005750A4 /* CoreGraphics.framework in Frameworks */,

@@ -244,7 +244,7 @@ In you application project app’s target settings, find the "Build Phases" sect
 
 ![Add Target Dependencies](http://dl.dropbox.com/u/123346/SDWebImage/04_add_target_dependencies.jpg)
 
-Click the "+" button and select "SDWebImage ARC" (you may choose the non ARC target if you want to support iOS <3):
+Click the "+" button and select "SDWebImage ARC" (you may choose the non ARC target if you want to support iOS <3 or the ARC+MKAnnotation if you need MapKit category):
 
 ![Add Target Dependencies Dialog](http://dl.dropbox.com/u/123346/SDWebImage/05_add_target_dependencies_dialog.jpg)
 
@@ -256,7 +256,7 @@ Click the "+" button and select "libSDWebImageARC.a" library (use non ARC versio
 
 ![Add Library Link Dialog](http://dl.dropbox.com/u/123346/SDWebImage/07_add_library_link_dialog.jpg)
 
-Click the "+" button again and select "MapKit.framework", this is used by MKAnnotationView+WebCache category:
+If you chose to link against the ARC+MKAnnotation target, click the "+" button again and select "MapKit.framework":
 
 ![Add ImageIO Framework](http://dl.dropbox.com/u/123346/SDWebImage/08_add_imageio_framework.jpg)
 
