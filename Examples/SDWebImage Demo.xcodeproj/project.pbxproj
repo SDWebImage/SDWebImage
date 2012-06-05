@@ -23,6 +23,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5357A29C157ECDB300894652 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 531041E0157EAFA400BBABC3;
+			remoteInfo = "SDWebImage ARC+MKAnnotation";
+		};
 		53A2B4F6155B095800B12423 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
@@ -152,6 +159,7 @@
 			children = (
 				53A2B4F7155B095800B12423 /* libSDWebImage.a */,
 				53A2B4F9155B095800B12423 /* libSDWebImageARC.a */,
+				5357A29D157ECDB300894652 /* libSDWebImageARC+MKAnnotation.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -210,6 +218,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		5357A29D157ECDB300894652 /* libSDWebImageARC+MKAnnotation.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSDWebImageARC+MKAnnotation.a";
+			remoteRef = 5357A29C157ECDB300894652 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		53A2B4F7155B095800B12423 /* libSDWebImage.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
