@@ -13,9 +13,9 @@
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
-@interface SDImageCache : NSObject
+@interface SDImageCache : NSObject <NSCacheDelegate>
 {
-    NSMutableDictionary *memCache;
+    NSCache *memCache;
     NSString *diskCachePath;
     NSOperationQueue *cacheInQueue, *cacheOutQueue;
 }

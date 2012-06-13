@@ -25,7 +25,7 @@ extern NSString *const SDWebImageDownloadStopNotification;
     NSMutableData *imageData;
     id userInfo;
     BOOL lowPriority;
-    NSUInteger expectedSize;
+    long long expectedSize;
     BOOL progressive;
     size_t width, height;
 }

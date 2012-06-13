@@ -16,7 +16,8 @@ typedef enum
     SDWebImageRetryFailed = 1 << 0,
     SDWebImageLowPriority = 1 << 1,
     SDWebImageCacheMemoryOnly = 1 << 2,
-    SDWebImageProgressiveDownload = 1 << 3
+    SDWebImageProgressiveDownload = 1 << 3,
+	SDWebImageManualSetImage = 1 << 7
 } SDWebImageOptions;
 
 /**
@@ -120,11 +121,25 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  * @param url The URL to the image
  * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
+ * @param progress A block to be exexuted when the image is downloading. This block has no return value and takes the received content length, and expected length from the receiver, or -1 if there is no expectation that can be arrived.
  * @param success A block called when image has been retrived successfuly
  * @param failure A block called when couldn't be retrived for some reason
  * @see [SDWebImageManager downloadWithURL:delegate:options:]
  */
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url The URL to the image
+ * @param delegate The delegate object used to send result back
+ * @param options A mask to specify options to use for this request
+ * @param progress A block to be exexuted when the image is downloading. This block has no return value and takes the received content length, and expected length from the receiver, or -1 if there is no expectation that can be arrived.
+ * @param success A block called when image has been retrived successfuly
+ * @param failure A block called when couldn't be retrived for some reason
+ * @see [SDWebImageManager downloadWithURL:delegate:options:]
+ */
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -133,11 +148,12 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
  * @param info An NSDictionnary passed back to delegate if provided
+ * @param progress A block to be exexuted when the image is downloading. This block has no return value and takes the received content length, and expected length from the receiver, or -1 if there is no expectation that can be arrived.
  * @param success A block called when image has been retrived successfuly
  * @param failure A block called when couldn't be retrived for some reason
  * @see [SDWebImageManager downloadWithURL:delegate:options:]
  */
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
 #endif
 
 /**

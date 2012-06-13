@@ -63,7 +63,7 @@
 
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
+        [manager downloadWithURL:url delegate:self options:options progress:nil success:success failure:failure];
     }
 }
 #endif
@@ -121,7 +121,7 @@
     if (url)
     {
         NSDictionary *info = [NSDictionary dictionaryWithObject:@"background" forKey:@"type"];
-        [manager downloadWithURL:url delegate:self options:options userInfo:info success:success failure:failure];
+        [manager downloadWithURL:url delegate:self options:options userInfo:info progress:nil success:success failure:failure];
     }
 }
 #endif

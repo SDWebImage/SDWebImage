@@ -20,6 +20,15 @@
 - (void)imageDownloaderDidFinish:(SDWebImageDownloader *)downloader;
 
 /**
+ * Called repeatedly while the image is downloading.
+ *
+ * @param downloader The SDWebImageDownloader instance
+ * @param receivedSize  The received content length of the receiver
+ * @param expectedSize The expected content length of the receiver, or -1 if there is no expectation that can be arrived.
+ */
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdateProgress:(NSUInteger)receivedSize expectedSize:(long long)expectedSize;
+
+/**
  * Called repeatedly while the image is downloading when [SDWebImageDownloader progressive] is enabled.
  *
  * @param downloader The SDWebImageDownloader instance

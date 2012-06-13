@@ -14,6 +14,8 @@
 #define DECODE_INFO_KEY @"decodeInfo"
 
 #define IMAGE_KEY @"image"
+#define IMAGE_DATA_KEY @"imageData"
+#define PATH_KEY @"path"
 #define DELEGATE_KEY @"delegate"
 #define USER_INFO_KEY @"userInfo"
 
@@ -36,6 +38,12 @@ static SDWebImageDecoder *sharedInstance;
 - (void)decodeImageWithInfo:(NSDictionary *)decodeInfo
 {
     UIImage *image = [decodeInfo objectForKey:IMAGE_KEY];
+	if (!image)
+	{
+		NSData* imageData = [decodeInfo objectForKey:IMAGE_DATA_KEY];
+		NSString* path = [decodeInfo objectForKey:PATH_KEY];
+		image = SDScaledImageForPath(path, imageData);
+	}
 
     UIImage *decompressedImage = [UIImage decodedImageWithImage:image];
     if (!decompressedImage)
@@ -69,6 +77,19 @@ static SDWebImageDecoder *sharedInstance;
                                 delegate, DELEGATE_KEY,
                                 info, USER_INFO_KEY, nil];
 
+    NSOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(decodeImageWithInfo:) object:decodeInfo];
+    [imageDecodingQueue addOperation:operation];
+    SDWIRelease(operation);
+}
+
+- (void)decodeImageData:(NSData *)imageData forPath:(NSString*)path withDelegate:(id <SDWebImageDecoderDelegate>)delegate userInfo:(NSDictionary *)info
+{
+    NSDictionary *decodeInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                imageData, IMAGE_DATA_KEY,
+								path, PATH_KEY,
+                                delegate, DELEGATE_KEY,
+                                info, USER_INFO_KEY, nil];
+	
     NSOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(decodeImageWithInfo:) object:decodeInfo];
     [imageDecodingQueue addOperation:operation];
     SDWIRelease(operation);

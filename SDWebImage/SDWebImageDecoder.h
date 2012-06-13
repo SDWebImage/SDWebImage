@@ -42,6 +42,16 @@
  */
 - (void)decodeImage:(UIImage *)image withDelegate:(id <SDWebImageDecoderDelegate>)delegate userInfo:(NSDictionary *)info;
 
+/**
+ * Pre-decode a given image data in a separate thread.
+ *
+ * @param imageData The image to pre-decode
+ * @param path The URL path for pre-decode
+ * @param delegate The object to notify once pre-decoding is completed
+ * @param info A user info object
+ */
+- (void)decodeImageData:(NSData *)imageData forPath:(NSString*)path withDelegate:(id <SDWebImageDecoderDelegate>)delegate userInfo:(NSDictionary *)info;
+
 @end
 
 /**

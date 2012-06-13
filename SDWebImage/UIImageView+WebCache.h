@@ -111,6 +111,25 @@
  * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
  */
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+
+/**
+ * Set the imageView `image` with an `url`, placeholder, progress block, and custom options.
+ *
+ * The downloand is asynchronous and cached.
+ *
+ * @param url The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param progress A block to be exexuted when the image is downloading. This block has no return value and takes the received content length, and expected length from the receiver, or -1 if there is no expectation that can be arrived.
+ * @param success A block to be executed when the image request succeed. This block has no return value and takes the retrieved image as argument.
+ * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ */
+- (void)setImageWithURL:(NSURL *)url 
+	   placeholderImage:(UIImage *)placeholder 
+				options:(SDWebImageOptions)options 
+			   progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress
+				success:(void (^)(UIImage *image))success 
+				failure:(void (^)(NSError *error))failure;
 #endif
 
 /**

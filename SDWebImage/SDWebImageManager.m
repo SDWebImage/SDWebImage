@@ -12,6 +12,7 @@
 #import <objc/message.h>
 
 #if NS_BLOCKS_AVAILABLE
+typedef void(^ProgressBlock)(NSUInteger receivedSize, long long expectedSize);
 typedef void(^SuccessBlock)(UIImage *image);
 typedef void(^FailureBlock)(NSError *error);
 #endif
@@ -140,12 +141,12 @@ static SDWebImageManager *instance;
 }
 
 #if NS_BLOCKS_AVAILABLE
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
 {
-    [self downloadWithURL:url delegate:delegate options:options userInfo:nil success:success failure:failure];
+    [self downloadWithURL:url delegate:delegate options:options userInfo:nil progress:progress success:success failure:failure];
 }
 
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo progress:(void (^)(NSUInteger receivedSize, long long expectedSize))progress success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
 {
     // repeated logic from above due to requirement for backwards compatability for iOS versions without blocks
     
@@ -164,18 +165,31 @@ static SDWebImageManager *instance;
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
-    SuccessBlock successCopy = [success copy];
-    FailureBlock failureCopy = [failure copy];
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          delegate, @"delegate",
-                          url, @"url",
-                          [NSNumber numberWithInt:options], @"options",
-                          userInfo ? userInfo : [NSNull null], @"userInfo",
-                          successCopy, @"success",
-                          failureCopy, @"failure",
-                          nil];
-    SDWIRelease(successCopy);
-    SDWIRelease(failureCopy);
+	NSMutableDictionary *infoDraft = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+									  delegate, @"delegate",
+									  url, @"url",
+									  [NSNumber numberWithInt:options], @"options",
+									  userInfo ? userInfo : [NSNull null], @"userInfo", 
+									  nil];
+	if (progress)
+	{
+		ProgressBlock progressCopy = [progress copy];
+		[infoDraft setObject:progressCopy forKey:@"progress"];
+		SDWIRelease(progressCopy);
+	}
+	if (success)
+	{
+		SuccessBlock successCopy = [success copy];
+		[infoDraft setObject:successCopy forKey:@"success"];
+		SDWIRelease(successCopy);
+	}
+	if (failure)
+	{
+		FailureBlock failureCopy = [failure copy];
+		[infoDraft setObject:failureCopy forKey:@"failure"];
+		SDWIRelease(failureCopy);
+	}
+    NSDictionary *info = [NSDictionary dictionaryWithDictionary:infoDraft];
     [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
 }
 #endif
@@ -234,6 +248,11 @@ static SDWebImageManager *instance;
         // Request has since been canceled
         return;
     }
+
+	NSNumber* options = [info objectForKey:@"options"];
+	BOOL manualSetImage = [options intValue] & SDWebImageManualSetImage;
+	if (manualSetImage)
+		delegate = nil;
 
     if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
     {
@@ -306,6 +325,32 @@ static SDWebImageManager *instance;
 }
 
 #pragma mark SDWebImageDownloaderDelegate
+
+#if NS_BLOCKS_AVAILABLE // ONLY update via progress blocks :)
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdateProgress:(NSUInteger)receivedSize expectedSize:(long long)expectedSize
+{
+    // Notify all the downloadDelegates with this downloader
+    for (NSInteger idx = (NSInteger)[downloaders count] - 1; idx >= 0; idx--)
+    {
+        NSUInteger uidx = (NSUInteger)idx;
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
+        if (aDownloader == downloader)
+        {
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
+            SDWIRetain(delegate);
+            SDWIAutorelease(delegate);
+			
+#if NS_BLOCKS_AVAILABLE
+			if ([downloader.userInfo objectForKey:@"progress"])
+			{
+				ProgressBlock progress = [downloader.userInfo objectForKey:@"progress"];
+				progress(receivedSize, expectedSize);
+			}
+#endif
+        }
+    }
+}
+#endif
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
 {

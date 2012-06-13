@@ -9,6 +9,7 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDecoder.h"
 #import <ImageIO/ImageIO.h>
+#import <objc/message.h>
 
 @interface SDWebImageDownloader (ImageDecoder) <SDWebImageDecoderDelegate>
 @end
@@ -75,6 +76,8 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)start
 {
+	expectedSize = -1;
+	
     // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
     self.connection = SDWIReturnAutoreleased([[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO]);
@@ -143,6 +146,11 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 {
     [imageData appendData:data];
 
+    if ([delegate respondsToSelector:@selector(imageDownloader:didUpdateProgress:expectedSize:)])
+	{
+		[delegate imageDownloader:self didUpdateProgress:[imageData length] expectedSize:expectedSize];
+	}
+	
     if (CGImageSourceCreateImageAtIndex == NULL)
     {
         // ImageIO isn't present in iOS < 4
@@ -231,8 +239,10 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-        UIImage *image = SDScaledImageForPath(url.absoluteString, imageData);
-        [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
+		[[SDWebImageDecoder sharedImageDecoder] decodeImageData:imageData 
+														forPath:url.absoluteString 
+												   withDelegate:self 
+													   userInfo:nil];
     }
 }
 

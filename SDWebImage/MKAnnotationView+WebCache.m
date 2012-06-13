@@ -57,7 +57,7 @@
     
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
+        [manager downloadWithURL:url delegate:self options:options progress:nil success:success failure:failure];
     }
 }
 #endif
