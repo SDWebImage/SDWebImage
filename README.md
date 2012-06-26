@@ -197,11 +197,6 @@ the URL before to use it as a cache key:
 Common Problems
 ---------------
 
-### No image appear when using UITableViewCell
-
-If choose to use a default cell template provided by UITableViewCell with SDWebImage, ensure you are
-providing a placeholder image, otherwise the cell will be initialized with no image.
-
 ### Using dynamic image size with UITableViewCell
 
 UITableView determins the size of the image by the first image set for a cell. If your remote images
