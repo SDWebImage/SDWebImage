@@ -123,6 +123,10 @@ static natural_t get_free_memory(void)
     return instance;
 }
 
++ (void) setMaxCacheAge:(NSInteger)maxCacheAge {
+    cacheMaxCacheAge = maxCacheAge;
+}
+
 #pragma mark SDImageCache (private)
 
 - (NSString *)cachePathForKey:(NSString *)key
