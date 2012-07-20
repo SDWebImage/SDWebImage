@@ -36,14 +36,25 @@
  *
  * @warning This only adds a 'search' path that will not be written too or erased.
  *
- * @param path the path pointing to the directory in which the SDWebImage-cached images may be found.
+ * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
  */
 - (void)addCustomImageSearchCachePath:(NSString*)path;
 
+/**
+ * Removes a previously added image cach path from the list of custom search paths.
+ *
+ * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
+ *
+ */
 - (void)removeCustomImageCachePath:(NSString*)path;
 
+/**
+ * Removes all user specified custom search paths
+ *
+ * @warning This will 'not' remove SDWebImage's default search path
+ *
+ */
 - (void)removeAllCustomImageCachePaths;
-
 
 /**
  * Store an image into memory and disk cache at the given key.
