@@ -265,7 +265,7 @@ Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linke
 
 ![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
 
-In the "Search Paths" section, locate "Header Search Paths" (and not "User Header Search Paths") and add two settings: ”$(TARGET_BUILD_DIR)/usr/local/lib/include” and ”$(OBJROOT)/UninstalledProducts/include”. Make sure to include the quotes here:
+In the "Search Paths" section, locate "Header Search Paths" (and not "User Header Search Paths") and add two settings: ”$(TARGET_BUILD_DIR)/usr/local/lib/include” and ”$(OBJROOT)/UninstalledProducts/include”. Double click on the <Multiple values> to pop out the box and click on the "+" icon to add each of them.  Make sure to include the quotes here:
 
 ![User Header Search Paths](http://dl.dropbox.com/u/123346/SDWebImage/11_user_header_search_paths.jpg)
 
