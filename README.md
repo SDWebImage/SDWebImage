@@ -271,7 +271,7 @@ In the "Search Paths" section, locate "Header Search Paths" (and not "User Heade
 
 ### Import headers in your source files
 
-In the source files where you need to use the library, add the `#import` line:
+In the source files where you need to use the library, import the header file:
 
 ```objective-c
 #import <SDWebImage/UIImageView+WebCache.h>
