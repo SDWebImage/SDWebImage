@@ -261,7 +261,7 @@ If you chose to link against the ARC+MKAnnotation target, click the "+" button a
 
 ### Add headers
 
-Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag (**Note:** it is capital `O` and capital `C` in `ObjC`.  If it is not capital `O`, you may see `setImageWithURL:placeholderImage: unrecognized selector sent to instance` when you run the app).
+Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag (**Note:** it is capital `O` and capital `C` in `-ObjC`.  If it is not capital `O`, you may see `setImageWithURL:placeholderImage: unrecognized selector sent to instance` when you run the app).
 
 ![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
 
