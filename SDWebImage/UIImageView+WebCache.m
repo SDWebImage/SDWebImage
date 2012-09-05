@@ -23,13 +23,10 @@
 
 -(void) retinaURL:(NSURL *) url{
     NSString * lastComponent = [url lastPathComponent];
-    NSLog(@"Last Component %@", lastComponent);
     
     NSString *extension = [url pathExtension];
     if ([lastComponent rangeOfString:@"@2x"].location == NSNotFound) {
-         //NSString* newURLString = [[url absoluteString] substringToIndex:fragmentRange.location + fragmentRange.length];
         NSString * replacedLastComponent = [lastComponent stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@".%@",extension] withString:[NSString stringWithFormat:@"@2x.%@",extension]];
-        NSLog(@"Replaced %@",replacedLastComponent);
         url = [NSURL URLWithString:[[url absoluteString] stringByReplacingOccurrencesOfString:lastComponent withString:replacedLastComponent]];
     }
 }
