@@ -159,7 +159,12 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
         // Update the data source, we must pass ALL the data, not just the new bytes
         CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
-        CGImageSourceUpdateData(imageSource, (__bridge CFDataRef)imageData, totalSize == expectedSize);
+		
+#if __has_feature(objc_arc)
+		CGImageSourceUpdateData(imageSource, (__bridge  CFDataRef)imageData, totalSize == expectedSize);
+#else
+		CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+#endif
 
         if (width + height == 0)
         {
