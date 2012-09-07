@@ -100,7 +100,7 @@ notified when image have been retrieved from cache.
 // Here we use the new provided setImageWithURL: method to load the web image
 [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
                placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                        success:^(UIImage *image) {... success code here ...}
+                        success:^(UIImage *image, BOOL cached) {... success code here ...}
                         failure:^(NSError *error) {... failure code here ...}];
 ];
 ```
@@ -120,7 +120,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadWithURL:imageURL
                 delegate:self
                  options:0
-                 success:^(UIImage *image)
+                 success:^(UIImage *image, BOOL cached)
                  {
                      // do something with image
                  }
