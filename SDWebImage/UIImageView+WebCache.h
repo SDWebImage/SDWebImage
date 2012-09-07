@@ -113,6 +113,8 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
 #endif
 
+- (void)setDownloadProgressBlock:(void (^)(float progress))block;
+
 /**
  * Cancel the current download
  */

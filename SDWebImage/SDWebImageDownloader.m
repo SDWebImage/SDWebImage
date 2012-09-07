@@ -21,7 +21,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 @end
 
 @implementation SDWebImageDownloader
-@synthesize url, delegate, connection, imageData, userInfo, lowPriority, progressive;
+@synthesize url, delegate, connection, imageData, userInfo, lowPriority, progressive, expectedContentLength, totalReceivedLength;
 
 #pragma mark Public Methods
 
@@ -116,6 +116,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
+        self.expectedContentLength = [response expectedContentLength];
         expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
         self.imageData = SDWIReturnAutoreleased([[NSMutableData alloc] initWithCapacity:expectedSize]);
     }
@@ -143,6 +144,8 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 {
     [imageData appendData:data];
 
+    self.totalReceivedLength += [data length];
+    
     if (CGImageSourceCreateImageAtIndex == NULL)
     {
         // ImageIO isn't present in iOS < 4
@@ -218,6 +221,11 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
         }
 
         CFRelease(imageSource);
+    }
+    
+    if ([delegate respondsToSelector:@selector(imageDownloader:didReceiveData:)])
+    {
+        [delegate performSelector:@selector(imageDownloader:didReceiveData:) withObject:self];
     }
 }
 

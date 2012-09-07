@@ -79,4 +79,8 @@
     [self setNeedsLayout];
 }
 
+- (void)setDownloadProgressBlock:(void (^)(float progress))block {
+    [[SDWebImageManager sharedManager] setDownloadProgressBlock:block];
+}
+
 @end
