@@ -17,6 +17,7 @@
 {
     NSMutableDictionary *memCache;
     NSString *diskCachePath;
+    NSMutableArray *userCachePaths;
     NSOperationQueue *cacheInQueue, *cacheOutQueue;
 }
 
@@ -26,6 +27,34 @@
  * @return SDImageCache global instance
  */
 + (SDImageCache *)sharedImageCache;
+
+/**
+ * Adds a custom image cache path to search for images.
+ * This allows you to set a custom path which SDWebImageCache will search for images.
+ * This is particularly useful for when you are bundling images cached by SDWebImageCache into your app,
+ * removing the need to copy those images over into the default 'ImageCache' folder.
+ *
+ * @warning This only adds a 'search' path that will not be written too or erased.
+ *
+ * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
+ */
+- (void)addCustomImageSearchCachePath:(NSString*)path;
+
+/**
+ * Removes a previously added image cach path from the list of custom search paths.
+ *
+ * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
+ *
+ */
+- (void)removeCustomImageCachePath:(NSString*)path;
+
+/**
+ * Removes all user specified custom search paths
+ *
+ * @warning This will 'not' remove SDWebImage's default search path
+ *
+ */
+- (void)removeAllCustomImageCachePaths;
 
 /**
  * Store an image into memory and disk cache at the given key.
