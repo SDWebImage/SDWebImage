@@ -15,7 +15,7 @@
  */
 @interface SDImageCache : NSObject
 {
-    NSMutableDictionary *memCache;
+    NSCache *memCache;
     NSString *diskCachePath;
     NSMutableArray *userCachePaths;
     NSOperationQueue *cacheInQueue, *cacheOutQueue;
@@ -155,15 +155,5 @@
  * Get the number of images in the disk cache
  */
 - (int)getDiskCount;
-
-/**
- * Get the total size of images in memory cache
- */
-- (int)getMemorySize;
-
-/**
- * Get the number of images in the memory cache
- */
-- (int)getMemoryCount;
 
 @end
