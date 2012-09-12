@@ -16,31 +16,6 @@
 static SDImageCache *instance;
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
-static natural_t minFreeMemLeft = 1024*1024*12; // reserve 12MB RAM
-
-// inspired by http://stackoverflow.com/questions/5012886/knowing-available-ram-on-an-ios-device
-static natural_t get_free_memory(void)
-{
-    mach_port_t host_port;
-    mach_msg_type_number_t host_size;
-    vm_size_t pagesize;
-
-    host_port = mach_host_self();
-    host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
-    host_page_size(host_port, &pagesize);
-
-    vm_statistics_data_t vm_stat;
-
-    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS)
-    {
-        NSLog(@"Failed to fetch vm statistics");
-        return 0;
-    }
-
-    /* Stats in bytes */
-    natural_t mem_free = vm_stat.free_count * pagesize;
-    return mem_free;
-}
 
 @implementation SDImageCache
 
@@ -51,7 +26,11 @@ static natural_t get_free_memory(void)
     if ((self = [super init]))
     {
         // Init the memory cache
-        memCache = [[NSMutableDictionary alloc] init];
+        memCache = [[NSCache alloc] init];
+        memCache.name = @"ImageCache";
+      
+        // Init custom user search paths
+        userCachePaths = [[NSMutableArray alloc] init];
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -103,6 +82,7 @@ static natural_t get_free_memory(void)
 - (void)dealloc
 {
     SDWISafeRelease(memCache);
+    SDWISafeRelease(userCachePaths);
     SDWISafeRelease(diskCachePath);
     SDWISafeRelease(cacheInQueue);
 
@@ -130,7 +110,18 @@ static natural_t get_free_memory(void)
 
 #pragma mark SDImageCache (private)
 
-- (NSString *)cachePathForKey:(NSString *)key
+- (NSString *)defaultCachePathForKey:(NSString *)key
+{
+    return [self cachePathForKey:key withPath:diskCachePath];
+}
+
+-(NSString*)cachePathForKey:(NSString *)key withPath:(NSString*)basePath
+{
+    NSString *filename = [self cacheKeyForKey:key];
+    return [basePath stringByAppendingPathComponent:filename];
+}
+
+- (NSString*)cacheKeyForKey:(NSString*)key
 {
     const char *str = [key UTF8String];
     unsigned char r[CC_MD5_DIGEST_LENGTH];
@@ -138,7 +129,7 @@ static natural_t get_free_memory(void)
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
 
-    return [diskCachePath stringByAppendingPathComponent:filename];
+    return filename;
 }
 
 - (void)storeKeyWithDataToDisk:(NSArray *)keyAndData
@@ -151,7 +142,7 @@ static natural_t get_free_memory(void)
 
     if (data)
     {
-        [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
+        [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
     }
     else
     {
@@ -161,7 +152,7 @@ static natural_t get_free_memory(void)
         if (image)
         {
 #if TARGET_OS_IPHONE
-            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+            [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
 #else
             NSArray*  representations  = [image representations];
             NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
@@ -183,10 +174,6 @@ static natural_t get_free_memory(void)
 
     if (image)
     {
-        if (get_free_memory() < minFreeMemLeft)
-        {
-            [memCache removeAllObjects];
-        }    
         [memCache setObject:image forKey:key];
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
@@ -208,7 +195,7 @@ static natural_t get_free_memory(void)
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = SDWIReturnAutoreleased([arguments mutableCopy]);
 
-    UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+    UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self defaultCachePathForKey:key]]);
 
     if (image)
     {
@@ -226,6 +213,23 @@ static natural_t get_free_memory(void)
 
 #pragma mark ImageCache
 
+- (void)addCustomImageSearchCachePath:(NSString*)path
+{
+    [userCachePaths addObject:path];
+}
+
+- (void)removeCustomImageCachePath:(NSString *)path
+{
+    if ([userCachePaths containsObject:path]) {
+        [userCachePaths removeObject:path];
+    }
+}
+
+- (void)removeAllCustomImageCachePaths
+{
+    [userCachePaths removeAllObjects];
+}
+
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
     if (!image || !key)
@@ -233,10 +237,6 @@ static natural_t get_free_memory(void)
         return;
     }
     
-    if (get_free_memory() < minFreeMemLeft)
-    {
-        [memCache removeAllObjects];
-    }
     [memCache setObject:image forKey:key];
 
     if (toDisk)
@@ -268,6 +268,17 @@ static natural_t get_free_memory(void)
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
+- (UIImage *)imageFromKeyInUserPaths:(NSString *)key
+{
+    UIImage *image = nil;
+    for (NSString *customPath in userCachePaths) {
+        image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key withPath:customPath]]);
+        if (image) {
+            return image;
+        }
+    }
+    return nil;
+}
 
 - (UIImage *)imageFromKey:(NSString *)key
 {
@@ -285,13 +296,10 @@ static natural_t get_free_memory(void)
 
     if (!image && fromDisk)
     {
-        image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+        image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self defaultCachePathForKey:key]]);
+        image = image ? : [self imageFromKeyInUserPaths:key];
         if (image)
         {
-            if (get_free_memory() < minFreeMemLeft)
-            {
-                [memCache removeAllObjects];
-            }
             [memCache setObject:image forKey:key];
         }
     }
@@ -356,7 +364,7 @@ static natural_t get_free_memory(void)
 
     if (fromDisk)
     {
-        [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
+        [[NSFileManager defaultManager] removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
     }
 }
 
@@ -414,24 +422,6 @@ static natural_t get_free_memory(void)
     }
     
     return count;
-}
-
-- (int)getMemorySize
-{
-    int size = 0;
-    
-    for(id key in [memCache allKeys])
-    {
-        UIImage *img = [memCache valueForKey:key];
-        size += [UIImageJPEGRepresentation(img, 0) length];
-    };
-    
-    return size;
-}
-
-- (int)getMemoryCount
-{
-    return [[memCache allKeys] count];
 }
 
 @end
