@@ -103,6 +103,11 @@ static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
     return instance;
 }
 
++ (void) setMaxCacheAge:(NSInteger)maxCacheAge
+{
+    cacheMaxCacheAge = maxCacheAge;
+}
+
 #pragma mark SDImageCache (private)
 
 - (NSString *)defaultCachePathForKey:(NSString *)key
