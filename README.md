@@ -192,6 +192,12 @@ the URL before to use it as a cache key:
     return YES;
 }
 ```
+### cache key helper
+
+to find out if an image exists for a given url - use this
+BOOL b = [[SDWebImageManager sharedManager] hasCacheForUrl:[NSURL URLWithString:url]];
+
+
 
 
 Common Problems

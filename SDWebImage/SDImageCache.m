@@ -434,4 +434,11 @@ static natural_t get_free_memory(void)
     return [[memCache allKeys] count];
 }
 
+-(BOOL)hasCacheForKey:(NSString*)key{
+    UIImage *image = [memCache objectForKey:key];
+    if (image!=nil) {
+        return YES;
+    }
+    return NO;
+}
 @end
