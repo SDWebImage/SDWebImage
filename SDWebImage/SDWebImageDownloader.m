@@ -5,6 +5,27 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+// Merged code from AFHTTPClient.m
+//
+// Copyright (c) 2011 Gowalla (http://gowalla.com/)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDecoder.h"
@@ -23,6 +44,56 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 @implementation SDWebImageDownloader
 @synthesize url, delegate, connection, imageData, userInfo, lowPriority, progressive;
 
+
+
+static NSString * AFBase64EncodedStringFromString(NSString *string) {
+    NSData *data = [NSData dataWithBytes:[string UTF8String] length:[string lengthOfBytesUsingEncoding:NSUTF8StringEncoding]];
+    NSUInteger length = [data length];
+    NSMutableData *mutableData = [NSMutableData dataWithLength:((length + 2) / 3) * 4];
+    
+    uint8_t *input = (uint8_t *)[data bytes];
+    uint8_t *output = (uint8_t *)[mutableData mutableBytes];
+    
+    for (NSUInteger i = 0; i < length; i += 3) {
+        NSUInteger value = 0;
+        for (NSUInteger j = i; j < (i + 3); j++) {
+            value <<= 8;
+            if (j < length) {
+                value |= (0xFF & input[j]);
+            }
+        }
+        
+        static uint8_t const kAFBase64EncodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        
+        NSUInteger idx = (i / 3) * 4;
+        output[idx + 0] = kAFBase64EncodingTable[(value >> 18) & 0x3F];
+        output[idx + 1] = kAFBase64EncodingTable[(value >> 12) & 0x3F];
+        output[idx + 2] = (i + 1) < length ? kAFBase64EncodingTable[(value >> 6)  & 0x3F] : '=';
+        output[idx + 3] = (i + 2) < length ? kAFBase64EncodingTable[(value >> 0)  & 0x3F] : '=';
+    }
+    
+    return [[[NSString alloc] initWithData:mutableData encoding:NSASCIIStringEncoding] autorelease];
+}
+
+static NSMutableDictionary *defaultHeaders()
+{
+    static NSMutableDictionary *dict = NULL;
+    if (dict == NULL) {
+        dict = [[NSMutableDictionary alloc]init];
+    }
+    
+    return [[dict retain] autorelease];
+}
+
+
+- (id)init {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    return self;
+}
 #pragma mark Public Methods
 
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate
@@ -73,10 +144,35 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     // NOOP
 }
 
++(NSString *)defaultValueForHeader:(NSString *)header {
+	return [defaultHeaders() valueForKey:header];
+}
+
++ (void)setDefaultHeader:(NSString *)header value:(NSString *)value {
+	[defaultHeaders() setValue:value forKey:header];
+}
+
++ (void)setAuthorizationHeaderWithUsername:(NSString *)username password:(NSString *)password {
+	NSString *basicAuthCredentials = [NSString stringWithFormat:@"%@:%@", username, password];
+    [self setDefaultHeader:@"Authorization" value:[NSString stringWithFormat:@"Basic %@", AFBase64EncodedStringFromString(basicAuthCredentials)]];
+}
+
++ (void)setAuthorizationHeaderWithToken:(NSString *)token {
+    [self setDefaultHeader:@"Authorization" value:[NSString stringWithFormat:@"Token token=\"%@\"", token]];
+}
+
++ (void)clearAuthorizationHeader {
+	[defaultHeaders() removeObjectForKey:@"Authorization"];
+}
+
+#pragma mark -
+
+  
 - (void)start
 {
     // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+    [request setAllHTTPHeaderFields:defaultHeaders()];
     self.connection = SDWIReturnAutoreleased([[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO]);
 
     // If not in low priority mode, ensure we aren't blocked by UI manipulations (default runloop mode for NSURLConnection is NSEventTrackingRunLoopMode)
@@ -160,11 +256,11 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
         // Update the data source, we must pass ALL the data, not just the new bytes
         CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
 #if __has_feature(objc_arc)
-        CGImageSourceUpdateData(imageSource, (__bridge  CFDataRef)imageData, totalSize == expectedSize);
+		CGImageSourceUpdateData(imageSource, (__bridge  CFDataRef)imageData, totalSize == expectedSize);
 #else
-        CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+		CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
 #endif
-
+        
         if (width + height == 0)
         {
             CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);

@@ -488,4 +488,9 @@ static SDWebImageManager *instance;
     SDWIRelease(downloader);
 }
 
+-(BOOL)hasCacheForUrl:(NSURL*)url{
+    
+    BOOL b = [[SDImageCache sharedImageCache] hasCacheForKey:[self cacheKeyForURL:url]];
+    return b;
+}
 @end

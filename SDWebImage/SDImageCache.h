@@ -144,4 +144,9 @@
  */
 - (int)getMemoryCount;
 
+/**
+ * helper to see if the image is already there
+ */
+-(BOOL)hasCacheForKey:(NSString*)key;
+
 @end

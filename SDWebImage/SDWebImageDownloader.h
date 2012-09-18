@@ -36,6 +36,7 @@ extern NSString *const SDWebImageDownloadStopNotification;
 @property (nonatomic, retain) id userInfo;
 @property (nonatomic, readwrite) BOOL lowPriority;
 
+
 /**
  * If set to YES, enables progressive download support.
  *
@@ -74,5 +75,12 @@ extern NSString *const SDWebImageDownloadStopNotification;
 
 // This method is now no-op and is deprecated
 + (void)setMaxConcurrentDownloads:(NSUInteger)max __attribute__((deprecated));
+
+
++(NSString *)defaultValueForHeader:(NSString *)header ;
++ (void)setDefaultHeader:(NSString *)header value:(NSString *)value;
++ (void)setAuthorizationHeaderWithUsername:(NSString *)username password:(NSString *)password;
++ (void)setAuthorizationHeaderWithToken:(NSString *)token ;
++ (void)clearAuthorizationHeader;
 
 @end

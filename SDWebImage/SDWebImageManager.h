@@ -153,4 +153,9 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  */
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate;
 
+/**
+ * given a URL - do we already have it cached
+ */
+-(BOOL)hasCacheForUrl:(NSURL*)url;
+
 @end
