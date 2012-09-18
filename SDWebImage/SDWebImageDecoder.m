@@ -107,7 +107,10 @@ static SDWebImageDecoder *sharedInstance;
                                                  // System only supports RGB, set explicitly
                                                  colorSpace,
                                                  // Makes system don't need to do extra conversion when displayed.
-                                                 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little); 
+                                                 // NOTE: here we remove the alpha channel for performance. Most of the time, images loaded
+                                                 //       from the network are jpeg with no alpha channel. As a TODO, finding a way to detect
+                                                 //       if alpha channel is necessary would be nice.
+                                                 kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Little);
     CGColorSpaceRelease(colorSpace);
     if (!context) return nil;
 

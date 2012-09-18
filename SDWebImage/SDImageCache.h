@@ -28,6 +28,13 @@
 + (SDImageCache *)sharedImageCache;
 
 /**
+ * Sets the global maximum cache age
+ *
+ * @param maxCacheAge The maximum length of time to keep an image in the cache, in seconds
+ */
++ (void) setMaxCacheAge:(NSInteger) maxCacheAge;
+
+/**
  * Store an image into memory and disk cache at the given key.
  *
  * @param image The image to store
