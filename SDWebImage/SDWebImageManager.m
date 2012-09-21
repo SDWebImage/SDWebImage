@@ -11,6 +11,7 @@
 #import "SDWebImageDownloader.h"
 #import <objc/message.h>
 
+<<<<<<< HEAD
 #if NS_BLOCKS_AVAILABLE
 typedef void(^SuccessBlock)(UIImage *image);
 typedef void(^FailureBlock)(NSError *error);
@@ -23,6 +24,8 @@ typedef void (^SDWebImageDownloaderProgressBlock)(float progress);
 @end
 #endif
 
+=======
+>>>>>>> cac29dc753f54dc9f995e7172f7003760a4d4554
 static SDWebImageManager *instance;
 
 @implementation SDWebImageManager
@@ -153,12 +156,12 @@ static SDWebImageManager *instance;
 }
 
 #if NS_BLOCKS_AVAILABLE
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
 {
     [self downloadWithURL:url delegate:delegate options:options userInfo:nil success:success failure:failure];
 }
 
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
 {
     // repeated logic from above due to requirement for backwards compatability for iOS versions without blocks
     
@@ -177,8 +180,8 @@ static SDWebImageManager *instance;
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
-    SuccessBlock successCopy = [success copy];
-    FailureBlock failureCopy = [failure copy];
+    SDWebImageSuccessBlock successCopy = [success copy];
+    SDWebImageFailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
                           delegate, @"delegate",
                           url, @"url",
@@ -269,8 +272,8 @@ static SDWebImageManager *instance;
 #if NS_BLOCKS_AVAILABLE
     if ([info objectForKey:@"success"])
     {
-        SuccessBlock success = [info objectForKey:@"success"];
-        success(image);
+        SDWebImageSuccessBlock success = [info objectForKey:@"success"];
+        success(image, YES);
     }
 #endif
 
@@ -412,8 +415,8 @@ static SDWebImageManager *instance;
 #if NS_BLOCKS_AVAILABLE
                 if ([[downloadInfo objectAtIndex:uidx] objectForKey:@"success"])
                 {
-                    SuccessBlock success = [[downloadInfo objectAtIndex:uidx] objectForKey:@"success"];
-                    success(image);
+                    SDWebImageSuccessBlock success = [[downloadInfo objectAtIndex:uidx] objectForKey:@"success"];
+                    success(image, NO);
                 }
 #endif
             }
@@ -439,7 +442,7 @@ static SDWebImageManager *instance;
 #if NS_BLOCKS_AVAILABLE
                 if ([[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"])
                 {
-                    FailureBlock failure = [[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"];
+                    SDWebImageFailureBlock failure = [[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"];
                     failure(nil);
                 }
 #endif
@@ -507,7 +510,7 @@ static SDWebImageManager *instance;
 #if NS_BLOCKS_AVAILABLE
             if ([[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"])
             {
-                FailureBlock failure = [[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"];
+                SDWebImageFailureBlock failure = [[downloadInfo objectAtIndex:uidx] objectForKey:@"failure"];
                 failure(error);
             }
 #endif

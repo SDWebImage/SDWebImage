@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name     = 'SDWebImage'
-  s.version  = '2.6'
+  s.version  = '2.7'
   s.platform = :ios
   s.license  = 'MIT'
   s.summary  = 'Asynchronous image downloader with cache support with an UIImageView category.'
   s.homepage = 'https://github.com/rs/SDWebImage'
   s.author   = { 'Olivier Poitrey' => 'rs@dailymotion.com' }
-  s.source   = { :git => 'https://github.com/rs/SDWebImage.git', :tag => '2.6' }
+  s.source   = { :git => 'https://github.com/rs/SDWebImage.git', :tag => '2.7' }
 
   s.description  = 'This library provides a category for UIImageVIew with support for remote '      \
                    'images coming from the web. It provides an UIImageView category adding web '    \
@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
                    'and performances!'
 
   s.source_files = 'SDWebImage/{SD,UI}*.{h,m}'
-  s.clean_paths  = 'SDWebImage.xcodeproj', 'Examples'
+  s.framework = 'ImageIO'
 
   # TODO currently CocoaPods always tries to install the subspec even if the dependency is on just 'SDWebImage'
   #s.subspec 'MapKit' do
