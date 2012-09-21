@@ -11,7 +11,6 @@
 #import "SDWebImageDownloader.h"
 #import <objc/message.h>
 
-<<<<<<< HEAD
 #if NS_BLOCKS_AVAILABLE
 typedef void(^SuccessBlock)(UIImage *image);
 typedef void(^FailureBlock)(NSError *error);
@@ -24,8 +23,6 @@ typedef void (^SDWebImageDownloaderProgressBlock)(float progress);
 @end
 #endif
 
-=======
->>>>>>> cac29dc753f54dc9f995e7172f7003760a4d4554
 static SDWebImageManager *instance;
 
 @implementation SDWebImageManager
