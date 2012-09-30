@@ -219,6 +219,8 @@ There are two ways to use this in your project: copy all the files into your pro
 
 ### Add the SDWebImage project to your project
 
+You may want to add the SDWebImage directory in your project source tree as a submodule before adding it to your project.
+
 Right-click on the project navigator and select "Add Files to "Your Project":
 
 ![Add Library Project](http://dl.dropbox.com/u/123346/SDWebImage/01_add_library_project.jpg)
@@ -230,8 +232,6 @@ In the dialog, select SDWebImage.xcodeproj:
 After you’ve added the subproject, it’ll appear below the main project in Xcode’s Navigator tree:
 
 ![Library Added](http://dl.dropbox.com/u/123346/SDWebImage/03_library_added.jpg)
-
-You may want to add the SDWebImage directory in your project source tree as a submodule before adding it to your project.
 
 ### Add build target dependencies
 
