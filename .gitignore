@@ -1,5 +1,3 @@
-.DS_Store
-
 # Xcode
 build/*
 *.pbxuser
@@ -15,3 +13,6 @@ build/*
 xcuserdata
 profile
 *.moved-aside
+
+# OSX
+.DS_Store
