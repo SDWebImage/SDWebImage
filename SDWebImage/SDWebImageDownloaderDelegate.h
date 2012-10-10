@@ -43,4 +43,7 @@
  */
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFailWithError:(NSError *)error;
 
+// method to calculate data recieved. used to update progress
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didReceiveData:(NSData *)data;
+
 @end

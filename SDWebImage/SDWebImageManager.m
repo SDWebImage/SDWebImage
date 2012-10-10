@@ -11,6 +11,18 @@
 #import "SDWebImageDownloader.h"
 #import <objc/message.h>
 
+#if NS_BLOCKS_AVAILABLE
+typedef void(^SuccessBlock)(UIImage *image);
+typedef void(^FailureBlock)(NSError *error);
+typedef void (^SDWebImageDownloaderProgressBlock)(float progress);
+
+@interface SDWebImageManager ()
+@property (nonatomic, copy) SuccessBlock successBlock;
+@property (nonatomic, copy) FailureBlock failureBlock;
+@property (readwrite, nonatomic, copy) SDWebImageDownloaderProgressBlock downloadProgress;
+@end
+#endif
+
 static SDWebImageManager *instance;
 
 @implementation SDWebImageManager
@@ -309,6 +321,24 @@ static SDWebImageManager *instance;
 
 #pragma mark SDWebImageDownloaderDelegate
 
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didReceiveData:(NSData *)data {
+    // Notify all the delegates with this downloader
+    for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx--)
+    {
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
+        if (aDownloader == downloader)
+        {
+            if (data)
+            {
+                if (self.downloadProgress) {
+                    float p = (aDownloader.totalReceivedLength / aDownloader.expectedContentLength);
+                    self.downloadProgress(p);
+                }
+            }
+        }
+    }
+}
+
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
 {
     // Notify all the downloadDelegates with this downloader
@@ -321,6 +351,11 @@ static SDWebImageManager *instance;
             id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
             SDWIRetain(delegate);
             SDWIAutorelease(delegate);
+            
+            if (self.downloadProgress) {
+                float p = (aDownloader.totalReceivedLength / aDownloader.expectedContentLength);
+                self.downloadProgress(p);
+            }
 
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
             {
@@ -486,6 +521,10 @@ static SDWebImageManager *instance;
     // Release the downloader
     [downloaderForURL removeObjectForKey:downloader.url];
     SDWIRelease(downloader);
+}
+
+- (void)setDownloadProgressBlock:(void (^)(float progress))block {
+    self.downloadProgress = block;
 }
 
 @end

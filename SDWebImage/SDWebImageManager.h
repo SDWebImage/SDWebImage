@@ -146,6 +146,8 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
 - (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 #endif
 
+- (void)setDownloadProgressBlock:(void (^)(float progress))block;
+
 /**
  * Cancel all pending download requests for a given delegate
  *
