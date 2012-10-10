@@ -143,10 +143,15 @@ static SDWebImageManager *instance;
 #if NS_BLOCKS_AVAILABLE
 - (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
 {
-    [self downloadWithURL:url delegate:delegate options:options userInfo:nil success:success failure:failure];
+    [self downloadWithURL:url delegate:delegate options:options prepare:nil success:success failure:failure];
 }
 
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
+{
+    [self downloadWithURL:url delegate:delegate options:options userInfo:nil prepare:prepare success:success failure:failure];
+}
+
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
 {
     // repeated logic from above due to requirement for backwards compatability for iOS versions without blocks
     
@@ -165,6 +170,7 @@ static SDWebImageManager *instance;
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
+    SDWebImagePrepareBlock prepareCopy = [prepare copy];
     SDWebImageSuccessBlock successCopy = [success copy];
     SDWebImageFailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -172,9 +178,11 @@ static SDWebImageManager *instance;
                           url, @"url",
                           [NSNumber numberWithInt:options], @"options",
                           userInfo ? userInfo : [NSNull null], @"userInfo",
+                          prepareCopy, @"prepare",
                           successCopy, @"success",
                           failureCopy, @"failure",
                           nil];
+    SDWIRelease(prepareCopy);
     SDWIRelease(successCopy);
     SDWIRelease(failureCopy);
     [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
@@ -282,6 +290,14 @@ static SDWebImageManager *instance;
     [cacheDelegates removeObjectAtIndex:idx];
     [cacheURLs removeObjectAtIndex:idx];
 
+#if NS_BLOCKS_AVAILABLE
+    if ([info objectForKey:@"prepare"])
+    {
+        SDWebImagePrepareBlock prepare = [info objectForKey:@"prepare"];
+        prepare();
+    }
+#endif
+    
     // Share the same downloader for identical URLs so we don't download the same URL several times
     SDWebImageDownloader *downloader = [downloaderForURL objectForKey:url];
 

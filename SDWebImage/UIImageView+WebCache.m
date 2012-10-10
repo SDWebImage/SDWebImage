@@ -38,27 +38,38 @@
 #if NS_BLOCKS_AVAILABLE
 - (void)setImageWithURL:(NSURL *)url success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 {
-    [self setImageWithURL:url placeholderImage:nil success:success failure:failure];
+    [self setImageWithURL:url prepare:nil success:success failure:failure];
+}
+
+- (void)setImageWithURL:(NSURL *)url prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+{
+    [self setImageWithURL:url placeholderImage:nil prepare:prepare success:success failure:failure];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
+    [self setImageWithURL:url placeholderImage:placeholder options:0 prepare:nil success:success failure:failure];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
+{
+    [self setImageWithURL:url placeholderImage:placeholder options:0 prepare:prepare success:success failure:failure];
+}
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure
 {
     SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
+    
     self.image = placeholder;
-
+    
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
+        [manager downloadWithURL:url delegate:self options:options prepare:prepare success:success failure:failure];
     }
+
 }
 #endif
 
