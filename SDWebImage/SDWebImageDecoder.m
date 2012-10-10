@@ -98,6 +98,7 @@ static SDWebImageDecoder *sharedInstance;
 {
     CGImageRef imageRef = image.CGImage;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
     CGContextRef context = CGBitmapContextCreate(NULL,
                                                  CGImageGetWidth(imageRef),
                                                  CGImageGetHeight(imageRef),
@@ -107,10 +108,7 @@ static SDWebImageDecoder *sharedInstance;
                                                  // System only supports RGB, set explicitly
                                                  colorSpace,
                                                  // Makes system don't need to do extra conversion when displayed.
-                                                 // NOTE: here we remove the alpha channel for performance. Most of the time, images loaded
-                                                 //       from the network are jpeg with no alpha channel. As a TODO, finding a way to detect
-                                                 //       if alpha channel is necessary would be nice.
-                                                 kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Little);
+                                                 alphaInfo | kCGBitmapByteOrder32Little);
     CGColorSpaceRelease(colorSpace);
     if (!context) return nil;
 
