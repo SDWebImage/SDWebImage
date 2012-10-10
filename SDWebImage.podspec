@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
                    'several times, a guarantee that bogus URLs won\'t be retried again and again, ' \
                    'and performances!'
 
-  s.source_files = 'SDWebImage/{SD,UI}*.{h,m}'
+  s.source_files = 'SDWebImage/{MK,SD,UI}*.{h,m}'
   s.framework = 'ImageIO'
 
   # TODO currently CocoaPods always tries to install the subspec even if the dependency is on just 'SDWebImage'
