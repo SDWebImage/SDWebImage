@@ -219,55 +219,15 @@ There are two ways to use this in your project: copy all the files into your pro
 
 ### Add the SDWebImage project to your project
 
-Right-click on the project navigator and select "Add Files to "Your Project":
-
-![Add Library Project](http://dl.dropbox.com/u/123346/SDWebImage/01_add_library_project.jpg)
-
-In the dialog, select SDWebImage.xcodeproj:
-
-![Add Library Project Dialog](http://dl.dropbox.com/u/123346/SDWebImage/02_add_library_project_dialog.jpg)
-
-After you’ve added the subproject, it’ll appear below the main project in Xcode’s Navigator tree:
-
-![Library Added](http://dl.dropbox.com/u/123346/SDWebImage/03_library_added.jpg)
-
-You may want to add the SDWebImage directory in your project source tree as a submodule before adding it to your project.
+- Download and unzip the last version of the framework from the [download page](https://github.com/rs/SDWebImage/downloads)
+- Right-click on the project navigator and select "Add Files to "Your Project":
+- In the dialog, select SDWebImage.framework:
+- Check the "Copy items into destination group's folder (if needed)" checkbox
 
 ### Add build target dependencies
 
-In you application project app’s target settings, find the "Build Phases" section and open the "Target Dependencies" block:
-
-![Add Target Dependencies](http://dl.dropbox.com/u/123346/SDWebImage/04_add_target_dependencies.jpg)
-
-Click the "+" button and select "SDWebImage ARC" (you may choose the non ARC target if you want to support iOS <3 or the ARC+MKAnnotation if you need MapKit category):
-
-![Add Target Dependencies Dialog](http://dl.dropbox.com/u/123346/SDWebImage/05_add_target_dependencies_dialog.jpg)
-
-Open the "Link Binary With Libraries" block:
-
-![Add Library Link](http://dl.dropbox.com/u/123346/SDWebImage/06_add_library_link.jpg)
-
-Click the "+" button and select "libSDWebImageARC.a" library (use non ARC version if you chose non ARC version in the previous step):
-
-![Add Library Link Dialog](http://dl.dropbox.com/u/123346/SDWebImage/07_add_library_link_dialog.jpg)
-
-Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
-
-![Add ImageIO Framework](http://dl.dropbox.com/u/123346/SDWebImage/08_add_imageio_framework.jpg)
-
-If you chose to link against the ARC+MKAnnotation target, click the "+" button again and select "MapKit.framework":
-
-![Add MapKit Framework](http://dl.dropbox.com/u/123346/SDWebImage/09_add_mapkit_framework.jpg)
-
-### Add headers
-
-Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
-
-![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
-
-In the "Search Paths" section, locate "Header Search Paths" (and not "User Header Search Paths") and add two settings: `”$(TARGET_BUILD_DIR)/usr/local/lib/include”` and `”$(OBJROOT)/UninstalledProducts/include”`. Double click on the `<Multiple values>` to pop out the box and click on the "+" icon to add each of them.  Make sure to include the quotes here:
-
-![User Header Search Paths](http://dl.dropbox.com/u/123346/SDWebImage/11_user_header_search_paths.jpg)
+- In you application project app’s target settings, find the "Build Phases" section and open the "Link Binary With Libraries" block:
+- Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
 
 ### Import headers in your source files
 
@@ -281,12 +241,6 @@ In the source files where you need to use the library, import the header file:
 
 At this point your workspace should build without error. If you are having problem, post to the Issue and the
 community can help you solve it.
-
-### Fixing indexing
-
-If you have problem with auto-completion of SDWebImage methods, you may have to copy the header files in
-your project.
-
 
 Future Enhancements
 -------------------
