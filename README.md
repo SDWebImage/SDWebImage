@@ -224,10 +224,16 @@ There are two ways to use this in your project: copy all the files into your pro
 - In the dialog, select SDWebImage.framework:
 - Check the "Copy items into destination group's folder (if needed)" checkbox
 
-### Add build target dependencies
+### Add dependencies
 
 - In you application project app’s target settings, find the "Build Phases" section and open the "Link Binary With Libraries" block:
 - Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
+
+### Add Linker Flag
+
+Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
+
+![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
 
 ### Import headers in your source files
 
