@@ -531,7 +531,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SDWebImage;
 				SKIP_INSTALL = YES;
-				STRIP_STYLE = "non-global";
+				STRIP_STYLE = debugging;
 			};
 			name = Debug;
 		};
@@ -550,7 +550,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = SDWebImage;
 				SKIP_INSTALL = YES;
-				STRIP_STYLE = "non-global";
+				STRIP_STYLE = debugging;
 			};
 			name = Release;
 		};
@@ -712,6 +712,7 @@
 				539F912E16316D2D00160719 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
