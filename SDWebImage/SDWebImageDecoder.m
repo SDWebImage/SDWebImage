@@ -100,7 +100,9 @@ static SDWebImageDecoder *sharedInstance;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
 
-    BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone);
+    BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone &&
+                              alphaInfo != kCGImageAlphaNoneSkipFirst &&
+                              alphaInfo != kCGImageAlphaNoneSkipLast);
 
     int bytesPerPixel = imageHasAlphaInfo ? 4 : 3;
     CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast : kCGImageAlphaNone;
