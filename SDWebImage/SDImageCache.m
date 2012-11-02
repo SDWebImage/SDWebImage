@@ -159,7 +159,7 @@ static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 
     if (image)
     {  
-        [memCache setObject:image forKey:key];
+        [memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
         {
@@ -205,7 +205,7 @@ static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
         return;
     }
     
-    [memCache setObject:image forKey:key];
+    [memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
 
     if (toDisk)
     {
@@ -256,7 +256,7 @@ static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
         image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
-            [memCache setObject:image forKey:key];
+            [memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
         }
     }
 
