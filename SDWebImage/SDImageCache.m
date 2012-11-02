@@ -16,31 +16,6 @@
 static SDImageCache *instance;
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
-static natural_t minFreeMemLeft = 1024*1024*12; // reserve 12MB RAM
-
-// inspired by http://stackoverflow.com/questions/5012886/knowing-available-ram-on-an-ios-device
-static natural_t get_free_memory(void)
-{
-    mach_port_t host_port;
-    mach_msg_type_number_t host_size;
-    vm_size_t pagesize;
-
-    host_port = mach_host_self();
-    host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
-    host_page_size(host_port, &pagesize);
-
-    vm_statistics_data_t vm_stat;
-
-    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS)
-    {
-        NSLog(@"Failed to fetch vm statistics");
-        return 0;
-    }
-
-    /* Stats in bytes */
-    natural_t mem_free = vm_stat.free_count * pagesize;
-    return mem_free;
-}
 
 @implementation SDImageCache
 
@@ -51,7 +26,8 @@ static natural_t get_free_memory(void)
     if ((self = [super init]))
     {
         // Init the memory cache
-        memCache = [[NSMutableDictionary alloc] init];
+        memCache = [[NSCache alloc] init];
+        memCache.name = @"ImageCache";
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -182,11 +158,7 @@ static natural_t get_free_memory(void)
     UIImage *image = [arguments objectForKey:@"image"];
 
     if (image)
-    {
-        if (get_free_memory() < minFreeMemLeft)
-        {
-            [memCache removeAllObjects];
-        }    
+    {  
         [memCache setObject:image forKey:key];
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
@@ -233,10 +205,6 @@ static natural_t get_free_memory(void)
         return;
     }
     
-    if (get_free_memory() < minFreeMemLeft)
-    {
-        [memCache removeAllObjects];
-    }
     [memCache setObject:image forKey:key];
 
     if (toDisk)
@@ -288,10 +256,6 @@ static natural_t get_free_memory(void)
         image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
-            if (get_free_memory() < minFreeMemLeft)
-            {
-                [memCache removeAllObjects];
-            }
             [memCache setObject:image forKey:key];
         }
     }
@@ -414,24 +378,6 @@ static natural_t get_free_memory(void)
     }
     
     return count;
-}
-
-- (int)getMemorySize
-{
-    int size = 0;
-    
-    for(id key in [memCache allKeys])
-    {
-        UIImage *img = [memCache valueForKey:key];
-        size += [UIImageJPEGRepresentation(img, 0) length];
-    };
-    
-    return size;
-}
-
-- (int)getMemoryCount
-{
-    return [[memCache allKeys] count];
 }
 
 @end
