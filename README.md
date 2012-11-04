@@ -15,49 +15,6 @@ It provides:
 - Performances!
 
 
-Motivation
-----------
-
-As a dummy Objective-C developer working on my first iPhone application for my company
-([Dailymotion][]), I've been very frustrated by the lack of support in the Cocoa Touch framework for
-UITableView with remote images. After some Googling, I found lot of forums and blogs coming up with
-their solution, most of the time based on asynchronous usage with NSURLConnection, but none provided
-a simple library doing the work of async image grabbing + caching for you.
-
-Actually there is one in the famous [Three20][] framework by [Joe Hewitt][], but it's a massive
-and undocumented piece of code. You can't import just the the libraries you want without taking the
-whole framework (damn #import "TTGlobal.h"). Anyway, the [Three20][] implementation is based on
-NSURLConnection, and I soon discovered this solution wasn't ideal. Keep reading to find out why.
-
-As a hurried beginner in iPhone development, I couldn't attempt to implement my own async image
-grabber with caching support as my first steps in this new world. Thus, I asked for help from my good
-friend Sebastien Flory ([Fraggle][]), who was working on his great iPhone game ([Urban Rivals][], a
-future app-store hit) for almost a year. He spent quite an amount of time implementing the very
-same solution for his needs, and was kind enough to give me his implementation for my own use. This
-worked quite well and allowed me to concentrate on other parts of my application. But when I started
-to compare my application with its direct competitor - the built-in Youtube application - I was very
-unhappy with the loading speed of the images. After some network sniffing, I found that every HTTP
-requests for my images was 10 times slower than Youtube's... On my own network, Youtube was 10
-time faster than my own servers... WTF??
-
-In fact, my servers were fine but a lot of latency was added to the requests, certainly because my
-application wasn't responsive enough to handle the requests at full speed. Right then, I
-understood something important, asynchronous NSURLConnections are tied to the main runloop in the
-NSEventTrackingRunLoopMode. As explained in the documentation, this runloop mode is affected by
-UI events:
-
-> Cocoa uses this mode to restrict incoming events during mouse-dragging loops and other sorts of
-> user interface tracking loops.
-
-A simple test to recognize an application using NSURLConnection in its default mode to load
-remote images is to scroll the UITableView with your finger to disclose an unloaded image, and to
-keep your finger pressed on the screen. If the image doesn't load until you release you finger,
-you've got one (try with the Facebook app for instance). It took me quite some time to understand
-the reason for this lagging issue. Actually I first used NSOperation to workaround this issue.
-
-This technique combined with an image cache instantly gave a lot of responsiveness to my app.
-I thought this library could benefit other Cocoa Touch applications so I open-sourced it.
-
 Who Use It
 ----------
 
@@ -260,10 +217,3 @@ Future Enhancements
 -------------------
 
 - LRU memory cache cleanup instead of reset on memory warning
-
-[Dailymotion]: http://www.dailymotion.com
-[Fraggle]: http://fraggle.squarespace.com
-[Urban Rivals]: http://fraggle.squarespace.com/blog/2009/9/15/almost-done-here-is-urban-rivals-iphone-trailer.html
-[Three20]: http://groups.google.com/group/three20
-[Joe Hewitt]: http://www.joehewitt.com
-[tutorial]: http://blog.carbonfive.com/2011/04/04/using-open-source-static-libraries-in-xcode-4
