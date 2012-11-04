@@ -9,6 +9,18 @@
 
 #import <TargetConditionals.h>
 
+#ifdef __OBJC_GC__
+#error Dailymotion SDK does not support Objective-C Garbage Collection
+#endif
+
+#if !__has_feature(objc_arc)
+#error Dailymotion SDK is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
+#endif
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0
+#error SDWebImage doesn't support Deployement Target version < 5.0
+#endif
+
 #if !TARGET_OS_IPHONE
 #import <AppKit/AppKit.h>
 #ifndef UIImage
@@ -20,34 +32,6 @@
 #else
 #import <UIKit/UIKit.h>
 #endif
-
-#if ! __has_feature(objc_arc)
-#define SDWIAutorelease(__v) ([__v autorelease]);
-#define SDWIReturnAutoreleased SDWIAutorelease
-
-#define SDWIRetain(__v) ([__v retain]);
-#define SDWIReturnRetained SDWIRetain
-
-#define SDWIRelease(__v) ([__v release]);
-#define SDWISafeRelease(__v) ([__v release], __v = nil);
-#define SDWISuperDealoc [super dealloc];
-
-#define SDWIWeak
-#else
-// -fobjc-arc
-#define SDWIAutorelease(__v)
-#define SDWIReturnAutoreleased(__v) (__v)
-
-#define SDWIRetain(__v)
-#define SDWIReturnRetained(__v) (__v)
-
-#define SDWIRelease(__v)
-#define SDWISafeRelease(__v) (__v = nil);
-#define SDWISuperDealoc
-
-#define SDWIWeak __unsafe_unretained
-#endif
-
 
 NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
 {
@@ -63,7 +47,7 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
     }
     else if ([imageOrData isKindOfClass:[UIImage class]])
     {
-        image = SDWIReturnRetained((UIImage *)imageOrData);
+        image = (UIImage *)imageOrData;
     }
     else
     {
@@ -83,10 +67,9 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
             }
         }
 
-        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
-        SDWISafeRelease(image)
+        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
         image = scaledImage;
     }
 
-    return SDWIReturnAutoreleased(image);
+    return image;
 }

@@ -7,9 +7,9 @@
  */
 
 #import "SDWebImageCompat.h"
-#import "SDWebImageDownloaderDelegate.h"
-#import "SDWebImageManagerDelegate.h"
-#import "SDImageCacheDelegate.h"
+#import "SDWebImageOperation.h"
+#import "SDWebImageDownloader.h"
+#import "SDImageCache.h"
 
 typedef enum
 {
@@ -19,10 +19,8 @@ typedef enum
     SDWebImageProgressiveDownload = 1 << 3
 } SDWebImageOptions;
 
-#if NS_BLOCKS_AVAILABLE
-typedef void(^SDWebImageSuccessBlock)(UIImage *image, BOOL cached);
-typedef void(^SDWebImageFailureBlock)(NSError *error);
-#endif
+typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, BOOL fromCache);
+
 
 /**
  * The SDWebImageManager is the class behind the UIImageView+WebCache category and likes.
@@ -36,28 +34,22 @@ typedef void(^SDWebImageFailureBlock)(NSError *error);
  *  [manager downloadWithURL:imageURL
  *                  delegate:self
  *                   options:0
- *                   success:^(UIImage *image, BOOL cached)
- *                   {
- *                       // do something with image
- *                   }
- *                   failure:nil];
+ *                  progress:nil
+ *                 completed:^(UIImage *image, NSError *error, BOOL fromCache)
+ *                 {
+ *                     if (image)
+ *                     {
+ *                         // do something with image
+ *                     }
+ *                 }];
  */
-@interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
-{
-    NSMutableArray *downloadInfo;
-    NSMutableArray *downloadDelegates;
-    NSMutableArray *downloaders;
-    NSMutableArray *cacheDelegates;
-    NSMutableArray *cacheURLs;
-    NSMutableDictionary *downloaderForURL;
-    NSMutableArray *failedURLs;
-}
+@interface SDWebImageManager : NSObject
 
-#if NS_BLOCKS_AVAILABLE
-typedef NSString *(^CacheKeyFilter)(NSURL *url);
+@property (strong, nonatomic, readonly) SDImageCache *imageCache;
+@property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
 
 /**
- * The cache filter is a block used each time SDWebManager need to convert an URL into a cache key. This can
+ * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can
  * be used to remove dynamic part of an image URL.
  *
  * The following example sets a filter in the application delegate that will remove any query-string from the
@@ -69,28 +61,14 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  *	    return [url absoluteString];
  *	}];
  */
-@property (strong) CacheKeyFilter cacheKeyFilter;
-#endif
-
+@property (strong) NSString *(^cacheKeyFilter)(NSURL *url);
 
 /**
  * Returns global SDWebImageManager instance.
  *
  * @return SDWebImageManager shared instance
  */
-+ (id)sharedManager;
-
-- (UIImage *)imageWithURL:(NSURL *)url __attribute__ ((deprecated));
-
-/**
- * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
- *
- * @param url The URL to the image
- * @param delegate The delegate object used to send result back
- * @see [SDWebImageManager downloadWithURL:delegate:options:userInfo:]
- * @see [SDWebImageManager downloadWithURL:delegate:options:userInfo:success:failure:]
- */
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate;
++ (SDWebImageManager *)sharedManager;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -98,60 +76,18 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  * @param url The URL to the image
  * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
- * @see [SDWebImageManager downloadWithURL:delegate:options:userInfo:]
- * @see [SDWebImageManager downloadWithURL:delegate:options:userInfo:success:failure:]
- */
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate options:(SDWebImageOptions)options;
-
-/**
- * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ * @param progressBlock A block called while image is downloading
+ * @param completedBlock A block called when operation has been completed. This block as no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
  *
- * @param url The URL to the image
- * @param delegate The delegate object used to send result back
- * @param options A mask to specify options to use for this request
- * @param info An NSDictionnary passed back to delegate if provided
- * @see [SDWebImageManager downloadWithURL:delegate:options:success:failure:]
+ * @return Returns a cancellable NSOperation
  */
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info;
-
-// use options:SDWebImageRetryFailed instead
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed __attribute__ ((deprecated));
-// use options:SDWebImageRetryFailed|SDWebImageLowPriority instead
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SDWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated));
-
-#if NS_BLOCKS_AVAILABLE
-/**
- * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
- *
- * @param url The URL to the image
- * @param delegate The delegate object used to send result back
- * @param options A mask to specify options to use for this request
- * @param success A block called when image has been retrived successfuly
- * @param failure A block called when couldn't be retrived for some reason
- * @see [SDWebImageManager downloadWithURL:delegate:options:]
- */
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
-
-/**
- * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
- *
- * @param url The URL to the image
- * @param delegate The delegate object used to send result back
- * @param options A mask to specify options to use for this request
- * @param info An NSDictionnary passed back to delegate if provided
- * @param success A block called when image has been retrived successfuly
- * @param failure A block called when couldn't be retrived for some reason
- * @see [SDWebImageManager downloadWithURL:delegate:options:]
- */
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
-#endif
-
-/**
- * Cancel all pending download requests for a given delegate
- *
- * @param delegate The delegate to cancel requests for
- */
-- (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate;
+- (id<SDWebImageOperation>)downloadWithURL:(NSURL *)url
+                                   options:(SDWebImageOptions)options
+                                  progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                 completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Cancel all current opreations

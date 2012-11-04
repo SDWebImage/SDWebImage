@@ -7,18 +7,18 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageCacheDelegate.h"
+#import "SDWebImageCompat.h"
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
 @interface SDImageCache : NSObject
-{
-    NSCache *memCache;
-    NSString *diskCachePath;
-    NSOperationQueue *cacheInQueue, *cacheOutQueue;
-}
+
+/**
+ * The maximum length of time to keep an image in the cache, in seconds
+ */
+@property (assign, nonatomic) NSInteger maxCacheAge;
 
 /**
  * Returns global shared cache instance
@@ -28,11 +28,11 @@
 + (SDImageCache *)sharedImageCache;
 
 /**
- * Sets the global maximum cache age
+ * Init a new cache store with a specific namespace
  *
- * @param maxCacheAge The maximum length of time to keep an image in the cache, in seconds
+ * @return ns The namespace to use for this cache store
  */
-+ (void) setMaxCacheAge:(NSInteger) maxCacheAge;
+- (id)initWithNamespace:(NSString *)ns;
 
 /**
  * Store an image into memory and disk cache at the given key.
@@ -64,35 +64,11 @@
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
- * Query the memory cache for an image at a given key and fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations
- *
- * @param key The unique key used to store the wanted image
- */
-- (UIImage *)imageFromKey:(NSString *)key;
-
-/**
- * Query the memory cache for an image at a given key and optionnaly fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations if fromDisk is YES
- *
- * @param key The unique key used to store the wanted image
- * @param fromDisk Try to retrive the image from disk if not found in memory if YES
- */
-- (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;
-
-
-/**
  * Query the disk cache asynchronousely.
  *
  * @param key The unique key used to store the wanted image
- * @param delegate The delegate object to send response to
- * @param info An NSDictionary with some user info sent back to the delegate
  */
-- (void)queryDiskCacheForKey:(NSString *)key delegate:(id <SDImageCacheDelegate>)delegate userInfo:(NSDictionary *)info;
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image))doneBlock;
 
 /**
  * Remove the image from memory and disk cache synchronousely

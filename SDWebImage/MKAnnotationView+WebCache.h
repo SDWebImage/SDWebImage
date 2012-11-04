@@ -7,14 +7,12 @@
 //
 
 #import "MapKit/MapKit.h"
-#import "SDWebImageCompat.h"
-#import "SDWebImageManagerDelegate.h"
 #import "SDWebImageManager.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with MKAnnotationView.
  */
-@interface MKAnnotationView (WebCache) <SDWebImageManagerDelegate>
+@interface MKAnnotationView (WebCache)
 
 /**
  * Set the imageView `image` with an `url`.
@@ -47,17 +45,18 @@
  */
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
-#if NS_BLOCKS_AVAILABLE
 /**
  * Set the imageView `image` with an `url`.
  *
  * The downloand is asynchronous and cached.
  *
  * @param url The url for the image.
- * @param success A block to be executed when the image request succeed This block has no return value and takes a Boolean as parameter indicating if the image was cached or not.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block called when operation has been completed. This block as no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -66,10 +65,12 @@
  *
  * @param url The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @param success A block to be executed when the image request succeed This block has no return value and takes a Boolean as parameter indicating if the image was cached or not.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block called when operation has been completed. This block as no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -79,11 +80,12 @@
  * @param url The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param success A block to be executed when the image request succeed This block has no return value and takes a Boolean as parameter indicating if the image was cached or not.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block called when operation has been completed. This block as no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
-#endif
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Cancel the current download
