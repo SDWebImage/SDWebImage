@@ -10,6 +10,10 @@
 #import "SDWebImageManagerDelegate.h"
 #import "SDWebImageManager.h"
 
+#if NS_BLOCKS_AVAILABLE
+typedef void (^SDWebImagePrefetcherCompletion)(NSUInteger finishedCount, NSUInteger skippedCount);
+#endif
+
 /**
  * Prefetch some URLs in the cache for future use. Images are downloaded in low priority.
  */
@@ -46,7 +50,9 @@
  * @param urls list of URLs to prefetch
  */
 - (void)prefetchURLs:(NSArray *)urls;
-
+#if NS_BLOCKS_AVAILABLE
+- (void)prefetchURLs:(NSArray *)urls completion:(SDWebImagePrefetcherCompletion)completion;
+#endif
 
 /**
  * Remove and cancel queued list
