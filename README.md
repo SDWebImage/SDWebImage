@@ -16,6 +16,8 @@ It provides:
 - A guarantee that main thread will never be blocked
 - Performances!
 
+[How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
+
 Who Use It
 ----------
 
