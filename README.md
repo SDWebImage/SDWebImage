@@ -10,10 +10,11 @@ It provides:
 - An UIImageView category adding web image and cache management to the Cocoa Touch framework
 - An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
+- A background image decompression
 - A guarantee that the same URL won't be downloaded several times
 - A guarantee that bogus URLs won't be retried again and again
+- A guarantee that main thread will never be blocked
 - Performances!
-
 
 Who Use It
 ----------
