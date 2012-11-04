@@ -58,8 +58,13 @@ the reason for this lagging issue. Actually I first used NSOperation to workarou
 This technique combined with an image cache instantly gave a lot of responsiveness to my app.
 I thought this library could benefit other Cocoa Touch applications so I open-sourced it.
 
-How To Use It
--------------
+Who Use It
+----------
+
+Find out [who use SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Use-SDWebImage) and add your app to the list.
+
+How To Use
+----------
 
 API documentation is available at [http://hackemist.com/SDWebImage/doc/](http://hackemist.com/SDWebImage/doc/)
 
