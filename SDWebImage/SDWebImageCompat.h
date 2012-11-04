@@ -83,7 +83,7 @@ NS_INLINE UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
             }
         }
 
-        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
+        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
         SDWISafeRelease(image)
         image = scaledImage;
     }

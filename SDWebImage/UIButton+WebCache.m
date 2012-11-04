@@ -129,7 +129,10 @@
 
 - (void)cancelCurrentImageLoad
 {
-    [[SDWebImageManager sharedManager] cancelForDelegate:self];
+    @synchronized(self)
+    {
+        [[SDWebImageManager sharedManager] cancelForDelegate:self];
+    }
 }
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
