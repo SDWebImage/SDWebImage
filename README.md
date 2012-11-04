@@ -220,3 +220,7 @@ Future Enhancements
 -------------------
 
 - LRU memory cache cleanup instead of reset on memory warning
+
+## Licenses
+
+All source code is licensed under the [MIT-License](https://raw.github.com/rs/SDWebImage/master/MIT-LICENSE).
