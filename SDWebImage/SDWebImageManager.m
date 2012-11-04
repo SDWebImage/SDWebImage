@@ -209,6 +209,21 @@ static SDWebImageManager *instance;
     }
 }
 
+- (void)cancelAll
+{
+    for (SDWebImageDownloader *downloader in downloaders)
+    {
+        [downloader cancel];
+    }
+    [cacheDelegates removeAllObjects];
+    [cacheURLs removeAllObjects];
+
+    [downloadInfo removeAllObjects];
+    [downloadDelegates removeAllObjects];
+    [downloaders removeAllObjects];
+    [downloaderForURL removeAllObjects];
+}
+
 #pragma mark SDImageCacheDelegate
 
 - (NSUInteger)indexOfDelegate:(id<SDWebImageManagerDelegate>)delegate waitingForURL:(NSURL *)url
