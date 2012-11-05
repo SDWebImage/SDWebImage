@@ -106,7 +106,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         if (performDownload)
         {
             // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
-            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:15];
             operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
             {
                 dispatch_async(dispatch_get_main_queue(), ^
