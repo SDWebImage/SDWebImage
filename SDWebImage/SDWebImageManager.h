@@ -20,6 +20,7 @@ typedef enum
 } SDWebImageOptions;
 
 #if NS_BLOCKS_AVAILABLE
+typedef void(^SDWebImagePrepareBlock)();
 typedef void(^SDWebImageSuccessBlock)(UIImage *image, BOOL cached);
 typedef void(^SDWebImageFailureBlock)(NSError *error);
 #endif
@@ -138,12 +139,26 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
  * @param url The URL to the image
  * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
- * @param info An NSDictionnary passed back to delegate if provided
+ * @param prepare A block called when image has been identified to not be in cache and is about to be downloaded
  * @param success A block called when image has been retrived successfuly
  * @param failure A block called when couldn't be retrived for some reason
  * @see [SDWebImageManager downloadWithURL:delegate:options:]
  */
-- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)info success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url The URL to the image
+ * @param delegate The delegate object used to send result back
+ * @param options A mask to specify options to use for this request
+ * @param info An NSDictionnary passed back to delegate if provided
+ * @param prepare A block called when image has been identified to not be in cache and is about to be downloaded
+ * @param success A block called when image has been retrived successfuly
+ * @param failure A block called when couldn't be retrived for some reason
+ * @see [SDWebImageManager downloadWithURL:delegate:options:]
+ */
+- (void)downloadWithURL:(NSURL *)url delegate:(id)delegate options:(SDWebImageOptions)options userInfo:(NSDictionary *)userInfo prepare:(SDWebImagePrepareBlock)prepare success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 #endif
 
 /**
