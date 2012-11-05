@@ -18,6 +18,7 @@
 - (id)initWithRequest:(NSURLRequest *)request
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
-            completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+            completed:(SDWebImageDownloaderCompletedBlock)completedBlock
+            cancelled:(void (^)())cancelBlock;
 
 @end

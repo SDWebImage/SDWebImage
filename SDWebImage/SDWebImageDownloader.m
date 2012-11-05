@@ -134,6 +134,13 @@ NSString *const kCompletedCallbackKey = @"completed";
                         if (callback) callback(image, error, finished);
                     }
                 });
+            }
+            cancelled:^
+            {
+                dispatch_async(dispatch_get_main_queue(), ^
+                {
+                    [self.URLCallbacks removeObjectForKey:url];
+                });
             }];
             [self.downloadQueue addOperation:operation];
         }

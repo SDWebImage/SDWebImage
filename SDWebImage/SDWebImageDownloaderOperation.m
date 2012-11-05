@@ -14,6 +14,7 @@
 
 @property (strong, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (strong, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
+@property (strong, nonatomic) void (^cancelBlock)();
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -28,7 +29,7 @@
     size_t width, height;
 }
 
-- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock
+- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
     {
@@ -36,6 +37,7 @@
         _options = options;
         _progressBlock = progressBlock;
         _completedBlock = completedBlock;
+        _cancelBlock = cancelBlock;
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
@@ -95,14 +97,20 @@
         if (self.isExecuting) self.executing = NO;
     }
 
+    if (self.cancelBlock) self.cancelBlock();
+    self.cancelBlock = nil;
+    self.completedBlock = nil;
+    self.progressBlock = nil;
     self.connection = nil;
     self.imageData = nil;
+
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
+    self.cancelBlock = nil;
     self.completedBlock = nil;
     self.progressBlock = nil;
     self.connection = nil;
