@@ -85,6 +85,7 @@
 {
     if (self.isFinished) return;
     [super cancel];
+    if (self.cancelBlock) self.cancelBlock();
 
     if (self.connection)
     {
@@ -96,25 +97,12 @@
         if (!self.isFinished) self.finished = YES;
         if (self.isExecuting) self.executing = NO;
     }
-
-    if (self.cancelBlock) self.cancelBlock();
-    self.cancelBlock = nil;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connection = nil;
-    self.imageData = nil;
-
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
-    self.cancelBlock = nil;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connection = nil;
-    self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -122,6 +110,15 @@
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
+
+    if (finished)
+    {
+        self.cancelBlock = nil;
+        self.completedBlock = nil;
+        self.progressBlock = nil;
+        self.connection = nil;
+        self.imageData = nil;
+    }
 }
 
 - (void)setExecuting:(BOOL)executing
