@@ -223,4 +223,4 @@ Future Enhancements
 
 ## Licenses
 
-All source code is licensed under the [MIT-License](https://raw.github.com/rs/SDWebImage/master/MIT-LICENSE).
+All source code is licensed under the [MIT License](https://raw.github.com/rs/SDWebImage/master/LICENSE).
