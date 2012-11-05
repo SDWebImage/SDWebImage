@@ -253,6 +253,12 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     self.imageData = nil;
 }
 
+//prevent caching of responses in Cache.db
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
+{
+    return nil;
+}
+
 #pragma mark SDWebImageDecoderDelegate
 
 - (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)aUserInfo
