@@ -48,7 +48,7 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSError *error
  *                  SDWebImageDownloaderProgressiveDownload option, this block is called
  *                  repeatedly with the partial image object and the finished argument set to NO
  *                  before to be called a last time with the full image and finished argument
- *                  set to YES.
+ *                  set to YES. In case of error, the finished argument is always YES.
  *
  * @return A cancellable SDWebImageOperation
  */
