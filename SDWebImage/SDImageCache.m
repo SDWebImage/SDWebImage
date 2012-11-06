@@ -13,7 +13,6 @@
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
-const char *kDiskIOQueueName = "com.hackemist.SDWebImageDiskCache";
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @interface SDImageCache ()
@@ -116,8 +115,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
     if (toDisk)
     {
-        dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-        dispatch_async(queue, ^
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
         {
             NSData *data = imageData;
 
@@ -146,7 +144,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                 [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
             }
         });
-        dispatch_release(queue);
     }
 }
 
@@ -179,9 +176,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     }
 
     NSString *path = [self cachePathForKey:key];
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path.UTF8String, O_RDONLY, 0, queue, nil);
-    dispatch_io_read(ioChannel, 0, SIZE_MAX, queue, ^(bool done, dispatch_data_t dispatchedData, int error)
+    dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path.UTF8String, O_RDONLY, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), nil);
+    dispatch_io_read(ioChannel, 0, SIZE_MAX, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(bool done, dispatch_data_t dispatchedData, int error)
     {
         if (error)
         {
@@ -214,7 +210,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         });
     });
 
-    dispatch_release(queue);
     dispatch_release(ioChannel);
 
 }
@@ -235,12 +230,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
     if (fromDisk)
     {
-        dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-        dispatch_async(queue, ^
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
         {
             [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
         });
-        dispatch_release(queue);
     }
 }
 
@@ -251,8 +244,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (void)clearDisk
 {
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_async(queue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
     {
         [[NSFileManager defaultManager] removeItemAtPath:self.diskCachePath error:nil];
         [[NSFileManager defaultManager] createDirectoryAtPath:self.diskCachePath
@@ -260,13 +252,11 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                                                    attributes:nil
                                                         error:NULL];
     });
-    dispatch_release(queue);
 }
 
 - (void)cleanDisk
 {
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_async(queue, ^
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
     {
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
@@ -280,7 +270,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             }
         }
     });
-    dispatch_release(queue);
 }
 
 -(int)getSize
