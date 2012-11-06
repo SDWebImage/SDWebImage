@@ -60,7 +60,7 @@ static char operationKey;
             }
             if (completedBlock)
             {
-                completedBlock(image, error, fromCache, finished);
+                completedBlock(image, error, fromCache);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
