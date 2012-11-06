@@ -117,7 +117,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     if (toDisk)
     {
         dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-
         dispatch_async(queue, ^
         {
             NSData *data = imageData;
@@ -136,32 +135,15 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
             if (data)
             {
-                if (![[NSFileManager defaultManager] fileExistsAtPath:_diskCachePath])
+                // Can't use defaultManager another thread
+                NSFileManager *fileManager = NSFileManager.new;
+
+                if (![fileManager fileExistsAtPath:_diskCachePath])
                 {
-                    [[NSFileManager defaultManager] createDirectoryAtPath:_diskCachePath
-                                              withIntermediateDirectories:YES
-                                                               attributes:nil
-                                                                    error:NULL];
+                    [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
 
-                NSString *path = [self cachePathForKey:key];
-                dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, [path UTF8String], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, queue, nil);
-                dispatch_data_t dispatchData = dispatch_data_create(data.bytes, data.length, queue, ^{[data self];});
-
-                dispatch_io_write(ioChannel, 0, dispatchData, queue, ^(bool done, dispatch_data_t dispatchedData, int error)
-                {
-                    if (error != 0)
-                    {
-                        NSLog(@"SDWebImageCache: Error writing image from disk cache: errno=%d", error);
-                    }
-                    if(done)
-                    {
-                        dispatch_io_close(ioChannel, 0);
-                    }
-                });
-
-                dispatch_release(dispatchData);
-                dispatch_release(ioChannel);
+                [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
             }
         });
         dispatch_release(queue);
