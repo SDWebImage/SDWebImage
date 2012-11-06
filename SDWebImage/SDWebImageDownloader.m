@@ -77,8 +77,8 @@ NSString *const kCompletedCallbackKey = @"completed";
 - (void)dealloc
 {
     [self.downloadQueue cancelAllOperations];
-    dispatch_release(_workingQueue);
-    dispatch_release(_barrierQueue);
+    SDDispatchQueueRelease(_workingQueue);
+    SDDispatchQueueRelease(_barrierQueue);
 }
 
 - (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads

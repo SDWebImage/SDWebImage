@@ -91,7 +91,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    dispatch_release(_ioQueue);
+    SDDispatchQueueRelease(_ioQueue);
 }
 
 #pragma mark SDImageCache (private)
