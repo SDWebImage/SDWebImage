@@ -47,8 +47,14 @@ static char operationKey;
     {
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
         {
-            if (image) [self setImage:image forState:state];
-            if (completedBlock && finished) completedBlock(image, error, fromCache);
+            if (image)
+            {
+                [self setImage:image forState:state];
+            }
+            if (completedBlock && finished)
+            {
+                completedBlock(image, error, fromCache);
+            }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -89,8 +95,14 @@ static char operationKey;
     {
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
         {
-            if (image) [self setBackgroundImage:image forState:state];
-            if (completedBlock && finished) completedBlock(image, error, fromCache);
+            if (image)
+            {
+                [self setBackgroundImage:image forState:state];
+            }
+            if (completedBlock && finished)
+            {
+                completedBlock(image, error, fromCache);
+            }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
