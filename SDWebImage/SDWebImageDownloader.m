@@ -21,8 +21,8 @@ NSString *const kCompletedCallbackKey = @"completed";
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
-@property (assign, nonatomic) dispatch_queue_t workingQueue;
-@property (assign, nonatomic) dispatch_queue_t barrierQueue;
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t workingQueue;
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 
 @end
 
