@@ -19,7 +19,7 @@ typedef enum
     SDWebImageProgressiveDownload = 1 << 3
 } SDWebImageOptions;
 
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, BOOL fromCache);
+typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, BOOL fromCache, BOOL finished);
 
 
 /**
@@ -77,10 +77,18 @@ typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, BOOL fro
  * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
  * @param progressBlock A block called while image is downloading
- * @param completedBlock A block called when operation has been completed. This block as no return value
- *                       and takes the requested UIImage as first parameter. In case of error the image parameter
- *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
- *                       indicating if the image was retrived from the local cache of from the network.
+ * @param completedBlock A block called when operation has been completed.
+ *
+ *                       This block as no return value and takes the requested UIImage as first parameter.
+ *                       In case of error the image parameter is nil and the second parameter may contain an NSError.
+ *
+ *                       The third parameter is a Boolean indicating if the image was retrived from the local cache
+ *                       of from the network.
+ *
+ *                       The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and
+ *                       the image is downloading. This block is thus called repetidly with a partial image. When
+ *                       image is fully downloaded, the block is called a last time with the full image and the last
+ *                       parameter set to YES.
  *
  * @return Returns a cancellable NSOperation
  */

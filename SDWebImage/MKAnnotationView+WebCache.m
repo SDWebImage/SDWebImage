@@ -46,10 +46,10 @@ static char operationKey;
     
     if (url)
     {
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache)
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
         {
             if (image) self.image = image;
-            if (completedBlock) completedBlock(image, error, fromCache);
+            if (completedBlock) completedBlock(image, error, fromCache, finished);
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }

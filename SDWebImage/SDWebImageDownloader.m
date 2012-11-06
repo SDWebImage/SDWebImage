@@ -107,7 +107,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself removeAndReturnCallbacksForURL:url];
+            NSArray *callbacksForURL = [sself callbacksForURL:url remove:YES];
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
@@ -118,7 +118,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself removeAndReturnCallbacksForURL:url];
+            NSArray *callbacksForURL = [sself callbacksForURL:url remove:finished];
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
@@ -129,7 +129,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            [sself removeAndReturnCallbacksForURL:url];
+            [sself callbacksForURL:url remove:YES];
         }];
         [self.downloadQueue addOperation:operation];
     }];
@@ -163,14 +163,24 @@ NSString *const kCompletedCallbackKey = @"completed";
     });
 }
 
-- (NSArray *)removeAndReturnCallbacksForURL:(NSURL *)url
+- (NSArray *)callbacksForURL:(NSURL *)url remove:(BOOL)remove
 {
     __block NSArray *callbacksForURL;
-    dispatch_barrier_sync(self.barrierQueue, ^
+    if (remove)
     {
-        callbacksForURL = self.URLCallbacks[url];
-        [self.URLCallbacks removeObjectForKey:url];
-    });
+        dispatch_barrier_sync(self.barrierQueue, ^
+        {
+            callbacksForURL = self.URLCallbacks[url];
+            [self.URLCallbacks removeObjectForKey:url];
+        });
+    }
+    else
+    {
+        dispatch_sync(self.barrierQueue, ^
+        {
+            callbacksForURL = self.URLCallbacks[url];
+        });
+    }
     return callbacksForURL;
 }
 

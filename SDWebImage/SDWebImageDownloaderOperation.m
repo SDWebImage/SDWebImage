@@ -77,7 +77,7 @@
         {
             if (self.completedBlock)
             {
-                self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], NO);
+                self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], YES);
             }
         }
     });
@@ -158,7 +158,7 @@
 
         if (self.completedBlock)
         {
-            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], NO);
+            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
 
         [self done];
@@ -266,7 +266,7 @@
 
     if (self.completedBlock)
     {
-        self.completedBlock(nil, error, NO);
+        self.completedBlock(nil, error, YES);
     }
 
     [self done];

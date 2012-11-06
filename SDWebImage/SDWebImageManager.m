@@ -73,7 +73,7 @@
     
     if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && [self.failedURLs containsObject:url]))
     {
-        if (completedBlock) completedBlock(nil, nil, NO);
+        if (completedBlock) completedBlock(nil, nil, NO, NO);
         return operation;
     }
 
@@ -88,7 +88,7 @@
         {
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                completedBlock(image, nil, YES);
+                completedBlock(image, nil, YES, YES);
                 [self.runningOperations removeObject:operation];
             });
         }
@@ -101,15 +101,20 @@
             {
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
+                    completedBlock(downloadedImage, error, NO, finished);
+
                     if (error)
                     {
                         [self.failedURLs addObject:url];
                     }
-                    completedBlock(downloadedImage, error, NO);
-                    [self.runningOperations removeObject:operation];
-                    if (downloadedImage)
+                    else if (downloadedImage && finished)
                     {
                         [self.imageCache storeImage:downloadedImage forKey:key];
+                    }
+
+                    if (finished)
+                    {
+                        [self.runningOperations removeObject:operation];
                     }
                 });
             }];
