@@ -19,6 +19,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @property (strong, nonatomic) NSCache *memCache;
 @property (strong, nonatomic) NSString *diskCachePath;
+@property (assign, nonatomic) dispatch_queue_t ioQueue;
 
 @end
 
@@ -43,6 +44,9 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     if ((self = [super init]))
     {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
+
+        // Create IO serial queue
+        _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
 
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
@@ -87,6 +91,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    dispatch_release(_ioQueue);
 }
 
 #pragma mark SDImageCache (private)
@@ -115,7 +120,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
     if (toDisk)
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+        dispatch_async(self.ioQueue, ^
         {
             NSData *data = imageData;
 
@@ -175,37 +180,18 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         return;
     }
 
-    NSString *path = [self cachePathForKey:key];
-    dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path.UTF8String, O_RDONLY, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), nil);
-    dispatch_io_read(ioChannel, 0, SIZE_MAX, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(bool done, dispatch_data_t dispatchedData, int error)
+    dispatch_async(self.ioQueue, ^
     {
-        if (error)
+        UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
+
+        if (diskImage)
         {
-            if (error != 2)
-            {
-                NSLog(@"SDWebImageCache: Error reading image from disk cache: errno=%d", error);
-            }
-            doneBlock(nil);
-            return;
+            [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width * image.scale];
         }
 
-        dispatch_data_apply(dispatchedData, (dispatch_data_applier_t)^(dispatch_data_t region, size_t offset, const void *buffer, size_t size)
-        {
-            UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithBytes:buffer length:size])];
+        doneBlock(diskImage);
 
-            if (diskImage)
-            {
-                [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width * image.scale];
-            }
-
-            doneBlock(diskImage);
-
-            return true;
-        });
     });
-
-    dispatch_release(ioChannel);
-
 }
 
 - (void)removeImageForKey:(NSString *)key
@@ -224,7 +210,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
     if (fromDisk)
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+        dispatch_async(self.ioQueue, ^
         {
             [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
         });
@@ -238,7 +224,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (void)clearDisk
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+    dispatch_async(self.ioQueue, ^
     {
         [[NSFileManager defaultManager] removeItemAtPath:self.diskCachePath error:nil];
         [[NSFileManager defaultManager] createDirectoryAtPath:self.diskCachePath
@@ -250,7 +236,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (void)cleanDisk
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+    dispatch_async(self.ioQueue, ^
     {
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];

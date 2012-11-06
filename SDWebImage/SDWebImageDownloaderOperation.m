@@ -21,6 +21,7 @@
 @property (assign, nonatomic) long long expectedSize;
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
+@property (assign, nonatomic) dispatch_queue_t queue;
 
 @end
 
@@ -29,10 +30,11 @@
     size_t width, height;
 }
 
-- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
+- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
     {
+        _queue = queue;
         _request = request;
         _options = options;
         _progressBlock = progressBlock;
@@ -142,8 +144,11 @@
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
-        self.expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-        self.imageData = [NSMutableData.alloc initWithCapacity:self.expectedSize];
+        dispatch_async(self.queue, ^
+        {
+            self.expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+            self.imageData = [NSMutableData.alloc initWithCapacity:self.expectedSize];
+        });
     }
     else
     {
@@ -162,7 +167,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+    dispatch_async(self.queue, ^
     {
         [self.imageData appendData:data];
 
@@ -236,7 +241,7 @@
 {
     self.connection = nil;
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+    dispatch_async(self.queue, ^
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
