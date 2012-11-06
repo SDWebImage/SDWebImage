@@ -58,7 +58,7 @@ static char operationKey;
                 self.image = image;
                 [self setNeedsLayout];
             }
-            if (completedBlock)
+            if (completedBlock && finished)
             {
                 completedBlock(image, error, fromCache);
             }
