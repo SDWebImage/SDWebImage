@@ -35,7 +35,7 @@
                                                  colorSpace,
                                                  bitmapInfo);
     CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
+    if (!context) return image;
 
     CGRect rect = (CGRect){CGPointZero,{CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)}};
     CGContextDrawImage(context, rect, imageRef);
