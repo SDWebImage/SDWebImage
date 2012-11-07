@@ -10,11 +10,11 @@
 #import <TargetConditionals.h>
 
 #ifdef __OBJC_GC__
-#error Dailymotion SDK does not support Objective-C Garbage Collection
+#error SDWebImage does not support Objective-C Garbage Collection
 #endif
 
 #if !__has_feature(objc_arc)
-#error Dailymotion SDK is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
+#error SDWebImage is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
 #endif
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0
