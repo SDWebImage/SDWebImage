@@ -66,7 +66,7 @@ NSString *const kCompletedCallbackKey = @"completed";
     if ((self = [super init]))
     {
         _downloadQueue = NSOperationQueue.new;
-        _downloadQueue.maxConcurrentOperationCount = 10;
+        _downloadQueue.maxConcurrentOperationCount = 2;
         _URLCallbacks = NSMutableDictionary.new;
         _workingQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloader", DISPATCH_QUEUE_SERIAL);
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
