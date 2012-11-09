@@ -30,7 +30,7 @@
 /**
  * Init a new cache store with a specific namespace
  *
- * @return ns The namespace to use for this cache store
+ * @param ns The namespace to use for this cache store
  */
 - (id)initWithNamespace:(NSString *)ns;
 
