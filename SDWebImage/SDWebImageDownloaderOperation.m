@@ -12,9 +12,9 @@
 
 @interface SDWebImageDownloaderOperation ()
 
-@property (strong, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
-@property (strong, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
-@property (strong, nonatomic) void (^cancelBlock)();
+@property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
+@property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
+@property (copy, nonatomic) void (^cancelBlock)();
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -37,9 +37,9 @@
         _queue = queue;
         _request = request;
         _options = options;
-        _progressBlock = progressBlock;
-        _completedBlock = completedBlock;
-        _cancelBlock = cancelBlock;
+        _progressBlock = [progressBlock copy];
+        _completedBlock = [completedBlock copy];
+        _cancelBlock = [cancelBlock copy];
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;

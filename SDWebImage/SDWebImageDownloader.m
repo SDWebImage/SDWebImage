@@ -151,8 +151,8 @@ NSString *const kCompletedCallbackKey = @"completed";
         // Handle single download of simultaneous download request for the same URL
         NSMutableArray *callbacksForURL = self.URLCallbacks[url];
         NSMutableDictionary *callbacks = NSMutableDictionary.new;
-        if (progressBlock) callbacks[kProgressCallbackKey] = progressBlock;
-        if (completedBlock) callbacks[kCompletedCallbackKey] = completedBlock;
+        if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
+        if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
         [callbacksForURL addObject:callbacks];
         self.URLCallbacks[url] = callbacksForURL;
 
