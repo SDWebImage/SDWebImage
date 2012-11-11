@@ -96,36 +96,17 @@ static SDWebImageDecoder *sharedInstance;
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image
 {
-    CGImageRef imageRef = image.CGImage;
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
-
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(image.CGImage);
     BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone &&
                               alphaInfo != kCGImageAlphaNoneSkipFirst &&
                               alphaInfo != kCGImageAlphaNoneSkipLast);
 
-    int bytesPerPixel = alphaInfo != kCGImageAlphaNone ? 4 : 3;
-    CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast : alphaInfo;
+    UIGraphicsBeginImageContextWithOptions(image.size, !imageHasAlphaInfo, 0);
+    CGRect rect = (CGRect){.origin = CGPointZero, .size = image.size};
+    [image drawInRect:rect];
+    UIImage *decompressedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
 
-    CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 CGImageGetWidth(imageRef),
-                                                 CGImageGetHeight(imageRef),
-                                                 8,
-                                                 // Just always return width * bytesPerPixel will be enough
-                                                 CGImageGetWidth(imageRef) * bytesPerPixel,
-                                                 // System only supports RGB, set explicitly
-                                                 colorSpace,
-                                                 bitmapInfo);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
-
-    CGRect rect = (CGRect){CGPointZero,{CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)}};
-    CGContextDrawImage(context, rect, imageRef);
-    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-
-    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
-    CGImageRelease(decompressedImageRef);
     return SDWIReturnAutoreleased(decompressedImage);
 }
 
