@@ -424,10 +424,18 @@ static SDWebImageManager *instance;
                 }
 #endif
             }
-
-            [downloaders removeObjectAtIndex:uidx];
-            [downloadInfo removeObjectAtIndex:uidx];
-            [downloadDelegates removeObjectAtIndex:uidx];
+            if (uidx < downloaders.count)
+                [downloaders removeObjectAtIndex:uidx];
+            else
+                NSLog(@"\nError");
+            if (uidx < downloadInfo.count)
+                [downloadInfo removeObjectAtIndex:uidx];
+            else
+                NSLog(@"\nError");
+            if (uidx < downloadDelegates.count)
+                [downloadDelegates removeObjectAtIndex:uidx];
+            else
+                NSLog(@"\nError");
         }
     }
 
