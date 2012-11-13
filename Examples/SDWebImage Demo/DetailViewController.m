@@ -33,7 +33,14 @@
 {
     if (self.imageURL)
     {
-        [self.imageView setImageWithURL:self.imageURL placeholderImage:nil options:SDWebImageProgressiveDownload];
+        UIActivityIndicatorView *activityIndicator;
+        [self.imageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
+        activityIndicator.center = self.imageView.center;
+        [activityIndicator startAnimating];
+        [self.imageView setImageWithURL:self.imageURL placeholderImage:nil options:SDWebImageProgressiveDownload completed:^(UIImage *image, NSError *error, BOOL fromCache)
+        {
+            [activityIndicator removeFromSuperview];
+        }];
     }
 }
 
