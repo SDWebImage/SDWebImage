@@ -228,7 +228,7 @@
                 {
                     UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
                     CGImageRelease(partialImageRef);
-                    self.completedBlock(image, nil, NO);
+                    if (self.completedBlock) self.completedBlock(image, nil, NO);
                 }
             }
 
