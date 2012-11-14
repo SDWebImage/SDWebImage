@@ -107,7 +107,7 @@ static SDWebImageDecoder *sharedInstance;
     UIImage *decompressedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-    return SDWIReturnAutoreleased(decompressedImage);
+    return decompressedImage;
 }
 
 @end
