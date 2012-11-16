@@ -91,7 +91,7 @@ NSString *const kCompletedCallbackKey = @"completed";
     return _downloadQueue.maxConcurrentOperationCount;
 }
 
-- (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock
+- (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock
 {
     __block SDWebImageDownloaderOperation *operation;
     __weak SDWebImageDownloader *wself = self;
@@ -114,7 +114,7 @@ NSString *const kCompletedCallbackKey = @"completed";
                 if (callback) callback(receivedSize, expectedSize);
             }
         }
-        completed:^(UIImage *image, NSError *error, BOOL finished)
+        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
@@ -122,7 +122,7 @@ NSString *const kCompletedCallbackKey = @"completed";
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
-                if (callback) callback(image, error, finished);
+                if (callback) callback(image, data, error, finished);
             }
         }
         cancelled:^
@@ -137,7 +137,7 @@ NSString *const kCompletedCallbackKey = @"completed";
     return operation;
 }
 
-- (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)())createCallback
+- (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSData *data, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)())createCallback
 {
     dispatch_barrier_sync(self.barrierQueue, ^
     {
