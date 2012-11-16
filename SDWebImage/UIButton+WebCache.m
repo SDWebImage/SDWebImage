@@ -45,7 +45,7 @@ static char operationKey;
 
     if (url)
     {
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
             if (image)
             {
@@ -53,7 +53,7 @@ static char operationKey;
             }
             if (completedBlock && finished)
             {
-                completedBlock(image, error, fromCache);
+                completedBlock(image, error, cacheType);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -93,7 +93,7 @@ static char operationKey;
 
     if (url)
     {
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
             if (image)
             {
@@ -101,7 +101,7 @@ static char operationKey;
             }
             if (completedBlock && finished)
             {
-                completedBlock(image, error, fromCache);
+                completedBlock(image, error, cacheType);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

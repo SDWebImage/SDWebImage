@@ -73,14 +73,14 @@
     
     if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && [self.failedURLs containsObject:url]))
     {
-        if (completedBlock) completedBlock(nil, nil, NO, NO);
+        if (completedBlock) completedBlock(nil, nil, SDImageCacheTypeNone, NO);
         return operation;
     }
 
     [self.runningOperations addObject:operation];
     NSString *key = [self cacheKeyForURL:url];
 
-    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image)
+    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
         if (operation.isCancelled) return;
 
@@ -88,7 +88,7 @@
         {
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                completedBlock(image, nil, YES, YES);
+                completedBlock(image, nil, cacheType, YES);
                 [self.runningOperations removeObject:operation];
             });
         }
@@ -101,7 +101,7 @@
             {
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
-                    completedBlock(downloadedImage, error, NO, finished);
+                    completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
 
                     if (error)
                     {
