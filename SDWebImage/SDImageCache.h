@@ -9,6 +9,23 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
+enum SDImageCacheType
+{
+    /**
+     * The image wasn't available the SDWebImage caches, but was downloaded from the web.
+     */
+    SDImageCacheTypeNone = 0,
+    /**
+     * The image was obtained from the disk cache.
+     */
+    SDImageCacheTypeDisk,
+    /**
+     * The image was obtained from the disk cache.
+     */
+    SDImageCacheTypeMemory
+};
+typedef enum SDImageCacheType SDImageCacheType;
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -68,7 +85,7 @@
  *
  * @param key The unique key used to store the wanted image
  */
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image))doneBlock;
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
 
 /**
  * Remove the image from memory and disk cache synchronousely

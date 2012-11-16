@@ -72,7 +72,7 @@ has completed with success or not:
 // Here we use the new provided setImageWithURL: method to load the web image
 [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
                placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                      completed:^(UIImage *image, NSError *error, BOOL fromCache) {... completion code here ...}];
+                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType) {... completion code here ...}];
 ```
 
 Note: neither your success nor failure block will be call if your image request is canceled before completion.
@@ -93,7 +93,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                  {
                      // progression tracking code
                  }
-                 completed:^(UIImage *image, NSError *error, BOOL fromCache)
+                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType)
                  {
                      if (image)
                      {
