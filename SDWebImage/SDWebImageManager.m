@@ -97,7 +97,7 @@
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSError *error, BOOL finished)
+            __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
@@ -109,7 +109,7 @@
                     }
                     else if (downloadedImage && finished)
                     {
-                        [self.imageCache storeImage:downloadedImage forKey:key];
+                        [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
                     }
 
                     if (finished)

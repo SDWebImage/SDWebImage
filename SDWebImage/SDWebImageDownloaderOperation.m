@@ -30,7 +30,7 @@
     size_t width, height;
 }
 
-- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
+- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
     {
@@ -77,7 +77,7 @@
         {
             if (self.completedBlock)
             {
-                self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], YES);
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], YES);
             }
         }
     });
@@ -158,7 +158,7 @@
 
         if (self.completedBlock)
         {
-            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
 
         [self done];
@@ -228,7 +228,7 @@
                 {
                     UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
                     CGImageRelease(partialImageRef);
-                    if (self.completedBlock) self.completedBlock(image, nil, NO);
+                    if (self.completedBlock) self.completedBlock(image, nil, nil, NO);
                 }
             }
 
@@ -251,7 +251,7 @@
             UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
             dispatch_async(dispatch_get_main_queue(), ^
             {
-                completionBlock(image, nil, YES);
+                completionBlock(image, self.imageData, nil, YES);
                 completionBlock = nil;
             });
         }
@@ -266,7 +266,7 @@
 
     if (self.completedBlock)
     {
-        self.completedBlock(nil, error, YES);
+        self.completedBlock(nil, nil, error, YES);
     }
 
     [self done];
