@@ -13,18 +13,26 @@
 @implementation UIImage (ForceDecode)
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image
-{
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(image.CGImage);
-    BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone &&
-                              alphaInfo != kCGImageAlphaNoneSkipFirst &&
-                              alphaInfo != kCGImageAlphaNoneSkipLast);
-
-    UIGraphicsBeginImageContextWithOptions(image.size, !imageHasAlphaInfo, 0);
-    CGRect rect = (CGRect){.origin = CGPointZero, .size = image.size};
-    [image drawInRect:rect];
-    UIImage *decompressedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-
+{	
+	CGImageRef imageRef = image.CGImage;
+	CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
+	CGRect imageRect = (CGRect){.origin = CGPointZero, .size = imageSize};
+	
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    CGContextRef context;
+	context = CGBitmapContextCreate(NULL, imageSize.width, imageSize.height, 8, imageSize.width * 4, colorSpace, bitmapInfo);
+    CGColorSpaceRelease(colorSpace);
+    
+	if (!context) return nil;
+	
+	CGContextDrawImage(context, imageRect, imageRef);
+    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
+	
+	CGContextRelease(context);
+	
+    UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedImageRef];
+    CGImageRelease(decompressedImageRef);
     return decompressedImage;
 }
 
