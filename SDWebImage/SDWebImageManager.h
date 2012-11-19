@@ -35,7 +35,7 @@ typedef enum
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, BOOL fromCache);
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, BOOL fromCache, BOOL finished);
+typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
 
 
 /**

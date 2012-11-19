@@ -162,13 +162,13 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image))doneBlock
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
     if (!doneBlock) return;
 
     if (!key)
     {
-        doneBlock(nil);
+        doneBlock(nil, SDImageCacheTypeNone);
         return;
     }
 
@@ -176,7 +176,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     UIImage *image = [self.memCache objectForKey:key];
     if (image)
     {
-        doneBlock(image);
+        doneBlock(image, SDImageCacheTypeMemory);
         return;
     }
 
@@ -189,8 +189,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width * image.scale];
         }
 
-        doneBlock(diskImage);
-
+		dispatch_async(dispatch_get_main_queue(), ^
+		{
+			doneBlock(diskImage, SDImageCacheTypeDisk);
+		});
     });
 }
 

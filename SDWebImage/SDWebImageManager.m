@@ -73,50 +73,44 @@
     
     if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && [self.failedURLs containsObject:url]))
     {
-        if (completedBlock) completedBlock(nil, nil, NO, NO);
+        if (completedBlock) completedBlock(nil, nil, SDImageCacheTypeNone, NO);
         return operation;
     }
 
     [self.runningOperations addObject:operation];
     NSString *key = [self cacheKeyForURL:url];
 
-    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image)
+    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
         if (operation.isCancelled) return;
 
         if (image)
         {
-            dispatch_async(dispatch_get_main_queue(), ^
-            {
-                completedBlock(image, nil, YES, YES);
-                [self.runningOperations removeObject:operation];
-            });
+			completedBlock(image, nil, cacheType, YES);
+            [self.runningOperations removeObject:operation];
         }
         else
         {
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSError *error, BOOL finished)
+            __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
-                dispatch_async(dispatch_get_main_queue(), ^
-                {
-                    completedBlock(downloadedImage, error, NO, finished);
+				completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
 
-                    if (error)
-                    {
-                        [self.failedURLs addObject:url];
-                    }
-                    else if (downloadedImage && finished)
-                    {
-                        [self.imageCache storeImage:downloadedImage forKey:key];
-                    }
+				if (error)
+				{
+					[self.failedURLs addObject:url];
+				}
+				else if (downloadedImage && finished)
+				{
+					[self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
+				}
 
-                    if (finished)
-                    {
-                        [self.runningOperations removeObject:operation];
-                    }
-                });
+				if (finished)
+				{
+					[self.runningOperations removeObject:operation];
+				}
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
         }

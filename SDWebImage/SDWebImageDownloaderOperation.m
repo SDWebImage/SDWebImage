@@ -30,7 +30,7 @@
     size_t width, height;
 }
 
-- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
+- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
     {
@@ -49,15 +49,15 @@
 
 - (void)start
 {
-    if (self.isCancelled)
-    {
-        self.finished = YES;
-        [self reset];
-        return;
-    }
-
     dispatch_async(dispatch_get_main_queue(), ^
     {
+		if (self.isCancelled)
+		{
+			self.finished = YES;
+			[self reset];
+			return;
+		}
+
         self.executing = YES;
         self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
 
@@ -77,7 +77,7 @@
         {
             if (self.completedBlock)
             {
-                self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], YES);
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Connection can't be initialized"}], YES);
             }
         }
     });
@@ -116,7 +116,7 @@
     self.completedBlock = nil;
     self.progressBlock = nil;
     self.connection = nil;
-    self.imageData = nil;
+	self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -144,10 +144,16 @@
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
+		NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+		self.expectedSize = expected;
+		if (self.progressBlock)
+		{
+			self.progressBlock(0, expected);
+		}
+
         dispatch_async(self.queue, ^
         {
-            self.expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-            self.imageData = [NSMutableData.alloc initWithCapacity:self.expectedSize];
+			self.imageData = [NSMutableData.alloc initWithCapacity:expected];
         });
     }
     else
@@ -158,7 +164,7 @@
 
         if (self.completedBlock)
         {
-            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
 
         [self done];
@@ -228,12 +234,26 @@
                 {
                     UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
                     CGImageRelease(partialImageRef);
-                    if (self.completedBlock) self.completedBlock(image, nil, NO);
+					dispatch_async(dispatch_get_main_queue(), ^
+					{
+						if (self.completedBlock)
+						{
+							self.completedBlock(image, nil, nil, NO);
+						}
+					});
                 }
             }
 
             CFRelease(imageSource);
         }
+		NSUInteger received = self.imageData.length;
+		dispatch_async(dispatch_get_main_queue(), ^
+		{
+			if (self.progressBlock)
+			{
+				self.progressBlock(received, self.expectedSize);
+			}
+		});
     });
 }
 
@@ -241,23 +261,26 @@
 {
     self.connection = nil;
 
-    dispatch_async(self.queue, ^
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
-        if (self.completedBlock)
-        {
-            __block SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-            UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-            dispatch_async(dispatch_get_main_queue(), ^
-            {
-                completionBlock(image, nil, YES);
-                completionBlock = nil;
-            });
-        }
-
-        [self done];
-    });
+	SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+	if (completionBlock)
+	{
+		dispatch_async(self.queue, ^
+		{
+			UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
+			dispatch_async(dispatch_get_main_queue(), ^
+			{
+				completionBlock(image, self.imageData, nil, YES);
+				self.completionBlock = nil;
+				[self done];
+			});
+		});
+	}
+	else
+	{
+		[self done];
+	}
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
@@ -266,7 +289,7 @@
 
     if (self.completedBlock)
     {
-        self.completedBlock(nil, error, YES);
+        self.completedBlock(nil, nil, error, YES);
     }
 
     [self done];
