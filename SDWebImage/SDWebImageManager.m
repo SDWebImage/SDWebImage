@@ -99,24 +99,21 @@
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
-                dispatch_async(dispatch_get_main_queue(), ^
+                completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
+
+                if (error)
                 {
-                    completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
+                    [self.failedURLs addObject:url];
+                }
+                else if (downloadedImage && finished)
+                {
+                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
+                }
 
-                    if (error)
-                    {
-                        [self.failedURLs addObject:url];
-                    }
-                    else if (downloadedImage && finished)
-                    {
-                        [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
-                    }
-
-                    if (finished)
-                    {
-                        [self.runningOperations removeObject:operation];
-                    }
-                });
+                if (finished)
+                {
+                    [self.runningOperations removeObject:operation];
+                }
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
         }

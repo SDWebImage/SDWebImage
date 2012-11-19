@@ -237,7 +237,13 @@
                 {
                     UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
                     CGImageRelease(partialImageRef);
-                    if (self.completedBlock) self.completedBlock(image, nil, nil, NO);
+                    dispatch_async(dispatch_get_main_queue(), ^
+                    {
+                        if (self.completedBlock)
+                        {
+                            self.completedBlock(image, nil, nil, NO);
+                        }
+                    });
                 }
             }
 
