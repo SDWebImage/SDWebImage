@@ -13,8 +13,8 @@
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 
-NSString *const kProgressCallbackKey = @"completed";
-NSString *const kCompletedCallbackKey = @"completed";
+static NSString *const kProgressCallbackKey = @"progress";
+static NSString *const kCompletedCallbackKey = @"completed";
 
 @interface SDWebImageDownloader ()
 
@@ -107,7 +107,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself callbacksForURL:url remove:YES];
+            NSArray *callbacksForURL = [sself callbacksForURL:url remove:NO];
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
