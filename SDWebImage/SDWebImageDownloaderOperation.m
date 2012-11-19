@@ -146,12 +146,17 @@
     {
         dispatch_async(self.queue, ^
         {
-            self.expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-            self.imageData = [NSMutableData.alloc initWithCapacity:self.expectedSize];
-            if (self.progressBlock)
+            NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+            self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+            self.expectedSize = expected;
+
+            dispatch_async(dispatch_get_main_queue(), ^
             {
-                self.progressBlock(0, self.expectedSize);
-            }
+                if (self.progressBlock)
+                {
+                    self.progressBlock(0, expected);
+                }
+            });
         });
     }
     else
@@ -238,10 +243,13 @@
 
             CFRelease(imageSource);
         }
-        if (self.progressBlock)
+        dispatch_async(dispatch_get_main_queue(), ^
         {
-            self.progressBlock(self.imageData.length, self.expectedSize);
-        }
+            if (self.progressBlock)
+            {
+                self.progressBlock(self.imageData.length, self.expectedSize);
+            }
+        });
     });
 }
 
