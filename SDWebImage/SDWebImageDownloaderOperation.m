@@ -148,6 +148,10 @@
         {
             self.expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
             self.imageData = [NSMutableData.alloc initWithCapacity:self.expectedSize];
+            if (self.progressBlock)
+            {
+                self.progressBlock(0, self.expectedSize);
+            }
         });
     }
     else
@@ -233,6 +237,10 @@
             }
 
             CFRelease(imageSource);
+        }
+        if (self.progressBlock)
+        {
+            self.progressBlock(self.imageData.length, self.expectedSize);
         }
     });
 }
