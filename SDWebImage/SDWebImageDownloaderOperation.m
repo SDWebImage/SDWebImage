@@ -49,15 +49,15 @@
 
 - (void)start
 {
-    if (self.isCancelled)
-    {
-        self.finished = YES;
-        [self reset];
-        return;
-    }
-
     dispatch_async(dispatch_get_main_queue(), ^
     {
+		if (self.isCancelled)
+		{
+			self.finished = YES;
+			[self reset];
+			return;
+		}
+
         self.executing = YES;
         self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
 
@@ -116,7 +116,7 @@
     self.completedBlock = nil;
     self.progressBlock = nil;
     self.connection = nil;
-    self.imageData = nil;
+	self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -144,19 +144,16 @@
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
+		NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+		self.expectedSize = expected;
+		if (self.progressBlock)
+		{
+			self.progressBlock(0, expected);
+		}
+
         dispatch_async(self.queue, ^
         {
-            NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
 			self.imageData = [NSMutableData.alloc initWithCapacity:expected];
-			self.expectedSize = expected;
-
-			dispatch_async(dispatch_get_main_queue(), ^
-			{
-			   if (self.progressBlock)
-			   {
-				   self.progressBlock(0, expected);
-			   }
-			});
         });
     }
     else
@@ -249,11 +246,12 @@
 
             CFRelease(imageSource);
         }
+		NSUInteger received = self.imageData.length;
 		dispatch_async(dispatch_get_main_queue(), ^
 		{
 			if (self.progressBlock)
 			{
-				self.progressBlock(self.imageData.length, self.expectedSize);
+				self.progressBlock(received, self.expectedSize);
 			}
 		});
     });
@@ -263,23 +261,26 @@
 {
     self.connection = nil;
 
-    dispatch_async(self.queue, ^
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
-        if (self.completedBlock)
-        {
-            __block SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-            UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-            dispatch_async(dispatch_get_main_queue(), ^
-            {
-                completionBlock(image, self.imageData, nil, YES);
-                completionBlock = nil;
-            });
-        }
-
-        [self done];
-    });
+	SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+	if (completionBlock)
+	{
+		dispatch_async(self.queue, ^
+		{
+			UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
+			dispatch_async(dispatch_get_main_queue(), ^
+			{
+				completionBlock(image, self.imageData, nil, YES);
+				self.completionBlock = nil;
+				[self done];
+			});
+		});
+	}
+	else
+	{
+		[self done];
+	}
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
