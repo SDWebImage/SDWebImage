@@ -88,7 +88,7 @@
 
     // Starts prefetching from the very first image on the list with the max allowed concurrency
     NSUInteger listCount = self.prefetchURLs.count;
-    for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++)
+    for (NSUInteger i = 0; i < _manager.imageDownloader.maxConcurrentDownloads && self.requestedCount < listCount; i++)
     {
         [self startPrefetchingAtIndex:i];
     }
