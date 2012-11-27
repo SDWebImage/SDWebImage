@@ -51,12 +51,15 @@ static char operationKey;
     
     if (url)
     {
+        __weak UIImageView *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
+            __strong UIImageView *sself = wself;
+            if (!sself) return;
             if (image)
             {
-                self.image = image;
-                [self setNeedsLayout];
+                sself.image = image;
+                [sself setNeedsLayout];
             }
             if (completedBlock && finished)
             {

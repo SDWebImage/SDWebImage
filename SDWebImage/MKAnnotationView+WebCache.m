@@ -46,11 +46,14 @@ static char operationKey;
     
     if (url)
     {
+        __weak MKAnnotationView *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished)
         {
+            __strong MKAnnotationView *sself = wself;
+            if (!sself) return;
             if (image)
             {
-                self.image = image;
+                sself.image = image;
             }
             if (completedBlock && finished)
             {

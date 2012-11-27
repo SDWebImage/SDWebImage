@@ -45,11 +45,14 @@ static char operationKey;
 
     if (url)
     {
+        __weak UIButton *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
+            __strong UIButton *sself = wself;
+            if (!sself) return;
             if (image)
             {
-                [self setImage:image forState:state];
+                [sself setImage:image forState:state];
             }
             if (completedBlock && finished)
             {
@@ -93,11 +96,14 @@ static char operationKey;
 
     if (url)
     {
+        __weak UIButton *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
+            __strong UIButton *sself = wself;
+            if (!sself) return;
             if (image)
             {
-                [self setBackgroundImage:image forState:state];
+                [sself setBackgroundImage:image forState:state];
             }
             if (completedBlock && finished)
             {
