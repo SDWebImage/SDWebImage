@@ -70,18 +70,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                                                  selector:@selector(cleanDisk)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_4_0
-        UIDevice *device = [UIDevice currentDevice];
-        if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
-        {
-            // When in background, clean memory in order to have less chance to be killed
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(clearMemory)
-                                                         name:UIApplicationDidEnterBackgroundNotification
-                                                       object:nil];
-        }
-#endif
 #endif
     }
 
