@@ -23,19 +23,26 @@
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setImageWithURL:url
+         placeholderImage:placeholder
+                  options:options
+                 forState:UIControlStateNormal];
+}
 
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options forState:(UIControlState)state
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setImage:placeholder forState:UIControlStateNormal];
-    [self setImage:placeholder forState:UIControlStateSelected];
-    [self setImage:placeholder forState:UIControlStateHighlighted];
-
-
+    
+    [self setImage:placeholder forState:state];
+    
+    
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options];
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:state] forKey:@"state"];
+        [manager downloadWithURL:url delegate:self options:options userInfo:userInfo];
     }
 }
 
@@ -52,18 +59,27 @@
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setImageWithURL:url
+         placeholderImage:placeholder
+                  options:options
+                  success:success
+                  failure:failure
+                 forState:UIControlStateNormal];
+}
 
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure forState:(UIControlState)state;
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setImage:placeholder forState:UIControlStateNormal];
-    [self setImage:placeholder forState:UIControlStateSelected];
-    [self setImage:placeholder forState:UIControlStateHighlighted];
-
+    
+    [self setImage:placeholder forState:state];
+    
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:state] forKey:@"state"];
+        [manager downloadWithURL:url delegate:self options:options userInfo:userInfo success:success failure:failure];
     }
 }
 #endif
@@ -80,18 +96,27 @@
 
 - (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setBackgroundImageWithURL:url
+                   placeholderImage:placeholder
+                            options:options
+                           forState:UIControlStateNormal];
+}
 
+- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options forState:(UIControlState)state
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setBackgroundImage:placeholder forState:UIControlStateNormal];
-    [self setBackgroundImage:placeholder forState:UIControlStateSelected];
-    [self setBackgroundImage:placeholder forState:UIControlStateHighlighted];
-
+    
+    [self setBackgroundImage:placeholder forState:state];
+    
     if (url)
     {
-        NSDictionary *info = [NSDictionary dictionaryWithObject:@"background" forKey:@"type"];
+        NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+                              @"background", @"type",
+                              [NSNumber numberWithInt:state], @"state",
+                              nil];
         [manager downloadWithURL:url delegate:self options:options userInfo:info];
     }
 }
@@ -109,18 +134,29 @@
 
 - (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure;
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setBackgroundImageWithURL:url
+                   placeholderImage:placeholder
+                            options:options
+                            success:success
+                            failure:failure
+                           forState:UIControlStateNormal];
+}
 
+- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(SDWebImageSuccessBlock)success failure:(SDWebImageFailureBlock)failure forState:(UIControlState)state;
+{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-
-    [self setBackgroundImage:placeholder forState:UIControlStateNormal];
-    [self setBackgroundImage:placeholder forState:UIControlStateSelected];
-    [self setBackgroundImage:placeholder forState:UIControlStateHighlighted];
-
+    
+    [self setBackgroundImage:placeholder forState:state];
+    
     if (url)
     {
-        NSDictionary *info = [NSDictionary dictionaryWithObject:@"background" forKey:@"type"];
+        NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+                              @"background", @"type",
+                              [NSNumber numberWithInt:state], @"state",
+                              nil];
         [manager downloadWithURL:url delegate:self options:options userInfo:info success:success failure:failure];
     }
 }
@@ -137,34 +173,30 @@
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
 {
+    UIControlState state = [[info objectForKey:@"state"] intValue];
+    
     if ([[info valueForKey:@"type"] isEqualToString:@"background"])
     {
-        [self setBackgroundImage:image forState:UIControlStateNormal];
-        [self setBackgroundImage:image forState:UIControlStateSelected];
-        [self setBackgroundImage:image forState:UIControlStateHighlighted];
+        [self setBackgroundImage:image forState:state];
     }
     else
     {
-        [self setImage:image forState:UIControlStateNormal];
-        [self setImage:image forState:UIControlStateSelected];
-        [self setImage:image forState:UIControlStateHighlighted];
+        [self setImage:image forState:state];
     }
 }
 
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
 {
+    UIControlState state = [[info objectForKey:@"state"] intValue];
+    
     if ([[info valueForKey:@"type"] isEqualToString:@"background"])
     {
-        [self setBackgroundImage:image forState:UIControlStateNormal];
-        [self setBackgroundImage:image forState:UIControlStateSelected];
-        [self setBackgroundImage:image forState:UIControlStateHighlighted];
+        [self setBackgroundImage:image forState:state];
     }
     else
     {
-        [self setImage:image forState:UIControlStateNormal];
-        [self setImage:image forState:UIControlStateSelected];
-        [self setImage:image forState:UIControlStateHighlighted];
+        [self setImage:image forState:state];
     }
 }
 
