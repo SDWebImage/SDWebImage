@@ -75,6 +75,8 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
 - (void)start
 {
+    [self cancel];
+    
     // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:15];
     self.connection = SDWIReturnAutoreleased([[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO]);
