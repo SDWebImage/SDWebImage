@@ -17,7 +17,7 @@ It provides:
 - Use GCD and ARC
 
 NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 1.0 and requires iOS 5.0
-minimum. If you need iOS < 5.0 support, please use the last 2.0 version.
+minimum deployement version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 
