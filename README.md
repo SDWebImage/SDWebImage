@@ -1,8 +1,6 @@
 Web Image
 =========
 
-> **Psst! [SDWebImage 3.0 beta](https://github.com/rs/SDWebImage/tree/3.0-beta) is out!**
-
 This library provides a category for UIImageVIew with support for remote images coming from the web.
 
 It provides:
