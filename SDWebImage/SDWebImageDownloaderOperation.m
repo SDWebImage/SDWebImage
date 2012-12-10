@@ -51,12 +51,12 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^
     {
-		if (self.isCancelled)
-		{
-			self.finished = YES;
-			[self reset];
-			return;
-		}
+        if (self.isCancelled)
+        {
+            self.finished = YES;
+            [self reset];
+            return;
+        }
 
         self.executing = YES;
         self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
@@ -147,16 +147,16 @@
 {
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
-		NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-		self.expectedSize = expected;
-		if (self.progressBlock)
-		{
-			self.progressBlock(0, expected);
-		}
+        NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+        self.expectedSize = expected;
+        if (self.progressBlock)
+        {
+            self.progressBlock(0, expected);
+        }
 
         dispatch_async(self.queue, ^
         {
-			self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+            self.imageData = [NSMutableData.alloc initWithCapacity:expected];
         });
     }
     else
@@ -264,16 +264,16 @@
 {
     self.connection = nil;
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
-	SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-	if (completionBlock)
-	{
-		dispatch_async(self.queue, ^
-		{
-			UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-			dispatch_async(dispatch_get_main_queue(), ^
-			{
+    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+    if (completionBlock)
+    {
+        dispatch_async(self.queue, ^
+        {
+            UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
+            dispatch_async(dispatch_get_main_queue(), ^
+            {
                 if (CGSizeEqualToSize(image.size, CGSizeZero))
                 {
                     completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);
@@ -282,15 +282,15 @@
                 {
                     completionBlock(image, self.imageData, nil, YES);
                 }
-				self.completionBlock = nil;
-				[self done];
-			});
-		});
-	}
-	else
-	{
-		[self done];
-	}
+                self.completionBlock = nil;
+                [self done];
+            });
+        });
+    }
+    else
+    {
+        [self done];
+    }
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
