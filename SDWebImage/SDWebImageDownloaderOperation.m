@@ -71,6 +71,10 @@
 
         if (self.connection)
         {
+			if (self.progressBlock)
+			{
+				self.progressBlock(0, 0);
+			}
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
         }
         else
