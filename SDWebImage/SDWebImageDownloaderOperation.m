@@ -274,7 +274,14 @@
 			UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
 			dispatch_async(dispatch_get_main_queue(), ^
 			{
-				completionBlock(image, self.imageData, nil, YES);
+                if (CGSizeEqualToSize(image.size, CGSizeZero))
+                {
+                    completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);
+                }
+                else
+                {
+                    completionBlock(image, self.imageData, nil, YES);
+                }
 				self.completionBlock = nil;
 				[self done];
 			});
