@@ -107,7 +107,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself callbacksForURL:url remove:NO];
+            NSArray *callbacksForURL = [sself callbacksForURL:url];
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
@@ -118,7 +118,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself callbacksForURL:url remove:finished];
+            NSArray *callbacksForURL = [sself callbacksForURL:url];
+            if (finished)
+            {
+                [sself removeCallbacksForURL:url];
+            }
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
@@ -129,7 +133,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
-            [sself callbacksForURL:url remove:YES];
+            [sself callbacksForURL:url];
+            [sself removeCallbacksForURL:url];
         }];
         [self.downloadQueue addOperation:operation];
     }];
@@ -163,25 +168,22 @@ static NSString *const kCompletedCallbackKey = @"completed";
     });
 }
 
-- (NSArray *)callbacksForURL:(NSURL *)url remove:(BOOL)remove
+- (NSArray *)callbacksForURL:(NSURL *)url
 {
     __block NSArray *callbacksForURL;
-    if (remove)
+    dispatch_sync(self.barrierQueue, ^
     {
-        dispatch_barrier_sync(self.barrierQueue, ^
-        {
-            callbacksForURL = self.URLCallbacks[url];
-            [self.URLCallbacks removeObjectForKey:url];
-        });
-    }
-    else
-    {
-        dispatch_sync(self.barrierQueue, ^
-        {
-            callbacksForURL = self.URLCallbacks[url];
-        });
-    }
+        callbacksForURL = self.URLCallbacks[url];
+    });
     return callbacksForURL;
+}
+
+- (void)removeCallbacksForURL:(NSURL *)url
+{
+    dispatch_barrier_async(self.barrierQueue, ^
+    {
+        [self.URLCallbacks removeObjectForKey:url];
+    });
 }
 
 @end
