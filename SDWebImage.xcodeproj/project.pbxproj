@@ -140,6 +140,7 @@
 				53922D70148C55820056699D /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		53922D70148C55820056699D /* Products */ = {
 			isa = PBXGroup;
