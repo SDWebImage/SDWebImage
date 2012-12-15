@@ -29,7 +29,7 @@
 	
     CGContextRelease(context);
 	
-    UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedImageRef];
+    UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
     CGImageRelease(decompressedImageRef);
     return decompressedImage;
 }
