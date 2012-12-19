@@ -136,7 +136,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [sself callbacksForURL:url];
             [sself removeCallbacksForURL:url];
         }];
-        [self.downloadQueue addOperation:operation];
+        [wself.downloadQueue addOperation:operation];
     }];
 
     return operation;
