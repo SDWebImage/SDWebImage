@@ -39,7 +39,7 @@
 {
     if ((self = [super init]))
     {
-        _imageCache = SDImageCache.new;
+        _imageCache = [SDImageCache sharedImageCache];
         _imageDownloader = SDWebImageDownloader.new;
         _failedURLs = NSMutableArray.new;
         _runningOperations = NSMutableArray.new;
