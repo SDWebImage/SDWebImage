@@ -130,11 +130,8 @@
 
 - (void)cancelAll
 {
-    dispatch_async(dispatch_get_main_queue(), ^
-    {
-        [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
-        [self.runningOperations removeAllObjects];
-    });
+    [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
+    [self.runningOperations removeAllObjects];
 }
 
 @end
