@@ -106,7 +106,10 @@
 
                 if (error)
                 {
-                    [self.failedURLs addObject:url];
+                    if (error.code != NSURLErrorNotConnectedToInternet)
+                    {
+                        [self.failedURLs addObject:url];
+                    }
                 }
                 else if (downloadedImage && finished)
                 {
