@@ -10,25 +10,38 @@
 
 @interface UIImageView (WebCachePrivate)
 
--(void) retinaURL:(NSURL *) url;
+-(NSURL *) retinaURL:(NSURL *) url;
 -(BOOL) isRetina;
 @end
 
 @implementation UIImageView (WebCache)
 
 
--(BOOL) isRetina{
++(BOOL) isRetina{
     return ([UIScreen mainScreen].scale == 2.0f);
 }
 
--(void) retinaURL:(NSURL *) url{
-    NSString * lastComponent = [url lastPathComponent];
-    
-    NSString *extension = [url pathExtension];
-    if ([lastComponent rangeOfString:@"@2x"].location == NSNotFound) {
-        NSString * replacedLastComponent = [lastComponent stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@".%@",extension] withString:[NSString stringWithFormat:@"@2x.%@",extension]];
-        url = [NSURL URLWithString:[[url absoluteString] stringByReplacingOccurrencesOfString:lastComponent withString:replacedLastComponent]];
++(NSURL *) retinaURL:(NSURL *) url{
+    if ([UIImageView isRetina]) {
+        NSString * lastComponent = [url lastPathComponent];
+        
+        NSString *extension = [url pathExtension];
+        if ([lastComponent rangeOfString:@"_2x"].location == NSNotFound) {
+            NSString * replacedLastComponent = [lastComponent stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@".%@",extension] withString:[NSString stringWithFormat:@"_2x.%@",extension]];
+            url = [NSURL URLWithString:[[[url absoluteString] stringByReplacingOccurrencesOfString:lastComponent withString:replacedLastComponent] stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
+            //[url urlen]
+        }
     }
+    
+    return url;
+}
+
+-(BOOL) isRetina{
+    return [UIImageView isRetina];
+}
+
+-(NSURL *) retinaURL:(NSURL *)url{
+    return [UIImageView retinaURL:url];
 }
 
 - (void)setImageWithURL:(NSURL *)url
@@ -39,9 +52,7 @@
 
 - (void)setOptimizedImageWithURL:(NSURL *)url
 {
-    if ([self isRetina]) {
-        [self retinaURL:url];
-    }
+    url = [self retinaURL:url];
     [self setImageWithURL:url placeholderImage:nil];
 }
 
@@ -52,9 +63,7 @@
 
 - (void)setOptimizedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
 {
-    if ([self isRetina]) {
-        [self retinaURL:url];
-    }
+    url = [self retinaURL:url];
     [self setImageWithURL:url placeholderImage:placeholder options:0];
 }
 
@@ -83,9 +92,7 @@
 
     if (url)
     {
-        if ([self isRetina]) {
-            [self retinaURL:url];
-        }
+        url = [self retinaURL:url];
         [manager downloadWithURL:url delegate:self options:options];
     }
 }
@@ -136,8 +143,9 @@
     
     if (url)
     {
-        if ([self isRetina]) {
-            [self retinaURL:url];
+        if ([UIImageView isRetina]) {
+            url = [UIImageView retinaURL:url];
+
         }
         [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
     }

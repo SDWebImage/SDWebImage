@@ -10,6 +10,8 @@
 #import "SDWebImageManagerDelegate.h"
 #import "SDWebImageManager.h"
 
+
+
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView.
  *
@@ -44,6 +46,8 @@
  */
 @interface UIImageView (WebCache) <SDWebImageManagerDelegate>
 
+
++(NSURL *) retinaURL:(NSURL *) url;;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -119,7 +123,7 @@
  * @param success A block to be executed when the image request succeed This block has no return value and takes the retrieved image as argument.
  * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
  */
-- (void)setImageWithURL:(NSURL *)url success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)setOptimizedImageWithURL:(NSURL *)url success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
 /**
  * Set the imageView `image` with an `url`.
  *
