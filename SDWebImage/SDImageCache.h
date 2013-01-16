@@ -88,6 +88,13 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
 
 /**
+ * Query the memory cache.
+ *
+ * @param key The unique key used to store the wanted image
+ */
+- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
+
+/**
  * Remove the image from memory and disk cache synchronousely
  *
  * @param key The unique image cache key

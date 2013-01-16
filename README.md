@@ -145,8 +145,7 @@ SDImageCache *imageCache = [SDImageCache.alloc initWithNamespace:@"myNamespace"]
 ```
 
 By default SDImageCache will lookup the disk cache if an image can't be found in the memory cache.
-You can prevent this from happening by calling the alternative method imageFromKey:fromDisk: with a
-negative second argument.
+You can prevent this from happening by calling the alternative method `imageFromMemoryCacheForKey:`.
 
 To store an image into the cache, you use the storeImage:forKey: method:
 
