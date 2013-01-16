@@ -118,4 +118,9 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  */
 - (void)cancelAll;
 
+/**
+ * Check one or more operations running
+ */
+- (BOOL)isRunning;
+
 @end

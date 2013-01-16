@@ -134,6 +134,11 @@
     [self.runningOperations removeAllObjects];
 }
 
+- (BOOL)isRunning
+{
+    return self.runningOperations.count > 0;
+}
+
 @end
 
 @implementation SDWebImageCombinedOperation
