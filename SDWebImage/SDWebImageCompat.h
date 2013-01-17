@@ -17,10 +17,6 @@
 #error SDWebImage doesn't support Deployement Target version < 5.0
 #endif
 
-#if !__has_feature(objc_arc)
-#error SDWebImage requires ARC enabled. Add the compiler flag -fobjc-arc.
-#endif
-
 #if !TARGET_OS_IPHONE
 #import <AppKit/AppKit.h>
 #ifndef UIImage

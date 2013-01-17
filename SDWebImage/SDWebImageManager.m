@@ -9,6 +9,10 @@
 #import "SDWebImageManager.h"
 #import <objc/message.h>
 
+#if !__has_feature(objc_arc)
+#error SDWebImage requires ARC enabled. Add the compiler flag -fobjc-arc.
+#endif
+
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
