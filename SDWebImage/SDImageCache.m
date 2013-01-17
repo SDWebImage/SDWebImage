@@ -179,7 +179,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
         if (diskImage)
         {
-            [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width * image.scale];
+            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+            [self.memCache setObject:diskImage forKey:key cost:cost];
         }
 
         dispatch_async(dispatch_get_main_queue(), ^
