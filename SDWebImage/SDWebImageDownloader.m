@@ -144,6 +144,16 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSData *data, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)())createCallback
 {
+    // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
+    if(url == nil)
+    {
+        if (completedBlock != nil)
+        {
+            completedBlock(nil, nil, nil, NO);
+        }
+        return;
+    }
+    
     dispatch_barrier_sync(self.barrierQueue, ^
     {
         BOOL first = NO;
