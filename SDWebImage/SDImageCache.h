@@ -38,6 +38,14 @@ typedef enum SDImageCacheType SDImageCacheType;
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
 /**
+ * The caching policy for methods where you do not specifically choose one (in the storeImage functions, this applies to the functions where ToDisk is not set).
+ * SDImageCacheTypeDisk saves to memory and disk
+ * SDImageCacheTypeMemory saves to memory only
+ * SDImageCacheTypeNone skips caching
+ */
+@property (nonatomic) SDImageCacheType cachingPolicy;
+
+/**
  * Returns global shared cache instance
  *
  * @return SDImageCache global instance
@@ -52,12 +60,21 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (id)initWithNamespace:(NSString *)ns;
 
 /**
- * Store an image into memory and disk cache at the given key.
+ * Store an image into cache. The type of cache (memory/disk/none) depends on the cachingPolicy property of SDImageCache. Default is disk.
  *
  * @param image The image to store
  * @param key The unique image cache key, usually it's image absolute URL
  */
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
+
+/**
+ * Store an image into cache. The type of cache (memory/disk/none) depends on the cachingPolicy property of SDImageCache. Default is disk.
+ *
+ * @param image The image to store
+ * @param data The image data as returned by the server, this representation will be used for disk storage
+ * @param key The unique image cache key, usually it's image absolute URL
+ */
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key;
 
 /**
  * Store an image into memory and optionally disk cache at the given key.
