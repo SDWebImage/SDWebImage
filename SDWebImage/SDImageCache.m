@@ -50,6 +50,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
+        _cachingPolicy = SDImageCacheTypeDisk;
 
         // Init the memory cache
         _memCache = [[NSCache alloc] init];
@@ -140,9 +141,23 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     }
 }
 
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key{
+    //check the cachingPolicy to decide whether to save to disk or not
+    
+    if (self.cachingPolicy == SDImageCacheTypeNone)
+        return; //no caching needed at all
+    else {
+        BOOL cacheToDisk = YES;
+        if (self.cachingPolicy == SDImageCacheTypeMemory)
+            cacheToDisk = NO;
+        
+        [self storeImage:image imageData:imageData forKey:key toDisk:cacheToDisk];
+    }
+}
+
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image imageData:nil forKey:key];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
@@ -159,6 +174,12 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 {
     if (!doneBlock) return;
 
+    //if caching is turned off, just return straight away. Don't find anything.
+    if (self.cachingPolicy == SDImageCacheTypeNone){
+        doneBlock(nil, SDImageCacheTypeNone);
+        return;
+    }
+    
     if (!key)
     {
         doneBlock(nil, SDImageCacheTypeNone);
@@ -172,22 +193,28 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         doneBlock(image, SDImageCacheTypeMemory);
         return;
     }
-
-    dispatch_async(self.ioQueue, ^
-    {
-        UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
-
-        if (diskImage)
+    
+    //now if disk cache enabled, check disk cache
+    if (self.cachingPolicy == SDImageCacheTypeDisk){
+        dispatch_async(self.ioQueue, ^
         {
-            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-            [self.memCache setObject:diskImage forKey:key cost:cost];
-        }
+            UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
 
-        dispatch_async(dispatch_get_main_queue(), ^
-        {
-            doneBlock(diskImage, SDImageCacheTypeDisk);
+            if (diskImage)
+            {
+                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+                [self.memCache setObject:diskImage forKey:key cost:cost];
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^
+            {
+                doneBlock(diskImage, SDImageCacheTypeDisk);
+            });
         });
-    });
+    } else {
+        //otherwise, disk cache check not enabled, so run the done block to say not found
+        doneBlock(nil, SDImageCacheTypeNone);
+    }
 }
 
 - (void)removeImageForKey:(NSString *)key

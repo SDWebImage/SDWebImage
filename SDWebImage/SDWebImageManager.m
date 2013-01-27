@@ -113,7 +113,7 @@
                 }
                 else if (downloadedImage && finished)
                 {
-                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
+                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key];
                 }
 
                 if (finished)
