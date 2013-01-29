@@ -48,15 +48,15 @@
 }
 
 
-- (NSString *)cacheKeyForURL:(NSURL *)url
+- (NSString *)cacheKeyForURL:(NSURL *)url grayscale:(BOOL)grayscale
 {
     if (self.cacheKeyFilter)
     {
-        return self.cacheKeyFilter(url);
+        return self.cacheKeyFilter(url, grayscale);
     }
     else
     {
-        return [url absoluteString];
+        return [[url absoluteString] stringByAppendingString:(grayscale) ? @"_grayscale" : @""];
     }
 }
 
@@ -82,10 +82,12 @@
         if (completedBlock) completedBlock(nil, nil, SDImageCacheTypeNone, NO);
         return operation;
     }
-
+    
+    const BOOL isGrayscale = (options & SDWebImageGrayscale);
+    
     [self.runningOperations addObject:operation];
-    NSString *key = [self cacheKeyForURL:url];
-
+    NSString *key = [self cacheKeyForURL:url grayscale:isGrayscale];
+    
     [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
         if (operation.isCancelled) return;
@@ -100,7 +102,7 @@
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            if (options & SDWebImageGrayscale) downloaderOptions |= SDWebImageDownloaderGrayscale;
+            if (isGrayscale) downloaderOptions |= SDWebImageDownloaderGrayscale;
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
