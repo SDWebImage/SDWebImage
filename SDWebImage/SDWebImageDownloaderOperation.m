@@ -9,6 +9,7 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
 #import <ImageIO/ImageIO.h>
+#import "UIImage+Grayscale.h"
 
 @interface SDWebImageDownloaderOperation ()
 
@@ -276,6 +277,12 @@
         dispatch_async(self.queue, ^
         {
             UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
+            
+            if (self.options & SDWebImageDownloaderGrayscale)
+            {
+                image = [image grayscaleImage];
+            }
+            
             dispatch_async(dispatch_get_main_queue(), ^
             {
                 if (CGSizeEqualToSize(image.size, CGSizeZero))
