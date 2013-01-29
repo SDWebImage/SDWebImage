@@ -8,72 +8,67 @@
 
 #import "UIImage+Grayscale.h"
 
+typedef enum {
+    ALPHA = 0,
+    BLUE = 1,
+    GREEN = 2,
+    RED = 3
+} PIXELS;
+
 @implementation UIImage (Grayscale)
 
 - (instancetype)grayscaleImage
 {
     /**
-     * reference: http://stackoverflow.com/a/1300589
+     * reference: http://stackoverflow.com/questions/1298867/convert-image-to-grayscale
      */
-    const int   kRed = 1,
-                kGreen = 2,
-                kBlue = 4;
+    CGSize size = self.size;
+    const int   scale = self.scale;
+    const int   width = size.width * scale,
+    height = size.height * scale;
     
-    const int   colors = kGreen | kBlue | kRed;
-    const int   m_width = self.size.width,
-                m_height = self.size.height;
+    // the pixels will be painted to this array
+    uint32_t *const pixels = (uint32_t *)malloc(width * height * sizeof(uint32_t));
     
-    uint32_t *const rgbImage = (uint32_t *)malloc(m_width * m_height * sizeof(uint32_t));
+    // clear the pixels so any transparency is preserved
+    memset(pixels, 0, width * height * sizeof(uint32_t));
+    
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(rgbImage, m_width, m_height, 8, m_width * 4, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipLast);
-    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
-    CGContextSetShouldAntialias(context, NO);
-    CGContextDrawImage(context, CGRectMake(0, 0, m_width, m_height), self.CGImage);
-    CGContextRelease(context);
-    CGColorSpaceRelease(colorSpace);
     
-    // now convert to grayscale
-    uint8_t *const m_imageData = (uint8_t *)calloc(m_width * m_height, sizeof(uint8_t));
-    for (int y = 0; y < m_height; y++)
-    {
-        for (int x = 0; x < m_width; x++)
-        {
-            uint32_t rgbPixel=rgbImage[y*m_width+x];
-            uint32_t sum=0,count=0;
-            if (colors & kRed) {sum += (rgbPixel>>24)&255; count++;}
-            if (colors & kGreen) {sum += (rgbPixel>>16)&255; count++;}
-            if (colors & kBlue) {sum += (rgbPixel>>8)&255; count++;}
-            m_imageData[y*m_width+x]=sum/count;
+    // create a context with RGBA pixels
+    CGContextRef context = CGBitmapContextCreate(pixels, width, height, 8, width * sizeof(uint32_t), colorSpace,
+                                                 kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedLast);
+    
+    // paint the bitmap to our context which will fill in the pixels array
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), self.CGImage);
+    
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+            uint8_t *rgbaPixel = (uint8_t *) &pixels[y * width + x];
+            
+            // convert to grayscale using recommended method: http://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
+            uint32_t gray = 0.3 * rgbaPixel[RED] + 0.59 * rgbaPixel[GREEN] + 0.11 * rgbaPixel[BLUE];
+            
+            // set the pixels to gray
+            rgbaPixel[RED] = gray;
+            rgbaPixel[GREEN] = gray;
+            rgbaPixel[BLUE] = gray;
         }
     }
-    free(rgbImage);
     
-    // convert from a gray scale image back into a UIImage
-    uint8_t *const result = (uint8_t *)calloc(m_width * m_height, sizeof(uint8_t));
-    
-    // process the image back to rgb
-    for (int i = 0; i < m_height * m_width; i++)
-    {
-        result[i*4]=0;
-        int val=m_imageData[i];
-        result[i*4+1]=val;
-        result[i*4+2]=val;
-        result[i*4+3]=val;
-    }
-    
-    // create a UIImage
-    colorSpace = CGColorSpaceCreateDeviceRGB();
-    context = CGBitmapContextCreate(result, m_width, m_height, 8, m_width * sizeof(uint32_t), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipLast);
+    // create a new CGImageRef from our context with the modified pixels
     CGImageRef image = CGBitmapContextCreateImage(context);
+    
+    // we're done with the context, color space, and pixels
     CGContextRelease(context);
     CGColorSpaceRelease(colorSpace);
+    free(pixels);
+    
+    // make a new UIImage to return
     UIImage *resultUIImage = [UIImage imageWithCGImage:image];
+    
+    // we're done with image now too
     CGImageRelease(image);
-    
-    free(m_imageData);
-    
-    // make sure the data will be released by giving it to an autoreleased NSData
-    [NSData dataWithBytesNoCopy:result length:m_width * m_height];
     
     return resultUIImage;
 }
