@@ -281,6 +281,9 @@
             if (self.options & SDWebImageDownloaderGrayscale)
             {
                 image = [image grayscaleImage];
+                // invalidate downloaded data so that it's generated again with the grayscale version
+                // this is to make sure that's the version that gets cached
+                self.imageData = nil;
             }
             
             dispatch_async(dispatch_get_main_queue(), ^
