@@ -116,7 +116,8 @@
                 }
                 else if (downloadedImage && finished)
                 {
-                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:YES];
+                    const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
                 }
 
                 if (finished)
