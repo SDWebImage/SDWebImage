@@ -218,6 +218,7 @@ static natural_t get_free_memory(void)
     NSMutableDictionary *mutableArguments = SDWIReturnAutoreleased([arguments mutableCopy]);
 
     UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self defaultCachePathForKey:key]]);
+    image = image ? : [self imageFromKeyInUserPaths:key];
 
     if (image)
     {
