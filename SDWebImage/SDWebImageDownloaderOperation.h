@@ -19,6 +19,7 @@
                 queue:(dispatch_queue_t)queue
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
+             redirect:(SDWebImageDownloaderRedirectedBlock)redirectBlock
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
             cancelled:(void (^)())cancelBlock;
 

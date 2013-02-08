@@ -97,6 +97,34 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 #pragma mark ImageCache
 
+- (void)storeRedirect:(NSString*)redirect forKey:(NSString*)key toDisk:(BOOL)toDisk
+{
+    if (!redirect || !key)
+    {
+        return;
+    }
+    
+    if (redirect)
+        [self.memCache setObject:redirect forKey:key];
+    
+    if (toDisk)
+    {
+        dispatch_async(self.ioQueue, ^
+                       {
+                           // Can't use defaultManager another thread
+                           NSFileManager *fileManager = NSFileManager.new;
+                           
+                           if (![fileManager fileExistsAtPath:_diskCachePath])
+                           {
+                               [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+                           }
+                       
+                       [redirect writeToFile:[self cachePathForKey:key] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+                       
+                       });
+    }
+}
+
 - (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
     if (!image || !key)
@@ -150,42 +178,82 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
-- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key
+- (id)imageFromMemoryCacheForKey:(NSString *)key
 {
     return [self.memCache objectForKey:key];
 }
 
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, NSString *redirect, SDImageCacheType cacheType))doneBlock
 {
     if (!doneBlock) return;
 
     if (!key)
     {
-        doneBlock(nil, SDImageCacheTypeNone);
+        doneBlock(nil, nil,SDImageCacheTypeNone);
         return;
     }
 
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image)
+    id imageOrRedirect = [self imageFromMemoryCacheForKey:key];
+    if (imageOrRedirect)
     {
-        doneBlock(image, SDImageCacheTypeMemory);
-        return;
+        // Check if it's an image.
+        if ([imageOrRedirect isKindOfClass:[UIImage class]])
+        {
+            doneBlock(imageOrRedirect, nil, SDImageCacheTypeMemory);
+            return;
+        }
+        
+        // Check if it's a redirect
+        if ([imageOrRedirect isKindOfClass:[NSString class]])
+        {
+            doneBlock(nil, imageOrRedirect, SDImageCacheTypeMemory);
+            return;
+        }
+        
+        //If it's neither, something went wrong. Delete the object from memory and continue.
+        [self removeImageForKey:key fromDisk:NO];
     }
 
     dispatch_async(self.ioQueue, ^
     {
-        UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
-
-        if (diskImage)
+        NSData *diskData = [NSData dataWithContentsOfFile:[self cachePathForKey:key]];
+        UIImage *diskImage = nil;
+        NSString *diskRedirect = nil;
+        
+        if (diskData)
         {
-            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-            [self.memCache setObject:diskImage forKey:key cost:cost];
+            // The NSData object represents an image or a redirect string.
+            
+            // Check for the image first.
+            diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
+
+            // If the file doesn't contain an UIImage, then we will get NSNull.
+            if (diskImage != nil && ![diskImage isEqual:[NSNull null]])
+            {
+                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+                [self.memCache setObject:diskImage forKey:key cost:cost];
+            }
+            else // It could be a redirect.
+            {
+                diskRedirect = [[NSString alloc] initWithData:diskData encoding:NSUTF8StringEncoding];
+
+                if (diskRedirect)
+                    [self.memCache setObject:diskRedirect forKey:key];
+            }
+            
+            // Check if the file is valid and delete it if not.
+            if (!diskImage && !diskRedirect)
+            {
+                // Can't use defaultManager another thread
+                NSFileManager *fileManager = NSFileManager.new;
+                [fileManager removeItemAtPath:[self cachePathForKey:key] error:nil];
+            }
         }
 
         dispatch_async(dispatch_get_main_queue(), ^
         {
-            doneBlock(diskImage, SDImageCacheTypeDisk);
+            doneBlock(diskImage, diskRedirect, SDImageCacheTypeDisk);
         });
     });
 }

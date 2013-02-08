@@ -13,6 +13,7 @@
 @interface SDWebImageDownloaderOperation ()
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
+@property (copy, nonatomic) SDWebImageDownloaderRedirectedBlock redirectBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
 @property (copy, nonatomic) void (^cancelBlock)();
 
@@ -30,14 +31,15 @@
     size_t width, height;
 }
 
-- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
+- (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock redirect:(SDWebImageDownloaderRedirectedBlock)redirectBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
-    {
+    {        
         _queue = queue;
         _request = request;
         _options = options;
         _progressBlock = [progressBlock copy];
+        _redirectBlock = [redirectBlock copy];
         _completedBlock = [completedBlock copy];
         _cancelBlock = [cancelBlock copy];
         _executing = NO;
@@ -176,6 +178,29 @@
 
         [self done];
     }
+}
+
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
+{
+    // It could happen that we are redirected to the same URL. It makes sense to continue.
+    // Maybe the server is waiting for an event before redirecting us to another link.
+    if ([connection.originalRequest.URL isEqual:request.URL])
+        return request;
+    
+    if (self.redirectBlock)
+    {
+        if (self.redirectBlock)
+        {
+            self.redirectBlock(request);
+        }
+
+        [self.connection cancel];
+         self.connection = nil;
+        [self done];
+        return nil; 
+    }
+    else
+        return request;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data

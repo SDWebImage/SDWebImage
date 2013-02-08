@@ -86,46 +86,73 @@
     [self.runningOperations addObject:operation];
     NSString *key = [self cacheKeyForURL:url];
 
-    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
-    {
-        if (operation.isCancelled) return;
-
-        if (image)
-        {
-            completedBlock(image, nil, cacheType, YES);
-            [self.runningOperations removeObject:operation];
-        }
-        else
-        {
-            SDWebImageDownloaderOptions downloaderOptions = 0;
-            if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
-            if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
-            {
-                completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
-
-                if (error)
-                {
-                    if (error.code != NSURLErrorNotConnectedToInternet)
-                    {
-                        [self.failedURLs addObject:url];
-                    }
-                }
-                else if (downloadedImage && finished)
-                {
-                    const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
-                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
-                }
-
-                if (finished)
-                {
-                    [self.runningOperations removeObject:operation];
-                }
-            }];
-            operation.cancelBlock = ^{[subOperation cancel];};
-        }
-    }];
-
+    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, NSString *redirect, SDImageCacheType cacheType)
+     {
+         if (operation.isCancelled) return;
+         
+         if (image)
+         {
+             completedBlock(image, nil, cacheType, YES);
+             [self.runningOperations removeObject:operation];
+         }
+         else if (redirect)
+         {
+             // Close the current operation and schedule another with the redirect URL.
+             [self.runningOperations removeObject:operation];
+             [self downloadWithURL:[NSURL URLWithString:redirect] options:options progress:progressBlock completed:completedBlock];
+         }
+         else
+         {
+             SDWebImageDownloaderOptions downloaderOptions = 0;
+             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
+             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
+             
+             void (^redirectBlock)(NSURLRequest *redirectRequest) = nil;
+             // Handle the redirect: Store the redirect as a NSString and start another download based on it.
+             if (options & SDWebImageCacheRedirects)
+             {
+                 redirectBlock  = ^(NSURLRequest* redirectRequest)
+                 {
+                     // Store redirect URL.
+                     const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+                     [self.imageCache storeRedirect:[redirectRequest.URL absoluteString] forKey:key toDisk:cacheOnDisk];
+                     
+                     // Close the current operation and schedule another with the redirect URL.
+                     [self.runningOperations removeObject:operation];
+                     [self downloadWithURL:redirectRequest.URL options:options progress:progressBlock completed:completedBlock];
+                 };
+             }
+                          
+             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url
+                                                                                               options:downloaderOptions
+                                                                                              progress:progressBlock
+                                                                                            redirected:redirectBlock
+                                                                                            completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
+                                                             {
+                                                                 completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
+                                                                 
+                                                                 if (error)
+                                                                 {
+                                                                     if (error.code != NSURLErrorNotConnectedToInternet)
+                                                                     {
+                                                                         [self.failedURLs addObject:url];
+                                                                     }
+                                                                 }
+                                                                 else if (downloadedImage && finished)
+                                                                 {
+                                                                     const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+                                                                     [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                                                                 }
+                                                                 
+                                                                 if (finished)
+                                                                 {
+                                                                     [self.runningOperations removeObject:operation];
+                                                                 }
+                                                             }];
+             operation.cancelBlock = ^{[subOperation cancel];};
+         }
+     }];
+    
     return operation;
 }
 

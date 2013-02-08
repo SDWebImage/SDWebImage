@@ -81,18 +81,27 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
+ * Store an NSString (should represent a redirect URL) into memory and optionally disk cache at the given key.
+ *
+ * @param redirect The absolute URL to cache
+ * @param key The unique image cache key, usually it's image absolute URL
+ * @param toDisk Store the redirect to disk cache if YES
+ */
+- (void)storeRedirect:(NSString*)redirect forKey:(NSString*)key toDisk:(BOOL)toDisk;
+
+/**
  * Query the disk cache asynchronousely.
  *
  * @param key The unique key used to store the wanted image
  */
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, NSString *redirect, SDImageCacheType cacheType))doneBlock;
 
 /**
  * Query the memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
-- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
+- (id)imageFromMemoryCacheForKey:(NSString *)key;
 
 /**
  * Remove the image from memory and disk cache synchronousely
