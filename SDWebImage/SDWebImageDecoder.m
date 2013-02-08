@@ -15,23 +15,26 @@
 + (UIImage *)decodedImageWithImage:(UIImage *)image
 {	
     CGImageRef imageRef = image.CGImage;
-    CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
-    CGRect imageRect = (CGRect){.origin = CGPointZero, .size = imageSize};
+
+    CGRect rectToDraw = CGRectMake(0, 0, 1, 1);
 
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(imageRef);
-    CGContextRef context = CGBitmapContextCreate(NULL, imageSize.width, imageSize.height, CGImageGetBitsPerComponent(imageRef), CGImageGetBytesPerRow(imageRef), colorSpace, CGImageGetBitmapInfo(imageRef));
+    CGContextRef context = CGBitmapContextCreate(NULL, rectToDraw.size.width, rectToDraw.size.height, CGImageGetBitsPerComponent(imageRef), CGImageGetBytesPerRow(imageRef), colorSpace, CGImageGetBitmapInfo(imageRef));
 
     // If failed, return undecompressed image
     if (!context) return image;
-	
-    CGContextDrawImage(context, imageRect, imageRef);
-    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
+
+    UIGraphicsPushContext(context);
+    {
+        // This causes the UIImage object to be decoded, but the context is the smallest possible
+        // So it doesn't duplicate the image in memory. From here on, the image is cached in the internal UIImage cache.
+        [image drawInRect:rectToDraw];
+    }
+    UIGraphicsPopContext();
 	
     CGContextRelease(context);
-	
-    UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
-    CGImageRelease(decompressedImageRef);
-    return decompressedImage;
+
+    return image;
 }
 
 @end
