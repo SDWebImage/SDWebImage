@@ -131,6 +131,11 @@
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
+    
+    //"completionBlock" is different from "completedBlock".
+    // Completion block should be called when finished is set to YES.
+    if (finished && self.completionBlock)
+        self.completionBlock();
 }
 
 - (void)setExecuting:(BOOL)executing
@@ -286,7 +291,7 @@
                 {
                     completionBlock(image, self.imageData, nil, YES);
                 }
-                self.completionBlock = nil;
+                self.completedBlock = nil;
                 [self done];
             });
         });
