@@ -33,6 +33,9 @@ UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
         return nil;
     }
 
+    // Maybe the data received isn't an image.
+    if (!image) return nil;
+    
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
     {
         CGFloat scale = 1.0;

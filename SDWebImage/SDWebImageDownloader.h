@@ -21,6 +21,7 @@ extern NSString *const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSUInteger receivedSize, long long expectedSize);
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
+typedef void(^SDWebImageDownloaderRedirectedBlock)(NSURLRequest *redirectRequest);
 
 /**
  * Asynchronous downloader dedicated and optimized for image loading.
@@ -41,6 +42,10 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  * @param url The URL to the image to download
  * @param options The options to be used for this download
  * @param progress A block called repeatedly while the image is downloading
+ * @param redirected Set this to nil if you want the download to continue after
+ *                   a redirect was requested by the server.
+ *                   Otherwise, this block will be called when a redirect was requested
+ *                   and you will have to decide yourself what to do next.
  * @param completed A block called once the download is completed.
  *                  If the download succeeded, the image parameter is set, in case of error,
  *                  error parameter is set with the error. The last parameter is always YES
@@ -52,6 +57,12 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  *
  * @return A cancellable SDWebImageOperation
  */
+- (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                        options:(SDWebImageDownloaderOptions)options
+                                       progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                     redirected:(SDWebImageDownloaderRedirectedBlock)redirectedBlock
+                                      completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+
 - (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
                                         options:(SDWebImageDownloaderOptions)options
                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
