@@ -155,6 +155,27 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return [self.memCache objectForKey:key];
 }
 
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key
+{
+    // First check the in-memory cache...
+    UIImage *image = [self imageFromMemoryCacheForKey:key];
+    if (image)
+    {
+        return image;
+    }
+    
+    // Second check the disk cache...
+    UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
+    
+    if (diskImage)
+    {
+        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+        [self.memCache setObject:diskImage forKey:key cost:cost];
+    }
+    
+    return diskImage;
+}
+
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
     if (!doneBlock) return;
