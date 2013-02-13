@@ -9,6 +9,7 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
+#import "LIFOOperationQueue.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
@@ -18,7 +19,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 @interface SDWebImageDownloader ()
 
-@property (strong, nonatomic) NSOperationQueue *downloadQueue;
+@property (strong, nonatomic) LIFOOperationQueue *downloadQueue;
+@property (strong, nonatomic) NSMutableDictionary *operationsDict;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t workingQueue;
@@ -65,9 +67,10 @@ static NSString *const kCompletedCallbackKey = @"completed";
 {
     if ((self = [super init]))
     {
-        _downloadQueue = NSOperationQueue.new;
+        _downloadQueue = LIFOOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 2;
         _URLCallbacks = NSMutableDictionary.new;
+        _operationsDict = NSMutableDictionary.new;
         _workingQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloader", DISPATCH_QUEUE_SERIAL);
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
@@ -136,6 +139,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [sself callbacksForURL:url];
             [sself removeCallbacksForURL:url];
         }];
+        [wself.operationsDict setObject:operation forKey:url];
         [wself.downloadQueue addOperation:operation];
     }];
 
@@ -175,6 +179,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
         {
             createCallback();
         }
+        else
+        {
+            // Reprioritize the operation.
+            // LIFOOperationQueue handles this in the addOperation method.
+            [self.downloadQueue addOperation:[self.operationsDict objectForKey:url]];
+        }
     });
 }
 
@@ -193,6 +203,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     dispatch_barrier_async(self.barrierQueue, ^
     {
         [self.URLCallbacks removeObjectForKey:url];
+        [self.operationsDict removeObjectForKey:url];
     });
 }
 
