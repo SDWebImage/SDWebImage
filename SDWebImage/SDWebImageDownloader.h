@@ -13,7 +13,8 @@
 typedef enum
 {
     SDWebImageDownloaderLowPriority = 1 << 0,
-    SDWebImageDownloaderProgressiveDownload = 1 << 1
+    SDWebImageDownloaderProgressiveDownload = 1 << 1,
+    SDWebImageDownloaderGrayscale = 1 << 2
 } SDWebImageDownloaderOptions;
 
 extern NSString *const SDWebImageDownloadStartNotification;

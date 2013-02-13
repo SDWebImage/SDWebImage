@@ -31,7 +31,11 @@ typedef enum
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      * By default, the image is only displayed once completely downloaded.
      */
-    SDWebImageProgressiveDownload = 1 << 3
+    SDWebImageProgressiveDownload = 1 << 3,
+    /**
+     * By using this flag, the downloaded image will be converted to Grayscale
+     */
+    SDWebImageGrayscale = 1 << 4
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
@@ -71,13 +75,13 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * The following example sets a filter in the application delegate that will remove any query-string from the
  * URL before to use it as a cache key:
  *
- * 	[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
+ * 	[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url, BOOL grayscale)
  *	{
  *	    url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
  *	    return [url absoluteString];
  *	}];
  */
-@property (strong) NSString *(^cacheKeyFilter)(NSURL *url);
+@property (strong) NSString *(^cacheKeyFilter)(NSURL *url, BOOL grayscale);
 
 /**
  * Returns global SDWebImageManager instance.
