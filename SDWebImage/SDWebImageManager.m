@@ -83,7 +83,10 @@
         return operation;
     }
 
-    [self.runningOperations addObject:operation];
+    @synchronized(self.runningOperations)
+    {
+        [self.runningOperations addObject:operation];
+    }
     NSString *key = [self cacheKeyForURL:url];
 
     [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
@@ -93,7 +96,10 @@
         if (image)
         {
             completedBlock(image, nil, cacheType, YES);
-            [self.runningOperations removeObject:operation];
+            @synchronized(self.runningOperations)
+            {
+                [self.runningOperations removeObject:operation];
+            }
         }
         else
         {
@@ -108,7 +114,10 @@
                 {
                     if (error.code != NSURLErrorNotConnectedToInternet)
                     {
-                        [self.failedURLs addObject:url];
+                        @synchronized(self.failedURLs)
+                        {
+                            [self.failedURLs addObject:url];
+                        }
                     }
                 }
                 else if (downloadedImage && finished)
@@ -119,7 +128,10 @@
 
                 if (finished)
                 {
-                    [self.runningOperations removeObject:operation];
+                    @synchronized(self.runningOperations)
+                    {
+                        [self.runningOperations removeObject:operation];
+                    }
                 }
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
@@ -131,8 +143,11 @@
 
 - (void)cancelAll
 {
-    [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
-    [self.runningOperations removeAllObjects];
+    @synchronized(self.runningOperations)
+    {
+        [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
+        [self.runningOperations removeAllObjects];
+    }
 }
 
 - (BOOL)isRunning
