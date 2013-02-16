@@ -38,6 +38,36 @@ typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageC
 typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
 
 
+@class SDWebImageManager;
+
+@protocol SDWebImageManagerDelegate <NSObject>
+
+@optional
+
+/**
+ * Controls which image should be downloaded when the image is not found in the cache.
+ *
+ * @param imageManager The current `SDWebImageManager`
+ * @param imageURL The url of the image to be downloaded
+ *
+ * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
+ */
+- (BOOL)imageManager:(SDWebImageManager *)imageManager shouldDownloadImageForURL:(NSURL *)imageURL;
+
+/**
+ * Allows to transform the image immediately after it has been downloaded and just before to cache it on disk and memory.
+ * NOTE: This method is called from a global queue in order to not to block the main thread.
+ *
+ * @param imageManager The current `SDWebImageManager`
+ * @param image The image to transform
+ * @param imageURL The url of the image to transform
+ *
+ * @return The transformed image object.
+ */
+- (UIImage *)imageManager:(SDWebImageManager *)imageManager transformDownloadedImage:(UIImage *)image withURL:(NSURL *)imageURL;
+
+@end
+
 /**
  * The SDWebImageManager is the class behind the UIImageView+WebCache category and likes.
  * It ties the asynchronous downloader (SDWebImageDownloader) with the image cache store (SDImageCache).
@@ -60,6 +90,8 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  *                 }];
  */
 @interface SDWebImageManager : NSObject
+
+@property (weak, nonatomic) id<SDWebImageManagerDelegate> delegate;
 
 @property (strong, nonatomic, readonly) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;

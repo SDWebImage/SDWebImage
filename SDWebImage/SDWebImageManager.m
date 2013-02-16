@@ -101,17 +101,17 @@
                 [self.runningOperations removeObject:operation];
             }
         }
-        else
+        else if (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])
         {
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
-                completedBlock(downloadedImage, error, SDImageCacheTypeNone, finished);
-
                 if (error)
                 {
+                    completedBlock(nil, error, SDImageCacheTypeNone, finished);
+
                     if (error.code != NSURLErrorNotConnectedToInternet)
                     {
                         @synchronized(self.failedURLs)
@@ -120,10 +120,36 @@
                         }
                     }
                 }
-                else if (downloadedImage && finished)
+                else
                 {
                     const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
-                    [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
+
+                    if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
+                    {
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
+                        {
+                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+
+                            dispatch_async(dispatch_get_main_queue(), ^
+                            {
+                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
+                            });
+
+                            if (transformedImage && finished)
+                            {
+                                [self.imageCache storeImage:transformedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                            }
+                        });
+                    }
+                    else
+                    {
+                        completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished);
+
+                        if (downloadedImage && finished)
+                        {
+                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                        }
+                    }
                 }
 
                 if (finished)
@@ -135,6 +161,15 @@
                 }
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
+        }
+        else
+        {
+            // Image not in cache and download disallowed by delegate
+            completedBlock(nil, nil, SDImageCacheTypeNone, YES);
+            @synchronized(self.runningOperations)
+            {
+                [self.runningOperations removeObject:operation];
+            }
         }
     }];
 
