@@ -332,6 +332,7 @@
                     @"http://static2.dmcdn.net/static/video/269/938/51839962:jpeg_preview_small.jpg?20121105214014",
                     nil];
     }
+    [SDWebImageManager.sharedManager.imageDownloader setValue:@"SDWebImage Demo" forHTTPHeaderField:@"AppName"];
     return self;
 }
 
