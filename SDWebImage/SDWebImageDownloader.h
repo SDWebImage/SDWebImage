@@ -16,6 +16,12 @@ typedef enum
     SDWebImageDownloaderProgressiveDownload = 1 << 1
 } SDWebImageDownloaderOptions;
 
+typedef enum
+{
+    SDWebImageDownloaderFILOQueueMode,
+    SDWebImageDownloaderLIFOQueueMode
+} SDWebImageDownloaderQueueMode;
+
 extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
 
@@ -28,6 +34,11 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 @interface SDWebImageDownloader : NSObject
 
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
+
+/**
+ * Changes download operations unqueue mode. Default value is `SDWebImageDownloaderFILOQueueMode`.
+ */
+@property (assign, nonatomic) SDWebImageDownloaderQueueMode queueMode;
 
 + (SDWebImageDownloader *)sharedDownloader;
 

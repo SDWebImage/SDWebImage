@@ -19,6 +19,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @interface SDWebImageDownloader ()
 
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
+@property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
@@ -66,6 +67,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 {
     if ((self = [super init]))
     {
+        _queueMode = SDWebImageDownloaderFILOQueueMode;
         _downloadQueue = NSOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 2;
         _URLCallbacks = NSMutableDictionary.new;
@@ -156,6 +158,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [sself removeCallbacksForURL:url];
         }];
         [wself.downloadQueue addOperation:operation];
+        if (wself.queueMode == SDWebImageDownloaderLIFOQueueMode)
+        {
+            // Emulate LIFO queue mode by systematically adding new operations as last operation's dependency
+            [wself.lastAddedOperation addDependency:operation];
+            wself.lastAddedOperation = operation;
+        }
     }];
 
     return operation;
