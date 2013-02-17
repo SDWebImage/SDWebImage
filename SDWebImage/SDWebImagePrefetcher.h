@@ -39,6 +39,15 @@
  */
 - (void)prefetchURLs:(NSArray *)urls;
 
+/**
+ * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
+ * currently one image is downloaded at a time,
+ * and skips images for failed downloads and proceed to the next image in the list
+ *
+ * @param urls list of URLs to prefetch
+ * @param completionBlock block to be called when prefetching is completed
+ */
+- (void)prefetchURLs:(NSArray *)urls completed:(void (^)(NSUInteger finishedCount, NSUInteger skippedCount))completionBlock;
 
 /**
  * Remove and cancel queued list
