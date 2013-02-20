@@ -47,7 +47,7 @@ static char operationKey;
 {
     [self cancelCurrentImageLoad];
 
-    self.image = placeholder;
+    if (placeholder) self.image = placeholder;
     
     if (url)
     {
