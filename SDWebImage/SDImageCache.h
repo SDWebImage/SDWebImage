@@ -87,6 +87,16 @@ typedef enum SDImageCacheType SDImageCacheType;
  */
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
 
+
+/**
+ * Query the disk cache asynchronousely.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param syncDiskLoad Allows to query the disk cache synchronously to not load the placeholder image.
+ */
+- (void)queryDiskCacheForKey:(NSString *)key syncDiskLoad:(BOOL) syncDiskLoad done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
+
+
 /**
  * Query the memory cache.
  *
