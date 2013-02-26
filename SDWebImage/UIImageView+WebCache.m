@@ -23,6 +23,11 @@ static char operationKey;
     [self setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
 }
 
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder syncDiskLoad:(BOOL)syncDiskLoad
+{
+    [self setImageWithURL:url placeholderImage:placeholder options:0 syncDiskLoad:syncDiskLoad progress:nil completed:nil];
+}
+
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
     [self setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
