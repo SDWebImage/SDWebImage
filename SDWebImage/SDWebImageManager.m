@@ -76,6 +76,7 @@
     }
 
     __block SDWebImageCombinedOperation *operation = SDWebImageCombinedOperation.new;
+    __weak SDWebImageCombinedOperation *weakOperation = operation;
     
     if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && [self.failedURLs containsObject:url]))
     {
@@ -108,7 +109,11 @@
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
-                if (error)
+                if (weakOperation.cancelled)
+                {
+                    completedBlock(nil, nil, SDImageCacheTypeNone, finished);
+                }
+                else if (error)
                 {
                     completedBlock(nil, error, SDImageCacheTypeNone, finished);
 
