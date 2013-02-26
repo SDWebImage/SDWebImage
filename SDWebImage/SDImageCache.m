@@ -176,7 +176,12 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return diskImage;
 }
 
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock {
+    // calls main method with default async behavior 
+    [self queryDiskCacheForKey:key syncDiskLoad:NO done:doneBlock ];
+}
+
+- (void)queryDiskCacheForKey:(NSString *)key syncDiskLoad:(BOOL) syncDiskLoad done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
     if (!doneBlock) return;
 
@@ -186,29 +191,38 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         return;
     }
 
-    // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
+    // First check the in-memory cache... or the disk-cache if syncDiskLoad
+    UIImage *image;
+    
+    if ( syncDiskLoad) image = [self imageFromDiskCacheForKey:key];
+    else image = [self imageFromMemoryCacheForKey:key];
+    
     if (image)
     {
         doneBlock(image, SDImageCacheTypeMemory);
         return;
     }
 
-    dispatch_async(self.ioQueue, ^
-    {
-        UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
-
-        if (diskImage)
+    if ( syncDiskLoad ) {
+        // if syncDiskLoad the image was already tried to load from disk
+        doneBlock(nil, SDImageCacheTypeDisk);      
+    }else {
+        dispatch_async(self.ioQueue, ^
         {
-            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-            [self.memCache setObject:diskImage forKey:key cost:cost];
-        }
+            UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
 
-        dispatch_async(dispatch_get_main_queue(), ^
-        {
-            doneBlock(diskImage, SDImageCacheTypeDisk);
+            if (diskImage)
+            {
+                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+                [self.memCache setObject:diskImage forKey:key cost:cost];
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^
+            {
+                doneBlock(diskImage, SDImageCacheTypeDisk);
+            });
         });
-    });
+    }
 }
 
 - (void)removeImageForKey:(NSString *)key

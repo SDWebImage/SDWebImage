@@ -64,6 +64,18 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
 
 /**
+ * Set the imageView `image` with an `url` and a placeholder.
+ *
+ * The downloand is asynchronous and cached.
+ *
+ * @param url The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param syncDiskLoad Loads the image synchrousnly from disk without presenting the placeholder.
+ * @see setImageWithURL:placeholderImage:options:
+ */
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder syncDiskLoad:(BOOL)syncDiskLoad;
+
+/**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The downloand is asynchronous and cached.
@@ -131,6 +143,27 @@
  *                       indicating if the image was retrived from the local cache of from the network.
  */
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock;
+
+
+/**
+ * Set the imageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached. Note: syncDiskLoad indicates if loading from 
+ * disk cache should be async or sync.
+ *
+ * @param url The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param syncDiskLoad Indicates if loading something from disk should be done synchronously. This prevents
+ *        showing the placeholder image for images that are already in disk cache. 
+ * @param progressBlock A block called while image is downloading
+ * @param completedBlock A block called when operation has been completed. This block as no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
+ */
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options syncDiskLoad:(BOOL)syncDiskLoad progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock;
+
 
 /**
  * Cancel the current download
