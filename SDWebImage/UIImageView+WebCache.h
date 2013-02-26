@@ -64,6 +64,18 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
 
 /**
+ * Set the imageView `image` with an `url` and a placeholder.
+ *
+ * The downloand is asynchronous and cached.
+ *
+ * @param url The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param syncDiskLoad Loads the image synchrousnly from disk without presenting the placeholder.
+ * @see setImageWithURL:placeholderImage:options:
+ */
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder syncDiskLoad:(BOOL)syncDiskLoad;
+
+/**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The downloand is asynchronous and cached.
