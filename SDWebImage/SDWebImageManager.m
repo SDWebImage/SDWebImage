@@ -97,16 +97,21 @@
         if (image)
         {
             completedBlock(image, nil, cacheType, YES);
-            @synchronized(self.runningOperations)
-            {
-                [self.runningOperations removeObject:operation];
+            if (!(options & SDWebImageRefreshCached)) {
+                @synchronized(self.runningOperations)
+                {
+                    [self.runningOperations removeObject:operation];
+                }
             }
         }
-        else if (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])
+
+        if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
+            // download if no image or requested to refresh anyway, and download allowed by delegate
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
+            if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderEnableNSURLCache;
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 if (weakOperation.cancelled)
@@ -167,7 +172,7 @@
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
         }
-        else
+        else if (!image)
         {
             // Image not in cache and download disallowed by delegate
             completedBlock(nil, nil, SDImageCacheTypeNone, YES);
