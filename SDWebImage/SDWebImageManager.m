@@ -154,7 +154,7 @@
 
                             if (transformedImage && finished)
                             {
-                                [self.imageCache storeImage:transformedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                                [self.imageCache storeImage:transformedImage imageData:nil forKey:key toDisk:cacheOnDisk];
                             }
                         });
                     }
