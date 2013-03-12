@@ -129,7 +129,14 @@
                 }
                 else
                 {
-                    const BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+                    BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+
+                    if (options & SDWebImageRefreshCached)
+                    {
+                        // When SDWebImageRefreshCached option is enabled, the disk caching relies on NSURLCache one.
+                        // We thus fork SDWebImage cache to be disabled so we don't duplicate the required storage space for nothing.
+                        cacheOnDisk = NO;
+                    }
 
                     if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
