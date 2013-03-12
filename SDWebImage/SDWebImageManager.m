@@ -137,13 +137,6 @@
                 {
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
 
-                    if (options & SDWebImageRefreshCached)
-                    {
-                        // When SDWebImageRefreshCached option is enabled, the disk caching relies on NSURLCache one.
-                        // We thus fork SDWebImage cache to be disabled so we don't duplicate the required storage space for nothing.
-                        cacheOnDisk = NO;
-                    }
-
                     if (options & SDWebImageRefreshCached && image && !downloadedImage)
                     {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
