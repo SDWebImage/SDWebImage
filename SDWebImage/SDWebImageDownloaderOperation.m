@@ -28,6 +28,7 @@
 @implementation SDWebImageDownloaderOperation
 {
     size_t width, height;
+    BOOL responseFromCached;
 }
 
 - (id)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
@@ -43,6 +44,7 @@
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
+        responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
     }
     return self;
 }
@@ -271,25 +273,35 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+
     if (completionBlock)
     {
-        dispatch_async(self.queue, ^
+        if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached)
         {
-            UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-            dispatch_async(dispatch_get_main_queue(), ^
+            completionBlock(nil, nil, nil, YES);
+            self.completionBlock = nil;
+            [self done];
+        }
+        else
+        {
+            dispatch_async(self.queue, ^
             {
-                if (CGSizeEqualToSize(image.size, CGSizeZero))
+                UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
+                dispatch_async(dispatch_get_main_queue(), ^
                 {
-                    completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);
-                }
-                else
-                {
-                    completionBlock(image, self.imageData, nil, YES);
-                }
-                self.completionBlock = nil;
-                [self done];
+                    if (CGSizeEqualToSize(image.size, CGSizeZero))
+                    {
+                        completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);
+                    }
+                    else
+                    {
+                        completionBlock(image, self.imageData, nil, YES);
+                    }
+                    self.completionBlock = nil;
+                    [self done];
+                });
             });
-        });
+        }
     }
     else
     {
@@ -311,6 +323,7 @@
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
 {
+    responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
     if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData)
     {
         // Prevents caching of responses

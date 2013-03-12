@@ -107,8 +107,14 @@
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderEnableNSURLCache;
-            if (image && options & SDWebImageRefreshCached) downloaderOptions ^= SDWebImageDownloaderProgressiveDownload; // force progressive off if image is refreshing
+            if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
+            if (image && options & SDWebImageRefreshCached)
+            {
+                // force progressive off if image already cached but forced refreshing
+                downloaderOptions ^= SDWebImageDownloaderProgressiveDownload;
+                // ignore image read from NSURLCache if image if cached but force refreshing
+                downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
+            }
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 if (weakOperation.cancelled)
@@ -138,7 +144,11 @@
                         cacheOnDisk = NO;
                     }
 
-                    if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
+                    if (options & SDWebImageRefreshCached && image && !downloadedImage)
+                    {
+                        // Image refresh hit the NSURLCache cache, do not call the completion block
+                    }
+                    else if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                         {

@@ -14,7 +14,16 @@ typedef enum
 {
     SDWebImageDownloaderLowPriority = 1 << 0,
     SDWebImageDownloaderProgressiveDownload = 1 << 1,
-    SDWebImageDownloaderEnableNSURLCache = 1 << 2
+    /**
+     * By default, request prevent the of NSURLCache. With this flag, NSURLCache
+     * is used with default policies.
+     */
+    SDWebImageDownloaderUseNSURLCache = 1 << 2,
+    /**
+     * Call completion block with nil image/imageData if the image was read from NSURLCache
+     * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
+     */
+    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3
 } SDWebImageDownloaderOptions;
 
 typedef enum
