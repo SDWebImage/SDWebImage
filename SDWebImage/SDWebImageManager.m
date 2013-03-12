@@ -108,6 +108,7 @@
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
             if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderEnableNSURLCache;
+            if (image && options & SDWebImageRefreshCached) downloaderOptions ^= SDWebImageDownloaderProgressiveDownload; // force progressive off if image is refreshing
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 if (weakOperation.cancelled)
