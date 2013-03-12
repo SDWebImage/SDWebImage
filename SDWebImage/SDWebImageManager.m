@@ -94,19 +94,15 @@
     {
         if (operation.isCancelled) return;
 
-        if (image)
-        {
-            completedBlock(image, nil, cacheType, YES);
-            if (!(options & SDWebImageRefreshCached)) {
-                @synchronized(self.runningOperations)
-                {
-                    [self.runningOperations removeObject:operation];
-                }
-            }
-        }
-
         if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
+            if (image && options & SDWebImageRefreshCached)
+            {
+                // If image was found in the cache bug SDWebImageRefreshCached is provided, notify about the cached image
+                // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
+                completedBlock(image, nil, cacheType, YES);
+            }
+
             // download if no image or requested to refresh anyway, and download allowed by delegate
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
@@ -172,7 +168,15 @@
             }];
             operation.cancelBlock = ^{[subOperation cancel];};
         }
-        else if (!image)
+        else if (image)
+        {
+            completedBlock(image, nil, cacheType, YES);
+            @synchronized(self.runningOperations)
+            {
+                [self.runningOperations removeObject:operation];
+            }
+        }
+        else
         {
             // Image not in cache and download disallowed by delegate
             completedBlock(nil, nil, SDImageCacheTypeNone, YES);
