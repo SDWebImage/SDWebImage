@@ -311,8 +311,15 @@
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
 {
-    // Prevents caching of responses
-    return nil;
+    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData)
+    {
+        // Prevents caching of responses
+        return nil;
+    }
+    else
+    {
+        return cachedResponse;
+    }
 }
 
 
