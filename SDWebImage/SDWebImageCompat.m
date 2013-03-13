@@ -36,9 +36,19 @@ UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
     {
         CGFloat scale = 1.0;
+        
+        if (path.length > 3) {
+            // Search '@2x' at the end of the string
+            NSRange range = [path rangeOfString:@"@2x" options:0 range:NSMakeRange(path.length - 3, 3)];
+            if (range.location != NSNotFound)
+            {
+                scale = 2.0;
+            }
+        }
+        
         if (path.length >= 8)
         {
-            // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
+            // Search '@2x.' at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
             NSRange range = [path rangeOfString:@"@2x." options:0 range:NSMakeRange(path.length - 8, 5)];
             if (range.location != NSNotFound)
             {
