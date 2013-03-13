@@ -29,27 +29,11 @@
 #import <UIKit/UIKit.h>
 #endif
 
-// @see https://github.com/ccgus/fmdb/commit/aef763eeb64e6fa654e7d121f1df4c16a98d9f4f
-#define SDDispatchQueueRelease(q) (dispatch_release(q))
-#if TARGET_OS_IPHONE
-    #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000
-        #undef SDDispatchQueueRelease
-        #define SDDispatchQueueRelease(q)
-        #undef SDDispatchQueueSetterSementics
-        #define SDDispatchQueueSetterSementics strong
-    #endif
-#else
-    #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
-        #undef SDDispatchQueueRelease
-        #define SDDispatchQueueRelease(q)
-        #undef SDDispatchQueueSetterSementics
-        #define SDDispatchQueueSetterSementics strong
-    #endif
-#endif
-
 #if OS_OBJECT_USE_OBJC
+    #define SDDispatchQueueRelease(q)
     #define SDDispatchQueueSetterSementics strong
 #else
+    #define SDDispatchQueueRelease(q) (dispatch_release(q))
     #define SDDispatchQueueSetterSementics assign
 #endif
 
