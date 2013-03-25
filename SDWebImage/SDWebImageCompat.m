@@ -12,7 +12,7 @@
 #error SDWebImage is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
 #endif
 
-UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
+inline UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
 {
     if (!imageOrData)
     {

@@ -37,4 +37,4 @@
     #define SDDispatchQueueSetterSementics assign
 #endif
 
-extern UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData);
+extern inline UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData);
