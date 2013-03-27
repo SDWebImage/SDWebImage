@@ -28,9 +28,15 @@ typedef enum
 
 typedef enum
 {
-    SDWebImageDownloaderFILOQueueMode,
-    SDWebImageDownloaderLIFOQueueMode
-} SDWebImageDownloaderQueueMode;
+    SDWebImageDownloaderFIFOExecutionOrder,
+    /**
+     * Default value. All download operations will execute in queue style (first-in-first-out).
+     */
+    SDWebImageDownloaderLIFOExecutionOrder
+    /**
+     * All download operations will execute in stack style (last-in-first-out).
+     */
+} SDWebImageDownloaderExecutionOrder;
 
 extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
@@ -46,9 +52,9 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
 /**
- * Changes download operations unqueue mode. Default value is `SDWebImageDownloaderFILOQueueMode`.
+ * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
  */
-@property (assign, nonatomic) SDWebImageDownloaderQueueMode queueMode;
+@property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
 
 + (SDWebImageDownloader *)sharedDownloader;
 
