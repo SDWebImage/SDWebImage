@@ -67,7 +67,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 {
     if ((self = [super init]))
     {
-        _queueMode = SDWebImageDownloaderFILOQueueMode;
+        _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = NSOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 2;
         _URLCallbacks = NSMutableDictionary.new;
@@ -158,9 +158,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [sself removeCallbacksForURL:url];
         }];
         [wself.downloadQueue addOperation:operation];
-        if (wself.queueMode == SDWebImageDownloaderLIFOQueueMode)
+        if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder)
         {
-            // Emulate LIFO queue mode by systematically adding new operations as last operation's dependency
+            // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
             [wself.lastAddedOperation addDependency:operation];
             wself.lastAddedOperation = operation;
         }

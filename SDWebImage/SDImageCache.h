@@ -20,7 +20,7 @@ enum SDImageCacheType
      */
     SDImageCacheTypeDisk,
     /**
-     * The image was obtained from the disk cache.
+     * The image was obtained from the memory cache.
      */
     SDImageCacheTypeMemory
 };
