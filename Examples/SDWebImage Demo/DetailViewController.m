@@ -34,12 +34,13 @@
     if (self.imageURL)
     {
         __block UIActivityIndicatorView *activityIndicator;
+        __weak UIImageView *weakImageView = self.imageView;
         [self.imageView setImageWithURL:self.imageURL placeholderImage:nil options:SDWebImageProgressiveDownload progress:^(NSUInteger receivedSize, long long expectedSize)
         {
             if (!activityIndicator)
             {
-                [self.imageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
-                activityIndicator.center = self.imageView.center;
+                [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
+                activityIndicator.center = weakImageView.center;
                 [activityIndicator startAnimating];
             }
         }
