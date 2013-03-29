@@ -9,7 +9,6 @@
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
-#import "SDWebImageDecoder.h"
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
