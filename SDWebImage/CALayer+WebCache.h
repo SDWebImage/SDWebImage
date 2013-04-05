@@ -15,7 +15,7 @@
  * Integrates SDWebImage async downloading and caching of remote images with CALayer.
  *
  */
-@interface UIImageView (WebCache)
+@interface CALayer (WebCache)
 
 /**
  * Set the layer `contents` with an `url`.
