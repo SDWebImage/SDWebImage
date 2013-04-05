@@ -7,161 +7,122 @@
  */
 
 #import "UIButton+WebCache.h"
-#import "SDWebImageManager.h"
+#import "objc/runtime.h"
+
+static char operationKey;
 
 @implementation UIButton (WebCache)
 
-- (void)setImageWithURL:(NSURL *)url
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state
 {
-    [self setImageWithURL:url placeholderImage:nil];
+    [self setImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder
 {
-    [self setImageWithURL:url placeholderImage:placeholder options:0];
+    [self setImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
+}
 
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setImageWithURL:url forState:state placeholderImage:nil options:0 completed:completedBlock];
+}
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
+}
 
-    [self setImage:placeholder forState:UIControlStateNormal];
-    [self setImage:placeholder forState:UIControlStateSelected];
-    [self setImage:placeholder forState:UIControlStateHighlighted];
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self cancelCurrentImageLoad];
 
+    [self setImage:placeholder forState:state];
 
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options];
+        __weak UIButton *wself = self;
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+        {
+            __strong UIButton *sself = wself;
+            if (!sself) return;
+            if (image)
+            {
+                [sself setImage:image forState:state];
+            }
+            if (completedBlock && finished)
+            {
+                completedBlock(image, error, cacheType);
+            }
+        }];
+        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 
-#if NS_BLOCKS_AVAILABLE
-- (void)setImageWithURL:(NSURL *)url success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state
 {
-    [self setImageWithURL:url placeholderImage:nil success:success failure:failure];
+    [self setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder
 {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
+    [self setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    [self setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
+}
 
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:completedBlock];
+}
 
-    [self setImage:placeholder forState:UIControlStateNormal];
-    [self setImage:placeholder forState:UIControlStateSelected];
-    [self setImage:placeholder forState:UIControlStateHighlighted];
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
+}
+
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self cancelCurrentImageLoad];
+
+    [self setBackgroundImage:placeholder forState:state];
 
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
+        __weak UIButton *wself = self;
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+        {
+            __strong UIButton *sself = wself;
+            if (!sself) return;
+            if (image)
+            {
+                [sself setBackgroundImage:image forState:state];
+            }
+            if (completedBlock && finished)
+            {
+                completedBlock(image, error, cacheType);
+            }
+        }];
+        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
-#endif
-
-- (void)setBackgroundImageWithURL:(NSURL *)url
-{
-    [self setBackgroundImageWithURL:url placeholderImage:nil];
-}
-
-- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
-{
-    [self setBackgroundImageWithURL:url placeholderImage:placeholder options:0];
-}
-
-- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
-{
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
-
-    [self setBackgroundImage:placeholder forState:UIControlStateNormal];
-    [self setBackgroundImage:placeholder forState:UIControlStateSelected];
-    [self setBackgroundImage:placeholder forState:UIControlStateHighlighted];
-
-    if (url)
-    {
-        NSDictionary *info = [NSDictionary dictionaryWithObject:@"background" forKey:@"type"];
-        [manager downloadWithURL:url delegate:self options:options userInfo:info];
-    }
-}
-
-#if NS_BLOCKS_AVAILABLE
-- (void)setBackgroundImageWithURL:(NSURL *)url success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    [self setBackgroundImageWithURL:url placeholderImage:nil success:success failure:failure];
-}
-
-- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    [self setBackgroundImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
-}
-
-- (void)setBackgroundImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
-
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
-
-    [self setBackgroundImage:placeholder forState:UIControlStateNormal];
-    [self setBackgroundImage:placeholder forState:UIControlStateSelected];
-    [self setBackgroundImage:placeholder forState:UIControlStateHighlighted];
-
-    if (url)
-    {
-        NSDictionary *info = [NSDictionary dictionaryWithObject:@"background" forKey:@"type"];
-        [manager downloadWithURL:url delegate:self options:options userInfo:info success:success failure:failure];
-    }
-}
-#endif
 
 
 - (void)cancelCurrentImageLoad
 {
-    [[SDWebImageManager sharedManager] cancelForDelegate:self];
-}
-
-- (void)webImageManager:(SDWebImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
-{
-    if ([[info valueForKey:@"type"] isEqualToString:@"background"])
+    // Cancel in progress downloader from queue
+    id<SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
+    if (operation)
     {
-        [self setBackgroundImage:image forState:UIControlStateNormal];
-        [self setBackgroundImage:image forState:UIControlStateSelected];
-        [self setBackgroundImage:image forState:UIControlStateHighlighted];
-    }
-    else
-    {
-        [self setImage:image forState:UIControlStateNormal];
-        [self setImage:image forState:UIControlStateSelected];
-        [self setImage:image forState:UIControlStateHighlighted];
-    }
-}
-
-
-- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image forURL:(NSURL *)url userInfo:(NSDictionary *)info
-{
-    if ([[info valueForKey:@"type"] isEqualToString:@"background"])
-    {
-        [self setBackgroundImage:image forState:UIControlStateNormal];
-        [self setBackgroundImage:image forState:UIControlStateSelected];
-        [self setBackgroundImage:image forState:UIControlStateHighlighted];
-    }
-    else
-    {
-        [self setImage:image forState:UIControlStateNormal];
-        [self setImage:image forState:UIControlStateSelected];
-        [self setImage:image forState:UIControlStateHighlighted];
+        [operation cancel];
+        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 

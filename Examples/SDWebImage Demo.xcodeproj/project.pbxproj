@@ -17,39 +17,33 @@
 		537612B0155AB74D005750A4 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 537612AF155AB74D005750A4 /* DetailViewController.m */; };
 		537612B3155AB74D005750A4 /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B1155AB74D005750A4 /* MasterViewController.xib */; };
 		537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B4155AB74D005750A4 /* DetailViewController.xib */; };
-		53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2B4F9155B095800B12423 /* libSDWebImageARC.a */; };
 		53A2B50D155B155A00B12423 /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50B155B155A00B12423 /* placeholder.png */; };
 		53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50C155B155A00B12423 /* placeholder@2x.png */; };
+		53EEC18916484553007601E1 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53EEC18816484553007601E1 /* Default-568h@2x.png */; };
+		53EEC1B2164845E9007601E1 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53EEC1AD164845D9007601E1 /* libSDWebImage.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5357A29C157ECDB300894652 /* PBXContainerItemProxy */ = {
+		53EEC1AC164845D9007601E1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 531041E0157EAFA400BBABC3;
-			remoteInfo = "SDWebImage ARC+MKAnnotation";
-		};
-		53A2B4F6155B095800B12423 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 53922D6F148C55820056699D;
-			remoteInfo = SDWebImage;
-		};
-		53A2B4F8155B095800B12423 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
+			containerPortal = 53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 53761325155AD0D5005750A4;
-			remoteInfo = "SDWebImage ARC";
+			remoteInfo = SDWebImage;
 		};
-		53A2B4FA155B096700B12423 /* PBXContainerItemProxy */ = {
+		53EEC1AE164845D9007601E1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
+			containerPortal = 53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 531041E0157EAFA400BBABC3;
+			remoteInfo = "SDWebImage+MKAnnotation";
+		};
+		53EEC1B0164845E3007601E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 53761307155AD0D5005750A4;
-			remoteInfo = "SDWebImage ARC";
+			remoteInfo = SDWebImage;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -69,13 +63,12 @@
 		537612AF155AB74D005750A4 /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		537612B2155AB74D005750A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MasterViewController.xib; sourceTree = "<group>"; };
 		537612B5155AB74D005750A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DetailViewController.xib; sourceTree = "<group>"; };
-		537612CD155AB8F4005750A4 /* libSDWebImage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDWebImage.a; path = "../build/Release-iphoneos/libSDWebImage.a"; sourceTree = "<group>"; };
 		537612E3155ABA3C005750A4 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		537612E6155ABA44005750A4 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		53761326155AD28E005750A4 /* libSDWebImage ARC.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSDWebImage ARC.a"; path = "../build/Release-iphoneos/libSDWebImage ARC.a"; sourceTree = "<group>"; };
-		53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = ../SDWebImage.xcodeproj; sourceTree = "<group>"; };
 		53A2B50B155B155A00B12423 /* placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder.png; sourceTree = "<group>"; };
 		53A2B50C155B155A00B12423 /* placeholder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder@2x.png"; sourceTree = "<group>"; };
+		53EEC18816484553007601E1 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = ../SDWebImage.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53A2B4FC155B096D00B12423 /* libSDWebImageARC.a in Frameworks */,
+				53EEC1B2164845E9007601E1 /* libSDWebImage.a in Frameworks */,
 				531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */,
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
 				5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */,
@@ -97,7 +90,6 @@
 		5376128A155AB74D005750A4 = {
 			isa = PBXGroup;
 			children = (
-				53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */,
 				5376129F155AB74D005750A4 /* SDWebImage Demo */,
 				53761298155AB74D005750A4 /* Frameworks */,
 				53761296155AB74D005750A4 /* Products */,
@@ -115,10 +107,9 @@
 		53761298155AB74D005750A4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */,
 				537612E6155ABA44005750A4 /* ImageIO.framework */,
 				537612E3155ABA3C005750A4 /* MapKit.framework */,
-				537612CD155AB8F4005750A4 /* libSDWebImage.a */,
-				53761326155AD28E005750A4 /* libSDWebImage ARC.a */,
 				53761299155AB74D005750A4 /* UIKit.framework */,
 				5376129B155AB74D005750A4 /* Foundation.framework */,
 				5376129D155AB74D005750A4 /* CoreGraphics.framework */,
@@ -145,6 +136,7 @@
 		537612A0155AB74D005750A4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				53EEC18816484553007601E1 /* Default-568h@2x.png */,
 				537612A1155AB74D005750A4 /* SDWebImage Demo-Info.plist */,
 				537612A5155AB74D005750A4 /* main.m */,
 				537612A7155AB74D005750A4 /* SDWebImage Demo-Prefix.pch */,
@@ -154,12 +146,11 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		53A2B4EF155B095800B12423 /* Products */ = {
+		53EEC1A4164845D8007601E1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				53A2B4F7155B095800B12423 /* libSDWebImage.a */,
-				53A2B4F9155B095800B12423 /* libSDWebImageARC.a */,
-				5357A29D157ECDB300894652 /* libSDWebImageARC+MKAnnotation.a */,
+				53EEC1AD164845D9007601E1 /* libSDWebImage.a */,
+				53EEC1AF164845D9007601E1 /* libSDWebImage+MKAnnotation.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,7 +169,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				53A2B4FB155B096700B12423 /* PBXTargetDependency */,
+				53EEC1B1164845E3007601E1 /* PBXTargetDependency */,
 			);
 			name = "SDWebImage Demo";
 			productName = "SDWebImage Demo";
@@ -206,8 +197,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 53A2B4EF155B095800B12423 /* Products */;
-					ProjectRef = 53A2B4EE155B095800B12423 /* SDWebImage.xcodeproj */;
+					ProductGroup = 53EEC1A4164845D8007601E1 /* Products */;
+					ProjectRef = 53EEC1A3164845D8007601E1 /* SDWebImage.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -218,25 +209,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		5357A29D157ECDB300894652 /* libSDWebImageARC+MKAnnotation.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libSDWebImageARC+MKAnnotation.a";
-			remoteRef = 5357A29C157ECDB300894652 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		53A2B4F7155B095800B12423 /* libSDWebImage.a */ = {
+		53EEC1AD164845D9007601E1 /* libSDWebImage.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libSDWebImage.a;
-			remoteRef = 53A2B4F6155B095800B12423 /* PBXContainerItemProxy */;
+			remoteRef = 53EEC1AC164845D9007601E1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		53A2B4F9155B095800B12423 /* libSDWebImageARC.a */ = {
+		53EEC1AF164845D9007601E1 /* libSDWebImage+MKAnnotation.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libSDWebImageARC.a;
-			remoteRef = 53A2B4F8155B095800B12423 /* PBXContainerItemProxy */;
+			path = "libSDWebImage+MKAnnotation.a";
+			remoteRef = 53EEC1AE164845D9007601E1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -250,6 +234,7 @@
 				537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */,
 				53A2B50D155B155A00B12423 /* placeholder.png in Resources */,
 				53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */,
+				53EEC18916484553007601E1 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,10 +255,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		53A2B4FB155B096700B12423 /* PBXTargetDependency */ = {
+		53EEC1B1164845E3007601E1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = "SDWebImage ARC";
-			targetProxy = 53A2B4FA155B096700B12423 /* PBXContainerItemProxy */;
+			name = SDWebImage;
+			targetProxy = 53EEC1B0164845E3007601E1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -317,7 +302,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -335,7 +320,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -345,6 +330,10 @@
 		537612BA155AB74D005750A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
@@ -363,6 +352,10 @@
 		537612BB155AB74D005750A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "";

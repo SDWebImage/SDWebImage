@@ -7,74 +7,72 @@
 //
 
 #import "MKAnnotationView+WebCache.h"
+#import "objc/runtime.h"
+
+static char operationKey;
 
 @implementation MKAnnotationView (WebCache)
 
 - (void)setImageWithURL:(NSURL *)url
 {
-    [self setImageWithURL:url placeholderImage:nil];
+    [self setImageWithURL:url placeholderImage:nil options:0 completed:nil];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
 {
-    [self setImageWithURL:url placeholderImage:placeholder options:0];
+    [self setImageWithURL:url placeholderImage:placeholder options:0 completed:nil];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
 {
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
-    
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
-    
+    [self setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
+}
+
+- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
+}
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
+}
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self cancelCurrentImageLoad];
+
     self.image = placeholder;
     
     if (url)
     {
-        [manager downloadWithURL:url delegate:self options:options];
+        __weak MKAnnotationView *wself = self;
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+        {
+            __strong MKAnnotationView *sself = wself;
+            if (!sself) return;
+            if (image)
+            {
+                sself.image = image;
+            }
+            if (completedBlock && finished)
+            {
+                completedBlock(image, error, cacheType);
+            }
+        }];
+        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
-
-#if NS_BLOCKS_AVAILABLE
-- (void)setImageWithURL:(NSURL *)url success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    [self setImageWithURL:url placeholderImage:nil success:success failure:failure];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    [self setImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options success:(void (^)(UIImage *image))success failure:(void (^)(NSError *error))failure;
-{
-    SDWebImageManager *manager = [SDWebImageManager sharedManager];
-    
-    // Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
-    
-    self.image = placeholder;
-    
-    if (url)
-    {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
-    }
-}
-#endif
 
 - (void)cancelCurrentImageLoad
 {
-    [[SDWebImageManager sharedManager] cancelForDelegate:self];
-}
-
-- (void)webImageManager:(SDWebImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url
-{
-    self.image = image;
-}
-
-- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
-{
-    self.image = image;
+    // Cancel in progress downloader from queue
+    id<SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
+    if (operation)
+    {
+        [operation cancel];
+        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 }
 
 @end

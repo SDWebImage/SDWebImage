@@ -7,41 +7,36 @@
  */
 
 #import "SDWebImageDownloader.h"
-#import "SDWebImageDecoder.h"
+#import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
-
-@interface SDWebImageDownloader (ImageDecoder) <SDWebImageDecoderDelegate>
-@end
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 
+static NSString *const kProgressCallbackKey = @"progress";
+static NSString *const kCompletedCallbackKey = @"completed";
+
 @interface SDWebImageDownloader ()
-@property (nonatomic, retain) NSURLConnection *connection;
+
+@property (strong, nonatomic) NSOperationQueue *downloadQueue;
+@property (weak, nonatomic) NSOperation *lastAddedOperation;
+@property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
+@property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
+// This queue is used to serialize the handling of the network responses of all the download operation in a single queue
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t workingQueue;
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
+
 @end
 
 @implementation SDWebImageDownloader
-@synthesize url, delegate, connection, imageData, userInfo, lowPriority, progressive;
 
-#pragma mark Public Methods
-
-+ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate
-{
-    return [self downloaderWithURL:url delegate:delegate userInfo:nil];
-}
-
-+ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo
-{
-    return [self downloaderWithURL:url delegate:delegate userInfo:userInfo lowPriority:NO];
-}
-
-+ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo lowPriority:(BOOL)lowPriority
++ (void)initialize
 {
     // Bind SDNetworkActivityIndicator if available (download it here: http://github.com/rs/SDNetworkActivityIndicator )
     // To use it, just add #import "SDNetworkActivityIndicator.h" in addition to the SDWebImage import
     if (NSClassFromString(@"SDNetworkActivityIndicator"))
     {
-        
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
@@ -58,222 +53,174 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
                                                  selector:NSSelectorFromString(@"stopActivity")
                                                      name:SDWebImageDownloadStopNotification object:nil];
     }
-
-    SDWebImageDownloader *downloader = SDWIReturnAutoreleased([[SDWebImageDownloader alloc] init]);
-    downloader.url = url;
-    downloader.delegate = delegate;
-    downloader.userInfo = userInfo;
-    downloader.lowPriority = lowPriority;
-    [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
-    return downloader;
 }
 
-+ (void)setMaxConcurrentDownloads:(NSUInteger)max
++ (SDWebImageDownloader *)sharedDownloader
 {
-    // NOOP
+    static dispatch_once_t once;
+    static id instance;
+    dispatch_once(&once, ^{instance = self.new;});
+    return instance;
 }
 
-- (void)start
+- (id)init
 {
-    // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
-    self.connection = SDWIReturnAutoreleased([[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO]);
-
-    // If not in low priority mode, ensure we aren't blocked by UI manipulations (default runloop mode for NSURLConnection is NSEventTrackingRunLoopMode)
-    if (!lowPriority)
+    if ((self = [super init]))
     {
-        [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
+        _downloadQueue = NSOperationQueue.new;
+        _downloadQueue.maxConcurrentOperationCount = 2;
+        _URLCallbacks = NSMutableDictionary.new;
+        _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/*" forKey:@"Accept"];
+        _workingQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloader", DISPATCH_QUEUE_SERIAL);
+        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
-    [connection start];
-    SDWIRelease(request);
-
-    if (connection)
-    {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:nil];
-    }
-    else
-    {
-        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
-        {
-            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:nil];
-        }
-    }
+    return self;
 }
-
-- (void)cancel
-{
-    if (connection)
-    {
-        [connection cancel];
-        self.connection = nil;
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-    }
-}
-
-#pragma mark NSURLConnection (delegate)
-
-- (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
-{
-    if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
-    {
-        expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-        self.imageData = SDWIReturnAutoreleased([[NSMutableData alloc] initWithCapacity:expectedSize]);
-    }
-    else
-    {
-        [aConnection cancel];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
-        {
-            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
-                                                        code:[((NSHTTPURLResponse *)response) statusCode]
-                                                    userInfo:nil];
-            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
-            SDWIRelease(error);
-        }
-
-        self.connection = nil;
-        self.imageData = nil;
-    }
-}
-
-- (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data
-{
-    [imageData appendData:data];
-
-    if (CGImageSourceCreateImageAtIndex == NULL)
-    {
-        // ImageIO isn't present in iOS < 4
-        self.progressive = NO;
-    }
-
-    if (self.progressive && expectedSize > 0 && [delegate respondsToSelector:@selector(imageDownloader:didUpdatePartialImage:)])
-    {
-        // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
-        // Thanks to the author @Nyx0uf
-
-        // Get the total bytes downloaded
-        const NSUInteger totalSize = [imageData length];
-
-        // Update the data source, we must pass ALL the data, not just the new bytes
-        CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
-        CGImageSourceUpdateData(imageSource, (__bridge CFDataRef)imageData, totalSize == expectedSize);
-
-        if (width + height == 0)
-        {
-            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-            if (properties)
-            {
-                CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
-                if (val) CFNumberGetValue(val, kCFNumberLongType, &height);
-                val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
-                if (val) CFNumberGetValue(val, kCFNumberLongType, &width);
-                CFRelease(properties);
-            }
-        }
-
-        if (width + height > 0 && totalSize < expectedSize)
-        {
-            // Create the image
-            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
-
-#ifdef TARGET_OS_IPHONE
-            // Workaround for iOS anamorphic image
-            if (partialImageRef)
-            {
-                const size_t partialHeight = CGImageGetHeight(partialImageRef);
-                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-                CGContextRef bmContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-                CGColorSpaceRelease(colorSpace);
-                if (bmContext)
-                {
-                    CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = width, .size.height = partialHeight}, partialImageRef);
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = CGBitmapContextCreateImage(bmContext);
-                    CGContextRelease(bmContext);
-                }
-                else
-                {
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = nil;
-                }
-            }
-#endif
-
-            if (partialImageRef)
-            {
-                UIImage *image = SDScaledImageForPath(url.absoluteString, [UIImage imageWithCGImage:partialImageRef]);
-                [[SDWebImageDecoder sharedImageDecoder] decodeImage:image
-                                                       withDelegate:self
-                                                           userInfo:[NSDictionary dictionaryWithObject:@"partial" forKey:@"type"]];
-
-                CGImageRelease(partialImageRef);
-            }
-        }
-
-        CFRelease(imageSource);
-    }
-}
-
-#pragma GCC diagnostic ignored "-Wundeclared-selector"
-- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
-{
-    self.connection = nil;
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-    if ([delegate respondsToSelector:@selector(imageDownloaderDidFinish:)])
-    {
-        [delegate performSelector:@selector(imageDownloaderDidFinish:) withObject:self];
-    }
-
-    if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
-    {
-        UIImage *image = SDScaledImageForPath(url.absoluteString, imageData);
-        [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
-    }
-}
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-    if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
-    {
-        [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
-    }
-
-    self.connection = nil;
-    self.imageData = nil;
-}
-
-#pragma mark SDWebImageDecoderDelegate
-
-- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)aUserInfo
-{
-    if ([[aUserInfo valueForKey:@"type"] isEqualToString:@"partial"])
-    {
-        [delegate imageDownloader:self didUpdatePartialImage:image];
-    }
-    else
-    {
-        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
-    }
-}
-
-#pragma mark NSObject
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    SDWISafeRelease(url);
-    SDWISafeRelease(connection);
-    SDWISafeRelease(imageData);
-    SDWISafeRelease(userInfo);
-    SDWISuperDealoc;
+    [self.downloadQueue cancelAllOperations];
+    SDDispatchQueueRelease(_workingQueue);
+    SDDispatchQueueRelease(_barrierQueue);
 }
 
+- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field
+{
+    if (value)
+    {
+        self.HTTPHeaders[field] = value;
+    }
+    else
+    {
+        [self.HTTPHeaders removeObjectForKey:field];
+    }
+}
+
+- (NSString *)valueForHTTPHeaderField:(NSString *)field
+{
+    return self.HTTPHeaders[field];
+}
+
+- (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads
+{
+    _downloadQueue.maxConcurrentOperationCount = maxConcurrentDownloads;
+}
+
+- (NSInteger)maxConcurrentDownloads
+{
+    return _downloadQueue.maxConcurrentOperationCount;
+}
+
+- (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock
+{
+    __block SDWebImageDownloaderOperation *operation;
+    __weak SDWebImageDownloader *wself = self;
+
+    [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^
+    {
+        // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
+        NSMutableURLRequest *request = [NSMutableURLRequest.alloc initWithURL:url cachePolicy:(options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:15];
+        request.HTTPShouldHandleCookies = NO;
+        request.HTTPShouldUsePipelining = YES;
+        request.allHTTPHeaderFields = wself.HTTPHeaders;
+        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request queue:wself.workingQueue options:options progress:^(NSUInteger receivedSize, long long expectedSize)
+        {
+            if (!wself) return;
+            SDWebImageDownloader *sself = wself;
+            NSArray *callbacksForURL = [sself callbacksForURL:url];
+            for (NSDictionary *callbacks in callbacksForURL)
+            {
+                SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
+                if (callback) callback(receivedSize, expectedSize);
+            }
+        }
+        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
+        {
+            if (!wself) return;
+            SDWebImageDownloader *sself = wself;
+            NSArray *callbacksForURL = [sself callbacksForURL:url];
+            if (finished)
+            {
+                [sself removeCallbacksForURL:url];
+            }
+            for (NSDictionary *callbacks in callbacksForURL)
+            {
+                SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
+                if (callback) callback(image, data, error, finished);
+            }
+        }
+        cancelled:^
+        {
+            if (!wself) return;
+            SDWebImageDownloader *sself = wself;
+            [sself callbacksForURL:url];
+            [sself removeCallbacksForURL:url];
+        }];
+        [wself.downloadQueue addOperation:operation];
+        if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder)
+        {
+            // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
+            [wself.lastAddedOperation addDependency:operation];
+            wself.lastAddedOperation = operation;
+        }
+    }];
+
+    return operation;
+}
+
+- (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSData *data, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)())createCallback
+{
+    // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
+    if(url == nil)
+    {
+        if (completedBlock != nil)
+        {
+            completedBlock(nil, nil, nil, NO);
+        }
+        return;
+    }
+    
+    dispatch_barrier_sync(self.barrierQueue, ^
+    {
+        BOOL first = NO;
+        if (!self.URLCallbacks[url])
+        {
+            self.URLCallbacks[url] = NSMutableArray.new;
+            first = YES;
+        }
+
+        // Handle single download of simultaneous download request for the same URL
+        NSMutableArray *callbacksForURL = self.URLCallbacks[url];
+        NSMutableDictionary *callbacks = NSMutableDictionary.new;
+        if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
+        if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
+        [callbacksForURL addObject:callbacks];
+        self.URLCallbacks[url] = callbacksForURL;
+
+        if (first)
+        {
+            createCallback();
+        }
+    });
+}
+
+- (NSArray *)callbacksForURL:(NSURL *)url
+{
+    __block NSArray *callbacksForURL;
+    dispatch_sync(self.barrierQueue, ^
+    {
+        callbacksForURL = self.URLCallbacks[url];
+    });
+    return callbacksForURL;
+}
+
+- (void)removeCallbacksForURL:(NSURL *)url
+{
+    dispatch_barrier_async(self.barrierQueue, ^
+    {
+        [self.URLCallbacks removeObjectForKey:url];
+    });
+}
 
 @end
