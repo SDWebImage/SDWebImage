@@ -38,6 +38,11 @@ typedef enum SDImageCacheType SDImageCacheType;
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
 /**
+ * The maximum size of the cache, in bytes.
+ */
+@property (assign, nonatomic) unsigned long long maxCacheSize;
+
+/**
  * Returns global shared cache instance
  *
  * @return SDImageCache global instance
