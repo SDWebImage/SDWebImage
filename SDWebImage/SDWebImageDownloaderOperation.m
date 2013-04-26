@@ -160,10 +160,7 @@
             self.progressBlock(0, expected);
         }
 
-        dispatch_async(self.queue, ^
-        {
-            self.imageData = [NSMutableData.alloc initWithCapacity:expected];
-        });
+        self.imageData = [NSMutableData.alloc initWithCapacity:expected];
     }
     else
     {
@@ -182,11 +179,11 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    dispatch_async(self.queue, ^
-    {
-        [self.imageData appendData:data];
+    [self.imageData appendData:data];
 
-        if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock)
+    if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock)
+    {
+        dispatch_async(self.queue, ^
         {
             // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
             // Thanks to the author @Nyx0uf
@@ -254,7 +251,8 @@
             }
 
             CFRelease(imageSource);
-        }
+        });
+        
         NSUInteger received = self.imageData.length;
         dispatch_async(dispatch_get_main_queue(), ^
         {
@@ -263,7 +261,7 @@
                 self.progressBlock(received, self.expectedSize);
             }
         });
-    });
+    }
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
