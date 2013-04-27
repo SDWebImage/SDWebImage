@@ -186,7 +186,8 @@ static SDWebImageManager *instance;
     // Delegates notified, remove downloader and delegate
     // The delegate callbacks above may have modified the arrays, hence we search for the correct index
     int idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
-    if (idx != NSNotFound) {
+    if (idx != NSNotFound)
+    {
         [downloaders removeObjectAtIndex:idx];
         [downloadInfo removeObjectAtIndex:idx];
         [downloadDelegates removeObjectAtIndex:idx];
@@ -292,7 +293,8 @@ static SDWebImageManager *instance;
     // Delegates notified, remove url and delegate
     // The delegate callbacks above may have modified the arrays, hence we search for the correct index
     int removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
-    if (removeIdx != NSNotFound) {
+    if (removeIdx != NSNotFound)
+    {
         [cacheDelegates removeObjectAtIndex:removeIdx];
         [cacheURLs removeObjectAtIndex:removeIdx];
     }
@@ -346,7 +348,8 @@ static SDWebImageManager *instance;
     NSMutableArray *notifiedDelegates = [NSMutableArray arrayWithCapacity:downloaders.count];
     
     BOOL found = YES;
-    while (found) {
+    while (found)
+    {
         found = NO;
         assert(downloaders.count == downloadDelegates.count);
         assert(downloaders.count == downloadInfo.count);
@@ -354,7 +357,8 @@ static SDWebImageManager *instance;
         for (NSInteger i=count-1; i>=0; --i)
         {
             SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-            if (aDownloader != downloader) {
+            if (aDownloader != downloader)
+            {
                 continue;
             }
             
@@ -362,7 +366,8 @@ static SDWebImageManager *instance;
             SDWIRetain(delegate);
             SDWIAutorelease(delegate);
             
-            if ([notifiedDelegates containsObject:delegate]) {
+            if ([notifiedDelegates containsObject:delegate])
+            {
                 continue;
             }
             // Keep track of delegates notified
@@ -397,14 +402,17 @@ static SDWebImageManager *instance;
     SDWIRetain(downloader);
     SDWebImageOptions options = [[downloader.userInfo objectForKey:@"options"] intValue];
     BOOL found = YES;
-    while (found) {
+    while (found)
+    {
         found = NO;
         assert(downloaders.count == downloadDelegates.count);
         assert(downloaders.count == downloadInfo.count);
         NSInteger count = downloaders.count;
-        for (NSInteger i=count-1; i>=0; --i) {
+        for (NSInteger i=count-1; i>=0; --i)
+        {
             SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-            if (aDownloader != downloader) {
+            if (aDownloader != downloader)
+            {
                 continue;
             }
             id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
@@ -502,7 +510,8 @@ static SDWebImageManager *instance;
     
     // Notify all the downloadDelegates with this downloader
     BOOL found = YES;
-    while (found) {
+    while (found)
+    {
         found = NO;
         assert(downloaders.count == downloadDelegates.count);
         assert(downloaders.count == downloadInfo.count);
@@ -510,7 +519,8 @@ static SDWebImageManager *instance;
         for (NSInteger i=count-1 ; i>=0; --i)
         {
             SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-            if (aDownloader != downloader) {
+            if (aDownloader != downloader)
+            {
                 continue;
             }
             id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
