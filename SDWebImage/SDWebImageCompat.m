@@ -38,8 +38,8 @@ inline UIImage *SDScaledImageForPath(NSString *path, NSObject *imageOrData)
         CGFloat scale = 1.0;
         if (path.length >= 8)
         {
-            // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
-            NSRange range = [path rangeOfString:@"@2x." options:0 range:NSMakeRange(path.length - 8, 5)];
+            // Search @2x anywhere in the filename. This will allow universal apps to distinguish between retina and non-retina images (i.e. my-image@2x~iphone.png, my-image@2x~ipad.png)
+            NSRange range = [path rangeOfString:@"@2x" options:0 range:NSMakeRange(0,path.length)];
             if (range.location != NSNotFound)
             {
                 scale = 2.0;
