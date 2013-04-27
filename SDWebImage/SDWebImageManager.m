@@ -53,7 +53,7 @@ static SDWebImageManager *instance;
     {
         instance = [[SDWebImageManager alloc] init];
     }
-
+    
     return instance;
 }
 
@@ -122,12 +122,12 @@ static SDWebImageManager *instance;
     {
         url = nil; // Prevent some common crashes due to common wrong values passed like NSNull.null for instance
     }
-
+    
     if (!url || !delegate || (!(options & SDWebImageRetryFailed) && [failedURLs containsObject:url]))
     {
         return;
     }
-
+    
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
@@ -183,14 +183,14 @@ static SDWebImageManager *instance;
 
 - (void)removeObjectsForDelegate:(id<SDWebImageManagerDelegate>)delegate
 {
-  // Delegates notified, remove downloader and delegate
-  // The delegate callbacks above may have modified the arrays, hence we search for the correct index
-  int idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
-  if (idx != NSNotFound) {
-    [downloaders removeObjectAtIndex:idx];
-    [downloadInfo removeObjectAtIndex:idx];
-    [downloadDelegates removeObjectAtIndex:idx];
-  }
+    // Delegates notified, remove downloader and delegate
+    // The delegate callbacks above may have modified the arrays, hence we search for the correct index
+    int idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
+    if (idx != NSNotFound) {
+        [downloaders removeObjectAtIndex:idx];
+        [downloadInfo removeObjectAtIndex:idx];
+        [downloadDelegates removeObjectAtIndex:idx];
+    }
 }
 
 - (void)cancelForDelegate:(id<SDWebImageManagerDelegate>)delegate
@@ -201,22 +201,22 @@ static SDWebImageManager *instance;
         [cacheDelegates removeObjectAtIndex:idx];
         [cacheURLs removeObjectAtIndex:idx];
     }
-
+    
     while ((idx = [downloadDelegates indexOfObjectIdenticalTo:delegate]) != NSNotFound)
     {
         SDWebImageDownloader *downloader = SDWIReturnRetained([downloaders objectAtIndex:idx]);
-
+        
         [downloadInfo removeObjectAtIndex:idx];
         [downloadDelegates removeObjectAtIndex:idx];
         [downloaders removeObjectAtIndex:idx];
-
+        
         if (![downloaders containsObject:downloader])
         {
             // No more delegate are waiting for this download, cancel it
             [downloader cancel];
             [downloaderForURL removeObjectForKey:downloader.url];
         }
-
+        
         SDWIRelease(downloader);
     }
 }
@@ -229,7 +229,7 @@ static SDWebImageManager *instance;
     }
     [cacheDelegates removeAllObjects];
     [cacheURLs removeAllObjects];
-
+    
     [downloadInfo removeAllObjects];
     [downloadDelegates removeAllObjects];
     [downloaders removeAllObjects];
@@ -256,14 +256,14 @@ static SDWebImageManager *instance;
 {
     NSURL *url = [info objectForKey:@"url"];
     id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
-
+    
     NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
     {
         // Request has since been canceled
         return;
     }
-
+    
     if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
     {
         [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
@@ -288,14 +288,14 @@ static SDWebImageManager *instance;
         success(image, YES);
     }
 #endif
-  
-  // Delegates notified, remove url and delegate
-  // The delegate callbacks above may have modified the arrays, hence we search for the correct index
-  int removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
-  if (removeIdx != NSNotFound) {
-    [cacheDelegates removeObjectAtIndex:removeIdx];
-    [cacheURLs removeObjectAtIndex:removeIdx];
-  }
+    
+    // Delegates notified, remove url and delegate
+    // The delegate callbacks above may have modified the arrays, hence we search for the correct index
+    int removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
+    if (removeIdx != NSNotFound) {
+        [cacheDelegates removeObjectAtIndex:removeIdx];
+        [cacheURLs removeObjectAtIndex:removeIdx];
+    }
 }
 
 - (void)imageCache:(SDImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
@@ -303,20 +303,20 @@ static SDWebImageManager *instance;
     NSURL *url = [info objectForKey:@"url"];
     id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
     SDWebImageOptions options = [[info objectForKey:@"options"] intValue];
-
+    
     NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
     {
         // Request has since been canceled
         return;
     }
-
+    
     [cacheDelegates removeObjectAtIndex:idx];
     [cacheURLs removeObjectAtIndex:idx];
-
+    
     // Share the same downloader for identical URLs so we don't download the same URL several times
     SDWebImageDownloader *downloader = [downloaderForURL objectForKey:url];
-
+    
     if (!downloader)
     {
         downloader = [SDWebImageDownloader downloaderWithURL:url delegate:self userInfo:info lowPriority:(options & SDWebImageLowPriority)];
@@ -327,13 +327,13 @@ static SDWebImageManager *instance;
         // Reuse shared downloader
         downloader.lowPriority = (options & SDWebImageLowPriority);
     }
-
+    
     if ((options & SDWebImageProgressiveDownload) && !downloader.progressive)
     {
         // Turn progressive download support on demand
         downloader.progressive = YES;
     }
-
+    
     [downloadInfo addObject:info];
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
@@ -343,51 +343,51 @@ static SDWebImageManager *instance;
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
 {
-  NSMutableArray *notifiedDelegates = [NSMutableArray arrayWithCapacity:downloaders.count];
-  
-  BOOL found = YES;
-  while (found) {
-    found = NO;
-    assert(downloaders.count == downloadDelegates.count);
-    assert(downloaders.count == downloadInfo.count);
-    NSInteger count = downloaders.count;
-    for (NSInteger i=count-1; i>=0; --i)
+    NSMutableArray *notifiedDelegates = [NSMutableArray arrayWithCapacity:downloaders.count];
+    
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSInteger count = downloaders.count;
+        for (NSInteger i=count-1; i>=0; --i)
         {
-          SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-          if (aDownloader != downloader) {
-            continue;
-          }
-          
-          id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
             SDWIRetain(delegate);
             SDWIAutorelease(delegate);
-          
-          if ([notifiedDelegates containsObject:delegate]) {
-            continue;
-          }
-          // Keep track of delegates notified
-          [notifiedDelegates addObject:delegate];
-          
-          NSDictionary *info = [downloadInfo objectAtIndex:i];
-          SDWIRetain(info);
-          SDWIAutorelease(info);
-
+            
+            if ([notifiedDelegates containsObject:delegate]) {
+                continue;
+            }
+            // Keep track of delegates notified
+            [notifiedDelegates addObject:delegate];
+            
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
+            SDWIRetain(info);
+            SDWIAutorelease(info);
+            
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
             {
                 objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:), self, image, downloader.url);
             }
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:userInfo:)])
             {
-              NSDictionary *userInfo = [info objectForKey:@"userInfo"];
+                NSDictionary *userInfo = [info objectForKey:@"userInfo"];
                 if ([userInfo isKindOfClass:NSNull.class])
                 {
                     userInfo = nil;
                 }
                 objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:userInfo:), self, image, downloader.url, userInfo);
             }
-          // Delegate notified. Break out and restart loop
-          found = YES;
-          break;
+            // Delegate notified. Break out and restart loop
+            found = YES;
+            break;
         }
     }
 }
@@ -396,24 +396,24 @@ static SDWebImageManager *instance;
 {
     SDWIRetain(downloader);
     SDWebImageOptions options = [[downloader.userInfo objectForKey:@"options"] intValue];
-  BOOL found = YES;
-  while (found) {
-    found = NO;
-    assert(downloaders.count == downloadDelegates.count);
-    assert(downloaders.count == downloadInfo.count);
-    NSInteger count = downloaders.count;
-    for (NSInteger i=count-1; i>=0; --i) {
-      SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-      if (aDownloader != downloader) {
-        continue;
-      }
-      id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSInteger count = downloaders.count;
+        for (NSInteger i=count-1; i>=0; --i) {
+            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
             SDWIRetain(delegate);
             SDWIAutorelease(delegate);
-      NSDictionary *info = [downloadInfo objectAtIndex:i];
-      SDWIRetain(info);
-      SDWIAutorelease(info);
-
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
+            SDWIRetain(info);
+            SDWIAutorelease(info);
+            
             if (image)
             {
                 if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
@@ -468,13 +468,13 @@ static SDWebImageManager *instance;
                 }
 #endif
             }
-      // Downloader found. Break out and restart for loop
-      [self removeObjectsForDelegate:delegate];
-      found = YES;
-      break;
+            // Downloader found. Break out and restart for loop
+            [self removeObjectsForDelegate:delegate];
+            found = YES;
+            break;
         }
     }
-
+    
     if (image)
     {
         // Store the image in the cache
@@ -489,8 +489,8 @@ static SDWebImageManager *instance;
         // (do this only if SDWebImageRetryFailed isn't activated)
         [failedURLs addObject:downloader.url];
     }
-
-
+    
+    
     // Release the downloader
     [downloaderForURL removeObjectForKey:downloader.url];
     SDWIRelease(downloader);
@@ -499,27 +499,27 @@ static SDWebImageManager *instance;
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFailWithError:(NSError *)error;
 {
     SDWIRetain(downloader);
-
+    
     // Notify all the downloadDelegates with this downloader
-  BOOL found = YES;
-  while (found) {
-    found = NO;
-    assert(downloaders.count == downloadDelegates.count);
-    assert(downloaders.count == downloadInfo.count);
-    NSInteger count = downloaders.count;
-    for (NSInteger i=count-1 ; i>=0; --i)
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSInteger count = downloaders.count;
+        for (NSInteger i=count-1 ; i>=0; --i)
         {
-          SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
-          if (aDownloader != downloader) {
-            continue;
-          }
-          id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+            SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
             SDWIRetain(delegate);
             SDWIAutorelease(delegate);
-          NSDictionary *info = [downloadInfo objectAtIndex:i];
-          SDWIRetain(info);
-          SDWIAutorelease(info);
-
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
+            SDWIRetain(info);
+            SDWIAutorelease(info);
+            
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
             {
                 [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:error];
@@ -544,13 +544,13 @@ static SDWebImageManager *instance;
                 failure(error);
             }
 #endif
-          // Downloader found. Break out and restart for loop
-          [self removeObjectsForDelegate:delegate];
-          found = YES;
-          break;
+            // Downloader found. Break out and restart for loop
+            [self removeObjectsForDelegate:delegate];
+            found = YES;
+            break;
         }
     }
-
+    
     // Release the downloader
     [downloaderForURL removeObjectForKey:downloader.url];
     SDWIRelease(downloader);
