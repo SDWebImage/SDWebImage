@@ -23,7 +23,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
-@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t workingQueue;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 
 @end
@@ -72,7 +71,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _downloadQueue.maxConcurrentOperationCount = 2;
         _URLCallbacks = NSMutableDictionary.new;
         _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/*" forKey:@"Accept"];
-        _workingQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloader", DISPATCH_QUEUE_SERIAL);
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
@@ -81,7 +79,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (void)dealloc
 {
     [self.downloadQueue cancelAllOperations];
-    SDDispatchQueueRelease(_workingQueue);
     SDDispatchQueueRelease(_barrierQueue);
 }
 
@@ -124,7 +121,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         request.HTTPShouldHandleCookies = NO;
         request.HTTPShouldUsePipelining = YES;
         request.allHTTPHeaderFields = wself.HTTPHeaders;
-        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request queue:wself.workingQueue options:options progress:^(NSUInteger receivedSize, long long expectedSize)
+        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
