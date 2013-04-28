@@ -38,3 +38,4 @@
 #endif
 
 extern inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
+extern inline UIImage *SDScaledAnimatedImageForKey(NSString *key, UIImage *image);

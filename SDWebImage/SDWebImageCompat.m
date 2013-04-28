@@ -14,21 +14,56 @@
 
 inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image)
 {
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
-    {
-        CGFloat scale = 1.0;
-        if (key.length >= 8)
+    if ([image.images count] > 0) {
+        return SDScaledAnimatedImageForKey(key, image);
+    } else {
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
         {
-            // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
-            NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
-            if (range.location != NSNotFound)
+            CGFloat scale = 1.0;
+            if (key.length >= 8)
             {
-                scale = 2.0;
+                // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
+                NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
+                if (range.location != NSNotFound)
+                {
+                    scale = 2.0;
+                }
             }
+            
+            UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+            image = scaledImage;
         }
-
-        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-        image = scaledImage;
+        return image;
     }
-    return image;
+}
+
+inline UIImage *SDScaledAnimatedImageForKey(NSString *key, UIImage *originalImage)
+{
+    NSMutableArray *scaledImages = [NSMutableArray array];
+    
+    for (UIImage *image in originalImage.images)
+    {
+        UIImage *newImage = image;
+        
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+        {
+            CGFloat scale = 1.0;
+            if (key.length >= 8)
+            {
+                // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
+                NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
+                if (range.location != NSNotFound)
+                {
+                    scale = 2.0;
+                }
+            }
+            
+            UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+            newImage = scaledImage;
+        }
+        
+        [scaledImages addObject:newImage];
+    }
+	
+	return [UIImage animatedImageWithImages:scaledImages duration:originalImage.duration];
 }
