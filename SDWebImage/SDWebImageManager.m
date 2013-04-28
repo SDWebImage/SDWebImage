@@ -122,8 +122,8 @@
             }
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
-                BOOL imageIsGIF = [data isGIF];
-                if (imageIsGIF)
+                BOOL isImageGIF = [data isGIF];
+                if (isImageGIF)
                 {
                     downloadedImage = [UIImage animatedGIFWithData:data];
                 }
@@ -156,7 +156,7 @@
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                         {
-                            UIImage *transformedImage = imageIsGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+                            UIImage *transformedImage = isImageGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
                             dispatch_async(dispatch_get_main_queue(), ^
                             {
@@ -165,7 +165,7 @@
 
                             if (transformedImage && finished)
                             {
-                                NSData *dataToStore = imageIsGIF ? data : nil;
+                                NSData *dataToStore = isImageGIF ? data : nil;
                                 [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk];
                             }
                         });
