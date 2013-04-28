@@ -14,21 +14,35 @@
 
 inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image)
 {
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+    if ([image.images count] > 0)
     {
-        CGFloat scale = 1.0;
-        if (key.length >= 8)
+        NSMutableArray *scaledImages = [NSMutableArray array];
+        
+        for (UIImage *tempImage in image.images)
         {
-            // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
-            NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
-            if (range.location != NSNotFound)
-            {
-                scale = 2.0;
-            }
+            [scaledImages addObject:SDScaledImageForKey(key, tempImage)];
         }
-
-        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-        image = scaledImage;
+        
+        return [UIImage animatedImageWithImages:scaledImages duration:image.duration];
     }
-    return image;
+    else
+    {
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+        {
+            CGFloat scale = 1.0;
+            if (key.length >= 8)
+            {
+                // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
+                NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
+                if (range.location != NSNotFound)
+                {
+                    scale = 2.0;
+                }
+            }
+            
+            UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+            image = scaledImage;
+        }
+        return image;
+    }
 }
