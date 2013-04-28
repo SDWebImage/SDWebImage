@@ -16,4 +16,10 @@
 
 - (UIImage *)animatedImageByScalingAndCroppingToSize:(CGSize)size;
 
+/**
+ * Check if contains a GIF
+ */
+
+- (BOOL)isAnimatedGIF;
+
 @end
