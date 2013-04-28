@@ -123,7 +123,8 @@
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
                 BOOL imageIsGIF = [data isGIF];
-                if (imageIsGIF) {
+                if (imageIsGIF)
+                {
                     downloadedImage = [UIImage animatedGIFWithData:data];
                 }
                 

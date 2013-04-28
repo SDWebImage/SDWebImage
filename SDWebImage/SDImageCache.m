@@ -181,9 +181,12 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     NSData *data = [NSData dataWithContentsOfFile:path];
     if (data)
     {
-        if ([data isGIF]) {
+        if ([data isGIF])
+        {
             return [UIImage animatedGIFWithData:data];
-        } else {
+        }
+        else
+        {
             UIImage *image = [[UIImage alloc] initWithData:data];
             UIImage *scaledImage = [self scaledImageForKey:key image:image];
             return [UIImage decodedImageWithImage:scaledImage];
