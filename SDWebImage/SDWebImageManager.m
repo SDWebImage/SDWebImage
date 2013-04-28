@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImageManager.h"
+#import "UIImage+GIF.h"
 #import <objc/message.h>
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
@@ -121,6 +122,12 @@
             }
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
+                BOOL isImageGIF = [data isGIF];
+                if (isImageGIF)
+                {
+                    downloadedImage = [UIImage animatedGIFWithData:data];
+                }
+                
                 if (weakOperation.cancelled)
                 {
                     completedBlock(nil, nil, SDImageCacheTypeNone, finished);
@@ -149,7 +156,7 @@
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                         {
-                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+                            UIImage *transformedImage = isImageGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
                             dispatch_async(dispatch_get_main_queue(), ^
                             {
@@ -158,7 +165,8 @@
 
                             if (transformedImage && finished)
                             {
-                                [self.imageCache storeImage:transformedImage imageData:nil forKey:key toDisk:cacheOnDisk];
+                                NSData *dataToStore = isImageGIF ? data : nil;
+                                [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk];
                             }
                         });
                     }
