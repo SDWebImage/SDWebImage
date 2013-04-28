@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImageManager.h"
+#import "UIImage+GIF.h"
 #import <objc/message.h>
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
@@ -121,6 +122,10 @@
             }
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {
+                if ([data isGIF]) {
+                    downloadedImage = [UIImage animatedGIFWithData:data];
+                }
+                
                 if (weakOperation.cancelled)
                 {
                     completedBlock(nil, nil, SDImageCacheTypeNone, finished);
