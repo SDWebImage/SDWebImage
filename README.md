@@ -1,4 +1,3 @@
-
 Web Image
 =========
 
@@ -228,6 +227,10 @@ There are two ways to use this in your project: copy all the files into your pro
 Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
 
 ![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
+
+Alternatively—if this causes compilation problems with frameworks that extend optional libraries, such as Parse or RestKit—instead of the -ObjC flag use:
+
+-force_load SDWebImage.framework/Versions/Current/SDWebImage
 
 ### Import headers in your source files
 
