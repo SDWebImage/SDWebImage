@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
                   'and performances!'
 
   s.requires_arc = true
-  s.source_files = 'SDWebImage/{SD,UI}*.{h,m}'
+  s.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
   s.framework = 'ImageIO'
 
   # TODO currently CocoaPods always tries to install the subspec even if the dependency is on just 'SDWebImage'
