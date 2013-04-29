@@ -8,6 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
+#import "UIImage+GIF.h"
 #import <ImageIO/ImageIO.h>
 
 @interface SDWebImageDownloaderOperation ()
@@ -274,9 +275,24 @@
         }
         else
         {
-            UIImage *image = [[UIImage alloc] initWithData:self.imageData];
-            UIImage *scaledImage = [self scaledImageForKey:self.request.URL.absoluteString image:image];
-            image = [UIImage decodedImageWithImage:scaledImage];
+            BOOL isImageGIF = [self.imageData isGIF];
+            
+            UIImage *image;
+            if (isImageGIF)
+            {
+                image = [UIImage animatedGIFWithData:self.imageData];
+            }
+            else
+            {
+                image = [[UIImage alloc] initWithData:self.imageData];
+            }
+            
+            image = [self scaledImageForKey:self.request.URL.absoluteString image:image];
+            
+            if (!isImageGIF) {
+                image = [UIImage decodedImageWithImage:image];
+            }
+            
             if (CGSizeEqualToSize(image.size, CGSizeZero))
             {
                 completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);

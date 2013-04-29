@@ -121,13 +121,7 @@
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             __block id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
-            {
-                BOOL isImageGIF = [data isGIF];
-                if (isImageGIF)
-                {
-                    downloadedImage = [UIImage animatedGIFWithData:data];
-                }
-                
+            {                
                 if (weakOperation.cancelled)
                 {
                     completedBlock(nil, nil, SDImageCacheTypeNone, finished);
@@ -155,7 +149,8 @@
                     else if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
-                        {
+                                       {
+                            BOOL isImageGIF = [data isGIF];
                             UIImage *transformedImage = isImageGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
                             dispatch_async(dispatch_get_main_queue(), ^
