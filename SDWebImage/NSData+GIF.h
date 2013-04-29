@@ -10,6 +10,6 @@
 
 @interface NSData (GIF)
 
-- (BOOL)isGIF;
+- (BOOL)sd_isGIF;
 
 @end

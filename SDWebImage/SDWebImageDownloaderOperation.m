@@ -275,12 +275,12 @@
         }
         else
         {
-            BOOL isImageGIF = [self.imageData isGIF];
+            BOOL isImageGIF = [self.imageData sd_isGIF];
             
             UIImage *image;
             if (isImageGIF)
             {
-                image = [UIImage animatedGIFWithData:self.imageData];
+                image = [UIImage sd_animatedGIFWithData:self.imageData];
             }
             else
             {

@@ -150,7 +150,7 @@
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
                                        {
-                            BOOL isImageGIF = [data isGIF];
+                            BOOL isImageGIF = [data sd_isGIF];
                             UIImage *transformedImage = isImageGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
                             dispatch_async(dispatch_get_main_queue(), ^

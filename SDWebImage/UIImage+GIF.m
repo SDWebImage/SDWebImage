@@ -11,7 +11,7 @@
 
 @implementation UIImage (GIF)
 
-+ (UIImage *)animatedGIFWithData:(NSData *)data
++ (UIImage *)sd_animatedGIFWithData:(NSData *)data
 {
     if (!data)
     {
@@ -47,7 +47,7 @@
     return [UIImage animatedImageWithImages:images duration:duration];
 }
 
-+ (UIImage *)animatedGIFNamed:(NSString *)name
++ (UIImage *)sd_animatedGIFNamed:(NSString *)name
 {
     CGFloat scale = [UIScreen mainScreen].scale;
     
@@ -59,7 +59,7 @@
         
         if (data)
         {
-            return [UIImage animatedGIFWithData:data];
+            return [UIImage sd_animatedGIFWithData:data];
         }
         
         NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
@@ -68,7 +68,7 @@
         
         if (data)
         {
-            return [UIImage animatedGIFWithData:data];
+            return [UIImage sd_animatedGIFWithData:data];
         }
         
         return [UIImage imageNamed:name];
@@ -81,14 +81,14 @@
         
         if (data)
         {
-            return [UIImage animatedGIFWithData:data];
+            return [UIImage sd_animatedGIFWithData:data];
         }
         
         return [UIImage imageNamed:name];
     }    
 }
 
-- (UIImage *)animatedImageByScalingAndCroppingToSize:(CGSize)size
+- (UIImage *)sd_animatedImageByScalingAndCroppingToSize:(CGSize)size
 {
     if (CGSizeEqualToSize(self.size, size) || CGSizeEqualToSize(size, CGSizeZero))
     {

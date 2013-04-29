@@ -10,7 +10,7 @@
 
 @implementation NSData (GIF)
 
-- (BOOL)isGIF
+- (BOOL)sd_isGIF
 {
     BOOL isGIF = NO;
     

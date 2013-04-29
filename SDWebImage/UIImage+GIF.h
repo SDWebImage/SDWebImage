@@ -11,9 +11,9 @@
 
 @interface UIImage (GIF)
 
-+ (UIImage *)animatedGIFNamed:(NSString *)name;
-+ (UIImage *)animatedGIFWithData:(NSData *)data;
++ (UIImage *)sd_animatedGIFNamed:(NSString *)name;
++ (UIImage *)sd_animatedGIFWithData:(NSData *)data;
 
-- (UIImage *)animatedImageByScalingAndCroppingToSize:(CGSize)size;
+- (UIImage *)sd_animatedImageByScalingAndCroppingToSize:(CGSize)size;
 
 @end
