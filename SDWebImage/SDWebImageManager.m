@@ -160,7 +160,7 @@
 
                             if (transformedImage && finished)
                             {
-                                NSData *dataToStore = isImageGIF ? data : nil;
+                                NSData *dataToStore = [transformedImage isEqual:downloadedImage] ? data : nil;
                                 [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk];
                             }
                         });
