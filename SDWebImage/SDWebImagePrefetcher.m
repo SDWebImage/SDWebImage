@@ -16,7 +16,6 @@
 @property (assign, nonatomic) NSUInteger requestedCount;
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
-@property (assign, nonatomic) NSTimeInterval startedTime;
 @property (copy, nonatomic) void (^completionBlock)(NSUInteger, NSUInteger);
 
 @end
@@ -61,15 +60,8 @@
         if (!finished) return;
         self.finishedCount++;
 
-        if (image)
+        if (!image)
         {
-            NSLog(@"Prefetched %d out of %d", self.finishedCount, self.prefetchURLs.count);
-        }
-        else
-        {
-            NSLog(@"Prefetched %d out of %d (Failed)", self.finishedCount, [self.prefetchURLs count]);
-
-            // Add last failed
             self.skippedCount++;
         }
 
@@ -79,7 +71,6 @@
         }
         else if (self.finishedCount == self.requestedCount)
         {
-            [self reportStatus];
             if (self.completionBlock)
             {
                 self.completionBlock(self.finishedCount, self.skippedCount);
@@ -87,12 +78,6 @@
             }
         }
     }];
-}
-
-- (void)reportStatus
-{
-    NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%d successful, %d skipped, timeElasped %.2f)", total - self.skippedCount, self.skippedCount, CFAbsoluteTimeGetCurrent() - self.startedTime);
 }
 
 - (void)prefetchURLs:(NSArray *)urls
@@ -103,7 +88,6 @@
 - (void)prefetchURLs:(NSArray *)urls completed:(void (^)(NSUInteger, NSUInteger))completionBlock
 {
     [self cancelPrefetching]; // Prevent duplicate prefetch request
-    self.startedTime = CFAbsoluteTimeGetCurrent();
     self.prefetchURLs = urls;
     self.completionBlock = completionBlock;
 
