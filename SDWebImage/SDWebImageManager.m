@@ -83,7 +83,13 @@
     __block SDWebImageCombinedOperation *operation = SDWebImageCombinedOperation.new;
     __weak SDWebImageCombinedOperation *weakOperation = operation;
     
-    if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && [self.failedURLs containsObject:url]))
+    BOOL isFailedUrl = NO;
+    @synchronized(self.failedURLs)
+    {
+        isFailedUrl = [self.failedURLs containsObject:url];
+    }
+
+    if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && isFailedUrl))
     {
         if (completedBlock) completedBlock(nil, nil, SDImageCacheTypeNone, NO);
         return operation;
