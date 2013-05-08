@@ -241,13 +241,11 @@
         }
 
         CFRelease(imageSource);
-        
-        NSUInteger received = self.imageData.length;
-
-        if (self.progressBlock)
-        {
-            self.progressBlock(received, self.expectedSize);
-        }
+    }
+    
+    if (self.progressBlock)
+    {
+        self.progressBlock(self.imageData.length, self.expectedSize);
     }
 }
 
