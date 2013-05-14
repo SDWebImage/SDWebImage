@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E75A9861742DBE700DA412D /* CustomPathImages in Resources */ = {isa = PBXBuildFile; fileRef = 3E75A9851742DBE700DA412D /* CustomPathImages */; };
 		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3E75A9851742DBE700DA412D /* CustomPathImages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CustomPathImages; sourceTree = SOURCE_ROOT; };
 		53761295155AB74D005750A4 /* SDWebImage Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53761299155AB74D005750A4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5376129B155AB74D005750A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -120,6 +122,7 @@
 		5376129F155AB74D005750A4 /* SDWebImage Demo */ = {
 			isa = PBXGroup;
 			children = (
+				3E75A9851742DBE700DA412D /* CustomPathImages */,
 				537612A8155AB74D005750A4 /* AppDelegate.h */,
 				537612A9155AB74D005750A4 /* AppDelegate.m */,
 				537612AB155AB74D005750A4 /* MasterViewController.h */,
@@ -235,6 +238,7 @@
 				53A2B50D155B155A00B12423 /* placeholder.png in Resources */,
 				53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */,
 				53EEC18916484553007601E1 /* Default-568h@2x.png in Resources */,
+				3E75A9861742DBE700DA412D /* CustomPathImages in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

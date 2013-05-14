@@ -19,6 +19,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @property (strong, nonatomic) NSCache *memCache;
 @property (strong, nonatomic) NSString *diskCachePath;
+@property (strong, nonatomic) NSMutableArray *customPaths;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
 
 @end
@@ -82,9 +83,33 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     SDDispatchQueueRelease(_ioQueue);
 }
 
+- (void)addReadOnlyCachePath:(NSString *)path
+{
+    if (!self.customPaths)
+    {
+        self.customPaths = NSMutableArray.new;
+    }
+
+    if (![self.customPaths containsObject:path])
+    {
+        [self.customPaths addObject:path];
+    }
+}
+
 #pragma mark SDImageCache (private)
 
-- (NSString *)cachePathForKey:(NSString *)key
+- (NSString *)cachePathForKey:(NSString *)key inPath:(NSString *)path
+{
+    NSString *filename = [self cachedFileNameForKey:key];
+    return [path stringByAppendingPathComponent:filename];
+}
+
+- (NSString *)defaultCachePathForKey:(NSString *)key
+{
+    return [self cachePathForKey:key inPath:self.diskCachePath];
+}
+
+- (NSString *)cachedFileNameForKey:(NSString *)key
 {
     const char *str = [key UTF8String];
     unsigned char r[CC_MD5_DIGEST_LENGTH];
@@ -92,7 +117,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
 
-    return [self.diskCachePath stringByAppendingPathComponent:filename];
+    return filename;
 }
 
 #pragma mark ImageCache
@@ -134,7 +159,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                     [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
 
-                [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
+                [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
         });
     }
@@ -175,10 +200,30 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return diskImage;
 }
 
+- (NSData *)diskImageDataBySearchingAllPathsForKey:(NSString *)key
+{
+    NSString *defaultPath = [self defaultCachePathForKey:key];
+    NSData *data = [NSData dataWithContentsOfFile:defaultPath];
+    if (data)
+    {
+        return data;
+    }
+
+    for (NSString *path in self.customPaths)
+    {
+        NSString *filePath = [self cachePathForKey:key inPath:path];
+        NSData *imageData = [NSData dataWithContentsOfFile:filePath];
+        if (imageData) {
+            return imageData;
+        }
+    }
+
+    return nil;
+}
+
 - (UIImage *)diskImageForKey:(NSString *)key
 {
-    NSString *path = [self cachePathForKey:key];
-    NSData *data = [NSData dataWithContentsOfFile:path];
+    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data)
     {
         if ([data sd_isGIF])
@@ -259,7 +304,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     {
         dispatch_async(self.ioQueue, ^
         {
-            [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
+            [[NSFileManager defaultManager] removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
         });
     }
 }
