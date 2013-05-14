@@ -7,19 +7,40 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageCacheDelegate.h"
+#import "SDWebImageCompat.h"
+
+enum SDImageCacheType
+{
+    /**
+     * The image wasn't available the SDWebImage caches, but was downloaded from the web.
+     */
+    SDImageCacheTypeNone = 0,
+    /**
+     * The image was obtained from the disk cache.
+     */
+    SDImageCacheTypeDisk,
+    /**
+     * The image was obtained from the memory cache.
+     */
+    SDImageCacheTypeMemory
+};
+typedef enum SDImageCacheType SDImageCacheType;
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
 @interface SDImageCache : NSObject
-{
-    NSMutableDictionary *memCache;
-    NSString *diskCachePath;
-    NSMutableArray *userCachePaths;
-    NSOperationQueue *cacheInQueue, *cacheOutQueue;
-}
+
+/**
+ * The maximum length of time to keep an image in the cache, in seconds
+ */
+@property (assign, nonatomic) NSInteger maxCacheAge;
+
+/**
+ * The maximum size of the cache, in bytes.
+ */
+@property (assign, nonatomic) unsigned long long maxCacheSize;
 
 /**
  * Returns global shared cache instance
@@ -29,32 +50,11 @@
 + (SDImageCache *)sharedImageCache;
 
 /**
- * Adds a custom image cache path to search for images.
- * This allows you to set a custom path which SDWebImageCache will search for images.
- * This is particularly useful for when you are bundling images cached by SDWebImageCache into your app,
- * removing the need to copy those images over into the default 'ImageCache' folder.
+ * Init a new cache store with a specific namespace
  *
- * @warning This only adds a 'search' path that will not be written too or erased.
- *
- * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
+ * @param ns The namespace to use for this cache store
  */
-- (void)addCustomImageSearchCachePath:(NSString*)path;
-
-/**
- * Removes a previously added image cach path from the list of custom search paths.
- *
- * @param path The path pointing to the directory in which the SDWebImage-cached images may be found.
- *
- */
-- (void)removeCustomImageCachePath:(NSString*)path;
-
-/**
- * Removes all user specified custom search paths
- *
- * @warning This will 'not' remove SDWebImage's default search path
- *
- */
-- (void)removeAllCustomImageCachePaths;
+- (id)initWithNamespace:(NSString *)ns;
 
 /**
  * Store an image into memory and disk cache at the given key.
@@ -86,45 +86,35 @@
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
- * Query the memory cache for an image at a given key and fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations
+ * Query the disk cache asynchronously.
  *
  * @param key The unique key used to store the wanted image
  */
-- (UIImage *)imageFromKey:(NSString *)key;
+- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
 
 /**
- * Query the memory cache for an image at a given key and optionnaly fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations if fromDisk is YES
+ * Query the memory cache synchronously.
  *
  * @param key The unique key used to store the wanted image
- * @param fromDisk Try to retrive the image from disk if not found in memory if YES
  */
-- (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;
-
+- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
 
 /**
- * Query the disk cache asynchronousely.
+ * Query the disk cache synchronously after checking the memory cache.
  *
  * @param key The unique key used to store the wanted image
- * @param delegate The delegate object to send response to
- * @param info An NSDictionary with some user info sent back to the delegate
  */
-- (void)queryDiskCacheForKey:(NSString *)key delegate:(id <SDImageCacheDelegate>)delegate userInfo:(NSDictionary *)info;
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key;
 
 /**
- * Remove the image from memory and disk cache synchronousely
+ * Remove the image from memory and disk cache synchronously
  *
  * @param key The unique image cache key
  */
 - (void)removeImageForKey:(NSString *)key;
 
 /**
- * Remove the image from memory and optionaly disk cache synchronousely
+ * Remove the image from memory and optionaly disk cache synchronously
  *
  * @param key The unique image cache key
  * @param fromDisk Also remove cache entry from disk if YES
@@ -149,21 +139,11 @@
 /**
  * Get the size used by the disk cache
  */
-- (int)getSize;
+- (unsigned long long)getSize;
 
 /**
  * Get the number of images in the disk cache
  */
 - (int)getDiskCount;
-
-/**
- * Get the total size of images in memory cache
- */
-- (int)getMemorySize;
-
-/**
- * Get the number of images in the memory cache
- */
-- (int)getMemoryCount;
 
 @end
