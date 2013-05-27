@@ -131,7 +131,6 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
  * @param url The URL to the image
- * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
  * @param progressBlock A block called while image is downloading
  * @param completedBlock A block called when operation has been completed.
