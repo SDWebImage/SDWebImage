@@ -134,8 +134,10 @@
  *
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param success A block to be executed when the image request succeed This block has no return value and takes the retrieved image as argument.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block object to be executed after the request operation 
+ *   completed. This block has no return value and takes three argument: the requested
+ *   `UIImage` object, the `NSError` object describing error that occurred, and an 
+ *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock;
 
@@ -147,8 +149,10 @@
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @param success A block to be executed when the image request succeed This block has no return value and takes the retrieved image as argument.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block object to be executed after the request operation
+ *   completed. This block has no return value and takes three argument: the requested
+ *   `UIImage` object, the `NSError` object describing error that occurred, and an
+ *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock;
 
@@ -160,8 +164,10 @@
  * @param url The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param success A block to be executed when the image request succeed This block has no return value and takes the retrieved image as argument.
- * @param failure A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ * @param completedBlock A block object to be executed after the request operation
+ *   completed. This block has no return value and takes three argument: the requested
+ *   `UIImage` object, the `NSError` object describing error that occurred, and an
+ *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
 

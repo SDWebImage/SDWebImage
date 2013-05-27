@@ -85,18 +85,21 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  *
  * Here is a simple example of how to use SDWebImageManager:
  *
- *  SDWebImageManager *manager = [SDWebImageManager sharedManager];
- *  [manager downloadWithURL:imageURL
- *                  delegate:self
- *                   options:0
- *                  progress:nil
- *                 completed:^(UIImage *image, NSError *error, BOOL fromCache)
- *                 {
- *                     if (image)
- *                     {
- *                         // do something with image
- *                     }
- *                 }];
+ * @code
+
+SDWebImageManager *manager = [SDWebImageManager sharedManager];
+[manager downloadWithURL:imageURL
+                 options:0
+                progress:nil
+               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+               {
+                   if (image)
+                   {
+                       // do something with image
+                   }
+               }];
+
+ * @endcode
  */
 @interface SDWebImageManager : NSObject
 
@@ -112,11 +115,15 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * The following example sets a filter in the application delegate that will remove any query-string from the
  * URL before to use it as a cache key:
  *
- * 	[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
- *	{
- *	    url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
- *	    return [url absoluteString];
- *	}];
+ * @code
+
+[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
+{
+    url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
+    return [url absoluteString];
+}];
+
+ * @endcode
  */
 @property (strong) NSString *(^cacheKeyFilter)(NSURL *url);
 
@@ -131,21 +138,19 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
  * @param url The URL to the image
- * @param delegate The delegate object used to send result back
  * @param options A mask to specify options to use for this request
  * @param progressBlock A block called while image is downloading
  * @param completedBlock A block called when operation has been completed.
  *
- *                       This block as no return value and takes the requested UIImage as first parameter.
- *                       In case of error the image parameter is nil and the second parameter may contain an NSError.
+ *   This block as no return value and takes the requested UIImage as first parameter.
+ *   In case of error the image parameter is nil and the second parameter may contain an NSError.
  *
- *                       The third parameter is a Boolean indicating if the image was retrived from the local cache
- *                       of from the network.
+ *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrived from the local cache
+ *   or from the memory cache or from the network.
  *
- *                       The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and
- *                       the image is downloading. This block is thus called repetidly with a partial image. When
- *                       image is fully downloaded, the block is called a last time with the full image and the last
- *                       parameter set to YES.
+ *   The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is 
+ *   downloading. This block is thus called repetidly with a partial image. When image is fully downloaded, the
+ *   block is called a last time with the full image and the last parameter set to YES.
  *
  * @return Returns a cancellable NSOperation
  */
