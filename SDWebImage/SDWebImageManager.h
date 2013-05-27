@@ -85,18 +85,21 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  *
  * Here is a simple example of how to use SDWebImageManager:
  *
- *  SDWebImageManager *manager = [SDWebImageManager sharedManager];
- *  [manager downloadWithURL:imageURL
- *                  delegate:self
- *                   options:0
- *                  progress:nil
- *                 completed:^(UIImage *image, NSError *error, BOOL fromCache)
- *                 {
- *                     if (image)
- *                     {
- *                         // do something with image
- *                     }
- *                 }];
+ * @code
+
+SDWebImageManager *manager = [SDWebImageManager sharedManager];
+[manager downloadWithURL:imageURL
+                 options:0
+                progress:nil
+               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+               {
+                   if (image)
+                   {
+                       // do something with image
+                   }
+               }];
+
+ * @endcode
  */
 @interface SDWebImageManager : NSObject
 
@@ -112,11 +115,15 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * The following example sets a filter in the application delegate that will remove any query-string from the
  * URL before to use it as a cache key:
  *
- * 	[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
- *	{
- *	    url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
- *	    return [url absoluteString];
- *	}];
+ * @code
+
+[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
+{
+    url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
+    return [url absoluteString];
+}];
+
+ * @endcode
  */
 @property (strong) NSString *(^cacheKeyFilter)(NSURL *url);
 
