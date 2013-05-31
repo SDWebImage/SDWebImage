@@ -30,9 +30,13 @@
 #endif
 
 #if OS_OBJECT_USE_OBJC
+    #undef SDDispatchQueueRelease
+    #undef SDDispatchQueueSetterSementics
     #define SDDispatchQueueRelease(q)
     #define SDDispatchQueueSetterSementics strong
 #else
+    #undef SDDispatchQueueRelease
+    #undef SDDispatchQueueSetterSementics
     #define SDDispatchQueueRelease(q) (dispatch_release(q))
     #define SDDispatchQueueSetterSementics assign
 #endif
