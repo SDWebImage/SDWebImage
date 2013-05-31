@@ -224,7 +224,7 @@ There are two ways to use this in your project: copy all the files into your pro
 ### Add dependencies
 
 - In you application project app’s target settings, find the "Build Phases" section and open the "Link Binary With Libraries" block:
-- Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
+- Click the "+" button again and select the "MapKit.framework" "ImageIO.framework", this is needed by the progressive download feature:
 
 ### Add Linker Flag
 
