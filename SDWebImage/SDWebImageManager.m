@@ -91,7 +91,11 @@
 
     if (!url || !completedBlock || (!(options & SDWebImageRetryFailed) && isFailedUrl))
     {
-        if (completedBlock) completedBlock(nil, nil, SDImageCacheTypeNone, NO);
+        if (completedBlock)
+        {
+            NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorFileDoesNotExist userInfo:nil];
+            completedBlock(nil, error, SDImageCacheTypeNone, YES);
+        }
         return operation;
     }
 
