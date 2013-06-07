@@ -8,7 +8,7 @@
 
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
-#import "UIImage+GIF.h"
+#import "UIImage+MultiFormat.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <mach/mach.h>
 #import <mach/mach_host.h>
@@ -226,17 +226,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data)
     {
-        if ([data sd_isGIF])
-        {
-            UIImage *image = [UIImage sd_animatedGIFWithData:data];
-            return [self scaledImageForKey:key image:image];
-        }
-        else
-        {
-            UIImage *image = [[UIImage alloc] initWithData:data];
-            UIImage *scaledImage = [self scaledImageForKey:key image:image];
-            return [UIImage decodedImageWithImage:scaledImage];
-        }
+        UIImage *image = [UIImage sd_imageWithData:data];
+        image = [self scaledImageForKey:key image:image];
+        image = [UIImage decodedImageWithImage:image];
+        return image;
     }
     else
     {

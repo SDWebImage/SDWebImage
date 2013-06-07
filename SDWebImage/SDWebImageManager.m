@@ -156,12 +156,12 @@
                     {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
-                    else if (downloadedImage && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
+                    // NOTE: We don't call transformDownloadedImage delegate method on animated images as most transformation code would mangle it
+                    else if (downloadedImage && !downloadedImage.images && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
-                                       {
-                            BOOL isImageGIF = [data sd_isGIF];
-                            UIImage *transformedImage = isImageGIF ? downloadedImage : [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+                        {
+                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
                             dispatch_async(dispatch_get_main_queue(), ^
                             {

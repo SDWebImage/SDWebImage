@@ -8,7 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
-#import "UIImage+GIF.h"
+#import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 
 @interface SDWebImageDownloaderOperation ()
@@ -273,21 +273,13 @@
         }
         else
         {
-            BOOL isImageGIF = [self.imageData sd_isGIF];
             
-            UIImage *image;
-            if (isImageGIF)
-            {
-                image = [UIImage sd_animatedGIFWithData:self.imageData];
-            }
-            else
-            {
-                image = [[UIImage alloc] initWithData:self.imageData];
-            }
+            UIImage *image = [UIImage sd_imageWithData:self.imageData];
             
             image = [self scaledImageForKey:self.request.URL.absoluteString image:image];
             
-            if (!isImageGIF) {
+            if (!image.images) // Do not force decod animated GIFs
+            {
                 image = [UIImage decodedImageWithImage:image];
             }
             
