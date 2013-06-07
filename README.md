@@ -9,6 +9,7 @@ It provides:
 - An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
 - Animated GIF support
+- WebP format support
 - A background image decompression
 - A guarantee that the same URL won't be downloaded several times
 - A guarantee that bogus URLs won't be retried again and again

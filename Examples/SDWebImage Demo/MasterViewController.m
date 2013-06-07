@@ -31,6 +31,8 @@
                                                                                action:@selector(flushCache)];
         _objects = [NSArray arrayWithObjects:
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
+                    @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
+                    @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
                     @"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.jpg?20120509154705",
                     @"http://static2.dmcdn.net/static/video/629/228/44822926:jpeg_preview_small.jpg?20120509181018",
                     @"http://static2.dmcdn.net/static/video/116/367/44763611:jpeg_preview_small.jpg?20120509101749",
