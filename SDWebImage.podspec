@@ -6,9 +6,9 @@ Pod::Spec.new do |s|
   s.summary = 'Asynchronous image downloader with cache support with an UIImageView category.'
   s.homepage = 'https://github.com/rs/SDWebImage'
   s.author = { 'Olivier Poitrey' => 'rs@dailymotion.com' }
-  s.source = { :git => 'https://github.com/rs/SDWebImage.git', :tag => '3.2' }
+  s.source = { :git => 'https://github.com/rs/SDWebImage.git', :tag => '3.2', :submodules => true }
 
-  s.description = 'This library provides a category for UIImageVIew with support for remote '      \
+  s.description = 'This library provides a category for UIImageView with support for remote '      \
                   'images coming from the web. It provides an UIImageView category adding web '    \
                   'image and cache management to the Cocoa Touch framework, an asynchronous '      \
                   'image downloader, an asynchronous memory + disk image caching with automatic '  \
@@ -24,5 +24,9 @@ Pod::Spec.new do |s|
   s.subspec 'MapKit' do |mk|
     mk.source_files = 'SDWebImage/MKAnnotationView+WebCache.*'
     mk.framework = 'MapKit'
+  end
+
+  s.subspec 'WebP' do |wp|
+    wp.source_files = 'Vendors/libwebp/src/{dec,dsp,utils,webp}/*.{h,c}'
   end
 end
