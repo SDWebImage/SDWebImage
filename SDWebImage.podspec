@@ -20,6 +20,8 @@ Pod::Spec.new do |s|
   s.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
   s.framework = 'ImageIO'
 
+  s.dependency 'libwebp'
+
   # TODO currently CocoaPods always tries to install the subspec even if the dependency is on just 'SDWebImage'
   s.subspec 'MapKit' do |mk|
     mk.source_files = 'SDWebImage/MKAnnotationView+WebCache.*'
