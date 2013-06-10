@@ -25,10 +25,12 @@
         image = [[UIImage alloc] initWithData:data];
     }
 
+#ifdef SD_WEBP
     if (!image) // TODO: detect webp signature
     {
         image = [UIImage sd_imageWithWebPData:data];
     }
+#endif
 
     return image;
 }
