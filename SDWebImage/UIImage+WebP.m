@@ -61,4 +61,9 @@ static void FreeImageData(void *info, const void *data, size_t size)
 }
 
 @end
+
+// Functions to resolve some undefined symbols when using WebP and force_load flag
+void WebPInitPremultiplyNEON(void) {}
+void WebPInitUpsamplersNEON(void) {}
+void VP8DspInitNEON(void) {}
 #endif
