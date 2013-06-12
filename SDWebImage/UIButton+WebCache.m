@@ -48,15 +48,27 @@ static char operationKey;
         __weak UIButton *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
-            __strong UIButton *sself = wself;
-            if (!sself) return;
-            if (image)
+            if (!wself) return;
+            void (^block)(void) = ^
             {
-                [sself setImage:image forState:state];
+                __strong UIButton *sself = wself;
+                if (!sself) return;
+                if (image)
+                {
+                    [sself setImage:image forState:state];
+                }
+                if (completedBlock && finished)
+                {
+                    completedBlock(image, error, cacheType);
+                }
+            };
+            if ([NSThread isMainThread])
+            {
+                block();
             }
-            if (completedBlock && finished)
+            else
             {
-                completedBlock(image, error, cacheType);
+                dispatch_sync(dispatch_get_main_queue(), block);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -99,15 +111,27 @@ static char operationKey;
         __weak UIButton *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
-            __strong UIButton *sself = wself;
-            if (!sself) return;
-            if (image)
+            if (!wself) return;
+            void (^block)(void) = ^
             {
-                [sself setBackgroundImage:image forState:state];
+                __strong UIButton *sself = wself;
+                if (!sself) return;
+                if (image)
+                {
+                    [sself setBackgroundImage:image forState:state];
+                }
+                if (completedBlock && finished)
+                {
+                    completedBlock(image, error, cacheType);
+                }
+            };
+            if ([NSThread isMainThread])
+            {
+                block();
             }
-            if (completedBlock && finished)
+            else
             {
-                completedBlock(image, error, cacheType);
+                dispatch_sync(dispatch_get_main_queue(), block);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
