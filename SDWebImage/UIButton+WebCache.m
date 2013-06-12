@@ -99,11 +99,13 @@ static char operationKey;
         __weak UIButton *wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
-            __strong UIButton *sself = wself;
-            if (!sself) return;
             if (image)
             {
-                [sself setBackgroundImage:image forState:state];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    __strong UIButton *sself = wself;
+                    if (!sself) return;
+                    [sself setBackgroundImage:image forState:state];
+                });
             }
             if (completedBlock && finished)
             {
