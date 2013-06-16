@@ -8,7 +8,10 @@
 
 #import "UIImage+MultiFormat.h"
 #import "UIImage+GIF.h"
+
+#ifdef SD_WEBP
 #import "UIImage+WebP.h"
+#endif
 
 @implementation UIImage (MultiFormat)
 
