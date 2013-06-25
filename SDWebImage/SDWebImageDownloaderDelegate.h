@@ -36,6 +36,15 @@
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image;
 
 /**
+ * Called when download completed successfuly.
+ *
+ * @param downloader The SDWebImageDownloader instance
+ * @param image The downloaded image object
+ * @param checksum The downloaded image's ETag checksum
+ */
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image checksum:(NSString*)checksum;
+
+/**
  * Called when an error occurred
  *
  * @param downloader The SDWebImageDownloader instance

@@ -118,6 +118,8 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     {
         expectedSize = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
         self.imageData = SDWIReturnAutoreleased([[NSMutableData alloc] initWithCapacity:expectedSize]);
+        checksum = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"ETag"];
+        SDWIRetain(checksum);
     }
     else
     {
@@ -233,10 +235,14 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
         [delegate performSelector:@selector(imageDownloaderDidFinish:) withObject:self];
     }
 
-    if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
+    if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)] || [delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:checksum:)])
     {
         UIImage *image = SDScaledImageForPath(url.absoluteString, imageData);
-        [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];
+        NSDictionary *usersInfo = nil;
+        if (checksum)
+            usersInfo = [NSDictionary dictionaryWithObject:checksum forKey:@"checksum"];
+        
+        [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:usersInfo];
     }
 }
 
@@ -263,7 +269,10 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     }
     else
     {
-        [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+        if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:checksum:)])
+            [delegate imageDownloader:self didFinishWithImage:image checksum:[aUserInfo objectForKey:@"checksum"]];
+        else
+            [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
     }
 }
 
@@ -272,6 +281,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    SDWIRelease(checksum);
     SDWISafeRelease(url);
     SDWISafeRelease(connection);
     SDWISafeRelease(imageData);

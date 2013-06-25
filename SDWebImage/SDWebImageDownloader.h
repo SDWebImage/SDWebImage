@@ -28,6 +28,8 @@ extern NSString *const SDWebImageDownloadStopNotification;
     NSUInteger expectedSize;
     BOOL progressive;
     size_t width, height;
+    NSString *checksum;
+    
 }
 
 @property (nonatomic, retain) NSURL *url;

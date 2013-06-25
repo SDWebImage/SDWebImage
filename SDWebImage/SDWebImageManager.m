@@ -209,6 +209,61 @@ static SDWebImageManager *instance;
     }
 }
 
+#pragma mark ETag chekcsum
+
+- (void)requestUrlHeaders:(NSURL *)url image:(UIImage *)image info:(NSDictionary *)info key:(NSString*)key
+{
+    NSMutableURLRequest *modReq = [NSMutableURLRequest requestWithURL:url
+                                                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                      timeoutInterval:60.0f];
+    [modReq setHTTPMethod:@"HEAD"];
+    NSURLConnection* c = [[NSURLConnection alloc] initWithRequest:modReq delegate:self];
+    c=c;
+    
+    NSMutableDictionary* value = [NSMutableDictionary dictionary];
+    [value setObject:image forKey:@"image"];
+    [value setObject:info forKey:@"info"];
+    [value setObject:key forKey:@"key"];
+    
+    if (!etagRequests)
+        etagRequests = [NSMutableDictionary dictionary];
+    
+    [etagRequests setObject:value forKey:url.absoluteString];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response
+{
+    NSString * checksum = [[response allHeaderFields] objectForKey:@"ETag"];
+    NSString* urlString = connection.originalRequest.URL.absoluteString;
+    
+    NSDictionary* params = [etagRequests objectForKey:urlString];
+    [etagRequests removeObjectForKey:urlString];
+    
+    NSDictionary *info = [params objectForKey:@"info"];
+    UIImage *image = [params objectForKey:@"image"];
+    NSString *key = [params objectForKey:@"key"];
+    
+    NSURL *url = [info objectForKey:@"url"];
+    id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
+    if (idx == NSNotFound)
+        return;
+    
+    
+    NSString* containedChecksum = [self.cacheDelegate checksumForUrl:key];
+    
+    
+    if ([containedChecksum isEqualToString:checksum]) {
+        [self notifyDelegatesWithImage:image userInfo:info];
+    }
+    else
+    {
+        [self.cacheDelegate removeChecksumForUrl:key];
+        [[SDImageCache sharedImageCache] removeImageForKey:key fromDisk:YES];
+        [self imageCache:[SDImageCache sharedImageCache] didNotFindImageForKey:key userInfo:info];
+    }
+}
+
 #pragma mark SDImageCacheDelegate
 
 - (NSUInteger)indexOfDelegate:(id<SDWebImageManagerDelegate>)delegate waitingForURL:(NSURL *)url
@@ -228,15 +283,27 @@ static SDWebImageManager *instance;
 - (void)imageCache:(SDImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
 {
     NSURL *url = [info objectForKey:@"url"];
-    id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    
+    if (_cacheDelegate && [_cacheDelegate shouldTrackUpdationForUrl:key]) {
+        [self requestUrlHeaders:url image:image info:info key:key];
+        return;
+    }
+    else
+        [self notifyDelegatesWithImage:image userInfo:info];
+}
 
+- (void)notifyDelegatesWithImage:(UIImage *)image userInfo:(NSDictionary *)info
+{
+    NSURL *url = [info objectForKey:@"url"];
+    id<SDWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    
     NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
     {
         // Request has since been canceled
         return;
     }
-
+    
     if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
     {
         [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
@@ -261,7 +328,7 @@ static SDWebImageManager *instance;
         success(image, YES);
     }
 #endif
-
+    
     [cacheDelegates removeObjectAtIndex:idx];
     [cacheURLs removeObjectAtIndex:idx];
 }
@@ -339,8 +406,11 @@ static SDWebImageManager *instance;
     }
 }
 
-- (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image checksum:(NSString*)checksum
 {
+    if (_cacheDelegate && [_cacheDelegate shouldTrackUpdationForUrl:downloader.url.absoluteString])
+        [_cacheDelegate setChecksum:checksum forUrl:downloader.url.absoluteString];
+    
     SDWIRetain(downloader);
     SDWebImageOptions options = [[downloader.userInfo objectForKey:@"options"] intValue];
 

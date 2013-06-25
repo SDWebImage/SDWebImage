@@ -9,6 +9,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDownloaderDelegate.h"
 #import "SDWebImageManagerDelegate.h"
+#import "SDWebImageManagerCacheDelegate.h"
 #import "SDImageCacheDelegate.h"
 
 typedef enum
@@ -51,6 +52,8 @@ typedef void(^SDWebImageFailureBlock)(NSError *error);
     NSMutableArray *cacheURLs;
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
+    
+    NSMutableDictionary* etagRequests;
 }
 
 #if NS_BLOCKS_AVAILABLE
@@ -72,6 +75,9 @@ typedef NSString *(^CacheKeyFilter)(NSURL *url);
 @property (strong) CacheKeyFilter cacheKeyFilter;
 #endif
 
+
+
+@property (strong) id<SDWebImageManagerCacheDelegate> cacheDelegate;
 
 /**
  * Returns global SDWebImageManager instance.
