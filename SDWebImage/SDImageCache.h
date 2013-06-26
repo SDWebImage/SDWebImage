@@ -154,4 +154,9 @@ typedef enum SDImageCacheType SDImageCacheType;
  */
 - (int)getDiskCount;
 
+/**
+ * Asynchronously calculate the disk cache's size.
+ */
+- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, unsigned long long totalSize))completionBlock;
+
 @end
