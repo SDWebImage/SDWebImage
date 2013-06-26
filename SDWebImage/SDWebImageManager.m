@@ -226,7 +226,7 @@ static SDWebImageManager *instance;
     [value setObject:key forKey:@"key"];
     
     if (!etagRequests)
-        etagRequests = [NSMutableDictionary dictionary];
+        etagRequests = [[NSMutableDictionary alloc] init];
     
     [etagRequests setObject:value forKey:url.absoluteString];
 }
