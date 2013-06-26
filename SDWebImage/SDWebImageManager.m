@@ -30,6 +30,7 @@ static SDWebImageManager *instance;
         cacheURLs = [[NSMutableArray alloc] init];
         downloaderForURL = [[NSMutableDictionary alloc] init];
         failedURLs = [[NSMutableArray alloc] init];
+        etagRequests = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -43,6 +44,7 @@ static SDWebImageManager *instance;
     SDWISafeRelease(cacheURLs);
     SDWISafeRelease(downloaderForURL);
     SDWISafeRelease(failedURLs);
+    SDWISafeRelease(etagRequests);
     SDWISuperDealoc;
 }
 
@@ -225,8 +227,6 @@ static SDWebImageManager *instance;
     [value setObject:info forKey:@"info"];
     [value setObject:key forKey:@"key"];
     
-    if (!etagRequests)
-        etagRequests = [[NSMutableDictionary alloc] init];
     
     [etagRequests setObject:value forKey:url.absoluteString];
 }
