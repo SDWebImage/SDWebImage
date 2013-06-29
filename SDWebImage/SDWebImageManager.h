@@ -40,7 +40,11 @@ typedef enum
      *
      * Use this flag only if you can't make your URLs static with embeded cache busting parameter.
      */
-    SDWebImageRefreshCached = 1 << 4
+    SDWebImageRefreshCached = 1 << 4,
+    /**
+     * Won't set the image to the image view, only cache it and pass it to the finished callback.
+     */
+    SDWebImageDontSetImageWhenFinished = 1 << 5
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);

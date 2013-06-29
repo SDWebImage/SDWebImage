@@ -53,7 +53,7 @@ static char operationKey;
             {
                 __strong UIButton *sself = wself;
                 if (!sself) return;
-                if (image)
+                if (image && !(options & SDWebImageDontSetImageWhenFinished))
                 {
                     [sself setImage:image forState:state];
                 }

@@ -59,7 +59,7 @@ static char operationKey;
             {
                 __strong UIImageView *sself = wself;
                 if (!sself) return;
-                if (image)
+                if (image && !(options & SDWebImageDontSetImageWhenFinished))
                 {
                     sself.image = image;
                     [sself setNeedsLayout];
