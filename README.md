@@ -114,7 +114,7 @@ It's also possible to use the async image downloader independently:
                                                    {
                                                        // progression tracking code
                                                    }
-                                                   completed:^(UIImage *image, NSError *error, BOOL finished)
+                                                   completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
                                                    {
                                                        if (image && finished)
                                                        {
