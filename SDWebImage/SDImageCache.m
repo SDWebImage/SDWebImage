@@ -112,6 +112,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 - (NSString *)cachedFileNameForKey:(NSString *)key
 {
     const char *str = [key UTF8String];
+    if (str == NULL)
+    {
+        str = "";
+    }
     unsigned char r[CC_MD5_DIGEST_LENGTH];
     CC_MD5(str, (CC_LONG)strlen(str), r);
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
