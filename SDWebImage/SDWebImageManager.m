@@ -237,6 +237,7 @@ static SDWebImageManager *instance;
     NSString* urlString = connection.originalRequest.URL.absoluteString;
     
     NSDictionary* params = [etagRequests objectForKey:urlString];
+    SDWIRetain(params);
     [etagRequests removeObjectForKey:urlString];
     
     NSDictionary *info = [params objectForKey:@"info"];
@@ -262,6 +263,7 @@ static SDWebImageManager *instance;
         [[SDImageCache sharedImageCache] removeImageForKey:key fromDisk:YES];
         [self imageCache:[SDImageCache sharedImageCache] didNotFindImageForKey:key userInfo:info];
     }
+    SDWIRelease(params);
 }
 
 #pragma mark SDImageCacheDelegate
