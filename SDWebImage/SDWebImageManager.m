@@ -107,7 +107,13 @@
 
     [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
-        if (operation.isCancelled) return;
+        if (operation.isCancelled) {
+			NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+												 code:NSURLErrorCancelled
+											 userInfo:nil];
+			completedBlock(image, error, cacheType, YES);
+			return;
+		}
 
         if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
