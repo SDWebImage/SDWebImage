@@ -10,6 +10,7 @@
 #import "objc/runtime.h"
 
 static char operationKey;
+static char operationArrayKey;
 
 @implementation UIImageView (WebCache)
 
@@ -82,6 +83,46 @@ static char operationKey;
     }
 }
 
+-(void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs{
+	[self cancelCurrentArrayLoad];
+	__weak UIImageView *wself = self;
+	
+	NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
+	
+	for(NSURL *logoImageURL in arrayOfURLs){
+		id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished){
+			if (!wself) return;
+			void (^block)(void) = ^
+			{
+				__strong UIImageView *sself = wself;
+				[sself stopAnimating];
+				if (!sself) return;
+				if (image)
+				{
+					NSMutableArray *currentImages = [[sself animationImages] mutableCopy];
+					if(!currentImages) currentImages = [[NSMutableArray alloc] init];
+					[currentImages addObject:image];
+					
+					sself.animationImages = currentImages;
+					[sself setNeedsLayout];
+				}
+				[sself startAnimating];
+			};
+			if ([NSThread isMainThread])
+			{
+				block();
+			}
+			else
+			{
+				dispatch_sync(dispatch_get_main_queue(), block);
+			}
+		}];
+		[operationsArray addObject:operation];
+	}
+	
+	objc_setAssociatedObject(self, &operationArrayKey, [NSArray arrayWithArray:operationsArray], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (void)cancelCurrentImageLoad
 {
     // Cancel in progress downloader from queue
@@ -91,6 +132,20 @@ static char operationKey;
         [operation cancel];
         objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+}
+
+- (void)cancelCurrentArrayLoad
+{
+	// Cancel in progress downloader from queue
+	NSArray *operations = objc_getAssociatedObject(self, &operationArrayKey);
+	for(id<SDWebImageOperation> operation in operations){
+		if (operation)
+		{
+			[operation cancel];
+		}
+	}
+	objc_setAssociatedObject(self, &operationArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	
 }
 
 @end
