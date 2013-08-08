@@ -111,7 +111,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock
 {
-    __block SDWebImageDownloaderOperation *blockOperation;
+    __block SDWebImageDownloaderOperation *operation;
     __weak SDWebImageDownloader *wself = self;
 
     [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^
@@ -121,7 +121,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         request.HTTPShouldHandleCookies = NO;
         request.HTTPShouldUsePipelining = YES;
         request.allHTTPHeaderFields = wself.HTTPHeaders;
-        blockOperation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
+        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
@@ -153,17 +153,15 @@ static NSString *const kCompletedCallbackKey = @"completed";
             SDWebImageDownloader *sself = wself;
             [sself removeCallbacksForURL:url];
         }];
-        [wself.downloadQueue addOperation:blockOperation];
+        [wself.downloadQueue addOperation:operation];
         if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder)
         {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
-            [wself.lastAddedOperation addDependency:blockOperation];
-            wself.lastAddedOperation = blockOperation;
+            [wself.lastAddedOperation addDependency:operation];
+            wself.lastAddedOperation = operation;
         }
     }];
 
-    id operation = blockOperation;
-    blockOperation = nil; // break retain cycle
     return operation;
 }
 
