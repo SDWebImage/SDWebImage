@@ -50,7 +50,7 @@ static char operationKey;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
             if (!wself) return;
-            void (^block)(void) = ^
+            dispatch_main_sync_safe(^
             {
                 __strong MKAnnotationView *sself = wself;
                 if (!sself) return;
@@ -62,15 +62,7 @@ static char operationKey;
                 {
                     completedBlock(image, error, cacheType);
                 }
-            };
-            if ([NSThread isMainThread])
-            {
-                block();
-            }
-            else
-            {
-                dispatch_sync(dispatch_get_main_queue(), block);
-            }
+            });
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }

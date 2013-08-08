@@ -56,7 +56,7 @@ static char operationArrayKey;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
             if (!wself) return;
-            void (^block)(void) = ^
+            dispatch_main_sync_safe(^
             {
                 __strong UIImageView *sself = wself;
                 if (!sself) return;
@@ -69,15 +69,7 @@ static char operationArrayKey;
                 {
                     completedBlock(image, error, cacheType);
                 }
-            };
-            if ([NSThread isMainThread])
-            {
-                block();
-            }
-            else
-            {
-                dispatch_sync(dispatch_get_main_queue(), block);
-            }
+            });
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -95,7 +87,7 @@ static char operationArrayKey;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
         {
             if (!wself) return;
-            void (^block)(void) = ^
+            dispatch_main_sync_safe(^
             {
                 __strong UIImageView *sself = wself;
                 [sself stopAnimating];
@@ -112,15 +104,7 @@ static char operationArrayKey;
                     [sself setNeedsLayout];
                 }
                 [sself startAnimating];
-            };
-            if ([NSThread isMainThread])
-            {
-                block();
-            }
-            else
-            {
-                dispatch_sync(dispatch_get_main_queue(), block);
-            }
+            });
         }];
         [operationsArray addObject:operation];
     }

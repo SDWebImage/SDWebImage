@@ -230,7 +230,7 @@
                 UIImage *scaledImage = [self scaledImageForKey:self.request.URL.absoluteString image:image];
                 image = [UIImage decodedImageWithImage:scaledImage];
                 CGImageRelease(partialImageRef);
-                dispatch_async(dispatch_get_main_queue(), ^
+                dispatch_main_sync_safe(^
                 {
                     if (self.completedBlock)
                     {

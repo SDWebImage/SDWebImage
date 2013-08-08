@@ -163,7 +163,7 @@
                         {
                             UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
-                            dispatch_async(dispatch_get_main_queue(), ^
+                            dispatch_main_sync_safe(^
                             {
                                 completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
                             });
