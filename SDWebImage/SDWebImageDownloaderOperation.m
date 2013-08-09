@@ -71,7 +71,9 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
 
         // Make sure to run the runloop in our background thread so it can process downloaded data
-        CFRunLoopRun();
+        // Note: we use a timeout to work around an issue with NSURLConnection cancel under iOS 5
+        //       not waking up the runloop, leading to dead threads (see https://github.com/rs/SDWebImage/issues/466)
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, false);
     }
     else
     {
