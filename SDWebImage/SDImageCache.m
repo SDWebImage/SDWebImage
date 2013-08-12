@@ -251,14 +251,16 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return SDScaledImageForKey(key, image);
 }
 
-- (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
-    if (!doneBlock) return;
+    NSOperation *operation = NSOperation.new;
+    
+    if (!doneBlock) return nil;
 
     if (!key)
     {
         doneBlock(nil, SDImageCacheTypeNone);
-        return;
+        return nil;
     }
 
     // First check the in-memory cache...
@@ -266,11 +268,16 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     if (image)
     {
         doneBlock(image, SDImageCacheTypeMemory);
-        return;
+        return nil;
     }
 
     dispatch_async(self.ioQueue, ^
     {
+        if (operation.isCancelled)
+        {
+            return;
+        }
+        
         @autoreleasepool
         {
             UIImage *diskImage = [self diskImageForKey:key];
@@ -286,6 +293,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             });
         }
     });
+    
+    return operation;
 }
 
 - (void)removeImageForKey:(NSString *)key

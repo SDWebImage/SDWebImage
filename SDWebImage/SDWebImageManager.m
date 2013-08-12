@@ -14,6 +14,7 @@
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
 @property (copy, nonatomic) void (^cancelBlock)();
+@property (strong, nonatomic) NSOperation *cacheOperation;
 
 @end
 
@@ -108,9 +109,17 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
-        if (operation.isCancelled) return;
+        if (operation.isCancelled)
+        {
+            @synchronized(self.runningOperations)
+            {
+                [self.runningOperations removeObject:operation];
+            }
+
+            return;
+        }
 
         if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
@@ -138,7 +147,7 @@
             }
             id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
             {                
-                if (weakOperation.cancelled)
+                if (weakOperation.isCancelled)
                 {
                     dispatch_main_sync_safe(^
                     {
@@ -272,6 +281,11 @@
 - (void)cancel
 {
     self.cancelled = YES;
+    if (self.cacheOperation)
+    {
+        [self.cacheOperation cancel];
+        self.cacheOperation = nil;
+    }
     if (self.cancelBlock)
     {
         self.cancelBlock();
