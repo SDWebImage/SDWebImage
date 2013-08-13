@@ -208,7 +208,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     {
         callbacksForURL = self.URLCallbacks[url];
     });
-    return callbacksForURL;
+    return [callbacksForURL copy];
 }
 
 - (void)removeCallbacksForURL:(NSURL *)url
