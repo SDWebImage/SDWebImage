@@ -67,6 +67,10 @@
 		5376131E155AD0D5005750A4 /* SDWebImagePrefetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D91148C56230056699D /* SDWebImagePrefetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5376131F155AD0D5005750A4 /* UIButton+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D93148C56230056699D /* UIButton+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53761320155AD0D5005750A4 /* UIImageView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D95148C56230056699D /* UIImageView+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53E481DD17C300F6003E8957 /* alpha_processing.c in Sources */ = {isa = PBXBuildFile; fileRef = 53E481DB17C300F6003E8957 /* alpha_processing.c */; };
+		53E481DE17C300F6003E8957 /* alpha_processing.c in Sources */ = {isa = PBXBuildFile; fileRef = 53E481DB17C300F6003E8957 /* alpha_processing.c */; };
+		53E481DF17C300F6003E8957 /* alpha_processing.h in Headers */ = {isa = PBXBuildFile; fileRef = 53E481DC17C300F6003E8957 /* alpha_processing.h */; };
+		53E481E017C300F6003E8957 /* alpha_processing.h in Headers */ = {isa = PBXBuildFile; fileRef = 53E481DC17C300F6003E8957 /* alpha_processing.h */; };
 		53EDFB8A17623F7C00698166 /* UIImage+MultiFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 53EDFB8817623F7C00698166 /* UIImage+MultiFormat.h */; };
 		53EDFB8B17623F7C00698166 /* UIImage+MultiFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 53EDFB8817623F7C00698166 /* UIImage+MultiFormat.h */; };
 		53EDFB8C17623F7C00698166 /* UIImage+MultiFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 53EDFB8917623F7C00698166 /* UIImage+MultiFormat.m */; };
@@ -196,6 +200,8 @@
 		53922D94148C56230056699D /* UIButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIButton+WebCache.m"; path = "SDWebImage/UIButton+WebCache.m"; sourceTree = SOURCE_ROOT; };
 		53922D95148C56230056699D /* UIImageView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+WebCache.h"; path = "SDWebImage/UIImageView+WebCache.h"; sourceTree = SOURCE_ROOT; };
 		53922D96148C56230056699D /* UIImageView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+WebCache.m"; path = "SDWebImage/UIImageView+WebCache.m"; sourceTree = SOURCE_ROOT; };
+		53E481DB17C300F6003E8957 /* alpha_processing.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alpha_processing.c; path = Vendors/libwebp/src/utils/alpha_processing.c; sourceTree = "<group>"; };
+		53E481DC17C300F6003E8957 /* alpha_processing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alpha_processing.h; path = Vendors/libwebp/src/utils/alpha_processing.h; sourceTree = "<group>"; };
 		53EDFB8817623F7C00698166 /* UIImage+MultiFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MultiFormat.h"; sourceTree = "<group>"; };
 		53EDFB8917623F7C00698166 /* UIImage+MultiFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MultiFormat.m"; sourceTree = "<group>"; };
 		53EDFB911762547C00698166 /* UIImage+WebP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+WebP.h"; sourceTree = "<group>"; };
@@ -372,7 +378,7 @@
 			isa = PBXGroup;
 			children = (
 				53EDFCB617625D1200698166 /* dsp */,
-				53EDFCA317625C4600698166 /* util */,
+				53EDFCA317625C4600698166 /* utils */,
 				53EDFCA217625C3C00698166 /* dec */,
 			);
 			name = WebP;
@@ -397,9 +403,11 @@
 			name = dec;
 			sourceTree = "<group>";
 		};
-		53EDFCA317625C4600698166 /* util */ = {
+		53EDFCA317625C4600698166 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				53E481DB17C300F6003E8957 /* alpha_processing.c */,
+				53E481DC17C300F6003E8957 /* alpha_processing.h */,
 				53EDFCFF17625F7900698166 /* thread.h */,
 				53EDFD0017625F7900698166 /* thread.c */,
 				53EDFCF917625F5F00698166 /* filters.h */,
@@ -417,7 +425,7 @@
 				53EDFCA417625C5B00698166 /* huffman.h */,
 				53EDFCA517625C5B00698166 /* huffman.c */,
 			);
-			name = util;
+			name = utils;
 			sourceTree = "<group>";
 		};
 		53EDFCB617625D1200698166 /* dsp */ = {
@@ -458,6 +466,7 @@
 				A18A6CC8172DC28500419892 /* UIImage+GIF.h in Headers */,
 				A18A6CCE172DC33A00419892 /* NSData+GIF.h in Headers */,
 				53EDFB8B17623F7C00698166 /* UIImage+MultiFormat.h in Headers */,
+				53E481E017C300F6003E8957 /* alpha_processing.h in Headers */,
 				53EDFB941762547D00698166 /* UIImage+WebP.h in Headers */,
 				53EDFC9317625BE300698166 /* webpi.h in Headers */,
 				53EDFC9B17625C1100698166 /* vp8li.h in Headers */,
@@ -503,6 +512,7 @@
 				53EDFCC517625DB200698166 /* bit_reader.h in Headers */,
 				53EDFCCB17625DD700698166 /* color_cache.h in Headers */,
 				53EDFCD117625DFA00698166 /* lossless.h in Headers */,
+				53E481DF17C300F6003E8957 /* alpha_processing.h in Headers */,
 				53EDFCE317625EB100698166 /* yuv.h in Headers */,
 				53EDFCEF17625F1D00698166 /* rescaler.h in Headers */,
 				53EDFCF517625F4100698166 /* utils.h in Headers */,
@@ -638,6 +648,7 @@
 				53EDFCC217625D8400698166 /* cpu.c in Sources */,
 				53EDFCC817625DB200698166 /* bit_reader.c in Sources */,
 				53EDFCCE17625DD700698166 /* color_cache.c in Sources */,
+				53E481DE17C300F6003E8957 /* alpha_processing.c in Sources */,
 				53EDFCD417625DFA00698166 /* lossless.c in Sources */,
 				53EDFCD717625E1A00698166 /* tree.c in Sources */,
 				53EDFCDA17625E3000698166 /* quant.c in Sources */,
@@ -682,6 +693,7 @@
 				53EDFCC117625D8400698166 /* cpu.c in Sources */,
 				53EDFCC717625DB200698166 /* bit_reader.c in Sources */,
 				53EDFCCD17625DD700698166 /* color_cache.c in Sources */,
+				53E481DD17C300F6003E8957 /* alpha_processing.c in Sources */,
 				53EDFCD317625DFA00698166 /* lossless.c in Sources */,
 				53EDFCD617625E1A00698166 /* tree.c in Sources */,
 				53EDFCD917625E3000698166 /* quant.c in Sources */,
@@ -806,7 +818,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
-                                        "SD_WEBP=1",
+					"SD_WEBP=1",
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
