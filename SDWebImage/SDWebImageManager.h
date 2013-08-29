@@ -142,7 +142,9 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * @param progressBlock A block called while image is downloading
  * @param completedBlock A block called when operation has been completed.
  *
- *   This block as no return value and takes the requested UIImage as first parameter.
+ *   This parameter is required.
+ * 
+ *   This block has no return value and takes the requested UIImage as first parameter.
  *   In case of error the image parameter is nil and the second parameter may contain an NSError.
  *
  *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrived from the local cache
