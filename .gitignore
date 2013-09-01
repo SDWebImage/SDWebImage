@@ -1,5 +1,9 @@
 .DS_Store
 
+*.a
+SDWebImageBinding/SDWebImage/bin
+SDWebImageBinding/SDWebImage/obj
+
 # Xcode
 build/*
 *.pbxuser
