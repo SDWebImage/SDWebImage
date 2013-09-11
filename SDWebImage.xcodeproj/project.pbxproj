@@ -163,6 +163,7 @@
 		A18A6CCE172DC33A00419892 /* NSData+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CCB172DC33A00419892 /* NSData+GIF.h */; };
 		A18A6CCF172DC33A00419892 /* NSData+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CCC172DC33A00419892 /* NSData+GIF.m */; };
 		A18A6CD0172DC33A00419892 /* NSData+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CCC172DC33A00419892 /* NSData+GIF.m */; };
+		AEDF94CD17E0AF0E00B87494 /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5340674F167780C40042B59E /* SDWebImageCompat.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -623,6 +624,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEDF94CD17E0AF0E00B87494 /* SDWebImageCompat.m in Sources */,
 				531041C4157EAFA400BBABC3 /* SDImageCache.m in Sources */,
 				531041C5157EAFA400BBABC3 /* SDWebImageDecoder.m in Sources */,
 				531041C6157EAFA400BBABC3 /* SDWebImageDownloader.m in Sources */,
