@@ -62,7 +62,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
 
-        dispatch_sync(_ioQueue, ^{
+        dispatch_sync(_ioQueue, ^
+        {
             _fileManager = NSFileManager.new;
         });
         
@@ -190,10 +191,11 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
-- (BOOL)diskImageExistsWithKey:(NSString *)key {
-    
+- (BOOL)diskImageExistsWithKey:(NSString *)key
+{
     __block BOOL exists = NO;
-    dispatch_sync(_ioQueue, ^{
+    dispatch_sync(_ioQueue, ^
+    {
         exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
     });
     

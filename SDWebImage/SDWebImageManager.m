@@ -66,7 +66,8 @@
     }
 }
 
-- (BOOL)diskImageExistsForURL:(NSURL *)url {
+- (BOOL)diskImageExistsForURL:(NSURL *)url
+{
     NSString *key = [self cacheKeyForURL:url];
     return [self.imageCache diskImageExistsWithKey:key];
 }
