@@ -20,6 +20,9 @@ It provides:
 NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.0
 minimum deployement version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
+NOTE: If you are using CocoaPods with the latest spec, archiving will fail when building in XCode5GM with a 64bit architechture because of a broken libwebp library. 
+To get builds working again downgrade your Podfile `pod 'SDWebImage', '3.2'`
+
 [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 
 Who Use It
