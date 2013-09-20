@@ -159,4 +159,9 @@ typedef enum SDImageCacheType SDImageCacheType;
  */
 - (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, unsigned long long totalSize))completionBlock;
 
+/**
+ * Check if image exists in cache already
+ */
+- (BOOL)diskImageExistsWithKey:(NSString *)key;
+
 @end
