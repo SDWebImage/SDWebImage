@@ -234,6 +234,9 @@
         {
             completionBlock(nil, nil, nil, YES);
         }
+        else if ( self.imageData.length != self.expectedSize ) {
+            completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image does not match expected size"}], YES);
+        }
         else
         {
             
