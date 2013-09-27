@@ -206,9 +206,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
     __block NSArray *callbacksForURL;
     dispatch_sync(self.barrierQueue, ^
     {
-        callbacksForURL = self.URLCallbacks[url];
+        callbacksForURL = [self.URLCallbacks[url] copy];
     });
-    return [callbacksForURL copy];
+    return callbacksForURL;
 }
 
 - (void)removeCallbacksForURL:(NSURL *)url
