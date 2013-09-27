@@ -11,6 +11,8 @@
 #import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 
+#define MAX_IMAGE_SIZE      20 // MB
+
 @interface SDWebImageDownloaderOperation ()
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
@@ -112,13 +114,28 @@
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
         NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-        self.expectedSize = expected;
-        if (self.progressBlock)
-        {
-            self.progressBlock(0, expected);
-        }
         
-        self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+        if ( expected > 1024*1024*MAX_IMAGE_SIZE ) {
+            [self.connection cancel];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            
+            if (self.completedBlock)
+            {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Specified image exceeds maximum file size (%f > %d MB)", expected/(1024*1024.0), MAX_IMAGE_SIZE]}], YES);
+            }
+            
+            [self finishedOperation];
+
+        } else {
+            self.expectedSize = expected;
+            if (self.progressBlock)
+            {
+                self.progressBlock(0, expected);
+            }
+            
+            self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+        }
     }
     else
     {
