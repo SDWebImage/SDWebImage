@@ -11,14 +11,14 @@
 #import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 
+#define MAX_IMAGE_SIZE      20 // MB
+
 @interface SDWebImageDownloaderOperation ()
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
 @property (copy, nonatomic) void (^cancelBlock)();
 
-@property (assign, nonatomic, getter = isExecuting) BOOL executing;
-@property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (assign, nonatomic) long long expectedSize;
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
@@ -40,28 +40,20 @@
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
         _cancelBlock = [cancelBlock copy];
-        _executing = NO;
-        _finished = NO;
         _expectedSize = 0;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
     }
     return self;
 }
 
-- (void)start
+- (void)main
 {
-    if (self.isCancelled)
-    {
-        self.finished = YES;
-        [self reset];
+    if (self.isCancelled) {
         return;
     }
-
-    self.executing = YES;
+    
     self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
-
-    [self.connection start];
-
+    
     if (self.connection)
     {
         if (self.progressBlock)
@@ -69,7 +61,10 @@
             self.progressBlock(0, -1);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
-
+        
+        [self.connection start];
+        
+        // wait until we are finished downloading
         if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1)
         {
             // Make sure to run the runloop in our background thread so it can process downloaded data
@@ -81,12 +76,8 @@
         {
             CFRunLoopRun();
         }
-
-        if (!self.isFinished)
-        {
-            [self.connection cancel];
-            [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey: self.request.URL}]];
-        }
+        
+        self.connection = nil;
     }
     else
     {
@@ -102,54 +93,18 @@
     if (self.isFinished) return;
     [super cancel];
     if (self.cancelBlock) self.cancelBlock();
-
+    
     if (self.connection)
     {
         [self.connection cancel];
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-
-        // As we cancelled the connection, its callback won't be called and thus won't
-        // maintain the isFinished and isExecuting flags.
-        if (self.isExecuting) self.executing = NO;
-        if (!self.isFinished) self.finished = YES;
     }
-
-    [self reset];
+    
+    [self finishedOperation];
 }
 
-- (void)done
-{
-    self.finished = YES;
-    self.executing = NO;
-    [self reset];
-}
-
-- (void)reset
-{
-    self.cancelBlock = nil;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connection = nil;
-    self.imageData = nil;
-}
-
-- (void)setFinished:(BOOL)finished
-{
-    [self willChangeValueForKey:@"isFinished"];
-    _finished = finished;
-    [self didChangeValueForKey:@"isFinished"];
-}
-
-- (void)setExecuting:(BOOL)executing
-{
-    [self willChangeValueForKey:@"isExecuting"];
-    _executing = executing;
-    [self didChangeValueForKey:@"isExecuting"];
-}
-
-- (BOOL)isConcurrent
-{
-    return YES;
+-(void) finishedOperation {
+    CFRunLoopStop(CFRunLoopGetCurrent());
 }
 
 #pragma mark NSURLConnection (delegate)
@@ -159,45 +114,60 @@
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
         NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
-        self.expectedSize = expected;
-        if (self.progressBlock)
-        {
-            self.progressBlock(0, expected);
-        }
+        
+        if ( expected > 1024*1024*MAX_IMAGE_SIZE ) {
+            [self.connection cancel];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            
+            if (self.completedBlock)
+            {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Specified image exceeds maximum file size (%f > %d MB)", expected/(1024*1024.0), MAX_IMAGE_SIZE]}], YES);
+            }
+            
+            [self finishedOperation];
 
-        self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+        } else {
+            self.expectedSize = expected;
+            if (self.progressBlock)
+            {
+                self.progressBlock(0, expected);
+            }
+            
+            self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+        }
     }
     else
     {
         [self.connection cancel];
-
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
+        
         if (self.completedBlock)
         {
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
-
-        [self done];
+        
+        [self finishedOperation];
     }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     [self.imageData appendData:data];
-
+    
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock)
     {
         // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
         // Thanks to the author @Nyx0uf
-
+        
         // Get the total bytes downloaded
         const NSUInteger totalSize = self.imageData.length;
-
+        
         // Update the data source, we must pass ALL the data, not just the new bytes
         CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
         CGImageSourceUpdateData(imageSource, (__bridge  CFDataRef)self.imageData, totalSize == self.expectedSize);
-
+        
         if (width + height == 0)
         {
             CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
@@ -210,12 +180,12 @@
                 CFRelease(properties);
             }
         }
-
+        
         if (width + height > 0 && totalSize < self.expectedSize)
         {
             // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
-
+            
 #ifdef TARGET_OS_IPHONE
             // Workaround for iOS anamorphic image
             if (partialImageRef)
@@ -238,7 +208,7 @@
                 }
             }
 #endif
-
+            
             if (partialImageRef)
             {
                 UIImage *image = [UIImage imageWithCGImage:partialImageRef];
@@ -246,15 +216,15 @@
                 image = [UIImage decodedImageWithImage:scaledImage];
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^
-                {
-                    if (self.completedBlock)
-                    {
-                        self.completedBlock(image, nil, nil, NO);
-                    }
-                });
+                                        {
+                                            if (self.completedBlock)
+                                            {
+                                                self.completedBlock(image, nil, nil, NO);
+                                            }
+                                        });
             }
         }
-
+        
         CFRelease(imageSource);
     }
     
@@ -271,20 +241,18 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {
-    CFRunLoopStop(CFRunLoopGetCurrent());
-    self.connection = nil;
-
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
+    
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-
+    
     if (completionBlock)
     {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached)
         {
             completionBlock(nil, nil, nil, YES);
-            self.completionBlock = nil;
-            [self done];
+        }
+        else if ( self.imageData.length != self.expectedSize ) {
+            completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image does not match expected size"}], YES);
         }
         else
         {
@@ -306,27 +274,22 @@
             {
                 completionBlock(image, self.imageData, nil, YES);
             }
-            self.completionBlock = nil;
-            [self done];
         }
     }
-    else
-    {
-        [self done];
-    }
+    
+    [self finishedOperation];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    CFRunLoopStop(CFRunLoopGetCurrent());
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
+    
     if (self.completedBlock)
     {
         self.completedBlock(nil, nil, error, YES);
     }
-
-    [self done];
+    
+    [self finishedOperation];
 }
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
