@@ -140,6 +140,11 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (void)clearDisk;
 
 /**
+ * Clear all disk cached images in sync mode
+ */
+- (BOOL)syncClearDisk;
+
+/**
  * Remove all expired cached image from disk
  */
 - (void)cleanDisk;

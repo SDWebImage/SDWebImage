@@ -355,82 +355,110 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     });
 }
 
-- (void)cleanDisk
+- (BOOL)syncClearDisk
 {
-    dispatch_async(self.ioQueue, ^
+    __block BOOL success = NO;
+    dispatch_sync(self.ioQueue, ^
     {
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
-        NSArray *resourceKeys = @[ NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey ];
+        success = [[NSFileManager defaultManager] removeItemAtPath:self.diskCachePath error:nil];
+        [[NSFileManager defaultManager] createDirectoryAtPath:self.diskCachePath
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:NULL];
+    });
+    return success;
+}
 
-        // This enumerator prefetches useful properties for our cache files.
-        NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
-                                                  includingPropertiesForKeys:resourceKeys
-                                                                     options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                errorHandler:NULL];
-
-        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
-        NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];
-        unsigned long long currentCacheSize = 0;
-
-        // Enumerate all of the files in the cache directory.  This loop has two purposes:
-        //
-        //  1. Removing files that are older than the expiration date.
-        //  2. Storing file attributes for the size-based cleanup pass.
-        for (NSURL *fileURL in fileEnumerator)
+- (void)doCleanDisk
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
+    NSArray *resourceKeys = @[ NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey ];
+    
+    // This enumerator prefetches useful properties for our cache files.
+    NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
+                                              includingPropertiesForKeys:resourceKeys
+                                                                 options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                            errorHandler:NULL];
+    
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
+    NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];
+    unsigned long long currentCacheSize = 0;
+    
+    // Enumerate all of the files in the cache directory.  This loop has two purposes:
+    //
+    //  1. Removing files that are older than the expiration date.
+    //  2. Storing file attributes for the size-based cleanup pass.
+    for (NSURL *fileURL in fileEnumerator)
+    {
+        NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
+        
+        // Skip directories.
+        if ([resourceValues[NSURLIsDirectoryKey] boolValue])
         {
-            NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
-
-            // Skip directories.
-            if ([resourceValues[NSURLIsDirectoryKey] boolValue])
-            {
-                continue;
-            }
-
-            // Remove files that are older than the expiration date;
-            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
-            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate])
-            {
-                [fileManager removeItemAtURL:fileURL error:nil];
-                continue;
-            }
-
-            // Store a reference to this file and account for its total size.
-            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-            currentCacheSize += [totalAllocatedSize unsignedLongLongValue];
-            [cacheFiles setObject:resourceValues forKey:fileURL];
+            continue;
         }
-
-        // If our remaining disk cache exceeds a configured maximum size, perform a second
-        // size-based cleanup pass.  We delete the oldest files first.
-        if (self.maxCacheSize > 0 && currentCacheSize > self.maxCacheSize)
+        
+        // Remove files that are older than the expiration date;
+        NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
+        if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate])
         {
-            // Target half of our maximum cache size for this cleanup pass.
-            const unsigned long long desiredCacheSize = self.maxCacheSize / 2;
-
-            // Sort the remaining cache files by their last modification time (oldest first).
-            NSArray *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
-                                                            usingComparator:^NSComparisonResult(id obj1, id obj2)
+            [fileManager removeItemAtURL:fileURL error:nil];
+            continue;
+        }
+        
+        // Store a reference to this file and account for its total size.
+        NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
+        currentCacheSize += [totalAllocatedSize unsignedLongLongValue];
+        [cacheFiles setObject:resourceValues forKey:fileURL];
+    }
+    
+    // If our remaining disk cache exceeds a configured maximum size, perform a second
+    // size-based cleanup pass.  We delete the oldest files first.
+    if (self.maxCacheSize > 0 && currentCacheSize > self.maxCacheSize)
+    {
+        // Target half of our maximum cache size for this cleanup pass.
+        const unsigned long long desiredCacheSize = self.maxCacheSize / 2;
+        
+        // Sort the remaining cache files by their last modification time (oldest first).
+        NSArray *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
+                                                        usingComparator:^NSComparisonResult(id obj1, id obj2)
+                                {
+                                    return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];
+                                }];
+        
+        // Delete files until we fall below our desired cache size.
+        for (NSURL *fileURL in sortedFiles)
+        {
+            if ([fileManager removeItemAtURL:fileURL error:nil])
             {
-                return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];
-            }];
-
-            // Delete files until we fall below our desired cache size.
-            for (NSURL *fileURL in sortedFiles)
-            {
-                if ([fileManager removeItemAtURL:fileURL error:nil])
+                NSDictionary *resourceValues = cacheFiles[fileURL];
+                NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
+                currentCacheSize -= [totalAllocatedSize unsignedLongLongValue];
+                
+                if (currentCacheSize < desiredCacheSize)
                 {
-                    NSDictionary *resourceValues = cacheFiles[fileURL];
-                    NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-                    currentCacheSize -= [totalAllocatedSize unsignedLongLongValue];
-
-                    if (currentCacheSize < desiredCacheSize)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
         }
+    }
+}
+
+- (void)asyncCleanDiskWithCompletion:(dispatch_block_t)completion
+{
+    dispatch_async(self.ioQueue, ^
+    {
+        [self doCleanDisk];
+        dispatch_async(dispatch_get_main_queue(), completion);
+    });
+}
+
+- (void)cleanDisk
+{
+    dispatch_sync(self.ioQueue, ^
+    {
+        [self doCleanDisk];
     });
 }
 
@@ -446,11 +474,9 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     }];
     
     // Start the long-running task and return immediately.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
+    dispatch_async(self.ioQueue, ^
     {
-        // Do the work associated with the task, preferably in chunks.
-        [self cleanDisk];
-        
+        [self doCleanDisk];
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
     });
