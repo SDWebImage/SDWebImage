@@ -212,7 +212,7 @@
 		535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "MKAnnotationView+WebCache.h"; path = "SDWebImage/MKAnnotationView+WebCache.h"; sourceTree = SOURCE_ROOT; };
 		535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "MKAnnotationView+WebCache.m"; path = "SDWebImage/MKAnnotationView+WebCache.m"; sourceTree = SOURCE_ROOT; };
 		53761325155AD0D5005750A4 /* libSDWebImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSDWebImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		537D95C117ECC1FE0097C263 /* libSDWebImage copy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSDWebImage copy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		537D95C117ECC1FE0097C263 /* libSDWebImage+WebP.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSDWebImage+WebP.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53922D72148C55820056699D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		53922D85148C56230056699D /* SDImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDImageCache.h; path = SDWebImage/SDImageCache.h; sourceTree = SOURCE_ROOT; };
 		53922D86148C56230056699D /* SDImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDImageCache.m; path = SDWebImage/SDImageCache.m; sourceTree = SOURCE_ROOT; };
@@ -330,7 +330,7 @@
 			children = (
 				53761325155AD0D5005750A4 /* libSDWebImage.a */,
 				531041E0157EAFA400BBABC3 /* libSDWebImage+MKAnnotation.a */,
-				537D95C117ECC1FE0097C263 /* libSDWebImage copy.a */,
+				537D95C117ECC1FE0097C263 /* libSDWebImage+WebP.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -634,7 +634,7 @@
 			);
 			name = "SDWebImage+WebP";
 			productName = SDWebImage;
-			productReference = 537D95C117ECC1FE0097C263 /* libSDWebImage copy.a */;
+			productReference = 537D95C117ECC1FE0097C263 /* libSDWebImage+WebP.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -936,7 +936,7 @@
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "SDWebImage copy";
+				PRODUCT_NAME = "SDWebImage+WebP";
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 			};
@@ -958,7 +958,7 @@
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "SDWebImage copy";
+				PRODUCT_NAME = "SDWebImage+WebP";
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 			};
