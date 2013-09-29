@@ -89,6 +89,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return self;
 }
 
+- (void)setMemCacheCountLimit:(NSUInteger)countLimit {
+    [_memCache setCountLimit:countLimit];
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
