@@ -57,6 +57,11 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (id)initWithNamespace:(NSString *)ns;
 
 /**
+ * Limit the maximum count of the memory cache.
+ */
+- (void)setMemCacheCountLimit:(NSUInteger)countLimit;
+
+/**
  * Add a read-only cache path to search for images pre-cached by SDImageCache
  * Useful if you want to bundle pre-loaded images with your app
  *
@@ -138,6 +143,11 @@ typedef enum SDImageCacheType SDImageCacheType;
  * Clear all disk cached images
  */
 - (void)clearDisk;
+
+/**
+ * Clear all disk cached images in sync mode
+ */
+- (BOOL)syncClearDisk;
 
 /**
  * Remove all expired cached image from disk
