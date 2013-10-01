@@ -58,12 +58,11 @@ static char operationArrayKey;
             if (!wself) return;
             dispatch_main_sync_safe(^
             {
-                __strong UIImageView *sself = wself;
-                if (!sself) return;
+                if (!wself) return;
                 if (image)
                 {
-                    sself.image = image;
-                    [sself setNeedsLayout];
+                    wself.image = image;
+                    [wself setNeedsLayout];
                 }
                 if (completedBlock && finished)
                 {
