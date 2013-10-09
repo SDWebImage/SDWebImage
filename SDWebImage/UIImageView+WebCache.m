@@ -112,6 +112,68 @@ static char operationArrayKey;
     objc_setAssociatedObject(self, &operationArrayKey, [NSArray arrayWithArray:operationsArray], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageBatchProgressBlock)progressBlock completed:(SDWebImageBatchCompletedBlock)completedBlock
+{
+    [self cancelCurrentArrayLoad];
+    __weak UIImageView *wself = self;
+    __block NSUInteger completedDownloads = 0;
+    __block NSError *errorDuringBatchDownload = nil;
+    
+    NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
+    
+    [self stopAnimating];
+    self.image = placeholder;
+    self.animationImages = nil;
+    
+    for (NSURL *logoImageURL in arrayOfURLs)
+    {
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:logoImageURL options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+        {
+            if (!wself) return;
+            dispatch_main_sync_safe(^
+            {
+                completedDownloads++;
+                
+                __strong UIImageView *sself = wself;
+                NSMutableArray *currentImages = [[sself animationImages] mutableCopy];
+                if (sself && image)
+                {
+                    if (!currentImages)
+                    {
+                        currentImages = [[NSMutableArray alloc] init];
+                    }
+                    [currentImages addObject:image];
+
+                    sself.animationImages = currentImages;
+                    [sself setNeedsLayout];
+                }
+                
+                if (progressBlock)
+                {
+                    progressBlock(image, completedDownloads, arrayOfURLs.count, currentImages, error);
+                }
+                
+                if (error && !errorDuringBatchDownload)
+                {
+                    errorDuringBatchDownload = error;
+                }
+                
+                if (completedDownloads == arrayOfURLs.count)
+                {
+                    self.animationImages = currentImages;
+                    if (completedBlock)
+                    {
+                        completedBlock(currentImages, errorDuringBatchDownload);
+                    }
+                }
+            });
+        }];
+        [operationsArray addObject:operation];
+    }
+    
+    objc_setAssociatedObject(self, &operationArrayKey, [NSArray arrayWithArray:operationsArray], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (void)cancelCurrentImageLoad
 {
     // Cancel in progress downloader from queue

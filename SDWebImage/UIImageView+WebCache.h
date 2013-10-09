@@ -43,6 +43,10 @@
 
  * @endcode
  */
+
+typedef void(^SDWebImageBatchProgressBlock)(UIImage *image, int index, int total, NSArray *currentImages, NSError *error);
+typedef void(^SDWebImageBatchCompletedBlock)(NSArray *images, NSError *error);
+
 @interface UIImageView (WebCache)
 
 /**
@@ -139,7 +143,19 @@
  *
  *@param arrayOfURLs An array of NSURL
  */
--(void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+
+/**
+ * Download an array of images and starts them in an animation loop
+ *
+ * @param arrayOfURLs An array of NSURL
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param progressBlock A block called as photos are downloaded
+ * @param completionBlock A block called when operation has been completed
+ */
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageBatchProgressBlock)progressBlock completed:(SDWebImageBatchCompletedBlock)completedBlock;
+
 
 /**
  * Cancel the current download
