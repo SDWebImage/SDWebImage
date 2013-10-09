@@ -51,7 +51,7 @@ typedef enum
     SDWebImageLocalAssetSizeThumnailAspect = 1 << 5,
     SDWebImageLocalAssetSizeThumnailSquare = 1 << 6,
     SDWebImageLocalAssetSizeFullscreenAspect = 1 << 7,
-    SDWebImageLocalAssetSizeOriginal = 1 << 8,
+    SDWebImageLocalAssetSizeOriginal = 1 << 8
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
