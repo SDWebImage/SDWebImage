@@ -163,8 +163,8 @@
 		A18A6CCE172DC33A00419892 /* NSData+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CCB172DC33A00419892 /* NSData+GIF.h */; };
 		A18A6CCF172DC33A00419892 /* NSData+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CCC172DC33A00419892 /* NSData+GIF.m */; };
 		A18A6CD0172DC33A00419892 /* NSData+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CCC172DC33A00419892 /* NSData+GIF.m */; };
-		F610E1A81805D98F001AB7F0 /* SDWebImageLocalAssetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = F610E1A61805D98F001AB7F0 /* SDWebImageLocalAssetOperation.h */; };
-		F610E1A91805D98F001AB7F0 /* SDWebImageLocalAssetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F610E1A71805D98F001AB7F0 /* SDWebImageLocalAssetOperation.m */; };
+		F610E1AC1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = F610E1AA1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.h */; };
+		F610E1AD1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = F610E1AB1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -252,8 +252,8 @@
 		A18A6CC6172DC28500419892 /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
 		A18A6CCB172DC33A00419892 /* NSData+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+GIF.h"; sourceTree = "<group>"; };
 		A18A6CCC172DC33A00419892 /* NSData+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+GIF.m"; sourceTree = "<group>"; };
-		F610E1A61805D98F001AB7F0 /* SDWebImageLocalAssetOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageLocalAssetOperation.h; sourceTree = "<group>"; };
-		F610E1A71805D98F001AB7F0 /* SDWebImageLocalAssetOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageLocalAssetOperation.m; sourceTree = "<group>"; };
+		F610E1AA1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageLocalAssetOperation.h; sourceTree = "<group>"; };
+		F610E1AB1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageLocalAssetOperation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -357,8 +357,8 @@
 		53922DAB148C56810056699D /* Downloader */ = {
 			isa = PBXGroup;
 			children = (
-				F610E1A61805D98F001AB7F0 /* SDWebImageLocalAssetOperation.h */,
-				F610E1A71805D98F001AB7F0 /* SDWebImageLocalAssetOperation.m */,
+				F610E1AA1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.h */,
+				F610E1AB1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.m */,
 				53922D8B148C56230056699D /* SDWebImageDownloader.h */,
 				53922D8C148C56230056699D /* SDWebImageDownloader.m */,
 				530E49E316460AE2002868E7 /* SDWebImageDownloaderOperation.h */,
@@ -508,7 +508,7 @@
 				A18A6CC7172DC28500419892 /* UIImage+GIF.h in Headers */,
 				A18A6CCD172DC33A00419892 /* NSData+GIF.h in Headers */,
 				53EDFB8A17623F7C00698166 /* UIImage+MultiFormat.h in Headers */,
-				F610E1A81805D98F001AB7F0 /* SDWebImageLocalAssetOperation.h in Headers */,
+				F610E1AC1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.h in Headers */,
 				53EDFB931762547D00698166 /* UIImage+WebP.h in Headers */,
 				53EDFC9217625BE300698166 /* webpi.h in Headers */,
 				53EDFC9A17625C1100698166 /* vp8li.h in Headers */,
@@ -697,7 +697,7 @@
 				53EDFCB417625CD800698166 /* quant_levels_dec.c in Sources */,
 				53EDFCBB17625D1900698166 /* dec.c in Sources */,
 				53EDFCBE17625D3F00698166 /* dec_sse2.c in Sources */,
-				F610E1A91805D98F001AB7F0 /* SDWebImageLocalAssetOperation.m in Sources */,
+				F610E1AD1805DA1C001AB7F0 /* SDWebImageLocalAssetOperation.m in Sources */,
 				53EDFCC117625D8400698166 /* cpu.c in Sources */,
 				53EDFCC717625DB200698166 /* bit_reader.c in Sources */,
 				53EDFCCD17625DD700698166 /* color_cache.c in Sources */,
