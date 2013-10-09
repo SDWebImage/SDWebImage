@@ -54,21 +54,47 @@
     return [SDImageCache sharedImageCache];
 }
 
-- (NSString *)cacheKeyForURL:(NSURL *)url
+- (NSString *)cacheKeyForURL:(NSURL *)url options:(SDWebImageOptions)options
 {
-    if (self.cacheKeyFilter)
+    if ([SDWebImageManager urlIsLocalAsset:url])
     {
-        return self.cacheKeyFilter(url);
+        NSString *key = url.absoluteString;
+        
+        if (options & SDWebImageLocalAssetSizeThumnailSquare)
+        {
+            key = [key stringByAppendingString:@"thumb_square"];
+        }
+        else if (options & SDWebImageLocalAssetSizeFullscreenAspect)
+        {
+            key = [key stringByAppendingString:@"fullscreen_aspect"];
+        }
+        else if (options & SDWebImageLocalAssetSizeOriginal)
+        {
+            key = [key stringByAppendingString:@"original"];
+        }
+        else
+        {
+            key = [key stringByAppendingString:@"thumb_aspect"];
+        }
+        
+        return key;
     }
     else
     {
-        return [url absoluteString];
+        if (self.cacheKeyFilter)
+        {
+            return self.cacheKeyFilter(url);
+        }
+        else
+        {
+            return [url absoluteString];
+        }
     }
 }
 
 - (BOOL)diskImageExistsForURL:(NSURL *)url
 {
-    NSString *key = [self cacheKeyForURL:url];
+    NSString *key = [self cacheKeyForURL:url options:nil];
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
@@ -113,7 +139,7 @@
     {
         [self.runningOperations addObject:operation];
     }
-    NSString *key = [self cacheKeyForURL:url];
+    NSString *key = [self cacheKeyForURL:url options:options];
 
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
     {
@@ -266,6 +292,15 @@
 - (BOOL)isRunning
 {
     return self.runningOperations.count > 0;
+}
+
++ (BOOL)urlIsLocalAsset:(NSURL *)url
+{
+    if ([url isKindOfClass:[NSString class]]) {
+        return [((NSString *)url) rangeOfString:@"assets-library"].location != NSNotFound;
+    }
+    
+    return ![url isEqual:[NSNull null]] && [url.scheme rangeOfString:@"assets-library"].location != NSNotFound;
 }
 
 @end

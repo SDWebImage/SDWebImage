@@ -40,7 +40,18 @@ typedef enum
      *
      * Use this flag only if you can't make your URLs static with embeded cache busting parameter.
      */
-    SDWebImageRefreshCached = 1 << 4
+    SDWebImageRefreshCached = 1 << 4,
+    /**
+     * These options are used when a URL that is requested is retrieved from the local `ALAssetsLibrary`. 
+     * `ALAsset` and `ALAssetRepresentation` provide various sizes of images for each ALAsset URL
+     * The sizes of these images vary per device and screen resolution. 
+     * The first match (in ascending order) is selected if multiple options are provided.
+     * By default, the thumbnail with a correct aspect ratio is returned (the smallest of the assets provided)
+     */
+    SDWebImageLocalAssetSizeThumnailAspect = 1 << 5,
+    SDWebImageLocalAssetSizeThumnailSquare = 1 << 6,
+    SDWebImageLocalAssetSizeFullscreenAspect = 1 << 7,
+    SDWebImageLocalAssetSizeOriginal = 1 << 8,
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
@@ -175,5 +186,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Check if image has already been cached
  */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
+
+/**
+ * Check if a URL belongs to ALAssetsLibrary
+ */
++ (BOOL)urlIsLocalAsset:(NSURL *)url;
 
 @end
