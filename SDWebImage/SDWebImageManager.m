@@ -170,6 +170,17 @@
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
             if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
             if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
+
+            if (options & SDWebImageLocalAssetSizeThumnailSquare) {
+                downloaderOptions |= SDWebImageLocalAssetSizeThumnailSquare;
+            } else if (options & SDWebImageLocalAssetSizeFullscreenAspect) {
+                downloaderOptions |= SDWebImageLocalAssetSizeFullscreenAspect;
+            } else if (options & SDWebImageLocalAssetSizeOriginal) {
+                downloaderOptions |= SDWebImageLocalAssetSizeOriginal;
+            } else {
+                downloaderOptions |= SDWebImageLocalAssetSizeThumnailAspect;
+            }
+            
             if (image && options & SDWebImageRefreshCached)
             {
                 // force progressive off if image already cached but forced refreshing

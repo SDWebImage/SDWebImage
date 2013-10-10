@@ -13,7 +13,7 @@
 #import <ImageIO/ImageIO.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
-static ALAssetsLibrary *_localAssetsLibrary;
+//static ALAssetsLibrary *_localAssetsLibrary;
 static NSMutableDictionary *_localAssetURLToAssetCache;
 
 @interface SDWebImageLocalAssetOperation ()
@@ -26,7 +26,9 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
 
 @end
 
-@implementation SDWebImageLocalAssetOperation
+@implementation SDWebImageLocalAssetOperation {
+    ALAssetsLibrary *_localAssetsLibrary;
+}
 
 - (id)initWithLocalAssetURL:(NSURL *)localAssetURL options:(SDWebImageDownloaderOptions)options completed:(SDWebImageDownloaderCompletedBlock)completedBlock cancelled:(void (^)())cancelBlock {
     
@@ -108,6 +110,8 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
                                      {
                                          if (localAsset)
                                          {
+                                             assetRepresentation = localAsset.defaultRepresentation;
+                                             
                                              if (self.options & SDWebImageLocalAssetSizeThumnailSquare)
                                              {
                                                  retrievedImage = [UIImage imageWithCGImage:localAsset.thumbnail];
@@ -183,9 +187,10 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
 
 - (void)completeWithImage:(UIImage *)image
 {
-    image = SDScaledImageForKey([self keyForLocalAssetURL], image);
-    
+    CFRunLoopStop(CFRunLoopGetCurrent());
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+    
+    image = SDScaledImageForKey([self keyForLocalAssetURL], image);
     
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
     
