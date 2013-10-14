@@ -156,9 +156,28 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
+    void (^invalidResponse)(void) = ^{
+        [self.connection cancel];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+        
+        if (self.completedBlock)
+        {
+            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+        }
+        
+        [self done];
+    };
+    
     if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
     {
         NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
+        
+        if ( expected >= NSIntegerMax ) {
+            invalidResponse();
+            return;
+        }
+        
         self.expectedSize = expected;
         if (self.progressBlock)
         {
@@ -169,16 +188,7 @@
     }
     else
     {
-        [self.connection cancel];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
-        if (self.completedBlock)
-        {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
-        }
-
-        [self done];
+        invalidResponse();
     }
 }
 
@@ -245,7 +255,7 @@
                 UIImage *scaledImage = [self scaledImageForKey:self.request.URL.absoluteString image:image];
                 image = [UIImage decodedImageWithImage:scaledImage];
                 CGImageRelease(partialImageRef);
-                dispatch_main_sync_safe(^
+                dispatch_main_async_safe(^
                 {
                     if (self.completedBlock)
                     {
