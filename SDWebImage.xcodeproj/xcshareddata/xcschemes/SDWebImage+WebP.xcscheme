@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "537D957317ECC1FE0097C263"
-               BuildableName = "libSDWebImage copy.a"
+               BuildableName = "libSDWebImage+WebP.a"
                BlueprintName = "SDWebImage+WebP"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
