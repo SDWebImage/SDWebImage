@@ -10,6 +10,7 @@
 #import "objc/runtime.h"
 
 static char operationKey;
+static char hOperationKey;
 static char operationArrayKey;
 
 @implementation UIImageView (WebCache)
@@ -62,7 +63,68 @@ static char operationArrayKey;
     }
 }
 
-- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
+- (void)setHighlightedImageWithURL:(NSURL *)url
+{
+    [self setHighlightedImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
+{
+    [self setHighlightedImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options
+{
+    [self setHighlightedImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setHighlightedImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setHighlightedImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self setHighlightedImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+}
+
+- (void)setHighlightedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock
+{
+    [self cancelCurrentHighlightedImageLoad];
+    
+    self.highlightedImage = placeholder;
+    
+    if (url)
+    {
+        __weak UIImageView *wself = self;
+        id<SDWebImageOperation> operation =
+        [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+             if (!wself) return;
+             dispatch_main_sync_safe(^
+             {
+                if (!wself) return;
+                if (image)
+                {
+                    wself.highlightedImage = image;
+                    [wself setNeedsLayout];
+                }
+                if (completedBlock && finished)
+                {
+                    completedBlock(image, error, cacheType);
+                }
+            });
+         }];
+        objc_setAssociatedObject(self, &hOperationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs
+{
     [self cancelCurrentArrayLoad];
     __weak UIImageView *wself = self;
 
@@ -102,7 +164,19 @@ static char operationArrayKey;
     }
 }
 
-- (void)cancelCurrentArrayLoad {
+- (void)cancelCurrentHighlightedImageLoad
+{
+    // Cancel in progress downloader from queue
+    id<SDWebImageOperation> operation = objc_getAssociatedObject(self, &hOperationKey);
+    if (operation)
+    {
+        [operation cancel];
+        objc_setAssociatedObject(self, &hOperationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+
+- (void)cancelCurrentArrayLoad
+{
     // Cancel in progress downloader from queue
     NSArray *operations = objc_getAssociatedObject(self, &operationArrayKey);
     for (id <SDWebImageOperation> operation in operations) {
