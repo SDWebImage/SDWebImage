@@ -23,6 +23,10 @@
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
 
+#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+@property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
+#endif
+
 @end
 
 @implementation SDWebImageDownloaderOperation
@@ -56,6 +60,22 @@
         [self reset];
         return;
     }
+
+    #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+        if ([self shouldContinueWhenAppEntersBackground]) {
+            __weak __typeof__(self) weakSelf = self;
+            self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+
+                if (strongSelf) {
+                    [strongSelf cancel];
+
+                    [[UIApplication sharedApplication] endBackgroundTask:strongSelf.backgroundTaskId];
+                    strongSelf.backgroundTaskId = UIBackgroundTaskInvalid;
+                }
+            }];
+        }
+    #endif
 
     self.executing = YES;
     self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
@@ -341,6 +361,10 @@
     {
         return cachedResponse;
     }
+}
+
+- (BOOL)shouldContinueWhenAppEntersBackground {
+    return self.options & SDWebImageDownloaderContinueInBackground;
 }
 
 
