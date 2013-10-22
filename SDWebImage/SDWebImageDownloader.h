@@ -23,7 +23,10 @@ typedef enum
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
      */
-    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3
+    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
+
+    SDWebImageDownloaderContinueInBackground = 1 << 4
+
 } SDWebImageDownloaderOptions;
 
 typedef enum
