@@ -24,7 +24,10 @@ typedef enum
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
-
+    /**
+     * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
+     * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
+     */
     SDWebImageDownloaderContinueInBackground = 1 << 4
 
 } SDWebImageDownloaderOptions;
