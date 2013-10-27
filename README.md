@@ -94,7 +94,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                  {
                      // progression tracking code
                  }
-                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType)
+                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
                  {
                      if (image)
                      {
