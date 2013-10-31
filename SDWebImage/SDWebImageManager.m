@@ -185,7 +185,7 @@ static SDWebImageManager *instance;
 {
     // Delegates notified, remove downloader and delegate
     // The delegate callbacks above may have modified the arrays, hence we search for the correct index
-    int idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
+    NSUInteger idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
     if (idx != NSNotFound)
     {
         [downloaders removeObjectAtIndex:idx];
@@ -292,7 +292,7 @@ static SDWebImageManager *instance;
     
     // Delegates notified, remove url and delegate
     // The delegate callbacks above may have modified the arrays, hence we search for the correct index
-    int removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
+    NSUInteger removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
     if (removeIdx != NSNotFound)
     {
         [cacheDelegates removeObjectAtIndex:removeIdx];
