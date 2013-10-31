@@ -8,11 +8,24 @@
 
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
+#import "SDWebImageManager.h"
 
 static char operationKey;
 static char operationArrayKey;
 
 @implementation UIImageView (WebCache)
+
+- (void)setImageWithPreviousCachedImageWithURL:(NSURL *)url andPlaceholderImage:(UIImage *)placeholder
+{
+    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+    UIImage *lastPreviousCachedImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:key];
+    if (nil == lastPreviousCachedImage) {
+        [self setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+    }
+    else {
+        [self setImageWithURL:url placeholderImage:lastPreviousCachedImage options:0 progress:nil completed:nil];
+    }
+}
 
 - (void)setImageWithURL:(NSURL *)url
 {
