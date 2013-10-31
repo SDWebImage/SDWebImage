@@ -43,7 +43,7 @@ static SDWebImagePrefetcher *instance;
 - (void)reportStatus
 {
     NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%d successful, %d skipped, timeElasped %.2f)", total - _skippedCount, _skippedCount, CFAbsoluteTimeGetCurrent() - _startedTime);
+    NSLog(@"Finished prefetching (%lu successful, %lu skipped, timeElasped %.2f)", (unsigned long)(total - _skippedCount), (unsigned long)_skippedCount, CFAbsoluteTimeGetCurrent() - _startedTime);
 }
 
 - (void)prefetchURLs:(NSArray *)urls
@@ -75,7 +75,7 @@ static SDWebImagePrefetcher *instance;
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image
 {
     _finishedCount++;
-    NSLog(@"Prefetched %d out of %d", _finishedCount, [self.prefetchURLs count]);
+    NSLog(@"Prefetched %lu out of %lu", (unsigned long)_finishedCount, (unsigned long)[self.prefetchURLs count]);
 
     if ([self.prefetchURLs count] > _requestedCount)
     {
@@ -90,7 +90,7 @@ static SDWebImagePrefetcher *instance;
 - (void)webImageManager:(SDWebImageManager *)imageManager didFailWithError:(NSError *)error
 {
     _finishedCount++;
-    NSLog(@"Prefetched %d out of %d (Failed)", _finishedCount, [self.prefetchURLs count]);
+    NSLog(@"Prefetched %lu out of %lu (Failed)", (unsigned long)_finishedCount, (unsigned long)[self.prefetchURLs count]);
 
     // Add last failed
     _skippedCount++;
