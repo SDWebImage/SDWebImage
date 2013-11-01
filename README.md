@@ -25,7 +25,7 @@ minimum deployement version. If you need iOS < 5.0 support, please use the last 
 Who Use It
 ----------
 
-Find out [who use SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Use-SDWebImage) and add your app to the list.
+Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
 
 How To Use
 ----------
@@ -94,7 +94,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                  {
                      // progression tracking code
                  }
-                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType)
+                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
                  {
                      if (image)
                      {
