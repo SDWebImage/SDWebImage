@@ -26,11 +26,14 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
 
 @end
 
-@implementation SDWebImageLocalAssetOperation {
+@implementation SDWebImageLocalAssetOperation
+{
     ALAssetsLibrary *_localAssetsLibrary;
+    BOOL _retrievingImage;
 }
 
-- (id)initWithLocalAssetURL:(NSURL *)localAssetURL options:(SDWebImageDownloaderOptions)options completed:(SDWebImageDownloaderCompletedBlock)completedBlock cancelled:(void (^)())cancelBlock {
+- (id)initWithLocalAssetURL:(NSURL *)localAssetURL options:(SDWebImageDownloaderOptions)options completed:(SDWebImageDownloaderCompletedBlock)completedBlock cancelled:(void (^)())cancelBlock
+{
     
     if ((self = [super init])) {
         _localAssetURL = localAssetURL;
@@ -39,6 +42,7 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
         _cancelBlock = [cancelBlock copy];
         _executing = NO;
         _finished = NO;
+        _retrievingImage = NO;
     }
     
     return self;
@@ -65,92 +69,24 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
         
-        ALAsset *asset = [_localAssetURLToAssetCache valueForKey:self.localAssetURL.absoluteString];
-        __block ALAssetRepresentation *assetRepresentation = asset.defaultRepresentation;
-        __block UIImage *retrievedImage;
+        _retrievingImage = YES;
+        UIImage *image = [self localAssetWithURL:self.localAssetURL options:self.options];
+        _retrievingImage = NO;
         
-        @autoreleasepool
+        if (image)
         {
-            if (asset)
-            {
-                if (self.options & SDWebImageLocalAssetSizeThumnailSquare)
-                {
-                    retrievedImage = [UIImage imageWithCGImage:asset.thumbnail];
-                }
-                else if (self.options & SDWebImageLocalAssetSizeFullscreenAspect)
-                {
-                    retrievedImage = [UIImage imageWithCGImage:assetRepresentation.fullScreenImage];
-                }
-                else if (self.options & SDWebImageLocalAssetSizeOriginal)
-                {
-                    retrievedImage = [UIImage imageWithCGImage:assetRepresentation.fullResolutionImage];
-                }
-                else
-                {
-                    retrievedImage = [UIImage imageWithCGImage:asset.aspectRatioThumbnail];
-                }
-            }
-        }
-        
-        if (retrievedImage)
-        {
-            [self completeWithImage:retrievedImage];
+            [self completeWithImage:image];
         }
         else
         {
-            // There was no cache hit for this local asset URL. We're going to fall back to going directly to the ALAssetsLibrary.
-            // This should only happen when local images are requested before the local asset cache has been warmed above
-            
-            [_localAssetsLibrary assetForURL:self.localAssetURL
-                                 resultBlock:^(ALAsset *localAsset) {
-                                     
-                                     [_localAssetURLToAssetCache setValue:localAsset forKey:self.localAssetURL.absoluteString];
-                                     
-                                     @autoreleasepool
-                                     {
-                                         if (localAsset)
-                                         {
-                                             assetRepresentation = localAsset.defaultRepresentation;
-                                             
-                                             if (self.options & SDWebImageLocalAssetSizeThumnailSquare)
-                                             {
-                                                 retrievedImage = [UIImage imageWithCGImage:localAsset.thumbnail];
-                                             }
-                                             else if (self.options & SDWebImageLocalAssetSizeFullscreenAspect)
-                                             {
-                                                 retrievedImage = [UIImage imageWithCGImage:assetRepresentation.fullScreenImage];
-                                             }
-                                             else if (self.options & SDWebImageLocalAssetSizeOriginal)
-                                             {
-                                                 retrievedImage = [UIImage imageWithCGImage:assetRepresentation.fullResolutionImage];
-                                             }
-                                             else
-                                             {
-                                                 retrievedImage = [UIImage imageWithCGImage:localAsset.aspectRatioThumbnail];
-                                             }
-                                             
-                                             [self completeWithImage:retrievedImage];
-                                         }
-                                         else
-                                         {
-                                             if (self.completedBlock)
-                                             {
-                                                 self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"ALAsset not found for given URL."}], YES);
-                                             }
-                                             self.completionBlock = nil;
-                                             [self done];
-                                         }
-                                     }
-                                 }
-                                failureBlock:^(NSError *error) {
-                                    if (self.completedBlock)
-                                    {
-                                        self.completedBlock(nil, nil, error, YES);
-                                    }
-                                    self.completionBlock = nil;
-                                    [self done];
-                                }];
+            if (self.completedBlock)
+            {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"ALAsset not found for given URL."}], YES);
+            }
+            self.completionBlock = nil;
+            [self done];
         }
+        
     }
     else
     {
@@ -223,12 +159,15 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
     [super cancel];
     if (self.cancelBlock) self.cancelBlock();
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-    
-    // As we cancelled the connection, its callback won't be called and thus won't
-    // maintain the isFinished and isExecuting flags.
-    if (self.isExecuting) self.executing = NO;
-    if (!self.isFinished) self.finished = YES;
+    if (_retrievingImage)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+        
+        // As we cancelled the connection, its callback won't be called and thus won't
+        // maintain the isFinished and isExecuting flags.
+        if (self.isExecuting) self.executing = NO;
+        if (!self.isFinished) self.finished = YES;
+    }
     
     [self reset];
 }
@@ -262,7 +201,56 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
 
 - (BOOL)isConcurrent
 {
-    return YES;
+    return NO;
+}
+
+- (UIImage *)localAssetWithURL:(NSURL*)url options:(SDWebImageOptions)options
+{
+    __block UIImage *returnImage;
+    
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    
+    dispatch_async(queue, ^
+    {
+       [_localAssetsLibrary assetForURL:url resultBlock:^(ALAsset *asset)
+        {
+            @autoreleasepool
+            {
+                if (asset)
+                {
+                    ALAssetRepresentation *assetRepresentation = asset.defaultRepresentation;
+                    
+                    if (options & SDWebImageLocalAssetSizeThumnailSquare)
+                    {
+                        returnImage = [UIImage imageWithCGImage:asset.thumbnail];
+                    }
+                    else if (options & SDWebImageLocalAssetSizeFullscreenAspect)
+                    {
+                        returnImage = [UIImage imageWithCGImage:assetRepresentation.fullScreenImage];
+                    }
+                    else if (options & SDWebImageLocalAssetSizeOriginal)
+                    {
+                        returnImage = [UIImage imageWithCGImage:assetRepresentation.fullResolutionImage];
+                    }
+                    else
+                    {
+                        returnImage = [UIImage imageWithCGImage:asset.aspectRatioThumbnail];
+                    }
+                }
+            }
+            dispatch_semaphore_signal(sema);
+        }
+        failureBlock:^(NSError *error)
+        {
+            NSLog(@"Error getting image: %@", error);
+            dispatch_semaphore_signal(sema);
+        }];
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    
+    return returnImage;
 }
 
 @end
