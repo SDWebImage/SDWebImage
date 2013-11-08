@@ -313,8 +313,8 @@
         {
             
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
-            
-            image = [self scaledImageForKey:self.request.URL.absoluteString image:image];
+            NSString *key = [SDWebImageManager sharedManager].cacheKeyFilter(self.request.URL);
+            image = [self scaledImageForKey:key image:image];
             
             if (!image.images) // Do not force decod animated GIFs
             {
