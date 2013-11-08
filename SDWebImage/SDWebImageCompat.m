@@ -32,9 +32,8 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image)
             CGFloat scale = 1.0;
             if (key.length >= 8)
             {
-                // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
-                NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
-                if (range.location != NSNotFound)
+                // Search @2x. between the extension and the url path.
+                if ([key rangeOfString:@"@2x."].location != NSNotFound)
                 {
                     scale = 2.0;
                 }
