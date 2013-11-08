@@ -8,6 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
+#import "SDWebImageManager.h"
 #import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 
