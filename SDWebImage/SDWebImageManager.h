@@ -53,7 +53,7 @@ typedef void(^SDWebImageFailureBlock)(NSError *error);
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
     
-    NSMutableDictionary* etagRequests;
+    NSMutableArray* etagRequests;
 }
 
 #if NS_BLOCKS_AVAILABLE
