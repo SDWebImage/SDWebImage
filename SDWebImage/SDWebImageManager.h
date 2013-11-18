@@ -46,7 +46,12 @@ typedef enum
      * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
      * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
      */
-    SDWebImageContinueInBackground = 1 << 5
+    SDWebImageContinueInBackground = 1 << 5,
+    /**
+     * Handles cookies stored in NSHTTPCookieStore by setting
+     * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
+     */
+    SDWebImageHandleCookies = 1 << 6
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
