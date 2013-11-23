@@ -338,6 +338,11 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     }
 }
 
+- (void)setMaxMemoryCost:(NSInteger)maxMemoryCost
+{
+    self.memCache.totalCostLimit = maxMemoryCost;
+}
+
 - (void)clearMemory
 {
     [self.memCache removeAllObjects];
