@@ -33,6 +33,11 @@ typedef enum SDImageCacheType SDImageCacheType;
 @interface SDImageCache : NSObject
 
 /**
+ * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
+ */
+@property (assign, nonatomic) NSUInteger maxMemoryCost;
+
+/**
  * The maximum length of time to keep an image in the cache, in seconds
  */
 @property (assign, nonatomic) NSInteger maxCacheAge;
