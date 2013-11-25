@@ -70,6 +70,14 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 + (SDWebImageDownloader *)sharedDownloader;
 
 /**
+ * Set filter to pick headers for downloading image HTTP request.
+ *
+ * This block will be invoked for each downloading image request, returned
+ * NSDictionary will be used as headers in corresponding HTTP request.
+ */
+@property (nonatomic, strong) NSDictionary *(^headersFilter)(NSURL *url, NSDictionary *headers);
+
+/**
  * Set a value for a HTTP header to be appended to each download HTTP request.
  *
  * @param value The value for the header field. Use `nil` value to remove the header.

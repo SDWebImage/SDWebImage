@@ -120,7 +120,14 @@ static NSString *const kCompletedCallbackKey = @"completed";
         NSMutableURLRequest *request = [NSMutableURLRequest.alloc initWithURL:url cachePolicy:(options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:15];
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;
-        request.allHTTPHeaderFields = wself.HTTPHeaders;
+        if (wself.headersFilter)
+        {
+            request.allHTTPHeaderFields = wself.headersFilter(url, [wself.HTTPHeaders copy]);
+        }
+        else
+        {
+            request.allHTTPHeaderFields = wself.HTTPHeaders;
+        }
         operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
         {
             if (!wself) return;
