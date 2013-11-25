@@ -9,6 +9,7 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 
+static char imageURLKey;
 static char operationKey;
 static char operationArrayKey;
 
@@ -40,6 +41,8 @@ static char operationArrayKey;
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
+    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    self.image = placeholder;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         self.image = placeholder;
@@ -69,7 +72,13 @@ static char operationArrayKey;
     }
 }
 
-- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
+- (NSURL *)imageURL;
+{
+    return objc_getAssociatedObject(self, &imageURLKey);
+}
+
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs
+{
     [self cancelCurrentArrayLoad];
     __weak UIImageView *wself = self;
 
