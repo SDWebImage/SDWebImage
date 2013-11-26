@@ -215,6 +215,14 @@ static NSMutableDictionary *_localAssetURLToAssetCache;
     {
        [_localAssetsLibrary assetForURL:url resultBlock:^(ALAsset *asset)
         {
+            if (self.isCancelled)
+            {
+                dispatch_semaphore_signal(sema);
+                self.finished = YES;
+                [self reset];
+                return;
+            }
+            
             @autoreleasepool
             {
                 if (asset)
