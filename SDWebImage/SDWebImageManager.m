@@ -262,6 +262,7 @@ static SDWebImageManager *instance;
     
     if ([containedChecksum isEqualToString:checksum]) {
         [self notifyDelegatesWithImage:image userInfo:info];
+        [self.cacheDelegate setChecksum:checksum forUrl:key];
     }
     else
     {
