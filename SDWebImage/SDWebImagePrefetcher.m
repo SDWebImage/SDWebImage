@@ -61,13 +61,7 @@
         if (!finished) return;
         self.finishedCount++;
 
-        if (image)
-        {
-#ifdef SD_VERBOSE
-            NSLog(@"Prefetched %d out of %d", self.finishedCount, self.prefetchURLs.count);
-#endif
-        }
-        else
+        if (!image)
         {
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d (Failed)", self.finishedCount, [self.prefetchURLs count]);
@@ -96,8 +90,8 @@
 - (void)reportStatus
 {
 #ifdef SD_VERBOSE
-    NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%d successful, %d skipped, timeElasped %.2f)", total - self.skippedCount, self.skippedCount, CFAbsoluteTimeGetCurrent() - self.startedTime);
+//    NSUInteger total = [self.prefetchURLs count];
+//    NSLog(@"Finished prefetching (%d successful, %d skipped, timeElasped %.2f)", total - self.skippedCount, self.skippedCount, CFAbsoluteTimeGetCurrent() - self.startedTime);
 #endif
 }
 
