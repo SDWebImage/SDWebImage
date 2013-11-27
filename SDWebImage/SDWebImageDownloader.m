@@ -104,7 +104,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
     _downloadQueue.maxConcurrentOperationCount = maxConcurrentDownloads;
 }
 
-- (NSUInteger)currentDownloadCount {
+- (NSUInteger)currentDownloadCount
+{
     return _downloadQueue.operationCount;
 }
 
