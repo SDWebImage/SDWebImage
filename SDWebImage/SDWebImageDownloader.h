@@ -63,6 +63,12 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
 /**
+ * Shows the current amount of downloads that still need to be downloaded
+ */
+
+@property (readonly, nonatomic) NSUInteger currentDownloadCount;
+
+/**
  * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
  */
 @property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
