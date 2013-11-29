@@ -9,9 +9,26 @@
 #import "UIButton+WebCache.h"
 #import "objc/runtime.h"
 
+static char imageURLStorageKey;
 static char operationKey;
 
 @implementation UIButton (WebCache)
+
+- (NSURL *)currentImageURL;
+{
+    NSURL *url = self.imageURLStorage[@(self.state)];
+
+    if (!url) {
+        url = self.imageURLStorage[@(UIControlStateNormal)];
+    }
+
+    return url;
+}
+
+- (NSURL *)imageURLForState:(UIControlState)state;
+{
+    return self.imageURLStorage[@(state)];
+}
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state
 {
@@ -36,6 +53,8 @@ static char operationKey;
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
+
+    self.imageURLStorage[@(state)] = url;
 
     [self setImage:placeholder forState:state];
 
@@ -110,6 +129,17 @@ static char operationKey;
         [operation cancel];
         objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+}
+
+- (NSMutableDictionary *)imageURLStorage;
+{
+    NSMutableDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
+    if (!storage) {
+        storage = [NSMutableDictionary dictionary];
+        objc_setAssociatedObject(self, &imageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    return storage;
 }
 
 @end

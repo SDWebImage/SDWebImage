@@ -15,6 +15,18 @@
 @interface UIButton (WebCache)
 
 /**
+ * Get the current image URL.
+ */
+- (NSURL *)currentImageURL;
+
+/**
+ * Get the image URL for a control state.
+ * 
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (NSURL *)imageURLForState:(UIControlState)state;
+
+/**
  * Set the imageView `image` with an `url`.
  *
  * The downloand is asynchronous and cached.
