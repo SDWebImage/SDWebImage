@@ -44,6 +44,12 @@
  */
 @interface UIImageView (WebCache)
 
+/**
+ * Get the current image URL.
+ *
+ * Note that because of the limitations of categories this property can get out of sync
+ * if you use setImage: directly.
+ */
 - (NSURL *)imageURL;
 
 /**
