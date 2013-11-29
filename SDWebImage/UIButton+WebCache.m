@@ -9,15 +9,9 @@
 #import "UIButton+WebCache.h"
 #import "objc/runtime.h"
 
-static char imageURLKey;
 static char operationKey;
 
 @implementation UIButton (WebCache)
-
-- (NSURL *)currentImageURL;
-{
-    return objc_getAssociatedObject(self, &imageURLKey);
-}
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state
 {
@@ -43,7 +37,6 @@ static char operationKey;
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
 
-    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     [self setImage:placeholder forState:state];
 
     if (url) {
