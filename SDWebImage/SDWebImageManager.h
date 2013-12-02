@@ -173,6 +173,11 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
 
 /**
+ * Get the key for which the URL is cached with
+ */
+- (NSString *)cacheKeyForURL:(NSURL *)url options:(SDWebImageOptions)options;
+
+/**
  * Cancel all current opreations
  */
 - (void)cancelAll;
