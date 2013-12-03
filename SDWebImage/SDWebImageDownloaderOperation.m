@@ -9,6 +9,7 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
+#import "SDWebImageManager.h"
 #import <ImageIO/ImageIO.h>
 
 @interface SDWebImageDownloaderOperation ()
@@ -313,8 +314,8 @@
         {
             
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
-            
-            image = [self scaledImageForKey:self.request.URL.absoluteString image:image];
+            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+            image = [self scaledImageForKey:key image:image];
             
             if (!image.images) // Do not force decod animated GIFs
             {
