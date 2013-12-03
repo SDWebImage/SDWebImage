@@ -18,7 +18,8 @@ static char operationKey;
 {
     NSURL *url = self.imageURLStorage[@(self.state)];
 
-    if (!url) {
+    if (!url)
+    {
         url = self.imageURLStorage[@(UIControlStateNormal)];
     }
 
@@ -134,7 +135,8 @@ static char operationKey;
 - (NSMutableDictionary *)imageURLStorage;
 {
     NSMutableDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
-    if (!storage) {
+    if (!storage)
+    {
         storage = [NSMutableDictionary dictionary];
         objc_setAssociatedObject(self, &imageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
