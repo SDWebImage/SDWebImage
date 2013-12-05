@@ -184,7 +184,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                 
                 if (metadata) {
                     NSData *metadataData = [NSKeyedArchiver archivedDataWithRootObject:metadata];
-                    [fileManager createFileAtPath:[[self defaultCachePathForKey:key] stringByAppendingString:@"_metadata"] contents:metadataData attributes:nil];
+                    [fileManager createFileAtPath:[self defaultCachePathForKey:[key stringByAppendingString:@"_metadata"]] contents:metadataData attributes:nil];
                 }
             }
         });

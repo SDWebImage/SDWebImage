@@ -166,11 +166,9 @@
         self.responseHTTPHeaderFields = headers;
     }
     
-    if (![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400)
+    if ((![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400) && [((NSHTTPURLResponse *)response) statusCode] != 304)
     {
-        
-        NSLog(@"StatusCode: %i", [((NSHTTPURLResponse *)response) statusCode]);
-        
+
         NSUInteger expected = response.expectedContentLength > 0 ? (NSUInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         if (self.progressBlock)
@@ -188,7 +186,12 @@
         
         if (self.completedBlock)
         {
-            self.completedBlock(nil, nil, self.responseHTTPHeaderFields, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            if ([response respondsToSelector:@selector(statusCode)] && [((NSHTTPURLResponse *)response) statusCode] == 304) {
+                self.completedBlock(nil, nil, self.responseHTTPHeaderFields, nil, YES);
+            }
+            else {
+                self.completedBlock(nil, nil, self.responseHTTPHeaderFields, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            }
         }
         
         [self done];

@@ -117,6 +117,9 @@
 
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, NSDictionary *metadata, SDImageCacheType cacheType)
     {
+        
+        NSLog(@"Metadata:\n%@", metadata);
+        
         if (operation.isCancelled)
         {
             @synchronized(self.runningOperations)
@@ -164,26 +167,18 @@
                 }
                 else if (error)
                 {
-                    if (options & SDWebImageRefreshIfModifiedSince && !data) {
-                        
-                        completedBlock(image, nil, SDImageCacheTypeNone, finished);
-                        
-                    }
-                    else {
-                        dispatch_main_sync_safe(^
-                                                {
-                                                    completedBlock(nil, error, SDImageCacheTypeNone, finished);
-                                                });
-                        
-                        if (error.code != NSURLErrorNotConnectedToInternet)
+                    dispatch_main_sync_safe(^
+                                            {
+                                                completedBlock(nil, error, SDImageCacheTypeNone, finished);
+                                            });
+                    
+                    if (error.code != NSURLErrorNotConnectedToInternet)
+                    {
+                        @synchronized(self.failedURLs)
                         {
-                            @synchronized(self.failedURLs)
-                            {
-                                [self.failedURLs addObject:url];
-                            }
+                            [self.failedURLs addObject:url];
                         }
                     }
-                    
                 }
                 else
                 {
@@ -193,6 +188,14 @@
                     {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
+                    
+                    else if (options & SDWebImageRefreshIfModifiedSince && !data) {
+                        
+                        completedBlock(image, nil, SDImageCacheTypeNone, finished);
+                        
+                    }
+
+                    
                     // NOTE: We don't call transformDownloadedImage delegate method on animated images as most transformation code would mangle it
                     else if (downloadedImage && !downloadedImage.images && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
