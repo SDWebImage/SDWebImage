@@ -115,7 +115,7 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, NSDictionary *metadata, SDImageCacheType cacheType)
     {
         if (operation.isCancelled)
         {
@@ -127,7 +127,7 @@
             return;
         }
 
-        if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
+        if ((!image || options & SDWebImageRefreshCached || options & SDWebImageRefreshIfModifiedSince) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
             if (image && options & SDWebImageRefreshCached)
             {
@@ -153,7 +153,7 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
+            id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url metadata:metadata options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSDictionary *responseHTTPHeaderFields, NSError *error, BOOL finished)
             {                
                 if (weakOperation.isCancelled)
                 {
@@ -164,18 +164,26 @@
                 }
                 else if (error)
                 {
-                    dispatch_main_sync_safe(^
-                    {
-                        completedBlock(nil, error, SDImageCacheTypeNone, finished);
-                    });
-
-                    if (error.code != NSURLErrorNotConnectedToInternet)
-                    {
-                        @synchronized(self.failedURLs)
+                    if (options & SDWebImageRefreshIfModifiedSince && !data) {
+                        
+                        completedBlock(image, nil, SDImageCacheTypeNone, finished);
+                        
+                    }
+                    else {
+                        dispatch_main_sync_safe(^
+                                                {
+                                                    completedBlock(nil, error, SDImageCacheTypeNone, finished);
+                                                });
+                        
+                        if (error.code != NSURLErrorNotConnectedToInternet)
                         {
-                            [self.failedURLs addObject:url];
+                            @synchronized(self.failedURLs)
+                            {
+                                [self.failedURLs addObject:url];
+                            }
                         }
                     }
+                    
                 }
                 else
                 {
@@ -200,7 +208,7 @@
                             if (transformedImage && finished)
                             {
                                 NSData *dataToStore = [transformedImage isEqual:downloadedImage] ? data : nil;
-                                [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk];
+                                [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk withMetadata:responseHTTPHeaderFields];
                             }
                         });
                     }
@@ -213,7 +221,7 @@
 
                         if (downloadedImage && finished)
                         {
-                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk withMetadata:responseHTTPHeaderFields];
                         }
                     }
                 }
