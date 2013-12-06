@@ -53,7 +53,9 @@ typedef enum
      */
     SDWebImageHandleCookies = 1 << 6,
     
-    // Custom implementation of if-modified-since
+    /** 
+     * Implementation of if-modified-since
+     */
     SDWebImageRefreshIfModifiedSince = 1 << 7
     
 } SDWebImageOptions;

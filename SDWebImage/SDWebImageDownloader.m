@@ -134,13 +134,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
         
-        if (metadata) {
-            // Send if modified since
+        if (metadata && options & SDWebImageDownloaderUseIfModifiedSinceCaching) {
+            // Send If-Modified-Since
             NSString *lastModified = [metadata objectForKey:@"Last-Modified"];
             if (lastModified) {
                 NSMutableDictionary *advancedHeader = [[NSMutableDictionary alloc] initWithDictionary:request.allHTTPHeaderFields];
                 [advancedHeader setValue:lastModified forKey:@"If-Modified-Since"];
-                
                 request.allHTTPHeaderFields = advancedHeader;
             }
         }

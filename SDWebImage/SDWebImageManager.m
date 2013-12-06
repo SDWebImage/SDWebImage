@@ -118,8 +118,6 @@
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, NSDictionary *metadata, SDImageCacheType cacheType)
     {
         
-        NSLog(@"Metadata:\n%@", metadata);
-        
         if (operation.isCancelled)
         {
             @synchronized(self.runningOperations)
@@ -156,6 +154,8 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
+            if (options & SDWebImageRefreshIfModifiedSince) downloaderOptions |= SDWebImageDownloaderUseIfModifiedSinceCaching;
+            
             id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url metadata:metadata options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSDictionary *responseHTTPHeaderFields, NSError *error, BOOL finished)
             {                
                 if (weakOperation.isCancelled)
@@ -191,7 +191,7 @@
                     
                     else if (options & SDWebImageRefreshIfModifiedSince && !data) {
                         
-                        completedBlock(image, nil, SDImageCacheTypeNone, finished);
+                        completedBlock(image, nil, cacheType, finished);
                         
                     }
 
