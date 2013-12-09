@@ -22,6 +22,7 @@
 @property (assign, nonatomic) long long expectedSize;
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
+@property (strong, atomic) NSThread *thread;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -54,34 +55,36 @@
 
 - (void)start
 {
-    if (self.isCancelled)
-    {
-        self.finished = YES;
-        [self reset];
-        return;
-    }
+    @synchronized(self) {
+        if (self.isCancelled)
+        {
+            self.finished = YES;
+            [self reset];
+            return;
+        }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-    if ([self shouldContinueWhenAppEntersBackground])
-    {
-        __weak __typeof__(self) wself = self;
-        self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^
+        if ([self shouldContinueWhenAppEntersBackground])
         {
-            __strong __typeof(wself)sself = wself;
-
-            if (sself)
+            __weak __typeof__(self) wself = self;
+            self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^
             {
-                [sself cancel];
+                __strong __typeof(wself)sself = wself;
 
-                [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
-                sself.backgroundTaskId = UIBackgroundTaskInvalid;
-            }
-        }];
-    }
+                if (sself)
+                {
+                    [sself cancel];
+
+                    [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
+                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                }
+            }];
+        }
 #endif
 
-    self.executing = YES;
-    self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
+        self.executing = YES;
+        self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
+    }
 
     [self.connection start];
 
@@ -122,6 +125,26 @@
 
 - (void)cancel
 {
+    @synchronized(self) {
+        if (self.thread)
+        {
+            [self performSelector:@selector(cancelInternalAndStop) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+        else
+        {
+            [self cancelInternal];
+        }
+    }
+}
+
+- (void)cancelInternalAndStop
+{
+    [self cancelInternal];
+    CFRunLoopStop(CFRunLoopGetCurrent());
+}
+
+- (void)cancelInternal
+{
     if (self.isFinished) return;
     [super cancel];
     if (self.cancelBlock) self.cancelBlock();
@@ -154,6 +177,7 @@
     self.progressBlock = nil;
     self.connection = nil;
     self.imageData = nil;
+    self.thread = nil;
 }
 
 - (void)setFinished:(BOOL)finished
