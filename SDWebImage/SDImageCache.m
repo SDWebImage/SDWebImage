@@ -13,7 +13,9 @@
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
-static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
+static const NSInteger  kDefaultCacheMaxCacheAge    = 60 * 60 * 24 * 7; // 1 week
+static unsigned char    kPNGSignatureBytes[8]       = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};        // PNG signature bytes and data (below)
+static NSData *         kPNGSignatureData           = nil;
 
 @interface SDImageCache ()
 
@@ -33,7 +35,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 {
     static dispatch_once_t once;
     static id instance;
-    dispatch_once(&once, ^{instance = self.new;});
+    dispatch_once(&once, ^{
+        instance = self.new;
+        kPNGSignatureData = [NSData dataWithBytes:kPNGSignatureBytes length:8];
+    });
     return instance;
 }
 
@@ -138,57 +143,74 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 #pragma mark ImageCache
 
-- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
     if (!image || !key)
     {
         return;
     }
-
+    
     [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
-
+    
     if (toDisk)
     {
         dispatch_async(self.ioQueue, ^
-        {
-            NSData *data = imageData;
-
-            if (!data)
-            {
-                if (image)
-                {
+                       {
+                           NSData *data = imageData;
+                           
+                           if (recalculate)
+                           {
+                               if (image)
+                               {
 #if TARGET_OS_IPHONE
-                    data = UIImagePNGRepresentation(image);
+                                   // need to determine if the image is a PNG or a JPEG
+                                   // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
+                                   // The first eight bytes of a PNG file always contain the following (decimal) values:
+                                   // 137 80 78 71 13 10 26 10
+                                   
+                                   // we assume the image is PNG, in case the imageData is nil (i.e. if trying to save a UIImage directly), we will consider it PNG to avoid loosing the transparency
+                                   BOOL imageIsPng = YES;
+                                   
+                                   // but if we have an image data, we will look at the preffix
+                                   if ([imageData length] >= [kPNGSignatureData length]) {
+                                       imageIsPng = [self imageDataHasPNGPreffix:imageData];
+                                   }
+                                   
+                                   if (imageIsPng) {
+                                       data = UIImagePNGRepresentation(image);
+                                   } else {
+                                       data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
+                                   }
 #else
-                    data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
+                                   data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
 #endif
-                }
-            }
-
-            if (data)
-            {
-                // Can't use defaultManager another thread
-                NSFileManager *fileManager = NSFileManager.new;
-
-                if (![fileManager fileExistsAtPath:_diskCachePath])
-                {
-                    [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
-                }
-
-                [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
-            }
-        });
+                               }
+                           }
+                           
+                           if (data)
+                           {
+                               // Can't use defaultManager another thread
+                               NSFileManager *fileManager = NSFileManager.new;
+                               
+                               if (![fileManager fileExistsAtPath:_diskCachePath])
+                               {
+                                   [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+                               }
+                               
+                               [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
+                           }
+                       });
     }
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
 }
 
 - (BOOL)diskImageExistsWithKey:(NSString *)key
@@ -523,5 +545,17 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         }
     });
 }
+
+- (BOOL)imageDataHasPNGPreffix:(NSData*)data {
+    NSUInteger pngSignatureLength = [kPNGSignatureData length];
+    if ([data length] >= pngSignatureLength) {
+        if ([[data subdataWithRange:NSMakeRange(0, pngSignatureLength)] isEqualToData:kPNGSignatureData]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
 
 @end
