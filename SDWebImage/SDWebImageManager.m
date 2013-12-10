@@ -199,8 +199,8 @@
 
                             if (transformedImage && finished)
                             {
-                                NSData *dataToStore = [transformedImage isEqual:downloadedImage] ? data : nil;
-                                [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk];
+                                BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                                [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
                             }
                         });
                     }
@@ -213,7 +213,7 @@
 
                         if (downloadedImage && finished)
                         {
-                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk];
+                            [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
                         }
                     }
                 }
