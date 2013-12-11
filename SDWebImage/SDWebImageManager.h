@@ -52,11 +52,11 @@ typedef enum
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
     SDWebImageHandleCookies = 1 << 6,
-    SDWebImageAllowInvalidSSLCertificates = 1 << 7
     /**
-     * Enable this to allow untrusted SSL ceriticates.
-     * Useful for testing purposes. 
+     * Enable to allow untrusted SSL ceriticates.
+     * Useful for testing purposes. Use with caution in production.
      */
+    SDWebImageAllowInvalidSSLCertificates = 1 << 7
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);

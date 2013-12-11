@@ -34,11 +34,11 @@ typedef enum
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
     SDWebImageDownloaderHandleCookies = 1 << 5,
-    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
     /**
-     * Enable this to allow untrusted SSL ceriticates.
-     * Useful for testing purposes.
+     * Enable to allow untrusted SSL ceriticates.
+     * Useful for testing purposes. Use with caution in production.
      */
+    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
 
 } SDWebImageDownloaderOptions;
 
