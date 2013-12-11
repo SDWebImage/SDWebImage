@@ -51,7 +51,12 @@ typedef enum
      * Handles cookies stored in NSHTTPCookieStore by setting
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
-    SDWebImageHandleCookies = 1 << 6
+    SDWebImageHandleCookies = 1 << 6,
+    SDWebImageAllowInvalidSSLCertificates = 1 << 7
+    /**
+     * Enable this to allow untrusted SSL ceriticates.
+     * Useful for testing purposes. 
+     */
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
