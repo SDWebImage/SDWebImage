@@ -137,8 +137,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
             
+            UIImage *convertedImage = image;
             if (sself.delegate && [sself.delegate respondsToSelector:@selector(imageDownloader:transformDownloadedImage:withURL:)]) {
-                image = [sself.delegate imageDownloader:sself transformDownloadedImage:image withURL:url];
+                convertedImage = [sself.delegate imageDownloader:sself transformDownloadedImage:image withURL:url];
+            }
+            if (convertedImage != image) {
+                data = UIImagePNGRepresentation(convertedImage);
             }
             
             NSArray *callbacksForURL = [sself callbacksForURL:url];
@@ -149,7 +153,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             for (NSDictionary *callbacks in callbacksForURL)
             {
                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
-                if (callback) callback(image, data, error, finished);
+                if (callback) callback(convertedImage, data, error, finished);
             }
         }
         cancelled:^
