@@ -10,6 +10,14 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
 
+@class SDWebImageDownloader;
+
+@protocol SDDownloaderDelegate <NSObject>
+
+- (UIImage *)imageDownloader:(SDWebImageDownloader *)downloader transformDownloadedImage:(UIImage *)image withURL:(NSURL *)imageURL;
+
+@end
+
 typedef enum
 {
     SDWebImageDownloaderLowPriority = 1 << 0,
@@ -57,6 +65,7 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
+@property (weak, nonatomic) id<SDDownloaderDelegate> delegate;
 /**
  * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
  */

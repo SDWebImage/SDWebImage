@@ -136,6 +136,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
+            
+            if (sself.delegate && [sself.delegate respondsToSelector:@selector(imageDownloader:transformDownloadedImage:withURL:)]) {
+                image = [sself.delegate imageDownloader:sself transformDownloadedImage:image withURL:url];
+            }
+            
             NSArray *callbacksForURL = [sself callbacksForURL:url];
             if (finished)
             {
