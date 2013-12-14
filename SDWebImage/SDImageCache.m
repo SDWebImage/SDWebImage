@@ -525,7 +525,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 {
     int count = 0;
     NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
-    for (NSString *fileName in fileEnumerator)
+    for (__unused NSString *fileName in fileEnumerator)
     {
         count += 1;
     }
