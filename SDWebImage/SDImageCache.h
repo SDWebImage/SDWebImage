@@ -91,7 +91,7 @@ typedef enum SDImageCacheType SDImageCacheType;
  *
  * @param image The image to store
  * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
- * @param data The image data as returned by the server, this representation will be used for disk storage
+ * @param imageData The image data as returned by the server, this representation will be used for disk storage
  *             instead of converting the given image object into a storable/compressed image format in order
  *             to save quality and CPU
  * @param key The unique image cache key, usually it's image absolute URL
