@@ -53,6 +53,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [self cancel];
+}
+
 - (void)start
 {
     @synchronized(self)
@@ -98,6 +103,7 @@
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
 
+        __weak __typeof__(self) wself = self;
         if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1)
         {
             // Make sure to run the runloop in our background thread so it can process downloaded data
@@ -110,10 +116,11 @@
             CFRunLoopRun();
         }
 
-        if (!self.isFinished)
+        if (wself && !wself.isFinished)
         {
-            [self.connection cancel];
-            [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey: self.request.URL}]];
+            __strong __typeof(wself)sself = wself;
+            [sself.connection cancel];
+            [sself connection:sself.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey: sself.request.URL}]];
         }
     }
     else
