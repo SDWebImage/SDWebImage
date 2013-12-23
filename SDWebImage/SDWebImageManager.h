@@ -59,7 +59,7 @@ typedef enum
     SDWebImageAllowInvalidSSLCertificates = 1 << 7
 } SDWebImageOptions;
 
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
+typedef void(^SDWebImageCompletedBlock)(id sender, UIImage *image, NSError *error, SDImageCacheType cacheType);
 typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
 
 

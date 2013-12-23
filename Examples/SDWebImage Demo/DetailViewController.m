@@ -44,7 +44,7 @@
                 [activityIndicator startAnimating];
             }
         }
-        completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType)
+        completed:^(id sender, UIImage *image, NSError *error, SDImageCacheType cacheType)
         {
             [activityIndicator removeFromSuperview];
             activityIndicator = nil;

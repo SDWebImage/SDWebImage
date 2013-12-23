@@ -66,7 +66,7 @@ static char operationArrayKey;
                 }
                 if (completedBlock && finished)
                 {
-                    completedBlock(image, error, cacheType);
+                    completedBlock( wself,image, error, cacheType);
                 }
             });
         }];
