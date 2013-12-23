@@ -59,7 +59,7 @@ static char operationKey;
                 }
                 if (completedBlock && finished)
                 {
-                    completedBlock(image, error, cacheType);
+                    completedBlock(sself ,image, error, cacheType);
                 }
             });
         }];
@@ -114,7 +114,7 @@ static char operationKey;
                 }
                 if (completedBlock && finished)
                 {
-                    completedBlock(image, error, cacheType);
+                    completedBlock(sself,image, error, cacheType);
                 }
             });
         }];
