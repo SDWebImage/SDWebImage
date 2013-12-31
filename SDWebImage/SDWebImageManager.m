@@ -41,29 +41,17 @@
 {
     if ((self = [super init]))
     {
-        _imageCache = [self createCache];
-        _imageDownloader = SDWebImageDownloader.new;
+        _imageCache = [SDImageCache sharedImageCache];
+        _imageDownloader = [SDWebImageDownloader sharedDownloader];
         _failedURLs = NSMutableArray.new;
         _runningOperations = NSMutableArray.new;
     }
     return self;
 }
 
-- (SDImageCache *)createCache
-{
-    return [SDImageCache sharedImageCache];
-}
-
 - (NSString *)cacheKeyForURL:(NSURL *)url
 {
-    if (self.cacheKeyFilter)
-    {
-        return self.cacheKeyFilter(url);
-    }
-    else
-    {
-        return [url absoluteString];
-    }
+    return self.cacheKeyFilter ? self.cacheKeyFilter(url) : [url absoluteString];
 }
 
 - (BOOL)diskImageExistsForURL:(NSURL *)url
