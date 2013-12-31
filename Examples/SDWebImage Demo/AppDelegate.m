@@ -11,6 +11,7 @@
 #import "MasterViewController.h"
 
 #import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/SDWebImageDownloader.h>
 
 @implementation AppDelegate
 
@@ -22,6 +23,10 @@
     //Add a custom read-only cache path
     NSString *bundledPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"CustomPathImages"];
     [[SDImageCache sharedImageCache] addReadOnlyCachePath:bundledPath];
+	
+	//global configure for app's image downloader
+	SDWebImageDownloader.sharedDownloader.maxConcurrentDownloads = 12;
+	SDWebImageDownloader.sharedDownloader.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
