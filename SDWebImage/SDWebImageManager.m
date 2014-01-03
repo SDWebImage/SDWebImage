@@ -115,8 +115,9 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType)
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, NSDictionary *metadata, SDImageCacheType cacheType)
     {
+        
         if (operation.isCancelled)
         {
             @synchronized(self.runningOperations)
@@ -127,7 +128,7 @@
             return;
         }
 
-        if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
+        if ((!image || options & SDWebImageRefreshCached || options & SDWebImageRefreshIfModifiedSince) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]))
         {
             if (image && options & SDWebImageRefreshCached)
             {
@@ -154,7 +155,9 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished)
+            if (options & SDWebImageRefreshIfModifiedSince) downloaderOptions |= SDWebImageDownloaderUseIfModifiedSinceCaching;
+            
+            id<SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url metadata:metadata options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSDictionary *responseHTTPHeaderFields, NSError *error, BOOL finished)
             {                
                 if (weakOperation.isCancelled)
                 {
@@ -166,10 +169,10 @@
                 else if (error)
                 {
                     dispatch_main_sync_safe(^
-                    {
-                        completedBlock(nil, error, SDImageCacheTypeNone, finished);
-                    });
-
+                                            {
+                                                completedBlock(nil, error, SDImageCacheTypeNone, finished);
+                                            });
+                    
                     if (error.code != NSURLErrorNotConnectedToInternet)
                     {
                         @synchronized(self.failedURLs)
@@ -186,6 +189,14 @@
                     {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
+                    
+                    else if (options & SDWebImageRefreshIfModifiedSince && !data) {
+                        
+                        completedBlock(image, nil, cacheType, finished);
+                        
+                    }
+
+                    
                     // NOTE: We don't call transformDownloadedImage delegate method on animated images as most transformation code would mangle it
                     else if (downloadedImage && !downloadedImage.images && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)])
                     {
@@ -200,8 +211,13 @@
 
                             if (transformedImage && finished)
                             {
+<<<<<<< HEAD
+                                NSData *dataToStore = [transformedImage isEqual:downloadedImage] ? data : nil;
+                                [self.imageCache storeImage:transformedImage imageData:dataToStore forKey:key toDisk:cacheOnDisk withMetadata:responseHTTPHeaderFields];
+=======
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
+>>>>>>> 8f8228e2a63af86ba441e49770f444919d4a6902
                             }
                         });
                     }
@@ -214,7 +230,11 @@
 
                         if (downloadedImage && finished)
                         {
+<<<<<<< HEAD
+                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key toDisk:cacheOnDisk withMetadata:responseHTTPHeaderFields];
+=======
                             [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+>>>>>>> 8f8228e2a63af86ba441e49770f444919d4a6902
                         }
                     }
                 }

@@ -161,7 +161,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 
 #pragma mark ImageCache
 
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
+
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk withMetadata:(NSDictionary *)metadata
 {
     if (!image || !key)
     {
@@ -169,6 +170,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     }
 
     [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
+    
+    if (metadata) {
+        // Maybe we have to specify a cost here also?
+        [self.memCache setObject:metadata forKey:[key stringByAppendingString:@"_metadata"]];
+    }
 
     if (toDisk)
     {
@@ -218,6 +224,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
                 }
 
                 [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
+                
+                if (metadata) {
+                    NSData *metadataData = [NSKeyedArchiver archivedDataWithRootObject:metadata];
+                    [fileManager createFileAtPath:[self defaultCachePathForKey:[key stringByAppendingString:@"_metadata"]] contents:metadataData attributes:nil];
+                }
             }
         });
     }
@@ -225,12 +236,12 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES withMetadata:nil];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk withMetadata:nil];
 }
 
 - (BOOL)diskImageExistsWithKey:(NSString *)key
@@ -247,6 +258,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key
 {
     return [self.memCache objectForKey:key];
+}
+
+- (NSDictionary *)metadataFromMemoryCacheForKey:(NSString *)key
+{
+    return [self.memCache objectForKey:[key stringByAppendingString:@"_metadata"]];
 }
 
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key
@@ -277,7 +293,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     {
         return data;
     }
-
+    
     for (NSString *path in self.customPaths)
     {
         NSString *filePath = [self cachePathForKey:key inPath:path];
@@ -286,7 +302,30 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
             return imageData;
         }
     }
+    
+    return nil;
+}
 
+- (NSData *)metaDataBySearchingAllPathsForKey:(NSString *)key
+{
+    key = [key stringByAppendingString:@"_metadata"];
+    
+    NSString *defaultPath = [self defaultCachePathForKey:key];
+    NSData *data = [NSData dataWithContentsOfFile:defaultPath];
+    if (data)
+    {
+        return data;
+    }
+    
+    for (NSString *path in self.customPaths)
+    {
+        NSString *filePath = [self cachePathForKey:key inPath:path];
+        NSData *metaData = [NSData dataWithContentsOfFile:filePath];
+        if (metaData) {
+            return metaData;
+        }
+    }
+    
     return nil;
 }
 
@@ -306,12 +345,27 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     }
 }
 
+- (NSDictionary *)metadataForKey:(NSString *)key
+{
+    NSData *data = [self metaDataBySearchingAllPathsForKey:key];
+    if (data)
+    {
+        NSDictionary *metadata = (NSDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:data];
+        return metadata;
+    }
+    else
+    {
+        return nil;
+    }
+}
+
+
 - (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image
 {
     return SDScaledImageForKey(key, image);
 }
 
-- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, NSDictionary *metadata, SDImageCacheType cacheType))doneBlock
 {
     NSOperation *operation = NSOperation.new;
 
@@ -319,15 +373,16 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 
     if (!key)
     {
-        doneBlock(nil, SDImageCacheTypeNone);
+        doneBlock(nil, nil, SDImageCacheTypeNone);
         return nil;
     }
 
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
+    NSDictionary *metadata = [self metadataFromMemoryCacheForKey:key];
     if (image)
     {
-        doneBlock(image, SDImageCacheTypeMemory);
+        doneBlock(image, metadata, SDImageCacheTypeMemory);
         return nil;
     }
 
@@ -341,15 +396,19 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
         @autoreleasepool
         {
             UIImage *diskImage = [self diskImageForKey:key];
+            NSDictionary *metadata = [self metadataForKey:key];
             if (diskImage)
             {
                 CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
+            if (metadata) {
+                [self.memCache setObject:metadata forKey:[key stringByAppendingString:@"_metadata"]];
+            }
 
             dispatch_main_sync_safe(^
             {
-                doneBlock(diskImage, SDImageCacheTypeDisk);
+                doneBlock(diskImage, metadata, SDImageCacheTypeDisk);
             });
         }
     });

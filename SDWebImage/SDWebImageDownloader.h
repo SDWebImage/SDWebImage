@@ -34,11 +34,18 @@ typedef enum
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
     SDWebImageDownloaderHandleCookies = 1 << 5,
+    
+    /**
+     * Implements If-Modified-Since caching
+     * For more Information: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+     */
+    SDWebImageDownloaderUseIfModifiedSinceCaching = 1 << 6,
+
     /**
      * Enable to allow untrusted SSL ceriticates.
      * Useful for testing purposes. Use with caution in production.
      */
-    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
+    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 7
 
 } SDWebImageDownloaderOptions;
 
@@ -58,7 +65,7 @@ extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSUInteger receivedSize, long long expectedSize);
-typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
+typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSDictionary *responseHTTPHeaderFields, NSError *error, BOOL finished);
 
 /**
  * Asynchronous downloader dedicated and optimized for image loading.
@@ -118,6 +125,7 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  * @see SDWebImageDownloaderDelegate
  *
  * @param url The URL to the image to download
+ * @param metadata should be the cached response headers of last image request
  * @param options The options to be used for this download
  * @param progressBlock A block called repeatedly while the image is downloading
  * @param completedBlock A block called once the download is completed.
@@ -132,8 +140,9 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  * @return A cancellable SDWebImageOperation
  */
 - (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                       metadata:(NSDictionary *)metadata
                                         options:(SDWebImageDownloaderOptions)options
-                                       progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                      completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+                                       progress:(void (^)(NSUInteger, long long))progressBlock
+                                      completed:(void (^)(UIImage *, NSData *, NSDictionary *, NSError *, BOOL))completedBlock;
 
 @end

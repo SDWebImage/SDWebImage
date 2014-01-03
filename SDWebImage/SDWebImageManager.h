@@ -52,11 +52,12 @@ typedef enum
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
     SDWebImageHandleCookies = 1 << 6,
-    /**
-     * Enable to allow untrusted SSL ceriticates.
-     * Useful for testing purposes. Use with caution in production.
+        
+    /** 
+     * Implementation of if-modified-since
      */
-    SDWebImageAllowInvalidSSLCertificates = 1 << 7
+    SDWebImageRefreshIfModifiedSince = 1 << 7
+    
 } SDWebImageOptions;
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
@@ -191,5 +192,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Check if image has already been cached
  */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
+
+@property (nonatomic, assign) BOOL useIfModifiedSinceCaching;
 
 @end
