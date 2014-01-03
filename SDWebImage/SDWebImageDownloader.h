@@ -39,7 +39,13 @@ typedef enum
      * Implements If-Modified-Since caching
      * For more Information: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
      */
-    SDWebImageDownloaderUseIfModifiedSinceCaching = 1 << 6
+    SDWebImageDownloaderUseIfModifiedSinceCaching = 1 << 6,
+
+    /**
+     * Enable to allow untrusted SSL ceriticates.
+     * Useful for testing purposes. Use with caution in production.
+     */
+    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 7
 
 } SDWebImageDownloaderOptions;
 
@@ -73,6 +79,13 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  */
 
 @property (readonly, nonatomic) NSUInteger currentDownloadCount;
+
+
+/**
+ *  The timeout value (in seconds) for the download operation. Default: 15.0.
+ */
+@property (assign, nonatomic) NSTimeInterval downloadTimeout;
+
 
 /**
  * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.

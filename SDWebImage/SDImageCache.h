@@ -90,13 +90,18 @@ typedef enum SDImageCacheType SDImageCacheType;
  * Store an image into memory and optionally disk cache at the given key.
  *
  * @param image The image to store
- * @param data The image data as returned by the server, this representation will be used for disk storage
+ * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
+ * @param imageData The image data as returned by the server, this representation will be used for disk storage
  *             instead of converting the given image object into a storable/compressed image format in order
  *             to save quality and CPU
  * @param key The unique image cache key, usually it's image absolute URL
  * @param toDisk Store the image to disk cache if YES
  */
+<<<<<<< HEAD
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk withMetadata:(NSDictionary *)metadata;
+=======
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
+>>>>>>> 8f8228e2a63af86ba441e49770f444919d4a6902
 
 /**
  * Query the disk cache asynchronously.

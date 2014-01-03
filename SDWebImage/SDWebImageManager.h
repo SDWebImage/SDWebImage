@@ -52,7 +52,7 @@ typedef enum
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
     SDWebImageHandleCookies = 1 << 6,
-    
+        
     /** 
      * Implementation of if-modified-since
      */
