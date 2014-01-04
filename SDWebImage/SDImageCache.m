@@ -533,14 +533,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     return count;
 }
 
-- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, unsigned long long totalSize))completionBlock
+- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, NSUInteger totalSize))completionBlock
 {
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
 
     dispatch_async(self.ioQueue, ^
     {
         NSUInteger fileCount = 0;
-        unsigned long long totalSize = 0;
+        NSUInteger totalSize = 0;
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
@@ -552,7 +552,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
         {
             NSNumber *fileSize;
             [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:NULL];
-            totalSize += [fileSize unsignedLongLongValue];
+            totalSize += [fileSize unsignedIntegerValue];
             fileCount += 1;
         }
 
