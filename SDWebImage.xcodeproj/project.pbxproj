@@ -187,6 +187,8 @@
 		53EDFCFE17625F5F00698166 /* filters.c in Sources */ = {isa = PBXBuildFile; fileRef = 53EDFCFA17625F5F00698166 /* filters.c */; };
 		53EDFD0217625F7900698166 /* thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 53EDFCFF17625F7900698166 /* thread.h */; };
 		53EDFD0417625F7900698166 /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 53EDFD0017625F7900698166 /* thread.c */; };
+		5DA509F4187B68E7002FEB5C /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DA509F2187B68E7002FEB5C /* random.c */; };
+		5DA509F5187B68E7002FEB5C /* random.h in Headers */ = {isa = PBXBuildFile; fileRef = 5DA509F3187B68E7002FEB5C /* random.h */; };
 		A18A6CC7172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC8172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC9172DC28500419892 /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CC6172DC28500419892 /* UIImage+GIF.m */; };
@@ -277,6 +279,8 @@
 		53EDFD0017625F7900698166 /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = Vendors/libwebp/src/utils/thread.c; sourceTree = "<group>"; };
 		53FB893F14D35D1A0020B787 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		53FB894814D35E9E0020B787 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		5DA509F2187B68E7002FEB5C /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = Vendors/libwebp/src/utils/random.c; sourceTree = "<group>"; };
+		5DA509F3187B68E7002FEB5C /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = Vendors/libwebp/src/utils/random.h; sourceTree = "<group>"; };
 		A18A6CC5172DC28500419892 /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
 		A18A6CC6172DC28500419892 /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -446,6 +450,8 @@
 		53EDFCA317625C4600698166 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				5DA509F2187B68E7002FEB5C /* random.c */,
+				5DA509F3187B68E7002FEB5C /* random.h */,
 				53E481DB17C300F6003E8957 /* alpha_processing.c */,
 				53E481DC17C300F6003E8957 /* alpha_processing.h */,
 				53EDFCFF17625F7900698166 /* thread.h */,
@@ -572,6 +578,7 @@
 				537D95B517ECC1FE0097C263 /* color_cache.h in Headers */,
 				537D95B617ECC1FE0097C263 /* lossless.h in Headers */,
 				537D95B717ECC1FE0097C263 /* alpha_processing.h in Headers */,
+				5DA509F5187B68E7002FEB5C /* random.h in Headers */,
 				537D95B817ECC1FE0097C263 /* yuv.h in Headers */,
 				537D95B917ECC1FE0097C263 /* rescaler.h in Headers */,
 				537D95BA17ECC1FE0097C263 /* utils.h in Headers */,
@@ -790,6 +797,7 @@
 				537D957C17ECC1FE0097C263 /* SDWebImageDownloaderOperation.m in Sources */,
 				537D957D17ECC1FE0097C263 /* SDWebImageCompat.m in Sources */,
 				537D957E17ECC1FE0097C263 /* UIImage+GIF.m in Sources */,
+				5DA509F4187B68E7002FEB5C /* random.c in Sources */,
 				537D958017ECC1FE0097C263 /* UIImage+MultiFormat.m in Sources */,
 				537D958117ECC1FE0097C263 /* UIImage+WebP.m in Sources */,
 				537D958217ECC1FE0097C263 /* webp.c in Sources */,
