@@ -12,7 +12,8 @@
 {
     uint8_t c;
     [data getBytes:&c length:1];
-    switch (c) {
+    switch (c)
+    {
         case 0xFF:
             return @"image/jpeg";
         case 0x89:
