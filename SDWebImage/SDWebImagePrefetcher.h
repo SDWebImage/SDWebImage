@@ -9,6 +9,33 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageManager.h"
 
+@class SDWebImagePrefetcher;
+
+@protocol SDWebImagePrefetcherDelegate <NSObject>
+
+@optional
+
+/**
+ * Called when an image was prefetched.
+ *
+ * @param imagePrefetcher The current image prefetcher
+ * @param imageURL The image url that was prefetched
+ * @param finishedCount The total number of images that were prefetched
+ * @param totalCount The total number of images that need to be prefetched
+ */
+- (void)imagePrefetcher:(SDWebImagePrefetcher*)imagePrefetcher didPrefetchURL:(NSURL*)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount;
+
+/**
+ * Called when all images are prefetched.
+ * @param imagePrefetcher The current image prefetcher
+ * @param totalCount The total number of images that need to be prefetched
+ * @param skippedCount The total number of images that were skipped
+ */
+- (void)imagePrefetcher:(SDWebImagePrefetcher*)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount;
+
+@end
+
+
 /**
  * Prefetch some URLs in the cache for future use. Images are downloaded in low priority.
  */
@@ -24,6 +51,7 @@
  */
 @property (nonatomic, assign) SDWebImageOptions options;
 
+@property (weak, nonatomic) id<SDWebImagePrefetcherDelegate> delegate;
 
 /**
  * Return the global image prefetcher instance.

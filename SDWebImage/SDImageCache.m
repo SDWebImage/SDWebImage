@@ -14,6 +14,24 @@
 #import <mach/mach_host.h>
 
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
+// PNG signature bytes and data (below)
+static unsigned char kPNGSignatureBytes[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+static NSData *kPNGSignatureData = nil;
+
+BOOL ImageDataHasPNGPreffix(NSData *data);
+BOOL ImageDataHasPNGPreffix(NSData *data)
+{
+    NSUInteger pngSignatureLength = [kPNGSignatureData length];
+    if ([data length] >= pngSignatureLength)
+    {
+        if ([[data subdataWithRange:NSMakeRange(0, pngSignatureLength)] isEqualToData:kPNGSignatureData])
+        {
+            return YES;
+        }
+    }
+
+    return NO;
+}
 
 @interface SDImageCache ()
 
@@ -25,7 +43,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 @end
 
 
-@implementation SDImageCache {
+@implementation SDImageCache
+{
     NSFileManager *_fileManager;
 }
 
@@ -33,7 +52,11 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 {
     static dispatch_once_t once;
     static id instance;
-    dispatch_once(&once, ^{instance = self.new;});
+    dispatch_once(&once, ^
+    {
+        instance = self.new;
+        kPNGSignatureData = [NSData dataWithBytes:kPNGSignatureBytes length:8];
+    });
     return instance;
 }
 
@@ -66,7 +89,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         {
             _fileManager = NSFileManager.new;
         });
-        
+
 #if TARGET_OS_IPHONE
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -78,7 +101,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
                                                  selector:@selector(cleanDisk)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundCleanDisk)
                                                      name:UIApplicationDidEnterBackgroundNotification
@@ -138,7 +161,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 #pragma mark ImageCache
 
-- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
     if (!image || !key)
     {
@@ -153,16 +176,35 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         {
             NSData *data = imageData;
 
-            if (!data)
+            if (image && (recalculate || !data))
             {
-                if (image)
-                {
 #if TARGET_OS_IPHONE
-                    data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
-#else
-                    data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
-#endif
+                // We need to determine if the image is a PNG or a JPEG
+                // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
+                // The first eight bytes of a PNG file always contain the following (decimal) values:
+                // 137 80 78 71 13 10 26 10
+
+                // We assume the image is PNG, in case the imageData is nil (i.e. if trying to save a UIImage directly),
+                // we will consider it PNG to avoid loosing the transparency
+                BOOL imageIsPng = YES;
+
+                // But if we have an image data, we will look at the preffix
+                if ([imageData length] >= [kPNGSignatureData length])
+                {
+                    imageIsPng = ImageDataHasPNGPreffix(imageData);
                 }
+
+                if (imageIsPng)
+                {
+                    data = UIImagePNGRepresentation(image);
+                }
+                else
+                {
+                    data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
+                }
+#else
+                data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
+#endif
             }
 
             if (data)
@@ -183,12 +225,12 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
+    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
 }
 
 - (BOOL)diskImageExistsWithKey:(NSString *)key
@@ -198,7 +240,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     {
         exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
     });
-    
+
     return exists;
 }
 
@@ -215,7 +257,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     {
         return image;
     }
-    
+
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage)
@@ -223,7 +265,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
-    
+
     return diskImage;
 }
 
@@ -272,7 +314,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
     NSOperation *operation = NSOperation.new;
-    
+
     if (!doneBlock) return nil;
 
     if (!key)
@@ -295,7 +337,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         {
             return;
         }
-        
+
         @autoreleasepool
         {
             UIImage *diskImage = [self diskImageForKey:key];
@@ -311,7 +353,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             });
         }
     });
-    
+
     return operation;
 }
 
@@ -336,6 +378,16 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             [[NSFileManager defaultManager] removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
         });
     }
+}
+
+- (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost
+{
+    self.memCache.totalCostLimit = maxMemoryCost;
+}
+
+- (NSUInteger)maxMemoryCost
+{
+    return self.memCache.totalCostLimit;
 }
 
 - (void)clearMemory
@@ -444,13 +496,13 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
     }];
-    
+
     // Start the long-running task and return immediately.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
     {
         // Do the work associated with the task, preferably in chunks.
         [self cleanDisk];
-        
+
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
     });
@@ -473,11 +525,11 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 {
     int count = 0;
     NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
-    for (NSString *fileName in fileEnumerator)
+    for (__unused NSString *fileName in fileEnumerator)
     {
         count += 1;
     }
-    
+
     return count;
 }
 
