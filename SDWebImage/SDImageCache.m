@@ -423,7 +423,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];
-        unsigned long long currentCacheSize = 0;
+        NSUInteger currentCacheSize = 0;
 
         // Enumerate all of the files in the cache directory.  This loop has two purposes:
         //
@@ -449,7 +449,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
 
             // Store a reference to this file and account for its total size.
             NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-            currentCacheSize += [totalAllocatedSize unsignedLongLongValue];
+            currentCacheSize += [totalAllocatedSize unsignedIntegerValue];
             [cacheFiles setObject:resourceValues forKey:fileURL];
         }
 
@@ -458,7 +458,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
         if (self.maxCacheSize > 0 && currentCacheSize > self.maxCacheSize)
         {
             // Target half of our maximum cache size for this cleanup pass.
-            const unsigned long long desiredCacheSize = self.maxCacheSize / 2;
+            const NSUInteger desiredCacheSize = self.maxCacheSize / 2;
 
             // Sort the remaining cache files by their last modification time (oldest first).
             NSArray *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
@@ -474,7 +474,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
                 {
                     NSDictionary *resourceValues = cacheFiles[fileURL];
                     NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-                    currentCacheSize -= [totalAllocatedSize unsignedLongLongValue];
+                    currentCacheSize -= [totalAllocatedSize unsignedIntegerValue];
 
                     if (currentCacheSize < desiredCacheSize)
                     {
@@ -508,9 +508,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     });
 }
 
-- (unsigned long long)getSize
+- (NSUInteger)getSize
 {
-    unsigned long long size = 0;
+    NSUInteger size = 0;
     NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
     for (NSString *fileName in fileEnumerator)
     {
@@ -533,14 +533,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
     return count;
 }
 
-- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, unsigned long long totalSize))completionBlock
+- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, NSUInteger totalSize))completionBlock
 {
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
 
     dispatch_async(self.ioQueue, ^
     {
         NSUInteger fileCount = 0;
-        unsigned long long totalSize = 0;
+        NSUInteger totalSize = 0;
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
@@ -552,7 +552,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data)
         {
             NSNumber *fileSize;
             [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:NULL];
-            totalSize += [fileSize unsignedLongLongValue];
+            totalSize += [fileSize unsignedIntegerValue];
             fileCount += 1;
         }
 
