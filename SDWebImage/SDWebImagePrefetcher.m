@@ -61,7 +61,7 @@
         if (!finished) return;
         self.finishedCount++;
 
-        if (image)
+        if (!image)
         {
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d", self.finishedCount, self.prefetchURLs.count);
@@ -91,7 +91,6 @@
         }
         else if (self.finishedCount == self.requestedCount)
         {
-            [self reportStatus];
             if (self.completionBlock)
             {
                 self.completionBlock(self.finishedCount, self.skippedCount);
