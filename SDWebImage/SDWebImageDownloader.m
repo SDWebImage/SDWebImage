@@ -124,32 +124,35 @@ static NSString *const kCompletedCallbackKey = @"completed";
         else {
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
-        operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request options:options progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-            if (!wself) return;
-            SDWebImageDownloader *sself = wself;
-            NSArray *callbacksForURL = [sself callbacksForURL:url];
-            for (NSDictionary *callbacks in callbacksForURL) {
-                SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
-                if (callback) callback(receivedSize, expectedSize);
-            }
-        }
-                                                               completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                                                   if (!wself) return;
-                                                                   SDWebImageDownloader *sself = wself;
-                                                                   NSArray *callbacksForURL = [sself callbacksForURL:url];
-                                                                   if (finished) {
-                                                                       [sself removeCallbacksForURL:url];
-                                                                   }
-                                                                   for (NSDictionary *callbacks in callbacksForURL) {
-                                                                       SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
-                                                                       if (callback) callback(image, data, error, finished);
-                                                                   }
-                                                               }
-                                                               cancelled:^{
-                                                                   if (!wself) return;
-                                                                   SDWebImageDownloader *sself = wself;
-                                                                   [sself removeCallbacksForURL:url];
-                                                               }];
+        operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request
+                                                                   options:options
+                                                                  progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                                                      if (!wself) return;
+                                                                      SDWebImageDownloader *sself = wself;
+                                                                      NSArray *callbacksForURL = [sself callbacksForURL:url];
+                                                                      for (NSDictionary *callbacks in callbacksForURL) {
+                                                                          SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
+                                                                          if (callback) callback(receivedSize, expectedSize);
+                                                                      }
+                                                                  }
+                                                                 completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                                                     if (!wself) return;
+                                                                     SDWebImageDownloader *sself = wself;
+                                                                     NSArray *callbacksForURL = [sself callbacksForURL:url];
+                                                                     if (finished) {
+                                                                         [sself removeCallbacksForURL:url];
+                                                                     }
+                                                                     for (NSDictionary *callbacks in callbacksForURL) {
+                                                                         SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
+                                                                         if (callback) callback(image, data, error, finished);
+                                                                     }
+                                                                 }
+                                                                 cancelled:^{
+                                                                     if (!wself) return;
+                                                                     SDWebImageDownloader *sself = wself;
+                                                                     [sself removeCallbacksForURL:url];
+                                                                 }];
+
         [wself.downloadQueue addOperation:operation];
         if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
