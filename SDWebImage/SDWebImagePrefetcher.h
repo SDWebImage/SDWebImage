@@ -23,7 +23,7 @@
  * @param finishedCount The total number of images that were prefetched
  * @param totalCount The total number of images that need to be prefetched
  */
-- (void)imagePrefetcher:(SDWebImagePrefetcher*)imagePrefetcher didPrefetchURL:(NSURL*)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount;
+- (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didPrefetchURL:(NSURL *)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount;
 
 /**
  * Called when all images are prefetched.
@@ -31,7 +31,7 @@
  * @param totalCount The total number of images that need to be prefetched
  * @param skippedCount The total number of images that were skipped
  */
-- (void)imagePrefetcher:(SDWebImagePrefetcher*)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount;
+- (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount;
 
 @end
 
@@ -51,7 +51,7 @@
  */
 @property (nonatomic, assign) SDWebImageOptions options;
 
-@property (weak, nonatomic) id<SDWebImagePrefetcherDelegate> delegate;
+@property (weak, nonatomic) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
  * Return the global image prefetcher instance.
