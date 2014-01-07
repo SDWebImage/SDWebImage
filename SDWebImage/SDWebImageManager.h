@@ -11,7 +11,7 @@
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
 
-typedef enum {
+typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when a URL fail to be downloaded, the URL is blacklisted so the library won't keep trying.
      * This flag disable this blacklisting.
@@ -56,7 +56,7 @@ typedef enum {
      * Useful for testing purposes. Use with caution in production.
      */
             SDWebImageAllowInvalidSSLCertificates = 1 << 7
-} SDWebImageOptions;
+};
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
 

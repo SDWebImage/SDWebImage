@@ -31,6 +31,14 @@
 
 #endif
 
+#ifndef NS_ENUM
+#define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
+#endif
+
+#ifndef NS_OPTIONS
+#define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
+#endif
+
 #if OS_OBJECT_USE_OBJC
     #undef SDDispatchQueueRelease
     #undef SDDispatchQueueSetterSementics

@@ -9,11 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
-enum SDImageCacheType {
+typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * The image wasn't available the SDWebImage caches, but was downloaded from the web.
      */
-            SDImageCacheTypeNone = 0,
+            SDImageCacheTypeNone,
     /**
      * The image was obtained from the disk cache.
      */
@@ -23,7 +23,6 @@ enum SDImageCacheType {
      */
             SDImageCacheTypeMemory
 };
-typedef enum SDImageCacheType SDImageCacheType;
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed

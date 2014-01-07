@@ -10,7 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
 
-typedef enum {
+typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderLowPriority = 1 << 0,
     SDWebImageDownloaderProgressiveDownload = 1 << 1,
     /**
@@ -39,9 +39,9 @@ typedef enum {
      */
             SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
 
-} SDWebImageDownloaderOptions;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     SDWebImageDownloaderFIFOExecutionOrder,
     /**
      * Default value. All download operations will execute in queue style (first-in-first-out).
@@ -50,7 +50,7 @@ typedef enum {
     /**
      * All download operations will execute in stack style (last-in-first-out).
      */
-} SDWebImageDownloaderExecutionOrder;
+};
 
 extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
