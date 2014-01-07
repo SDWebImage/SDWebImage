@@ -26,14 +26,14 @@
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
-        instance = self.new;
+        instance = [self new];
     });
     return instance;
 }
 
 - (id)init {
     if ((self = [super init])) {
-        _manager = SDWebImageManager.new;
+        _manager = [SDWebImageManager new];
         _options = SDWebImageLowPriority;
         self.maxConcurrentDownloads = 3;
     }

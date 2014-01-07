@@ -32,7 +32,7 @@
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
-        instance = self.new;
+        instance = [self new];
     });
     return instance;
 }
@@ -40,9 +40,9 @@
 - (id)init {
     if ((self = [super init])) {
         _imageCache = [self createCache];
-        _imageDownloader = SDWebImageDownloader.new;
-        _failedURLs = NSMutableArray.new;
-        _runningOperations = NSMutableArray.new;
+        _imageDownloader = [SDWebImageDownloader new];
+        _failedURLs = [NSMutableArray new];
+        _runningOperations = [NSMutableArray new];
     }
     return self;
 }
@@ -80,7 +80,7 @@
         url = nil;
     }
 
-    __block SDWebImageCombinedOperation *operation = SDWebImageCombinedOperation.new;
+    __block SDWebImageCombinedOperation *operation = [SDWebImageCombinedOperation new];
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
     BOOL isFailedUrl = NO;

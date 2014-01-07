@@ -75,7 +75,7 @@
 #endif
 
         self.executing = YES;
-        self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
+        self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
         self.thread = [NSThread currentThread];
     }
 
@@ -184,7 +184,7 @@
             self.progressBlock(0, expected);
         }
 
-        self.imageData = [NSMutableData.alloc initWithCapacity:expected];
+        self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
     }
     else {
         [self.connection cancel];

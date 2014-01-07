@@ -47,7 +47,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
-        instance = self.new;
+        instance = [self new];
         kPNGSignatureData = [NSData dataWithBytes:kPNGSignatureBytes length:8];
     });
     return instance;
@@ -76,7 +76,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
 
         dispatch_sync(_ioQueue, ^{
-            _fileManager = NSFileManager.new;
+            _fileManager = [NSFileManager new];
         });
 
 #if TARGET_OS_IPHONE
@@ -108,7 +108,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
 - (void)addReadOnlyCachePath:(NSString *)path {
     if (!self.customPaths) {
-        self.customPaths = NSMutableArray.new;
+        self.customPaths = [NSMutableArray new];
     }
 
     if (![self.customPaths containsObject:path]) {
@@ -182,7 +182,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
             if (data) {
                 // Can't use defaultManager another thread
-                NSFileManager *fileManager = NSFileManager.new;
+                NSFileManager *fileManager = [NSFileManager new];
 
                 if (![fileManager fileExistsAtPath:_diskCachePath]) {
                     [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
@@ -268,7 +268,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock {
-    NSOperation *operation = NSOperation.new;
+    NSOperation *operation = [NSOperation new];
 
     if (!doneBlock) return nil;
 

@@ -139,7 +139,7 @@ key is an application unique identifier for the image to cache. It is generally 
 the image.
 
 ```objective-c
-SDImageCache *imageCache = [SDImageCache.alloc initWithNamespace:@"myNamespace"];
+SDImageCache *imageCache = [[SDImageCache alloc] initWithNamespace:@"myNamespace"];
 [imageCache queryDiskCacheForKey:myCacheKey done:^(UIImage *image)
 {
     // image is not nil if image was found
