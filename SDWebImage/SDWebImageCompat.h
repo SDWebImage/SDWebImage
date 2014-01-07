@@ -26,7 +26,9 @@
 #define UIImageView NSImageView
 #endif
 #else
+
 #import <UIKit/UIKit.h>
+
 #endif
 
 #if OS_OBJECT_USE_OBJC
@@ -35,10 +37,10 @@
     #define SDDispatchQueueRelease(q)
     #define SDDispatchQueueSetterSementics strong
 #else
-    #undef SDDispatchQueueRelease
-    #undef SDDispatchQueueSetterSementics
-    #define SDDispatchQueueRelease(q) (dispatch_release(q))
-    #define SDDispatchQueueSetterSementics assign
+#undef SDDispatchQueueRelease
+#undef SDDispatchQueueSetterSementics
+#define SDDispatchQueueRelease(q) (dispatch_release(q))
+#define SDDispatchQueueSetterSementics assign
 #endif
 
 extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);

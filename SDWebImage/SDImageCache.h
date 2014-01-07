@@ -9,20 +9,19 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
-enum SDImageCacheType
-{
+enum SDImageCacheType {
     /**
      * The image wasn't available the SDWebImage caches, but was downloaded from the web.
      */
-    SDImageCacheTypeNone = 0,
+            SDImageCacheTypeNone = 0,
     /**
      * The image was obtained from the disk cache.
      */
-    SDImageCacheTypeDisk,
+            SDImageCacheTypeDisk,
     /**
      * The image was obtained from the memory cache.
      */
-    SDImageCacheTypeMemory
+            SDImageCacheTypeMemory
 };
 typedef enum SDImageCacheType SDImageCacheType;
 

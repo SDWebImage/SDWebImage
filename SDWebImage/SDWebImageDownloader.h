@@ -10,45 +10,43 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
 
-typedef enum
-{
+typedef enum {
     SDWebImageDownloaderLowPriority = 1 << 0,
     SDWebImageDownloaderProgressiveDownload = 1 << 1,
     /**
      * By default, request prevent the of NSURLCache. With this flag, NSURLCache
      * is used with default policies.
      */
-    SDWebImageDownloaderUseNSURLCache = 1 << 2,
+            SDWebImageDownloaderUseNSURLCache = 1 << 2,
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
      */
-    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
+            SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     /**
      * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
      * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
      */
-    SDWebImageDownloaderContinueInBackground = 1 << 4,
+            SDWebImageDownloaderContinueInBackground = 1 << 4,
     /**
      * Handles cookies stored in NSHTTPCookieStore by setting 
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
-    SDWebImageDownloaderHandleCookies = 1 << 5,
+            SDWebImageDownloaderHandleCookies = 1 << 5,
     /**
      * Enable to allow untrusted SSL ceriticates.
      * Useful for testing purposes. Use with caution in production.
      */
-    SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
+            SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
 
 } SDWebImageDownloaderOptions;
 
-typedef enum
-{
+typedef enum {
     SDWebImageDownloaderFIFOExecutionOrder,
     /**
      * Default value. All download operations will execute in queue style (first-in-first-out).
      */
-    SDWebImageDownloaderLIFOExecutionOrder
+            SDWebImageDownloaderLIFOExecutionOrder
     /**
      * All download operations will execute in stack style (last-in-first-out).
      */
@@ -58,6 +56,7 @@ extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize);
+
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
 
 /**
@@ -131,9 +130,9 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  *
  * @return A cancellable SDWebImageOperation
  */
-- (id<SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
-                                        options:(SDWebImageDownloaderOptions)options
-                                       progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                      completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageDownloaderOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
 
 @end

@@ -139,7 +139,7 @@
  *
  *@param arrayOfURLs An array of NSURL
  */
--(void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
 
 /**
  * Cancel the current download

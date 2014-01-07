@@ -12,10 +12,8 @@
 
 @implementation UIImage (ForceDecode)
 
-+ (UIImage *)decodedImageWithImage:(UIImage *)image
-{
-    if (image.images)
-    {
++ (UIImage *)decodedImageWithImage:(UIImage *)image {
+    if (image.images) {
         // Do not decode animated images
         return image;
     }
@@ -29,22 +27,20 @@
 
     int infoMask = (bitmapInfo & kCGBitmapAlphaInfoMask);
     BOOL anyNonAlpha = (infoMask == kCGImageAlphaNone ||
-                        infoMask == kCGImageAlphaNoneSkipFirst ||
-                        infoMask == kCGImageAlphaNoneSkipLast);
+            infoMask == kCGImageAlphaNoneSkipFirst ||
+            infoMask == kCGImageAlphaNoneSkipLast);
 
     // CGBitmapContextCreate doesn't support kCGImageAlphaNone with RGB.
     // https://developer.apple.com/library/mac/#qa/qa1037/_index.html
-    if (infoMask == kCGImageAlphaNone && CGColorSpaceGetNumberOfComponents(colorSpace) > 1)
-    {
+    if (infoMask == kCGImageAlphaNone && CGColorSpaceGetNumberOfComponents(colorSpace) > 1) {
         // Unset the old alpha info.
         bitmapInfo &= ~kCGBitmapAlphaInfoMask;
-       
+
         // Set noneSkipFirst.
         bitmapInfo |= kCGImageAlphaNoneSkipFirst;
     }
-    // Some PNGs tell us they have alpha but only 3 components. Odd.
-    else if (!anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3)
-    {
+            // Some PNGs tell us they have alpha but only 3 components. Odd.
+    else if (!anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3) {
         // Unset the old alpha info.
         bitmapInfo &= ~kCGBitmapAlphaInfoMask;
         bitmapInfo |= kCGImageAlphaPremultipliedFirst;
@@ -52,22 +48,22 @@
 
     // It calculates the bytes-per-row based on the bitsPerComponent and width arguments.
     CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 imageSize.width,
-                                                 imageSize.height,
-                                                 CGImageGetBitsPerComponent(imageRef),
-                                                 0,
-                                                 colorSpace,
-                                                 bitmapInfo);
+            imageSize.width,
+            imageSize.height,
+            CGImageGetBitsPerComponent(imageRef),
+            0,
+            colorSpace,
+            bitmapInfo);
     CGColorSpaceRelease(colorSpace);
 
     // If failed, return undecompressed image
     if (!context) return image;
-	
+
     CGContextDrawImage(context, imageRect, imageRef);
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
-	
+
     CGContextRelease(context);
-	
+
     UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
     CGImageRelease(decompressedImageRef);
     return decompressedImage;
