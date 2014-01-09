@@ -41,7 +41,9 @@ static char operationArrayKey;
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
 
-    self.image = placeholder;
+    if (placeholder) {
+        self.image = placeholder;
+    }
 
     if (url) {
         __weak UIImageView *wself = self;
