@@ -273,44 +273,37 @@
     return SDScaledImageForKey(key, image);
 }
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
-    CFRunLoopStop(CFRunLoopGetCurrent());
-    self.connection = nil;
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-
+- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
+{
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-
-    if (completionBlock) {
+    @synchronized(self) {
+        CFRunLoopStop(CFRunLoopGetCurrent());
+        self.thread = nil;
+        self.connection = nil;
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+    }
+    
+    if (completionBlock)
+    {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
-            self.completionBlock = nil;
-            [self done];
         }
         else {
-
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
-
             image = [self scaledImageForKey:self.request.URL.absoluteString image:image];
-
-            if (!image.images) // Do not force decod animated GIFs
-            {
+            if (!image.images) {
                 image = [UIImage decodedImageWithImage:image];
             }
-
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Downloaded image has 0 pixels"}], YES);
             }
             else {
                 completionBlock(image, self.imageData, nil, YES);
             }
-            self.completionBlock = nil;
-            [self done];
         }
     }
-    else {
-        [self done];
-    }
+    self.completionBlock = nil;
+    [self done];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
