@@ -225,6 +225,18 @@
     return self.runningOperations.count > 0;
 }
 
+- (void)removeFailedURLsWithURL:(NSURL*)url {
+    @synchronized (self.failedURLs) {
+        [self.failedURLs removeObject:url];
+    }
+}
+
+- (void)clearFailedURLs {
+    @synchronized (self.failedURLs) {
+        [self.failedURLs removeAllObjects];
+    }
+}
+
 @end
 
 @implementation SDWebImageCombinedOperation

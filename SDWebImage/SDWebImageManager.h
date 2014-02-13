@@ -188,6 +188,16 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (BOOL)isRunning;
 
 /**
+ * Remove failed URL caused from temporary unavaiables
+ */
+- (void)removeFailedURLsWithURL:(NSURL*)url;
+
+/**
+ * Clear all failed URLs for future retry
+ */
+- (void)clearFailedURLs;
+
+/**
  * Check if image has already been cached
  */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
