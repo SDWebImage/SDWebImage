@@ -17,6 +17,7 @@
 @property (assign, nonatomic) NSUInteger finishedCount;
 @property (assign, nonatomic) NSTimeInterval startedTime;
 @property (copy, nonatomic) void (^completionBlock)(NSUInteger, NSUInteger);
+@property (copy, nonatomic) void (^progressBlock)(NSUInteger, NSUInteger);
 
 @end
 
@@ -56,11 +57,13 @@
         self.finishedCount++;
 
         if (image) {
+            self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d", self.finishedCount, self.prefetchURLs.count);
 #endif
         }
         else {
+            self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d (Failed)", self.finishedCount, [self.prefetchURLs count]);
 #endif
@@ -103,14 +106,15 @@
 }
 
 - (void)prefetchURLs:(NSArray *)urls {
-    [self prefetchURLs:urls completed:nil];
+    [self prefetchURLs:urls progress:nil completed:nil];
 }
 
-- (void)prefetchURLs:(NSArray *)urls completed:(void (^)(NSUInteger, NSUInteger))completionBlock {
+- (void)prefetchURLs:(NSArray *)urls progress:(void (^)(NSUInteger, NSUInteger))progressBlock completed:(void (^)(NSUInteger, NSUInteger))completionBlock {
     [self cancelPrefetching]; // Prevent duplicate prefetch request
     self.startedTime = CFAbsoluteTimeGetCurrent();
     self.prefetchURLs = urls;
     self.completionBlock = completionBlock;
+    self.progressBlock = progressBlock;
 
     // Starts prefetching from the very first image on the list with the max allowed concurrency
     NSUInteger listCount = self.prefetchURLs.count;
