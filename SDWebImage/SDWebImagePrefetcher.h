@@ -73,9 +73,10 @@
  * and skips images for failed downloads and proceed to the next image in the list
  *
  * @param urls list of URLs to prefetch
+ * @param progressBlock block to be called when progress updates
  * @param completionBlock block to be called when prefetching is completed
  */
-- (void)prefetchURLs:(NSArray *)urls completed:(void (^)(NSUInteger finishedCount, NSUInteger skippedCount))completionBlock;
+- (void)prefetchURLs:(NSArray *)urls progress:(void (^)(NSUInteger, NSUInteger))progressBlock completed:(void (^)(NSUInteger, NSUInteger))completionBlock;
 
 /**
  * Remove and cancel queued list
