@@ -336,12 +336,23 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)clearDisk {
+    [self clearDiskOnCompletion:nil];
+}
+
+- (void)clearDiskOnCompletion:(void (^)())completion
+{
     dispatch_async(self.ioQueue, ^{
         [[NSFileManager defaultManager] removeItemAtPath:self.diskCachePath error:nil];
         [[NSFileManager defaultManager] createDirectoryAtPath:self.diskCachePath
                                   withIntermediateDirectories:YES
                                                    attributes:nil
                                                         error:NULL];
+
+        if (completion) {
+            dispatch_main_sync_safe(^{
+                completion();
+            });
+        }
     });
 }
 
