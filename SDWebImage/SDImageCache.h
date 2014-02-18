@@ -142,6 +142,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
  * Clear all disk cached images
  */
 - (void)clearDisk;
+- (void)clearDiskOnCompletion:(void (^)())completion;
 
 /**
  * Remove all expired cached image from disk
