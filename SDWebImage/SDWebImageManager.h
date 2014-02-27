@@ -190,6 +190,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * Check if image has already been cached
  */
+- (BOOL)cachedImageExistsForURL:(NSURL *)url;
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
 
 @end
