@@ -57,13 +57,17 @@
         self.finishedCount++;
 
         if (image) {
-            self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+            if (self.progressBlock) {
+                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+            }
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d", self.finishedCount, self.prefetchURLs.count);
 #endif
         }
         else {
-            self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+            if (self.progressBlock) {
+                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+            }
 #ifdef SD_VERBOSE
             NSLog(@"Prefetched %d out of %d (Failed)", self.finishedCount, [self.prefetchURLs count]);
 #endif
