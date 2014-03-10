@@ -24,6 +24,8 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
             SDImageCacheTypeMemory
 };
 
+typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType cacheType);
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -102,7 +104,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
  *
  * @param key The unique key used to store the wanted image
  */
-- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock;
 
 /**
  * Query the memory cache synchronously.
