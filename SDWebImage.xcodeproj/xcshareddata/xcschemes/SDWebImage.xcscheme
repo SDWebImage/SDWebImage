@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "539F912B16316D2D00160719"
-               BuildableName = "SDWebImageFramework"
-               BlueprintName = "SDWebImageFramework"
+               BlueprintIdentifier = "53761307155AD0D5005750A4"
+               BuildableName = "libSDWebImage.a"
+               BlueprintName = "SDWebImage"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

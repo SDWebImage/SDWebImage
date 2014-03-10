@@ -16,8 +16,9 @@ It provides:
 - A guarantee that main thread will never be blocked
 - Performances!
 - Use GCD and ARC
+- Arm64 support
 
-NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.0
+NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.1.1
 minimum deployement version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
@@ -25,7 +26,7 @@ minimum deployement version. If you need iOS < 5.0 support, please use the last 
 Who Use It
 ----------
 
-Find out [who use SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Use-SDWebImage) and add your app to the list.
+Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
 
 How To Use
 ----------
@@ -94,7 +95,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                  {
                      // progression tracking code
                  }
-                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType)
+                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
                  {
                      if (image)
                      {
@@ -138,7 +139,7 @@ key is an application unique identifier for the image to cache. It is generally 
 the image.
 
 ```objective-c
-SDImageCache *imageCache = [SDImageCache.alloc initWithNamespace:@"myNamespace"];
+SDImageCache *imageCache = [[SDImageCache alloc] initWithNamespace:@"myNamespace"];
 [imageCache queryDiskCacheForKey:myCacheKey done:^(UIImage *image)
 {
     // image is not nil if image was found
@@ -217,7 +218,7 @@ There are two ways to use this in your project: copy all the files into your pro
 
 ### Add the SDWebImage project to your project
 
-- Download and unzip the last version of the framework from the [download page](https://github.com/rs/SDWebImage/wiki/Download-Compiled-Framework)
+- Download and unzip the last version of the framework from the [download page](https://github.com/rs/SDWebImage/releases)
 - Right-click on the project navigator and select "Add Files to "Your Project":
 - In the dialog, select SDWebImage.framework:
 - Check the "Copy items into destination group's folder (if needed)" checkbox
