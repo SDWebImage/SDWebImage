@@ -84,7 +84,9 @@
         }
 
         if (self.prefetchURLs.count > self.requestedCount) {
-            [self startPrefetchingAtIndex:self.requestedCount];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self startPrefetchingAtIndex:self.requestedCount];
+            });
         }
         else if (self.finishedCount + self.skippedCount == self.requestedCount) {
             [self reportStatus];
