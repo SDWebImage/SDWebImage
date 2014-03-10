@@ -35,7 +35,7 @@
     {
         __block UIActivityIndicatorView *activityIndicator;
         __weak UIImageView *weakImageView = self.imageView;
-        [self.imageView setImageWithURL:self.imageURL placeholderImage:nil options:SDWebImageProgressiveDownload progress:^(NSUInteger receivedSize, long long expectedSize)
+        [self.imageView setImageWithURL:self.imageURL placeholderImage:nil options:SDWebImageProgressiveDownload progress:^(NSInteger receivedSize, NSInteger expectedSize)
         {
             if (!activityIndicator)
             {

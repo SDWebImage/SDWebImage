@@ -11,7 +11,7 @@
 #import "DetailViewController.h"
 
 @interface MasterViewController () {
-    NSMutableArray *_objects;
+    NSArray *_objects;
 }
 @end
 
