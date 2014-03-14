@@ -37,7 +37,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * Enable to allow untrusted SSL ceriticates.
      * Useful for testing purposes. Use with caution in production.
      */
-            SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6
+            SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6,
+    /**
+     * 
+     */
+        SDWebImageDownloaderHighPriority = 1 << 7,
+    
 
 };
 

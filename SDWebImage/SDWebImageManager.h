@@ -55,7 +55,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Enable to allow untrusted SSL ceriticates.
      * Useful for testing purposes. Use with caution in production.
      */
-            SDWebImageAllowInvalidSSLCertificates = 1 << 7
+            SDWebImageAllowInvalidSSLCertificates = 1 << 7,
+    /**
+     * By default, image are loaded in the order they were queued. This flag move them to
+     * the front of the queue and is loaded immediately instead of waiting for the current queue to be loaded (which 
+     * could take a while).
+     */
+            SDWebImageHighPriority = 1 << 8
 };
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
