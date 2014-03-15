@@ -54,11 +54,9 @@
 extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
 #define dispatch_main_sync_safe(block)\
-    if ([NSThread isMainThread])\
-    {\
+    if ([NSThread isMainThread]) {\
         block();\
     }\
-    else\
-    {\
+    else {\
         dispatch_sync(dispatch_get_main_queue(), block);\
     }
