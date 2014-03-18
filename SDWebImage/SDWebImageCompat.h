@@ -26,7 +26,17 @@
 #define UIImageView NSImageView
 #endif
 #else
+
 #import <UIKit/UIKit.h>
+
+#endif
+
+#ifndef NS_ENUM
+#define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
+#endif
+
+#ifndef NS_OPTIONS
+#define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
 #if OS_OBJECT_USE_OBJC
@@ -35,20 +45,18 @@
     #define SDDispatchQueueRelease(q)
     #define SDDispatchQueueSetterSementics strong
 #else
-    #undef SDDispatchQueueRelease
-    #undef SDDispatchQueueSetterSementics
-    #define SDDispatchQueueRelease(q) (dispatch_release(q))
-    #define SDDispatchQueueSetterSementics assign
+#undef SDDispatchQueueRelease
+#undef SDDispatchQueueSetterSementics
+#define SDDispatchQueueRelease(q) (dispatch_release(q))
+#define SDDispatchQueueSetterSementics assign
 #endif
 
-extern inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
+extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
 #define dispatch_main_sync_safe(block)\
-    if ([NSThread isMainThread])\
-    {\
+    if ([NSThread isMainThread]) {\
         block();\
     }\
-    else\
-    {\
+    else {\
         dispatch_sync(dispatch_get_main_queue(), block);\
     }

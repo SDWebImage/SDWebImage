@@ -16,8 +16,9 @@ It provides:
 - A guarantee that main thread will never be blocked
 - Performances!
 - Use GCD and ARC
+- Arm64 support
 
-NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.0
+NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.1.1
 minimum deployement version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
@@ -138,7 +139,7 @@ key is an application unique identifier for the image to cache. It is generally 
 the image.
 
 ```objective-c
-SDImageCache *imageCache = [SDImageCache.alloc initWithNamespace:@"myNamespace"];
+SDImageCache *imageCache = [[SDImageCache alloc] initWithNamespace:@"myNamespace"];
 [imageCache queryDiskCacheForKey:myCacheKey done:^(UIImage *image)
 {
     // image is not nil if image was found
