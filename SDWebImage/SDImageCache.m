@@ -441,23 +441,26 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (NSUInteger)getSize {
-    NSUInteger size = 0;
-    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
-    for (NSString *fileName in fileEnumerator) {
-        NSString *filePath = [self.diskCachePath stringByAppendingPathComponent:fileName];
-        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
-        size += [attrs fileSize];
-    }
+    __block NSUInteger size = 0;
+    dispatch_sync(self.ioQueue, ^{
+        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
+        for (NSString *fileName in fileEnumerator) {
+            NSString *filePath = [self.diskCachePath stringByAppendingPathComponent:fileName];
+            NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+            size += [attrs fileSize];
+        }
+    });
     return size;
 }
 
 - (int)getDiskCount {
-    int count = 0;
-    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
-    for (__unused NSString *fileName in fileEnumerator) {
-        count += 1;
-    }
-
+    __block int count = 0;
+    dispatch_sync(self.ioQueue, ^{
+        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
+        for (__unused NSString *fileName in fileEnumerator) {
+            count += 1;
+        }
+    });
     return count;
 }
 
