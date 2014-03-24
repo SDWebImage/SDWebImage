@@ -181,14 +181,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
             }
 
             if (data) {
-                // Can't use defaultManager another thread
-                NSFileManager *fileManager = [NSFileManager new];
-
-                if (![fileManager fileExistsAtPath:_diskCachePath]) {
-                    [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+                if (![_fileManager fileExistsAtPath:_diskCachePath]) {
+                    [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
 
-                [fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
+                [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
         });
     }
@@ -318,7 +315,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
     if (fromDisk) {
         dispatch_async(self.ioQueue, ^{
-            [[NSFileManager defaultManager] removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
+            [_fileManager removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
         });
     }
 }
@@ -342,11 +339,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 - (void)clearDiskOnCompletion:(void (^)())completion
 {
     dispatch_async(self.ioQueue, ^{
-        [[NSFileManager defaultManager] removeItemAtPath:self.diskCachePath error:nil];
-        [[NSFileManager defaultManager] createDirectoryAtPath:self.diskCachePath
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:NULL];
+        [_fileManager removeItemAtPath:self.diskCachePath error:nil];
+        [_fileManager createDirectoryAtPath:self.diskCachePath
+                withIntermediateDirectories:YES
+                                 attributes:nil
+                                      error:NULL];
 
         if (completion) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -358,15 +355,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
 - (void)cleanDisk {
     dispatch_async(self.ioQueue, ^{
-        NSFileManager *fileManager = [NSFileManager defaultManager];
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
 
         // This enumerator prefetches useful properties for our cache files.
-        NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
-                                                  includingPropertiesForKeys:resourceKeys
-                                                                     options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                errorHandler:NULL];
+        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtURL:diskCacheURL
+                                                   includingPropertiesForKeys:resourceKeys
+                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                 errorHandler:NULL];
 
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];
@@ -387,7 +383,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
             // Remove files that are older than the expiration date;
             NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
             if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-                [fileManager removeItemAtURL:fileURL error:nil];
+                [_fileManager removeItemAtURL:fileURL error:nil];
                 continue;
             }
 
@@ -411,7 +407,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
             // Delete files until we fall below our desired cache size.
             for (NSURL *fileURL in sortedFiles) {
-                if ([fileManager removeItemAtURL:fileURL error:nil]) {
+                if ([_fileManager removeItemAtURL:fileURL error:nil]) {
                     NSDictionary *resourceValues = cacheFiles[fileURL];
                     NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
                     currentCacheSize -= [totalAllocatedSize unsignedIntegerValue];
@@ -472,11 +468,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         NSUInteger fileCount = 0;
         NSUInteger totalSize = 0;
 
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSDirectoryEnumerator *fileEnumerator = [fileManager enumeratorAtURL:diskCacheURL
-                                                  includingPropertiesForKeys:@[NSFileSize]
-                                                                     options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                errorHandler:NULL];
+        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtURL:diskCacheURL
+                                                   includingPropertiesForKeys:@[NSFileSize]
+                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                 errorHandler:NULL];
 
         for (NSURL *fileURL in fileEnumerator) {
             NSNumber *fileSize;
