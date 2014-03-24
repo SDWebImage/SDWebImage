@@ -296,7 +296,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
 
-            dispatch_main_sync_safe(^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 doneBlock(diskImage, SDImageCacheTypeDisk);
             });
         }
@@ -349,7 +349,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                                                         error:NULL];
 
         if (completion) {
-            dispatch_main_sync_safe(^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 completion();
             });
         }
@@ -486,7 +486,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         }
 
         if (completionBlock) {
-            dispatch_main_sync_safe(^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock(fileCount, totalSize);
             });
         }
