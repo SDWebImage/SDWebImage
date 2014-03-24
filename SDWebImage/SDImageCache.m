@@ -354,6 +354,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)cleanDisk {
+    [self cleanDiskWithCompletionBlock:nil];
+}
+
+- (void)cleanDiskWithCompletionBlock:(void (^)())completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
@@ -418,6 +422,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 }
             }
         }
+        if (completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock();
+            });
+        }
     });
 }
 
@@ -431,13 +440,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }];
 
     // Start the long-running task and return immediately.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        // Do the work associated with the task, preferably in chunks.
-        [self cleanDisk];
-
+    [self cleanDiskWithCompletionBlock:^{
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
-    });
+    }];
 }
 
 - (NSUInteger)getSize {
