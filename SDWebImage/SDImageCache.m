@@ -265,9 +265,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock {
-    NSOperation *operation = [NSOperation new];
-
-    if (!doneBlock) return nil;
+    if (!doneBlock) {
+        return nil;
+    }
 
     if (!key) {
         doneBlock(nil, SDImageCacheTypeNone);
@@ -281,6 +281,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return nil;
     }
 
+    NSOperation *operation = [NSOperation new];
     dispatch_async(self.ioQueue, ^{
         if (operation.isCancelled) {
             return;
@@ -459,13 +460,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     return size;
 }
 
-- (int)getDiskCount {
-    __block int count = 0;
+- (NSUInteger)getDiskCount {
+    __block NSUInteger count = 0;
     dispatch_sync(self.ioQueue, ^{
         NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
-        for (__unused NSString *fileName in fileEnumerator) {
-            count += 1;
-        }
+        count = [[fileEnumerator allObjects] count];
     });
     return count;
 }
