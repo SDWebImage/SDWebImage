@@ -26,8 +26,7 @@
  
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
  
-    if (cell == nil)
-    {
+    if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier]
                  autorelease];
     }
@@ -139,7 +138,7 @@
  *
  *@param arrayOfURLs An array of NSURL
  */
--(void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
 
 /**
  * Cancel the current download

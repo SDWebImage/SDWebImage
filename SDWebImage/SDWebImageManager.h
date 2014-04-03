@@ -11,27 +11,30 @@
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
 
-typedef enum
-{
+typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when a URL fail to be downloaded, the URL is blacklisted so the library won't keep trying.
      * This flag disable this blacklisting.
      */
     SDWebImageRetryFailed = 1 << 0,
+
     /**
      * By default, image downloads are started during UI interactions, this flags disable this feature,
      * leading to delayed download on UIScrollView deceleration for instance.
      */
     SDWebImageLowPriority = 1 << 1,
+
     /**
      * This flag disables on-disk caching
      */
     SDWebImageCacheMemoryOnly = 1 << 2,
+
     /**
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      * By default, the image is only displayed once completely downloaded.
      */
     SDWebImageProgressiveDownload = 1 << 3,
+
     /**
      * Even if the image is cached, respect the HTTP response cache control, and refresh the image from remote location if needed.
      * The disk caching will be handled by NSURLCache instead of SDWebImage leading to slight performance degradation.
@@ -47,14 +50,29 @@ typedef enum
      * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
      */
     SDWebImageContinueInBackground = 1 << 5,
+
     /**
      * Handles cookies stored in NSHTTPCookieStore by setting
      * NSMutableURLRequest.HTTPShouldHandleCookies = YES;
      */
-    SDWebImageHandleCookies = 1 << 6
-} SDWebImageOptions;
+    SDWebImageHandleCookies = 1 << 6,
+
+    /**
+     * Enable to allow untrusted SSL ceriticates.
+     * Useful for testing purposes. Use with caution in production.
+     */
+    SDWebImageAllowInvalidSSLCertificates = 1 << 7,
+
+    /**
+     * By default, image are loaded in the order they were queued. This flag move them to
+     * the front of the queue and is loaded immediately instead of waiting for the current queue to be loaded (which 
+     * could take a while).
+     */
+    SDWebImageHighPriority = 1 << 8
+};
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
+
 typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
 
 
@@ -102,10 +120,8 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadWithURL:imageURL
                  options:0
                 progress:nil
-               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
-               {
-                   if (image)
-                   {
+               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+                   if (image) {
                        // do something with image
                    }
                }];
@@ -114,7 +130,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 @interface SDWebImageManager : NSObject
 
-@property (weak, nonatomic) id<SDWebImageManagerDelegate> delegate;
+@property (weak, nonatomic) id <SDWebImageManagerDelegate> delegate;
 
 @property (strong, nonatomic, readonly) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
@@ -128,8 +144,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @code
 
-[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
-{
+[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url) {
     url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
     return [url absoluteString];
 }];
@@ -167,10 +182,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return Returns a cancellable NSOperation
  */
-- (id<SDWebImageOperation>)downloadWithURL:(NSURL *)url
-                                   options:(SDWebImageOptions)options
-                                  progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                 completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
+- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
+                                    options:(SDWebImageOptions)options
+                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
 
 /**
  * Cancel all current opreations
