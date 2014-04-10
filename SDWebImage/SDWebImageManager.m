@@ -21,7 +21,7 @@
 
 @property (strong, nonatomic, readwrite) SDImageCache *imageCache;
 @property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;
-@property (strong, nonatomic) NSMutableArray *failedURLs;
+@property (strong, nonatomic) NSMutableDictionary *failedURLs;
 @property (strong, nonatomic) NSMutableArray *runningOperations;
 
 @end
@@ -41,7 +41,7 @@
     if ((self = [super init])) {
         _imageCache = [self createCache];
         _imageDownloader = [SDWebImageDownloader new];
-        _failedURLs = [NSMutableArray new];
+        _failedURLs = [NSMutableDictionary new];
         _runningOperations = [NSMutableArray new];
     }
     return self;
@@ -83,9 +83,15 @@
     __block SDWebImageCombinedOperation *operation = [SDWebImageCombinedOperation new];
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
+    
+    NSString *key = [self cacheKeyForURL:url];
+
     BOOL isFailedUrl = NO;
     @synchronized (self.failedURLs) {
-        isFailedUrl = [self.failedURLs containsObject:url];
+        if( [self.failedURLs valueForKey:key] != nil)
+        {
+            isFailedUrl = YES;
+        }
     }
 
     if (!url || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
@@ -99,14 +105,13 @@
     @synchronized (self.runningOperations) {
         [self.runningOperations addObject:operation];
     }
-    NSString *key = [self cacheKeyForURL:url];
 
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
+                [self.failedURLs removeObjectForKey:key];
             }
-
             return;
         }
 
@@ -147,7 +152,7 @@
 
                     if (error.code != NSURLErrorNotConnectedToInternet) {
                         @synchronized (self.failedURLs) {
-                            [self.failedURLs addObject:url];
+                            [self.failedURLs setValue:url forKey:key];
                         }
                     }
                 }
@@ -186,6 +191,7 @@
                 if (finished) {
                     @synchronized (self.runningOperations) {
                         [self.runningOperations removeObject:operation];
+                        [self.failedURLs removeObjectForKey:key];
                     }
                 }
             }];
