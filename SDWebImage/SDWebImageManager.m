@@ -162,24 +162,24 @@
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                             UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
-                            dispatch_main_sync_safe(^{
-                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
-                            });
-
                             if (transformedImage && finished) {
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
                             }
+
+                            dispatch_main_sync_safe(^{
+                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
+                            });
                         });
                     }
                     else {
-                        dispatch_main_sync_safe(^{
-                            completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished);
-                        });
-
                         if (downloadedImage && finished) {
                             [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
                         }
+
+                        dispatch_main_sync_safe(^{
+                            completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished);
+                        });
                     }
                 }
 
