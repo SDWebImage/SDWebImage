@@ -68,7 +68,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * the front of the queue and is loaded immediately instead of waiting for the current queue to be loaded (which 
      * could take a while).
      */
-    SDWebImageHighPriority = 1 << 8
+    SDWebImageHighPriority = 1 << 8,
+    
+    /**
+     * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
+     * of the placeholder image until after the image has finished loading.
+     */
+    SDWebImageDelayPlaceholder = 1 << 9
 };
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);

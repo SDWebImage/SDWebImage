@@ -39,13 +39,9 @@ static char operationArrayKey;
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:placeholder delayPlaceholderLoad:NO options:options progress:progressBlock completed:completedBlock];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder delayPlaceholderLoad:(BOOL)delayPlaceholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
     
-    if (!delayPlaceholder) {
+    if (options != SDWebImageDelayPlaceholder) {
         self.image = placeholder;
     }
     
@@ -59,7 +55,7 @@ static char operationArrayKey;
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {
-                    if (delayPlaceholder) {
+                    if (options == SDWebImageDelayPlaceholder) {
                         wself.image = placeholder;
                         [wself setNeedsLayout];
                     }
