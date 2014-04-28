@@ -136,6 +136,7 @@
             }
             id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 if (weakOperation.isCancelled) {
+                    // Do nothing if the operation has been cancelled.
                 }
                 else if (error) {
                     dispatch_main_sync_safe(^{
