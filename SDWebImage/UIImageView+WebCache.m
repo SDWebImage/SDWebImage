@@ -52,6 +52,10 @@ static char operationArrayKey;
                 if (image) {
                     wself.image = image;
                     [wself setNeedsLayout];
+                    
+                    if (cacheType == SDImageCacheTypeNone) {
+                        [self fadeLayer:wself.layer];
+                    }
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType);
@@ -111,6 +115,14 @@ static char operationArrayKey;
         }
     }
     objc_setAssociatedObject(self, &operationArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)fadeLayer:(CALayer *)layer {
+    CATransition *transition = [CATransition animation];
+    transition.duration = .5;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    transition.type = kCATransitionFade;
+    [layer addAnimation:transition forKey:@"fade"];
 }
 
 @end
