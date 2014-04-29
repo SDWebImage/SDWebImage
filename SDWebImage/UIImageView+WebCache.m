@@ -55,7 +55,7 @@ static char operationArrayKey;
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {
-                    if (options & SDWebImageDelayPlaceholder) {
+                    if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
                         [wself setNeedsLayout];
                     }
