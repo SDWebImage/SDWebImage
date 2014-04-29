@@ -41,7 +41,7 @@ static char operationArrayKey;
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
     
-    if (options != SDWebImageDelayPlaceholder) {
+    if (!(options & SDWebImageDelayPlaceholder)) {
         self.image = placeholder;
     }
     
@@ -55,7 +55,7 @@ static char operationArrayKey;
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {
-                    if (options == SDWebImageDelayPlaceholder) {
+                    if (options & SDWebImageDelayPlaceholder) {
                         wself.image = placeholder;
                         [wself setNeedsLayout];
                     }
