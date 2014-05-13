@@ -39,6 +39,7 @@
 - (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSInteger, NSInteger))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock {
     if ((self = [super init])) {
         _request = request;
+        _shouldUseCredentialStorage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
@@ -366,6 +367,27 @@
     [self done];
 }
 
+- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection __unused *)connection {
+    return self.shouldUseCredentialStorage;
+}
+
+- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+        [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
+    } else {
+        if ([challenge previousFailureCount] == 0) {
+            if (self.credential) {
+                [[challenge sender] useCredential:self.credential forAuthenticationChallenge:challenge];
+            } else {
+                [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
+            }
+        } else {
+            [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
+        }
+    }
+}
+
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse {
     responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
     if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
@@ -379,20 +401,6 @@
 
 - (BOOL)shouldContinueWhenAppEntersBackground {
     return self.options & SDWebImageDownloaderContinueInBackground;
-}
-
-- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace {
-    return [protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
-    BOOL trustAllCertificates = (self.options & SDWebImageDownloaderAllowInvalidSSLCertificates);
-    if (trustAllCertificates && [challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]
-             forAuthenticationChallenge:challenge];
-    }
-
-    [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
 
 @end
