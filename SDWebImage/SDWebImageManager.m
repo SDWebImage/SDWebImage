@@ -215,6 +215,13 @@
     return operation;
 }
 
+- (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url {
+    if (image && url) {
+        NSString *key = [self cacheKeyForURL:url];
+        [self.imageCache storeImage:image forKey:key toDisk:YES];
+    }
+}
+
 - (void)cancelAll {
     @synchronized (self.runningOperations) {
         [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
