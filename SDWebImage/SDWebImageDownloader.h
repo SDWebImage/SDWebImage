@@ -100,6 +100,21 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 + (SDWebImageDownloader *)sharedDownloader;
 
 /**
+ * Calculate base64, Used for generating Authorization header
+ */
++ (NSString*)base64forData:(NSData*)theData;
+
+/**
+ * Set username
+ */
+@property (retain) NSString *username;
+
+/**
+ * Set password
+ */
+@property (retain) NSString *password;
+
+/**
  * Set filter to pick headers for downloading image HTTP request.
  *
  * This block will be invoked for each downloading image request, returned

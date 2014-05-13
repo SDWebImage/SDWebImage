@@ -61,10 +61,17 @@
                                                                                target:self
                                                                                action:@selector(flushCache)];
         
+        // HTTP Basic Auth example
+        // Randomize password after cache clear
         NSData *authData = [@"httpwatch:httpwatch01" dataUsingEncoding:NSUTF8StringEncoding];
-        NSString *authValue = [NSString stringWithFormat:@"Basic %@", [self base64forData:authData]];
+        NSString *authValue = [NSString stringWithFormat:@"Basic %@", [SDWebImageDownloader base64forData:authData]];
 
         [[SDWebImageManager sharedManager].imageDownloader setValue:authValue forHTTPHeaderField:@"Authorization"];
+        
+        // HTTP NTLM example
+        // Add your NTLM image url to the array below and replace the credentials
+        [SDWebImageManager sharedManager].imageDownloader.username = @"domain\\user";
+        [SDWebImageManager sharedManager].imageDownloader.password = @"password";
         
         _objects = [NSArray arrayWithObjects:
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",
