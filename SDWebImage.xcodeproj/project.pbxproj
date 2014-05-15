@@ -193,6 +193,8 @@
 		A18A6CC8172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC9172DC28500419892 /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CC6172DC28500419892 /* UIImage+GIF.m */; };
 		A18A6CCA172DC28500419892 /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CC6172DC28500419892 /* UIImage+GIF.m */; };
+		AE26408A18CF4DA2009733D3 /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5340674F167780C40042B59E /* SDWebImageCompat.m */; };
+		AE8864EB1924FADB007C36C4 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 5DA509F2187B68E7002FEB5C /* random.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -727,6 +729,7 @@
 				531041C5157EAFA400BBABC3 /* SDWebImageDecoder.m in Sources */,
 				531041C6157EAFA400BBABC3 /* SDWebImageDownloader.m in Sources */,
 				531041C7157EAFA400BBABC3 /* SDWebImageManager.m in Sources */,
+				AE26408A18CF4DA2009733D3 /* SDWebImageCompat.m in Sources */,
 				531041C8157EAFA400BBABC3 /* SDWebImagePrefetcher.m in Sources */,
 				531041C9157EAFA400BBABC3 /* UIButton+WebCache.m in Sources */,
 				531041CA157EAFA400BBABC3 /* UIImageView+WebCache.m in Sources */,
@@ -740,6 +743,7 @@
 				53EDFCA117625C1100698166 /* vp8.c in Sources */,
 				53EDFCA917625C5B00698166 /* huffman.c in Sources */,
 				53EDFCAC17625C8700698166 /* frame.c in Sources */,
+				AE8864EB1924FADB007C36C4 /* random.c in Sources */,
 				53EDFCAF17625CA600698166 /* alpha.c in Sources */,
 				53EDFCB517625CD800698166 /* quant_levels_dec.c in Sources */,
 				53EDFCBC17625D1900698166 /* dec.c in Sources */,
