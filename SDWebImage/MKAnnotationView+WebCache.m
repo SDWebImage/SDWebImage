@@ -14,33 +14,44 @@ static char operationKey;
 @implementation MKAnnotationView (WebCache)
 
 - (void)setImageWithURL:(NSURL *)url {
-    [self setImageWithURL:url placeholderImage:nil options:0 completed:nil];
+    [self setImageWithURL:url imageManager:nil];
+}
+
+- (void)setImageWithURL:(NSURL *)url imageManager:(SDWebImageManager *)imageManager {
+    [self setImageWithURL:url placeholderImage:nil options:0 imageManager:imageManager completed:nil];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 completed:nil];
+    [self setImageWithURL:url placeholderImage:placeholder imageManager:nil];
+}
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder imageManager:(SDWebImageManager *)imageManager {
+    [self setImageWithURL:url placeholderImage:placeholder options:0 imageManager:imageManager completed:nil];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
+    [self setImageWithURL:url placeholderImage:placeholder options:options imageManager:nil completed:nil];
 }
 
 - (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
+    [self setImageWithURL:url placeholderImage:nil options:0 imageManager:nil completed:completedBlock];
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
+    [self setImageWithURL:url placeholderImage:placeholder options:0 imageManager:nil completed:completedBlock];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options imageManager:(SDWebImageManager *)imageManager completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
 
     self.image = placeholder;
 
     if (url) {
+        if (!imageManager) {
+            imageManager = SDWebImageManager.sharedManager;
+        }
         __weak MKAnnotationView *wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+        id <SDWebImageOperation> operation = [imageManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong MKAnnotationView *sself = wself;

@@ -23,6 +23,7 @@
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state imageManager:(SDWebImageManager *)imageManager;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
@@ -35,6 +36,7 @@
  * @see setImageWithURL:placeholderImage:options:
  */
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder imageManager:(SDWebImageManager *)imageManager;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -86,12 +88,13 @@
  * @param state The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param imageManager The image manager to use. Pass in nil to use the shared image manager.
  * @param completedBlock A block called when operation has been completed. This block as no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options imageManager:(SDWebImageManager *)imageManager completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -102,6 +105,7 @@
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state imageManager:(SDWebImageManager *)imageManager;
 
 /**
  * Set the backgroundImageView `image` with an `url` and a placeholder.
@@ -114,6 +118,7 @@
  * @see setImageWithURL:placeholderImage:options:
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder imageManager:(SDWebImageManager *)imageManager;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -164,12 +169,13 @@
  * @param url The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param imageManager The image manager to use. Pass in nil to use the shared image manager.
  * @param completedBlock A block object to be executed after the request operation
  *   completed. This block has no return value and takes three argument: the requested
  *   `UIImage` object, the `NSError` object describing error that occurred, and an
  *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options imageManager:(SDWebImageManager *)imageManager completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
  * Cancel the current download
