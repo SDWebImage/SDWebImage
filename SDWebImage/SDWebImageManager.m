@@ -38,8 +38,12 @@
 }
 
 - (id)init {
+    return [self initWithCache:[self createCache]];
+}
+
+- (id)initWithCache:(SDImageCache *)cache {
     if ((self = [super init])) {
-        _imageCache = [self createCache];
+        _imageCache = cache;
         _imageDownloader = [SDWebImageDownloader new];
         _failedURLs = [NSMutableArray new];
         _runningOperations = [NSMutableArray new];

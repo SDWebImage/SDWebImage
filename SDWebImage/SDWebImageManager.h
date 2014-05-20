@@ -202,4 +202,9 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
 
+/**
+ * Returns an image manager with the specified cache
+ */
+- (id)initWithCache:(SDImageCache *)cache;
+
 @end
