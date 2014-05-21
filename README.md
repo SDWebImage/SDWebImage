@@ -1,7 +1,7 @@
 Web Image
 =========
 
-This library provides a category for UIImageVIew with support for remote images coming from the web.
+This library provides a category for UIImageView with support for remote images coming from the web.
 
 It provides:
 
@@ -91,7 +91,7 @@ Here is a simple example of how to use SDWebImageManager:
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadWithURL:imageURL
                  options:0
-                 progress:^(NSUInteger receivedSize, long long expectedSize)
+                 progress:^(NSInteger receivedSize, NSInteger expectedSize)
                  {
                      // progression tracking code
                  }
@@ -111,7 +111,7 @@ It's also possible to use the async image downloader independently:
 ```objective-c
 [SDWebImageDownloader.sharedDownloader downloadImageWithURL:imageURL
                                                     options:0
-                                                   progress:^(NSUInteger receivedSize, long long expectedSize)
+                                                   progress:^(NSInteger receivedSize, NSInteger expectedSize)
                                                    {
                                                        // progression tracking code
                                                    }
