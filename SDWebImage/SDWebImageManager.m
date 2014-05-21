@@ -23,6 +23,7 @@
 @property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;
 @property (strong, nonatomic) NSMutableArray *failedURLs;
 @property (strong, nonatomic) NSMutableArray *runningOperations;
+@property BOOL failNotConnectedToInternetURLs;
 
 @end
 
@@ -43,6 +44,7 @@
         _imageDownloader = [SDWebImageDownloader new];
         _failedURLs = [NSMutableArray new];
         _runningOperations = [NSMutableArray new];
+        _failNotConnectedToInternetURLs = YES;
     }
     return self;
 }
@@ -147,7 +149,9 @@
 
                     if (error.code != NSURLErrorNotConnectedToInternet) {
                         @synchronized (self.failedURLs) {
-                            [self.failedURLs addObject:url];
+                            if (self.failNotConnectedToInternetURLs) {
+                                [self.failedURLs addObject:url];
+                            }
                         }
                     }
                 }
