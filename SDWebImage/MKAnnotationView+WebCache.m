@@ -7,9 +7,7 @@
 //
 
 #import "MKAnnotationView+WebCache.h"
-#import "objc/runtime.h"
-
-static char operationKey;
+#import "UIView+WebCacheOperation.h"
 
 @implementation MKAnnotationView (WebCache)
 
@@ -39,10 +37,10 @@ static char operationKey;
     self.image = placeholder;
 
     if (url) {
-        __weak MKAnnotationView *wself = self;
+        __weak MKAnnotationView  *wself    = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_sync_safe (^{
                 __strong MKAnnotationView *sself = wself;
                 if (!sself) return;
                 if (image) {
@@ -53,17 +51,12 @@ static char operationKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forKey:@"MKAnnotationViewImage"];
     }
 }
 
 - (void)cancelCurrentImageLoad {
-    // Cancel in progress downloader from queue
-    id <SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
-    if (operation) {
-        [operation cancel];
-        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
+    [self cancelImageLoadOperation:@"MKAnnotationViewImage"];
 }
 
 @end

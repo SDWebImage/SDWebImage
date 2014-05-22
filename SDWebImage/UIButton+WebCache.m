@@ -7,9 +7,8 @@
  */
 
 #import "UIButton+WebCache.h"
+#import "UIView+WebCacheOperation.h"
 #import "objc/runtime.h"
-
-static char operationKey;
 
 @implementation UIButton (WebCache)
 
@@ -34,15 +33,15 @@ static char operationKey;
 }
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self cancelBackgroundImageLoadForState:state];
 
     [self setImage:placeholder forState:state];
 
     if (url) {
-        __weak UIButton *wself = self;
+        __weak UIButton          *wself    = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_sync_safe (^{
                 __strong UIButton *sself = wself;
                 if (!sself) return;
                 if (image) {
@@ -53,7 +52,7 @@ static char operationKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setBackgroundImageLoadOperation:operation forState:state];
     }
 }
 
@@ -78,15 +77,15 @@ static char operationKey;
 }
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self cancelImageLoadForState:state];
 
     [self setBackgroundImage:placeholder forState:state];
 
     if (url) {
-        __weak UIButton *wself = self;
+        __weak UIButton          *wself    = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_sync_safe (^{
                 __strong UIButton *sself = wself;
                 if (!sself) return;
                 if (image) {
@@ -97,18 +96,24 @@ static char operationKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forState:state];
     }
 }
 
+- (void)setImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+}
 
-- (void)cancelCurrentImageLoad {
-    // Cancel in progress downloader from queue
-    id <SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
-    if (operation) {
-        [operation cancel];
-        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
+- (void)cancelImageLoadForState:(UIControlState)state {
+    [self cancelImageLoadOperation:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+}
+
+- (void)setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
+}
+
+- (void)cancelBackgroundImageLoadForState:(UIControlState)state {
+    [self cancelImageLoadOperation:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
 @end

@@ -7,7 +7,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "UIImageView+WebCache.h"
+#import "SDWebImageCompat.h"
+#import "SDWebImageManager.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView for highlighted state.
@@ -74,5 +75,9 @@
  */
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock;
 
+/**
+ * Cancel the current download
+ */
+- (void)cancelCurrentHighlightedImageLoad;
 
 @end
