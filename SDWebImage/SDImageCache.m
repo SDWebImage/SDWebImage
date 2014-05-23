@@ -358,7 +358,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)cleanDiskWithCompletionBlock:(void (^)())completionBlock {
-    dispatch_async(self.ioQueue, ^{
+    dispatch_barrier_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
 
@@ -376,6 +376,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         //
         //  1. Removing files that are older than the expiration date.
         //  2. Storing file attributes for the size-based cleanup pass.
+        NSMutableArray *urlsToDelete = [[NSMutableArray alloc] init];
         for (NSURL *fileURL in fileEnumerator) {
             NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
 
@@ -387,7 +388,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
             // Remove files that are older than the expiration date;
             NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
             if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-                [_fileManager removeItemAtURL:fileURL error:nil];
+                [urlsToDelete addObject:fileURL];
                 continue;
             }
 
@@ -395,6 +396,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
             NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
             currentCacheSize += [totalAllocatedSize unsignedIntegerValue];
             [cacheFiles setObject:resourceValues forKey:fileURL];
+        }
+        
+        for (NSURL *fileURL in urlsToDelete) {
+            [_fileManager removeItemAtURL:fileURL error:nil];
         }
 
         // If our remaining disk cache exceeds a configured maximum size, perform a second
