@@ -358,7 +358,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)cleanDiskWithCompletionBlock:(void (^)())completionBlock {
-    dispatch_barrier_async(self.ioQueue, ^{
+    dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
 
