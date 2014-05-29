@@ -127,6 +127,15 @@ typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType ca
  */
 - (void)removeImageForKey:(NSString *)key;
 
+
+/**
+ * Remove the image from memory and disk cache synchronously
+ *
+ * @param key The unique image cache key
+ * @param completionBlock An block that should be executed after the image has been removed (optional)
+ */
+- (void)removeImageForKey:(NSString *)key withCompletition:(void (^)())completion;
+
 /**
  * Remove the image from memory and optionally disk cache synchronously
  *
@@ -134,6 +143,15 @@ typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType ca
  * @param fromDisk Also remove cache entry from disk if YES
  */
 - (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk;
+
+/**
+ * Remove the image from memory and optionally disk cache synchronously
+ *
+ * @param key The unique image cache key
+ * @param fromDisk Also remove cache entry from disk if YES
+ * @param completionBlock An block that should be executed after the image has been removed (optional)
+ */
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletition:(void (^)())completion;
 
 /**
  * Clear all memory cached images
