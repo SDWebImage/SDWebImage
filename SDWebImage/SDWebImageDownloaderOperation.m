@@ -203,7 +203,7 @@
         if (self.completedBlock) {
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
-
+        CFRunLoopStop(CFRunLoopGetCurrent());
         [self done];
     }
 }
