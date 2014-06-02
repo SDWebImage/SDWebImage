@@ -148,4 +148,9 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
 
+/**
+ * Sets the download queue suspension state
+ */
+- (void)setSuspended:(BOOL)suspended;
+
 @end
