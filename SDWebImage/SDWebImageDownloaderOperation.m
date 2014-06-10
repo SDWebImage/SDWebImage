@@ -338,7 +338,11 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-
+    
+    if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
+        responseFromCached = NO;
+    }
+    
     if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
