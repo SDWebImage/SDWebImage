@@ -303,21 +303,39 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)removeImageForKey:(NSString *)key {
-    [self removeImageForKey:key fromDisk:YES];
+    [self removeImageForKey:key withCompletition:nil];
+}
+
+- (void)removeImageForKey:(NSString *)key withCompletition:(void (^)())completion {
+    [self removeImageForKey:key fromDisk:YES withCompletition:completion];
 }
 
 - (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk {
+    [self removeImageForKey:key fromDisk:fromDisk withCompletition:nil];
+}
+
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletition:(void (^)())completion {
+    
     if (key == nil) {
         return;
     }
-
+    
     [self.memCache removeObjectForKey:key];
-
+    
     if (fromDisk) {
         dispatch_async(self.ioQueue, ^{
             [_fileManager removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
+            
+            if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion();
+                });
+            }
         });
+    } else if (completion){
+        completion();
     }
+    
 }
 
 - (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost {
