@@ -120,7 +120,7 @@
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
