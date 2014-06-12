@@ -7,10 +7,7 @@
  */
 
 #import "UIImageView+WebCache.h"
-#import "objc/runtime.h"
-
-static char operationKey;
-static char operationArrayKey;
+#import "UIView+WebCacheOperation.h"
 
 @implementation UIImageView (WebCache)
 
@@ -46,10 +43,10 @@ static char operationArrayKey;
     }
     
     if (url) {
-        __weak UIImageView *wself = self;
+        __weak UIImageView       *wself    = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_sync_safe (^{
                 if (!wself) return;
                 if (image) {
                     wself.image = image;
@@ -65,12 +62,12 @@ static char operationArrayKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
     }
 }
 
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
-    [self cancelCurrentArrayLoad];
+    [self cancelCurrentAnimationImagesLoad];
     __weak UIImageView *wself = self;
 
     NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
@@ -78,7 +75,7 @@ static char operationArrayKey;
     for (NSURL *logoImageURL in arrayOfURLs) {
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_sync_safe (^{
                 __strong UIImageView *sself = wself;
                 [sself stopAnimating];
                 if (sself && image) {
@@ -97,27 +94,15 @@ static char operationArrayKey;
         [operationsArray addObject:operation];
     }
 
-    objc_setAssociatedObject(self, &operationArrayKey, [NSArray arrayWithArray:operationsArray], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self setImageLoadOperation:[NSArray arrayWithArray:operationsArray] forKey:@"UIImageViewAnimationImages"];
+}
+
+- (void)cancelCurrentAnimationImagesLoad {
+    [self cancelImageLoadOperation:@"UIImageViewAnimationImages"];
 }
 
 - (void)cancelCurrentImageLoad {
-    // Cancel in progress downloader from queue
-    id <SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
-    if (operation) {
-        [operation cancel];
-        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-}
-
-- (void)cancelCurrentArrayLoad {
-    // Cancel in progress downloader from queue
-    NSArray *operations = objc_getAssociatedObject(self, &operationArrayKey);
-    for (id <SDWebImageOperation> operation in operations) {
-        if (operation) {
-            [operation cancel];
-        }
-    }
-    objc_setAssociatedObject(self, &operationArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self cancelImageLoadOperation:@"UIImageViewImageLoad"];
 }
 
 @end

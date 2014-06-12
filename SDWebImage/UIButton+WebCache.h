@@ -134,9 +134,9 @@
  *
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param completedBlock A block object to be executed after the request operation 
+ * @param completedBlock A block object to be executed after the request operation
  *   completed. This block has no return value and takes three argument: the requested
- *   `UIImage` object, the `NSError` object describing error that occurred, and an 
+ *   `UIImage` object, the `NSError` object describing error that occurred, and an
  *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock;
@@ -172,8 +172,13 @@
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
 
 /**
- * Cancel the current download
+ * Cancel the current image download
  */
-- (void)cancelCurrentImageLoad;
+- (void)cancelImageLoadForState:(UIControlState)state;
+
+/**
+ * Cancel the current backgroundImage download
+ */
+- (void)cancelBackgroundImageLoadForState:(UIControlState)state;
 
 @end

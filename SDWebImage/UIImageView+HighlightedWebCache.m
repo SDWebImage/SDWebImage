@@ -7,9 +7,9 @@
  */
 
 #import "UIImageView+HighlightedWebCache.h"
-#import "objc/runtime.h"
+#import "UIView+WebCacheOperation.h"
 
-static char operationKey;
+#define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
 
 @implementation UIImageView (HighlightedWebCache)
 
@@ -22,7 +22,7 @@ static char operationKey;
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+    [self setHighlightedImageWithURL:url options:0 progress:nil completed:completedBlock];
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
@@ -30,7 +30,7 @@ static char operationKey;
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self cancelCurrentHighlightedImageLoad];
 
     if (url) {
         __weak UIImageView      *wself    = self;
@@ -52,8 +52,11 @@ static char operationKey;
                                                                               }
                                                                           });
                                              }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     }
 }
 
+- (void)cancelCurrentHighlightedImageLoad {
+    [self cancelImageLoadOperation:UIImageViewHighlightedWebCacheOperationKey];
+}
 @end

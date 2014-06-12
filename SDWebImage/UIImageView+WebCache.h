@@ -145,6 +145,6 @@
  */
 - (void)cancelCurrentImageLoad;
 
-- (void)cancelCurrentArrayLoad;
+- (void)cancelCurrentAnimationImagesLoad;
 
 @end
