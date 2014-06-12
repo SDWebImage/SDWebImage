@@ -199,6 +199,7 @@
 		ABBE71AA18C43B5800B75E91 /* UIImageView+HighlightedWebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = ABBE71A518C43B4D00B75E91 /* UIImageView+HighlightedWebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		ABBE71AB18C43B6000B75E91 /* UIImageView+HighlightedWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */; };
 		ABBE71AC18C43B6000B75E91 /* UIImageView+HighlightedWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */; };
+		DAFAA6C219485CAA00581B9E /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5340674F167780C40042B59E /* SDWebImageCompat.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -753,6 +754,7 @@
 				53EDFC9D17625C1100698166 /* vp8l.c in Sources */,
 				53EDFCA117625C1100698166 /* vp8.c in Sources */,
 				53EDFCA917625C5B00698166 /* huffman.c in Sources */,
+				DAFAA6C219485CAA00581B9E /* SDWebImageCompat.m in Sources */,
 				53EDFCAC17625C8700698166 /* frame.c in Sources */,
 				53EDFCAF17625CA600698166 /* alpha.c in Sources */,
 				53EDFCB517625CD800698166 /* quant_levels_dec.c in Sources */,

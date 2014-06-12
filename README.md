@@ -133,7 +133,7 @@ asynchronous so it doesn't add unnecessary latency to the UI.
 The SDImageCache class provides a singleton instance for convenience but you can create your own
 instance if you want to create separated cache namespace.
 
-To lookup the cache, you use the imageForKey: method. If the method returns nil, it means the cache
+To lookup the cache, you use the `queryDiskCacheForKey:done:` method. If the method returns nil, it means the cache
 doesn't currently own the image. You are thus responsible for generating and caching it. The cache
 key is an application unique identifier for the image to cache. It is generally the absolute URL of
 the image.

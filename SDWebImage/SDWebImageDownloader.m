@@ -212,4 +212,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
     });
 }
 
+- (void)setSuspended:(BOOL)suspended {
+    [self.downloadQueue setSuspended:suspended];
+}
+
 @end

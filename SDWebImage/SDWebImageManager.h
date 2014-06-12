@@ -180,7 +180,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *   downloading. This block is thus called repetidly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
  *
- * @return Returns a cancellable NSOperation
+ * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
 - (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
                                     options:(SDWebImageOptions)options

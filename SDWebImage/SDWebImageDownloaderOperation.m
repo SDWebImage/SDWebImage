@@ -11,7 +11,10 @@
 #import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 
-@interface SDWebImageDownloaderOperation ()
+@interface SDWebImageDownloaderOperation () {
+    BOOL _executing;
+    BOOL _finished;
+}
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
@@ -35,6 +38,9 @@
     UIImageOrientation orientation;
     BOOL responseFromCached;
 }
+
+@synthesize executing = _executing;
+@synthesize finished = _finished;
 
 - (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSInteger, NSInteger))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock {
     if ((self = [super init])) {
@@ -173,10 +179,20 @@
     [self didChangeValueForKey:@"isFinished"];
 }
 
+- (BOOL)isFinished
+{
+    return _finished;
+}
+
 - (void)setExecuting:(BOOL)executing {
     [self willChangeValueForKey:@"isExecuting"];
     _executing = executing;
     [self didChangeValueForKey:@"isExecuting"];
+}
+
+- (BOOL)isExecuting
+{
+    return _executing;
 }
 
 - (BOOL)isConcurrent {
@@ -203,7 +219,7 @@
         if (self.completedBlock) {
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
-
+        CFRunLoopStop(CFRunLoopGetCurrent());
         [self done];
     }
 }
@@ -322,7 +338,11 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-
+    
+    if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
+        responseFromCached = NO;
+    }
+    
     if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
