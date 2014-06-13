@@ -194,6 +194,16 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                                   completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
 
 /**
+ * Saves image to cache for given URL
+ *
+ * @param image The image to cache
+ * @param url The URL to the image
+ *
+ */
+
+- (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url;
+
+/**
  * Cancel all current opreations
  */
 - (void)cancelAll;
