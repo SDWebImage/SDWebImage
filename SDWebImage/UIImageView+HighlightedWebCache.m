@@ -37,7 +37,7 @@ static char operationKey;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url
                                                                                      options:options
                                                                                     progress:progressBlock
-                                                                                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
+                                                                                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished,NSURL* imageURL)
                                              {
                                                  if (!wself) return;
                                                  dispatch_main_sync_safe (^
@@ -48,7 +48,7 @@ static char operationKey;
                                                                                   [wself setNeedsLayout];
                                                                               }
                                                                               if (completedBlock && finished) {
-                                                                                  completedBlock(image, error, cacheType);
+                                                                                  completedBlock(image, error, cacheType,url);
                                                                               }
                                                                           });
                                              }];
