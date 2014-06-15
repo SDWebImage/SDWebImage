@@ -202,4 +202,23 @@ typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType ca
  */
 - (BOOL)diskImageExistsWithKey:(NSString *)key;
 
+/**
+ *  Get the cache path for a certain key (needs the cache path root folder)
+ *
+ *  @param key  the key (can be obtained from url using cacheKeyForURL)
+ *  @param path the cach path root folder
+ *
+ *  @return the cache path
+ */
+- (NSString *)cachePathForKey:(NSString *)key inPath:(NSString *)path;
+
+/**
+ *  Get the default cache path for a certain key
+ *
+ *  @param key the key (can be obtained from url using cacheKeyForURL)
+ *
+ *  @return the default cache path
+ */
+- (NSString *)defaultCachePathForKey:(NSString *)key;
+
 @end

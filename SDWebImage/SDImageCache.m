@@ -116,8 +116,6 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }
 }
 
-#pragma mark SDImageCache (private)
-
 - (NSString *)cachePathForKey:(NSString *)key inPath:(NSString *)path {
     NSString *filename = [self cachedFileNameForKey:key];
     return [path stringByAppendingPathComponent:filename];
@@ -126,6 +124,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 - (NSString *)defaultCachePathForKey:(NSString *)key {
     return [self cachePathForKey:key inPath:self.diskCachePath];
 }
+
+#pragma mark SDImageCache (private)
 
 - (NSString *)cachedFileNameForKey:(NSString *)key {
     const char *str = [key UTF8String];
