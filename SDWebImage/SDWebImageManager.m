@@ -40,7 +40,7 @@
 - (id)init {
     if ((self = [super init])) {
         _imageCache = [self createCache];
-        _imageDownloader = [SDWebImageDownloader new];
+        _imageDownloader = [SDWebImageDownloader sharedDownloader];
         _failedURLs = [NSMutableArray new];
         _runningOperations = [NSMutableArray new];
     }
