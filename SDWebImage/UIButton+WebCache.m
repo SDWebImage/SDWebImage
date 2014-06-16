@@ -53,29 +53,33 @@ static char operationKey;
 }
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
-
-    self.imageURLStorage[@(state)] = url;
 
     [self setImage:placeholder forState:state];
-
-    if (url) {
-        __weak UIButton *wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
-            if (!wself) return;
-            dispatch_main_sync_safe(^{
-                __strong UIButton *sself = wself;
-                if (!sself) return;
-                if (image) {
-                    [sself setImage:image forState:state];
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType);
-                }
-            });
-        }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self cancelCurrentImageLoad];
+    
+    if (!url) {
+        [self.imageURLStorage removeObjectForKey:@(state)];
+        
+        return;
     }
+    
+    self.imageURLStorage[@(state)] = url;
+
+    __weak UIButton *wself = self;
+    id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+        if (!wself) return;
+        dispatch_main_sync_safe(^{
+            __strong UIButton *sself = wself;
+            if (!sself) return;
+            if (image) {
+                [sself setImage:image forState:state];
+            }
+            if (completedBlock && finished) {
+                completedBlock(image, error, cacheType);
+            }
+        });
+    }];
+    objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state {
