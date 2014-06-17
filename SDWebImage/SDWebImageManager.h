@@ -138,6 +138,8 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 @property (weak, nonatomic) id <SDWebImageManagerDelegate> delegate;
 
+//Default: 0 - add url immediatly to failed urls
+@property (assign) NSInteger maxFailedURLRetries;
 @property (strong, nonatomic, readonly) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
 

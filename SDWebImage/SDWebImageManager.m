@@ -22,6 +22,7 @@
 @property (strong, nonatomic, readwrite) SDImageCache *imageCache;
 @property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;
 @property (strong, nonatomic) NSMutableArray *failedURLs;
+@property (strong, nonatomic) NSMutableDictionary *failedURLRequestCount;
 @property (strong, nonatomic) NSMutableArray *runningOperations;
 
 @end
@@ -43,6 +44,7 @@
         _imageDownloader = [SDWebImageDownloader sharedDownloader];
         _failedURLs = [NSMutableArray new];
         _runningOperations = [NSMutableArray new];
+        _failedURLRequestCount = [NSMutableDictionary new];
     }
     return self;
 }
@@ -152,8 +154,19 @@
                     });
 
                     if (error.code != NSURLErrorNotConnectedToInternet) {
-                        @synchronized (self.failedURLs) {
-                            [self.failedURLs addObject:url];
+                        BOOL retriesExeeded = NO;
+                        @synchronized (self.failedURLRequestCount) {
+                            NSNumber *count = [self.failedURLRequestCount objectForKey:url];
+                            NSInteger iCount = 1+[count integerValue];
+                            retriesExeeded = iCount > self.maxFailedURLRetries;
+                            count = [NSNumber numberWithInteger:iCount];
+                            [self.failedURLRequestCount setObject:count forKey:url];
+                        }
+                        
+                        if (retriesExeeded) {
+                            @synchronized (self.failedURLs) {
+                                [self.failedURLs addObject:url];
+                            }
                         }
                     }
                 }
@@ -168,24 +181,24 @@
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                             UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
 
+                            dispatch_main_sync_safe(^{
+                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
+                            });
+
                             if (transformedImage && finished) {
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
                             }
-
-                            dispatch_main_sync_safe(^{
-                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished);
-                            });
                         });
                     }
                     else {
-                        if (downloadedImage && finished) {
-                            [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
-                        }
-
                         dispatch_main_sync_safe(^{
                             completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished);
                         });
+
+                        if (downloadedImage && finished) {
+                            [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+                        }
                     }
                 }
 
