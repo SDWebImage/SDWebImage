@@ -197,6 +197,10 @@
             }];
             operation.cancelBlock = ^{
                 [subOperation cancel];
+                
+                @synchronized (self.runningOperations) {
+                    [self.runningOperations removeObject:weakOperation];
+                }
             };
         }
         else if (image) {
