@@ -151,7 +151,7 @@
                         completedBlock(nil, error, SDImageCacheTypeNone, finished);
                     });
 
-                    if (error.code != NSURLErrorNotConnectedToInternet) {
+                    if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
                         @synchronized (self.failedURLs) {
                             [self.failedURLs addObject:url];
                         }
