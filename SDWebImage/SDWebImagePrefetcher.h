@@ -42,6 +42,11 @@
 @interface SDWebImagePrefetcher : NSObject
 
 /**
+ *  The web image manager
+ */
+@property (strong, nonatomic, readonly) SDWebImageManager *manager;
+
+/**
  * Maximum number of URLs to prefetch at the same time. Defaults to 3.
  */
 @property (nonatomic, assign) NSUInteger maxConcurrentDownloads;
