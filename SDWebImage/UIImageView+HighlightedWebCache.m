@@ -14,27 +14,62 @@ static char operationKey;
 @implementation UIImageView (HighlightedWebCache)
 
 - (void)setHighlightedImageWithURL:(NSURL *)url {
-    [self setHighlightedImageWithURL:url options:0 progress:nil completed:nil];
+    [self setHighlightedImageAndReturnURLWithURL:url options:0 progress:nil completed:nil];
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options {
-    [self setHighlightedImageWithURL:url options:options progress:nil completed:nil];
+    [self setHighlightedImageAndReturnURLWithURL:url options:options progress:nil completed:nil];
+
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+    [self setHighlightedImageAndReturnURLWithURL:url completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        completedBlock(image,error,cacheType);
+    }];
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
+    [self setHighlightedImageAndReturnURLWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        completedBlock(image,error,cacheType);
+    }];
 }
 
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
 
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
+    
+[self setHighlightedImageAndReturnURLWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    completedBlock(image,error,cacheType);
+}];
+
+}
+
+
+
+
+
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url {
+    [self setHighlightedImageAndReturnURLWithURL:url options:0 progress:nil completed:nil];
+}
+
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options {
+    [self setHighlightedImageAndReturnURLWithURL:url options:options progress:nil completed:nil];
+}
+
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url completed:(SDWebImageWithURLCompletedBlock)completedBlock {
+    [self setHighlightedImageAndReturnURLWithURL:url options:0 progress:nil completed:completedBlock];
+}
+
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageWithURLCompletedBlock)completedBlock {
+    [self setHighlightedImageAndReturnURLWithURL:url options:options progress:nil completed:completedBlock];
+}
+
+
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageWithURLCompletedBlock)completedBlock {
+    [self cancelCurrentImageLoad];
+    
     if (url) {
         __weak UIImageView      *wself    = self;
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url
                                                                                      options:options
                                                                                     progress:progressBlock
                                                                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished,NSURL* imageURL)

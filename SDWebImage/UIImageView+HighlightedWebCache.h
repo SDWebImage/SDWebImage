@@ -21,7 +21,9 @@
  *
  * @param url The url for the image.
  */
-- (void)setHighlightedImageWithURL:(NSURL *)url;
+- (void)setHighlightedImageWithURL:(NSURL *)url __deprecated_msg("use setHighlightedImageAndReturnURLWithURL");
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url;
+
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
@@ -30,7 +32,8 @@
  * @param url The url for the image.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options;
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options __deprecated_msg("use setHighlightedImageAndReturnURLWithURL");
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options;
 
 /**
  * Set the imageView `highlightedImage` with an `url`.
@@ -43,7 +46,8 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("use setHighlightedImageAndReturnURLWithURL");
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url completed:(SDWebImageWithURLCompletedBlock)completedBlock;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -57,8 +61,8 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
-
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("use setHighlightedImageAndReturnURLWithURL");
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageWithURLCompletedBlock)completedBlock ;
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
@@ -72,7 +76,7 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock;
-
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("use setHighlightedImageAndReturnURLWithURL");
+- (void)setHighlightedImageAndReturnURLWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageWithURLCompletedBlock)completedBlock;
 
 @end

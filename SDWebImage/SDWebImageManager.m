@@ -68,6 +68,15 @@
 - (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedWithFinishedBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSParameterAssert(completedBlock);
+    
+    return [self downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        completedBlock(image,error,cacheType,finished);
+                       }];
+}
+
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageWithURLCompletedWithFinishedBlock)completedBlock {
+    // Invoking this method without a completedBlock is pointless
+    NSParameterAssert(completedBlock);
 
     // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
     // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
