@@ -88,7 +88,7 @@
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         }
-        else if (self.finishedCount + self.skippedCount == self.requestedCount) {
+        else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
                 self.completionBlock(self.finishedCount, self.skippedCount);
