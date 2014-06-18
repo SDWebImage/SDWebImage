@@ -63,6 +63,13 @@ static char operationKey;
 }
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+    [self setImageAndReturnURLWithURL:url forState:state placeholderImage:placeholder options:options completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        completedBlock(image,error,cacheType);
+    }];
+}
+
+
+- (void)setImageAndReturnURLWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageWithURLCompletedBlock)completedBlock {
 
     [self setImage:placeholder forState:state];
     [self cancelCurrentImageLoad];
@@ -76,7 +83,7 @@ static char operationKey;
     self.imageURLStorage[@(state)] = url;
 
     __weak UIButton *wself = self;
-    id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+    id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!wself) return;
         dispatch_main_sync_safe(^{
             __strong UIButton *sself = wself;
@@ -85,12 +92,14 @@ static char operationKey;
                 [sself setImage:image forState:state];
             }
             if (completedBlock && finished) {
-                completedBlock(image, error, cacheType);
+                completedBlock(image, error, cacheType,imageURL);
             }
         });
     }];
     objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+
 
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state {

@@ -23,7 +23,9 @@ static char operationKey;
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setHighlightedImageWithURL:url options:0 progress:nil completed:completedBlock];
+    [self setHighlightedImageAndReturnURLWithURL:url completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        completedBlock(image,error,cacheType);
+    }];
 }
 
 - (void)setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
