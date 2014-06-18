@@ -357,7 +357,15 @@
 
             if (!image.images) // Do not force decod animated GIFs
             {
+#ifdef TARGET_OS_IPHONE
+                if (self.options & SDWebImageDownloaderScaleDownLargeImage) {
+                    image = [UIImage decodedAndScaledDownImageWithImage:image];
+                } else {
+                    image = [UIImage decodedImageWithImage:image];
+                }
+#else
                 image = [UIImage decodedImageWithImage:image];
+#endif
             }
 
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {

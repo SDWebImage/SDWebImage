@@ -15,4 +15,6 @@
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image;
 
++ (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image;
+
 @end
