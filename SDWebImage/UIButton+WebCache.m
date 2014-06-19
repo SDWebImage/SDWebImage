@@ -133,8 +133,7 @@ static char operationKey;
     }
 }
 
-- (NSMutableDictionary *)imageURLStorage;
-{
+- (NSMutableDictionary *)imageURLStorage {
     NSMutableDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
     if (!storage)
     {

@@ -72,13 +72,11 @@ static char operationArrayKey;
     }
 }
 
-- (NSURL *)imageURL;
-{
+- (NSURL *)imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
-- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs
-{
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
     [self cancelCurrentArrayLoad];
     __weak UIImageView *wself = self;
 
