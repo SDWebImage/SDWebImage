@@ -22,6 +22,7 @@
  * @param url The url for the image.
  */
 - (void)setHighlightedImageWithURL:(NSURL *)url;
+
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
