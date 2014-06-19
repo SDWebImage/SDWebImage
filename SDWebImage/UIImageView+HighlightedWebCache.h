@@ -17,7 +17,7 @@
 /**
  * Set the imageView `highlightedImage` with an `url`.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url The url for the image.
  */
@@ -26,7 +26,7 @@
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url     The url for the image.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
@@ -36,7 +36,7 @@
 /**
  * Set the imageView `highlightedImage` with an `url`.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url            The url for the image.
  * @param completedBlock A block called when operation has been completed. This block has no return value
@@ -50,7 +50,7 @@
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url            The url for the image.
  * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
@@ -65,7 +65,7 @@
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
  *
- * The downloand is asynchronous and cached.
+ * The download is asynchronous and cached.
  *
  * @param url            The url for the image.
  * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
