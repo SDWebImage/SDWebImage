@@ -155,6 +155,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         
         if (options & SDWebImageDownloaderHighPriority) {
             operation.queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            operation.queuePriority = NSOperationQueuePriorityLow;
         }
 
         [wself.downloadQueue addOperation:operation];
