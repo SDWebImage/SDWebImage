@@ -92,7 +92,7 @@ typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *er
  * Controls which image should be downloaded when the image is not found in the cache.
  *
  * @param imageManager The current `SDWebImageManager`
- * @param imageURL The url of the image to be downloaded
+ * @param imageURL     The url of the image to be downloaded
  *
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
  */
@@ -103,8 +103,8 @@ typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *er
  * NOTE: This method is called from a global queue in order to not to block the main thread.
  *
  * @param imageManager The current `SDWebImageManager`
- * @param image The image to transform
- * @param imageURL The url of the image to transform
+ * @param image        The image to transform
+ * @param imageURL     The url of the image to transform
  *
  * @return The transformed image object.
  */
@@ -169,9 +169,9 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
- * @param url The URL to the image
- * @param options A mask to specify options to use for this request
- * @param progressBlock A block called while image is downloading
+ * @param url            The URL to the image
+ * @param options        A mask to specify options to use for this request
+ * @param progressBlock  A block called while image is downloading
  * @param completedBlock A block called when operation has been completed.
  *
  *   This parameter is required.
@@ -197,7 +197,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Saves image to cache for given URL
  *
  * @param image The image to cache
- * @param url The URL to the image
+ * @param url   The URL to the image
  *
  */
 
