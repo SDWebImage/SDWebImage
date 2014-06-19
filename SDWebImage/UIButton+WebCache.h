@@ -34,7 +34,7 @@
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
@@ -44,9 +44,9 @@
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @see setImageWithURL:placeholderImage:options:
+ * @see loadImageWithURL:placeholderImage:options:
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -58,7 +58,7 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -72,7 +72,7 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -87,7 +87,7 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -103,7 +103,7 @@
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
  */
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -113,7 +113,7 @@
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state;
 
 /**
  * Set the backgroundImageView `image` with an `url` and a placeholder.
@@ -123,9 +123,9 @@
  * @param url The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @see setImageWithURL:placeholderImage:options:
+ * @see loadImageWithURL:placeholderImage:options:
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -137,7 +137,7 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -151,7 +151,7 @@
  *   `UIImage` object, the `NSError` object describing error that occurred, and an 
  *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder.
@@ -166,7 +166,7 @@
  *   `UIImage` object, the `NSError` object describing error that occurred, and an
  *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -181,11 +181,32 @@
  *   `UIImage` object, the `NSError` object describing error that occurred, and an
  *   `SDImageCacheType` enum describing the source of the image obtained from.
  */
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Cancel the current download
  */
 - (void)cancelCurrentImageLoad;
+
+@end
+
+
+@interface UIButton (WebCacheDeprecated)
+
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:`");
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:placeholderImage:`");
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:placeholderImage:options:`");
+
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:completed:`");
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:placeholderImage:completed:`");
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:forState:placeholderImage:options:completed:`");
+
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:`");
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:placeholderImage:`");
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:placeholderImage:options:`");
+
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:completed:`");
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:placeholderImage:completed:`");
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadBackgroundImageWithURL:forState:placeholderImage:options:completed:`");
 
 @end
