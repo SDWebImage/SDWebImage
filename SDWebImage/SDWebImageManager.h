@@ -79,7 +79,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 
 typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
 
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
+typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL);
 
 
 @class SDWebImageManager;
@@ -126,7 +126,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadWithURL:imageURL
                  options:0
                 progress:nil
-               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
                    if (image) {
                        // do something with image
                    }
@@ -188,10 +188,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
-- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL
@@ -223,5 +223,25 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *Return the cache key for a given URL
  */
 - (NSString *)cacheKeyForURL:(NSURL *)url;
+
+@end
+
+
+#pragma mark - Deprecated
+
+typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionWithFinishedBlock`");
+
+
+@interface SDWebImageManager (Deprecated)
+
+/**
+ *  Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ *  @deprecated This method has been deprecated. Use `downloadImageWithURL:options:progress:completed:`
+ */
+- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
+                                    options:(SDWebImageOptions)options
+                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
 
 @end
