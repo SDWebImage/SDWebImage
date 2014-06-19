@@ -49,6 +49,13 @@ static char operationKey;
                                      });
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    } else {
+        dispatch_main_async_safe(^{
+            NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
+            if (completedBlock) {
+                completedBlock(nil, error, SDImageCacheTypeNone, url);
+            }
+        });
     }
 }
 
