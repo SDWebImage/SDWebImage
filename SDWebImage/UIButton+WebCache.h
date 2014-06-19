@@ -31,7 +31,7 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
+ * @param url   The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state;
@@ -41,8 +41,8 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @see loadImageWithURL:placeholderImage:options:
  */
@@ -53,10 +53,10 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
 - (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
@@ -65,12 +65,13 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -79,13 +80,14 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -94,14 +96,15 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -110,7 +113,7 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
+ * @param url   The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state;
@@ -120,8 +123,8 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
  * @see loadImageWithURL:placeholderImage:options:
  */
@@ -132,10 +135,10 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
 - (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
@@ -144,12 +147,13 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param completedBlock A block object to be executed after the request operation 
- *   completed. This block has no return value and takes three argument: the requested
- *   `UIImage` object, the `NSError` object describing error that occurred, and an 
- *   `SDImageCacheType` enum describing the source of the image obtained from.
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -158,13 +162,14 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param state The state that uses the specified title. The values are described in UIControlState.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param completedBlock A block object to be executed after the request operation
- *   completed. This block has no return value and takes three argument: the requested
- *   `UIImage` object, the `NSError` object describing error that occurred, and an
- *   `SDImageCacheType` enum describing the source of the image obtained from.
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -173,13 +178,14 @@
  *
  * The downloand is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param completedBlock A block object to be executed after the request operation
- *   completed. This block has no return value and takes three argument: the requested
- *   `UIImage` object, the `NSError` object describing error that occurred, and an
- *   `SDImageCacheType` enum describing the source of the image obtained from.
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
 - (void)loadBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
