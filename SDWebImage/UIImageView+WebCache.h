@@ -31,10 +31,10 @@
                  autorelease];
     }
  
-    // Here we use the provided setImageWithURL: method to load the web image
+    // Here we use the provided loadImageWithURL: method to load the web image
     // Ensure you use a placeholder image otherwise cells will be initialized with no image
-    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://example.com/image.jpg"]
-                   placeholderImage:[UIImage imageNamed:@"placeholder"]];
+    [cell.imageView loadImageWithURL:[NSURL URLWithString:@"http://example.com/image.jpg"]
+                    placeholderImage:[UIImage imageNamed:@"placeholder"]];
  
     cell.textLabel.text = @"My Text";
     return cell;
@@ -48,7 +48,7 @@
  * Get the current image URL.
  *
  * Note that because of the limitations of categories this property can get out of sync
- * if you use setImage: directly.
+ * if you use loadImage: directly.
  */
 - (NSURL *)imageURL;
 
@@ -59,87 +59,91 @@
  *
  * @param url The url for the image.
  */
-- (void)setImageWithURL:(NSURL *)url;
+- (void)loadImageWithURL:(NSURL *)url;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
+ * @param url         The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @see setImageWithURL:placeholderImage:options:
+ * @see loadImageWithURL:placeholderImage:options:
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
+- (void)loadImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
+ * @param url         The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)loadImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
 /**
  * Set the imageView `image` with an `url`.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
-- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
- * @param url The url for the image.
- * @param placeholder The image to be set initially, until the image request finishes.
- * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param progressBlock A block called while image is downloading
- * @param completedBlock A block called when operation has been completed. This block as no return value
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param progressBlock  A block called while image is downloading
+ * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache of from the network.
+ *                       The forth parameter is the original image url.
  */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock;
+- (void)loadImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Download an array of images and starts them in an animation loop
@@ -154,5 +158,19 @@
 - (void)cancelCurrentImageLoad;
 
 - (void)cancelCurrentArrayLoad;
+
+@end
+
+
+@interface UIImageView (WebCacheDeprecated)
+
+- (void)setImageWithURL:(NSURL *)url __deprecated_msg("Method deprecated. Use `loadImageWithURL:`");
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder __deprecated_msg("Method deprecated. Use `loadImageWithURL:placeholderImage:`");
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options __deprecated_msg("Method deprecated. Use `loadImageWithURL:placeholderImage:options`");
+
+- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:completed:`");
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:placeholderImage:completed:`");
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:placeholderImage:options:completed:`");
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `loadImageWithURL:placeholderImage:options:progress:completed:`");
 
 @end
