@@ -8,9 +8,9 @@
 
 #import "UIButton+WebCache.h"
 #import "objc/runtime.h"
+#import "UIView+WebCacheOperation.h"
 
 static char imageURLStorageKey;
-static char operationKey;
 
 @implementation UIButton (WebCache)
 
@@ -55,7 +55,7 @@ static char operationKey;
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
 
     [self setImage:placeholder forState:state];
-    [self cancelCurrentImageLoad];
+    [self cancelImageLoadForState:state];
     
     if (!url) {
         [self.imageURLStorage removeObjectForKey:@(state)];
@@ -79,7 +79,7 @@ static char operationKey;
             }
         });
     }];
-    objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self setImageLoadOperation:operation forState:state];
 }
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state {
@@ -103,7 +103,7 @@ static char operationKey;
 }
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self cancelImageLoadForState:state];
 
     [self setBackgroundImage:placeholder forState:state];
 
@@ -122,18 +122,24 @@ static char operationKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setBackgroundImageLoadOperation:operation forState:state];
     }
 }
 
+- (void)setImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+}
 
-- (void)cancelCurrentImageLoad {
-    // Cancel in progress downloader from queue
-    id <SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
-    if (operation) {
-        [operation cancel];
-        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
+- (void)cancelImageLoadForState:(UIControlState)state {
+    [self cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+}
+
+- (void)setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
+}
+
+- (void)cancelBackgroundImageLoadForState:(UIControlState)state {
+    [self cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
 - (NSMutableDictionary *)imageURLStorage;

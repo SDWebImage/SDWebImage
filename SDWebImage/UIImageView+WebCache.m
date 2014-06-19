@@ -8,10 +8,9 @@
 
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
+#import "UIView+WebCacheOperation.h"
 
 static char imageURLKey;
-static char operationKey;
-static char operationArrayKey;
 
 @implementation UIImageView (WebCache)
 
@@ -68,7 +67,7 @@ static char operationArrayKey;
                 }
             });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
     }
 }
 
@@ -79,7 +78,7 @@ static char operationArrayKey;
 
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs
 {
-    [self cancelCurrentArrayLoad];
+    [self cancelCurrentAnimationImagesLoad];
     __weak UIImageView *wself = self;
 
     NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
@@ -106,27 +105,15 @@ static char operationArrayKey;
         [operationsArray addObject:operation];
     }
 
-    objc_setAssociatedObject(self, &operationArrayKey, [NSArray arrayWithArray:operationsArray], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self setImageLoadOperation:[NSArray arrayWithArray:operationsArray] forKey:@"UIImageViewAnimationImages"];
 }
 
 - (void)cancelCurrentImageLoad {
-    // Cancel in progress downloader from queue
-    id <SDWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
-    if (operation) {
-        [operation cancel];
-        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
+    [self cancelImageLoadOperationWithKey:@"UIImageViewImageLoad"];
 }
 
-- (void)cancelCurrentArrayLoad {
-    // Cancel in progress downloader from queue
-    NSArray *operations = objc_getAssociatedObject(self, &operationArrayKey);
-    for (id <SDWebImageOperation> operation in operations) {
-        if (operation) {
-            [operation cancel];
-        }
-    }
-    objc_setAssociatedObject(self, &operationArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)cancelCurrentAnimationImagesLoad {
+    [self cancelImageLoadOperationWithKey:@"UIImageViewAnimationImages"];
 }
 
 @end
