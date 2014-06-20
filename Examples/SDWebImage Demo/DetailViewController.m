@@ -7,7 +7,7 @@
 //
 
 #import "DetailViewController.h"
-#import "UIImageView+WebCache.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 
 @interface DetailViewController ()
 - (void)configureView;
