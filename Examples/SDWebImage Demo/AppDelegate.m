@@ -10,7 +10,7 @@
 
 #import "MasterViewController.h"
 
-#import <SDWebImage/SDImageCache.h>
+#import "SDImageCache.h"
 
 @implementation AppDelegate
 
