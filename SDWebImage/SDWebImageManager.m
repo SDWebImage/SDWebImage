@@ -71,6 +71,42 @@
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
+- (void)cachedImageExistsForURL:(NSURL *)url
+                     completion:(SDWebImageCheckCacheCompletionBlock)completionBlock {
+    NSString *key = [self cacheKeyForURL:url];
+    
+    BOOL isInMemoryCache = ([self.imageCache imageFromMemoryCacheForKey:key] != nil);
+    
+    if (isInMemoryCache) {
+        // making sure we call the completion block on the main queue
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(YES);
+            }
+        });
+        return;
+    }
+    
+    [self.imageCache diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
+        // the completion block of checkDiskCacheForImageWithKey:completion: is always called on the main queue, no need to further dispatch
+        if (completionBlock) {
+            completionBlock(isInDiskCache);
+        }
+    }];
+}
+
+- (void)diskImageExistsForURL:(NSURL *)url
+                   completion:(SDWebImageCheckCacheCompletionBlock)completionBlock {
+    NSString *key = [self cacheKeyForURL:url];
+    
+    [self.imageCache diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
+        // the completion block of checkDiskCacheForImageWithKey:completion: is always called on the main queue, no need to further dispatch
+        if (completionBlock) {
+            completionBlock(isInDiskCache);
+        }
+    }];
+}
+
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
                                          options:(SDWebImageOptions)options
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock

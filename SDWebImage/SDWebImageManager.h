@@ -214,10 +214,45 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (BOOL)isRunning;
 
 /**
- * Check if image has already been cached
+ *  Check if image has already been cached
+ *
+ *  @param url image url
+ *
+ *  @return if the image was already cached
  */
 - (BOOL)cachedImageExistsForURL:(NSURL *)url;
+
+/**
+ *  Check if image has already been cached on disk only
+ *
+ *  @param url image url
+ *
+ *  @return if the image was already cached (disk only)
+ */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
+
+/**
+ *  Async check if image has already been cached
+ *
+ *  @param url              image url
+ *  @param completionBlock  the block to be executed when the check is finished
+ *  
+ *  @note the completion block is always executed on the main queue
+ */
+- (void)cachedImageExistsForURL:(NSURL *)url
+                     completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+
+/**
+ *  Async check if image has already been cached on disk only
+ *
+ *  @param url              image url
+ *  @param completionBlock  the block to be executed when the check is finished
+ *
+ *  @note the completion block is always executed on the main queue
+ */
+- (void)diskImageExistsForURL:(NSURL *)url
+                   completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+
 
 /**
  *Return the cache key for a given URL
