@@ -97,7 +97,22 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  */
 @property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
 
+/**
+ *  Singleton method, returns the shared instance
+ *
+ *  @return global shared instance of downloader class
+ */
 + (SDWebImageDownloader *)sharedDownloader;
+
+/**
+ * Set username
+ */
+@property (strong, nonatomic) NSString *username;
+
+/**
+ * Set password
+ */
+@property (strong, nonatomic) NSString *password;
 
 /**
  * Set filter to pick headers for downloading image HTTP request.

@@ -12,7 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
 
-@interface SDWebImageDownloaderOperation () {
+@interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate> {
     BOOL _executing;
     BOOL _finished;
 }
@@ -46,6 +46,7 @@
 - (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSInteger, NSInteger))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock {
     if ((self = [super init])) {
         _request = request;
+        _shouldUseCredentialStorage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
@@ -404,18 +405,25 @@
     return self.options & SDWebImageDownloaderContinueInBackground;
 }
 
-- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace {
-    return [protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust];
+- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection __unused *)connection {
+    return self.shouldUseCredentialStorage;
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
-    BOOL trustAllCertificates = (self.options & SDWebImageDownloaderAllowInvalidSSLCertificates);
-    if (trustAllCertificates && [challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]
-             forAuthenticationChallenge:challenge];
+- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+        [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
+    } else {
+        if ([challenge previousFailureCount] == 0) {
+            if (self.credential) {
+                [[challenge sender] useCredential:self.credential forAuthenticationChallenge:challenge];
+            } else {
+                [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
+            }
+        } else {
+            [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
+        }
     }
-
-    [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
 }
 
 @end

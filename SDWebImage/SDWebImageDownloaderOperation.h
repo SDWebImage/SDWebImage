@@ -12,7 +12,28 @@
 
 @interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation>
 
+/**
+ * The request used by the operation's connection.
+ */
 @property (strong, nonatomic, readonly) NSURLRequest *request;
+
+/**
+ * Whether the URL connection should consult the credential storage for authenticating the connection. `YES` by default.
+ *
+ * This is the value that is returned in the `NSURLConnectionDelegate` method `-connectionShouldUseCredentialStorage:`.
+ */
+@property (nonatomic, assign) BOOL shouldUseCredentialStorage;
+
+/**
+ * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
+ *
+ * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
+ */
+@property (nonatomic, strong) NSURLCredential *credential;
+
+/**
+ * The SDWebImageDownloaderOptions for the receiver.
+ */
 @property (assign, nonatomic, readonly) SDWebImageDownloaderOptions options;
 
 /**
