@@ -36,17 +36,16 @@
         __weak UIImageView      *wself    = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            dispatch_main_sync_safe (^
-                                     {
-                                         if (!wself) return;
-                                         if (image) {
-                                             wself.highlightedImage = image;
-                                             [wself setNeedsLayout];
-                                         }
-                                         if (completedBlock && finished) {
-                                             completedBlock(image, error, cacheType, url);
-                                         }
-                                     });
+            dispatch_main_async_safe (^{
+                if (!wself) return;
+                if (image) {
+                    wself.highlightedImage = image;
+                    [wself setNeedsLayout];
+                }
+                if (completedBlock && finished) {
+                    completedBlock(image, error, cacheType, url);
+                }
+            });
         }];
         [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {

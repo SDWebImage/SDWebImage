@@ -71,7 +71,7 @@ static char imageURLStorageKey;
     __weak UIButton *wself = self;
     id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!wself) return;
-        dispatch_main_sync_safe(^{
+        dispatch_main_async_safe(^{
             __strong UIButton *sself = wself;
             if (!sself) return;
             if (image) {
@@ -114,7 +114,7 @@ static char imageURLStorageKey;
         __weak UIButton *wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_async_safe(^{
                 __strong UIButton *sself = wself;
                 if (!sself) return;
                 if (image) {

@@ -291,7 +291,9 @@
                 UIImage *scaledImage = [self scaledImageForKey:key image:image];
                 image = [UIImage decodedImageWithImage:scaledImage];
                 CGImageRelease(partialImageRef);
-                dispatch_main_sync_safe(^{
+                
+                // this is only executed in case we have a valid partial image
+                dispatch_main_async_safe(^{
                     if (self.completedBlock) {
                         self.completedBlock(image, nil, nil, NO);
                     }

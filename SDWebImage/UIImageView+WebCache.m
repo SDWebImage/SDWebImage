@@ -50,7 +50,7 @@ static char imageURLKey;
         __weak UIImageView *wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_async_safe(^{
                 if (!wself) return;
                 if (image) {
                     wself.image = image;
@@ -97,7 +97,7 @@ static char imageURLKey;
     for (NSURL *logoImageURL in arrayOfURLs) {
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            dispatch_main_sync_safe(^{
+            dispatch_main_async_safe(^{
                 __strong UIImageView *sself = wself;
                 [sself stopAnimating];
                 if (sself && image) {
