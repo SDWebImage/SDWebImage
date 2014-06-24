@@ -181,13 +181,15 @@
             }
             id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 if (weakOperation.isCancelled) {
-                    dispatch_main_sync_safe(^{
-                        completedBlock(nil, nil, SDImageCacheTypeNone, finished, url);
-                    });
+                    // Do nothing if the operation was cancelled
+                    // See #699 for more details
+                    // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
                 }
                 else if (error) {
                     dispatch_main_sync_safe(^{
-                        completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
+                        if (!weakOperation.isCancelled) {
+                            completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
+                        }
                     });
 
                     if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
@@ -213,7 +215,9 @@
                             }
 
                             dispatch_main_sync_safe(^{
-                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                                if (!weakOperation.isCancelled) {
+                                    completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                                }
                             });
                         });
                     }
@@ -223,7 +227,9 @@
                         }
 
                         dispatch_main_sync_safe(^{
-                            completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                            if (!weakOperation.isCancelled) {
+                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                            }
                         });
                     }
                 }
@@ -244,7 +250,9 @@
         }
         else if (image) {
             dispatch_main_sync_safe(^{
-                completedBlock(image, nil, cacheType, YES, url);
+                if (!weakOperation.isCancelled) {
+                    completedBlock(image, nil, cacheType, YES, url);
+                }
             });
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
@@ -253,7 +261,9 @@
         else {
             // Image not in cache and download disallowed by delegate
             dispatch_main_sync_safe(^{
-                completedBlock(nil, nil, SDImageCacheTypeNone, YES, url);
+                if (!weakOperation.isCancelled) {
+                    completedBlock(nil, nil, SDImageCacheTypeNone, YES, url);
+                }
             });
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
