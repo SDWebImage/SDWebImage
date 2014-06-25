@@ -1,10 +1,10 @@
-//
-//  UIView+WebCacheOperation.m
-//  SDWebImage
-//
-//  Created by Whirlwind on 14-5-22.
-//  Copyright (c) 2014年 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "UIView+WebCacheOperation.h"
 #import "objc/runtime.h"
@@ -32,7 +32,7 @@ static char loadOperationKey;
 - (void)cancelImageLoadOperationWithKey:(NSString *)key {
     // Cancel in progress downloader from queue
     NSMutableDictionary *operationDictionary = [self operationDictionary];
-    id                  operations           = [operationDictionary objectForKey:key];
+    id operations = [operationDictionary objectForKey:key];
     if (operations) {
         if ([operations isKindOfClass:[NSArray class]]) {
             for (id <SDWebImageOperation> operation in operations) {
@@ -40,7 +40,7 @@ static char loadOperationKey;
                     [operation cancel];
                 }
             }
-        } else {
+        } else if ([operations conformsToProtocol:@protocol(SDWebImageOperation)]){
             [(id<SDWebImageOperation>) operations cancel];
         }
         [operationDictionary removeObjectForKey:key];
