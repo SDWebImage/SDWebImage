@@ -30,7 +30,7 @@
 }
 
 - (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
-    [self cancelCurrentHighlightedImageLoad];
+    [self sd_cancelCurrentHighlightedImageLoad];
 
     if (url) {
         __weak UIImageView      *wself    = self;
@@ -48,7 +48,7 @@
                                          }
                                      });
         }];
-        [self setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
+        [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {
         dispatch_main_async_safe(^{
             NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
@@ -59,8 +59,8 @@
     }
 }
 
-- (void)cancelCurrentHighlightedImageLoad {
-    [self cancelImageLoadOperationWithKey:UIImageViewHighlightedWebCacheOperationKey];
+- (void)sd_cancelCurrentHighlightedImageLoad {
+    [self sd_cancelImageLoadOperationWithKey:UIImageViewHighlightedWebCacheOperationKey];
 }
 
 @end
@@ -98,6 +98,10 @@
             completedBlock(image, error, cacheType);
         }
     }];
+}
+
+- (void)cancelCurrentHighlightedImageLoad {
+    [self sd_cancelCurrentHighlightedImageLoad];
 }
 
 @end

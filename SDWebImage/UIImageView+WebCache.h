@@ -50,7 +50,7 @@
  * Note that because of the limitations of categories this property can get out of sync
  * if you use sd_setImage: directly.
  */
-- (NSURL *)imageURL;
+- (NSURL *)sd_imageURL;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -148,21 +148,23 @@
 /**
  * Download an array of images and starts them in an animation loop
  *
- *@param arrayOfURLs An array of NSURL
+ * @param arrayOfURLs An array of NSURL
  */
-- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+- (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
 
 /**
  * Cancel the current download
  */
-- (void)cancelCurrentImageLoad;
+- (void)sd_cancelCurrentImageLoad;
 
-- (void)cancelCurrentAnimationImagesLoad;
+- (void)sd_cancelCurrentAnimationImagesLoad;
 
 @end
 
 
 @interface UIImageView (WebCacheDeprecated)
+
+- (NSURL *)imageURL __deprecated_msg("Use `sd_imageURL`");
 
 - (void)setImageWithURL:(NSURL *)url __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:`");
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:`");
@@ -173,6 +175,10 @@
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:options:completed:`");
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:options:progress:completed:`");
 
-- (void)cancelCurrentArrayLoad __deprecated_msg("Use `cancelCurrentAnimationImagesLoad`");
+- (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs __deprecated_msg("Use `sd_setAnimationImagesWithURLs:`");
+
+- (void)cancelCurrentArrayLoad __deprecated_msg("Use `sd_cancelCurrentAnimationImagesLoad`");
+
+- (void)cancelCurrentImageLoad __deprecated_msg("Use `cancelCurrentImageLoad`");
 
 @end

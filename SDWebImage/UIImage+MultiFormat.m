@@ -19,7 +19,7 @@
 
 + (UIImage *)sd_imageWithData:(NSData *)data {
     UIImage *image;
-    NSString *imageContentType = [NSData contentTypeForImageData:data];
+    NSString *imageContentType = [NSData sd_contentTypeForImageData:data];
     if ([imageContentType isEqualToString:@"image/gif"]) {
         image = [UIImage sd_animatedGIFWithData:data];
     }

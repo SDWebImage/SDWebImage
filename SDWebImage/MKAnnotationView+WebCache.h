@@ -20,7 +20,7 @@
  * Note that because of the limitations of categories this property can get out of sync
  * if you use sd_setImage: directly.
  */
-- (NSURL *)imageURL;
+- (NSURL *)sd_imageURL;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -102,12 +102,14 @@
 /**
  * Cancel the current download
  */
-- (void)cancelCurrentImageLoad;
+- (void)sd_cancelCurrentImageLoad;
 
 @end
 
 
 @interface MKAnnotationView (WebCacheDeprecated)
+
+- (NSURL *)imageURL __deprecated_msg("Use `sd_imageURL`");
 
 - (void)setImageWithURL:(NSURL *)url __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:`");
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:`");
@@ -116,5 +118,7 @@
 - (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:completed:`");
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:completed:`");
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock __deprecated_msg("Method deprecated. Use `sd_setImageWithURL:placeholderImage:options:completed:`");
+
+- (void)cancelCurrentImageLoad __deprecated_msg("Use `sd_cancelCurrentImageLoad`");
 
 @end

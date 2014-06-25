@@ -14,7 +14,7 @@ static char imageURLStorageKey;
 
 @implementation UIButton (WebCache)
 
-- (NSURL *)currentImageURL {
+- (NSURL *)sd_currentImageURL {
     NSURL *url = self.imageURLStorage[@(self.state)];
 
     if (!url) {
@@ -24,7 +24,7 @@ static char imageURLStorageKey;
     return url;
 }
 
-- (NSURL *)imageURLForState:(UIControlState)state {
+- (NSURL *)sd_imageURLForState:(UIControlState)state {
     return self.imageURLStorage[@(state)];
 }
 
@@ -51,7 +51,7 @@ static char imageURLStorageKey;
 - (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
 
     [self setImage:placeholder forState:state];
-    [self cancelImageLoadForState:state];
+    [self sd_cancelImageLoadForState:state];
     
     if (!url) {
         [self.imageURLStorage removeObjectForKey:@(state)];
@@ -82,7 +82,7 @@ static char imageURLStorageKey;
             }
         });
     }];
-    [self setImageLoadOperation:operation forState:state];
+    [self sd_setImageLoadOperation:operation forState:state];
 }
 
 - (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state {
@@ -106,7 +106,7 @@ static char imageURLStorageKey;
 }
 
 - (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
-    [self cancelImageLoadForState:state];
+    [self sd_cancelImageLoadForState:state];
 
     [self setBackgroundImage:placeholder forState:state];
 
@@ -125,7 +125,7 @@ static char imageURLStorageKey;
                 }
             });
         }];
-        [self setBackgroundImageLoadOperation:operation forState:state];
+        [self sd_setBackgroundImageLoadOperation:operation forState:state];
     } else {
         dispatch_main_async_safe(^{
             NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
@@ -136,20 +136,20 @@ static char imageURLStorageKey;
     }
 }
 
-- (void)setImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
-    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+- (void)sd_setImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
 }
 
-- (void)cancelImageLoadForState:(UIControlState)state {
-    [self cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+- (void)sd_cancelImageLoadForState:(UIControlState)state {
+    [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
 }
 
-- (void)setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
-    [self setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
+- (void)sd_setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
+    [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
-- (void)cancelBackgroundImageLoadForState:(UIControlState)state {
-    [self cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
+- (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state {
+    [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
 - (NSMutableDictionary *)imageURLStorage {
@@ -167,6 +167,14 @@ static char imageURLStorageKey;
 
 
 @implementation UIButton (WebCacheDeprecated)
+
+- (NSURL *)currentImageURL {
+    return [self sd_currentImageURL];
+}
+
+- (NSURL *)imageURLForState:(UIControlState)state {
+    return [self sd_imageURLForState:state];
+}
 
 - (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state {
     [self sd_setImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
@@ -242,7 +250,11 @@ static char imageURLStorageKey;
 
 - (void)cancelCurrentImageLoad {
     // in a backwards compatible manner, cancel for current state
-    [self cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(self.state)]];
+    [self sd_cancelImageLoadForState:self.state];
+}
+
+- (void)cancelBackgroundImageLoadForState:(UIControlState)state {
+    [self sd_cancelBackgroundImageLoadForState:state];
 }
 
 @end
