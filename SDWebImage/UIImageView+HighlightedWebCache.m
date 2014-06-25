@@ -7,9 +7,9 @@
  */
 
 #import "UIImageView+HighlightedWebCache.h"
-#import "objc/runtime.h"
+#import "UIView+WebCacheOperation.h"
 
-static char operationKey;
+#define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
 
 @implementation UIImageView (HighlightedWebCache)
 
@@ -30,7 +30,7 @@ static char operationKey;
 }
 
 - (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self cancelCurrentHighlightedImageLoad];
 
     if (url) {
         __weak UIImageView      *wself    = self;
@@ -48,7 +48,7 @@ static char operationKey;
                                          }
                                      });
         }];
-        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [self setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {
         dispatch_main_async_safe(^{
             NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
@@ -57,6 +57,10 @@ static char operationKey;
             }
         });
     }
+}
+
+- (void)cancelCurrentHighlightedImageLoad {
+    [self cancelImageLoadOperationWithKey:UIImageViewHighlightedWebCacheOperationKey];
 }
 
 @end

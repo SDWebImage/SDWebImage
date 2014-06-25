@@ -190,9 +190,14 @@
 - (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
 /**
- * Cancel the current download
+ * Cancel the current image download
  */
-- (void)cancelCurrentImageLoad;
+- (void)cancelImageLoadForState:(UIControlState)state;
+
+/**
+ * Cancel the current backgroundImage download
+ */
+- (void)cancelBackgroundImageLoadForState:(UIControlState)state;
 
 @end
 
