@@ -172,4 +172,8 @@ static char imageURLKey;
 
 }
 
+- (void)cancelCurrentArrayLoad {
+    [self cancelCurrentAnimationImagesLoad];
+}
+
 @end
