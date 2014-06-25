@@ -50,7 +50,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      */
     SDWebImageDownloaderHighPriority = 1 << 7,
     
-
+    /**
+     * Scale down the image
+     */
+    SDWebImageDownloaderScaleDownLargeImage = 1 << 8,
+    
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {

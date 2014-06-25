@@ -74,7 +74,15 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
      * of the placeholder image until after the image has finished loading.
      */
-    SDWebImageDelayPlaceholder = 1 << 9
+    SDWebImageDelayPlaceholder = 1 << 9,
+    
+    /**
+     * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
+     * images to a size compatible with the constrained memory of devices.
+     * If `SDWebImageProgressiveDownload` flag is set the scale down is deactivated.
+     */
+    SDWebImageScaleDownLargeImage = 1 << 10
+
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
