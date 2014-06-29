@@ -196,6 +196,6 @@
 
 - (void)cancelCurrentArrayLoad __deprecated_msg("Use `sd_cancelCurrentAnimationImagesLoad`");
 
-- (void)cancelCurrentImageLoad __deprecated_msg("Use `cancelCurrentImageLoad`");
+- (void)cancelCurrentImageLoad __deprecated_msg("Use `sd_cancelCurrentImageLoad`");
 
 @end
