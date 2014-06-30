@@ -11,6 +11,7 @@
 #import "UIView+WebCacheOperation.h"
 
 static char imageURLStorageKey;
+static char backgroundImageURLStorageKey;
 
 @implementation UIButton (WebCache)
 
@@ -24,8 +25,22 @@ static char imageURLStorageKey;
     return url;
 }
 
+- (NSURL *)sd_currentBackgroundImageURL {
+    NSURL *url = self.backgroundImageURLStorage[@(self.state)];
+    
+    if (!url) {
+        url = self.backgroundImageURLStorage[@(UIControlStateNormal)];
+    }
+    
+    return url;
+}
+
 - (NSURL *)sd_imageURLForState:(UIControlState)state {
     return self.imageURLStorage[@(state)];
+}
+
+- (NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
+    return self.backgroundImageURLStorage[@(state)];
 }
 
 - (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state {
@@ -71,6 +86,18 @@ static char imageURLStorageKey;
     __weak UIButton *wself = self;
     id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!wself) return;
+        
+        NSURL *lastURL = [wself sd_currentImageURL];
+        if (![lastURL isEqual:imageURL]) {
+            dispatch_main_async_safe(^{
+                NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
+                if (completedBlock) {
+                    completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
+                }
+            });
+            return;
+        }
+        
         dispatch_main_sync_safe(^{
             __strong UIButton *sself = wself;
             if (!sself) return;
@@ -111,9 +138,23 @@ static char imageURLStorageKey;
     [self setBackgroundImage:placeholder forState:state];
 
     if (url) {
+        self.backgroundImageURLStorage[@(state)] = url;
+        
         __weak UIButton *wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
+            
+            NSURL *lastURL = [wself sd_currentBackgroundImageURL];
+            if (![lastURL isEqual:imageURL]) {
+                dispatch_main_async_safe(^{
+                    NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
+                    if (completedBlock) {
+                        completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
+                    }
+                });
+                return;
+            }
+            
             dispatch_main_sync_safe(^{
                 __strong UIButton *sself = wself;
                 if (!sself) return;
@@ -127,6 +168,8 @@ static char imageURLStorageKey;
         }];
         [self sd_setBackgroundImageLoadOperation:operation forState:state];
     } else {
+        [self.backgroundImageURLStorage removeObjectForKey:@(state)];
+        
         dispatch_main_async_safe(^{
             NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
             if (completedBlock) {
@@ -160,6 +203,17 @@ static char imageURLStorageKey;
         objc_setAssociatedObject(self, &imageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
+    return storage;
+}
+
+- (NSMutableDictionary *)backgroundImageURLStorage {
+    NSMutableDictionary *storage = objc_getAssociatedObject(self, &backgroundImageURLStorageKey);
+    if (!storage)
+    {
+        storage = [NSMutableDictionary dictionary];
+        objc_setAssociatedObject(self, &backgroundImageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
     return storage;
 }
 
