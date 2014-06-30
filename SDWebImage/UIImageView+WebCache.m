@@ -52,8 +52,7 @@ static char imageURLKey;
             if (!wself) return;
             
             NSURL *lastURL = [wself sd_imageURL];
-            BOOL isMatch = [[lastURL absoluteString] isEqualToString:[imageURL absoluteString]];
-            if (!isMatch) {
+            if (![lastURL isEqual:imageURL]) {
                 dispatch_main_async_safe(^{
                     NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
                     if (completedBlock) {
