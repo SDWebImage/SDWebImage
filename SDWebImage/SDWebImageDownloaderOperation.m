@@ -360,6 +360,7 @@
 #ifdef TARGET_OS_IPHONE
                 if (self.options & SDWebImageDownloaderScaleDownLargeImage) {
                     image = [UIImage decodedAndScaledDownImageWithImage:image];
+                    [self.imageData setData:UIImagePNGRepresentation(image)];
                 } else {
                     image = [UIImage decodedImageWithImage:image];
                 }
