@@ -160,6 +160,11 @@
     [self reset];
 }
 
+- (void)stopRunloop
+{
+    CFRunLoopStop(CFRunLoopGetCurrent());
+}
+
 - (void)done {
     self.finished = YES;
     self.executing = NO;
@@ -221,7 +226,13 @@
         if (self.completedBlock) {
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
-        CFRunLoopStop(CFRunLoopGetCurrent());
+        
+        @synchronized (self) {
+            if (self.thread) {
+                [self performSelector:@selector(stopRunloop) onThread:self.thread withObject:nil waitUntilDone:NO];
+            }
+        }
+        
         [self done];
     }
 }
@@ -335,7 +346,12 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
-    CFRunLoopStop(CFRunLoopGetCurrent());
+    @synchronized (self) {
+        if (self.thread) {
+            [self performSelector:@selector(stopRunloop) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+    }
+        
     self.connection = nil;
 
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
@@ -380,7 +396,12 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    CFRunLoopStop(CFRunLoopGetCurrent());
+    @synchronized (self) {
+        if (self.thread) {
+            [self performSelector:@selector(stopRunloop) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+    }
+        
     [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
 
     if (self.completedBlock) {
