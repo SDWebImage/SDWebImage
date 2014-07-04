@@ -32,6 +32,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 @interface SDImageCache ()
 
 @property (strong, nonatomic) NSCache *memCache;
+@property (strong, nonatomic) NSMapTable *weakMemCache;
 @property (strong, nonatomic) NSString *diskCachePath;
 @property (strong, nonatomic) NSMutableArray *customPaths;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
@@ -70,6 +71,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         // Init the memory cache
         _memCache = [[NSCache alloc] init];
         _memCache.name = fullNamespace;
+        
+        // Init the weak memory cache (to keep a weak reference to images cleared from our memory cache that are actually still alive)
+        _weakMemCache = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory];
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -146,8 +150,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     if (!image || !key) {
         return;
     }
-
-    [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
+    [self addImageToMemoryCache:image forKey:key];
 
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
@@ -209,7 +212,21 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key {
-    return [self.memCache objectForKey:key];
+    UIImage *image = [self.memCache objectForKey:key];
+    // Check the weak memory cache to see if a previously cached image is still alive
+    if (!image) {
+        image = [self.weakMemCache objectForKey:key];
+        if (image) {
+            // re-add to memory cache
+            [self addImageToMemoryCache:image forKey:key];
+        }
+    }
+    return image;
+}
+
+- (void) addImageToMemoryCache:(UIImage *)image forKey:(NSString *)key {
+    [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
+    [self.weakMemCache setObject:image forKey:key];
 }
 
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key {
@@ -218,12 +235,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     if (image) {
         return image;
     }
-
+    
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage) {
-        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-        [self.memCache setObject:diskImage forKey:key cost:cost];
+        [self addImageToMemoryCache:diskImage forKey:key];
     }
 
     return diskImage;
@@ -290,8 +306,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         @autoreleasepool {
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage) {
-                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-                [self.memCache setObject:diskImage forKey:key cost:cost];
+                [self addImageToMemoryCache:diskImage forKey:key];
             }
 
             dispatch_async(dispatch_get_main_queue(), ^{
