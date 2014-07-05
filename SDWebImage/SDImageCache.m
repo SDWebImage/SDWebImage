@@ -73,7 +73,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache.name = fullNamespace;
         
         // Init the weak memory cache (to keep a weak reference to images cleared from our memory cache that are actually still alive)
-        _weakMemCache = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory];
+        _weakMemCache = [NSMapTable strongToWeakObjectsMapTable];
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
