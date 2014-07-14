@@ -316,18 +316,18 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)removeImageForKey:(NSString *)key {
-    [self removeImageForKey:key withCompletition:nil];
+    [self removeImageForKey:key withCompletion:nil];
 }
 
-- (void)removeImageForKey:(NSString *)key withCompletition:(void (^)())completion {
-    [self removeImageForKey:key fromDisk:YES withCompletition:completion];
+- (void)removeImageForKey:(NSString *)key withCompletion:(void (^)())completion {
+    [self removeImageForKey:key fromDisk:YES withCompletion:completion];
 }
 
 - (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk {
-    [self removeImageForKey:key fromDisk:fromDisk withCompletition:nil];
+    [self removeImageForKey:key fromDisk:fromDisk withCompletion:nil];
 }
 
-- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletition:(void (^)())completion {
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(void (^)())completion {
     
     if (key == nil) {
         return;
