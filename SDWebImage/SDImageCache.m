@@ -58,6 +58,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (id)initWithNamespace:(NSString *)ns {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [self initWithNamespace:ns diskCacheDirectory:paths[0]];
+}
+
+- (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
 
@@ -72,8 +77,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache.name = fullNamespace;
 
         // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
+        _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
 
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
