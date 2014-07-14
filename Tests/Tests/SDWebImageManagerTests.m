@@ -64,4 +64,23 @@ static int64_t kAsyncTestTimeout = 5;
     XCAsyncFailAfter(kAsyncTestTimeout, @"Download image timed out");
 }
 
+- (void)testThatDownloadWithCancelDoesNotInvokeTheCompletionBlockAsync {
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/629/228/44822926:jpeg_preview_small.jpg?20120509181018"];
+    
+    id <SDWebImageOperation> operation = [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        
+        XCTFail(@"Should not call the completion block");
+    }];
+    
+    [operation cancel];
+    
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^{
+        XCAsyncSuccess();
+    });
+    
+    
+    XCAsyncFailAfter(kAsyncTestTimeout, @"Download image timed out");
+}
+
 @end
