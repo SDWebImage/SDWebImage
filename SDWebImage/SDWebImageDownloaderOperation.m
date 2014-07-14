@@ -12,10 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
 
-@interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate> {
-    BOOL _executing;
-    BOOL _finished;
-}
+@interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate>
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
@@ -181,20 +178,10 @@
     [self didChangeValueForKey:@"isFinished"];
 }
 
-- (BOOL)isFinished
-{
-    return _finished;
-}
-
 - (void)setExecuting:(BOOL)executing {
     [self willChangeValueForKey:@"isExecuting"];
     _executing = executing;
     [self didChangeValueForKey:@"isExecuting"];
-}
-
-- (BOOL)isExecuting
-{
-    return _executing;
 }
 
 - (BOOL)isConcurrent {
