@@ -56,7 +56,7 @@
 - (void)startPrefetchingAtIndex:(NSUInteger)index {
     if (index >= self.prefetchURLs.count) return;
     self.requestedCount++;
-    [self.manager downloadWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+    [self.manager downloadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
 
@@ -88,7 +88,7 @@
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         }
-        else if (self.finishedCount + self.skippedCount == self.requestedCount) {
+        else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
                 self.completionBlock(self.finishedCount, self.skippedCount);

@@ -33,7 +33,7 @@
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
 
-            duration += [self frameDurationAtIndex:i source:source];
+            duration += [self sd_frameDurationAtIndex:i source:source];
 
             [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
 
@@ -52,7 +52,7 @@
     return animatedImage;
 }
 
-+ (float)frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
++ (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
     float frameDuration = 0.1f;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;

@@ -127,8 +127,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request
                                                                    options:options
                                                                   progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                                                                      if (!wself) return;
                                                                       SDWebImageDownloader *sself = wself;
+                                                                      if (!sself) return;
                                                                       NSArray *callbacksForURL = [sself callbacksForURL:url];
                                                                       for (NSDictionary *callbacks in callbacksForURL) {
                                                                           SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
@@ -136,8 +136,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                       }
                                                                   }
                                                                  completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                                                     if (!wself) return;
                                                                      SDWebImageDownloader *sself = wself;
+                                                                     if (!sself) return;
                                                                      NSArray *callbacksForURL = [sself callbacksForURL:url];
                                                                      if (finished) {
                                                                          [sself removeCallbacksForURL:url];
@@ -148,13 +148,19 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                      }
                                                                  }
                                                                  cancelled:^{
-                                                                     if (!wself) return;
                                                                      SDWebImageDownloader *sself = wself;
+                                                                     if (!sself) return;
                                                                      [sself removeCallbacksForURL:url];
                                                                  }];
         
+        if (wself.username && wself.password) {
+            operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];
+        }
+        
         if (options & SDWebImageDownloaderHighPriority) {
             operation.queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            operation.queuePriority = NSOperationQueuePriorityLow;
         }
 
         [wself.downloadQueue addOperation:operation];
