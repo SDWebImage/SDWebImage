@@ -28,6 +28,8 @@ typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType ca
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
+typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -136,7 +138,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
  * @param key             The unique image cache key
  * @param completionBlock An block that should be executed after the image has been removed (optional)
  */
-- (void)removeImageForKey:(NSString *)key withCompletion:(void (^)())completion;
+- (void)removeImageForKey:(NSString *)key withCompletion:(SDWebImageNoParamsBlock)completion;
 
 /**
  * Remove the image from memory and optionally disk cache synchronously
@@ -153,7 +155,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
  * @param fromDisk        Also remove cache entry from disk if YES
  * @param completionBlock An block that should be executed after the image has been removed (optional)
  */
-- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(void (^)())completion;
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(SDWebImageNoParamsBlock)completion;
 
 /**
  * Clear all memory cached images
@@ -164,7 +166,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
  * Clear all disk cached images. Non-blocking method - returns immediately.
  * @param completionBlock An block that should be executed after cache expiration completes (optional)
  */
-- (void)clearDiskOnCompletion:(void (^)())completion;
+- (void)clearDiskOnCompletion:(SDWebImageNoParamsBlock)completion;
 
 /**
  * Clear all disk cached images
@@ -176,7 +178,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
  * Remove all expired cached image from disk. Non-blocking method - returns immediately.
  * @param completionBlock An block that should be executed after cache expiration completes (optional)
  */
-- (void)cleanDiskWithCompletionBlock:(void (^)())completionBlock;
+- (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Remove all expired cached image from disk
@@ -197,7 +199,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 /**
  * Asynchronously calculate the disk cache's size.
  */
-- (void)calculateSizeWithCompletionBlock:(void (^)(NSUInteger fileCount, NSUInteger totalSize))completionBlock;
+- (void)calculateSizeWithCompletionBlock:(SDWebImageCalculateSizeBlock)completionBlock;
 
 /**
  *  Async check if image exists in disk cache already (does not load the image)
