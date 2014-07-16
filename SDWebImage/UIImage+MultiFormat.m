@@ -47,6 +47,10 @@
 +(UIImageOrientation)sd_imageOrientationFromImageData:(NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
     CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+    if (!imageSource) {
+        // if imageSource is nil, we do not really have an image, and CFRelease will crash
+        return UIImageOrientationUp;
+    }
     CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
     if (properties) {
         CFTypeRef val;
