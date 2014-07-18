@@ -66,6 +66,17 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (id)initWithNamespace:(NSString *)ns;
 
 /**
+ *  Init a new cache store with a specific namespace and a specific search path
+ *
+ *  @param ns                  The namespace to use for this cache
+ *  @param searchPathDirectory The search path to use for this cache
+ *
+ *  @return A initialized SDImageCache instance
+ */
+
+- (id)initWithNamespace:(NSString *)ns searchPathDirectory:(NSSearchPathDirectory)searchPathDirectory;
+
+/**
  * Add a read-only cache path to search for images pre-cached by SDImageCache
  * Useful if you want to bundle pre-loaded images with your app
  *
