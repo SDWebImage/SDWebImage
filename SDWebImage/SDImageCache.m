@@ -513,16 +513,13 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
 - (void)removeOldestFile {
     dispatch_sync(self.ioQueue, ^{
-        
         NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
-        
-        NSError *error = nil;
         NSDate *oldest = [NSDate date];
         NSString *oldestFileName = nil;
         for (NSString *f in fileEnumerator) {
             NSString *photoPath = [self.diskCachePath stringByAppendingPathComponent:f];
             
-            NSDate *created = [[_fileManager attributesOfItemAtPath:photoPath error:&error] objectForKey:@"NSFileCreationDate"];
+            NSDate *created = [[_fileManager attributesOfItemAtPath:photoPath error:NULL] objectForKey:@"NSFileCreationDate"];
             
             if([created compare:oldest] == NSOrderedAscending){
                 oldestFileName = [NSString stringWithString:photoPath];
@@ -530,7 +527,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
             }
         }
         
-        [_fileManager removeItemAtPath:oldestFileName error:&error];
+        [_fileManager removeItemAtPath:oldestFileName error:NULL];
     });
 }
 
