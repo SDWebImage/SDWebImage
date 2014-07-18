@@ -52,7 +52,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
 /**
- * The maximum number of images to cache. default = 100 - unlimited = 0
+ * The maximum number of images to cache. default = 0 (unlimited)
  */
 @property (assign, nonatomic) NSUInteger maxNumberOfImagesToCache;
 

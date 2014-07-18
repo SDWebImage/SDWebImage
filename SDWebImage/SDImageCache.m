@@ -71,7 +71,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache = [[NSCache alloc] init];
         _memCache.name = fullNamespace;
 
-        self.maxNumberOfImagesToCache = 100;
+        self.maxNumberOfImagesToCache = 0;
 
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
