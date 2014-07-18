@@ -71,6 +71,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache = [[NSCache alloc] init];
         _memCache.name = fullNamespace;
 
+        self.maxNumberOfImagesToCache = 100;
+
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
@@ -146,7 +148,12 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     if (!image || !key) {
         return;
     }
-
+    
+    if(self.maxNumberOfImagesToCache > 0 && [self getDiskCount] >= self.maxNumberOfImagesToCache)
+    {
+        [self removeOldestFile];
+    }
+    
     [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
 
     if (toDisk) {
@@ -502,6 +509,29 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         count = [[fileEnumerator allObjects] count];
     });
     return count;
+}
+
+- (void)removeOldestFile {
+    dispatch_sync(self.ioQueue, ^{
+        
+        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
+        
+        NSError *error = nil;
+        NSDate *oldest = [NSDate date];
+        NSString *oldestFileName = nil;
+        for (NSString *f in fileEnumerator) {
+            NSString *photoPath = [self.diskCachePath stringByAppendingPathComponent:f];
+            
+            NSDate *created = [[_fileManager attributesOfItemAtPath:photoPath error:&error] objectForKey:@"NSFileCreationDate"];
+            
+            if([created compare:oldest] == NSOrderedAscending){
+                oldestFileName = [NSString stringWithString:photoPath];
+                oldest = created;
+            }
+        }
+        
+        [_fileManager removeItemAtPath:oldestFileName error:&error];
+    });
 }
 
 - (void)calculateSizeWithCompletionBlock:(SDWebImageCalculateSizeBlock)completionBlock {
