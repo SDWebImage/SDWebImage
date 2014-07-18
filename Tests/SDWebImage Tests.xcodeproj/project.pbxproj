@@ -14,6 +14,7 @@
 		DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA248D5F195472AA00390AB0 /* InfoPlist.strings */; };
 		DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D68195475D800390AB0 /* SDImageCacheTests.m */; };
 		DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */; };
+		DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		DA248D64195472AA00390AB0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		DA248D68195475D800390AB0 /* SDImageCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCacheTests.m; sourceTree = "<group>"; };
 		DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageManagerTests.m; sourceTree = "<group>"; };
+		DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImageMultiFormatTests.m; sourceTree = "<group>"; };
 		EB0D107E6B4C4094BA2FEE29 /* libPods-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -80,6 +82,7 @@
 				DA248D5D195472AA00390AB0 /* Supporting Files */,
 				DA248D68195475D800390AB0 /* SDImageCacheTests.m */,
 				DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */,
+				DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -192,6 +195,7 @@
 			files = (
 				DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */,
 				DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */,
+				DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
