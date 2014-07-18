@@ -170,7 +170,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 }
 
                 if (imageIsPng) {
-                    data = UIImagePNGRepresentation(image);
+                    // Use CGImageGetDataProvider to save image transformations
+                    CGDataProviderRef provider = CGImageGetDataProvider(image.CGImage);
+                    data = (id)CFBridgingRelease(CGDataProviderCopyData(provider));
                 }
                 else {
                     data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
