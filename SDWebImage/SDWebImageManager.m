@@ -298,10 +298,13 @@
 @implementation SDWebImageCombinedOperation
 
 - (void)setCancelBlock:(SDWebImageNoParamsBlock)cancelBlock {
+    // check if the operation is already cancelled, then we just call the cancelBlock
     if (self.isCancelled) {
-        if (cancelBlock) cancelBlock();
-    }
-    else {
+        if (cancelBlock) {
+            cancelBlock();
+        }
+        _cancelBlock = nil; // don't forget to nil the cancelBlock, otherwise we will get crashes
+    } else {
         _cancelBlock = [cancelBlock copy];
     }
 }
