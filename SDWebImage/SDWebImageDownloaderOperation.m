@@ -324,6 +324,8 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
     @synchronized(self) {
+        if (self.isCancelled) return;
+        
         CFRunLoopStop(CFRunLoopGetCurrent());
         self.thread = nil;
         self.connection = nil;
