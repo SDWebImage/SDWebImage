@@ -66,7 +66,7 @@
     return result;
 }
 
-#pragma EXIF orientation tag converter
+#pragma mark EXIF orientation tag converter
 // Convert an EXIF image orientation to an iOS one.
 // reference see here: http://sylvana.net/jpegcrop/exif_orientation.html
 + (UIImageOrientation) sd_exifOrientationToiOSOrientation:(int)exifOrientation {
