@@ -293,26 +293,16 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return nil;
     }
 
-    NSOperation *operation = [NSOperation new];
-    dispatch_async(self.ioQueue, ^{
-        if (operation.isCancelled) {
-            return;
+    @autoreleasepool {
+        UIImage *diskImage = [self diskImageForKey:key];
+        if (diskImage) {
+            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+            [self.memCache setObject:diskImage forKey:key cost:cost];
         }
-
-        @autoreleasepool {
-            UIImage *diskImage = [self diskImageForKey:key];
-            if (diskImage) {
-                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-                [self.memCache setObject:diskImage forKey:key cost:cost];
-            }
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                doneBlock(diskImage, SDImageCacheTypeDisk);
-            });
-        }
-    });
-
-    return operation;
+        
+        doneBlock(diskImage, SDImageCacheTypeDisk);
+        return nil;
+    }
 }
 
 - (void)removeImageForKey:(NSString *)key {
