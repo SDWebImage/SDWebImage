@@ -283,8 +283,9 @@
 
 - (void)cancelAll {
     @synchronized (self.runningOperations) {
-        [self.runningOperations makeObjectsPerformSelector:@selector(cancel)];
-        [self.runningOperations removeAllObjects];
+        NSArray *copiedOperations = [self.runningOperations copy];
+        [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
+        [self.runningOperations removeObjectsInArray:copiedOperations];
     }
 }
 
