@@ -293,16 +293,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return nil;
     }
 
-    @autoreleasepool {
-        UIImage *diskImage = [self diskImageForKey:key];
-        if (diskImage) {
-            CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-            [self.memCache setObject:diskImage forKey:key cost:cost];
-        }
-        
-        doneBlock(diskImage, SDImageCacheTypeDisk);
-        return nil;
+    UIImage *diskImage = [self diskImageForKey:key];
+    if (diskImage) {
+        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
+        [self.memCache setObject:diskImage forKey:key cost:cost];
     }
+    
+    doneBlock(diskImage, SDImageCacheTypeDisk);
+    return nil;
 }
 
 - (void)removeImageForKey:(NSString *)key {
