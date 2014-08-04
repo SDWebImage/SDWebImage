@@ -74,7 +74,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
      * of the placeholder image until after the image has finished loading.
      */
-    SDWebImageDelayPlaceholder = 1 << 9
+    SDWebImageDelayPlaceholder = 1 << 9,
+
+    /**
+     * We usually don't call transformDownloadedImage delegate method on animated images,
+     * as most transformation code would mangle it.
+     * Use this flag to transform them anyway.
+     */
+    SDWebImageTransformAnimatedImage = 1 << 10,
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
