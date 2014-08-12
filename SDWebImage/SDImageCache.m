@@ -199,6 +199,18 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
 }
 
+- (void)copyImageIfExistsForKey:(NSString *)key asOtherKey:(NSString *)otherKey {
+    if (![self diskImageExistsWithKey:key] || !key || !otherKey) {
+        return;
+    }
+
+    dispatch_sync(_ioQueue, ^{
+        NSString *keyPath = [self defaultCachePathForKey:key];
+        NSString *otherKeyPath = [self defaultCachePathForKey:otherKey];
+        [_fileManager copyItemAtPath:keyPath toPath:otherKeyPath error:NULL];
+    });
+}
+
 - (BOOL)diskImageExistsWithKey:(NSString *)key {
     __block BOOL exists = NO;
     dispatch_sync(_ioQueue, ^{
