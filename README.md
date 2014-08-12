@@ -37,7 +37,7 @@ Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SD
 How To Use
 ----------
 
-API documentation is available at [http://hackemist.com/SDWebImage/doc/](http://hackemist.com/SDWebImage/doc/)
+API documentation is available at [CocoaDocs - SDWebImage](http://cocoadocs.org/docsets/SDWebImage/)
 
 ### Using UIImageView+WebCache category with UITableView
 
