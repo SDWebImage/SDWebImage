@@ -207,7 +207,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     dispatch_sync(_ioQueue, ^{
         NSString *keyPath = [self defaultCachePathForKey:key];
         NSString *otherKeyPath = [self defaultCachePathForKey:otherKey];
-        [_fileManager copyItemAtPath:keyPath toPath:otherKeyPath error:NULL];
+        [_fileManager linkItemAtPath:keyPath toPath:otherKeyPath error:NULL];
     });
 }
 
