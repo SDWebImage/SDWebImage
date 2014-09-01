@@ -13,6 +13,16 @@
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
+@interface _SDWebImageDownloaderToken : NSObject
+
+@property (nonatomic, strong) NSURL *url;
+@property (nonatomic, strong) id callbacks;
+
+@end
+
+@implementation _SDWebImageDownloaderToken
+@end
+
 @interface SDWebImageDownloader ()
 
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
@@ -112,11 +122,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+- (id)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
-    __weak __typeof(self)wself = self;
+    __weak SDWebImageDownloader *wself = self;
 
-    [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^{
+    return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
         if (timeoutInterval == 0.0) {
             timeoutInterval = 15.0;
@@ -190,19 +200,33 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [wself.lastAddedOperation addDependency:operation];
             wself.lastAddedOperation = operation;
         }
-    }];
 
-    return operation;
+        return operation;
+    }];
 }
 
-- (void)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {
+- (void)cancel:(id)token {
+  if (![token isKindOfClass:[_SDWebImageDownloaderToken class]]) {
+    return;
+  }
+
+  dispatch_barrier_async(self.barrierQueue, ^{
+    _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
+    NSMutableArray *callbacksForURL = self.URLCallbacks[typedToken.url];
+    [callbacksForURL removeObjectIdenticalTo:typedToken.callbacks];
+  });
+}
+
+- (id)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
             completedBlock(nil, nil, nil, NO);
         }
-        return;
+        return nil;
     }
+
+    __block _SDWebImageDownloaderToken *token = nil;
 
     dispatch_barrier_sync(self.barrierQueue, ^{
         BOOL first = NO;
@@ -222,7 +246,13 @@ static NSString *const kCompletedCallbackKey = @"completed";
         if (first) {
             createCallback();
         }
+
+        token = [_SDWebImageDownloaderToken new];
+        token.url = url;
+        token.callbacks = callbacks;
     });
+
+    return token;
 }
 
 - (void)setSuspended:(BOOL)suspended {
