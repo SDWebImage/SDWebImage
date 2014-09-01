@@ -66,6 +66,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
+        _maxImageSize = CGSizeZero;
 
         // Init the memory cache
         _memCache = [[NSCache alloc] init];
@@ -264,7 +265,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
-        image = [UIImage decodedImageWithImage:image];
+        image = [UIImage decodedImageWithImage:image
+                                       maxSize:self.maxImageSize];
         return image;
     }
     else {

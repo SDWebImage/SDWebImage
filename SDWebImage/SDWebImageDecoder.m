@@ -12,7 +12,28 @@
 
 @implementation UIImage (ForceDecode)
 
-+ (UIImage *)decodedImageWithImage:(UIImage *)image {
+CGSize SDSizeScaledToMaxSize(CGSize size, CGSize maxSize) {
+    CGSize newSize = CGSizeZero;
+    if (maxSize.width / size.width <= maxSize.height / size.height) {
+        newSize.width = maxSize.width;
+        newSize.height = maxSize.width * size.height / size.width;
+    } else {
+        newSize.width = maxSize.height * size.width / size.height;
+        newSize.height = maxSize.height;
+    }
+    return newSize;
+}
+
+
++ (UIImage *)decodedImageWithImage:(UIImage *)image
+{
+    return [self decodedImageWithImage:image
+                               maxSize:CGSizeZero];
+}
+
++ (UIImage *)decodedImageWithImage:(UIImage *)image
+                           maxSize:(CGSize)maxSize
+{
     if (image.images) {
         // Do not decode animated images
         return image;
@@ -20,6 +41,16 @@
 
     CGImageRef imageRef = image.CGImage;
     CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
+
+    BOOL downscaled = NO;
+    if (!CGSizeEqualToSize(maxSize, CGSizeZero)
+        && (imageSize.width > maxSize.width
+            || imageSize.height > maxSize.height))
+    {
+        imageSize = SDSizeScaledToMaxSize(imageSize, maxSize);
+        downscaled = YES;
+    }
+
     CGRect imageRect = (CGRect){.origin = CGPointZero, .size = imageSize};
 
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -57,7 +88,14 @@
     CGColorSpaceRelease(colorSpace);
 
     // If failed, return undecompressed image
-    if (!context) return image;
+    if (!context) {
+        return image;
+    }
+
+    // avoid staggering while downscaling
+    if (downscaled) {
+        CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+    }
 
     CGContextDrawImage(context, imageRect, imageRef);
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
