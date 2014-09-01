@@ -29,6 +29,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (assign, nonatomic) Class operationClass;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
+@property (strong, nonatomic) NSMutableDictionary *URLOperations;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
@@ -77,6 +78,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
         _URLCallbacks = [NSMutableDictionary new];
+        _URLOperations = [NSMutableDictionary new];
 #ifdef SD_WEBP
         _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];
 #else
@@ -206,15 +208,22 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (void)cancel:(id)token {
-  if (![token isKindOfClass:[_SDWebImageDownloaderToken class]]) {
-    return;
-  }
+    if (![token isKindOfClass:[_SDWebImageDownloaderToken class]]) {
+        return;
+    }
 
-  dispatch_barrier_async(self.barrierQueue, ^{
-    _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
-    NSMutableArray *callbacksForURL = self.URLCallbacks[typedToken.url];
-    [callbacksForURL removeObjectIdenticalTo:typedToken.callbacks];
-  });
+    dispatch_barrier_async(self.barrierQueue, ^{
+        _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
+
+        NSMutableArray *callbacksForURL = self.URLCallbacks[typedToken.url];
+        [callbacksForURL removeObjectIdenticalTo:typedToken.callbacks];
+
+        // If this was the last set of callbacks, then cancel the operation
+        if (callbacksForURL.count == 0) {
+            SDWebImageDownloaderOperation *operation = self.URLOperations[typedToken.url];
+            [operation cancel];
+        }
+    });
 }
 
 - (id)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
@@ -229,10 +238,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
     __block _SDWebImageDownloaderToken *token = nil;
 
     dispatch_barrier_sync(self.barrierQueue, ^{
-        BOOL first = NO;
         if (!self.URLCallbacks[url]) {
             self.URLCallbacks[url] = [NSMutableArray new];
-            first = YES;
         }
 
         // Handle single download of simultaneous download request for the same URL
@@ -243,8 +250,10 @@ static NSString *const kCompletedCallbackKey = @"completed";
         [callbacksForURL addObject:callbacks];
         self.URLCallbacks[url] = callbacksForURL;
 
-        if (first) {
-            createCallback();
+        SDWebImageDownloaderOperation *operation = self.URLOperations[url];
+        if (!operation) {
+            operation = createCallback();
+            self.URLOperations[url] = operation;
         }
 
         token = [_SDWebImageDownloaderToken new];
