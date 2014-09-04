@@ -24,6 +24,17 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeMemory
 };
 
+typedef NS_ENUM(NSInteger, SDCacheClearBy) {
+    /**
+     * When the image is accessed it will update this value
+     */
+    SDImageCacheAccessedDate,
+    /**
+     * The image was obtained from the disk cache (Default)
+     */
+    SDImageCacheModifiedDate
+};
+
 typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType cacheType);
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
@@ -50,6 +61,13 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * The maximum size of the cache, in bytes.
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;
+
+/**
+ * The attribute which the clear cache will be checked against when clearing the disk cache
+ * Default is Modified Date
+ */
+@property (assign, nonatomic) SDCacheClearBy cacheClearBy;
+
 
 /**
  * Returns global shared cache instance
