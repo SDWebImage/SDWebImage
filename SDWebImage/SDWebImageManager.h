@@ -166,7 +166,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
  * @endcode
  */
-@property (copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
+@property (nonatomic, copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
 
 /**
  * Returns global SDWebImageManager instance.
