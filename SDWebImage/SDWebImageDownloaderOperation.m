@@ -17,11 +17,12 @@ NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDown
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
 
+static NSString *const kProgressCallbackKey = @"progress";
+static NSString *const kCompletedCallbackKey = @"completed";
+
 @interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate>
 
-@property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
-@property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
-@property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
+@property (strong, nonatomic) NSMutableArray *callbackBlocks;
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -45,24 +46,37 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 @synthesize finished = _finished;
 
 - (id)initWithRequest:(NSURLRequest *)request
-              options:(SDWebImageDownloaderOptions)options
-             progress:(SDWebImageDownloaderProgressBlock)progressBlock
-            completed:(SDWebImageDownloaderCompletedBlock)completedBlock
-            cancelled:(SDWebImageNoParamsBlock)cancelBlock {
+              options:(SDWebImageDownloaderOptions)options {
     if ((self = [super init])) {
         _request = request;
         _shouldDecompressImages = YES;
         _shouldUseCredentialStorage = YES;
         _options = options;
-        _progressBlock = [progressBlock copy];
-        _completedBlock = [completedBlock copy];
-        _cancelBlock = [cancelBlock copy];
+        _callbackBlocks = [NSMutableArray new];
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
     }
     return self;
+}
+
+- (id)addHandlersForProgress:(SDWebImageDownloaderProgressBlock)progressBlock
+                   completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+    NSMutableDictionary *callbacks = [NSMutableDictionary new];
+    if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
+    if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
+    [self.callbackBlocks addObject:callbacks];
+    return callbacks;
+}
+
+- (BOOL)cancel:(id)token {
+    [self.callbackBlocks removeObjectIdenticalTo:token];
+    if (self.callbackBlocks.count == 0) {
+        [self cancel];
+        return YES;
+    }
+    return NO;
 }
 
 - (void)start {
@@ -100,8 +114,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     [self.connection start];
 
     if (self.connection) {
-        if (self.progressBlock) {
-            self.progressBlock(0, NSURLResponseUnknownLength);
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+            progressBlock(0, NSURLResponseUnknownLength);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
@@ -123,8 +137,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         }
     }
     else {
-        if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+        for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+            completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
         }
     }
 
@@ -161,7 +175,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 - (void)cancelInternal {
     if (self.isFinished) return;
     [super cancel];
-    if (self.cancelBlock) self.cancelBlock();
 
     if (self.connection) {
         [self.connection cancel];
@@ -185,9 +198,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 }
 
 - (void)reset {
-    self.cancelBlock = nil;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
+    [self.callbackBlocks removeAllObjects];
     self.connection = nil;
     self.imageData = nil;
     self.thread = nil;
@@ -217,8 +228,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
-        if (self.progressBlock) {
-            self.progressBlock(0, expected);
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+            progressBlock(0, expected);
         }
 
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -241,8 +252,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
 
-        if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+        for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+            completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
         CFRunLoopStop(CFRunLoopGetCurrent());
         [self done];
@@ -252,7 +263,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     [self.imageData appendData:data];
 
-    if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock) {
+    if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
         // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
         // Thanks to the author @Nyx0uf
 
@@ -319,8 +330,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
                 }
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
-                    if (self.completedBlock) {
-                        self.completedBlock(image, nil, nil, NO);
+                    for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+                        completedBlock(image, nil, nil, NO);
                     }
                 });
             }
@@ -329,8 +340,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         CFRelease(imageSource);
     }
 
-    if (self.progressBlock) {
-        self.progressBlock(self.imageData.length, self.expectedSize);
+    for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+        progressBlock(self.imageData.length, self.expectedSize);
     }
 }
 
@@ -362,7 +373,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
-    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+    NSArray *completionBlocks = [[self.callbackBlocks valueForKey:kCompletedCallbackKey] copy];
     @synchronized(self) {
         CFRunLoopStop(CFRunLoopGetCurrent());
         self.thread = nil;
@@ -377,7 +388,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         responseFromCached = NO;
     }
     
-    if (completionBlock) {
+    for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
         } else if (self.imageData) {
@@ -401,7 +412,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
         }
     }
-    self.completionBlock = nil;
     [self done];
 }
 
@@ -415,8 +425,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         });
     }
 
-    if (self.completedBlock) {
-        self.completedBlock(nil, nil, error, YES);
+    for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+        completedBlock(nil, nil, error, YES);
     }
     self.completionBlock = nil;
     [self done];
