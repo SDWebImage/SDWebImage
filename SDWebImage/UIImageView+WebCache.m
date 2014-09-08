@@ -64,6 +64,11 @@ static char operationArrayKey;
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    else {
+        if (completedBlock) {
+            completedBlock(nil, nil, SDImageCacheTypeNone);
+        }
+    }
 }
 
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {

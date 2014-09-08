@@ -58,6 +58,11 @@ static char operationKey;
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    else {
+        if (completedBlock) {
+            completedBlock(nil, nil, SDImageCacheTypeNone);
+        }
+    }
 }
 
 - (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state {
@@ -104,6 +109,11 @@ static char operationKey;
             });
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    else {
+        if (completedBlock) {
+            completedBlock(nil, nil, SDImageCacheTypeNone);
+        }
     }
 }
 
