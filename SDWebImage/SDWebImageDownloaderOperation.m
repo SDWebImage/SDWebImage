@@ -387,10 +387,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
     if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
         responseFromCached = NO;
     }
-    
-    for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
+
+    if (completionBlocks.count > 0) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
-            completionBlock(nil, nil, nil, YES);
+            for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
+                completionBlock(nil, nil, nil, YES);
+            }
         } else if (self.imageData) {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
@@ -402,14 +404,18 @@ static NSString *const kCompletedCallbackKey = @"completed";
                     image = [UIImage decodedImageWithImage:image];
                 }
             }
-            if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
-            }
-            else {
-                completionBlock(image, self.imageData, nil, YES);
+            for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
+                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                    completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                }
+                else {
+                    completionBlock(image, self.imageData, nil, YES);
+                }
             }
         } else {
-            completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
+          for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
+              completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
+          }
         }
     }
     [self done];
