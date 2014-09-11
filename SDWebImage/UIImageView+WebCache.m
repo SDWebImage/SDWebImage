@@ -39,16 +39,20 @@ static char imageURLKey;
 }
 
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
+    [self sd_setImageWithURL: url placeholderImage: placeholder options: options progress: progressBlock completed: completedBlock manager: SDWebImageManager.sharedManager];
+}
+
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock manager: (SDWebImageManager *) manager{
     [self sd_cancelCurrentImageLoad];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
+    
     if (!(options & SDWebImageDelayPlaceholder)) {
         self.image = placeholder;
     }
     
     if (url) {
         __weak UIImageView *wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [manager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 if (!wself) return;
@@ -78,10 +82,13 @@ static char imageURLKey;
 }
 
 - (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url andPlaceholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
+    [self sd_setImageWithPreviousCachedImageWithURL: url andPlaceholderImage: placeholder options: IOPOL_APPLICATION progress: progressBlock completed: completedBlock manager: SDWebImageManager.sharedManager];
+}
+- (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url andPlaceholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock manager: (SDWebImageManager *) manager {
     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
     UIImage *lastPreviousCachedImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:key];
     
-    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock];    
+    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock manager: manager];
 }
 
 - (NSURL *)sd_imageURL {
