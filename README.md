@@ -177,9 +177,8 @@ the URL before to use it as a cache key:
 ```objective-c
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    SDWebImageManager.sharedManager.cacheKeyFilter:^(NSURL *url)
-    {
-        url = [[[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path] autorelease];
+    SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL *url) {
+        url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
         return [url absoluteString];
     };
 
