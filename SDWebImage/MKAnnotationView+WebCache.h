@@ -64,7 +64,7 @@
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache or from the network.
- *                       The forth parameter is the original image url.
+ *                       The fourth parameter is the original image url.
  */
 - (void)sd_setImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -79,7 +79,7 @@
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache or from the network.
- *                       The forth parameter is the original image url.
+ *                       The fourth parameter is the original image url.
  */
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
 
@@ -95,7 +95,7 @@
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrived from the local cache or from the network.
- *                       The forth parameter is the original image url.
+ *                       The fourth parameter is the original image url.
  */
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
 
