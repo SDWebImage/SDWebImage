@@ -10,7 +10,6 @@
 
 
 #import <XCTest/XCTest.h>
-#import <XCTestAsync/XCTestAsync.h>
 #import <Expecta.h>
 
 #import "UIImage+MultiFormat.h"
