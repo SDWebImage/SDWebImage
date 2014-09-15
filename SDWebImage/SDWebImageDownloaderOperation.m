@@ -29,6 +29,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
 @property (strong, atomic) NSThread *thread;
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -57,8 +58,13 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _finished = NO;
         _expectedSize = 0;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
+        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
+}
+
+- (void)dealloc {
+    SDDispatchQueueRelease(_barrierQueue);
 }
 
 - (id)addHandlersForProgress:(SDWebImageDownloaderProgressBlock)progressBlock
@@ -66,17 +72,32 @@ static NSString *const kCompletedCallbackKey = @"completed";
     NSMutableDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
-    [self.callbackBlocks addObject:callbacks];
+    dispatch_barrier_async(self.barrierQueue, ^{
+        [self.callbackBlocks addObject:callbacks];
+    });
+    return callbacks;
+}
+
+- (NSArray *)callbacksForKey:(NSString *)key {
+    __block NSArray *callbacks = nil;
+    dispatch_sync(self.barrierQueue, ^{
+        callbacks = [self.callbackBlocks valueForKey:key];
+    });
     return callbacks;
 }
 
 - (BOOL)cancel:(id)token {
-    [self.callbackBlocks removeObjectIdenticalTo:token];
-    if (self.callbackBlocks.count == 0) {
+    __block BOOL shouldCancel = NO;
+    dispatch_barrier_sync(self.barrierQueue, ^{
+        [self.callbackBlocks removeObjectIdenticalTo:token];
+        if (self.callbackBlocks.count == 0) {
+            shouldCancel = YES;
+        }
+    });
+    if (shouldCancel) {
         [self cancel];
-        return YES;
     }
-    return NO;
+    return shouldCancel;
 }
 
 - (void)start {
@@ -114,7 +135,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     [self.connection start];
 
     if (self.connection) {
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -137,7 +158,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         }
     }
     else {
-        for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+        for (SDWebImageDownloaderCompletedBlock completedBlock in [self callbacksForKey:kCompletedCallbackKey]) {
             completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
         }
     }
@@ -198,7 +219,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (void)reset {
-    [self.callbackBlocks removeAllObjects];
+    dispatch_barrier_async(self.barrierQueue, ^{
+        [self.callbackBlocks removeAllObjects];
+    });
     self.connection = nil;
     self.imageData = nil;
     self.thread = nil;
@@ -228,7 +251,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected);
         }
 
@@ -252,7 +275,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
 
-        for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+        for (SDWebImageDownloaderCompletedBlock completedBlock in [self callbacksForKey:kCompletedCallbackKey]) {
             completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
         CFRunLoopStop(CFRunLoopGetCurrent());
@@ -330,7 +353,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                 }
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
-                    for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+                    for (SDWebImageDownloaderCompletedBlock completedBlock in [self callbacksForKey:kCompletedCallbackKey]) {
                         completedBlock(image, nil, nil, NO);
                     }
                 });
@@ -340,7 +363,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         CFRelease(imageSource);
     }
 
-    for (SDWebImageDownloaderProgressBlock progressBlock in [self.callbackBlocks valueForKey:kProgressCallbackKey]) {
+    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
         progressBlock(self.imageData.length, self.expectedSize);
     }
 }
@@ -373,7 +396,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
-    NSArray *completionBlocks = [[self.callbackBlocks valueForKey:kCompletedCallbackKey] copy];
+    NSArray *completionBlocks = [[self callbacksForKey:kCompletedCallbackKey] copy];
     @synchronized(self) {
         CFRunLoopStop(CFRunLoopGetCurrent());
         self.thread = nil;
@@ -431,7 +454,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         });
     }
 
-    for (SDWebImageDownloaderCompletedBlock completedBlock in [self.callbackBlocks valueForKey:kCompletedCallbackKey]) {
+    for (SDWebImageDownloaderCompletedBlock completedBlock in [self callbacksForKey:kCompletedCallbackKey]) {
         completedBlock(nil, nil, error, YES);
     }
     self.completionBlock = nil;

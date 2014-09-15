@@ -169,12 +169,14 @@
         return;
     }
 
-    _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
-    SDWebImageDownloaderOperation *operation = self.URLOperations[typedToken.url];
-    BOOL canceled = [operation cancel:typedToken.downloadOperationCancelToken];
-    if (canceled) {
-        [self.URLOperations removeObjectForKey:typedToken.url];
-    }
+    dispatch_barrier_async(self.barrierQueue, ^{
+        _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
+        SDWebImageDownloaderOperation *operation = self.URLOperations[typedToken.url];
+        BOOL canceled = [operation cancel:typedToken.downloadOperationCancelToken];
+        if (canceled) {
+            [self.URLOperations removeObjectForKey:typedToken.url];
+        }
+    });
 }
 
 - (id)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
@@ -186,25 +188,29 @@
         return nil;
     }
 
-    SDWebImageDownloaderOperation *operation = self.URLOperations[url];
-    if (!operation) {
-        operation = createCallback();
-        self.URLOperations[url] = operation;
+    __block _SDWebImageDownloaderToken *token = nil;
 
-        __weak SDWebImageDownloaderOperation *woperation = operation;
-        operation.completionBlock = ^{
-          SDWebImageDownloaderOperation *soperation = woperation;
-          if (!soperation) return;
-          if (self.URLOperations[url] == soperation) {
-              [self.URLOperations removeObjectForKey:url];
-          };
-        };
-    }
-    id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+    dispatch_barrier_sync(self.barrierQueue, ^{
+        SDWebImageDownloaderOperation *operation = self.URLOperations[url];
+        if (!operation) {
+            operation = createCallback();
+            self.URLOperations[url] = operation;
 
-    _SDWebImageDownloaderToken *token = [_SDWebImageDownloaderToken new];
-    token.url = url;
-    token.downloadOperationCancelToken = downloadOperationCancelToken;
+            __weak SDWebImageDownloaderOperation *woperation = operation;
+            operation.completionBlock = ^{
+              SDWebImageDownloaderOperation *soperation = woperation;
+              if (!soperation) return;
+              if (self.URLOperations[url] == soperation) {
+                  [self.URLOperations removeObjectForKey:url];
+              };
+            };
+        }
+        id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+
+        token = [_SDWebImageDownloaderToken new];
+        token.url = url;
+        token.downloadOperationCancelToken = downloadOperationCancelToken;
+    });
 
     return token;
 }
