@@ -76,10 +76,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      */
     SDWebImageDelayPlaceholder = 1 << 9,
     
+    SDWebImageTransformAnimatedImage = 1 << 10,
+    
     /**
      * Returned images are scaled to [[UIScreen mainScreen] scale]
      */
-    SDWebImageScaleToScreen = 1 << 10
+    SDWebImageScaleToScreen = 1 << 11
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
