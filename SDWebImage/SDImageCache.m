@@ -224,7 +224,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     return [self.memCache objectForKey:key];
 }
 
-- (UIImage *)imageFromDiskCacheForKey:(NSString *)key {
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key scaledToScreen:(BOOL)scaledToScreen {
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
@@ -232,7 +232,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }
 
     // Second check the disk cache...
-    UIImage *diskImage = [self diskImageForKey:key];
+    UIImage *diskImage = [self diskImageForKey:key scaledToScreen:scaledToScreen];
     if (diskImage) {
         CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
         [self.memCache setObject:diskImage forKey:key cost:cost];
@@ -259,11 +259,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     return nil;
 }
 
-- (UIImage *)diskImageForKey:(NSString *)key {
+- (UIImage *)diskImageForKey:(NSString *)key scaledToScreen:(BOOL)scaledToScreen {
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
-        image = [self scaledImageForKey:key image:image];
+        image = [self scaledImageForKey:key image:image scaleToScreen:scaledToScreen];
         image = [UIImage decodedImageWithImage:image];
         return image;
     }
@@ -272,11 +272,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }
 }
 
-- (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image {
-    return SDScaledImageForKey(key, image);
+- (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image scaleToScreen:(BOOL)scaleToScreen {
+    return SDScaledImageForKey(key, image, scaleToScreen);
 }
 
-- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock {
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key scaledToScreen:(BOOL)scaledToScreen done:(SDWebImageQueryCompletedBlock)doneBlock {
     if (!doneBlock) {
         return nil;
     }
@@ -300,7 +300,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         }
 
         @autoreleasepool {
-            UIImage *diskImage = [self diskImageForKey:key];
+            UIImage *diskImage = [self diskImageForKey:key scaledToScreen:scaledToScreen];
             if (diskImage) {
                 CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
                 [self.memCache setObject:diskImage forKey:key cost:cost];

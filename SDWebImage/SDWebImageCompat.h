@@ -51,7 +51,7 @@
 #define SDDispatchQueueSetterSementics assign
 #endif
 
-extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
+extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image, BOOL scaleToScreen);
 
 typedef void(^SDWebImageNoParamsBlock)();
 
