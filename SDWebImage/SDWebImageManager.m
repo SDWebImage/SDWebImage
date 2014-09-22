@@ -9,6 +9,10 @@
 #import "SDWebImageManager.h"
 #import <objc/message.h>
 
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
+#import "SDImageCache+LocalAssets.h"
+#endif
+
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
@@ -107,24 +111,50 @@
     }];
 }
 
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+- (id <SDWebImageOperation>)downloadImageWithURL:(id)url
                                          options:(SDWebImageOptions)options
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
+    return [self downloadImageWithURL:url
+                              options:options
+                 targetLocalAssetSize:CGSizeZero
+                             progress:progressBlock
+                            completed:completedBlock];
+}
+
+- (id <SDWebImageOperation>)downloadImageWithURL:(id)url
+                                         options:(SDWebImageOptions)options
+                            targetLocalAssetSize:(CGSize)targetLocalAssetSize
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
+    
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
-    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
-    // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
-    if ([url isKindOfClass:NSString.class]) {
-        url = [NSURL URLWithString:(NSString *)url];
+    BOOL queryLocally = NO;
+    NSString *key = nil;
+    
+    if ([SDImageCache respondsToSelector:@selector(isLocalAssetIdentifier:)] &&
+        [[SDImageCache performSelector:@selector(isLocalAssetIdentifier:) withObject:url] boolValue]) {
+        
+        queryLocally = YES;
+        key = url;
+        
+    } else {
+        // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
+        // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
+        if ([url isKindOfClass:NSString.class]) {
+            url = [NSURL URLWithString:(NSString *)url];
+        }
+        
+        // Prevents app crashing on argument type error like sending NSNull instead of NSURL
+        if (![url isKindOfClass:NSURL.class]) {
+            url = nil;
+        }
+        
+        key = [self cacheKeyForURL:url];
     }
-
-    // Prevents app crashing on argument type error like sending NSNull instead of NSURL
-    if (![url isKindOfClass:NSURL.class]) {
-        url = nil;
-    }
-
+        
     __block SDWebImageCombinedOperation *operation = [SDWebImageCombinedOperation new];
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
@@ -144,17 +174,16 @@
     @synchronized (self.runningOperations) {
         [self.runningOperations addObject:operation];
     }
-    NSString *key = [self cacheKeyForURL:url];
 
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) {
+    void (^cacheOperationCompletionBlock)() = ^(UIImage *image, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
             }
-
+            
             return;
         }
-
+        
         if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
             if (image && options & SDWebImageRefreshCached) {
                 dispatch_main_sync_safe(^{
@@ -163,7 +192,7 @@
                     completedBlock(image, nil, cacheType, YES, url);
                 });
             }
-
+            
             // download if no image or requested to refresh anyway, and download allowed by delegate
             SDWebImageDownloaderOptions downloaderOptions = 0;
             if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
@@ -191,7 +220,7 @@
                             completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
                         }
                     });
-
+                    
                     if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
                         @synchronized (self.failedURLs) {
                             [self.failedURLs addObject:url];
@@ -200,19 +229,19 @@
                 }
                 else {
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
-
+                    
                     if (options & SDWebImageRefreshCached && image && !downloadedImage) {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
                     else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                             UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
-
+                            
                             if (transformedImage && finished) {
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
                             }
-
+                            
                             dispatch_main_sync_safe(^{
                                 if (!weakOperation.isCancelled) {
                                     completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
@@ -224,7 +253,7 @@
                         if (downloadedImage && finished) {
                             [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
                         }
-
+                        
                         dispatch_main_sync_safe(^{
                             if (!weakOperation.isCancelled) {
                                 completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
@@ -232,7 +261,7 @@
                         });
                     }
                 }
-
+                
                 if (finished) {
                     @synchronized (self.runningOperations) {
                         [self.runningOperations removeObject:operation];
@@ -268,7 +297,15 @@
                 [self.runningOperations removeObject:operation];
             }
         }
-    }];
+    };
+    
+    if (queryLocally) {
+        operation.cacheOperation = [self.imageCache queryLocalAssetStoreWithLocalAssetIdentifier:key
+                                                                                      targetSize:targetLocalAssetSize
+                                                                                 completionBlock:cacheOperationCompletionBlock];
+    } else {
+        operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:cacheOperationCompletionBlock];
+    }
 
     return operation;
 }
