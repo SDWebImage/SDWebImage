@@ -31,10 +31,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
 @interface SDImageCache ()
 
-@property (strong, nonatomic) NSCache *memCache;
 @property (strong, nonatomic) NSString *diskCachePath;
 @property (strong, nonatomic) NSMutableArray *customPaths;
-@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
 
 @end
 
