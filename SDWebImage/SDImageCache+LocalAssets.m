@@ -514,7 +514,8 @@ typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
             PHImageRequestOptions *requestOptions = [PHImageRequestOptions new];
             requestOptions.synchronous = YES;
             requestOptions.networkAccessAllowed = YES;
-            requestOptions.deliveryMode = PHImageRequestOptionsDeliveryModeFastFormat;
+            requestOptions.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
+            requestOptions.resizeMode = PHImageRequestOptionsResizeModeFast;
             
             [self.imageManager requestImageForAsset:asset
                                          targetSize:targetSize
@@ -531,8 +532,6 @@ typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
                                               [self.memCache setObject:result
                                                                 forKey:cacheKey
                                                                   cost:cost];
-                                              
-                                              NSLog(@"IMAGE SIZE RETRIEVED: %@", NSStringFromCGSize(result.size));
                                           }
                                           
                                           if (completionBlock) {
