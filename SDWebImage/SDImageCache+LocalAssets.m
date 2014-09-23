@@ -478,7 +478,7 @@ typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
             }
             
             dispatch_main_sync_safe(^{
-                completionBlock(returnImage, SDImageCacheTypeNone);
+                completionBlock(returnImage, SDImageCacheTypeLocalAssetStore);
             });
             
         } else {
@@ -536,7 +536,7 @@ typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
                                           
                                           if (completionBlock) {
                                               dispatch_async(dispatch_get_main_queue(), ^{
-                                                  completionBlock(result, SDImageCacheTypeDisk);
+                                                  completionBlock(result, SDImageCacheTypeLocalAssetStore);
                                               });
                                           }
                                       }];
