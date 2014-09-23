@@ -31,12 +31,6 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
     SDLocalALAssetSizeAspectOriginal
 };
 
-typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
-    SDLocalAssetAspectRatioTypeSquare,
-    SDLocalAssetAspectRatioTypePortrait,
-    SDLocalAssetAspectRatioTypeLandscape
-};
-
 @interface SDImageCache ()
 @property (nonatomic, strong) ALAssetsLibrary *assetsLibrary;
 @property (nonatomic, strong) NSMutableDictionary *localAssetIdentifierToAssetCache;
@@ -235,93 +229,50 @@ typedef NS_ENUM(NSUInteger, SDLocalAssetAspectRatioType) {
 }
 
 + (SDLocalALAssetSize)localALAssetSizeForTargetSize:(CGSize)targetSize {
-    
+
     /*
      
      ALAssetLibrary Thumbnail sizes come in the following flavors:
      
      iPhone:
-     Thumbnail (Aspect):  120x90 or 90x120 (depending on aspect ratio)
-     Thumbnail (Square):  150x150
-     Fullscreen (Aspect): (screenWidth*screenScale)x(screenHeight*screenScale) or reverse (depending on aspect ratio)
-     Original:            Anything > Fullscreen size
+        Thumbnail (Aspect):  120x90 or 90x120 (depending on aspect ratio)
+        Thumbnail (Square):  150x150
+        Fullscreen (Aspect): (screenWidth*screenScale)x(screenHeight*screenScale) or reverse (depending on aspect ratio)
+        Original:            Anything > Fullscreen size
      
      iPad:
-     Thumbnail (Aspect): 480x360 or 360x480 (depending on aspect ratio) < WTF, pretty big for thumbnail...
-     Thumbnail (Square): 157x157 < WTF, small compared to aspect...
-     Fullscreen (Aspect): (screenWidth*screenScale)x(screenHeight*screenScale) or reverse (depending on aspect ratio)
-     Original:            Anything > Fullscreen size
+        Thumbnail (Aspect): 480x360 or 360x480 (depending on aspect ratio) < WTF, pretty big for thumbnail...
+        Thumbnail (Square): 157x157 < WTF, small compared to aspect...
+        Fullscreen (Aspect): (screenWidth*screenScale)x(screenHeight*screenScale) or reverse (depending on aspect ratio)
+        Original:            Anything > Fullscreen size
      
      */
     
-    SDLocalAssetAspectRatioType aspectRatioType;
+    CGFloat pixelsRequested = targetSize.width * targetSize.height;
+    
+    CGFloat thumbPixels;
     
     if (targetSize.width == targetSize.height) {
-        aspectRatioType = SDLocalAssetAspectRatioTypeSquare;
-    } else if (targetSize.width > targetSize.height) {
-        aspectRatioType = SDLocalAssetAspectRatioTypeLandscape;
+        thumbPixels = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? (157 * 157) : (150 * 150);
     } else {
-        aspectRatioType = SDLocalAssetAspectRatioTypePortrait;
+        thumbPixels = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? (480 * 360) : (120 * 90);
     }
     
-    CGFloat longestScreenEdge = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    CGFloat fullscreenPixels = (([UIScreen mainScreen].bounds.size.width * [UIScreen mainScreen].scale) * ([UIScreen mainScreen].bounds.size.height * [UIScreen mainScreen].scale));
     
-    CGFloat screenScale = [UIScreen mainScreen].scale;
+    CGFloat thumbCutoff = thumbPixels * 2.0f; // Don't scale thumbnails more than 2x
+    CGFloat fullscreenCutoff = fullscreenPixels * 1.50f;
     
-    CGFloat thumbLongestEdge = 0;
-    CGFloat thumbShortestEdge = 0;
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        thumbLongestEdge = 480;
-        thumbShortestEdge = 360;
-    } else {
-        thumbLongestEdge = 120;
-        thumbShortestEdge = 90;
-    }
-    
-    if (aspectRatioType == SDLocalAssetAspectRatioTypeLandscape || SDLocalAssetAspectRatioTypeSquare) {
-        
-        if (targetSize.width > (longestScreenEdge * screenScale)) {
-            // Original
-            
-            return SDLocalALAssetSizeAspectOriginal;
-            
-        } else if (targetSize.width <= longestScreenEdge && targetSize.width > thumbLongestEdge) {
-            // Fullscreen
-            
-            return SDLocalALAssetSizeAspectFullscreen;
-            
+    if (pixelsRequested <= thumbCutoff) {
+        if (targetSize.width == targetSize.height) {
+            return SDLocalALAssetSizeSquareThumbnail;
         } else {
-            // Thumbnail
-            
-            if (targetSize.width == targetSize.height) {
-                return SDLocalALAssetSizeSquareThumbnail;
-            } else {
-                return SDLocalALAssetSizeAspectThumbnail;
-            }
+            return SDLocalALAssetSizeAspectThumbnail;
         }
-        
+    } else if (pixelsRequested <= fullscreenPixels) {
+        return SDLocalALAssetSizeAspectFullscreen;
     } else {
-        
-        if (targetSize.height > (longestScreenEdge * screenScale)) {
-            // Original
-            
-            return SDLocalALAssetSizeAspectOriginal;
-            
-        } else if (targetSize.height <= longestScreenEdge && targetSize.height > thumbShortestEdge) {
-            // Fullscreen
-            
-            return SDLocalALAssetSizeAspectFullscreen;
-            
-        } else {
-            // Thumbnail
-            
-            if (targetSize.width == targetSize.height) {
-                return SDLocalALAssetSizeSquareThumbnail;
-            } else {
-                return SDLocalALAssetSizeAspectThumbnail;
-            }
-        }
+        return SDLocalALAssetSizeAspectOriginal;
     }
 }
 
