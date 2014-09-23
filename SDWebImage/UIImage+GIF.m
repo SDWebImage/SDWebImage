@@ -84,38 +84,42 @@
 }
 
 + (UIImage *)sd_animatedGIFNamed:(NSString *)name {
+    
     CGFloat scale = [UIScreen mainScreen].scale;
-
-    if (scale > 1.0f) {
-        NSString *retinaPath = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
-
-        NSData *data = [NSData dataWithContentsOfFile:retinaPath];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
-
+    
+    //set up possible paths
+    NSString *threeTimesResName = [name stringByAppendingString:@"@3x"];
+    NSString *twoTimesResName = [name stringByAppendingString:@"@2x"];
+    NSString *normalResName = name;
+    
+    NSData *data;
+    NSString *path;
+    
+    //get gif for 3x display
+    if (scale > 2.0f) {
+        path = [[NSBundle mainBundle] pathForResource:threeTimesResName ofType:@"gif"];
         data = [NSData dataWithContentsOfFile:path];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        return [UIImage imageNamed:name];
     }
-    else {
-        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
-
-        NSData *data = [NSData dataWithContentsOfFile:path];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        return [UIImage imageNamed:name];
+    
+    //get gif for 2x display or if there is no 3x resource
+    if (scale > 1.0f && !data) {
+        path = [[NSBundle mainBundle] pathForResource:twoTimesResName ofType:@"gif"];
+        data = [NSData dataWithContentsOfFile:path];
     }
+    
+    //get gif for non-retina display or if there is no 2x or 3x resource
+    if (!data) {
+        path = [[NSBundle mainBundle] pathForResource:normalResName ofType:@"gif"];
+        data = [NSData dataWithContentsOfFile:path];
+    }
+    
+    if (data) {
+        return [UIImage sd_animatedGIFWithData:data];
+    }
+    
+    //still no resource found --> try to return non-gif image
+    return [UIImage imageNamed:name];
+    
 }
 
 - (UIImage *)sd_animatedImageByScalingAndCroppingToSize:(CGSize)size {
