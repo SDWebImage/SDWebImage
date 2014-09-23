@@ -21,7 +21,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * The image was obtained from the memory cache.
      */
-    SDImageCacheTypeMemory
+    SDImageCacheTypeMemory,
     /**
      * The image was obtained from a local asset store (ALAssetsLibrary or PHImageManager)
      */
