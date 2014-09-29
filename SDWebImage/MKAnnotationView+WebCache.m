@@ -39,7 +39,7 @@ static char imageURLKey;
 }
 
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
-    [self cancelCurrentImageLoad];
+    [self sd_cancelCurrentImageLoad];
 
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     self.image = placeholder;

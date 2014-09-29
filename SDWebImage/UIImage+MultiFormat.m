@@ -47,24 +47,26 @@
 +(UIImageOrientation)sd_imageOrientationFromImageData:(NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
     CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
-    CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-    if (properties) {
-        CFTypeRef val;
-        int exifOrientation;
-        val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
-        if (val) {
-            CFNumberGetValue(val, kCFNumberIntType, &exifOrientation);
-            result = [self sd_exifOrientationToiOSOrientation:exifOrientation];
-        } // else - if it's not set it remains at up
-        CFRelease((CFTypeRef) properties);
-    } else {
-        //NSLog(@"NO PROPERTIES, FAIL");
+    if (imageSource) {
+        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+        if (properties) {
+            CFTypeRef val;
+            int exifOrientation;
+            val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
+            if (val) {
+                CFNumberGetValue(val, kCFNumberIntType, &exifOrientation);
+                result = [self sd_exifOrientationToiOSOrientation:exifOrientation];
+            } // else - if it's not set it remains at up
+            CFRelease((CFTypeRef) properties);
+        } else {
+            //NSLog(@"NO PROPERTIES, FAIL");
+        }
+        CFRelease(imageSource);
     }
-    CFRelease(imageSource);
     return result;
 }
 
-#pragma EXIF orientation tag converter
+#pragma mark EXIF orientation tag converter
 // Convert an EXIF image orientation to an iOS one.
 // reference see here: http://sylvana.net/jpegcrop/exif_orientation.html
 + (UIImageOrientation) sd_exifOrientationToiOSOrientation:(int)exifOrientation {
