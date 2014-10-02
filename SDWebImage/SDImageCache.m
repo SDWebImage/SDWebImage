@@ -315,9 +315,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 if (image)
                 {
                     CGFloat cost = image.size.height * image.size.width * image.scale;
-                    doneBlock(image, imageData, SDImageCacheTypeDisk);
                     [self.memCache setObject:imageData forKey:key cost:cost];
                 }
+                doneBlock(image, imageData, SDImageCacheTypeDisk);
             }];
         }
     }];
