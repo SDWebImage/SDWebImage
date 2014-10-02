@@ -147,7 +147,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return;
     }
 
-    [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale];
+    [self.memCache setObject:imageData forKey:key cost:image.size.height * image.size.width * image.scale];
 
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
@@ -220,25 +220,28 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     });
 }
 
-- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key {
-    return [self.memCache objectForKey:key];
+- (void)imageFromMemoryCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
+    NSData *imageData = [self.memCache objectForKey:key];
+    complition([UIImage imageWithData:imageData], imageData);
 }
 
-- (UIImage *)imageFromDiskCacheForKey:(NSString *)key {
+- (void)imageFromDiskCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image) {
-        return image;
-    }
-
-    // Second check the disk cache...
-    UIImage *diskImage = [self diskImageForKey:key];
-    if (diskImage) {
-        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-        [self.memCache setObject:diskImage forKey:key cost:cost];
-    }
-
-    return diskImage;
+    [self imageFromMemoryCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+        
+        if (imageData)
+        {
+            complition(image, imageData);
+        }
+        else
+            [self diskImageForKey:key complition:^(UIImage *image, NSData *imageData){
+                if (image) {
+                    CGFloat cost = image.size.height * image.size.width * image.scale;
+                    [self.memCache setObject:imageData forKey:key cost:cost];
+                    complition(image, imageData);
+                }
+            }];
+    }];
 }
 
 - (NSData *)diskImageDataBySearchingAllPathsForKey:(NSString *)key {
@@ -259,18 +262,32 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     return nil;
 }
 
-- (UIImage *)diskImageForKey:(NSString *)key {
+
+- (void)diskImageForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
         image = [UIImage decodedImageWithImage:image];
-        return image;
+        complition(image, data);
     }
     else {
-        return nil;
+        complition(nil, nil);
     }
 }
+
+//- (UIImage *)diskImageForKey:(NSString *)key {
+//    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
+//    if (data) {
+//        UIImage *image = [UIImage sd_imageWithData:data];
+//        image = [self scaledImageForKey:key image:image];
+//        image = [UIImage decodedImageWithImage:image];
+//        return image;
+//    }
+//    else {
+//        return nil;
+//    }
+//}
 
 - (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image {
     return SDScaledImageForKey(key, image);
@@ -282,24 +299,29 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }
 
     if (!key) {
-        doneBlock(nil, SDImageCacheTypeNone);
+        doneBlock(nil, nil, SDImageCacheTypeNone);
         return nil;
     }
 
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image) {
-        doneBlock(image, SDImageCacheTypeMemory);
-        return nil;
-    }
+    [self imageFromMemoryCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+        
+        if (image) {
+            doneBlock(image, imageData, SDImageCacheTypeMemory);
+        }
+        else
+        {
+            [self diskImageForKey:key complition:^(UIImage *image, NSData *imageData){
+                if (image)
+                {
+                    CGFloat cost = image.size.height * image.size.width * image.scale;
+                    doneBlock(image, imageData, SDImageCacheTypeDisk);
+                    [self.memCache setObject:imageData forKey:key cost:cost];
+                }
+            }];
+        }
+    }];
 
-    UIImage *diskImage = [self diskImageForKey:key];
-    if (diskImage) {
-        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale;
-        [self.memCache setObject:diskImage forKey:key cost:cost];
-    }
-    
-    doneBlock(diskImage, SDImageCacheTypeDisk);
     return nil;
 }
 

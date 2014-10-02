@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeMemory
 };
 
-typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType cacheType);
+typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, NSData *imageData, SDImageCacheType cacheType);
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
@@ -115,14 +115,14 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @param key The unique key used to store the wanted image
  */
-- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
+- (void)imageFromMemoryCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition;
 
 /**
  * Query the disk cache synchronously after checking the memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
-- (UIImage *)imageFromDiskCacheForKey:(NSString *)key;
+- (void)imageFromDiskCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition;
 
 /**
  * Remove the image from memory and disk cache synchronously
