@@ -79,7 +79,7 @@ static char imageURLKey;
 
 - (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url andPlaceholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
-    [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+    [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:key completion:^(UIImage *image, NSData *imageData){
         [self sd_setImageWithURL:url placeholderImage:image ?: placeholder options:options progress:progressBlock completed:completedBlock];
     }];
 }

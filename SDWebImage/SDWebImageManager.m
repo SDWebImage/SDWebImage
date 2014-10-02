@@ -64,7 +64,7 @@
     NSString *key = [self cacheKeyForURL:url];
     __block BOOL isImageAvailable;
     
-    [self.imageCache imageFromDiskCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+    [self.imageCache imageFromDiskCacheForKey:key completion:^(UIImage *image, NSData *imageData){
         if (imageData)
             isImageAvailable = YES;
     }];
@@ -81,7 +81,7 @@
                      completion:(SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
     
-    [self.imageCache imageFromMemoryCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+    [self.imageCache imageFromMemoryCacheForKey:key completion:^(UIImage *image, NSData *imageData){
         if (imageData){
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completionBlock) {

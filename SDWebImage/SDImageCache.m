@@ -220,25 +220,25 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     });
 }
 
-- (void)imageFromMemoryCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
+- (void)imageFromMemoryCacheForKey:(NSString *)key completion:(void(^)(UIImage * image, NSData *imageData))completion{
     NSData *imageData = [self.memCache objectForKey:key];
-    complition([UIImage imageWithData:imageData], imageData);
+    completion([UIImage imageWithData:imageData], imageData);
 }
 
-- (void)imageFromDiskCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
+- (void)imageFromDiskCacheForKey:(NSString *)key completion:(void(^)(UIImage * image, NSData *imageData))completion{
     // First check the in-memory cache...
-    [self imageFromMemoryCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+    [self imageFromMemoryCacheForKey:key completion:^(UIImage *image, NSData *imageData){
         
         if (imageData)
         {
-            complition(image, imageData);
+            completion(image, imageData);
         }
         else
-            [self diskImageForKey:key complition:^(UIImage *image, NSData *imageData){
+            [self diskImageForKey:key completion:^(UIImage *image, NSData *imageData){
                 if (image) {
                     CGFloat cost = image.size.height * image.size.width * image.scale;
                     [self.memCache setObject:imageData forKey:key cost:cost];
-                    complition(image, imageData);
+                    completion(image, imageData);
                 }
             }];
     }];
@@ -263,16 +263,16 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 
-- (void)diskImageForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition{
+- (void)diskImageForKey:(NSString *)key completion:(void(^)(UIImage * image, NSData *imageData))completion{
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
         image = [UIImage decodedImageWithImage:image];
-        complition(image, data);
+        completion(image, data);
     }
     else {
-        complition(nil, nil);
+        completion(nil, nil);
     }
 }
 
@@ -304,14 +304,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     }
 
     // First check the in-memory cache...
-    [self imageFromMemoryCacheForKey:key complition:^(UIImage *image, NSData *imageData){
+    [self imageFromMemoryCacheForKey:key completion:^(UIImage *image, NSData *imageData){
         
         if (image) {
             doneBlock(image, imageData, SDImageCacheTypeMemory);
         }
         else
         {
-            [self diskImageForKey:key complition:^(UIImage *image, NSData *imageData){
+            [self diskImageForKey:key completion:^(UIImage *image, NSData *imageData){
                 if (image)
                 {
                     CGFloat cost = image.size.height * image.size.width * image.scale;

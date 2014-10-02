@@ -115,14 +115,14 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @param key The unique key used to store the wanted image
  */
-- (void)imageFromMemoryCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition;
+- (void)imageFromMemoryCacheForKey:(NSString *)key completion:(void(^)(UIImage * image, NSData *imageData))completion;
 
 /**
  * Query the disk cache synchronously after checking the memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
-- (void)imageFromDiskCacheForKey:(NSString *)key complition:(void(^)(UIImage * image, NSData *imageData))complition;
+- (void)imageFromDiskCacheForKey:(NSString *)key completion:(void(^)(UIImage * image, NSData *imageData))completion;
 
 /**
  * Remove the image from memory and disk cache synchronously
