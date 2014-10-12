@@ -1,5 +1,11 @@
 Web Image
 =========
+[![Build Status](http://img.shields.io/travis/rs/SDWebImage/master.svg?style=flat)](https://travis-ci.org/rs/SDWebImage)
+[![Pod Version](http://img.shields.io/cocoapods/v/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
+[![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
+[![Pod License](http://img.shields.io/cocoapods/l/SDWebImage.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/3.3/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/3.3)
+[![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
 
 This library provides a category for UIImageView with support for remote images coming from the web.
 
@@ -31,7 +37,7 @@ Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SD
 How To Use
 ----------
 
-API documentation is available at [http://hackemist.com/SDWebImage/doc/](http://hackemist.com/SDWebImage/doc/)
+API documentation is available at [CocoaDocs - SDWebImage](http://cocoadocs.org/docsets/SDWebImage/)
 
 ### Using UIImageView+WebCache category with UITableView
 
@@ -133,7 +139,7 @@ asynchronous so it doesn't add unnecessary latency to the UI.
 The SDImageCache class provides a singleton instance for convenience but you can create your own
 instance if you want to create separated cache namespace.
 
-To lookup the cache, you use the imageForKey: method. If the method returns nil, it means the cache
+To lookup the cache, you use the `queryDiskCacheForKey:done:` method. If the method returns nil, it means the cache
 doesn't currently own the image. You are thus responsible for generating and caching it. The cache
 key is an application unique identifier for the image to cache. It is generally the absolute URL of
 the image.
@@ -171,9 +177,8 @@ the URL before to use it as a cache key:
 ```objective-c
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    SDWebImageManager.sharedManager.cacheKeyFilter:^(NSURL *url)
-    {
-        url = [[[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path] autorelease];
+    SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL *url) {
+        url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
         return [url absoluteString];
     };
 
@@ -214,7 +219,20 @@ See this category: https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebIma
 Installation
 ------------
 
-There are two ways to use this in your project: copy all the files into your project, or import the project as a static library.
+There are three ways to use SDWebImage in your project:
+- using Cocoapods
+- copying all the files into your project
+- importing the project as a static library
+
+### Installation with CocoaPods
+
+[CocoaPods](http://cocoapods.org/) is a dependency manager for Objective-C, which automates and simplifies the process of using 3rd-party libraries in your projects. See the [Get Started](http://cocoapods.org/#get_started) section for more details.
+
+#### Podfile
+```
+platform :ios, '6.1'
+pod 'SDWebImage', '~>3.6'
+```
 
 ### Add the SDWebImage project to your project
 
@@ -233,6 +251,16 @@ There are two ways to use this in your project: copy all the files into your pro
 Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
 
 ![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
+
+Alternatively, if this causes compilation problems with frameworks that extend optional libraries, such as Parse,  RestKit or opencv2, instead of the -ObjC flag use:
+```
+-force_load SDWebImage.framework/Versions/Current/SDWebImage
+```
+
+If you're using Cocoa Pods and have any frameworks that extend optional libraries, such as Parsen RestKit or opencv2, instead of the -ObjC flag use:
+```
+-force_load $(TARGET_BUILD_DIR)/libPods.a
+```
 
 ### Import headers in your source files
 

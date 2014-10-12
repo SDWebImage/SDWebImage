@@ -68,12 +68,27 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * the front of the queue and is loaded immediately instead of waiting for the current queue to be loaded (which 
      * could take a while).
      */
-    SDWebImageHighPriority = 1 << 8
+    SDWebImageHighPriority = 1 << 8,
+    
+    /**
+     * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
+     * of the placeholder image until after the image has finished loading.
+     */
+    SDWebImageDelayPlaceholder = 1 << 9,
+
+    /**
+     * We usually don't call transformDownloadedImage delegate method on animated images,
+     * as most transformation code would mangle it.
+     * Use this flag to transform them anyway.
+     */
+    SDWebImageTransformAnimatedImage = 1 << 10,
 };
 
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType);
+typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
 
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished);
+typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL);
+
+typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
 
 
 @class SDWebImageManager;
@@ -86,7 +101,7 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * Controls which image should be downloaded when the image is not found in the cache.
  *
  * @param imageManager The current `SDWebImageManager`
- * @param imageURL The url of the image to be downloaded
+ * @param imageURL     The url of the image to be downloaded
  *
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
  */
@@ -97,8 +112,8 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
  * NOTE: This method is called from a global queue in order to not to block the main thread.
  *
  * @param imageManager The current `SDWebImageManager`
- * @param image The image to transform
- * @param imageURL The url of the image to transform
+ * @param image        The image to transform
+ * @param imageURL     The url of the image to transform
  *
  * @return The transformed image object.
  */
@@ -120,7 +135,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadWithURL:imageURL
                  options:0
                 progress:nil
-               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
                    if (image) {
                        // do something with image
                    }
@@ -151,7 +166,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
  * @endcode
  */
-@property (strong) NSString *(^cacheKeyFilter)(NSURL *url);
+@property (copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
 
 /**
  * Returns global SDWebImageManager instance.
@@ -163,9 +178,9 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
- * @param url The URL to the image
- * @param options A mask to specify options to use for this request
- * @param progressBlock A block called while image is downloading
+ * @param url            The URL to the image
+ * @param options        A mask to specify options to use for this request
+ * @param progressBlock  A block called while image is downloading
  * @param completedBlock A block called when operation has been completed.
  *
  *   This parameter is required.
@@ -180,12 +195,22 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *   downloading. This block is thus called repetidly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
  *
- * @return Returns a cancellable NSOperation
+ * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
-- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
+
+/**
+ * Saves image to cache for given URL
+ *
+ * @param image The image to cache
+ * @param url   The URL to the image
+ *
+ */
+
+- (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url;
 
 /**
  * Cancel all current opreations
@@ -198,8 +223,70 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (BOOL)isRunning;
 
 /**
- * Check if image has already been cached
+ *  Check if image has already been cached
+ *
+ *  @param url image url
+ *
+ *  @return if the image was already cached
+ */
+- (BOOL)cachedImageExistsForURL:(NSURL *)url;
+
+/**
+ *  Check if image has already been cached on disk only
+ *
+ *  @param url image url
+ *
+ *  @return if the image was already cached (disk only)
  */
 - (BOOL)diskImageExistsForURL:(NSURL *)url;
+
+/**
+ *  Async check if image has already been cached
+ *
+ *  @param url              image url
+ *  @param completionBlock  the block to be executed when the check is finished
+ *  
+ *  @note the completion block is always executed on the main queue
+ */
+- (void)cachedImageExistsForURL:(NSURL *)url
+                     completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+
+/**
+ *  Async check if image has already been cached on disk only
+ *
+ *  @param url              image url
+ *  @param completionBlock  the block to be executed when the check is finished
+ *
+ *  @note the completion block is always executed on the main queue
+ */
+- (void)diskImageExistsForURL:(NSURL *)url
+                   completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+
+
+/**
+ *Return the cache key for a given URL
+ */
+- (NSString *)cacheKeyForURL:(NSURL *)url;
+
+@end
+
+
+#pragma mark - Deprecated
+
+typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionBlock`");
+typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionWithFinishedBlock`");
+
+
+@interface SDWebImageManager (Deprecated)
+
+/**
+ *  Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ *  @deprecated This method has been deprecated. Use `downloadImageWithURL:options:progress:completed:`
+ */
+- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
+                                    options:(SDWebImageOptions)options
+                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
 
 @end

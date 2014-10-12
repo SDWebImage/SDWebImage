@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "537D957317ECC1FE0097C263"
-               BuildableName = "libSDWebImage+WebP.a"
-               BlueprintName = "SDWebImage+WebP"
-               ReferencedContainer = "container:SDWebImage.xcodeproj">
+               BlueprintIdentifier = "53761294155AB74D005750A4"
+               BuildableName = "SDWebImage Demo.app"
+               BlueprintName = "SDWebImage Demo"
+               ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,15 @@
       buildConfiguration = "Debug">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "53761294155AB74D005750A4"
+            BuildableName = "SDWebImage Demo.app"
+            BlueprintName = "SDWebImage Demo"
+            ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
@@ -39,6 +48,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "53761294155AB74D005750A4"
+            BuildableName = "SDWebImage Demo.app"
+            BlueprintName = "SDWebImage Demo"
+            ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -48,6 +66,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "53761294155AB74D005750A4"
+            BuildableName = "SDWebImage Demo.app"
+            BlueprintName = "SDWebImage Demo"
+            ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
