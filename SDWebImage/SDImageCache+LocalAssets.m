@@ -463,6 +463,7 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
             }
             
             PHImageRequestOptions *requestOptions = [PHImageRequestOptions new];
+            requestOptions.version = PHImageRequestOptionsVersionCurrent;
             requestOptions.synchronous = YES;
             requestOptions.networkAccessAllowed = YES;
             requestOptions.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
