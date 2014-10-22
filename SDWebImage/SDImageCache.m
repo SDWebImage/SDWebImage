@@ -184,7 +184,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 if (![_fileManager fileExistsAtPath:_diskCachePath]) {
                     [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
-
+                if (self.dataTransformer) {
+                    data = [self.dataTransformer transformedValue:data];
+                }
                 [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
         });
@@ -245,6 +247,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     NSString *defaultPath = [self defaultCachePathForKey:key];
     NSData *data = [NSData dataWithContentsOfFile:defaultPath];
     if (data) {
+        if (self.dataTransformer && [self.dataTransformer.class allowsReverseTransformation]) {
+            data = [self.dataTransformer reverseTransformedValue:data];
+        }
         return data;
     }
 
@@ -252,6 +257,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         NSString *filePath = [self cachePathForKey:key inPath:path];
         NSData *imageData = [NSData dataWithContentsOfFile:filePath];
         if (imageData) {
+            if (self.dataTransformer && [self.dataTransformer.class allowsReverseTransformation]) {
+                imageData = [self.dataTransformer reverseTransformedValue:imageData];
+            }
             return imageData;
         }
     }
