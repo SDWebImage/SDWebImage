@@ -76,6 +76,7 @@ static char imageURLStorageKey;
             if (!sself) return;
             if (image) {
                 [sself setImage:image forState:state];
+                [sself _fadeLayer:sself.layer];
             }
             if (completedBlock && finished) {
                 completedBlock(image, error, cacheType, url);
