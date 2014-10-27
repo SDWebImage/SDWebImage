@@ -55,6 +55,6 @@
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
-            cancelled:(void (^)())cancelBlock;
+            cancelled:(SDWebImageNoParamsBlock)cancelBlock;
 
 @end
