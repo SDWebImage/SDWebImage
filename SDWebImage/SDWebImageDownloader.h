@@ -140,6 +140,16 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
 - (NSString *)valueForHTTPHeaderField:(NSString *)field;
 
 /**
+ * Sets a subclass of `SDWebImageDownloaderOperation` as the default
+ * `NSOperation` to be used each time SDWebImage constructs a request
+ * operation to download an image.
+ *
+ * @param operationClass The subclass of `SDWebImageDownloaderOperation` to set 
+ *        as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
+ */
+- (void)setOperationClass:(Class)operationClass;
+
+/**
  * Creates a SDWebImageDownloader async downloader instance with a given URL
  *
  * The delegate will be informed when the image is finish downloaded or an error has happen.
