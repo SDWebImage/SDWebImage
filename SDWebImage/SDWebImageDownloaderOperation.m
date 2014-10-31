@@ -327,6 +327,8 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
     @synchronized(self) {
+        if (self.isCancelled) return;
+        
         CFRunLoopStop(CFRunLoopGetCurrent());
         self.thread = nil;
         self.connection = nil;
@@ -337,12 +339,13 @@
         responseFromCached = NO;
     }
     
+    if (self.isCancelled) return;
     if (completionBlock)
     {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
         }
-        else {
+        else if (self.imageData) {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
             image = [self scaledImageForKey:key image:image];
@@ -357,6 +360,10 @@
             else {
                 completionBlock(image, self.imageData, nil, YES);
             }
+        }
+        else {
+            completionBlock(nil, nil, nil, YES);
+            
         }
     }
     self.completionBlock = nil;
