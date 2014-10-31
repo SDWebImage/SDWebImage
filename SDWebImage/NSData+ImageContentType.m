@@ -38,12 +38,3 @@
 }
 
 @end
-
-
-@implementation NSData (ImageContentTypeDeprecated)
-
-+ (NSString *)contentTypeForImageData:(NSData *)data {
-    return [self sd_contentTypeForImageData:data];
-}
-
-@end
