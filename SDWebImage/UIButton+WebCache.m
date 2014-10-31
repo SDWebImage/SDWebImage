@@ -76,6 +76,9 @@ static char imageURLStorageKey;
             if (!sself) return;
             if (image) {
                 [sself setImage:image forState:state];
+                if (cacheType == SDImageCacheTypeNone) {
+                    [sself _fadeLayer:sself.layer];
+                }
             }
             if (completedBlock && finished) {
                 completedBlock(image, error, cacheType, url);
@@ -119,6 +122,9 @@ static char imageURLStorageKey;
                 if (!sself) return;
                 if (image) {
                     [sself setBackgroundImage:image forState:state];
+                    if (cacheType == SDImageCacheTypeNone) {
+                        [sself _fadeLayer:sself.layer];
+                    }
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType, url);
@@ -161,6 +167,14 @@ static char imageURLStorageKey;
     }
 
     return storage;
+}
+
+- (void)_fadeLayer:(CALayer *)layer {
+    CATransition *transition = [CATransition animation];
+    transition.duration = .5;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    transition.type = kCATransitionFade;
+    [layer addAnimation:transition forKey:@"fade"];
 }
 
 @end
