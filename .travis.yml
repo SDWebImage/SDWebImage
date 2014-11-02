@@ -1,0 +1,29 @@
+
+language: objective-c
+
+before_install:
+
+    - export LANG=en_US.UTF-8
+    - env
+    - locale
+    - gem install cocoapods --quiet
+    - gem install xcpretty --quiet
+    - pod --version
+    - pod setup --silent
+    - pod repo update --silent
+
+script:
+
+    - pod lib lint
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean build | xcpretty -c; exit ${PIPESTATUS[0]}
+    
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphoneos clean build | xcpretty -c; exit ${PIPESTATUS[0]}
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphoneos clean build | xcpretty -c; exit ${PIPESTATUS[0]}
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphoneos clean build | xcpretty -c; exit ${PIPESTATUS[0]}
+
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphoneos clean build | xcpretty -c; exit ${PIPESTATUS[0]}
+
+    - cd Tests
+    - pod update
+    - cd ..
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphoneos clean test | xcpretty -c; exit ${PIPESTATUS[0]}
