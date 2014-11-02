@@ -337,8 +337,7 @@
         responseFromCached = NO;
     }
     
-    if (completionBlock)
-    {
+    if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
         }
@@ -364,13 +363,17 @@
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    CFRunLoopStop(CFRunLoopGetCurrent());
-    [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+    @synchronized(self) {
+        CFRunLoopStop(CFRunLoopGetCurrent());
+        self.thread = nil;
+        self.connection = nil;
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+    }
 
     if (self.completedBlock) {
         self.completedBlock(nil, nil, error, YES);
     }
-
+    self.completionBlock = nil;
     [self done];
 }
 
