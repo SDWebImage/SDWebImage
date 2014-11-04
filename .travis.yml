@@ -23,4 +23,4 @@ script:
     - cd Tests
     - pod update
     - cd ..
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator test
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator clean test
