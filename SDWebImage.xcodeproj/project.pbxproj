@@ -198,6 +198,7 @@
 		DA577D771998E6B2007367ED /* vp8li.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D681998E6B2007367ED /* vp8li.h */; };
 		DA577D781998E6B2007367ED /* webp.c in Sources */ = {isa = PBXBuildFile; fileRef = DA577D691998E6B2007367ED /* webp.c */; };
 		DA577D791998E6B2007367ED /* webpi.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D6A1998E6B2007367ED /* webpi.h */; };
+		DAC075D21A08CBDA002E5D32 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = DAC075D01A08CB9C002E5D32 /* alpha_processing_sse2.c */; };
 		DAFAA6C219485CAA00581B9E /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5340674F167780C40042B59E /* SDWebImageCompat.m */; };
 /* End PBXBuildFile section */
 
@@ -326,6 +327,7 @@
 		DA577D681998E6B2007367ED /* vp8li.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vp8li.h; sourceTree = "<group>"; };
 		DA577D691998E6B2007367ED /* webp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = webp.c; sourceTree = "<group>"; };
 		DA577D6A1998E6B2007367ED /* webpi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webpi.h; sourceTree = "<group>"; };
+		DAC075D01A08CB9C002E5D32 /* alpha_processing_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alpha_processing_sse2.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -488,6 +490,7 @@
 		DA577C651998E60B007367ED /* dsp */ = {
 			isa = PBXGroup;
 			children = (
+				DAC075D01A08CB9C002E5D32 /* alpha_processing_sse2.c */,
 				DA577C661998E60B007367ED /* alpha_processing.c */,
 				DA577C671998E60B007367ED /* cpu.c */,
 				DA577C681998E60B007367ED /* dec.c */,
@@ -928,6 +931,7 @@
 				DA577D3C1998E60B007367ED /* filters.c in Sources */,
 				DA577D341998E60B007367ED /* bit_reader.c in Sources */,
 				ABBE71AB18C43B6000B75E91 /* UIImageView+HighlightedWebCache.m in Sources */,
+				DAC075D21A08CBDA002E5D32 /* alpha_processing_sse2.c in Sources */,
 				DA577D6F1998E6B2007367ED /* frame.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
