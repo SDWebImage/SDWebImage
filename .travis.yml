@@ -10,6 +10,8 @@ before_install:
     - pod --version
     - pod setup --silent
     - pod repo update --silent
+    - brew update
+    - brew install xctool
 
 script:
 
