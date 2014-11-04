@@ -212,9 +212,13 @@ If you don't control the image server you're using, you may not be able to chang
                    options:SDWebImageRefreshCached];
 ```
 
-### Add a progress indicator
-
-See this category: https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage
+### Add a progress indicator option
+```
+// show activity indicator
+[cell.imageView setShowActivityIndicatorView:YES];
+// choose indicator style
+[cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+```
 
 Installation
 ------------
