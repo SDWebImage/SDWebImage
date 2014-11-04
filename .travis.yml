@@ -10,14 +10,11 @@ before_install:
     - pod --version
     - pod setup --silent
     - pod repo update --silent
-    - brew update
-    - brew install xctool
 
 script:
 
     - pod lib lint
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean build
-    
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphoneos clean build
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphoneos clean build
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphoneos clean build
