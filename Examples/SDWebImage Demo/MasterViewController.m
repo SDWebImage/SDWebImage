@@ -377,6 +377,10 @@
     if (cell == nil)
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        // show activity indicator
+        [cell.imageView setShowActivityIndicatorView:YES];
+        // choose indicator style
+        [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
     }
 
     cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
