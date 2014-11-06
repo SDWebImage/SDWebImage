@@ -234,6 +234,13 @@ platform :ios, '6.1'
 pod 'SDWebImage', '~>3.6'
 ```
 
+### Installation by cloning the repository
+
+In order to gain access to all the files from the repository, you should clone it.
+```
+git clone --recursive https://github.com/rs/SDWebImage.git
+```
+
 ### Add the SDWebImage project to your project
 
 - Download and unzip the last version of the framework from the [download page](https://github.com/rs/SDWebImage/releases)
