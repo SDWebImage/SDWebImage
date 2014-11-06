@@ -58,46 +58,50 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (id)initWithNamespace:(NSString *)ns {
+    return [self initWithNamespace:ns searchPathDirectory:NSCachesDirectory];
+}
+
+- (id)initWithNamespace:(NSString *)ns searchPathDirectory:(NSSearchPathDirectory)searchPathDirectory {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
-
+        
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
-
+        
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
-
+        
         // Init the memory cache
         _memCache = [[NSCache alloc] init];
         _memCache.name = fullNamespace;
-
+        
         // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(searchPathDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
-
+        
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
         });
-
+        
 #if TARGET_OS_IPHONE
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(cleanDisk)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundCleanDisk)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
 #endif
     }
-
+    
     return self;
 }
 
