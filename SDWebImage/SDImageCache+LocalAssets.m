@@ -13,6 +13,8 @@
 static char SDImageCacheALAssetsLibraryPropertyKey;
 static char SDImageCacheLocalAssetURLToAssetPropertyKey;
 static char SDImageCachePHImageManagerPropertyKey;
+static char SDImageCachePHImageRequestDeliveryModeKey;
+static char SDImageCachePHImageRequestResizeModeKey;
 
 #import <objc/runtime.h>
 
