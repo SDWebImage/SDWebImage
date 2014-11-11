@@ -16,14 +16,6 @@ static char SDImageCachePHImageManagerPropertyKey;
 
 #import <objc/runtime.h>
 
-// iOS 7 and lower
-#import <AssetsLibrary/AssetsLibrary.h>
-
-// iOS 8+
-#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
-#import <Photos/Photos.h>
-#endif
-
 typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
     SDLocalALAssetSizeAspectThumbnail,
     SDLocalALAssetSizeSquareThumbnail,
@@ -72,6 +64,34 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
 
 - (void)setImageManager:(PHImageManager *)imageManager {
     objc_setAssociatedObject(self, &SDImageCachePHImageManagerPropertyKey, imageManager, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (PHImageRequestOptionsDeliveryMode)phImageRequestDeliveryMode {
+    NSNumber *deliveryMode = objc_getAssociatedObject(self, &SDImageCachePHImageRequestDeliveryModeKey);
+    
+    if (!deliveryMode) {
+        deliveryMode = @(PHImageRequestOptionsDeliveryModeOpportunistic);
+    }
+    
+    return (PHImageRequestOptionsDeliveryMode)deliveryMode.integerValue;
+}
+
+- (void)setPhImageRequestDeliveryMode:(PHImageRequestOptionsDeliveryMode)phImageRequestDeliveryMode {
+    objc_setAssociatedObject(self, &SDImageCachePHImageRequestDeliveryModeKey, @(phImageRequestDeliveryMode), OBJC_ASSOCIATION_RETAIN);
+}
+
+- (PHImageRequestOptionsResizeMode)phImageRequestResizeMode {
+    NSNumber *resizeMode = objc_getAssociatedObject(self, &SDImageCachePHImageRequestResizeModeKey);
+    
+    if (!resizeMode) {
+        resizeMode = @(PHImageRequestOptionsResizeModeFast);
+    }
+    
+    return (PHImageRequestOptionsResizeMode)resizeMode.integerValue;
+}
+
+- (void)setPhImageRequestResizeMode:(PHImageRequestOptionsResizeMode)phImageRequestResizeMode {
+    objc_setAssociatedObject(self, &SDImageCachePHImageRequestResizeModeKey, @(phImageRequestResizeMode), OBJC_ASSOCIATION_RETAIN);
 }
 
 #pragma mark - Helpers -
@@ -466,8 +486,8 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
             requestOptions.version = PHImageRequestOptionsVersionCurrent;
             requestOptions.synchronous = YES;
             requestOptions.networkAccessAllowed = YES;
-            requestOptions.deliveryMode = PHImageRequestOptionsDeliveryModeOpportunistic;
-            requestOptions.resizeMode = PHImageRequestOptionsResizeModeFast;
+            requestOptions.deliveryMode = self.phImageRequestDeliveryMode;
+            requestOptions.resizeMode = self.phImageRequestResizeMode;
             
             [self.imageManager requestImageForAsset:asset
                                          targetSize:targetSize

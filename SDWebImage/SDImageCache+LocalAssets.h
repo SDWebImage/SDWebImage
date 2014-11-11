@@ -8,9 +8,22 @@
 
 #import "SDImageCache.h"
 
+// iOS 7 and lower
+#import <AssetsLibrary/AssetsLibrary.h>
+
+// iOS 8+
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
+#import <Photos/Photos.h>
+#endif
+
 typedef void (^SDImageCacheLocalAssetRetrievalCompletionBlock)(UIImage *image, SDImageCacheType cacheType);
 
 @interface SDImageCache (LocalAssets)
+
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
+@property (nonatomic) PHImageRequestOptionsDeliveryMode phImageRequestDeliveryMode;
+@property (nonatomic) PHImageRequestOptionsResizeMode phImageRequestResizeMode;
+#endif
 
 /**
  * Call this to warm the ALAsset / PHAsset lookup cache (for faster image retrieval later)
