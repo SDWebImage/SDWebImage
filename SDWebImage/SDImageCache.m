@@ -467,6 +467,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)backgroundCleanDisk {
+#ifndef SD_APP_EXTENSION
     UIApplication *application = [UIApplication sharedApplication];
     __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
         // Clean up any unfinished task business by marking where you
@@ -480,6 +481,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
     }];
+#endif
 }
 
 - (NSUInteger)getSize {
