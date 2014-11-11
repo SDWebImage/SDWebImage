@@ -501,7 +501,7 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
                                               return;
                                           }
                                           
-                                          if (result) {
+                                          if (result && info[PHImageResultIsDegradedKey] && ![info[PHImageResultIsDegradedKey] boolValue]) {
                                               CGFloat cost = result.size.height * result.size.width * result.scale;
                                               [self.memCache setObject:result
                                                                 forKey:cacheKey
@@ -509,7 +509,7 @@ typedef NS_ENUM(NSUInteger, SDLocalALAssetSize) {
                                           }
                                           
                                           if (completionBlock) {
-                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                              dispatch_main_sync_safe(^{
                                                   completionBlock(result, SDImageCacheTypeLocalAssetStore);
                                               });
                                           }
