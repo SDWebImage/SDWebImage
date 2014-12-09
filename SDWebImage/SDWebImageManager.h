@@ -166,7 +166,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
  * @endcode
  */
-@property (copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
+@property (nonatomic, copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
 
 /**
  * Returns global SDWebImageManager instance.
@@ -274,26 +274,5 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *Return the cache key for a given URL
  */
 - (NSString *)cacheKeyForURL:(NSURL *)url;
-
-@end
-
-
-#pragma mark - Deprecated
-
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionBlock`");
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionWithFinishedBlock`");
-
-
-@interface SDWebImageManager (Deprecated)
-
-/**
- *  Downloads the image at the given URL if not present in cache or return the cached version otherwise.
- *
- *  @deprecated This method has been deprecated. Use `downloadImageWithURL:options:progress:completed:`
- */
-- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
 
 @end

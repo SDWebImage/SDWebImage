@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "537D957317ECC1FE0097C263"
-               BuildableName = "libSDWebImage+WebP.a"
-               BlueprintName = "SDWebImage+WebP"
+               BlueprintIdentifier = "539F912B16316D2D00160719"
+               BuildableName = "SDWebImageFramework"
+               BlueprintName = "SDWebImageFramework"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -39,6 +39,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "539F912B16316D2D00160719"
+            BuildableName = "SDWebImageFramework"
+            BlueprintName = "SDWebImageFramework"
+            ReferencedContainer = "container:SDWebImage.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

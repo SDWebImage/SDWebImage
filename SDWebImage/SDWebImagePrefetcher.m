@@ -8,7 +8,7 @@
 
 #import "SDWebImagePrefetcher.h"
 
-#if !defined(DEBUG) && !defined (SD_VERBOSE)
+#if (!defined(DEBUG) && !defined (SD_VERBOSE)) || defined(SD_LOG_NONE)
 #define NSLog(...)
 #endif
 
@@ -120,10 +120,16 @@
     self.completionBlock = completionBlock;
     self.progressBlock = progressBlock;
 
-    // Starts prefetching from the very first image on the list with the max allowed concurrency
-    NSUInteger listCount = self.prefetchURLs.count;
-    for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
-        [self startPrefetchingAtIndex:i];
+    if(urls.count == 0){ 
+        if(completionBlock){
+            completionBlock(0,0);
+        }
+    }else{
+        // Starts prefetching from the very first image on the list with the max allowed concurrency
+        NSUInteger listCount = self.prefetchURLs.count;
+        for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
+            [self startPrefetchingAtIndex:i];
+        }
     }
 }
 

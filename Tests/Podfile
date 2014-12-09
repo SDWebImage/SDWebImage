@@ -1,9 +1,10 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
 xcodeproj 'SDWebImage Tests'
 workspace '../SDWebImage'
 
 def import_pods
   pod 'Expecta'                       # A Matcher Framework for Objective-C/Cocoa
-  pod 'XCTestAsync'                   # Extension to XCTest for asynchronous testing
   pod 'SDWebImage', :path => '../'
 end
 
