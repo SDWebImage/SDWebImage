@@ -93,7 +93,7 @@
 
     if (self.connection) {
         if (self.progressBlock) {
-            self.progressBlock(0, NSURLResponseUnknownLength);
+            self.progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
 
@@ -201,7 +201,7 @@
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         if (self.progressBlock) {
-            self.progressBlock(0, expected);
+            self.progressBlock(0, expected, self.request.URL);
         }
 
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -303,7 +303,7 @@
     }
 
     if (self.progressBlock) {
-        self.progressBlock(self.imageData.length, self.expectedSize);
+        self.progressBlock(self.imageData.length, self.expectedSize, self.request.URL);
     }
 }
 
