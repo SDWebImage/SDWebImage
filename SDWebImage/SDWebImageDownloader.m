@@ -132,13 +132,13 @@ static NSString *const kCompletedCallbackKey = @"completed";
         }
         operation = [[wself.operationClass alloc] initWithRequest:request
                                                           options:options
-                                                         progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                                         progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *targetURL) {
                                                              SDWebImageDownloader *sself = wself;
                                                              if (!sself) return;
                                                              NSArray *callbacksForURL = [sself callbacksForURL:url];
                                                              for (NSDictionary *callbacks in callbacksForURL) {
                                                                  SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
-                                                                 if (callback) callback(receivedSize, expectedSize);
+                                                                 if (callback) callback(receivedSize, expectedSize, targetURL);
                                                              }
                                                          }
                                                         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
