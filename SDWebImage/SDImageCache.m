@@ -248,7 +248,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return data;
     }
 
-    for (NSString *path in self.customPaths) {
+    NSArray *customPaths = [self.customPaths copy];
+    for (NSString *path in customPaths) {
         NSString *filePath = [self cachePathForKey:key inPath:path];
         NSData *imageData = [NSData dataWithContentsOfFile:filePath];
         if (imageData) {
