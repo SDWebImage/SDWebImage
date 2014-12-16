@@ -215,7 +215,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
         self.response = response;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadResponseNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
         });
     }
     else {
