@@ -13,7 +13,7 @@
 #import "SDWebImageManager.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
-NSString *const SDWebImageDownloadReseiveResponseNotification = @"SDWebImageDownloadReseiveResponseNotification";
+NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
 
