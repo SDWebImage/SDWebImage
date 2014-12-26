@@ -11,6 +11,7 @@ This library provides a category for UIImageView with support for remote images 
 
 It provides:
 
+
 - An UIImageView category adding web image and cache management to the Cocoa Touch framework
 - An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
