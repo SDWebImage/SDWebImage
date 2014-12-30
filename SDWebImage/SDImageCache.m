@@ -77,6 +77,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
 
+        // Set decompression to YES
+        _shouldDecompressImages = YES;
+
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
         });
@@ -266,7 +269,9 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
-        image = [UIImage decodedImageWithImage:image];
+        if (self.shouldDecompressImages) {
+            image = [UIImage decodedImageWithImage:image];
+        }
         return image;
     }
     else {

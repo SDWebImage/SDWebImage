@@ -40,6 +40,7 @@
     if ((self = [super init])) {
         _manager = [SDWebImageManager new];
         _options = SDWebImageLowPriority;
+        _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
     }
     return self;
@@ -82,9 +83,8 @@
                                 totalCount:self.prefetchURLs.count
             ];
         }
-
         if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.prefetcherQueue, ^{
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         }
