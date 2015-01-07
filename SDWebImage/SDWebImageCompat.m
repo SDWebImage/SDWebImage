@@ -35,6 +35,11 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image) {
                 if (range.location != NSNotFound) {
                     scale = 2.0;
                 }
+                
+                range = [key rangeOfString:@"@3x." options:0 range:NSMakeRange(key.length - 8, 5)];
+                if (range.location != NSNotFound) {
+                    scale = 3.0;
+                }
             }
 
             UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
