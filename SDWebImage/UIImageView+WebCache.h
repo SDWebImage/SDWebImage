@@ -8,6 +8,7 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageManager.h"
+#import <MapKit/MapKit.h>
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView.
@@ -62,6 +63,16 @@
 - (void)sd_setImageWithURL:(NSURL *)url;
 
 /**
+ * Set the imageView `image` with an `location`.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param location The location for the image.
+ * @see CLLocation
+ */
+- (void)sd_setImageWithLocation:(CLLocation *)location;
+
+/**
  * Set the imageView `image` with an `url` and a placeholder.
  *
  * The download is asynchronous and cached.
@@ -71,6 +82,21 @@
  * @see sd_setImageWithURL:placeholderImage:options:
  */
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
+
+/**
+ * Set the imageView `image` with an `location` and a placeholder.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param location         The location for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @see sd_setImageWithURL:placeholderImage:region:
+ */
+- (void)sd_setImageWithLocation:(CLLocation *)location placeholderImage:(UIImage *)placeholder;
+
+- (void)sd_setImageWithLocation:(CLLocation *)location region:(MKCoordinateRegion)region;
+
+- (void)sd_setImageWithLocation:(CLLocation *)location placeholderImage:(UIImage *)placeholder region:(MKCoordinateRegion)region;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.

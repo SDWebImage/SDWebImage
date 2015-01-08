@@ -11,6 +11,7 @@
 #import "UIView+WebCacheOperation.h"
 
 static char imageURLKey;
+static char imageLocationKey;
 
 @implementation UIImageView (WebCache)
 
@@ -36,6 +37,69 @@ static char imageURLKey;
 
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+}
+
+- (void)sd_setImageWithLocation:(CLLocation *)location {
+    [self sd_setImageWithLocation:location placeholderImage:nil];
+}
+
+- (void)sd_setImageWithLocation:(CLLocation *)location region:(MKCoordinateRegion)region {
+    [self sd_setImageWithLocation:location placeholderImage:nil region:region];
+}
+
+- (void)sd_setImageWithLocation:(CLLocation *)location placeholderImage:(UIImage *)placeholder {
+    [self sd_setImageWithLocation:location placeholderImage:placeholder region:MKCoordinateRegionMakeWithDistance(location.coordinate, 500.0, 500.0)];
+}
+
+- (void)sd_setImageWithLocation:(CLLocation *)location placeholderImage:(UIImage *)placeholder region:(MKCoordinateRegion)region {
+    objc_setAssociatedObject(self, &imageLocationKey, location, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
+    if (placeholder) {
+        dispatch_main_async_safe(^{
+            self.image = placeholder;
+        });
+    }
+    
+    MKMapSnapshotOptions *options = [[MKMapSnapshotOptions alloc] init];
+    options.region = region;
+    options.size = [self bounds].size;
+    options.scale = [UIScreen mainScreen].scale;
+    
+    MKMapSnapshotter *snapShotter = [[MKMapSnapshotter alloc] initWithOptions:options];
+    
+    __weak UIImageView *wself = self;
+    [snapShotter startWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+              completionHandler:^(MKMapSnapshot *snapshot, NSError *error) {
+                  if (!wself) return;
+                  
+                  if (error) {
+                      NSLog(@"%s Error creating map snapshot: %@", __PRETTY_FUNCTION__, error);
+                      return;
+                  }
+                  
+                  MKAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:nil];
+                  CGPoint coordinatePoint = [snapshot pointForCoordinate:location.coordinate];
+                  UIImage *image = snapshot.image;
+                  UIImage *resultImage = nil;
+                  UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
+                  {
+                      [image drawAtPoint:CGPointZero];
+                      [pin.image drawAtPoint:coordinatePoint];
+                      resultImage = UIGraphicsGetImageFromCurrentImageContext();
+                  }
+                  UIGraphicsEndImageContext();
+                  
+                  dispatch_main_sync_safe(^{
+                      if (!wself) return;
+                      if (resultImage) {
+                          wself.image = resultImage;
+                          [wself setNeedsLayout];
+                      } else {
+                          wself.image = placeholder;
+                          [wself setNeedsLayout];
+                      }
+                  });
+              }];
 }
 
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
@@ -88,6 +152,10 @@ static char imageURLKey;
 
 - (NSURL *)sd_imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
+}
+
+- (CLLocation *)sd_location {
+    return objc_getAssociatedObject(self, &imageLocationKey);
 }
 
 - (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
