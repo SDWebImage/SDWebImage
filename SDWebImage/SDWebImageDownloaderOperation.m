@@ -79,9 +79,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (NSArray *)callbacksForKey:(NSString *)key {
-    __block NSArray *callbacks = nil;
+    __block NSMutableArray *callbacks = nil;
     dispatch_sync(self.barrierQueue, ^{
-        callbacks = [self.callbackBlocks valueForKey:key];
+        // We need to remove [NSNull null] because there might not always be a progress block for each callback
+        callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
+        [callbacks removeObjectIdenticalTo:[NSNull null]];
     });
     return callbacks;
 }
