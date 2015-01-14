@@ -9,6 +9,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
+#import "UIImage+FixOrient.h"
 #import <CommonCrypto/CommonDigest.h>
 
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
@@ -157,6 +158,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 
             if (image && (recalculate || !data)) {
 #if TARGET_OS_IPHONE
+                UIImage *orientedImage = [image fixOrientation];
+              
                 // We need to determine if the image is a PNG or a JPEG
                 // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
                 // The first eight bytes of a PNG file always contain the following (decimal) values:
@@ -172,10 +175,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 }
 
                 if (imageIsPng) {
-                    data = UIImagePNGRepresentation(image);
+                    data = UIImagePNGRepresentation(orientedImage);
                 }
                 else {
-                    data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
+                    data = UIImageJPEGRepresentation(orientedImage, (CGFloat)1.0);
                 }
 #else
                 data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
