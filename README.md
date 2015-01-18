@@ -95,7 +95,7 @@ Here is a simple example of how to use SDWebImageManager:
 
 ```objective-c
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
-[manager downloadWithURL:imageURL
+[manager downloadImageWithURL:imageURL
                  options:0
                  progress:^(NSInteger receivedSize, NSInteger expectedSize)
                  {
