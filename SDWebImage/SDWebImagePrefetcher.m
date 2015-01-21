@@ -78,12 +78,7 @@
                             didPrefetchURL:self.prefetchURLs[index]
                              finishedCount:self.finishedCount
                                 totalCount:self.prefetchURLs.count
-            ];
-        }
-        if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(self.prefetcherQueue, ^{
-                [self startPrefetchingAtIndex:self.requestedCount];
-            });
+             ];
         }
         else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
@@ -102,7 +97,7 @@
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)
                           skippedCount:self.skippedCount
-        ];
+         ];
     }
 }
 
@@ -117,14 +112,29 @@
     self.completionBlock = completionBlock;
     self.progressBlock = progressBlock;
 
-    if(urls.count == 0){ 
+    __weak SDWebImagePrefetcher *weakSelf = self;
+
+    if(urls.count == 0){
         if(completionBlock){
             completionBlock(0,0);
         }
     }else{
-        // Starts prefetching from the very first image on the list with the max allowed concurrency
-        NSUInteger listCount = self.prefetchURLs.count;
-        for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
+        // http://oleb.net/blog/2013/07/parallelize-for-loops-gcd-dispatch_apply/
+        // Optimize the maxConcurrentdownloads for effeciency. Since caching operations are involved that are non-trivial using
+        // dispatch_apply might be helpful.
+
+        NSInteger maxNumberOfImages = self.prefetchURLs.count;
+
+        dispatch_apply(maxNumberOfImages/self.maxConcurrentDownloads, dispatch_get_global_queue(self.prefetcherQueue, 0), ^(size_t index) {
+            size_t i = index * self.maxConcurrentDownloads;
+            size_t stop = i + self.maxConcurrentDownloads;
+            do{
+                [weakSelf startPrefetchingAtIndex:i++];
+            }while (i < stop);
+        });
+
+        // Download remaining images.
+        for (size_t i = maxNumberOfImages - (maxNumberOfImages % self.maxConcurrentDownloads); i < (size_t)maxNumberOfImages; i++) {
             [self startPrefetchingAtIndex:i];
         }
     }
