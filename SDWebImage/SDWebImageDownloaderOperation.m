@@ -61,69 +61,72 @@
 }
 
 - (void)start {
-    @synchronized (self) {
-        if (self.isCancelled) {
-            self.finished = YES;
-            [self reset];
-            return;
-        }
+    dispatch_main_sync_safe(^{
+
+        @synchronized (self) {
+            if (self.isCancelled) {
+                self.finished = YES;
+                [self reset];
+                return;
+            }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        if ([self shouldContinueWhenAppEntersBackground]) {
-            __weak __typeof__ (self) wself = self;
-            self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
+            if ([self shouldContinueWhenAppEntersBackground]) {
+                __weak __typeof__(self) wself = self;
+                self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+                    __strong __typeof(wself) sself = wself;
 
-                if (sself) {
-                    [sself cancel];
+                    if (sself) {
+                        [sself cancel];
 
-                    [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
-            }];
-        }
+                        [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
+                        sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                    }
+                }];
+            }
 #endif
 
-        self.executing = YES;
-        self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
-        self.thread = [NSThread currentThread];
-    }
-
-    [self.connection start];
-
-    if (self.connection) {
-        if (self.progressBlock) {
-            self.progressBlock(0, NSURLResponseUnknownLength);
+            self.executing = YES;
+            self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
+            self.thread = [NSThread currentThread];
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
 
-        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1) {
-            // Make sure to run the runloop in our background thread so it can process downloaded data
-            // Note: we use a timeout to work around an issue with NSURLConnection cancel under iOS 5
-            //       not waking up the runloop, leading to dead threads (see https://github.com/rs/SDWebImage/issues/466)
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, false);
+        [self.connection start];
+
+        if (self.connection) {
+            if (self.progressBlock) {
+                self.progressBlock(0, NSURLResponseUnknownLength);
+            }
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
+
+            if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1) {
+                // Make sure to run the runloop in our background thread so it can process downloaded data
+                // Note: we use a timeout to work around an issue with NSURLConnection cancel under iOS 5
+                //       not waking up the runloop, leading to dead threads (see https://github.com/rs/SDWebImage/issues/466)
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, false);
+            }
+            else {
+                CFRunLoopRun();
+            }
+
+            if (!self.isFinished) {
+                [self.connection cancel];
+                [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
+            }
         }
         else {
-            CFRunLoopRun();
+            if (self.completedBlock) {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+            }
         }
-
-        if (!self.isFinished) {
-            [self.connection cancel];
-            [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
-        }
-    }
-    else {
-        if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
-        }
-    }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-    }
+        if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
+            self.backgroundTaskId = UIBackgroundTaskInvalid;
+        }
 #endif
+    });
 }
 
 - (void)cancel {
