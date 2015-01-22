@@ -77,6 +77,8 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
  */
 @interface SDWebImageDownloader : NSObject
 
+@property (assign, nonatomic) BOOL shouldDecompressImages;
+
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
 /**
