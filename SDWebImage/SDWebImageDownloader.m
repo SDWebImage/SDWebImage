@@ -63,6 +63,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (id)init {
     if ((self = [super init])) {
+        _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 2;
@@ -152,7 +153,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                      SDWebImageDownloader *sself = wself;
                                                                      [sself removeCallbacksForURL:url];
                                                                  }];
-        
+        operation.shouldDecompressImages = wself.shouldDecompressImages;
         if (options & SDWebImageDownloaderHighPriority) {
             operation.queuePriority = NSOperationQueuePriorityHigh;
         }
