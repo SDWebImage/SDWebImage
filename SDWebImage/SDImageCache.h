@@ -32,6 +32,8 @@ typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType ca
  */
 @interface SDImageCache : NSObject
 
+@property (assign, nonatomic) BOOL shouldDecompressImages;
+
 /**
  * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
  */
