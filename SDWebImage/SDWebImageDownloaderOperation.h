@@ -15,6 +15,8 @@
 @property (strong, nonatomic, readonly) NSURLRequest *request;
 @property (assign, nonatomic, readonly) SDWebImageDownloaderOptions options;
 
+@property (assign, nonatomic) BOOL shouldDecompressImages;
+
 - (id)initWithRequest:(NSURLRequest *)request
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
