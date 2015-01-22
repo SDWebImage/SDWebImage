@@ -42,6 +42,7 @@
 - (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSInteger, NSInteger))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock {
     if ((self = [super init])) {
         _request = request;
+        _shouldDecompressImages = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
@@ -272,7 +273,15 @@
             if (partialImageRef) {
                 UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
                 UIImage *scaledImage = [self scaledImageForKey:self.request.URL.absoluteString image:image];
-                image = [UIImage decodedImageWithImage:scaledImage];
+                //image = [UIImage decodedImageWithImage:scaledImage];
+                if (self.shouldDecompressImages)
+                {
+                    image = [UIImage decodedImageWithImage:scaledImage];
+                }
+                else
+                {
+                    image = scaledImage;
+                }
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
                     if (self.completedBlock) {
@@ -339,7 +348,10 @@
 
             if (!image.images) // Do not force decod animated GIFs
             {
-                image = [UIImage decodedImageWithImage:image];
+                 if (self.shouldDecompressImages)
+                {
+                    image = [UIImage decodedImageWithImage:image];
+                }
             }
 
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {
