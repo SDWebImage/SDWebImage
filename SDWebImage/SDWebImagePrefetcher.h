@@ -51,6 +51,8 @@
  */
 @property (nonatomic, assign) SDWebImageOptions options;
 
+@property (nonatomic, assign) dispatch_queue_t prefetcherQueue;
+
 @property (weak, nonatomic) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
