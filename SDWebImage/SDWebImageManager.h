@@ -218,6 +218,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (void)cancelAll;
 
 /**
+ Cancels the given operations if they are running in this manager.
+
+ @param operations The operations to cancel.
+ */
+- (void)cancelOperations:(NSArray *)operations;
+
+/**
  * Check one or more operations running
  */
 - (BOOL)isRunning;
