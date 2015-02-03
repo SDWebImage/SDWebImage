@@ -323,16 +323,18 @@
             _cacheOperation = nil;
         }
         if (_cancelBlock) {
-            // store _cancelBlock to temp variable, because inside _cancelBlock self can be deleted
-            cancelBlock = [_cancelBlock copy];
-            
             // TODO: this is a temporary fix to #809.
             // Until we can figure the exact cause of the crash, going with the ivar instead of the setter
-            //          self.cancelBlock = nil;
+//            self.cancelBlock();
+//            self.cancelBlock = nil;
+
+            // store _cancelBlock to temp variable, because inside _cancelBlock self can be deleted
+            cancelBlock = [_cancelBlock copy];
             _cancelBlock = nil;
         }
     }
-    cancelBlock();
+    if (cancelBlock)
+        cancelBlock();
     // no acces to self now, because it may be deleted
 }
 
