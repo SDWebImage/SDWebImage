@@ -132,7 +132,7 @@ It's also possible to use the async image downloader independently:
 
 ### Using Asynchronous Image Caching Independently
 
-It is also possible to use the aync based image cache store independently. SDImageCache
+It is also possible to use the async based image cache store independently. SDImageCache
 maintains a memory cache and an optional disk cache. Disk cache write operations are performed
 asynchronous so it doesn't add unnecessary latency to the UI.
 
