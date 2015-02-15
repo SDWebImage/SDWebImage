@@ -96,7 +96,7 @@
         @synchronized(self) {
             // do finish immediately if cancelled
             if (self.isCancelled) {
-                DebugLogEvent(@" -start.cancel");
+                DebugLogEvent(@" -start.cancelled");
                 [self done];
                 return;
             }
@@ -140,7 +140,7 @@
             //       not waking up the runloop, leading to dead threads (see https://github.com/rs/SDWebImage/issues/466)
             SInt32 runLoopResult = CFRunLoopRunInMode(kCFRunLoopDefaultMode, self.request.timeoutInterval + 1 , false);
 
-            DebugLogEvent(@" -start.afterCFRunLoopRunInMode");
+            DebugLogEvent(([NSString stringWithFormat:@" -start.afterCFRunLoopRunInMode (%d)", runLoopResult]));
 //          Possible return values:
 //            kCFRunLoopRunFinished = 1,
 //            kCFRunLoopRunStopped = 2,
@@ -187,7 +187,8 @@
     DebugLogEvent(@"> cancel");
     // synchronize with start
     @synchronized(self) {
-        if (self.isCancelled) {
+        if (self.isCancelled || self.isFinished) {
+            DebugLogEvent(@"< cancel.itsTooLate");
             return; // cancel only once
         }
         DebugLogEvent(@" -cancel.winner");
@@ -204,15 +205,17 @@
 - (void)cancelInternalAndStop {
     DebugLogEvent(@"> cancelInternalAndStop");
     // runs on operation's thread
-    [self cancelInternal];
-    CFRunLoopStop(CFRunLoopGetCurrent());
+    if ([self cancelInternal]) {
+        DebugLogEvent(@"< cancelInternalAndStop.wasFinishedOrCancelled");
+        CFRunLoopStop(CFRunLoopGetCurrent());
+    }
     DebugLogEvent(@"< cancelInternalAndStop");
 }
 
-- (void)cancelInternal {
+- (BOOL)cancelInternal {
     DebugLogEvent(@"> cancelInternal");
     if (self.isFinished || self.isCancelled)
-        return;
+        return NO;// operation is finished, another regular op. may be already started on this thread(we are reusing threads), !!! DON'T call CFRunLoopStop !!!.
     DebugLogEvent(@" -cancelInternal.winner");
     // signal that it's cancelled
     [super cancel];
@@ -220,6 +223,7 @@
     [self.connection cancel];
     // don't set self.finished = YES because, we haven't done yet
     DebugLogEvent(@"< cancelInternal");
+    return YES;
 }
 
 - (void)done {
@@ -247,23 +251,23 @@
 }
 
 - (void)setFinished:(BOOL)finished {
-    DebugLogEvent(@"> setFinished");
     if (_finished != finished) {
+        DebugLogEvent(@"> setFinished");
         [self willChangeValueForKey:@"isFinished"];
         _finished = finished;
         [self didChangeValueForKey:@"isFinished"];
+        DebugLogEvent(@"< setFinished");
     }
-    DebugLogEvent(@"< setFinished");
 }
 
 - (void)setExecuting:(BOOL)executing {
-    DebugLogEvent(@"> setExecuting");
     if (_executing != executing) {
+        DebugLogEvent(@"> setExecuting");
         [self willChangeValueForKey:@"isExecuting"];
         _executing = executing;
         [self didChangeValueForKey:@"isExecuting"];
+        DebugLogEvent(@"< setExecuting");
     }
-    DebugLogEvent(@"< setExecuting");
 }
 
 - (BOOL)isConcurrent {
