@@ -152,11 +152,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
                                                                 if (callback) callback(image, data, error, finished);
                                                             }
-                                                        }
-                                                        cancelled:^{
-                                                            SDWebImageDownloader *sself = wself;
-                                                            if (!sself) return;
-                                                            [sself removeCallbacksForURL:url];
                                                         }];
         
         if (wself.username && wself.password) {
