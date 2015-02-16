@@ -115,9 +115,7 @@
                 __strong __typeof (wself) sself = wself;
                 if (sself) {
                     [sself cancel];
-
-                    [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId];
-                    backgroundTaskId = UIBackgroundTaskInvalid;
+                    // [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
                 }
             }];
         }
