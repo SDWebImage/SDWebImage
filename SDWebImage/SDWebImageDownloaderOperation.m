@@ -155,14 +155,13 @@
                 DebugLogEvent(@" -start.cancelled");
                 [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
             }
-            else {
-                // self.completedBlock has been already called with downloaded image
-                assert(self.completedBlock == nil);
-            }
+            // self.completedBlock has been already called with downloaded image or from didFailWithError
+            assert(self.completedBlock == nil);
         }
         else {
             if (self.completedBlock) {
                 self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+                self.completedBlock = nil;
             }
         }
 
@@ -206,7 +205,7 @@
     DebugLogEvent(@"> cancelInternalAndStop");
     // runs on operation's thread
     if ([self cancelInternal]) {
-        DebugLogEvent(@"< cancelInternalAndStop.wasFinishedOrCancelled");
+        DebugLogEvent(@" -cancelInternalAndStop.didCancel");
         CFRunLoopStop(CFRunLoopGetCurrent());
     }
     DebugLogEvent(@"< cancelInternalAndStop");
@@ -476,8 +475,12 @@
     DebugLogEvent(@"> didFailWithError");
     // we do not neet to hold lock here, because this method can be called only from operation's thread
     if (self.completedBlock) {
+        DebugLogEvent(@" -didFailWithError.completedBlock");
         self.completedBlock(nil, nil, error, YES);
         self.completedBlock = nil;// to prevent to be called later again. For example: cancel called after error, before we exit from run loop(from 'start' method).
+    }
+    else {
+        DebugLogEvent(@" -didFailWithError.noCompletedBlock");
     }
 
     CFRunLoopStop(CFRunLoopGetCurrent());
