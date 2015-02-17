@@ -34,7 +34,7 @@
 
     if (url) {
         __weak UIImageView      *wself    = self;
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL, NSUInteger bytes, NSTimeInterval responseTime, NSTimeInterval transferTime) {
             if (!wself) return;
             dispatch_main_sync_safe (^
                                      {

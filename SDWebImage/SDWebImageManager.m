@@ -166,7 +166,7 @@
     if (!url || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
         dispatch_main_sync_safe(^{
             NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorFileDoesNotExist userInfo:nil];
-            completedBlock(nil, error, SDImageCacheTypeNone, YES, url);
+            completedBlock(nil, error, SDImageCacheTypeNone, YES, url, 0, 0, 0);
         });
         return operation;
     }
@@ -189,7 +189,7 @@
                 dispatch_main_sync_safe(^{
                     // If image was found in the cache bug SDWebImageRefreshCached is provided, notify about the cached image
                     // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
-                    completedBlock(image, nil, cacheType, YES, url);
+                    completedBlock(image, nil, cacheType, YES, url, 0, 0, 0);
                 });
             }
             
@@ -208,7 +208,7 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished, NSTimeInterval responseTime, NSTimeInterval transferTime) {
                 if (weakOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
                     // See #699 for more details
@@ -217,7 +217,7 @@
                 else if (error) {
                     dispatch_main_sync_safe(^{
                         if (!weakOperation.isCancelled) {
-                            completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
+                            completedBlock(nil, error, SDImageCacheTypeNone, finished, url, data.length, responseTime, transferTime);
                         }
                     });
                     
@@ -246,7 +246,7 @@
                             
                             dispatch_main_sync_safe(^{
                                 if (!weakOperation.isCancelled) {
-                                    completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                                    completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url, data.length, responseTime, transferTime);
                                 }
                             });
                         });
@@ -258,7 +258,7 @@
                         
                         dispatch_main_sync_safe(^{
                             if (!weakOperation.isCancelled) {
-                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url, data.length, responseTime, transferTime);
                             }
                         });
                     }
@@ -281,7 +281,7 @@
         else if (image) {
             dispatch_main_sync_safe(^{
                 if (!weakOperation.isCancelled) {
-                    completedBlock(image, nil, cacheType, YES, url);
+                    completedBlock(image, nil, cacheType, YES, url, 0, 0, 0);
                 }
             });
             @synchronized (self.runningOperations) {
@@ -292,7 +292,7 @@
             // Image not in cache and download disallowed by delegate
             dispatch_main_sync_safe(^{
                 if (!weakOperation.isCancelled) {
-                    completedBlock(nil, nil, SDImageCacheTypeNone, YES, url);
+                    completedBlock(nil, nil, SDImageCacheTypeNone, YES, url, 0, 0, 0);
                 }
             });
             @synchronized (self.runningOperations) {
