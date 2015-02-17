@@ -94,9 +94,8 @@
         self.thread = [NSThread currentThread];
     }
 
-    [self.connection start];
-
     _startTime = [NSDate date];
+    [self.connection start];
     
     if (self.connection) {
         if (self.progressBlock) {
@@ -207,6 +206,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     self.responseTime = [[NSDate date] timeIntervalSinceDate:_startTime];
+    _startTime = [NSDate date]; // Restart the start time so the transferTime is not cummulative
     
     //'304 Not Modified' is an exceptional one
     if ((![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400) && [((NSHTTPURLResponse *)response) statusCode] != 304) {
