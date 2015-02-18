@@ -128,12 +128,16 @@
         }
 
         @synchronized(self.unfinishedOperations) {
-            [self.unfinishedOperations removeObjectForKey:url];
+            if ([self.unfinishedOperations objectForKey:url]) {
+                [self.unfinishedOperations removeObjectForKey:url];
+            }
         }
     }];
 
     @synchronized(self.unfinishedOperations) {
-        self.unfinishedOperations[url] = operation;
+        if (operation) {
+            self.unfinishedOperations[url] = operation;
+        }
     }
 }
 
