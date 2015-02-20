@@ -24,7 +24,9 @@
 
 @end
 
-#if defined(NDEBUG) // debugging helper
+// logs debug helper
+//#define LOG_DOWNLOAD_OPERATIONS
+#if defined(NDEBUG) || !defined(LOG_DOWNLOAD_OPERATIONS)
 
 #define DebugLogEvent(str) do { } while (0)
 

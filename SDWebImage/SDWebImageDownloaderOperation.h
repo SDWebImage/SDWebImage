@@ -12,7 +12,7 @@
 
 @interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation>
 
-// YOU MAY NOT MODIFY PROPERTIES WHEN OP. HAS BEEN STARTED!
+// YOU MAY NOT MODIFY PROPERTIES WHEN OPERATION HAS BEEN STARTED!
 
 /**
  * The request used by the operation's connection.
@@ -31,7 +31,7 @@
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
-@property (atomic, strong) NSURLCredential *credential;
+@property (atomic, copy) NSURLCredential *credential;
 
 /**
  * The SDWebImageDownloaderOptions for the receiver.
