@@ -179,7 +179,16 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions
+                progress:^(NSInteger receivedSize, NSInteger expectedSize){
+                    // it's called from background thread!
+                    dispatch_main_sync_safe(^{
+                        if (progressBlock) {
+                            progressBlock(receivedSize, expectedSize);
+                        }
+                    });
+                }
+                completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 if (weakOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
                     // See #699 for more details
