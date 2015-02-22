@@ -16,25 +16,48 @@
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
-@property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
-
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
-@property (assign, nonatomic) NSInteger expectedSize;
 @property (strong, nonatomic) NSMutableData *imageData;
+@property (strong, nonatomic) NSThread *thread;
 @property (strong, nonatomic) NSURLConnection *connection;
-@property (strong, atomic) NSThread *thread;
-
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-@property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
-#endif
 
 @end
+
+// logs debug helper
+//#define LOG_DOWNLOAD_OPERATIONS
+#if defined(NDEBUG) || !defined(LOG_DOWNLOAD_OPERATIONS)
+
+#define DebugLogEvent(str) do { } while (0)
+
+#else
+
+#define DebugLogEvent(str) do { [self debugLogEvent:str]; } while (0)
+
+@implementation SDWebImageDownloaderOperation (Debugging)
+
+- (void)debugLogEvent:(NSString *)event
+// Called by the implementation to log events.
+{
+    assert(event != nil);
+    
+    // Synchronisation is necessary because multiple threads might be adding
+    // events concurrently.
+    @synchronized (self) {
+        NSLog(@"%@: %@", self, event);
+    }
+}
+
+@end
+
+#endif // debugging helper
+
 
 @implementation SDWebImageDownloaderOperation {
     size_t width, height;
     UIImageOrientation orientation;
     BOOL responseFromCached;
+    NSInteger expectedSize;
 }
 
 @synthesize executing = _executing;
@@ -43,93 +66,131 @@
 - (id)initWithRequest:(NSURLRequest *)request
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
-            completed:(SDWebImageDownloaderCompletedBlock)completedBlock
-            cancelled:(SDWebImageNoParamsBlock)cancelBlock {
+            completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     if ((self = [super init])) {
+        assert(request != nil);
+        assert(completedBlock != nil);
         _request = request;
         _shouldUseCredentialStorage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
-        _cancelBlock = [cancelBlock copy];
         _executing = NO;
         _finished = NO;
-        _expectedSize = 0;
+        expectedSize = 0;
+        _imageData = nil;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
+        _connection = nil;
+        _thread = nil;
+        width = height = 0;
     }
     return self;
 }
 
 - (void)start {
-    @synchronized (self) {
-        if (self.isCancelled) {
-            self.finished = YES;
-            [self reset];
-            return;
-        }
+   @autoreleasepool {
+       DebugLogEvent(@"> start");
+#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+       __block UIBackgroundTaskIdentifier backgroundTaskId = UIBackgroundTaskInvalid;
+#endif
+    
+        // synchronize with cancel call
+        @synchronized(self) {
+            // do finish immediately if cancelled
+            if (self.isCancelled) {
+                DebugLogEvent(@" -start.cancelled");
+                [self done];
+                return;
+            }
+
+            // signal start of the execution
+            self.executing = YES;
+            self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
+            self.thread = [NSThread currentThread];
+            DebugLogEvent(@" -start.beforeConnectionStart");
+        } // @synchronized end
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
         if ([self shouldContinueWhenAppEntersBackground]) {
             __weak __typeof__ (self) wself = self;
-            self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+            backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
                 __strong __typeof (wself) sself = wself;
-
                 if (sself) {
                     [sself cancel];
-
-                    [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                    // [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
                 }
             }];
         }
 #endif
 
-        self.executing = YES;
-        self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
-        self.thread = [NSThread currentThread];
-    }
+        [self.connection start];
+        DebugLogEvent(@" -start.afterConnectionStart");
+        if (self.connection) {
+            if (self.progressBlock) {
+                self.progressBlock(0, NSURLResponseUnknownLength);
+            }
+            DebugLogEvent(@" -start.SDWebImageDownloadStartNotification");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
+            });
 
-    [self.connection start];
 
-    if (self.connection) {
-        if (self.progressBlock) {
-            self.progressBlock(0, NSURLResponseUnknownLength);
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
-        });
-
-        if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1) {
             // Make sure to run the runloop in our background thread so it can process downloaded data
             // Note: we use a timeout to work around an issue with NSURLConnection cancel under iOS 5
             //       not waking up the runloop, leading to dead threads (see https://github.com/rs/SDWebImage/issues/466)
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, false);
+            SInt32 runLoopResult = CFRunLoopRunInMode(kCFRunLoopDefaultMode, self.request.timeoutInterval + 1 , false);
+
+            DebugLogEvent(([NSString stringWithFormat:@" -start.afterCFRunLoopRunInMode (%d)", runLoopResult]));
+//          Possible return values:
+//            kCFRunLoopRunFinished = 1,
+//            kCFRunLoopRunStopped = 2,
+//            kCFRunLoopRunTimedOut = 3,
+//            kCFRunLoopRunHandledSource = 4
+            if (runLoopResult == kCFRunLoopRunTimedOut) {
+                DebugLogEvent(@" -start.timedOut");
+                [self.connection cancel];
+                [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
+            }
+            else if (self.isCancelled) {
+                DebugLogEvent(@" -start.cancelled");
+                [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
+            }
+            // self.completedBlock has been already called with downloaded image or from didFailWithError
+            assert(self.completedBlock == nil);
         }
         else {
-            CFRunLoopRun();
+            if (self.completedBlock) {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+                self.completedBlock = nil;
+            }
         }
-
-        if (!self.isFinished) {
-            [self.connection cancel];
-            [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@{NSURLErrorFailingURLErrorKey : self.request.URL}]];
-        }
-    }
-    else {
-        if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
-        }
-    }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-    }
+        if (backgroundTaskId != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId];
+            backgroundTaskId = UIBackgroundTaskInvalid;
+        }
 #endif
+
+       // synchronize with cancel call
+       @synchronized(self) {
+           DebugLogEvent(@" -start.done");
+           [self done];
+       } // @synchronized end
+
+    }// @autoreleasepool
+    DebugLogEvent(@"< start");
 }
 
 - (void)cancel {
-    @synchronized (self) {
+    DebugLogEvent(@"> cancel");
+    // synchronize with start
+    @synchronized(self) {
+        if (self.isCancelled || self.isFinished) {
+            DebugLogEvent(@"< cancel.itsTooLate");
+            return; // cancel only once
+        }
+        DebugLogEvent(@" -cancel.winner");
         if (self.thread) {
             [self performSelector:@selector(cancelInternalAndStop) onThread:self.thread withObject:nil waitUntilDone:NO];
         }
@@ -137,59 +198,75 @@
             [self cancelInternal];
         }
     }
+    DebugLogEvent(@"< cancel");
 }
 
 - (void)cancelInternalAndStop {
-    if (self.isFinished) return;
-    [self cancelInternal];
-    CFRunLoopStop(CFRunLoopGetCurrent());
+    DebugLogEvent(@"> cancelInternalAndStop");
+    // runs on operation's thread
+    if ([self cancelInternal]) {
+        DebugLogEvent(@" -cancelInternalAndStop.didCancel");
+        CFRunLoopStop(CFRunLoopGetCurrent());
+    }
+    DebugLogEvent(@"< cancelInternalAndStop");
 }
 
-- (void)cancelInternal {
-    if (self.isFinished) return;
+- (BOOL)cancelInternal {
+    DebugLogEvent(@"> cancelInternal");
+    if (self.isFinished || self.isCancelled)
+        return NO;// operation is finished, another regular op. may be already started on this thread(we are reusing threads), !!! DON'T call CFRunLoopStop !!!.
+    DebugLogEvent(@" -cancelInternal.winner");
+    // signal that it's cancelled
     [super cancel];
-    if (self.cancelBlock) self.cancelBlock();
-
-    if (self.connection) {
-        [self.connection cancel];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-        });
-
-        // As we cancelled the connection, its callback won't be called and thus won't
-        // maintain the isFinished and isExecuting flags.
-        if (self.isExecuting) self.executing = NO;
-        if (!self.isFinished) self.finished = YES;
-    }
-
-    [self reset];
+    // cancel the URL connection
+    [self.connection cancel];
+    // don't set self.finished = YES because, we haven't done yet
+    DebugLogEvent(@"< cancelInternal");
+    return YES;
 }
 
 - (void)done {
+    DebugLogEvent(@"> done");
+    // send download stop notification if download start notification was sent
+    if (self.connection) {
+        DebugLogEvent(@" -done.SDWebImageDownloadStopNotification");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+        });
+    }
+    
     self.finished = YES;
     self.executing = NO;
     [self reset];
+    DebugLogEvent(@"< done");
 }
 
 - (void)reset {
-    self.cancelBlock = nil;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connection = nil;
-    self.imageData = nil;
-    self.thread = nil;
+    _completedBlock = nil;
+    _progressBlock = nil;
+    _connection = nil;
+    _imageData = nil;
+    _thread = nil;
 }
 
 - (void)setFinished:(BOOL)finished {
-    [self willChangeValueForKey:@"isFinished"];
-    _finished = finished;
-    [self didChangeValueForKey:@"isFinished"];
+    if (_finished != finished) {
+        DebugLogEvent(@"> setFinished");
+        [self willChangeValueForKey:@"isFinished"];
+        _finished = finished;
+        [self didChangeValueForKey:@"isFinished"];
+        DebugLogEvent(@"< setFinished");
+    }
 }
 
 - (void)setExecuting:(BOOL)executing {
-    [self willChangeValueForKey:@"isExecuting"];
-    _executing = executing;
-    [self didChangeValueForKey:@"isExecuting"];
+    if (_executing != executing) {
+        DebugLogEvent(@"> setExecuting");
+        [self willChangeValueForKey:@"isExecuting"];
+        _executing = executing;
+        [self didChangeValueForKey:@"isExecuting"];
+        DebugLogEvent(@"< setExecuting");
+    }
 }
 
 - (BOOL)isConcurrent {
@@ -199,43 +276,54 @@
 #pragma mark NSURLConnection (delegate)
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    
+    DebugLogEvent(@"> didReceiveResponse");
+    // do finish immediately if operation has been cancelled (connection has been already cancelled too)
+    if (self.isCancelled) {
+        DebugLogEvent(@"< didReceiveResponse.cancelled");
+        return;
+    }
+
     //'304 Not Modified' is an exceptional one
     if ((![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400) && [((NSHTTPURLResponse *)response) statusCode] != 304) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
-        self.expectedSize = expected;
+        expectedSize = expected;
         if (self.progressBlock) {
             self.progressBlock(0, expected);
         }
-
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
     }
     else {
         NSUInteger code = [((NSHTTPURLResponse *)response) statusCode];
-        
+
         //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
         //In case of 304 we need just cancel the operation and return cached image from the cache.
         if (code == 304) {
-            [self cancelInternal];
+            DebugLogEvent(@" -didReceiveResponse.304");
+            [self cancelInternal]; // [self cancel]; [self.connection cancel];
         } else {
+            DebugLogEvent(@" -didReceiveResponse.error");
             [self.connection cancel];
+            if (self.completedBlock) {
+                self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+                self.completedBlock = nil;
+            }
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-        });
 
-        if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
-        }
         CFRunLoopStop(CFRunLoopGetCurrent());
-        [self done];
     }
+    DebugLogEvent(@"< didReceiveResponse");
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    // do finish immediately if operation has been cancelled (connection has been already cancelled too)
+    if (self.isCancelled) {
+        DebugLogEvent(@"< didReceiveData.cancelled");
+        return;
+    }
+
     [self.imageData appendData:data];
 
-    if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock) {
+    if ((self.options & SDWebImageDownloaderProgressiveDownload) && expectedSize > 0 && self.completedBlock) {
         // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
         // Thanks to the author @Nyx0uf
 
@@ -266,7 +354,7 @@
 
         }
 
-        if (width + height > 0 && totalSize < self.expectedSize) {
+        if (width + height > 0 && totalSize < expectedSize) {
             // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
 
@@ -291,16 +379,20 @@
 #endif
 
             if (partialImageRef) {
-                UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                UIImage *scaledImage = [self scaledImageForKey:key image:image];
-                image = [UIImage decodedImageWithImage:scaledImage];
-                CGImageRelease(partialImageRef);
-                dispatch_main_sync_safe(^{
-                    if (self.completedBlock) {
-                        self.completedBlock(image, nil, nil, NO);
-                    }
-                });
+                @autoreleasepool {
+                    __block UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
+                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                    UIImage *scaledImage = SDScaledImageForKey(key, image);
+                    image = [UIImage decodedImageWithImage:scaledImage];
+                    CGImageRelease(partialImageRef);
+                    __weak __typeof(self) weakSelf = self;
+                    dispatch_sync(dispatch_get_main_queue(),^{
+                        __strong __typeof(self) strongSelf = weakSelf;
+                        if (strongSelf.completedBlock) {
+                            strongSelf.completedBlock(image, nil, nil, NO);
+                        }
+                    });
+                }
             }
         }
 
@@ -308,7 +400,7 @@
     }
 
     if (self.progressBlock) {
-        self.progressBlock(self.imageData.length, self.expectedSize);
+        self.progressBlock(self.imageData.length, expectedSize);
     }
 }
 
@@ -335,65 +427,64 @@
     }
 }
 
-- (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image {
-    return SDScaledImageForKey(key, image);
-}
-
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
-    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-    @synchronized(self) {
-        CFRunLoopStop(CFRunLoopGetCurrent());
-        self.thread = nil;
-        self.connection = nil;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-        });
+    DebugLogEvent(@"> connectionDidFinishLoading");
+    // do finish immediately if operation has been cancelled (connection has been already cancelled too)
+    if (self.isCancelled) {
+        DebugLogEvent(@"< connectionDidFinishLoading.cancelled");
+        return;
     }
     
-    if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
+    // operation is almost done(we don't need to handle cancel anymore)
+    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+    self.completedBlock = nil;// to prevent to be called later again. For example: cancel called after this point, before we exit from run loop(from 'start' method).
+    
+    if (![[NSURLCache sharedURLCache] cachedResponseForRequest:self.request]) {
         responseFromCached = NO;
     }
-    
+
     if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
         }
         else {
-            UIImage *image = [UIImage sd_imageWithData:self.imageData];
-            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-            image = [self scaledImageForKey:key image:image];
-            
-            // Do not force decoding animated GIFs
-            if (!image.images) {
-                image = [UIImage decodedImageWithImage:image];
-            }
-            if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
-            }
-            else {
-                completionBlock(image, self.imageData, nil, YES);
+            @autoreleasepool {
+                UIImage *image = [UIImage sd_imageWithData:self.imageData];
+                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                image = SDScaledImageForKey(key, image);
+
+                // Do not force decoding animated GIFs
+                if (!image.images) {
+                    image = [UIImage decodedImageWithImage:image];
+                }
+                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                    completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                }
+                else {
+                    completionBlock(image, self.imageData, nil, YES);
+                }
             }
         }
     }
-    self.completionBlock = nil;
-    [self done];
+
+    CFRunLoopStop(CFRunLoopGetCurrent());
+    DebugLogEvent(@"< connectionDidFinishLoading");
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    @synchronized(self) {
-        CFRunLoopStop(CFRunLoopGetCurrent());
-        self.thread = nil;
-        self.connection = nil;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
-        });
+    DebugLogEvent(@"> didFailWithError");
+    // we do not neet to hold lock here, because this method can be called only from operation's thread
+    if (self.completedBlock) {
+        DebugLogEvent(@" -didFailWithError.completedBlock");
+        self.completedBlock(nil, nil, error, YES);
+        self.completedBlock = nil;// to prevent to be called later again. For example: cancel called after error, before we exit from run loop(from 'start' method).
+    }
+    else {
+        DebugLogEvent(@" -didFailWithError.noCompletedBlock");
     }
 
-    if (self.completedBlock) {
-        self.completedBlock(nil, nil, error, YES);
-    }
-    self.completionBlock = nil;
-    [self done];
+    CFRunLoopStop(CFRunLoopGetCurrent());
+    DebugLogEvent(@"< didFailWithError");
 }
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse {
