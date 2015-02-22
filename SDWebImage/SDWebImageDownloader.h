@@ -69,10 +69,18 @@ extern NSString *const SDWebImageDownloadStartNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize);
-
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
 
 typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDictionary *headers);
+
+@class SDWebImageDownloaderOperation;
+@protocol SDWebImageDownloaderObserver <NSObject>
+
+@required
+- (void)progress:(SDWebImageDownloaderOperation *)downloadOperation receivedSize:(NSUInteger)receivedSize expectedSize:(NSUInteger)expectedSize;
+- (void)completed:(SDWebImageDownloaderOperation *)downloadOperation image:(UIImage *)image data:(NSData *)data error:(NSError *)error finished:(BOOL)finished;
+
+@end
 
 /**
  * Asynchronous downloader dedicated and optimized for image loading.
@@ -170,10 +178,9 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  *
  * @return A cancellable SDWebImageOperation
  */
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
-                                         options:(SDWebImageDownloaderOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (void)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options observer:(id<SDWebImageDownloaderObserver>)observer;
+
+- (void)cancelDownloadImageWithURL:(NSURL *)url forObserver:(id<SDWebImageDownloaderObserver>)observer;
 
 /**
  * Sets the download queue suspension state

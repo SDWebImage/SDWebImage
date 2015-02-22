@@ -10,6 +10,8 @@
 
 @protocol SDWebImageOperation <NSObject>
 
+@required
+
 - (void)cancel;
 
 @end

@@ -9,10 +9,13 @@
 #import "SDWebImageManager.h"
 #import <objc/message.h>
 
-@interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
+@interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation, SDWebImageDownloaderObserver>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
 @property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
+@property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
+@property (copy, nonatomic) SDWebImageCompletionWithFinishedBlock completedBlock;
+@property (copy, nonatomic) NSURL *url;
 @property (strong, nonatomic) NSOperation *cacheOperation;
 
 @end
@@ -146,9 +149,8 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    __block id<SDWebImageOperation> subOperation = nil;
     operation.cancelBlock = ^{
-        [subOperation cancel];
+        [self.imageDownloader cancelDownloadImageWithURL:url forObserver:weakOperation];
         
         @synchronized (self.runningOperations) {
             [self.runningOperations removeObject:weakOperation];
@@ -188,77 +190,8 @@
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             
-            subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions
-                progress:^(NSInteger receivedSize, NSInteger expectedSize){
-                    // it's called from background thread!
-                    dispatch_main_sync_safe(^{
-                        if (progressBlock) {
-                            progressBlock(receivedSize, expectedSize);
-                        }
-                    });
-                }
-                completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
-                    if (weakOperation.isCancelled) {
-                        // Do nothing if the operation was cancelled
-                        // See #699 for more details
-                        // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
-                    }
-                    else if (error) {
-                        dispatch_main_sync_safe(^{
-                            if (!weakOperation.isCancelled) {
-                                completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
-                            }
-                        });
-
-                        if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
-                            @synchronized (self.failedURLs) {
-                                if (![self.failedURLs containsObject:url]) {
-                                    [self.failedURLs addObject:url];
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
-
-                        if (options & SDWebImageRefreshCached && image && !downloadedImage) {
-                            // Image refresh hit the NSURLCache cache, do not call the completion block
-                        }
-                        else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
-                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
-
-                                if (transformedImage && finished) {
-                                    BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                                    [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
-                                }
-
-                                dispatch_main_sync_safe(^{
-                                    if (!weakOperation.isCancelled) {
-                                        completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
-                                    }
-                                });
-                            });
-                        }
-                        else {
-                            if (downloadedImage && finished) {
-                                [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
-                            }
-
-                            dispatch_main_sync_safe(^{
-                                if (!weakOperation.isCancelled) {
-                                    completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
-                                }
-                            });
-                        }
-                    }
-
-                    if (finished) {
-                        @synchronized (self.runningOperations) {
-                            [self.runningOperations removeObject:operation];
-                        }
-                    }
-                }];
+            // start the download operation or add a new observer if download has already been started
+            [self.imageDownloader downloadImageWithURL:url options:downloaderOptions observer:operation];
         }
         else if (image) {
             dispatch_main_sync_safe(^{
@@ -346,6 +279,93 @@
     if (cancelBlock)
         cancelBlock();
     // no acces to self now, because it may be deleted
+}
+
+- (void)progress:(SDWebImageDownloaderOperation *)downloadOperation receivedSize:(NSUInteger)receivedSize expectedSize:(NSUInteger)expectedSize
+{
+    // it's called from background thread!
+    __weak typeof(self) weakSelf = self;
+    dispatch_main_sync_safe(^{
+        __weak typeof(self) strongSelf = weakSelf;
+        if (strongSelf.progressBlock) {
+            strongSelf.progressBlock(receivedSize, expectedSize);
+        }
+    });
+}
+
+- (void)completed:(SDWebImageDownloaderOperation *)downloadOperation image:(UIImage *)image data:(NSData *)data error:(NSError *)error finished:(BOOL)finished
+{
+    // it's called from background thread!
+    
+    __weak SDWebImageCombinedOperation *weakOperation = self;
+    if (weakOperation.isCancelled) {
+        // Do nothing if the operation was cancelled
+        // See #699 for more details
+        // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
+    }
+    else if (error) {
+        dispatch_main_sync_safe(^{
+            if (!weakOperation.isCancelled) {
+                weakOperation.completedBlock(nil, error, SDImageCacheTypeNone, finished, weakOperation.url);
+            }
+        });
+        
+        if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
+            //            @synchronized (self.failedURLs) {
+            //                if (![self.failedURLs containsObject:url]) {
+            //                    [self.failedURLs addObject:url];
+            //                }
+            //            }
+        }
+    }
+    else {
+        /*BOOL cacheOnDisk = !(weakOperation.options & SDWebImageCacheMemoryOnly);
+        
+        if (weakOperation.options & SDWebImageRefreshCached && image && !downloadedImage) {
+            // Image refresh hit the NSURLCache cache, do not call the completion block
+        }
+        else if (downloadedImage && (!downloadedImage.images || (weakOperation.options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+                
+                if (transformedImage && finished) {
+                    BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                    [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
+                }
+                
+                dispatch_main_sync_safe(^{
+                    if (!weakOperation.isCancelled) {
+                        completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                    }
+                });
+            });
+        }
+        else {
+            if (downloadedImage && finished) {
+                [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+            }
+            
+            dispatch_main_sync_safe(^{
+                if (!weakOperation.isCancelled) {
+                    completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                }
+            });
+        }*/
+    }
+    
+//    if (finished) {
+//        @synchronized (self.runningOperations) {
+//            [self.runningOperations removeObject:operation];
+//        }
+//    }
+    
+    __weak typeof(self) weakSelf = self;
+    dispatch_main_sync_safe(^{
+        __weak typeof(self) strongSelf = weakSelf;
+        if (strongSelf.completedBlock) {
+            strongSelf.completedBlock(image, error, SDImageCacheTypeNone, finished, strongSelf.url);
+        }
+    });
 }
 
 @end
