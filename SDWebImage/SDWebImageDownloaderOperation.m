@@ -294,7 +294,9 @@
                 UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 UIImage *scaledImage = [self scaledImageForKey:key image:image];
-                image = [UIImage decodedImageWithImage:scaledImage];
+                CGSize maxSize = [SDWebImageManager sharedManager].imageCache.maxImageSize;
+                image = [UIImage decodedImageWithImage:scaledImage
+                                               maxSize:maxSize];
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
                     if (self.completedBlock) {
@@ -365,7 +367,9 @@
             
             // Do not force decoding animated GIFs
             if (!image.images) {
-                image = [UIImage decodedImageWithImage:image];
+                CGSize maxSize = [SDWebImageManager sharedManager].imageCache.maxImageSize;
+                image = [UIImage decodedImageWithImage:image
+                                               maxSize:maxSize];
             }
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {
                 completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);

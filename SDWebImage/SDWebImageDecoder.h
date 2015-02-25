@@ -15,4 +15,7 @@
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image;
 
++ (UIImage *)decodedImageWithImage:(UIImage *)image
+                           maxSize:(CGSize)maxSize;
+
 @end

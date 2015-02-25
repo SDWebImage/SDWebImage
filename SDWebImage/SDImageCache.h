@@ -52,6 +52,12 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
 /**
+ * The maximum size of decoded images. CGSizeZero indicates no maximum and is the default value.
+ */
+@property (assign, nonatomic) CGSize maxImageSize;
+
+
+/**
  * Returns global shared cache instance
  *
  * @return SDImageCache global instance
