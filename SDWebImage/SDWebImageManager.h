@@ -132,7 +132,7 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  * @code
 
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
-[manager downloadWithURL:imageURL
+[manager downloadImageWithURL:imageURL
                  options:0
                 progress:nil
                completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
