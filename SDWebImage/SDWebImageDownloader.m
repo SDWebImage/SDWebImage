@@ -28,6 +28,34 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 
 @end
 
+// logs debug helper
+#define LOG_DOWNLOAD_OPERATIONS
+#if defined(NDEBUG) || !defined(LOG_DOWNLOAD_OPERATIONS)
+
+#define DebugLogEvent(str) do { } while (0)
+
+#else
+
+#define DebugLogEvent(str) do { [self debugLogEvent:str]; } while (0)
+
+@implementation SDWebImageDownloader (Debugging)
+
+- (void)debugLogEvent:(NSString *)event
+// Called by the implementation to log events.
+{
+    assert(event != nil);
+
+    // Synchronisation is necessary because multiple threads might be adding
+    // events concurrently.
+    @synchronized (self) {
+        NSLog(@"%@: %@", self, event);
+    }
+}
+
+@end
+
+#endif // debugging helper
+
 @implementation SDWebImageDownloader
 
 + (void)initialize {
@@ -113,6 +141,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 - (void)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options observer:(id<SDWebImageDownloaderObserver>)observer {
     __weak SDWebImageDownloader *wself = self;
 
+    DebugLogEvent(([NSString stringWithFormat:@"> downloadImageWithURL = %@", [url path]]));
     [self addObserver:observer forURL:url createCallback:^(){
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
         if (timeoutInterval == 0.0) {
@@ -137,9 +166,12 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                 if (!sself) return;
                 NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:NO];// makes a copy using a barrier
                 NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
+                SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
+                //DebugLogEvent(([NSString stringWithFormat:@" -downloadImageWithURL = %@", [url path]]));
                 for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                    //DebugLogEvent(([NSString stringWithFormat:@" -downloadImageWithURL = %@ notify", [url path]]));
                     if ([observer respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
-                        [observer progress:sself.URLOperations[url][kDownloadOperationKey] receivedSize:receivedSize expectedSize:expectedSize];
+                        [observer progress:operation receivedSize:receivedSize expectedSize:expectedSize];
                     }
                 }
             }
@@ -149,7 +181,9 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                 NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:finished];// makes a copy using a barrier and remove if needed
                 NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
                 SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
+                //DebugLogEvent((@" -downloadImageWithURL end = %@", url));
                 for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                    //DebugLogEvent((@" -downloadImageWithURL end = %@ notify", url));
                     if ([observer respondsToSelector:@selector(completed:image:data:error:finished:)]) {
                         [observer completed:operation image:image data:data error:error finished:finished];
                     }
@@ -177,6 +211,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
         [wself.downloadQueue addOperation:operation];
     }];
 
+    DebugLogEvent(([NSString stringWithFormat:@"< downloadImageWithURL = %@", [url path]]));
     return;
 }
 
@@ -190,6 +225,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
     }
 
     dispatch_barrier_sync(self.barrierQueue, ^{
+        DebugLogEvent(([NSString stringWithFormat:@"> addObserver for url = %@", [url path]]));
         BOOL created = NO;
         if (!self.URLOperations[url]) {
             self.URLOperations[url] = [NSMutableDictionary new];
@@ -198,24 +234,30 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 
         // Handle single download of simultaneous download request for the same URL
         NSMutableDictionary *operationForURL = self.URLOperations[url];
-        operationForURL[kDownloadObserversKey] = [[NSHashTable alloc] initWithOptions:NSHashTableWeakMemory capacity:1];
+        if (!operationForURL[kDownloadObserversKey]) {
+            operationForURL[kDownloadObserversKey] = [[NSHashTable alloc] initWithOptions:NSHashTableWeakMemory capacity:1];
+        }
+        [operationForURL[kDownloadObserversKey] addObject:observer];
         
         if (created) {
+            DebugLogEvent(([NSString stringWithFormat:@" -addObserver (first) for url = %@", [url path]]));
             //operationForURL[kDownloadOperationKey] = nil; // not known yet
             createCallback();
         }
-        
+        DebugLogEvent(([NSString stringWithFormat:@"< addObserver for url = %@", [url path]]));
     });
 }
 
 - (void)cancelDownloadImageWithURL:(NSURL *)url forObserver:(id<SDWebImageDownloaderObserver>)observer
 {
     dispatch_barrier_async(self.barrierQueue, ^{
+        DebugLogEvent(([NSString stringWithFormat:@"> cancelDownloadImageWithURL = %@", [url path]]));
         NSDictionary *operationForURL = self.URLOperations[url];
         if ([operationForURL[kDownloadObserversKey] count] == 1 && [operationForURL[kDownloadObserversKey] containsObject:observer]) {
             // no more observers, cancel download operation
             __block SDWebImageDownloaderOperation* op = operationForURL[kDownloadOperationKey];
             // remove from operations
+            DebugLogEvent(([NSString stringWithFormat:@" -cancelDownloadImageWithURL = %@, removing", [url path]]));
             [self.URLOperations removeObjectForKey:url];
             // cancel it
             [op cancel];
@@ -227,18 +269,27 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
             });
         }
         else {
+            DebugLogEvent(([NSString stringWithFormat:@" -cancelDownloadImageWithURL = %@", [url path]]));
             [operationForURL[kDownloadObserversKey] removeObject:observer];
         }
+        DebugLogEvent(([NSString stringWithFormat:@"< cancelDownloadImageWithURL = %@", [url path]]));
     });
 }
 
 - (NSDictionary *)copyOperationForURL:(NSURL *)url removeItFromOperations:(BOOL)remove {
-    __block NSDictionary *operationForURL = nil;
+    __block NSMutableDictionary *operationForURL = nil;
     dispatch_sync(self.barrierQueue, ^{
-        operationForURL = [self.URLOperations[url] copy];
-        if (remove) {
-            [self.URLOperations removeObjectForKey:url];
+        DebugLogEvent(([NSString stringWithFormat:@"> copyOperationForURL = %@", [url path]]));
+        if (self.URLOperations[url]) {
+            operationForURL = [NSMutableDictionary new];
+            operationForURL[kDownloadObserversKey] = [self.URLOperations[url][kDownloadObserversKey] copy];
+            operationForURL[kDownloadOperationKey] = self.URLOperations[url][kDownloadOperationKey];
+            if (remove) {
+                DebugLogEvent(([NSString stringWithFormat:@" -copyOperationForURL = %@, removing", [url path]]));
+                [self.URLOperations removeObjectForKey:url];
+            }
         }
+        DebugLogEvent(([NSString stringWithFormat:@"< copyOperationForURL = %@", [url path]]));
     });
     return operationForURL;
 }

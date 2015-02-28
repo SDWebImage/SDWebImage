@@ -149,6 +149,7 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
+    operation.completedBlock = [completedBlock copy];
     operation.cancelBlock = ^{
         [self.imageDownloader cancelDownloadImageWithURL:url forObserver:weakOperation];
         
@@ -305,8 +306,9 @@
     }
     else if (error) {
         dispatch_main_sync_safe(^{
-            if (!weakOperation.isCancelled) {
-                weakOperation.completedBlock(nil, error, SDImageCacheTypeNone, finished, weakOperation.url);
+            __strong SDWebImageCombinedOperation *strongOperation = weakOperation;
+            if (strongOperation && !strongOperation.isCancelled && strongOperation.completedBlock) {
+                strongOperation.completedBlock(nil, error, SDImageCacheTypeNone, finished, strongOperation.url);
             }
         });
         
