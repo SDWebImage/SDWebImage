@@ -65,6 +65,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (id)init {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
+        _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
@@ -137,7 +138,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                              if (!sself) return;
                                                              __block NSArray *callbacksForURL;
                                                              dispatch_sync(sself.barrierQueue, ^{
-                                                                 callbacksForURL = sself.URLCallbacks[url];
+                                                                 callbacksForURL = [sself.URLCallbacks[url] copy];
                                                              });
                                                              for (NSDictionary *callbacks in callbacksForURL) {
                                                                  SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
@@ -149,7 +150,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                             if (!sself) return;
                                                             __block NSArray *callbacksForURL;
                                                             dispatch_barrier_sync(sself.barrierQueue, ^{
-                                                                callbacksForURL = sself.URLCallbacks[url];
+                                                                callbacksForURL = [sself.URLCallbacks[url] copy];
                                                                 if (finished) {
                                                                     [sself.URLCallbacks removeObjectForKey:url];
                                                                 }
@@ -159,6 +160,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                 if (callback) callback(image, data, error, finished);
                                                             }
                                                         }];
+        operation.shouldDecompressImages = wself.shouldDecompressImages;
         
         if (wself.username && wself.password) {
             operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];

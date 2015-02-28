@@ -19,6 +19,9 @@
 */
 @property (copy, atomic, readonly) NSURLRequest *request;
 
+
+@property (assign, nonatomic) BOOL shouldDecompressImages;
+
 /**
  * Whether the URL connection should consult the credential storage for authenticating the connection. `YES` by default.
  *
