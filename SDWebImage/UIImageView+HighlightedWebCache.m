@@ -33,7 +33,7 @@
     [self sd_cancelCurrentHighlightedImageLoad];
 
     if (url) {
-        __weak UIImageView      *wself    = self;
+        __weak __typeof(self)wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe (^

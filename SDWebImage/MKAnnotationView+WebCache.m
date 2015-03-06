@@ -45,7 +45,7 @@ static char imageURLKey;
     self.image = placeholder;
 
     if (url) {
-        __weak MKAnnotationView *wself = self;
+        __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
