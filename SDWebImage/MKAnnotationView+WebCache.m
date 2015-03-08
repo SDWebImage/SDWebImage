@@ -42,7 +42,11 @@ static char imageURLKey;
     [self sd_cancelCurrentImageLoad];
 
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    self.image = placeholder;
+    if (!(options & SDWebImageDelayPlaceholder)) {
+        dispatch_main_async_safe(^{
+            self.image = placeholder;
+        });
+    }
 
     if (url) {
         __weak MKAnnotationView *wself = self;
@@ -53,6 +57,9 @@ static char imageURLKey;
                 if (!sself) return;
                 if (image) {
                     sself.image = image;
+                }
+                else if (error != nil && finished) {
+                    objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType, url);

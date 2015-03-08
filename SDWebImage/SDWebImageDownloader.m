@@ -99,7 +99,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
         _URLOperations = [NSMutableDictionary new];
         _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/webp,image/*;q=0.8" forKey:@"Accept"];
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
-        _downloadTimeout = 15.0;
+        _downloadTimeout = 30.0;
     }
     return self;
 }
@@ -145,7 +145,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
     [self addObserver:observer forURL:url createCallback:^(){
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
         if (timeoutInterval == 0.0) {
-            timeoutInterval = 15.0;
+            timeoutInterval = 30.0;
         }
 
         // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
@@ -279,7 +279,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 - (NSDictionary *)copyOperationForURL:(NSURL *)url removeItFromOperations:(BOOL)remove {
     __block NSMutableDictionary *operationForURL = nil;
     dispatch_sync(self.barrierQueue, ^{
-        DebugLogEvent(([NSString stringWithFormat:@"> copyOperationForURL = %@", [url path]]));
+//        DebugLogEvent(([NSString stringWithFormat:@"> copyOperationForURL = %@", [url path]]));
         if (self.URLOperations[url]) {
             operationForURL = [NSMutableDictionary new];
             operationForURL[kDownloadObserversKey] = [self.URLOperations[url][kDownloadObserversKey] copy];
@@ -289,7 +289,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                 [self.URLOperations removeObjectForKey:url];
             }
         }
-        DebugLogEvent(([NSString stringWithFormat:@"< copyOperationForURL = %@", [url path]]));
+//        DebugLogEvent(([NSString stringWithFormat:@"< copyOperationForURL = %@", [url path]]));
     });
     return operationForURL;
 }

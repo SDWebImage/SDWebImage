@@ -53,14 +53,20 @@ static char imageURLKey;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
-                if (!wself) return;
+                __strong UIImageView *sself = wself;
+                if (!sself) return;
                 if (image) {
-                    wself.image = image;
-                    [wself setNeedsLayout];
-                } else {
+                    sself.image = image;
+                    [sself setNeedsLayout];
+                }
+                else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
+                    objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                    NSLog(@"self: %@ url <- nil", sself);
+                }
+                else {
                     if ((options & SDWebImageDelayPlaceholder)) {
-                        wself.image = placeholder;
-                        [wself setNeedsLayout];
+                        sself.image = placeholder;
+                        [sself setNeedsLayout];
                     }
                 }
                 if (completedBlock && finished) {
@@ -97,7 +103,7 @@ static char imageURLKey;
     NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
 
     for (NSURL *logoImageURL in arrayOfURLs) {
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        __block id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong UIImageView *sself = wself;
