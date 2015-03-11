@@ -107,6 +107,12 @@
 		5D5B9145188EE8DD006D06BD /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */; };
 		5D5B9146188EE8DD006D06BD /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */; };
 		5D5B9147188EE8DD006D06BD /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */; };
+		8722485B1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 872248591AAFCC7A00E9FA95 /* UIImage+ADColorImage.h */; };
+		8722485C1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 872248591AAFCC7A00E9FA95 /* UIImage+ADColorImage.h */; };
+		8722485D1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 872248591AAFCC7A00E9FA95 /* UIImage+ADColorImage.h */; };
+		8722485E1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8722485A1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m */; };
+		8722485F1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8722485A1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m */; };
+		872248601AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 8722485A1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m */; };
 		A18A6CC7172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC8172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC9172DC28500419892 /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CC6172DC28500419892 /* UIImage+GIF.m */; };
@@ -246,6 +252,8 @@
 		53FB894814D35E9E0020B787 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5D5B9140188EE8DD006D06BD /* NSData+ImageContentType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ImageContentType.h"; sourceTree = "<group>"; };
 		5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ImageContentType.m"; sourceTree = "<group>"; };
+		872248591AAFCC7A00E9FA95 /* UIImage+ADColorImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ADColorImage.h"; sourceTree = "<group>"; };
+		8722485A1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ADColorImage.m"; sourceTree = "<group>"; };
 		A18A6CC5172DC28500419892 /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
 		A18A6CC6172DC28500419892 /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
 		AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+WebCacheOperation.h"; sourceTree = "<group>"; };
@@ -412,6 +420,8 @@
 		53922DA9148C562D0056699D /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				872248591AAFCC7A00E9FA95 /* UIImage+ADColorImage.h */,
+				8722485A1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m */,
 				535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */,
 				535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */,
 				5D5B9140188EE8DD006D06BD /* NSData+ImageContentType.h */,
@@ -599,6 +609,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				531041D1157EAFA400BBABC3 /* SDImageCache.h in Headers */,
+				8722485D1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */,
 				531041D3157EAFA400BBABC3 /* SDWebImageCompat.h in Headers */,
 				531041D4157EAFA400BBABC3 /* SDWebImageDecoder.h in Headers */,
 				531041D5157EAFA400BBABC3 /* SDWebImageDownloader.h in Headers */,
@@ -637,6 +648,7 @@
 				AB615303192DA24600A2D8E9 /* UIView+WebCacheOperation.h in Headers */,
 				A18A6CC7172DC28500419892 /* UIImage+GIF.h in Headers */,
 				53EDFB8A17623F7C00698166 /* UIImage+MultiFormat.h in Headers */,
+				8722485B1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -675,6 +687,7 @@
 				DA577D361998E60B007367ED /* bit_reader_inl.h in Headers */,
 				DA577D491998E60B007367ED /* rescaler.h in Headers */,
 				DA577D161998E60B007367ED /* yuv_tables_sse2.h in Headers */,
+				8722485C1AAFCC7A00E9FA95 /* UIImage+ADColorImage.h in Headers */,
 				DA577D4E1998E60B007367ED /* decode.h in Headers */,
 				ABBE71A918C43B5800B75E91 /* UIImageView+HighlightedWebCache.h in Headers */,
 				AB615304192DA24600A2D8E9 /* UIView+WebCacheOperation.h in Headers */,
@@ -843,6 +856,7 @@
 				53EDFB961762547D00698166 /* UIImage+WebP.m in Sources */,
 				AB615308192DA24600A2D8E9 /* UIView+WebCacheOperation.m in Sources */,
 				ABBE71AC18C43B6000B75E91 /* UIImageView+HighlightedWebCache.m in Sources */,
+				872248601AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */,
 				DAFAA6C219485CAA00581B9E /* SDWebImageCompat.m in Sources */,
 				5D5B9147188EE8DD006D06BD /* NSData+ImageContentType.m in Sources */,
 			);
@@ -866,6 +880,7 @@
 				5D5B9145188EE8DD006D06BD /* NSData+ImageContentType.m in Sources */,
 				53EDFB8C17623F7C00698166 /* UIImage+MultiFormat.m in Sources */,
 				ABBE71A818C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m in Sources */,
+				8722485E1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -875,6 +890,7 @@
 			files = (
 				DA577D101998E60B007367ED /* upsampling_neon.c in Sources */,
 				DA577D151998E60B007367ED /* yuv_sse2.c in Sources */,
+				8722485F1AAFCC7A00E9FA95 /* UIImage+ADColorImage.m in Sources */,
 				DA577D111998E60B007367ED /* upsampling_sse2.c in Sources */,
 				DA577D4C1998E60B007367ED /* utils.c in Sources */,
 				DA577D6D1998E6B2007367ED /* buffer.c in Sources */,
