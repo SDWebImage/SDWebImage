@@ -61,6 +61,7 @@ static char imageURLKey;
                 }
                 else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
                     objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                    [self sd_removeImageLoadOperationWithKey:@"UIImageViewImageLoad"];
                     NSLog(@"self: %@ url <- nil", sself);
                 }
                 else {
@@ -69,7 +70,11 @@ static char imageURLKey;
                         [sself setNeedsLayout];
                     }
                 }
-                if (completedBlock && finished) {
+                // Do nothing if the operation was cancelled
+                // See #699 for more details
+                // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
+                // so if this one is called second, we will overwrite the new data
+                if (completedBlock && finished && !(error && error.code == NSURLErrorCancelled)) {
                     completedBlock(image, error, cacheType, url);
                 }
             });
