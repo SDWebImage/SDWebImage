@@ -366,7 +366,7 @@
         }
         else {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
-            //make image's data change when it been zoomed
+            //change image's data when it been zoomed
             NSData *data = UIImageJPEGRepresentation(image, 1);
             self.imageData = [NSMutableData dataWithData:data];
             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
