@@ -168,9 +168,15 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                                                                                             NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:NO];// makes a copy using a barrier
                                                                                             NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
                                                                                             SDWebImageDownloaderOperation *op = operationForURL[kDownloadOperationKey];
+<<<<<<< HEAD
                                                                                             for (id<SDWebImageDownloaderObserver> urlObserver in observersForURL) {
                                                                                                 if ([urlObserver respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
                                                                                                     [urlObserver progress:op receivedSize:receivedSize expectedSize:expectedSize];
+=======
+                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                                                                                                if ([observer respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
+                                                                                                    [observer progress:op receivedSize:receivedSize expectedSize:expectedSize];
+>>>>>>> 3fc30c213a901ef1506017f85156a4a9c3b18903
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -180,9 +186,15 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                                                                                             NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:finished];// makes a copy using a barrier and remove if needed
                                                                                             NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
                                                                                             SDWebImageDownloaderOperation *op = operationForURL[kDownloadOperationKey];
+<<<<<<< HEAD
                                                                                             for (id<SDWebImageDownloaderObserver> urlObserver in observersForURL) {
                                                                                                 if ([urlObserver respondsToSelector:@selector(completed:image:data:error:finished:)]) {
                                                                                                     [urlObserver completed:op image:image data:data error:error finished:finished];
+=======
+                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                                                                                                if ([observer respondsToSelector:@selector(completed:image:data:error:finished:)]) {
+                                                                                                    [observer completed:op image:image data:data error:error finished:finished];
+>>>>>>> 3fc30c213a901ef1506017f85156a4a9c3b18903
                                                                                                 }
                                                                                             }
                                                                                        }];
