@@ -56,14 +56,11 @@ static char imageURLKey;
                 __strong UIImageView *sself = wself;
                 if (!sself) return;
                 if (image) {
-//                    NSLog(@"url: %@ image: %@", url, image);
-                    assert([[url absoluteString] isEqualToString:[imageURL absoluteString]]);
                     sself.image = image;
                     [sself setNeedsLayout];
                 }
                 else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
                     objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                    NSLog(@"self: %@ url <- nil", sself);
                 }
                 else {
                     if ((options & SDWebImageDelayPlaceholder)) {
