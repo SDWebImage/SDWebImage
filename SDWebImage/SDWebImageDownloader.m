@@ -167,10 +167,10 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                                                                                             if (!sself) return;
                                                                                             NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:NO];// makes a copy using a barrier
                                                                                             NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
-                                                                                            SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
-                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
-                                                                                                if ([observer respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
-                                                                                                    [observer progress:operation receivedSize:receivedSize expectedSize:expectedSize];
+                                                                                            SDWebImageDownloaderOperation *op = operationForURL[kDownloadOperationKey];
+                                                                                            for (id<SDWebImageDownloaderObserver> urlObserver in observersForURL) {
+                                                                                                if ([urlObserver respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
+                                                                                                    [urlObserver progress:op receivedSize:receivedSize expectedSize:expectedSize];
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -179,10 +179,10 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
                                                                                             if (!sself) return;
                                                                                             NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:finished];// makes a copy using a barrier and remove if needed
                                                                                             NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
-                                                                                            SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
-                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
-                                                                                                if ([observer respondsToSelector:@selector(completed:image:data:error:finished:)]) {
-                                                                                                    [observer completed:operation image:image data:data error:error finished:finished];
+                                                                                            SDWebImageDownloaderOperation *op = operationForURL[kDownloadOperationKey];
+                                                                                            for (id<SDWebImageDownloaderObserver> urlObserver in observersForURL) {
+                                                                                                if ([urlObserver respondsToSelector:@selector(completed:image:data:error:finished:)]) {
+                                                                                                    [urlObserver completed:op image:image data:data error:error finished:finished];
                                                                                                 }
                                                                                             }
                                                                                        }];
