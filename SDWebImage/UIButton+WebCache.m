@@ -77,8 +77,20 @@ static char imageURLStorageKey;
             if (image) {
                 [sself setImage:image forState:state];
             }
-            if (completedBlock && finished) {
-                completedBlock(image, error, cacheType, url);
+            else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
+                objc_setAssociatedObject(sself, &imageURLStorageKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }
+            if (finished) {
+                // clear current download operation when finished
+                [self sd_removeImageLoadOperationForState:state];
+
+                // Do nothing if the operation was cancelled
+                // See #699 for more details
+                // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
+                // so if this one is called second, we will overwrite the new data
+                if (completedBlock && !(error && error.code == NSURLErrorCancelled)) {
+                    completedBlock(image, error, cacheType, url);
+                }
             }
         });
     }];
@@ -120,8 +132,20 @@ static char imageURLStorageKey;
                 if (image) {
                     [sself setBackgroundImage:image forState:state];
                 }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
+                else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
+                    objc_setAssociatedObject(sself, &imageURLStorageKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                }
+                if (finished) {
+                    // clear current download operation when finished
+                    [self sd_removeBackgroundImageLoadOperationForState:state];
+
+                    // Do nothing if the operation was cancelled
+                    // See #699 for more details
+                    // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
+                    // so if this one is called second, we will overwrite the new data
+                    if (completedBlock && !(error && error.code == NSURLErrorCancelled)) {
+                        completedBlock(image, error, cacheType, url);
+                    }
                 }
             });
         }];
@@ -140,12 +164,20 @@ static char imageURLStorageKey;
     [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
 }
 
+- (void)sd_removeImageLoadOperationForState:(UIControlState)state {
+    [self sd_removeImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
+}
+
 - (void)sd_cancelImageLoadForState:(UIControlState)state {
     [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
 }
 
 - (void)sd_setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
     [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
+}
+
+- (void)sd_removeBackgroundImageLoadOperationForState:(UIControlState)state {
+    [self sd_removeImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state {
