@@ -71,6 +71,7 @@
         assert(request != nil);
         assert(completedBlock != nil);
         _request = request;
+        _shouldDecompressImages = YES;
         _shouldUseCredentialStorage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
@@ -383,7 +384,12 @@
                     __block UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
                     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                     UIImage *scaledImage = SDScaledImageForKey(key, image);
-                    image = [UIImage decodedImageWithImage:scaledImage];
+                    if (self.shouldDecompressImages) {
+                        image = [UIImage decodedImageWithImage:scaledImage];
+                    }
+                    else {
+                        image = scaledImage;
+                    }
                     CGImageRelease(partialImageRef);
                     __weak __typeof(self) weakSelf = self;
                     dispatch_sync(dispatch_get_main_queue(),^{
@@ -455,7 +461,9 @@
 
                 // Do not force decoding animated GIFs
                 if (!image.images) {
-                    image = [UIImage decodedImageWithImage:image];
+                    if (self.shouldDecompressImages) {
+                        image = [UIImage decodedImageWithImage:image];
+                    }
                 }
                 if (CGSizeEqualToSize(image.size, CGSizeZero)) {
                     completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);

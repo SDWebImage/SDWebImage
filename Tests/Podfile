@@ -4,7 +4,7 @@ xcodeproj 'SDWebImage Tests'
 workspace '../SDWebImage'
 
 def import_pods
-  pod 'Expecta'                       # A Matcher Framework for Objective-C/Cocoa
+  pod 'Expecta', '<=0.3.1'                    # A Matcher Framework for Objective-C/Cocoa
   pod 'SDWebImage', :path => '../'
 end
 

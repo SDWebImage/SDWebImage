@@ -93,6 +93,7 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 - (id)init {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
+        _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
@@ -158,35 +159,37 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
         else {
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
-        wself.URLOperations[url][kDownloadOperationKey] = [[wself.operationClass alloc]
-            initWithRequest:request
-            options:options
-            progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                SDWebImageDownloader *sself = wself;
-                if (!sself) return;
-                NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:NO];// makes a copy using a barrier
-                NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
-                SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
-                for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
-                    if ([observer respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
-                        [observer progress:operation receivedSize:receivedSize expectedSize:expectedSize];
-                    }
-                }
-            }
-            completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                SDWebImageDownloader *sself = wself;
-                if (!sself) return;
-                NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:finished];// makes a copy using a barrier and remove if needed
-                NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
-                SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
-                for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
-                    if ([observer respondsToSelector:@selector(completed:image:data:error:finished:)]) {
-                        [observer completed:operation image:image data:data error:error finished:finished];
-                    }
-                }
-            }];
+
+        SDWebImageDownloaderOperation* operation = [[wself.operationClass alloc] initWithRequest:request
+                                                                                         options:options
+                                                                                        progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                                                                            SDWebImageDownloader *sself = wself;
+                                                                                            if (!sself) return;
+                                                                                            NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:NO];// makes a copy using a barrier
+                                                                                            NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
+                                                                                            SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
+                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                                                                                                if ([observer respondsToSelector:@selector(progress:receivedSize:expectedSize:)]) {
+                                                                                                    [observer progress:operation receivedSize:receivedSize expectedSize:expectedSize];
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                                                                            SDWebImageDownloader *sself = wself;
+                                                                                            if (!sself) return;
+                                                                                            NSDictionary *operationForURL = [sself copyOperationForURL:url removeItFromOperations:finished];// makes a copy using a barrier and remove if needed
+                                                                                            NSHashTable *observersForURL = operationForURL[kDownloadObserversKey];
+                                                                                            SDWebImageDownloaderOperation *operation = operationForURL[kDownloadOperationKey];
+                                                                                            for (id<SDWebImageDownloaderObserver> observer in observersForURL) {
+                                                                                                if ([observer respondsToSelector:@selector(completed:image:data:error:finished:)]) {
+                                                                                                    [observer completed:operation image:image data:data error:error finished:finished];
+                                                                                                }
+                                                                                            }
+                                                                                       }];
         
-        SDWebImageDownloaderOperation* operation = wself.URLOperations[url][kDownloadOperationKey];
+        wself.URLOperations[url][kDownloadOperationKey] = operation;
+
+        operation.shouldDecompressImages = wself.shouldDecompressImages;
         
         if (wself.username && wself.password) {
             operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];
