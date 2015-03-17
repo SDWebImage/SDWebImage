@@ -24,6 +24,8 @@
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
 @property (strong, atomic) NSThread *thread;
+@property (nonatomic) NSTimeInterval responseTime;
+@property (nonatomic) NSTimeInterval transferTime;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -35,6 +37,7 @@
     size_t width, height;
     UIImageOrientation orientation;
     BOOL responseFromCached;
+    NSDate *_startTime;
 }
 
 @synthesize executing = _executing;
@@ -56,6 +59,8 @@
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
+        _responseTime = 0;
+        _transferTime = 0;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
     }
     return self;
@@ -90,8 +95,9 @@
         self.thread = [NSThread currentThread];
     }
 
+    _startTime = [NSDate date];
     [self.connection start];
-
+    
     if (self.connection) {
         if (self.progressBlock) {
             self.progressBlock(0, NSURLResponseUnknownLength);
@@ -117,7 +123,7 @@
     }
     else {
         if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES, 0, 0);
         }
     }
 
@@ -200,6 +206,8 @@
 #pragma mark NSURLConnection (delegate)
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    self.responseTime = [[NSDate date] timeIntervalSinceDate:_startTime];
+    _startTime = [NSDate date]; // Restart the start time so the transferTime is not cummulative
     
     //'304 Not Modified' is an exceptional one
     if ((![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400) && [((NSHTTPURLResponse *)response) statusCode] != 304) {
@@ -208,7 +216,7 @@
         if (self.progressBlock) {
             self.progressBlock(0, expected);
         }
-
+        
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
     }
     else {
@@ -226,7 +234,7 @@
         });
 
         if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES, 0, 0);
         }
         CFRunLoopStop(CFRunLoopGetCurrent());
         [self done];
@@ -304,7 +312,7 @@
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
                     if (self.completedBlock) {
-                        self.completedBlock(image, nil, nil, NO);
+                        self.completedBlock(image, nil, nil, NO, self.responseTime, self.transferTime);
                     }
                 });
             }
@@ -346,6 +354,8 @@
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
+    self.transferTime = [[NSDate date] timeIntervalSinceDate:_startTime];
+    
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
     @synchronized(self) {
         CFRunLoopStop(CFRunLoopGetCurrent());
@@ -362,7 +372,7 @@
     
     if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
-            completionBlock(nil, nil, nil, YES);
+            completionBlock(nil, nil, nil, YES, self.responseTime, self.transferTime);
         }
         else {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
@@ -376,10 +386,10 @@
                 }
             }
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES, self.responseTime, self.transferTime);
             }
             else {
-                completionBlock(image, self.imageData, nil, YES);
+                completionBlock(image, self.imageData, nil, YES, self.responseTime, self.transferTime);
             }
         }
     }
@@ -398,7 +408,7 @@
     }
 
     if (self.completedBlock) {
-        self.completedBlock(nil, nil, error, YES);
+        self.completedBlock(nil, nil, error, YES, self.responseTime, self.transferTime);
     }
     self.completionBlock = nil;
     [self done];

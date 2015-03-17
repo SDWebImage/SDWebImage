@@ -21,7 +21,11 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * The image was obtained from the memory cache.
      */
-    SDImageCacheTypeMemory
+    SDImageCacheTypeMemory,
+    /**
+     * The image was obtained from a local asset store (ALAssetsLibrary or PHImageManager)
+     */
+    SDImageCacheTypeLocalAssetStore
 };
 
 typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType cacheType);
@@ -56,6 +60,16 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * The maximum size of the cache, in bytes.
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;
+
+/**
+ * The in-memory cache for images
+ */
+@property (strong, nonatomic) NSCache *memCache;
+
+/**
+ * The dispatch queue used for image retrieval operations
+ */
+@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
 
 /**
  * Returns global shared cache instance

@@ -86,7 +86,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
 
-typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL);
+typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL, NSUInteger bytes, NSTimeInterval responseTime, NSTimeInterval transferTime);
 
 typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
 
@@ -178,10 +178,11 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
- * @param url            The URL to the image
- * @param options        A mask to specify options to use for this request
- * @param progressBlock  A block called while image is downloading
- * @param completedBlock A block called when operation has been completed.
+ * @param url                   The Local (ALAsset URL / PHAsset localIdentifier) or Remote (Web) URL to the image
+ * @param options               A mask to specify options to use for this request
+ * @param targetLocalAssetSize  An optional (one method signature does not require this for backward compatibility) parameter to specify the target size for the ALAsset or PHAsset image retrieval
+ * @param progressBlock         A block called while image is downloading
+ * @param completedBlock        A block called when operation has been completed.
  *
  *   This parameter is required.
  * 
@@ -197,8 +198,14 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+- (id <SDWebImageOperation>)downloadImageWithURL:(id)url
                                          options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
+
+- (id <SDWebImageOperation>)downloadImageWithURL:(id)url
+                                         options:(SDWebImageOptions)options
+                            targetLocalAssetSize:(CGSize)targetLocalAssetSize
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
 

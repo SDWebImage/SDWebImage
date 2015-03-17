@@ -145,7 +145,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                  if (callback) callback(receivedSize, expectedSize);
                                                              }
                                                          }
-                                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished, NSTimeInterval responseTime, NSTimeInterval transferTime) {
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
                                                             __block NSArray *callbacksForURL;
@@ -157,7 +157,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                             });
                                                             for (NSDictionary *callbacks in callbacksForURL) {
                                                                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
-                                                                if (callback) callback(image, data, error, finished);
+                                                                if (callback) callback(image, data, error, finished, responseTime, transferTime);
                                                             }
                                                         }
                                                         cancelled:^{
@@ -194,7 +194,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
-            completedBlock(nil, nil, nil, NO);
+            completedBlock(nil, nil, nil, NO, 0, 0);
         }
         return;
     }
