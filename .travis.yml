@@ -13,7 +13,7 @@ before_install:
 
 script:
 
-    - pod lib lint
+    - pod lib lint --allow-warnings
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator build
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphonesimulator build
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphonesimulator build
