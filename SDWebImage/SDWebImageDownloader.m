@@ -159,13 +159,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
                                                                 if (callback) callback(image, data, error, finished);
                                                             }
-                                                        }
-                                                        cancelled:^{
-                                                            SDWebImageDownloader *sself = wself;
-                                                            if (!sself) return;
-                                                            dispatch_barrier_async(sself.barrierQueue, ^{
-                                                                [sself.URLCallbacks removeObjectForKey:url];
-                                                            });
                                                         }];
         operation.shouldDecompressImages = wself.shouldDecompressImages;
         
