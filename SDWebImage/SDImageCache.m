@@ -29,6 +29,10 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     return NO;
 }
 
+FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
+    return image.size.height * image.size.width * image.scale * image.scale;
+}
+
 @interface SDImageCache ()
 
 @property (strong, nonatomic) NSCache *memCache;
@@ -157,7 +161,8 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         return;
     }
 
-    [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale * image.scale];
+    NSUInteger cost = SDCacheCostForImage(image);
+    [self.memCache setObject:image forKey:key cost:cost];
 
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
@@ -244,7 +249,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage) {
-        CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale * diskImage.scale;
+        NSUInteger cost = SDCacheCostForImage(diskImage);
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -315,7 +320,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         @autoreleasepool {
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage) {
-                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale * diskImage.scale;
+                NSUInteger cost = SDCacheCostForImage(diskImage);
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
 
