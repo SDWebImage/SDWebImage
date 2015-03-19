@@ -74,8 +74,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
         _memCache.name = fullNamespace;
 
         // Init the disk cache
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
+        _diskCachePath = [self makeDiskCachePath:fullNamespace];
 
         // Set decompression to YES
         _shouldDecompressImages = YES;
@@ -146,6 +145,12 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 #pragma mark ImageCache
+
+// Init the disk cache
+-(NSString *)makeDiskCachePath:(NSString*)fullNamespace{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [paths[0] stringByAppendingPathComponent:fullNamespace];
+}
 
 - (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
     if (!image || !key) {
