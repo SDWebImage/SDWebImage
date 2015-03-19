@@ -96,17 +96,15 @@ Here is a simple example of how to use SDWebImageManager:
 ```objective-c
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager downloadImageWithURL:imageURL
-                          options:0
-                          progress:^(NSInteger receivedSize, NSInteger expectedSize)
-                          {
-                              // progression tracking code
-                          }
-                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL)
-                          {
-                              if (image) {
-                                  // do something with image
-                              }
-                          }];
+                      options:0
+                     progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                         // progression tracking code
+                     }
+                     completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                         if (image) {
+                             // do something with image
+                         }
+                     }];
 ```
 
 ### Using Asynchronous Image Downloader Independently
