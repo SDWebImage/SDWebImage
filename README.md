@@ -229,7 +229,7 @@ There are three ways to use SDWebImage in your project:
 #### Podfile
 ```
 platform :ios, '6.1'
-pod 'SDWebImage', '~>3.6'
+pod 'SDWebImage', '~>3.7'
 ```
 
 ### Installation with Carthage (iOS 8+)
