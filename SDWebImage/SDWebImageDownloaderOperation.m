@@ -376,7 +376,7 @@
                 }
             }
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
             }
             else {
                 completionBlock(image, self.imageData, nil, YES);
