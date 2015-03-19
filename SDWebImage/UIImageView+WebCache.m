@@ -49,7 +49,7 @@ static char imageURLKey;
     }
     
     if (url) {
-        __weak UIImageView *wself = self;
+        __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
@@ -92,7 +92,7 @@ static char imageURLKey;
 
 - (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
     [self sd_cancelCurrentAnimationImagesLoad];
-    __weak UIImageView *wself = self;
+    __weak __typeof(self)wself = self;
 
     NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
 
