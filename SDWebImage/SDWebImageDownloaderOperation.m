@@ -12,6 +12,11 @@
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
 
+NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
+NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
+NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
+NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
+
 @interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate>
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
@@ -20,7 +25,6 @@
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
-@property (assign, nonatomic) NSInteger expectedSize;
 @property (strong, nonatomic) NSMutableData *imageData;
 @property (strong, nonatomic) NSURLConnection *connection;
 @property (strong, atomic) NSThread *thread;
@@ -210,6 +214,10 @@
         }
 
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
+        self.response = response;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
+        });
     }
     else {
         NSUInteger code = [((NSHTTPURLResponse *)response) statusCode];
@@ -222,7 +230,7 @@
             [self.connection cancel];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
 
         if (self.completedBlock) {
@@ -352,7 +360,8 @@
         self.thread = nil;
         self.connection = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
         });
     }
     
@@ -393,7 +402,7 @@
         self.thread = nil;
         self.connection = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
     }
 
