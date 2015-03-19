@@ -72,6 +72,14 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (id)initWithNamespace:(NSString *)ns;
 
 /**
+ * Init a new cache store with a specific namespace and directory
+ *
+ * @param ns The namespace to use for this cache store
+ * @param directory Directory to cache disk images in
+ */
+- (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory;
+
+/**
  * Add a read-only cache path to search for images pre-cached by SDImageCache
  * Useful if you want to bundle pre-loaded images with your app
  *
