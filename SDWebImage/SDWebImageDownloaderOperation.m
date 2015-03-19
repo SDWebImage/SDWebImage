@@ -372,8 +372,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     if (completionBlock) {
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
-        }
-        else {
+        } else if (self.imageData) {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
             image = [self scaledImageForKey:key image:image];
@@ -390,6 +389,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             else {
                 completionBlock(image, self.imageData, nil, YES);
             }
+        } else {
+            completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
         }
     }
     self.completionBlock = nil;
