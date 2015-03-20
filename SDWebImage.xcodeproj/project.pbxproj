@@ -157,7 +157,6 @@
 		6520F1DB1ABBC4B0007F02DD /* SDWebImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 53922D8A148C56230056699D /* SDWebImageDecoder.m */; };
 		6520F1DC1ABBC4B0007F02DD /* UIImageView+HighlightedWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */; };
 		6520F1DD1ABBC4B0007F02DD /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 53922D86148C56230056699D /* SDImageCache.m */; };
-		6520F1E01ABBC4B0007F02DD /* WebImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2CAE031AB4BB5400B6BC39 /* WebImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6520F1E11ABBC4B0007F02DD /* SDWebImageManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D8E148C56230056699D /* SDWebImageManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6520F1E21ABBC4B0007F02DD /* SDImageCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D85148C56230056699D /* SDImageCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6520F1E31ABBC4B0007F02DD /* UIImageView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D95148C56230056699D /* UIImageView+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -175,6 +174,7 @@
 		6520F1EF1ABBC4B0007F02DD /* UIImage+WebP.h in Headers */ = {isa = PBXBuildFile; fileRef = 53EDFB911762547C00698166 /* UIImage+WebP.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6520F1F01ABBC4B0007F02DD /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6520F1F11ABBC4B0007F02DD /* NSData+ImageContentType.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D5B9140188EE8DD006D06BD /* NSData+ImageContentType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6520F2031ABBC868007F02DD /* WebImageAppExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 6520F2021ABBC868007F02DD /* WebImageAppExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A18A6CC7172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC8172DC28500419892 /* UIImage+GIF.h in Headers */ = {isa = PBXBuildFile; fileRef = A18A6CC5172DC28500419892 /* UIImage+GIF.h */; };
 		A18A6CC9172DC28500419892 /* UIImage+GIF.m in Sources */ = {isa = PBXBuildFile; fileRef = A18A6CC6172DC28500419892 /* UIImage+GIF.m */; };
@@ -319,6 +319,7 @@
 		5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ImageContentType.m"; sourceTree = "<group>"; };
 		6520F1F61ABBC4B0007F02DD /* WebImageAppExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WebImageAppExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6520F1F71ABBC4B0007F02DD /* WebImageAppExtension-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "WebImageAppExtension-Info.plist"; path = "/Users/daniel/Documents/Work/DABSquared/DisneyWaitTimes/DisneyWaitTimesiOS/ThirdParty/SDWebImage/WebImageAppExtension-Info.plist"; sourceTree = "<absolute>"; };
+		6520F2021ABBC868007F02DD /* WebImageAppExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebImageAppExtension.h; sourceTree = "<group>"; };
 		A18A6CC5172DC28500419892 /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
 		A18A6CC6172DC28500419892 /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
 		AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+WebCacheOperation.h"; sourceTree = "<group>"; };
@@ -455,6 +456,7 @@
 			isa = PBXGroup;
 			children = (
 				4A2CAE031AB4BB5400B6BC39 /* WebImage.h */,
+				6520F2021ABBC868007F02DD /* WebImageAppExtension.h */,
 				4A2CAE011AB4BB5400B6BC39 /* Supporting Files */,
 			);
 			path = WebImage;
@@ -831,7 +833,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6520F1E01ABBC4B0007F02DD /* WebImage.h in Headers */,
+				6520F2031ABBC868007F02DD /* WebImageAppExtension.h in Headers */,
 				6520F1E11ABBC4B0007F02DD /* SDWebImageManager.h in Headers */,
 				6520F1E21ABBC4B0007F02DD /* SDImageCache.h in Headers */,
 				6520F1E31ABBC4B0007F02DD /* UIImageView+WebCache.h in Headers */,
