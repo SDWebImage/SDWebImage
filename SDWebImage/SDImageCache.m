@@ -150,6 +150,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark ImageCache
 
+-(void)setTheDiskCachePath:(NSString *)diskCachePath {
+    _diskCachePath = [diskCachePath stringByAppendingPathComponent:self.memCache.name];
+}
+
 // Init the disk cache
 -(NSString *)makeDiskCachePath:(NSString*)fullNamespace{
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
