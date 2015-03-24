@@ -74,6 +74,11 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 -(NSString *)makeDiskCachePath:(NSString*)fullNamespace;
 
 /**
+ * @param diskCachePath The disk path to use for this cache store
+ */
+-(void)setTheDiskCachePath:(NSString *)diskCachePath;
+
+/**
  * Add a read-only cache path to search for images pre-cached by SDImageCache
  * Useful if you want to bundle pre-loaded images with your app
  *
