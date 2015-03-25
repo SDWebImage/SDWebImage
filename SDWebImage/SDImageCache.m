@@ -281,7 +281,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
         if (self.shouldDecompressImages) {
-            image = [UIImage decodedImageWithImage:image];
+            image = [UIImage decodedImageWithImage:image data:data];
         }
         return image;
     }
