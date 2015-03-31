@@ -58,6 +58,11 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
 /**
+ * Block to transform data loaded from the disk
+ */
+@property NSValueTransformer* dataTransformer;
+
+/**
  * Returns global shared cache instance
  *
  * @return SDImageCache global instance

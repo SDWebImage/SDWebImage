@@ -199,7 +199,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 if (![_fileManager fileExistsAtPath:_diskCachePath]) {
                     [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
-
+                if (self.dataTransformer) {
+                    data = [self.dataTransformer transformedValue:data];
+                }
                 [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
         });
@@ -260,6 +262,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     NSString *defaultPath = [self defaultCachePathForKey:key];
     NSData *data = [NSData dataWithContentsOfFile:defaultPath];
     if (data) {
+        if (self.dataTransformer && [self.dataTransformer.class allowsReverseTransformation]) {
+            data = [self.dataTransformer reverseTransformedValue:data];
+        }
         return data;
     }
 
@@ -268,6 +273,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         NSString *filePath = [self cachePathForKey:key inPath:path];
         NSData *imageData = [NSData dataWithContentsOfFile:filePath];
         if (imageData) {
+            if (self.dataTransformer && [self.dataTransformer.class allowsReverseTransformation]) {
+                imageData = [self.dataTransformer reverseTransformedValue:imageData];
+            }
             return imageData;
         }
     }
