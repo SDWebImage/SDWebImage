@@ -14,5 +14,6 @@
 @interface UIImage (ForceDecode)
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image;
++ (UIImage *)decodedImageWithImage:(UIImage *)image data:(NSData *)data;
 
 @end
