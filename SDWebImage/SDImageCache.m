@@ -156,7 +156,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk withCompletion:(SDWebImageNoParamsBlock)completion {
+
     if (!image || !key) {
         return;
     }
@@ -202,8 +203,23 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
                 [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
+            
+            if (completion) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion();
+                });
+            }
         });
     }
+    else {
+        if (completion) {
+            completion();
+        }
+    }
+}
+
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
+    [self storeImage:image recalculateFromImage:recalculate imageData:imageData forKey:key toDisk:toDisk withCompletion:NULL];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key {
