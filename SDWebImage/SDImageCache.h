@@ -112,6 +112,21 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
+ * Store an image into memory and optionally disk cache at the given key.
+ *
+ * @param image       The image to store
+ * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
+ * @param imageData   The image data as returned by the server, this representation will be used for disk storage
+ *                    instead of converting the given image object into a storable/compressed image format in order
+ *                    to save quality and CPU
+ * @param key         The unique image cache key, usually it's image absolute URL
+ * @param toDisk      Store the image to disk cache if YES
+ * @param completion  An block that should be executed after the image has been stored (optional)
+ */
+- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk withCompletion:(SDWebImageNoParamsBlock)completio;
+
+
+/**
  * Query the disk cache asynchronously.
  *
  * @param key The unique key used to store the wanted image
