@@ -175,9 +175,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 // The first eight bytes of a PNG file always contain the following (decimal) values:
                 // 137 80 78 71 13 10 26 10
 
-                // We assume the image is PNG, in case the imageData is nil (i.e. if trying to save a UIImage directly),
-                // we will consider it PNG to avoid loosing the transparency
-                BOOL imageIsPng = YES;
+                // If the imageData is nil (i.e. if trying to save a UIImage directly or the image was transformed on download)
+                // and the image has an alpha channel, we will consider it PNG to avoid losing the transparency
+                int alphaInfo = CGImageGetAlphaInfo(image.CGImage);
+                BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
+                                  alphaInfo == kCGImageAlphaNoneSkipFirst ||
+                                  alphaInfo == kCGImageAlphaNoneSkipLast);
+                BOOL imageIsPng = hasAlpha;
 
                 // But if we have an image data, we will look at the preffix
                 if ([imageData length] >= [kPNGSignatureData length]) {
