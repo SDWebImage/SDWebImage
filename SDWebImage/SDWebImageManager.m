@@ -199,6 +199,12 @@
                     }
                 }
                 else {
+                    if ((options & SDWebImageRetryFailed)) {
+                        @synchronized (self.failedURLs) {
+                            [self.failedURLs removeObject:url];
+                        }
+                    }
+                    
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
 
                     if (options & SDWebImageRefreshCached && image && !downloadedImage) {
