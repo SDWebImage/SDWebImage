@@ -43,6 +43,12 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
+ * Some applications do not require an in-memory cache.
+ * Defaults to YES. Set this to NO to prevent memory usage buildup in NSCache
+ */
+@property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+
+/**
  * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCost;
