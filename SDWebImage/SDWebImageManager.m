@@ -146,6 +146,14 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
+    __block id<SDWebImageOperation> subOperation = nil;
+    operation.cancelBlock = ^{
+        [subOperation cancel];
+        
+        @synchronized (self.runningOperations) {
+            [self.runningOperations removeObject:weakOperation];
+        }
+    };
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
             @synchronized (self.runningOperations) {
@@ -179,7 +187,7 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+            subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 if (weakOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
                     // See #699 for more details
@@ -239,13 +247,6 @@
                     }
                 }
             }];
-            operation.cancelBlock = ^{
-                [subOperation cancel];
-                
-                @synchronized (self.runningOperations) {
-                    [self.runningOperations removeObject:weakOperation];
-                }
-            };
         }
         else if (image) {
             dispatch_main_sync_safe(^{
@@ -299,30 +300,38 @@
 
 - (void)setCancelBlock:(SDWebImageNoParamsBlock)cancelBlock {
     // check if the operation is already cancelled, then we just call the cancelBlock
-    if (self.isCancelled) {
-        if (cancelBlock) {
-            cancelBlock();
+    @synchronized(self){ // make it thread safety
+        if (self.isCancelled) {
+            if (cancelBlock) {
+                cancelBlock();
+            }
+            _cancelBlock = nil; // don't forget to nil the cancelBlock, otherwise we will get crashes
+        } else {
+            _cancelBlock = [cancelBlock copy];
         }
-        _cancelBlock = nil; // don't forget to nil the cancelBlock, otherwise we will get crashes
-    } else {
-        _cancelBlock = [cancelBlock copy];
     }
 }
 
 - (void)cancel {
-    self.cancelled = YES;
-    if (self.cacheOperation) {
-        [self.cacheOperation cancel];
-        self.cacheOperation = nil;
+    SDWebImageNoParamsBlock cancelBlock = nil;
+    @synchronized(self){
+        _cancelled = YES;
+        if (_cacheOperation) {
+            [_cacheOperation cancel];
+            _cacheOperation = nil;
+        }
+        if (_cancelBlock) {
+            // store _cancelBlock to temp variable, because inside _cancelBlock self can be deleted
+            cancelBlock = [_cancelBlock copy];
+            
+            // TODO: this is a temporary fix to #809.
+            // Until we can figure the exact cause of the crash, going with the ivar instead of the setter
+            //          self.cancelBlock = nil;
+            _cancelBlock = nil;
+        }
     }
-    if (self.cancelBlock) {
-        self.cancelBlock();
-        
-        // TODO: this is a temporary fix to #809.
-        // Until we can figure the exact cause of the crash, going with the ivar instead of the setter
-//        self.cancelBlock = nil;
-        _cancelBlock = nil;
-    }
+    cancelBlock();
+    // no acces to self now, because it may be deleted
 }
 
 @end
