@@ -81,6 +81,10 @@ static char imageURLStorageKey;
             if (!sself) return;
             if (image) {
                 [sself setImage:image forState:state];
+            } else {
+                if ((options & SDWebImageDelayPlaceholder)) {
+                    [self setImage:placeholder forState:state];
+                }
             }
             if (completedBlock && finished) {
                 completedBlock(image, error, cacheType, url);
@@ -128,6 +132,10 @@ static char imageURLStorageKey;
                 if (!sself) return;
                 if (image) {
                     [sself setBackgroundImage:image forState:state];
+                } else {
+                    if ((options & SDWebImageDelayPlaceholder)) {
+                        [self setBackgroundImage:placeholder forState:state];
+                    }
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType, url);
