@@ -377,6 +377,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return self.memCache.totalCostLimit;
 }
 
+- (NSUInteger)maxMemoryCountLimit {
+    return self.memCache.countLimit;
+}
+
+- (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
+    self.memCache.countLimit = maxCountLimit;
+}
+
 - (void)clearMemory {
     [self.memCache removeAllObjects];
 }
