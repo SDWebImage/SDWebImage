@@ -97,7 +97,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _maxCacheAge = kDefaultCacheMaxCacheAge;
 
         // Init the memory cache
-        _memCache = [[NSCache alloc] init];
+        _memCache = [[AutoPurgeCache alloc] init];
         _memCache.name = fullNamespace;
 
         // Init the disk cache
