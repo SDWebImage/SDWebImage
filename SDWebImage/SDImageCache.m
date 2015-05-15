@@ -9,6 +9,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
+#import "UIApplication+SafeSharedApplication.h"
 #import <CommonCrypto/CommonDigest.h>
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
@@ -516,7 +517,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)backgroundCleanDisk {
-    UIApplication *application = [UIApplication sharedApplication];
+    UIApplication *application = [UIApplication sdw_sharedApplication];
+    if (application == nil) {
+      return;
+    }
     __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
         // Clean up any unfinished task business by marking where you
         // stopped or ending the task outright.
