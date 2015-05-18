@@ -20,20 +20,6 @@
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A2CAE081AB4BB5400B6BC39"
-               BuildableName = "WebImageTests.xctest"
-               BlueprintName = "WebImageTests"
-               ReferencedContainer = "container:SDWebImage.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -42,26 +28,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A2CAE081AB4BB5400B6BC39"
-               BuildableName = "WebImageTests.xctest"
-               BlueprintName = "WebImageTests"
-               ReferencedContainer = "container:SDWebImage.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A2CADFE1AB4BB5300B6BC39"
-            BuildableName = "WebImage.framework"
-            BlueprintName = "WebImage"
-            ReferencedContainer = "container:SDWebImage.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
