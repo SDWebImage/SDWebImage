@@ -84,6 +84,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (id)initWithNamespace:(NSString *)ns {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [self initWithNamespace:ns diskCacheDirectory:paths[0]];
+}
+
+- (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
 
@@ -101,7 +106,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _memCache.name = fullNamespace;
 
         // Init the disk cache
-        _diskCachePath = [self makeDiskCachePath:fullNamespace];
+        if(directory!=nil)
+        {
+            _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
+        }
+        else
+        {
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+            _diskCachePath = [paths[0] stringByAppendingString:fullNamespace];
+        }
 
         // Set decompression to YES
         _shouldDecompressImages = YES;
