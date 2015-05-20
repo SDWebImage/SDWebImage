@@ -84,8 +84,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (id)initWithNamespace:(NSString *)ns {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [self initWithNamespace:ns diskCacheDirectory:paths[0]];
+    NSString *path = [self makeDiskCachePath:ns];
+    return [self initWithNamespace:ns diskCacheDirectory:path];
 }
 
 - (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory {
@@ -112,8 +112,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
         else
         {
-            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-            _diskCachePath = [paths[0] stringByAppendingString:fullNamespace];
+            NSString *path = [self makeDiskCachePath:ns];
+            _diskCachePath = path;
         }
 
         // Set decompression to YES
