@@ -9,6 +9,9 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
+#import "SDImageCache.h"
+#import "SDWebImageManager.h"
+
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
@@ -16,10 +19,12 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @interface SDWebImageDownloader ()
 
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
+@property (strong, nonatomic) NSOperationQueue *downloadQueueExtraHighPriority;
 @property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (assign, nonatomic) Class operationClass;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
+
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 
@@ -65,17 +70,19 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
-        _downloadQueue.maxConcurrentOperationCount = 6;
+        _downloadQueueExtraHighPriority = [NSOperationQueue new];
         _URLCallbacks = [NSMutableDictionary new];
         _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/webp,image/*;q=0.8" forKey:@"Accept"];
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;
+        [self setMaxConcurrentDownloads:6];
     }
     return self;
 }
 
 - (void)dealloc {
     [self.downloadQueue cancelAllOperations];
+    [self.downloadQueueExtraHighPriority cancelAllOperations];
     SDDispatchQueueRelease(_barrierQueue);
 }
 
@@ -94,10 +101,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads {
     _downloadQueue.maxConcurrentOperationCount = maxConcurrentDownloads;
+    _downloadQueueExtraHighPriority.maxConcurrentOperationCount = maxConcurrentDownloads;
 }
 
 - (NSUInteger)currentDownloadCount {
-    return _downloadQueue.operationCount;
+    return _downloadQueue.operationCount + _downloadQueueExtraHighPriority.operationCount;
 }
 
 - (NSInteger)maxConcurrentDownloads {
@@ -108,9 +116,22 @@ static NSString *const kCompletedCallbackKey = @"completed";
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
+- (NSOperationQueue *) operationQueueForOptions: (SDWebImageDownloaderOptions) options {
+    if(options & SDWebImageExtraHighPriority) {
+        return _downloadQueueExtraHighPriority;
+    } else {
+        return _downloadQueue;
+    }
+}
+
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
     __weak __typeof(self)wself = self;
+
+    if((options & SDWebImageExtraHighPriority) && ![self.downloadQueue isSuspended]) {
+        [self.downloadQueue setSuspended:YES];
+        NSLog(@"**** Stopping Download Queue for low priority *****");
+    }
 
     [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^{
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
@@ -156,6 +177,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
                                                                 if (callback) callback(image, data, error, finished);
                                                             }
+                                                            
+                                                            [self updateSuspendedStateForUrl:url andOptions:options];
                                                         }
                                                         cancelled:^{
                                                             SDWebImageDownloader *sself = wself;
@@ -163,6 +186,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                             dispatch_barrier_async(sself.barrierQueue, ^{
                                                                 [sself.URLCallbacks removeObjectForKey:url];
                                                             });
+                                                            
+                                                            [self updateSuspendedStateForUrl:url andOptions:options];
                                                         }];
         operation.shouldDecompressImages = wself.shouldDecompressImages;
         
@@ -174,9 +199,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
             operation.queuePriority = NSOperationQueuePriorityHigh;
         } else if (options & SDWebImageDownloaderLowPriority) {
             operation.queuePriority = NSOperationQueuePriorityLow;
+        } else if (options & SDWebImageExtraHighPriority) {
+            operation.queuePriority = NSOperationQueuePriorityVeryHigh;
         }
 
-        [wself.downloadQueue addOperation:operation];
+        [[self operationQueueForOptions:options] addOperation:operation];
         if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
             [wself.lastAddedOperation addDependency:operation];
@@ -186,6 +213,32 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
     return operation;
 }
+
+- (void) updateSuspendedStateForUrl: (NSURL *) url andOptions:(SDWebImageDownloaderOptions) options {
+    if (options & SDWebImageExtraHighPriority) {
+        //Start the normal queue if the high prio jobs are done
+        
+        NSUInteger operationCount = [self.downloadQueueExtraHighPriority operationCount];
+
+        BOOL startDownloadQueue = false;
+        
+        if(operationCount == 0) {
+            startDownloadQueue = YES;
+        } else if (operationCount == 1) {
+            NSURLRequest *request = [[self.downloadQueueExtraHighPriority.operations firstObject] request];
+            
+            if([[request.URL absoluteString] isEqualToString:url.absoluteString]) {
+                startDownloadQueue = YES;
+            }
+        }
+        
+        if(startDownloadQueue) {
+            [self.downloadQueue setSuspended:NO];
+            NSLog(@"**** Starting Download Queue for low priority *****");
+        }
+    }
+}
+
 
 - (void)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock andCompletedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
@@ -219,6 +272,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (void)setSuspended:(BOOL)suspended {
     [self.downloadQueue setSuspended:suspended];
+    [self.downloadQueueExtraHighPriority setSuspended:suspended];
 }
+
 
 @end

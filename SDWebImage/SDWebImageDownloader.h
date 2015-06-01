@@ -127,6 +127,14 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  */
 @property (nonatomic, copy) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
+
+
+/**
+ * The downloadQueue of all operations (without the extra high prios)
+ *
+ */
+@property (nonatomic, readonly) NSOperationQueue *downloadQueueExtraHighPriority;
+
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.
  *

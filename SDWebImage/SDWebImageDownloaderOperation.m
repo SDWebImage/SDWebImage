@@ -363,15 +363,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection {
     SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-    @synchronized(self) {
-        CFRunLoopStop(CFRunLoopGetCurrent());
-        self.thread = nil;
-        self.connection = nil;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
-        });
-    }
     
     if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
         responseFromCached = NO;
@@ -402,6 +393,17 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         }
     }
     self.completionBlock = nil;
+    
+    @synchronized(self) {
+        CFRunLoopStop(CFRunLoopGetCurrent());
+        self.thread = nil;
+        self.connection = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
+        });
+    }
+    
     [self done];
 }
 
