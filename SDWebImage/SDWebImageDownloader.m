@@ -216,14 +216,14 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (void) updateSuspendedStateForUrl: (NSURL *) url andOptions:(SDWebImageDownloaderOptions) options {
     if (options & SDWebImageExtraHighPriority) {
         //Start the normal queue if the high prio jobs are done
-        NSUInteger operationCount = [self.downloadQueueExtraHighPriority operationCount];
+        NSUInteger operationCount = [_downloadQueueExtraHighPriority operationCount];
 
         BOOL startDownloadQueue = false;
         
         if(operationCount == 0) {
             startDownloadQueue = YES;
         } else if (operationCount == 1) {
-            NSURLRequest *request = [[self.downloadQueueExtraHighPriority.operations firstObject] request];
+            NSURLRequest *request = [[_downloadQueueExtraHighPriority.operations firstObject] request];
             
             if([[request.URL absoluteString] isEqualToString:url.absoluteString]) {
                 startDownloadQueue = YES;
@@ -268,8 +268,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (void)setSuspended:(BOOL)suspended {
-    [self.downloadQueue setSuspended:suspended];
-    [self.downloadQueueExtraHighPriority setSuspended:suspended];
+    [_downloadQueue setSuspended:suspended];
+    [_downloadQueueExtraHighPriority setSuspended:suspended];
 }
 
 
