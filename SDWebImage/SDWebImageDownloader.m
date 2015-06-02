@@ -130,7 +130,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
     if((options & SDWebImageExtraHighPriority) && ![self.downloadQueue isSuspended]) {
         [self.downloadQueue setSuspended:YES];
-        NSLog(@"**** Stopping Download Queue for low priority *****");
     }
 
     [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^{
@@ -217,7 +216,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (void) updateSuspendedStateForUrl: (NSURL *) url andOptions:(SDWebImageDownloaderOptions) options {
     if (options & SDWebImageExtraHighPriority) {
         //Start the normal queue if the high prio jobs are done
-        
         NSUInteger operationCount = [self.downloadQueueExtraHighPriority operationCount];
 
         BOOL startDownloadQueue = false;
@@ -234,7 +232,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
         
         if(startDownloadQueue) {
             [self.downloadQueue setSuspended:NO];
-            NSLog(@"**** Starting Download Queue for low priority *****");
         }
     }
 }
