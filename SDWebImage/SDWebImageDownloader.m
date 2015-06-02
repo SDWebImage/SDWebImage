@@ -9,9 +9,6 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
-#import "SDImageCache.h"
-#import "SDWebImageManager.h"
-
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
@@ -117,7 +114,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (NSOperationQueue *) operationQueueForOptions: (SDWebImageDownloaderOptions) options {
-    if(options & SDWebImageExtraHighPriority) {
+    if(options & SDWebImageDownloaderExtraHighPriority) {
         return _downloadQueueExtraHighPriority;
     } else {
         return _downloadQueue;
@@ -128,7 +125,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     __block SDWebImageDownloaderOperation *operation;
     __weak __typeof(self)wself = self;
 
-    if((options & SDWebImageExtraHighPriority) && ![self.downloadQueue isSuspended]) {
+    if((options & SDWebImageDownloaderExtraHighPriority) && ![self.downloadQueue isSuspended]) {
         [self.downloadQueue setSuspended:YES];
     }
 
@@ -198,7 +195,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             operation.queuePriority = NSOperationQueuePriorityHigh;
         } else if (options & SDWebImageDownloaderLowPriority) {
             operation.queuePriority = NSOperationQueuePriorityLow;
-        } else if (options & SDWebImageExtraHighPriority) {
+        } else if (options & SDWebImageDownloaderExtraHighPriority) {
             operation.queuePriority = NSOperationQueuePriorityVeryHigh;
         }
 
@@ -214,7 +211,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 - (void) updateSuspendedStateForUrl: (NSURL *) url andOptions:(SDWebImageDownloaderOptions) options {
-    if (options & SDWebImageExtraHighPriority) {
+    if (options & SDWebImageDownloaderExtraHighPriority) {
         //Start the normal queue if the high prio jobs are done
         NSUInteger operationCount = [_downloadQueueExtraHighPriority operationCount];
 
