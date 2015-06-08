@@ -58,13 +58,13 @@ static char imageURLKey;
                 if (image) {
                     wself.image = image;
                     [wself setNeedsLayout];
+                    if (cacheType == SDImageCacheTypeNone) {
+                        [wself sd_fadeIn];
+                    }
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
                         [wself setNeedsLayout];
-                        if (cacheType == SDImageCacheTypeNone) {
-                            [wself sd_fadeIn];
-                        }
                     }
                 }
                 if (completedBlock && finished) {
