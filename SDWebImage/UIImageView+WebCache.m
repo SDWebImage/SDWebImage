@@ -9,6 +9,7 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+Animation.h"
 
 static char imageURLKey;
 
@@ -61,6 +62,9 @@ static char imageURLKey;
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
                         [wself setNeedsLayout];
+                        if (cacheType == SDImageCacheTypeNone) {
+                            [wself sd_fadeIn];
+                        }
                     }
                 }
                 if (completedBlock && finished) {

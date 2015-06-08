@@ -9,6 +9,7 @@
 #import "UIButton+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+Animation.h"
 
 static char imageURLStorageKey;
 
@@ -76,6 +77,9 @@ static char imageURLStorageKey;
             if (!sself) return;
             if (image) {
                 [sself setImage:image forState:state];
+                if (cacheType == SDImageCacheTypeNone) {
+                    [sself sd_fadeIn];
+                }
             }
             if (completedBlock && finished) {
                 completedBlock(image, error, cacheType, url);
@@ -119,6 +123,9 @@ static char imageURLStorageKey;
                 if (!sself) return;
                 if (image) {
                     [sself setBackgroundImage:image forState:state];
+                    if (cacheType == SDImageCacheTypeNone) {
+                        [sself sd_fadeIn];
+                    }
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType, url);

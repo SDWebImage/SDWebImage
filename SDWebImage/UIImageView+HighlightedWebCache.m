@@ -8,6 +8,7 @@
 
 #import "UIImageView+HighlightedWebCache.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+Animation.h"
 
 #define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
 
@@ -42,6 +43,9 @@
                                          if (image) {
                                              wself.highlightedImage = image;
                                              [wself setNeedsLayout];
+                                             if (cacheType == SDImageCacheTypeNone) {
+                                                 [wself sd_fadeIn];
+                                             }
                                          }
                                          if (completedBlock && finished) {
                                              completedBlock(image, error, cacheType, url);
