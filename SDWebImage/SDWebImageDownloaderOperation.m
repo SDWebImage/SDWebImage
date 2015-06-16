@@ -26,7 +26,7 @@
 @property (strong, atomic) NSThread *thread;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-@property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
+@property (assign, nonatomic) id<NSObject> backgroundTaskId;
 #endif
 
 @end
@@ -68,19 +68,10 @@
             return;
         }
 
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0 && !defined(SD_APP_EXTENSION)
+        self.backgroundTaskId = nil;
+#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
         if ([self shouldContinueWhenAppEntersBackground]) {
-            __weak __typeof__ (self) wself = self;
-            self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
-
-                if (sself) {
-                    [sself cancel];
-
-                    [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
-            }];
+            self.backgroundTaskId = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityBackground reason:@"webimage-downloader"];
         }
 #endif
 		
@@ -117,11 +108,12 @@
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
         }
     }
-
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0 && !defined(SD_APP_EXTENSION)
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
+    
+//    [NSProcessInfo processInfo] performExpiringActivityWithReason:<#(NSString *)#> usingBlock:<#^(BOOL expired)block#>
+    
+#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+    if (self.backgroundTaskId) {
+        [[NSProcessInfo processInfo] endActivity:self.backgroundTaskId];
     }
 #endif
 

@@ -467,21 +467,14 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (void)backgroundCleanDisk {
-#ifndef SD_APP_EXTENSION
-    UIApplication *application = [UIApplication sharedApplication];
-    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        // Clean up any unfinished task business by marking where you
-        // stopped or ending the task outright.
-        [application endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-    }];
+    
+    __block id bgTask = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityBackground reason:@"background-clean-disk"];
 
     // Start the long-running task and return immediately.
     [self cleanDiskWithCompletionBlock:^{
-        [application endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
+        [[NSProcessInfo processInfo] endActivity:bgTask];
+        bgTask = nil;
     }];
-#endif
 }
 
 - (NSUInteger)getSize {
