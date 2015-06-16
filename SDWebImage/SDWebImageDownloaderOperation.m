@@ -75,8 +75,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
         self.backgroundTaskId = nil;
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        Class UIApplicationClass = NSClassFromString(@"UIApplication");
-        BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
         if ([self shouldContinueWhenAppEntersBackground]) {
             self.backgroundTaskId = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityBackground reason:@"webimage-downloader"];
         }
