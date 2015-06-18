@@ -114,6 +114,15 @@
     [self prefetchURLs:urls progress:nil completed:nil];
 }
 
+- (void)addPrefetchURLs:(NSArray *)urls
+{
+    if (self.startedTime && self.prefetchURLs) {
+        self.prefetchURLs = [self.prefetchURLs arrayByAddingObjectsFromArray:urls];
+    } else {
+        [self prefetchURLs:urls];
+    }
+}
+
 - (void)prefetchURLs:(NSArray *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock {
     [self cancelPrefetching]; // Prevent duplicate prefetch request
     self.startedTime = CFAbsoluteTimeGetCurrent();
