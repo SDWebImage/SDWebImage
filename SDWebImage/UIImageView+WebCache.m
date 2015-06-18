@@ -54,7 +54,12 @@ static char imageURLKey;
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 if (!wself) return;
-                if (image) {
+                if (image && (options & SDWebImageAvoidAutoImageFill) && completedBlock)
+                {
+                    completedBlock(image, error, cacheType, url);
+                    return;
+                }
+                else if (image) {
                     wself.image = image;
                     [wself setNeedsLayout];
                 } else {
