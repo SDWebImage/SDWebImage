@@ -19,4 +19,10 @@
    <FileRef
       location = "group:Tests/Pods/Pods.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:SDWebImage.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
 </Workspace>
