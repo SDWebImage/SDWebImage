@@ -105,6 +105,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
         // Set decompression to YES
         _shouldDecompressImages = YES;
+        
+        self.maxNumberOfImagesToCache = 0;
 
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
@@ -183,6 +185,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!image || !key) {
         return;
     }
+    
+    if(self.maxNumberOfImagesToCache > 0 && [self getDiskCount] >= self.maxNumberOfImagesToCache) {
+        [self removeOldestFile];
+    }
 
     NSUInteger cost = SDCacheCostForImage(image);
     [self.memCache setObject:image forKey:key cost:cost];
@@ -228,6 +234,25 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         });
     }
 }
+
+- (void)removeOldestFile {
+       dispatch_sync(self.ioQueue, ^{
+           NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtPath:self.diskCachePath];
+           NSDate *oldest = [NSDate date];
+           NSString *oldestFileName = nil;
+           for (NSString *f in fileEnumerator) {
+               NSString *photoPath = [self.diskCachePath stringByAppendingPathComponent:f];
+               NSDate *created = [[_fileManager attributesOfItemAtPath:photoPath error:NULL] objectForKey:@"NSFileCreationDate"];
+               
+               if([created compare:oldest] == NSOrderedAscending){
+                   oldestFileName = [NSString stringWithString:photoPath];
+                   oldest = created;
+               }
+           }
+           
+           [_fileManager removeItemAtPath:oldestFileName error:NULL];
+       });
+ }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key {
     [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
