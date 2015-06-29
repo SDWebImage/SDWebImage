@@ -82,6 +82,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Use this flag to transform them anyway.
      */
     SDWebImageTransformAnimatedImage = 1 << 10,
+    
+    /**
+     * Put the image in the extra priority queue and force to load at first all high prio images
+     */
+    SDWebImageExtraHighPriority = 1 << 11,
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);

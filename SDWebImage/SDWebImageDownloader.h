@@ -49,6 +49,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * Put the image in the high priority queue.
      */
     SDWebImageDownloaderHighPriority = 1 << 7,
+    
+    /**
+     * Put the image in the extra priority queue and force to load at first all high prio images
+     */
+    SDWebImageDownloaderExtraHighPriority = 1 << 8,
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {

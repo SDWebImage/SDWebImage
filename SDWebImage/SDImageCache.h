@@ -63,6 +63,11 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
 /**
+ * The maximum number of images to cache. default = 0 (unlimited)
+ */
+@property (assign, nonatomic) NSUInteger maxNumberOfImagesToCache;
+
+/**
  * Returns global shared cache instance
  *
  * @return SDImageCache global instance
