@@ -40,7 +40,7 @@ static int64_t kAsyncTestTimeout = 5;
 
     NSURL *originalImageURL = [NSURL URLWithString:@"https://www.google.gr/images/srpr/logo11w.png"];
     
-    [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).toNot.beNil();
         expect(error).to.beNil();
         expect(originalImageURL).to.equal(imageURL);
@@ -57,7 +57,7 @@ static int64_t kAsyncTestTimeout = 5;
 
     NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.png"];
     
-    [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).to.beNil();
         expect(error).toNot.beNil();
         expect(originalImageURL).to.equal(imageURL);

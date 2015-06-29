@@ -138,14 +138,14 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  * @code
 
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
-[manager downloadImageWithURL:imageURL
-                      options:0
-                     progress:nil
-                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                        if (image) {
-                            // do something with image
-                        }
-                    }];
+[manager loadImageWithURL:imageURL
+                  options:0
+                 progress:nil
+                completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                    if (image) {
+                        // do something with image
+                    }
+                }];
 
  * @endcode
  */
@@ -203,10 +203,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
-                                         options:(SDWebImageOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
+- (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
+                                     options:(SDWebImageOptions)options
+                                    progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                   completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

@@ -107,7 +107,7 @@
     }];
 }
 
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+- (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
                                          options:(SDWebImageOptions)options
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
