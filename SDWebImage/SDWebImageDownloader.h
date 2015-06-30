@@ -10,6 +10,13 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
 
+@class SDWebImageDownloader;
+@protocol SDWebImageDownloaderDelegate <NSObject>
+
+- (Class)imageDownloader:(SDWebImageDownloader *)imageDownloader downloadOperationClassForURL:(NSURL *)url sdTag:(id)sdTag;
+
+@end
+
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderLowPriority = 1 << 0,
     SDWebImageDownloaderProgressiveDownload = 1 << 1,
@@ -78,6 +85,8 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  * Asynchronous downloader dedicated and optimized for image loading.
  */
 @interface SDWebImageDownloader : NSObject
+
+@property (assign, nonatomic) id<SDWebImageDownloaderDelegate> delegate;
 
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 

@@ -9,6 +9,7 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
+#import "NSObject+MultiDownload.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
@@ -110,6 +111,18 @@ static NSString *const kCompletedCallbackKey = @"completed";
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
+- (Class)finalOperationClass:(NSURL *)url {
+    Class finalCls = self.operationClass;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(imageManager:downloadOperationClassForURL:sdTag:)]) {
+        Class cls = [self.delegate imageDownloader:self downloadOperationClassForURL:url sdTag:[url sd_tag]];
+        if (cls) {
+            finalCls = cls;
+        }
+    }
+    return finalCls;
+}
+
+
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
     __weak SDWebImageDownloader *wself = self;
@@ -130,7 +143,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
         else {
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
-        operation = [[wself.operationClass alloc] initWithRequest:request
+        Class downloadOperationClass = [wself finalOperationClass:url];
+        operation = [[downloadOperationClass alloc] initWithRequest:request
                                                           options:options
                                                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                                                              SDWebImageDownloader *sself = wself;
