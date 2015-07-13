@@ -106,12 +106,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _memCache.name = fullNamespace;
 
         // Init the disk cache
-        if(directory!=nil)
-        {
+        if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
-        }
-        else
-        {
+        } else {
             NSString *path = [self makeDiskCachePath:ns];
             _diskCachePath = path;
         }

@@ -79,7 +79,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Init a new cache store with a specific namespace and directory
  *
- * @param ns The namespace to use for this cache store
+ * @param ns        The namespace to use for this cache store
  * @param directory Directory to cache disk images in
  */
 - (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory;
