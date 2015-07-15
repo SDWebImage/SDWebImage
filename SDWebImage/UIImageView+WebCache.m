@@ -76,7 +76,7 @@ static char imageURLKey;
                     // See #699 for more details
                     // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
                     // so if this one is called second, we will overwrite the new data
-                    if (completedBlock && !(error && error.code == NSURLErrorCancelled)) {
+                    if (completedBlock /*&& !(error && error.code == NSURLErrorCancelled)*/) {
                         completedBlock(image, error, cacheType, url);
                     }
                 }
