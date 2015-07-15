@@ -116,6 +116,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // Set decompression to YES
         _shouldDecompressImages = YES;
 
+        // Disable iCloud
+        _shouldDisableiCloud = YES;
+
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
         });
@@ -237,7 +240,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
                 }
 
-                [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
+                // get cache Path for image key
+                NSString *cachePathForKey = [self defaultCachePathForKey:key];
+                // transform to NSUrl
+                NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
+
+                [_fileManager createFileAtPath:cachePathForKey contents:data attributes:nil];
+
+                // disable iCloud backup
+                if (self.shouldDisableiCloud) {
+                    [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:nil];
+                }
             }
         });
     }
