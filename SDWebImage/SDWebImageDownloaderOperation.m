@@ -12,6 +12,11 @@
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
 
+NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
+NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
+NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
+NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
+
 @interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate>
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
@@ -285,13 +290,18 @@
     }
 
     //'304 Not Modified' is an exceptional one
-    if ((![response respondsToSelector:@selector(statusCode)] || [((NSHTTPURLResponse *)response) statusCode] < 400) && [((NSHTTPURLResponse *)response) statusCode] != 304) {
+    if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         expectedSize = expected;
         if (self.progressBlock) {
             self.progressBlock(0, expected);
         }
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
+        self.response = response;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+        });
     }
     else {
         NSUInteger code = [((NSHTTPURLResponse *)response) statusCode];
@@ -466,7 +476,7 @@
                     }
                 }
                 if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                    completionBlock(nil, nil, [NSError errorWithDomain:@"SDWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
+                    completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}], YES);
                 }
                 else {
                     completionBlock(image, self.imageData, nil, YES);

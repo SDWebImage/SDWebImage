@@ -30,10 +30,15 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image) {
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
             CGFloat scale = 1.0;
             if (key.length >= 8) {
-                // Search @2x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x. + 4 len ext)
+                // Search @2x. or @3x. at the end of the string, before a 3 to 4 extension length (only if key len is 8 or more @2x./@3x. + 4 len ext)
                 NSRange range = [key rangeOfString:@"@2x." options:0 range:NSMakeRange(key.length - 8, 5)];
                 if (range.location != NSNotFound) {
                     scale = 2.0;
+                }
+                
+                range = [key rangeOfString:@"@3x." options:0 range:NSMakeRange(key.length - 8, 5)];
+                if (range.location != NSNotFound) {
+                    scale = 3.0;
                 }
             }
 
@@ -43,3 +48,5 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image) {
         return image;
     }
 }
+
+NSString *const SDWebImageErrorDomain = @"SDWebImageErrorDomain";
