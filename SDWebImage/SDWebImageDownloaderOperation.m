@@ -116,13 +116,16 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         } // @synchronized end
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        if ([self shouldContinueWhenAppEntersBackground]) {
+        Class UIApplicationClass = NSClassFromString(@"UIApplication");
+        BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
+        if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
             __weak __typeof__ (self) wself = self;
-            backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+            UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
+            backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
                 __strong __typeof (wself) sself = wself;
                 if (sself) {
                     [sself cancel];
-                    // [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
+                    // [app endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
                 }
             }];
         }
@@ -171,10 +174,11 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        if (backgroundTaskId != UIBackgroundTaskInvalid) {
-            [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId];
-            backgroundTaskId = UIBackgroundTaskInvalid;
-        }
+    if (hasApplication && backgroundTaskId != UIBackgroundTaskInvalid) {
+        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
+        [app endBackgroundTask:backgroundTaskId];
+        backgroundTaskId = UIBackgroundTaskInvalid;
+    }
 #endif
 
        // synchronize with cancel call

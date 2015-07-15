@@ -163,11 +163,11 @@
         __strong __typeof(self) strongSelf = weakSelf;
         __strong SDWebImageCombinedOperation* strongOperation = wekOperation;
         if (error) {
-            if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
+            BOOL shouldBeFailedURLAlliOSVersion = (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut);
+            BOOL shouldBeFailedURLiOS7 = (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1 && error.code != NSURLErrorInternationalRoamingOff && error.code != NSURLErrorCallIsActive && error.code != NSURLErrorDataNotAllowed);
+            if (shouldBeFailedURLAlliOSVersion || shouldBeFailedURLiOS7) {
                 @synchronized (strongSelf.failedURLs) {
-                    if (![strongSelf.failedURLs containsObject:url]) {
-                        [strongSelf.failedURLs addObject:url];
-                    }
+                    [strongSelf.failedURLs addObject:url];
                 }
             }
             dispatch_main_sync_safe(^{
@@ -175,6 +175,12 @@
             });
         }
         else {
+            if ((options & SDWebImageRetryFailed)) {
+                @synchronized (self.failedURLs) {
+                    [self.failedURLs removeObject:url];
+                }
+            }
+
             BOOL cacheOnDisk = (options & SDWebImageCacheMemoryOnly) != SDWebImageCacheMemoryOnly;
 
              if (options & SDWebImageRefreshCached && !downloadedImage) {// !downloadedImage && !error && (options & SDWebImageRefreshCached) =>
@@ -187,7 +193,7 @@
                      UIImage *transformedImage = [sSelf.delegate imageManager:sSelf transformDownloadedImage:downloadedImage withURL:url];
                      if (transformedImage && finished) {
                          BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                         [sSelf.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
+                         [sSelf.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:(imageWasTransformed ? nil : data) forKey:key toDisk:cacheOnDisk];
                      }
 
                      dispatch_main_sync_safe(^{
@@ -238,7 +244,7 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            
+
             // start the download operation or add a new observer if download has already been started
             [self.imageDownloader downloadImageWithURL:url options:downloaderOptions observer:operation];
         }

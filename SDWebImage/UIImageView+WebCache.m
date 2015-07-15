@@ -56,8 +56,10 @@ static char imageURLKey;
                 __strong UIImageView *sself = wself;
                 if (!sself) return;
                 if (image) {
-                    sself.image = image;
-                    [sself setNeedsLayout];
+                    if (!(options & SDWebImageAvoidAutoSetImage)) {
+                        sself.image = image;
+                        [sself setNeedsLayout];
+                    }
                 }
                 else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
                     objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

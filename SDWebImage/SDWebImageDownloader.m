@@ -95,7 +95,11 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
         _URLOperations = [NSMutableDictionary new];
-        _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/webp,image/*;q=0.8" forKey:@"Accept"];
+#ifdef SD_WEBP
+        _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];
+#else
+        _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
+#endif
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 30.0;
     }
