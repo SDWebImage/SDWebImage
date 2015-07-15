@@ -379,6 +379,9 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
+    [cell.imageView setShowActivityIndicatorView:YES];
+    [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+
     cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
     cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
     [cell.imageView sd_setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]

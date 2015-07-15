@@ -176,6 +176,18 @@
 
 - (void)sd_cancelCurrentAnimationImagesLoad;
 
+/**
+ *  Show activity UIActivityIndicatorView
+ */
+- (void)setShowActivityIndicatorView:(BOOL)show;
+
+/**
+ *  set desired UIActivityIndicatorViewStyle
+ *
+ *  @param style The style of the UIActivityIndicatorView
+ */
+- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
+
 @end
 
 

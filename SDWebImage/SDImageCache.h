@@ -43,6 +43,16 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
+ *  disable iCloud backup [defaults to YES]
+ */
+@property (assign, nonatomic) BOOL shouldDisableiCloud;
+
+/**
+ * use memory cache [defaults to YES]
+ */
+@property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+
+/**
  * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCost;
