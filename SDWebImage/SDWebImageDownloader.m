@@ -137,8 +137,9 @@ static NSString *const kDownloadOperationKey = @"downloadOperation";
 }
 
 - (void)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options observer:(id<SDWebImageDownloaderObserver>)observer {
-    __weak SDWebImageDownloader *wself = self;
 
+    __weak __typeof(self) wself = self;
+    
     DebugLogEvent(([NSString stringWithFormat:@"> downloadImageWithURL = %@", [url path]]));
     [self addObserver:observer forURL:url createCallback:^(){
         NSTimeInterval timeoutInterval = wself.downloadTimeout;

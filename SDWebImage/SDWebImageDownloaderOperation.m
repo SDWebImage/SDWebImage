@@ -62,7 +62,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     size_t width, height;
     UIImageOrientation orientation;
     BOOL responseFromCached;
-    NSInteger expectedSize;
 }
 
 @synthesize executing = _executing;
@@ -83,7 +82,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         _completedBlock = [completedBlock copy];
         _executing = NO;
         _finished = NO;
-        expectedSize = 0;
+        _expectedSize = 0;
         _imageData = nil;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
         _connection = nil;
@@ -292,7 +291,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     //'304 Not Modified' is an exceptional one
     if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
-        expectedSize = expected;
+        _expectedSize = expected;
         if (self.progressBlock) {
             self.progressBlock(0, expected);
         }
@@ -334,7 +333,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
     [self.imageData appendData:data];
 
-    if ((self.options & SDWebImageDownloaderProgressiveDownload) && expectedSize > 0 && self.completedBlock) {
+    if ((self.options & SDWebImageDownloaderProgressiveDownload) && _expectedSize > 0 && self.completedBlock) {
         // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
         // Thanks to the author @Nyx0uf
 
@@ -365,7 +364,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
         }
 
-        if (width + height > 0 && totalSize < expectedSize) {
+        if (width + height > 0 && totalSize < _expectedSize) {
             // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
 
@@ -416,7 +415,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     }
 
     if (self.progressBlock) {
-        self.progressBlock(self.imageData.length, expectedSize);
+        self.progressBlock(self.imageData.length, _expectedSize);
     }
 }
 
@@ -463,7 +462,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
             completionBlock(nil, nil, nil, YES);
         }
-        else {
+        else if (self.imageData) {
             @autoreleasepool {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
@@ -482,6 +481,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
                     completionBlock(image, self.imageData, nil, YES);
                 }
             }
+        } else {
+            completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
         }
     }
 
