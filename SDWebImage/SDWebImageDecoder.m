@@ -30,27 +30,23 @@
             infoMask == kCGImageAlphaNoneSkipFirst ||
             infoMask == kCGImageAlphaNoneSkipLast);
 
-    // CGBitmapContextCreate doesn't support kCGImageAlphaNone with RGB.
-    // https://developer.apple.com/library/mac/#qa/qa1037/_index.html
     if (infoMask == kCGImageAlphaNone && CGColorSpaceGetNumberOfComponents(colorSpace) > 1) {
-        // Unset the old alpha info.
-        bitmapInfo &= ~kCGBitmapAlphaInfoMask;
-
+        // CGBitmapContextCreate doesn't support kCGImageAlphaNone with RGB.
+        // https://developer.apple.com/library/mac/#qa/qa1037/_index.html
+        
         // Set noneSkipFirst.
-        bitmapInfo |= kCGImageAlphaNoneSkipFirst;
-    }
-            // Some PNGs tell us they have alpha but only 3 components. Odd.
-    else if (!anyNonAlpha && CGColorSpaceGetNumberOfComponents(colorSpace) == 3) {
-        // Unset the old alpha info.
-        bitmapInfo &= ~kCGBitmapAlphaInfoMask;
-        bitmapInfo |= kCGImageAlphaPremultipliedFirst;
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipFirst;
+    } else if (anyNonAlpha) {
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
+    } else {
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
     }
 
     // It calculates the bytes-per-row based on the bitsPerComponent and width arguments.
     CGContextRef context = CGBitmapContextCreate(NULL,
             imageSize.width,
             imageSize.height,
-            CGImageGetBitsPerComponent(imageRef),
+            8,
             0,
             colorSpace,
             bitmapInfo);
