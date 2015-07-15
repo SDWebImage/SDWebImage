@@ -291,6 +291,10 @@ If you're using Cocoa Pods and have any frameworks that extend optional librarie
 ```
 -force_load $(TARGET_BUILD_DIR)/libPods.a
 ```
+and this:
+```
+$(inherited)
+```
 
 ### Import headers in your source files
 
