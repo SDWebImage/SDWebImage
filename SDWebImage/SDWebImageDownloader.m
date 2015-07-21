@@ -10,10 +10,13 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 #import <KVOController/FBKVOController.h>
+#import "SDWebImageDispatchCancableBlock.h"
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 static NSString *const kOptionsCallbackKey = @"options";
+NSString *const kSDWebImageDownloaderDidFinishDownloadingAllExtraHightPriorityImages = @"kSDWebImageDownloaderDidFinishDownloadingAllExtraHightPriorityImages";
+sd_dispatch_cancelable_block_t cancelBlockAllImagesDownloadedNotifier;
 
 @interface SDWebImageDownloader ()
 
@@ -24,6 +27,8 @@ static NSString *const kOptionsCallbackKey = @"options";
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
 @property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
 @property (strong, nonatomic) FBKVOController *kvoController;
+@property (assign, nonatomic) BOOL notifyAllImagesDownloadedWithExtraHighPriority;
+@property (assign, nonatomic) BOOL notifierAllImagesDownloadedWithExtraHighPriorityIsWaiting;
 
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
@@ -90,6 +95,16 @@ static NSString *const kOptionsCallbackKey = @"options";
             
             if (newValue == 0 && isSuspended) {
                 [_downloadQueue setSuspended:NO];
+
+                //Notifiy
+                if (cancelBlockAllImagesDownloadedNotifier) {
+                    sd_cancel_block(cancelBlockAllImagesDownloadedNotifier);
+                }
+                
+                cancelBlockAllImagesDownloadedNotifier = sd_dispatch_after_delay(.5, ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kSDWebImageDownloaderDidFinishDownloadingAllExtraHightPriorityImages object:nil];
+                });
+                
             } else if (newValue != 0 && !isSuspended) {
                 [_downloadQueue setSuspended:YES];
             }
