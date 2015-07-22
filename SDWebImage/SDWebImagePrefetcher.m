@@ -116,8 +116,7 @@
             [self.delegate imagePrefetcher:self
                             didPrefetchURL:url
                              finishedCount:self.finishedCount
-                                totalCount:self.prefetchURLs.count
-             ];
+                                totalCount:self.prefetchURLs.count];
         }
         else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
@@ -125,6 +124,7 @@
                 self.completionBlock(self.finishedCount, self.skippedCount);
                 self.completionBlock = nil;
             }
+            self.progressBlock = nil;
         }
 
         @synchronized(self.unfinishedOperations) {

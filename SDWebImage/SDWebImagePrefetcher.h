@@ -58,6 +58,11 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  */
 @property (nonatomic, assign) SDWebImageOptions options;
 
+/**
+ * Queue options for Prefetcher. Defaults to Main Queue.
+ */
+@property (nonatomic, assign) dispatch_queue_t prefetcherQueue;
+
 @property (weak, nonatomic) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
