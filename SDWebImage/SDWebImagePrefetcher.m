@@ -46,51 +46,13 @@
     return self;
 }
 
-- (NSUInteger)maxConcurrentDownloads {
-    return self.manager.imageDownloader.maxConcurrentDownloads;
-}
-
 - (void)setMaxConcurrentDownloads:(NSUInteger)maxConcurrentDownloads {
     self.manager.imageDownloader.maxConcurrentDownloads = maxConcurrentDownloads;
 }
 
-- (void)reportStatus {
-    NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
-    if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
-        [self.delegate imagePrefetcher:self
-               didFinishWithTotalCount:(total - self.skippedCount)
-                          skippedCount:self.skippedCount];
-    }
+- (NSUInteger)maxConcurrentDownloads {
+    return self.manager.imageDownloader.maxConcurrentDownloads;
 }
-
-- (void)prefetchURLs:(NSArray *)urls {
-    [self prefetchURLs:urls progress:nil completed:nil];
-}
-
-- (void)prefetchURLs:(NSArray *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock {
-    self.startedTime = CFAbsoluteTimeGetCurrent();
-    self.progressBlock = progressBlock;
-    self.completionBlock = completionBlock;
-
-    if (urls.count == 0) {
-        if (completionBlock) {
-            completionBlock(0,0);
-        }
-    } else {
-        // get only the urls that are not currently being prefetched.
-        NSMutableOrderedSet *newUrls = [NSMutableOrderedSet orderedSetWithArray:urls];
-        [newUrls minusOrderedSet:self.prefetchURLs];
-
-        // add the new urls to the current list.
-        [self.prefetchURLs unionOrderedSet:newUrls];
-
-        for (NSURL *url in newUrls) {
-            [self startPrefetchingUrl:url];
-        }
-    }
-}
-
 
 - (void)startPrefetchingUrl:(NSURL *)url {
     self.requestedCount++;
@@ -140,6 +102,45 @@
         }
     }
 }
+
+- (void)reportStatus {
+    NSUInteger total = [self.prefetchURLs count];
+    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
+    if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
+        [self.delegate imagePrefetcher:self
+               didFinishWithTotalCount:(total - self.skippedCount)
+                          skippedCount:self.skippedCount];
+    }
+}
+
+- (void)prefetchURLs:(NSArray *)urls {
+    [self prefetchURLs:urls progress:nil completed:nil];
+}
+
+- (void)prefetchURLs:(NSArray *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock {
+    self.startedTime = CFAbsoluteTimeGetCurrent();
+    self.progressBlock = progressBlock;
+    self.completionBlock = completionBlock;
+
+    if (urls.count == 0) {
+        if (completionBlock) {
+            completionBlock(0,0);
+        }
+    } else {
+        // get only the urls that are not currently being prefetched.
+        NSMutableOrderedSet *newUrls = [NSMutableOrderedSet orderedSetWithArray:urls];
+        [newUrls minusOrderedSet:self.prefetchURLs];
+
+        // add the new urls to the current list.
+        [self.prefetchURLs unionOrderedSet:newUrls];
+
+        for (NSURL *url in newUrls) {
+            [self startPrefetchingUrl:url];
+        }
+    }
+}
+
+
 
 - (void)cancelPrefetchingForURL:(NSURL *)url
 {
