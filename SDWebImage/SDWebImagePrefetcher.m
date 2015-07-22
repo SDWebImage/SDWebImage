@@ -55,19 +55,22 @@
 }
 
 - (void)startPrefetchingUrl:(NSURL *)url {
-    self.requestedCount++;
     __weak id<SDWebImageOperation> operation = [self.manager downloadImageWithURL:url options:self.options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
+        
+        NSUInteger numberOfPrefetchURLs = 0;
+        @synchronized(self.prefetchURLs) {
+            numberOfPrefetchURLs = [self.prefetchURLs count];
+        }
 
         if (image) {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,numberOfPrefetchURLs);
             }
-        }
-        else {
+        } else {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,numberOfPrefetchURLs);
             }
 
             // Add last failed
@@ -78,9 +81,8 @@
             [self.delegate imagePrefetcher:self
                             didPrefetchURL:url
                              finishedCount:self.finishedCount
-                                totalCount:self.prefetchURLs.count];
-        }
-        else if (self.finishedCount == self.requestedCount) {
+                                totalCount:numberOfPrefetchURLs];
+        } else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
                 self.completionBlock(self.finishedCount, self.skippedCount);
@@ -97,14 +99,17 @@
     }];
 
     @synchronized(self.unfinishedOperations) {
-        if (operation) {
+        if (operation && url) {
             self.unfinishedOperations[url] = operation;
         }
     }
 }
 
 - (void)reportStatus {
-    NSUInteger total = [self.prefetchURLs count];
+    NSUInteger total = 0;
+    @synchronized(self.prefetchURLs) {
+        total = [self.prefetchURLs count];
+    }
     NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
     if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
         [self.delegate imagePrefetcher:self
@@ -129,10 +134,15 @@
     } else {
         // get only the urls that are not currently being prefetched.
         NSMutableOrderedSet *newUrls = [NSMutableOrderedSet orderedSetWithArray:urls];
-        [newUrls minusOrderedSet:self.prefetchURLs];
+        
+        @synchronized(self.prefetchURLs) {
+            [newUrls minusOrderedSet:self.prefetchURLs];
 
-        // add the new urls to the current list.
-        [self.prefetchURLs unionOrderedSet:newUrls];
+            // add the new urls to the current list.
+            [self.prefetchURLs unionOrderedSet:newUrls];
+        }
+        
+        self.requestedCount = [newUrls count];
 
         for (NSURL *url in newUrls) {
             [self startPrefetchingUrl:url];
@@ -140,23 +150,31 @@
     }
 }
 
-
-
-- (void)cancelPrefetchingForURL:(NSURL *)url
-{
-    id<SDWebImageOperation> operation = self.unfinishedOperations[url];
+- (void)cancelPrefetchingForURL:(NSURL *)url {
+    id<SDWebImageOperation> operation = nil;
+    @synchronized(self.unfinishedOperations) {
+        operation = self.unfinishedOperations[url];
+    }
     if (operation) {
         [self.manager cancelOperations:@[operation]];
     }
 }
 
 - (void)cancelPrefetching {
-    self.prefetchURLs = nil;
+    @synchronized(self.prefetchURLs) {
+        [self.prefetchURLs removeAllObjects];
+    }
+    
     self.skippedCount = 0;
     self.requestedCount = 0;
     self.finishedCount = 0;
-    [self.manager cancelOperations:self.unfinishedOperations.allValues];
-    [self.unfinishedOperations removeAllObjects];
+    
+    NSArray *operationsToCancel = nil;
+    @synchronized(self.unfinishedOperations) {
+        operationsToCancel = self.unfinishedOperations.allValues;
+        [self.unfinishedOperations removeAllObjects];
+    }
+    [self.manager cancelOperations:operationsToCancel];
 }
 
 @end
