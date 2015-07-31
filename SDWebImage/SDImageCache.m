@@ -122,6 +122,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // Disable iCloud
         _shouldDisableiCloud = YES;
 
+        // Set decompression to YES
+        _shouldDecompressImages = YES;
+
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
         });

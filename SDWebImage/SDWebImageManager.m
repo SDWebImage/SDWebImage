@@ -296,6 +296,18 @@
     }
 }
 
+- (void)cancelOperations:(NSArray *)operations
+{
+    @synchronized (self.runningOperations) {
+        NSArray *operationsToCancel = [self.runningOperations filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSOperation *evaluatedObject, NSDictionary *bindings) {
+            return [operations containsObject:evaluatedObject];
+        }]];
+
+        [operationsToCancel makeObjectsPerformSelector:@selector(cancel)];
+        [self.runningOperations removeObjectsInArray:operationsToCancel];
+    }
+}
+
 - (BOOL)isRunning {
     return self.runningOperations.count > 0;
 }

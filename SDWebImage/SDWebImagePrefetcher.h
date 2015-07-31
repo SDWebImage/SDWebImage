@@ -68,7 +68,7 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 /**
  * Return the global image prefetcher instance.
  */
-+ (SDWebImagePrefetcher *)sharedImagePrefetcher;
++ (instancetype)sharedImagePrefetcher;
 
 /**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
@@ -98,6 +98,13 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  * Remove and cancel queued list
  */
 - (void)cancelPrefetching;
+
+/**
+ cancels prefetching the given url if this prefetcher is currently or is queued to download it.
+
+ @param url the URL to cancel.
+ */
+- (void)cancelPrefetchingForURL:(NSURL *)url;
 
 
 @end
