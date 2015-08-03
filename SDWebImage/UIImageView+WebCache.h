@@ -79,6 +79,7 @@
  *
  * @param url         The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
+ * @param defaultImage The image will not be set , until the image request finishes and return nil.
  * @see sd_setImageWithURL:placeholderImage:options:
  */
 
