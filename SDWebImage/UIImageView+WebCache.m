@@ -60,14 +60,13 @@ static char TAG_ACTIVITY_SHOW;
 
         __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+            [wself removeActivityIndicator];
+            if (!wself) return;
             if (image && (options & SDWebImageAvoidAutoSetImageAndMainQueue) && completedBlock)
             {
                 completedBlock(image, error, cacheType, url);
-                [wself removeActivityIndicator];
                 return;
             }
-            [wself removeActivityIndicator];
-            if (!wself) return;
             dispatch_main_sync_safe(^{
                 if (!wself) return;
                 if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
