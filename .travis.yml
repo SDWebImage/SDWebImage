@@ -13,14 +13,12 @@ before_install:
 
 script:
 
-    - pod lib lint
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator build
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphonesimulator build
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphonesimulator build
+    - pod lib lint --allow-warnings
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator -arch i386 build
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphonesimulator -arch i386 build
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphonesimulator -arch i386 build
 
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator build
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator -arch i386 build
 
-    - cd Tests
-    - pod update
-    - cd ..
-    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator clean test
+    - pod install --project-directory=Tests
+    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test

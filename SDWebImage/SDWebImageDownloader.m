@@ -10,9 +10,6 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 
-NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
-NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
-
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
@@ -65,11 +62,16 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (id)init {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
+        _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
         _URLCallbacks = [NSMutableDictionary new];
-        _HTTPHeaders = [NSMutableDictionary dictionaryWithObject:@"image/webp,image/*;q=0.8" forKey:@"Accept"];
+#ifdef SD_WEBP
+        _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];
+#else
+        _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
+#endif
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;
     }
@@ -112,7 +114,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
-    __weak SDWebImageDownloader *wself = self;
+    __weak __typeof(self)wself = self;
 
     [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^{
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
@@ -135,19 +137,27 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                                                              SDWebImageDownloader *sself = wself;
                                                              if (!sself) return;
-                                                             NSArray *callbacksForURL = [sself callbacksForURL:url];
+                                                             __block NSArray *callbacksForURL;
+                                                             dispatch_sync(sself.barrierQueue, ^{
+                                                                 callbacksForURL = [sself.URLCallbacks[url] copy];
+                                                             });
                                                              for (NSDictionary *callbacks in callbacksForURL) {
-                                                                 SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
-                                                                 if (callback) callback(receivedSize, expectedSize);
+                                                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                                                     SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
+                                                                     if (callback) callback(receivedSize, expectedSize);
+                                                                 });
                                                              }
                                                          }
                                                         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
-                                                            NSArray *callbacksForURL = [sself callbacksForURL:url];
-                                                            if (finished) {
-                                                                [sself removeCallbacksForURL:url];
-                                                            }
+                                                            __block NSArray *callbacksForURL;
+                                                            dispatch_barrier_sync(sself.barrierQueue, ^{
+                                                                callbacksForURL = [sself.URLCallbacks[url] copy];
+                                                                if (finished) {
+                                                                    [sself.URLCallbacks removeObjectForKey:url];
+                                                                }
+                                                            });
                                                             for (NSDictionary *callbacks in callbacksForURL) {
                                                                 SDWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
                                                                 if (callback) callback(image, data, error, finished);
@@ -156,8 +166,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                         cancelled:^{
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
-                                                            [sself removeCallbacksForURL:url];
+                                                            dispatch_barrier_async(sself.barrierQueue, ^{
+                                                                [sself.URLCallbacks removeObjectForKey:url];
+                                                            });
                                                         }];
+        operation.shouldDecompressImages = wself.shouldDecompressImages;
         
         if (wself.username && wself.password) {
             operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];
@@ -207,20 +220,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
         if (first) {
             createCallback();
         }
-    });
-}
-
-- (NSArray *)callbacksForURL:(NSURL *)url {
-    __block NSArray *callbacksForURL;
-    dispatch_sync(self.barrierQueue, ^{
-        callbacksForURL = self.URLCallbacks[url];
-    });
-    return [callbacksForURL copy];
-}
-
-- (void)removeCallbacksForURL:(NSURL *)url {
-    dispatch_barrier_async(self.barrierQueue, ^{
-        [self.URLCallbacks removeObjectForKey:url];
     });
 }
 

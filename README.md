@@ -6,6 +6,7 @@ Web Image
 [![Pod License](http://img.shields.io/cocoapods/l/SDWebImage.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/3.3/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/3.3)
 [![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/rs/SDWebImage)
 
 This library provides a category for UIImageView with support for remote images coming from the web.
 
@@ -41,7 +42,7 @@ API documentation is available at [CocoaDocs - SDWebImage](http://cocoadocs.org/
 
 ### Using UIImageView+WebCache category with UITableView
 
-Just #import the UIImageView+WebCache.h header, and call the setImageWithURL:placeholderImage:
+Just #import the UIImageView+WebCache.h header, and call the sd_setImageWithURL:placeholderImage:
 method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be
 handled for you, from async downloads to caching management.
 
@@ -62,9 +63,9 @@ handled for you, from async downloads to caching management.
                                        reuseIdentifier:MyIdentifier] autorelease];
     }
 
-    // Here we use the new provided setImageWithURL: method to load the web image
-    [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
-                   placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
+    // Here we use the new provided sd_setImageWithURL: method to load the web image
+    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                      placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
 
     cell.textLabel.text = @"My Text";
     return cell;
@@ -77,10 +78,10 @@ With blocks, you can be notified about the image download progress and whenever 
 has completed with success or not:
 
 ```objective-c
-// Here we use the new provided setImageWithURL: method to load the web image
-[cell.imageView setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
-               placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType) {... completion code here ...}];
+// Here we use the new provided sd_setImageWithURL: method to load the web image
+[cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
+                      placeholderImage:[UIImage imageNamed:@"placeholder.png"]
+                             completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {... completion code here ...}];
 ```
 
 Note: neither your success nor failure block will be call if your image request is canceled before completion.
@@ -95,19 +96,16 @@ Here is a simple example of how to use SDWebImageManager:
 
 ```objective-c
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
-[manager downloadWithURL:imageURL
-                 options:0
-                 progress:^(NSInteger receivedSize, NSInteger expectedSize)
-                 {
-                     // progression tracking code
-                 }
-                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished)
-                 {
-                     if (image)
-                     {
-                         // do something with image
+[manager downloadImageWithURL:imageURL
+                      options:0
+                     progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                         // progression tracking code
                      }
-                 }];
+                     completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                         if (image) {
+                             // do something with image
+                         }
+                     }];
 ```
 
 ### Using Asynchronous Image Downloader Independently
@@ -132,7 +130,7 @@ It's also possible to use the async image downloader independently:
 
 ### Using Asynchronous Image Caching Independently
 
-It is also possible to use the aync based image cache store independently. SDImageCache
+It is also possible to use the async based image cache store independently. SDImageCache
 maintains a memory cache and an optional disk cache. Disk cache write operations are performed
 asynchronous so it doesn't add unnecessary latency to the UI.
 
@@ -207,9 +205,9 @@ SDWebImage does very aggressive caching by default. It ignores all kind of cachi
 If you don't control the image server you're using, you may not be able to change the URL when its content is updated. This is the case for Facebook avatar URLs for instance. In such case, you may use the `SDWebImageRefreshCached` flag. This will slightly degrade the performance but will respect the HTTP caching control headers:
 
 ``` objective-c
-[imageView setImageWithURL:[NSURL URLWithString:@"https://graph.facebook.com/olivier.poitrey/picture"]
-          placeholderImage:[UIImage imageNamed:@"avatar-placeholder.png"]
-                   options:SDWebImageRefreshCached];
+[imageView sd_setImageWithURL:[NSURL URLWithString:@"https://graph.facebook.com/olivier.poitrey/picture"]
+                 placeholderImage:[UIImage imageNamed:@"avatar-placeholder.png"]
+                          options:SDWebImageRefreshCached];
 ```
 
 ### Add a progress indicator
@@ -231,7 +229,32 @@ There are three ways to use SDWebImage in your project:
 #### Podfile
 ```
 platform :ios, '6.1'
-pod 'SDWebImage', '~>3.6'
+pod 'SDWebImage', '~>3.7'
+```
+
+### Installation with Carthage (iOS 8+)
+
+[Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and ins less invasive than CocoaPods.
+
+To install with carthage, follow the instruction on [Carthage](https://github.com/Carthage/Carthage)
+
+#### Cartfile
+```
+github "rs/SDWebImage"
+```
+
+#### Usage
+Swift
+
+```
+import WebImage
+
+```
+
+Objective-C
+
+```
+@import WebImage;
 ```
 
 ### Installation by cloning the repository
@@ -267,6 +290,10 @@ Alternatively, if this causes compilation problems with frameworks that extend o
 If you're using Cocoa Pods and have any frameworks that extend optional libraries, such as Parsen RestKit or opencv2, instead of the -ObjC flag use:
 ```
 -force_load $(TARGET_BUILD_DIR)/libPods.a
+```
+and this:
+```
+$(inherited)
 ```
 
 ### Import headers in your source files
