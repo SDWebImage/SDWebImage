@@ -37,7 +37,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @interface SDImageCache : NSObject
 
 /**
- * Decompressing images that are downloaded and cached can improve peformance but can consume lot of memory.
+ * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
  * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
  */
 @property (assign, nonatomic) BOOL shouldDecompressImages;
@@ -254,7 +254,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *  Get the cache path for a certain key (needs the cache path root folder)
  *
  *  @param key  the key (can be obtained from url using cacheKeyForURL)
- *  @param path the cach path root folder
+ *  @param path the cache path root folder
  *
  *  @return the cache path
  */

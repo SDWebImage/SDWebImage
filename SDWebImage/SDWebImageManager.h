@@ -41,7 +41,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * This option helps deal with images changing behind the same request URL, e.g. Facebook graph api profile pics.
      * If a cached image is refreshed, the completion block is called once with the cached image and again with the final image.
      *
-     * Use this flag only if you can't make your URLs static with embeded cache busting parameter.
+     * Use this flag only if you can't make your URLs static with embedded cache busting parameter.
      */
     SDWebImageRefreshCached = 1 << 4,
 
@@ -58,7 +58,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageHandleCookies = 1 << 6,
 
     /**
-     * Enable to allow untrusted SSL ceriticates.
+     * Enable to allow untrusted SSL certificates.
      * Useful for testing purposes. Use with caution in production.
      */
     SDWebImageAllowInvalidSSLCertificates = 1 << 7,
@@ -195,11 +195,11 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *   This block has no return value and takes the requested UIImage as first parameter.
  *   In case of error the image parameter is nil and the second parameter may contain an NSError.
  *
- *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrived from the local cache
+ *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
  *   or from the memory cache or from the network.
  *
  *   The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is 
- *   downloading. This block is thus called repetidly with a partial image. When image is fully downloaded, the
+ *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
@@ -220,7 +220,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url;
 
 /**
- * Cancel all current opreations
+ * Cancel all current operations
  */
 - (void)cancelAll;
 
