@@ -29,17 +29,19 @@
     size_t width = CGImageGetWidth(imageRef);
     size_t height = CGImageGetHeight(imageRef);
 
-    // default RGB
-    CGColorSpaceRef RGBcolorSpace = CGColorSpaceCreateDeviceRGB();
-
     // current
     CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
+    CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
+    
+    bool unsupportedColorSpace = (imageColorSpaceModel == 0 || imageColorSpaceModel == -1 || imageColorSpaceModel == kCGColorSpaceModelIndexed);
+    if (unsupportedColorSpace)
+        colorspaceRef = CGColorSpaceCreateDeviceRGB();
 
     CGContextRef context = CGBitmapContextCreate(NULL, width,
                                                  height,
                                                  CGImageGetBitsPerComponent(imageRef),
                                                  0,
-                                                 (imageColorSpaceModel == 0 || imageColorSpaceModel == -1) ? RGBcolorSpace : CGImageGetColorSpace(imageRef),
+                                                 colorspaceRef,
                                                  kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
 
     // Draw the image into the context and retrieve the new image, which will now have an alpha layer
@@ -47,7 +49,9 @@
     CGImageRef imageRefWithAlpha = CGBitmapContextCreateImage(context);
     UIImage *imageWithAlpha = [UIImage imageWithCGImage:imageRefWithAlpha];
 
-    CGColorSpaceRelease(RGBcolorSpace);
+    if (unsupportedColorSpace)
+        CGColorSpaceRelease(colorspaceRef);
+    
     CGContextRelease(context);
     CGImageRelease(imageRefWithAlpha);
     
