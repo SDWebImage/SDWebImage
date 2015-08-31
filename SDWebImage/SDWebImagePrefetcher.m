@@ -8,10 +8,6 @@
 
 #import "SDWebImagePrefetcher.h"
 
-#if (!defined(DEBUG) && !defined (SD_VERBOSE)) || defined(SD_LOG_NONE)
-#define NSLog(...)
-#endif
-
 @interface SDWebImagePrefetcher ()
 
 @property (strong, nonatomic) SDWebImageManager *manager;
@@ -65,14 +61,11 @@
             if (self.progressBlock) {
                 self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
             }
-            NSLog(@"Prefetched %@ out of %@", @(self.finishedCount), @(self.prefetchURLs.count));
         }
         else {
             if (self.progressBlock) {
                 self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
             }
-            NSLog(@"Prefetched %@ out of %@ (Failed)", @(self.finishedCount), @(self.prefetchURLs.count));
-
             // Add last failed
             self.skippedCount++;
         }
@@ -101,7 +94,6 @@
 
 - (void)reportStatus {
     NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElapsed %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
     if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)
