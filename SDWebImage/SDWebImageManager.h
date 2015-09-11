@@ -88,7 +88,16 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * have the hand before setting the image (apply a filter or add it with cross-fade animation for instance)
      * Use this flag if you want to manually set the image in the completion when success
      */
-    SDWebImageAvoidAutoSetImage = 1 << 11
+    SDWebImageAvoidAutoSetImage = 1 << 11,
+    
+    /**
+     * If the status code for the HTTP response is greater than or equal to 400, setting this flag will NOT immediately cancel
+     * the request. Instead the downloader will wait until the full response has been received and sends an error to the completion
+     * block which includes the entire response body. Set this flag if the response body may contain something that is important to
+     * you such as a 404 image.
+     */
+    SDWebImageShouldFailSlow = 1 << 12,
+    
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);

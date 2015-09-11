@@ -49,6 +49,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * Put the image in the high priority queue.
      */
     SDWebImageDownloaderHighPriority = 1 << 7,
+    
+    /**
+     * If the status code for the HTTP response is greater than or equal to 400, setting this flag will NOT immediately cancel
+     * the request. Instead the downloader will wait until the full response has been received and sends an error to the completion
+     * block which includes the entire response body. Set this flag if the response body may contain something that is important to
+     * you such as a 404 image.
+     */
+    SDWebImageDownloaderShouldFailSlow = 1 << 8,
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
