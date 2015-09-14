@@ -96,7 +96,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * block which includes the entire response body. Set this flag if the response body may contain something that is important to
      * you such as a 404 image.
      */
-    SDWebImageShouldFailSlow = 1 << 12,
+    SDWebImageIncludesResponseOnFail = 1 << 12,
     
 };
 

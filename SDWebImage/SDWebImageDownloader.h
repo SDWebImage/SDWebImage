@@ -56,7 +56,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * block which includes the entire response body. Set this flag if the response body may contain something that is important to
      * you such as a 404 image.
      */
-    SDWebImageDownloaderShouldFailSlow = 1 << 8,
+    SDWebImageDownloaderIncludesResponseOnFail = 1 << 8,
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {

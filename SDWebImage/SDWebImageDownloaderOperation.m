@@ -214,7 +214,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     
     //'304 Not Modified' is an exceptional one
-    if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304) || ([((NSHTTPURLResponse *)response) statusCode] >= 400 && (self.options & SDWebImageDownloaderShouldFailSlow))) {
+    if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304) || ([((NSHTTPURLResponse *)response) statusCode] >= 400 && (self.options & SDWebImageDownloaderIncludesResponseOnFail))) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         if (self.progressBlock) {
@@ -392,8 +392,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
                 }
             }
             
-            if ([((NSHTTPURLResponse *)self.response) statusCode] >= 400 && (self.options & SDWebImageDownloaderShouldFailSlow)) {
-                // Return the response body along with an error if SDWebImageDownloaderShouldFailSlow is set
+            if ([((NSHTTPURLResponse *)self.response) statusCode] >= 400 && (self.options & SDWebImageDownloaderIncludesResponseOnFail)) {
+                // Return the response body along with an error if SDWebImageDownloaderIncludesResponseOnFail is set
                 NSData *responseData = self.imageData == nil ? [NSData data] : self.imageData;
                 completionBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)self.response) statusCode] userInfo:@{SDWebImageErrorResponseKey : self.response, SDWebImageErrorResponseDataKey : responseData}], YES);
             } else {
@@ -405,8 +405,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
                 }
             }
         } else {
-            if ([((NSHTTPURLResponse *)self.response) statusCode] >= 400 && (self.options & SDWebImageDownloaderShouldFailSlow)) {
-                // Return the response body along with an error if SDWebImageDownloaderShouldFailSlow is set
+            if ([((NSHTTPURLResponse *)self.response) statusCode] >= 400 && (self.options & SDWebImageDownloaderIncludesResponseOnFail)) {
+                // Return the response body along with an error if SDWebImageDownloaderIncludesResponseOnFail is set
                 completionBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)self.response) statusCode] userInfo:@{SDWebImageErrorResponseKey : self.response}], YES);
             } else {
                 completionBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}], YES);
