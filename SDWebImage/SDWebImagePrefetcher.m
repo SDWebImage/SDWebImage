@@ -40,6 +40,7 @@
     if ((self = [super init])) {
         _manager = [SDWebImageManager new];
         _options = SDWebImageLowPriority;
+        _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
     }
     return self;
@@ -82,9 +83,8 @@
                                 totalCount:self.prefetchURLs.count
             ];
         }
-
         if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(self.prefetcherQueue, ^{
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         }
@@ -94,13 +94,14 @@
                 self.completionBlock(self.finishedCount, self.skippedCount);
                 self.completionBlock = nil;
             }
+            self.progressBlock = nil;
         }
     }];
 }
 
 - (void)reportStatus {
     NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
+    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElapsed %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
     if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)
