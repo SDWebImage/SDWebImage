@@ -232,6 +232,12 @@ platform :ios, '6.1'
 pod 'SDWebImage', '~>3.7'
 ```
 
+If you are using Swift, be sure to add `use_frameworks!` and set your target to iOS 8+:
+```
+platform :ios, '8.0'
+use_frameworks!
+```
+
 ### Installation with Carthage (iOS 8+)
 
 [Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and is less invasive than CocoaPods.
@@ -246,9 +252,14 @@ github "rs/SDWebImage"
 #### Usage
 Swift
 
+If you installed using CocoaPods:
+```
+import SDWebImage
+```
+
+If you installed manually:
 ```
 import WebImage
-
 ```
 
 Objective-C
