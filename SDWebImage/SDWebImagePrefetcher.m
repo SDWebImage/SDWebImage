@@ -8,7 +8,7 @@
 
 #import "SDWebImagePrefetcher.h"
 
-#if (!defined(DEBUG) && !defined (SD_VERBOSE)) || defined(SD_LOG_NONE)
+#if (!defined(NSLog) && !defined(DEBUG) && !defined (SD_VERBOSE)) || defined(SD_LOG_NONE)
 #define NSLog(...)
 #endif
 
