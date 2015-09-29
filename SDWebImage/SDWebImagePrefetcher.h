@@ -71,6 +71,11 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 + (SDWebImagePrefetcher *)sharedImagePrefetcher;
 
 /**
+ * Allows you to instantiate a prefetcher with any arbitrary image manager.
+ */
+- (id)initWithImageManager:(SDWebImageManager *)manager;
+
+/**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
  * currently one image is downloaded at a time,
  * and skips images for failed downloads and proceed to the next image in the list

@@ -37,8 +37,12 @@
 }
 
 - (id)init {
+    return [self initWithImageManager:[SDWebImageManager new]];
+}
+
+- (id)initWithImageManager:(SDWebImageManager *)manager {
     if ((self = [super init])) {
-        _manager = [SDWebImageManager new];
+        _manager = manager;
         _options = SDWebImageLowPriority;
         _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
