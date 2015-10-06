@@ -238,6 +238,15 @@ platform :ios, '8.0'
 use_frameworks!
 ```
 
+#### Subspecs
+
+There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+
+Podfile example:
+```
+pod 'SDWebImabe/WebP'
+```
+
 ### Installation with Carthage (iOS 8+)
 
 [Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and is less invasive than CocoaPods.
