@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Dailymotion. All rights reserved.
 //
 
-#ifdef SD_WEBP
 #import "UIImage+WebP.h"
 
 #if !COCOAPODS
@@ -68,11 +67,10 @@ static void FreeImageData(void *info, const void *data, size_t size)
 
 @end
 
-#if !COCOAPODS
+#if !COCOAPODS && !FRWK
 // Functions to resolve some undefined symbols when using WebP and force_load flag
 void WebPInitPremultiplyNEON(void) {}
 void WebPInitUpsamplersNEON(void) {}
 void VP8DspInitNEON(void) {}
 #endif
 
-#endif
