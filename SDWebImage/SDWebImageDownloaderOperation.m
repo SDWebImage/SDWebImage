@@ -64,6 +64,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     }
     return self;
 }
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (void)start {
     @synchronized (self) {
