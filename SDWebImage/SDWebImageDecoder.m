@@ -13,6 +13,7 @@
 @implementation UIImage (ForceDecode)
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
+    @autoreleasepool {
     // do not decode animated images
     if (image.images) { return image; }
 
@@ -56,6 +57,7 @@
     CGImageRelease(imageRefWithAlpha);
     
     return imageWithAlpha;
+    }
 }
 
 @end
