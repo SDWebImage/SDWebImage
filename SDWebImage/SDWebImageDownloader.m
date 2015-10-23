@@ -15,6 +15,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 @interface SDWebImageDownloader ()
 
+@property (readwrite, nonatomic, strong) NSURLCredential *defaultCredential;
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (assign, nonatomic) Class operationClass;
@@ -26,6 +27,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @end
 
 @implementation SDWebImageDownloader
+
+@synthesize defaultCredential = _defaultCredential;
 
 + (void)initialize {
     // Bind SDNetworkActivityIndicator if available (download it here: http://github.com/rs/SDNetworkActivityIndicator )
@@ -81,6 +84,10 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (void)dealloc {
     [self.downloadQueue cancelAllOperations];
     SDDispatchQueueRelease(_barrierQueue);
+}
+
+- (void)setDefaultCredential:(NSURLCredential *)credential{
+    _defaultCredential = credential;
 }
 
 - (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field {
@@ -172,7 +179,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                         }];
         operation.shouldDecompressImages = wself.shouldDecompressImages;
         
-        if (wself.username && wself.password) {
+        if(wself.defaultCredential){
+            operation.credential = wself.defaultCredential;
+        }else if (wself.username && wself.password) {
             operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];
         }
         
