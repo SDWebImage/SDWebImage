@@ -113,19 +113,17 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 It's also possible to use the async image downloader independently:
 
 ```objective-c
-[SDWebImageDownloader.sharedDownloader downloadImageWithURL:imageURL
-                                                    options:0
-                                                   progress:^(NSInteger receivedSize, NSInteger expectedSize)
-                                                   {
-                                                       // progression tracking code
-                                                   }
-                                                   completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
-                                                   {
-                                                       if (image && finished)
-                                                       {
-                                                           // do something with image
-                                                       }
-                                                   }];
+SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+[downloader downloadImageWithURL:imageURL
+                         options:0
+                        progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            // progression tracking code
+                        }
+                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            if (image && finished) {
+                                // do something with image
+                            }
+                        }];
 ```
 
 ### Using Asynchronous Image Caching Independently
