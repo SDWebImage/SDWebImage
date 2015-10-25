@@ -114,11 +114,11 @@
 
     __weak SDWebImagePrefetcher *weakSelf = self;
 
-    if(urls.count == 0){
-        if(completionBlock){
+    if (urls.count == 0) {
+        if (completionBlock) {
             completionBlock(0,0);
         }
-    }else{
+    } else {
         // http://oleb.net/blog/2013/07/parallelize-for-loops-gcd-dispatch_apply/
         // Optimize the maxConcurrentdownloads for effeciency. Since caching operations are involved that are non-trivial using
         // dispatch_apply might be helpful.
@@ -128,9 +128,9 @@
         dispatch_apply(maxNumberOfImages/self.maxConcurrentDownloads, dispatch_get_global_queue(self.prefetcherQueue, 0), ^(size_t index) {
             size_t i = index * self.maxConcurrentDownloads;
             size_t stop = i + self.maxConcurrentDownloads;
-            do{
+            do {
                 [weakSelf startPrefetchingAtIndex:i++];
-            }while (i < stop);
+            } while (i < stop);
         });
 
         // Download remaining images.
