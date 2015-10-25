@@ -301,7 +301,11 @@
 }
 
 - (BOOL)isRunning {
-    return self.runningOperations.count > 0;
+    BOOL isRunning = NO;
+    @synchronized(self.runningOperations) {
+        isRunning = (self.runningOperations.count > 0);
+    }
+    return isRunning;
 }
 
 @end
