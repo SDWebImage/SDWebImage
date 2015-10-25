@@ -110,6 +110,11 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
 + (SDWebImageDownloader *)sharedDownloader;
 
 /**
+ *  Set the default URL credential to be set for request operations.
+ */
+@property (strong, nonatomic) NSURLCredential *urlCredential;
+
+/**
  * Set username
  */
 @property (strong, nonatomic) NSString *username;

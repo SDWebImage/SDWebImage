@@ -172,7 +172,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                         }];
         operation.shouldDecompressImages = wself.shouldDecompressImages;
         
-        if (wself.username && wself.password) {
+        if (wself.urlCredential) {
+            operation.credential = wself.urlCredential;
+        } else if (wself.username && wself.password) {
             operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];
         }
         
