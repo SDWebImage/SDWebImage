@@ -28,7 +28,9 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <WebImage/UIImage+MultiFormat.h>
 #import <WebImage/SDWebImageOperation.h>
 #import <WebImage/SDWebImageDownloader.h>
+#if !TARGET_OS_TV
 #import <WebImage/MKAnnotationView+WebCache.h>
+#endif
 #import <WebImage/SDWebImageDecoder.h>
 #import <WebImage/UIImage+WebP.h>
 #import <WebImage/UIImage+GIF.h>
