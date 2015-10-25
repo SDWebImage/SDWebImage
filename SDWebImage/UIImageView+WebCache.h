@@ -73,6 +73,19 @@
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
 
 /**
+ * Set the imageView `image` with an `url` and a placeholder. If the `image` is nil , a defaultImage will be set.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url         The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param defaultImage The image will not be set , until the image request finishes and return nil.
+ * @see sd_setImageWithURL:placeholderImage:options:
+ */
+
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder defaultImage:(UIImage *)defaultImage;
+
+/**
  * Set the imageView `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
@@ -81,6 +94,8 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
+
+
 - (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
 /**
