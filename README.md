@@ -242,7 +242,7 @@ There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you 
 
 Podfile example:
 ```
-pod 'SDWebImabe/WebP'
+pod 'SDWebImage/WebP'
 ```
 
 ### Installation with Carthage (iOS 8+)
