@@ -125,7 +125,7 @@
 
         NSInteger maxNumberOfImages = self.prefetchURLs.count;
 
-        dispatch_apply(maxNumberOfImages/self.maxConcurrentDownloads, dispatch_get_global_queue(self.prefetcherQueue, 0), ^(size_t index) {
+        dispatch_apply(maxNumberOfImages/self.maxConcurrentDownloads, self.prefetcherQueue, ^(size_t index) {
             size_t i = index * self.maxConcurrentDownloads;
             size_t stop = i + self.maxConcurrentDownloads;
             do {
