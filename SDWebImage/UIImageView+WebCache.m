@@ -66,7 +66,7 @@ static char TAG_ACTIVITY_SHOW;
                 __strong UIImageView *sself = wself;
                 if (!sself) return;
                 if (image) {
-                    if ((options & SDWebImageAvoidAutoSetImage) != SDWebImageAvoidAutoSetImage){
+                    if ((options & SDWebImageAvoidAutoSetImage) != SDWebImageAvoidAutoSetImage) {
                         sself.image = image;
                         [sself setNeedsLayout];
                     }

@@ -158,6 +158,7 @@
     NSString *key = [self cacheKeyForURL:url];
 
     __weak __typeof(self) weakSelf = self;
+    operation.progressBlock = [progressBlock copy];
     operation.completionBlock = ^(UIImage *downloadedImage, NSData* data, NSError *error, BOOL finished){
         __strong __typeof(self) strongSelf = weakSelf;
         __strong SDWebImageCombinedOperation* strongOperation = wekOperation;
@@ -170,9 +171,7 @@
                 && error.code != NSURLErrorCannotFindHost
                 && error.code != NSURLErrorCannotConnectToHost) {
                 @synchronized (strongSelf.failedURLs) {
-                    if (![strongSelf.failedURLs containsObject:url]) {
-                        [strongSelf.failedURLs addObject:url];
-                    }
+                    [strongSelf.failedURLs addObject:url];
                 }
             }
             dispatch_main_sync_safe(^{
@@ -198,7 +197,7 @@
                      UIImage *transformedImage = [sSelf.delegate imageManager:sSelf transformDownloadedImage:downloadedImage withURL:url];
                      if (transformedImage && finished) {
                          BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                         [sSelf.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:data forKey:key toDisk:cacheOnDisk];
+                         [sSelf.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:(imageWasTransformed ? nil : data) forKey:key toDisk:cacheOnDisk];
                      }
 
                      dispatch_main_sync_safe(^{
@@ -249,10 +248,9 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            
+
             // start the download operation or add a new observer if download has already been started
             [self.imageDownloader downloadImageWithURL:url options:downloaderOptions observer:operation];
-
         }
         else if (image) {
             completedBlock(image, nil, cacheType, YES, url);
