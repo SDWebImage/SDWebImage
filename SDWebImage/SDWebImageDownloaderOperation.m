@@ -93,12 +93,12 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 }
 
 - (void)start {
-   @autoreleasepool {
-       DebugLogEvent(@"> start");
+    @autoreleasepool {
+        DebugLogEvent(@"> start");
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-       __block UIBackgroundTaskIdentifier backgroundTaskId = UIBackgroundTaskInvalid;
+        __block UIBackgroundTaskIdentifier backgroundTaskId = UIBackgroundTaskInvalid;
 #endif
-    
+
         // synchronize with cancel call
         @synchronized(self) {
             // do finish immediately if cancelled
@@ -116,13 +116,16 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         } // @synchronized end
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        if ([self shouldContinueWhenAppEntersBackground]) {
+        Class UIApplicationClass = NSClassFromString(@"UIApplication");
+        BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
+        if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
             __weak __typeof__ (self) wself = self;
-            backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+            UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
+            backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
                 __strong __typeof (wself) sself = wself;
                 if (sself) {
                     [sself cancel];
-                    // [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
+                    // [app endBackgroundTask:backgroundTaskId]; <-- called from operation's thread before 'start' will exit
                 }
             }];
         }
@@ -146,11 +149,11 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             SInt32 runLoopResult = CFRunLoopRunInMode(kCFRunLoopDefaultMode, self.request.timeoutInterval + 1 , false);
 
             DebugLogEvent(([NSString stringWithFormat:@" -start.afterCFRunLoopRunInMode (%d)", runLoopResult]));
-//          Possible return values:
-//            kCFRunLoopRunFinished = 1,
-//            kCFRunLoopRunStopped = 2,
-//            kCFRunLoopRunTimedOut = 3,
-//            kCFRunLoopRunHandledSource = 4
+            //          Possible return values:
+            //            kCFRunLoopRunFinished = 1,
+            //            kCFRunLoopRunStopped = 2,
+            //            kCFRunLoopRunTimedOut = 3,
+            //            kCFRunLoopRunHandledSource = 4
             if (runLoopResult == kCFRunLoopRunTimedOut) {
                 DebugLogEvent(@" -start.timedOut");
                 [self.connection cancel];
@@ -171,18 +174,19 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         }
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        if (backgroundTaskId != UIBackgroundTaskInvalid) {
-            [[UIApplication sharedApplication] endBackgroundTask:backgroundTaskId];
+        if (hasApplication && backgroundTaskId != UIBackgroundTaskInvalid) {
+            UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
+            [app endBackgroundTask:backgroundTaskId];
             backgroundTaskId = UIBackgroundTaskInvalid;
         }
 #endif
 
-       // synchronize with cancel call
-       @synchronized(self) {
-           DebugLogEvent(@" -start.done");
-           [self done];
-       } // @synchronized end
-
+        // synchronize with cancel call
+        @synchronized(self) {
+            DebugLogEvent(@" -start.done");
+            [self done];
+        } // @synchronized end
+        
     }// @autoreleasepool
     DebugLogEvent(@"< start");
 }

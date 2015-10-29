@@ -13,8 +13,8 @@
 #error SDWebImage does not support Objective-C Garbage Collection
 #endif
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0
-#error SDWebImage doesn't support Deployement Target version < 5.0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED != 20000 && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0
+#error SDWebImage doesn't support Deployment Target version < 5.0
 #endif
 
 #if !TARGET_OS_IPHONE

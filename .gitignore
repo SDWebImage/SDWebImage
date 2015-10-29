@@ -18,6 +18,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+*.xcscmblueprint
 
 # CocoaPods
 #

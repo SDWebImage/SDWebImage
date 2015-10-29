@@ -141,7 +141,7 @@
         isFailedUrl = [self.failedURLs containsObject:url];
     }
 
-    if (!url || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
+    if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
         dispatch_main_sync_safe(^{
             NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorFileDoesNotExist userInfo:nil];
             if (completedBlock) completedBlock(nil, error, SDImageCacheTypeNone, YES, url);
@@ -162,7 +162,13 @@
         __strong __typeof(self) strongSelf = weakSelf;
         __strong SDWebImageCombinedOperation* strongOperation = wekOperation;
         if (error) {
-            if (error.code != NSURLErrorNotConnectedToInternet && error.code != NSURLErrorCancelled && error.code != NSURLErrorTimedOut) {
+            if (   error.code != NSURLErrorNotConnectedToInternet
+                && error.code != NSURLErrorCancelled
+                && error.code != NSURLErrorTimedOut
+                && error.code != NSURLErrorInternationalRoamingOff
+                && error.code != NSURLErrorDataNotAllowed
+                && error.code != NSURLErrorCannotFindHost
+                && error.code != NSURLErrorCannotConnectToHost) {
                 @synchronized (strongSelf.failedURLs) {
                     if (![strongSelf.failedURLs containsObject:url]) {
                         [strongSelf.failedURLs addObject:url];
@@ -174,6 +180,12 @@
             });
         }
         else {
+            if ((options & SDWebImageRetryFailed)) {
+                @synchronized (self.failedURLs) {
+                    [self.failedURLs removeObject:url];
+                }
+            }
+
             BOOL cacheOnDisk = (options & SDWebImageCacheMemoryOnly) != SDWebImageCacheMemoryOnly;
 
              if (options & SDWebImageRefreshCached && !downloadedImage) {// !downloadedImage && !error && (options & SDWebImageRefreshCached) =>
@@ -240,6 +252,7 @@
             
             // start the download operation or add a new observer if download has already been started
             [self.imageDownloader downloadImageWithURL:url options:downloaderOptions observer:operation];
+
         }
         else if (image) {
             completedBlock(image, nil, cacheType, YES, url);
@@ -275,7 +288,11 @@
 }
 
 - (BOOL)isRunning {
-    return self.runningOperations.count > 0;
+    BOOL isRunning = NO;
+    @synchronized(self.runningOperations) {
+        isRunning = (self.runningOperations.count > 0);
+    }
+    return isRunning;
 }
 
 @end

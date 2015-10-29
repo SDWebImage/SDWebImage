@@ -26,7 +26,7 @@ It provides:
 - Arm64 support
 
 NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.1.1
-minimum deployement version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
+minimum deployment version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 
@@ -74,7 +74,7 @@ handled for you, from async downloads to caching management.
 
 ### Using blocks
 
-With blocks, you can be notified about the image download progress and whenever the image retrival
+With blocks, you can be notified about the image download progress and whenever the image retrieval
 has completed with success or not:
 
 ```objective-c
@@ -113,19 +113,17 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 It's also possible to use the async image downloader independently:
 
 ```objective-c
-[SDWebImageDownloader.sharedDownloader downloadImageWithURL:imageURL
-                                                    options:0
-                                                   progress:^(NSInteger receivedSize, NSInteger expectedSize)
-                                                   {
-                                                       // progression tracking code
-                                                   }
-                                                   completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
-                                                   {
-                                                       if (image && finished)
-                                                       {
-                                                           // do something with image
-                                                       }
-                                                   }];
+SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+[downloader downloadImageWithURL:imageURL
+                         options:0
+                        progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            // progression tracking code
+                        }
+                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            if (image && finished) {
+                                // do something with image
+                            }
+                        }];
 ```
 
 ### Using Asynchronous Image Caching Independently
@@ -232,9 +230,24 @@ platform :ios, '6.1'
 pod 'SDWebImage', '~>3.7'
 ```
 
+If you are using Swift, be sure to add `use_frameworks!` and set your target to iOS 8+:
+```
+platform :ios, '8.0'
+use_frameworks!
+```
+
+#### Subspecs
+
+There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+
+Podfile example:
+```
+pod 'SDWebImage/WebP'
+```
+
 ### Installation with Carthage (iOS 8+)
 
-[Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and ins less invasive than CocoaPods.
+[Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and is less invasive than CocoaPods.
 
 To install with carthage, follow the instruction on [Carthage](https://github.com/Carthage/Carthage)
 
@@ -246,9 +259,14 @@ github "rs/SDWebImage"
 #### Usage
 Swift
 
+If you installed using CocoaPods:
+```
+import SDWebImage
+```
+
+If you installed manually:
 ```
 import WebImage
-
 ```
 
 Objective-C
@@ -290,6 +308,10 @@ Alternatively, if this causes compilation problems with frameworks that extend o
 If you're using Cocoa Pods and have any frameworks that extend optional libraries, such as Parsen RestKit or opencv2, instead of the -ObjC flag use:
 ```
 -force_load $(TARGET_BUILD_DIR)/libPods.a
+```
+and this:
+```
+$(inherited)
 ```
 
 ### Import headers in your source files
