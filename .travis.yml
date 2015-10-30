@@ -1,6 +1,8 @@
 
 language: objective-c
 
+osx_image: xcode7.1
+
 before_install:
 
     - export LANG=en_US.UTF-8
