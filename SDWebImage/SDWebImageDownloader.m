@@ -10,6 +10,21 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 
+@interface SDWebImageDownloaderCancelableCallbacksOperation : NSObject<SDWebImageOperation>
+@property (nonatomic, strong) SDWebImageNoParamsBlock cancelCallbacksBlock;
+@end
+
+@implementation SDWebImageDownloaderCancelableCallbacksOperation
+
+- (void)cancel
+{
+    if (_cancelCallbacksBlock) {
+        _cancelCallbacksBlock();
+    }
+}
+
+@end
+
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
@@ -115,8 +130,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
     __weak __typeof(self)wself = self;
+    SDWebImageDownloaderCancelableCallbacksOperation *cancelableCallbacksOperation = nil;
 
-    [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^{
+    cancelableCallbacksOperation = [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^{
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
         if (timeoutInterval == 0.0) {
             timeoutInterval = 15.0;
@@ -191,20 +207,26 @@ static NSString *const kCompletedCallbackKey = @"completed";
             wself.lastAddedOperation = operation;
         }
     }];
-
-    return operation;
+    
+    if (operation) {
+        return operation;
+    }
+    
+    return cancelableCallbacksOperation;
 }
 
-- (void)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {
+- (SDWebImageDownloaderCancelableCallbacksOperation*)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock andCompletedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {
+    __block SDWebImageDownloaderCancelableCallbacksOperation *cancelableCallbacksOperation = nil;
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
             completedBlock(nil, nil, nil, NO);
         }
-        return;
+        return nil;
     }
 
     dispatch_barrier_sync(self.barrierQueue, ^{
+        cancelableCallbacksOperation = [SDWebImageDownloaderCancelableCallbacksOperation new];
         BOOL first = NO;
         if (!self.URLCallbacks[url]) {
             self.URLCallbacks[url] = [NSMutableArray new];
@@ -218,11 +240,17 @@ static NSString *const kCompletedCallbackKey = @"completed";
         if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
         [callbacksForURL addObject:callbacks];
         self.URLCallbacks[url] = callbacksForURL;
+        
+        cancelableCallbacksOperation.cancelCallbacksBlock = ^{
+            [callbacksForURL removeObject:callbacks];
+        };
 
         if (first) {
             createCallback();
         }
     });
+    
+    return cancelableCallbacksOperation;
 }
 
 - (void)setSuspended:(BOOL)suspended {
