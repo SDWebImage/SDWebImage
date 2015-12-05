@@ -11,6 +11,9 @@
 #import "UIView+WebCacheOperation.h"
 
 static char imageURLStorageKey;
+static char TAG_ACTIVITY_INDICATOR;
+static char TAG_ACTIVITY_STYLE;
+static char TAG_ACTIVITY_SHOW;
 
 @implementation UIButton (WebCache)
 
@@ -56,7 +59,9 @@ static char imageURLStorageKey;
     if (!url) {
         [self.imageURLStorage removeObjectForKey:@(state)];
         
+        __weak __typeof(self)wself = self;
         dispatch_main_async_safe(^{
+            [wself removeActivityIndicator];
             NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
             if (completedBlock) {
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
@@ -66,12 +71,18 @@ static char imageURLStorageKey;
         return;
     }
     
+    // check if activityView is enabled or not
+    if ([self showActivityIndicatorView]) {
+        [self addActivityIndicator];
+    }
+    
     self.imageURLStorage[@(state)] = url;
 
     __weak __typeof(self)wself = self;
     id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!wself) return;
         dispatch_main_sync_safe(^{
+            [wself removeActivityIndicator];
             __strong UIButton *sself = wself;
             if (!sself) return;
             if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
@@ -171,6 +182,70 @@ static char imageURLStorageKey;
     }
 
     return storage;
+}
+
+
+#pragma mark -
+- (UIActivityIndicatorView *)activityIndicator {
+    return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
+}
+
+- (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
+    objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (void)sd_setShowActivityIndicatorView:(BOOL)show{
+    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, [NSNumber numberWithBool:show], OBJC_ASSOCIATION_RETAIN);
+}
+
+- (BOOL)showActivityIndicatorView{
+    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
+}
+
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
+    objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
+}
+
+- (int)getIndicatorStyle{
+    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
+}
+
+- (void)addActivityIndicator {
+    if (!self.activityIndicator) {
+        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self getIndicatorStyle]];
+        self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        dispatch_main_async_safe(^{
+            [self addSubview:self.activityIndicator];
+            
+            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
+                                                             attribute:NSLayoutAttributeCenterX
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self
+                                                             attribute:NSLayoutAttributeCenterX
+                                                            multiplier:1.0
+                                                              constant:0.0]];
+            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
+                                                             attribute:NSLayoutAttributeCenterY
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self
+                                                             attribute:NSLayoutAttributeCenterY
+                                                            multiplier:1.0
+                                                              constant:0.0]];
+        });
+    }
+    
+    dispatch_main_async_safe(^{
+        [self.activityIndicator startAnimating];
+    });
+    
+}
+
+- (void)removeActivityIndicator {
+    if (self.activityIndicator) {
+        [self.activityIndicator removeFromSuperview];
+        self.activityIndicator = nil;
+    }
 }
 
 @end
