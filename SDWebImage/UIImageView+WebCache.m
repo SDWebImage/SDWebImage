@@ -155,7 +155,7 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (void)setShowActivityIndicatorView:(BOOL)show{
+- (void)sd_setShowActivityIndicatorView:(BOOL)show{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, [NSNumber numberWithBool:show], OBJC_ASSOCIATION_RETAIN);
 }
 
@@ -163,7 +163,7 @@ static char TAG_ACTIVITY_SHOW;
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
 }
 
@@ -272,6 +272,14 @@ static char TAG_ACTIVITY_SHOW;
 
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
     [self sd_setAnimationImagesWithURLs:arrayOfURLs];
+}
+
+- (void)setShowActivityIndicatorView:(BOOL)show {
+    [self sd_setShowActivityIndicatorView:show];
+}
+
+- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style {
+    [self sd_setIndicatorStyle:style];
 }
 
 @end

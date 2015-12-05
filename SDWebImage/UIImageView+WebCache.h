@@ -179,14 +179,14 @@
 /**
  *  Show activity UIActivityIndicatorView
  */
-- (void)setShowActivityIndicatorView:(BOOL)show;
+- (void)sd_setShowActivityIndicatorView:(BOOL)show;
 
 /**
  *  set desired UIActivityIndicatorViewStyle
  *
  *  @param style The style of the UIActivityIndicatorView
  */
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
 
 @end
 
@@ -209,5 +209,8 @@
 - (void)cancelCurrentArrayLoad __deprecated_msg("Use `sd_cancelCurrentAnimationImagesLoad`");
 
 - (void)cancelCurrentImageLoad __deprecated_msg("Use `sd_cancelCurrentImageLoad`");
+
+- (void)setShowActivityIndicatorView:(BOOL)show __deprecated_msg("Use `sd_setShowActivityIndicatorView`");
+- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style __deprecated_msg("Use `sd_setIndicatorStyle`");
 
 @end
