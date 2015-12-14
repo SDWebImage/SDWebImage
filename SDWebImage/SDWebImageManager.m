@@ -38,17 +38,19 @@
 }
 
 - (id)init {
+    SDImageCache *cache = [SDImageCache sharedImageCache];
+    SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+    return [self initWithCache:cache downloader:downloader];
+}
+
+- (instancetype)initWithCache:(SDImageCache *)cache downloader:(SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
-        _imageCache = [self createCache];
-        _imageDownloader = [SDWebImageDownloader sharedDownloader];
+        _imageCache = cache;
+        _imageDownloader = downloader;
         _failedURLs = [NSMutableSet new];
         _runningOperations = [NSMutableArray new];
     }
     return self;
-}
-
-- (SDImageCache *)createCache {
-    return [SDImageCache sharedImageCache];
 }
 
 - (NSString *)cacheKeyForURL:(NSURL *)url {

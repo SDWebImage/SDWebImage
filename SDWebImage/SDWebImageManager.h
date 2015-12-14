@@ -180,7 +180,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return SDWebImageManager shared instance
  */
-+ (SDWebImageManager *)sharedManager;
++ (instancetype)sharedManager;
+
+/**
+ Allows to specify instance of cache and image downloader used with image manager.
+ @return new instance of `SDWebImageManager` with specified cache and downloader.
+ */
+- (instancetype)initWithCache:(SDImageCache *)cache downloader:(SDWebImageDownloader *)downloader NS_DESIGNATED_INITIALIZER;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
