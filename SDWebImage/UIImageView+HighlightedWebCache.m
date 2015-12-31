@@ -48,8 +48,17 @@
                                              wself.highlightedImage = image;
                                              [wself setNeedsLayout];
                                          }
-                                         if (completedBlock && finished) {
-                                             completedBlock(image, error, cacheType, url);
+                                         if (finished) {
+                                             // clear current download operation when finished
+                                             [self sd_removeImageLoadOperationWithKey:UIImageViewHighlightedWebCacheOperationKey];
+
+                                             // Do nothing if the operation was cancelled
+                                             // See #699 for more details
+                                             // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
+                                             // so if this one is called second, we will overwrite the new data
+                                             if (completedBlock && !(error && error.code == NSURLErrorCancelled)) {
+                                                 completedBlock(image, error, cacheType, url);
+                                             }
                                          }
                                      });
         }];

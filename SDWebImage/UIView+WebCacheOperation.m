@@ -24,12 +24,18 @@ static char loadOperationKey;
 }
 
 - (void)sd_setImageLoadOperation:(id)operation forKey:(NSString *)key {
+    if (!operation || !key) {
+        return;
+    }
     [self sd_cancelImageLoadOperationWithKey:key];
     NSMutableDictionary *operationDictionary = [self operationDictionary];
     [operationDictionary setObject:operation forKey:key];
 }
 
 - (void)sd_cancelImageLoadOperationWithKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
     // Cancel in progress downloader from queue
     NSMutableDictionary *operationDictionary = [self operationDictionary];
     id operations = [operationDictionary objectForKey:key];
@@ -48,6 +54,9 @@ static char loadOperationKey;
 }
 
 - (void)sd_removeImageLoadOperationWithKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
     NSMutableDictionary *operationDictionary = [self operationDictionary];
     [operationDictionary removeObjectForKey:key];
 }

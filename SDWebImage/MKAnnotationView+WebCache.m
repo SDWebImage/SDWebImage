@@ -42,7 +42,11 @@ static char imageURLKey;
     [self sd_cancelCurrentImageLoad];
 
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    self.image = placeholder;
+    if (!(options & SDWebImageDelayPlaceholder)) {
+        dispatch_main_async_safe(^{
+            self.image = placeholder;
+        });
+    }
 
     if (url) {
         __weak __typeof(self)wself = self;
@@ -54,8 +58,20 @@ static char imageURLKey;
                 if (image) {
                     sself.image = image;
                 }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
+                else if (error != nil && finished) {
+                    objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                }
+                if (finished) {
+                    // clear current download operation when finished
+                    [self sd_removeImageLoadOperationWithKey:@"MKAnnotationViewImage"];
+
+                    // Do nothing if the operation was cancelled
+                    // See #699 for more details
+                    // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object,
+                    // so if this one is called second, we will overwrite the new data
+                    if (completedBlock && !(error && error.code == NSURLErrorCancelled)) {
+                        completedBlock(image, error, cacheType, url);
+                    }
                 }
             });
         }];

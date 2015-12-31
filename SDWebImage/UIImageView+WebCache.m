@@ -63,23 +63,30 @@ static char TAG_ACTIVITY_SHOW;
             [wself removeActivityIndicator];
             if (!wself) return;
             dispatch_main_sync_safe(^{
-                if (!wself) return;
-                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
-                {
-                    completedBlock(image, error, cacheType, url);
-                    return;
-                }
-                else if (image) {
-                    wself.image = image;
-                    [wself setNeedsLayout];
-                } else {
-                    if ((options & SDWebImageDelayPlaceholder)) {
-                        wself.image = placeholder;
-                        [wself setNeedsLayout];
+                __strong UIImageView *sself = wself;
+                if (!sself) return;
+                if (image) {
+                    if ((options & SDWebImageAvoidAutoSetImage) != SDWebImageAvoidAutoSetImage) {
+                        sself.image = image;
+                        [sself setNeedsLayout];
                     }
                 }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
+                else if (error != nil && finished) { // clear imageURLKey in case of any error, it should not declare any url image loaded
+                    objc_setAssociatedObject(sself, &imageURLKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                }
+                else {
+                    if ((options & SDWebImageDelayPlaceholder)) {
+                        sself.image = placeholder;
+                        [sself setNeedsLayout];
+                    }
+                }
+                if (finished) {
+                    // clear current download operation when finished
+                    [self sd_removeImageLoadOperationWithKey:@"UIImageViewImageLoad"];
+
+                    if (completedBlock) {
+                        completedBlock(image, error, cacheType, url);
+                    }
                 }
             });
         }];
@@ -113,7 +120,7 @@ static char TAG_ACTIVITY_SHOW;
     NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
 
     for (NSURL *logoImageURL in arrayOfURLs) {
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        __block id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong UIImageView *sself = wself;
