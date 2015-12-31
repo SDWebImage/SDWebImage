@@ -40,7 +40,7 @@
         CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
         CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
         
-        bool unsupportedColorSpace = (imageColorSpaceModel == 0 || imageColorSpaceModel == -1 || imageColorSpaceModel == kCGColorSpaceModelIndexed);
+        bool unsupportedColorSpace = (imageColorSpaceModel == 0 || imageColorSpaceModel == -1 || imageColorSpaceModel == kCGColorSpaceModelCMYK || imageColorSpaceModel == kCGColorSpaceModelIndexed);
         if (unsupportedColorSpace)
             colorspaceRef = CGColorSpaceCreateDeviceRGB();
     
