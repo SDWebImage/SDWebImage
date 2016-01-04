@@ -58,12 +58,22 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  */
 @property (nonatomic, assign) SDWebImageOptions options;
 
+/**
+ * Queue options for Prefetcher. Defaults to Main Queue.
+ */
+@property (nonatomic, assign) dispatch_queue_t prefetcherQueue;
+
 @property (weak, nonatomic) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
  * Return the global image prefetcher instance.
  */
 + (SDWebImagePrefetcher *)sharedImagePrefetcher;
+
+/**
+ * Allows you to instantiate a prefetcher with any arbitrary image manager.
+ */
+- (id)initWithImageManager:(SDWebImageManager *)manager;
 
 /**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,

@@ -10,7 +10,6 @@
 
 
 #import <XCTest/XCTest.h>
-#import <XCTestAsync/XCTestAsync.h>
 #import <Expecta.h>
 
 #import "SDWebImageManager.h"
@@ -37,20 +36,25 @@ static int64_t kAsyncTestTimeout = 5;
 }
 
 - (void)testThatDownloadInvokesCompletionBlockWithCorrectParamsAsync {
-    NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.jpg?20120509154705"];
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
+
+    NSURL *originalImageURL = [NSURL URLWithString:@"https://www.google.gr/images/srpr/logo11w.png"];
     
     [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).toNot.beNil();
         expect(error).to.beNil();
         expect(originalImageURL).to.equal(imageURL);
-        
-        XCAsyncSuccess();
+
+        [expectation fulfill];
+        expectation = nil;
     }];
-    
-    XCAsyncFailAfter(kAsyncTestTimeout, @"Download image timed out");
+
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testThatDownloadWithIncorrectURLInvokesCompletionBlockWithAnErrorAsync {
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
+
     NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.png"];
     
     [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
@@ -58,10 +62,11 @@ static int64_t kAsyncTestTimeout = 5;
         expect(error).toNot.beNil();
         expect(originalImageURL).to.equal(imageURL);
         
-        XCAsyncSuccess();
+        [expectation fulfill];
+        expectation = nil;
     }];
     
-    XCAsyncFailAfter(kAsyncTestTimeout, @"Download image timed out");
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 @end

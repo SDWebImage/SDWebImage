@@ -8,10 +8,6 @@
 
 #import "SDWebImagePrefetcher.h"
 
-#if (!defined(DEBUG) && !defined (SD_VERBOSE)) || defined(SD_LOG_NONE)
-#define NSLog(...)
-#endif
-
 @interface SDWebImagePrefetcher ()
 
 @property (strong, nonatomic) SDWebImageManager *manager;
@@ -37,9 +33,14 @@
 }
 
 - (id)init {
+    return [self initWithImageManager:[SDWebImageManager new]];
+}
+
+- (id)initWithImageManager:(SDWebImageManager *)manager {
     if ((self = [super init])) {
-        _manager = [SDWebImageManager new];
+        _manager = manager;
         _options = SDWebImageLowPriority;
+        _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
     }
     return self;
@@ -64,14 +65,11 @@
             if (self.progressBlock) {
                 self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
             }
-            NSLog(@"Prefetched %@ out of %@", @(self.finishedCount), @(self.prefetchURLs.count));
         }
         else {
             if (self.progressBlock) {
                 self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
             }
-            NSLog(@"Prefetched %@ out of %@ (Failed)", @(self.finishedCount), @(self.prefetchURLs.count));
-
             // Add last failed
             self.skippedCount++;
         }
@@ -80,13 +78,7 @@
                             didPrefetchURL:self.prefetchURLs[index]
                              finishedCount:self.finishedCount
                                 totalCount:self.prefetchURLs.count
-            ];
-        }
-
-        if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self startPrefetchingAtIndex:self.requestedCount];
-            });
+             ];
         }
         else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
@@ -94,18 +86,18 @@
                 self.completionBlock(self.finishedCount, self.skippedCount);
                 self.completionBlock = nil;
             }
+            self.progressBlock = nil;
         }
     }];
 }
 
 - (void)reportStatus {
     NSUInteger total = [self.prefetchURLs count];
-    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
     if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)
                           skippedCount:self.skippedCount
-        ];
+         ];
     }
 }
 
@@ -120,10 +112,31 @@
     self.completionBlock = completionBlock;
     self.progressBlock = progressBlock;
 
-    // Starts prefetching from the very first image on the list with the max allowed concurrency
-    NSUInteger listCount = self.prefetchURLs.count;
-    for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
-        [self startPrefetchingAtIndex:i];
+    __weak SDWebImagePrefetcher *weakSelf = self;
+
+    if (urls.count == 0) {
+        if (completionBlock) {
+            completionBlock(0,0);
+        }
+    } else {
+        // http://oleb.net/blog/2013/07/parallelize-for-loops-gcd-dispatch_apply/
+        // Optimize the maxConcurrentdownloads for effeciency. Since caching operations are involved that are non-trivial using
+        // dispatch_apply might be helpful.
+
+        NSInteger maxNumberOfImages = self.prefetchURLs.count;
+
+        dispatch_apply(maxNumberOfImages/self.maxConcurrentDownloads, self.prefetcherQueue, ^(size_t index) {
+            size_t i = index * self.maxConcurrentDownloads;
+            size_t stop = i + self.maxConcurrentDownloads;
+            do {
+                [weakSelf startPrefetchingAtIndex:i++];
+            } while (i < stop);
+        });
+
+        // Download remaining images.
+        for (size_t i = maxNumberOfImages - (maxNumberOfImages % self.maxConcurrentDownloads); i < (size_t)maxNumberOfImages; i++) {
+            [self startPrefetchingAtIndex:i];
+        }
     }
 }
 
