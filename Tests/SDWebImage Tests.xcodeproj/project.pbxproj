@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25D4663C1C3C4D930044B186 /* UIImage+GIFTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 25D4663B1C3C4D930044B186 /* UIImage+GIFTests.m */; };
+		25D4663E1C3C4E160044B186 /* corrupt.gif in Resources */ = {isa = PBXBuildFile; fileRef = 25D4663D1C3C4E160044B186 /* corrupt.gif */; };
 		ABC8501F672447AA91C788DA /* libPods-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB0D107E6B4C4094BA2FEE29 /* libPods-ios.a */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
 		DA248D59195472AA00390AB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D58195472AA00390AB0 /* Foundation.framework */; };
@@ -19,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		1A6DF883515E8008203AB352 /* Pods-ios.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ios/Pods-ios.debug.xcconfig"; sourceTree = "<group>"; };
+		25D4663B1C3C4D930044B186 /* UIImage+GIFTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIFTests.m"; sourceTree = "<group>"; };
+		25D4663D1C3C4E160044B186 /* corrupt.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = corrupt.gif; sourceTree = "<group>"; };
 		CA88E6BDE3581B2BFE933C10 /* Pods-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ios.release.xcconfig"; path = "Pods/Target Support Files/Pods-ios/Pods-ios.release.xcconfig"; sourceTree = "<group>"; };
 		DA248D53195472AA00390AB0 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA248D56195472AA00390AB0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -89,10 +93,12 @@
 		DA248D5C195472AA00390AB0 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				25D4663D1C3C4E160044B186 /* corrupt.gif */,
 				DA248D5D195472AA00390AB0 /* Supporting Files */,
 				DA248D68195475D800390AB0 /* SDImageCacheTests.m */,
 				DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */,
 				DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */,
+				25D4663B1C3C4D930044B186 /* UIImage+GIFTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -119,6 +125,7 @@
 				DA248D50195472AA00390AB0 /* Frameworks */,
 				DA248D51195472AA00390AB0 /* Resources */,
 				D6347736BDF64FC5A4D078A4 /* Copy Pods Resources */,
+				D6F039D052BDBB99767F2D0A /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -159,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25D4663E1C3C4E160044B186 /* corrupt.gif in Resources */,
 				DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -179,6 +187,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ios/Pods-ios-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D6F039D052BDBB99767F2D0A /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ios/Pods-ios-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FBC8982311CD4ED9A3006D45 /* Check Pods Manifest.lock */ = {
@@ -205,6 +228,7 @@
 			files = (
 				DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */,
 				DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */,
+				25D4663C1C3C4D930044B186 /* UIImage+GIFTests.m in Sources */,
 				DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

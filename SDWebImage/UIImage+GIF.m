@@ -33,11 +33,13 @@
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
 
-            duration += [self sd_frameDurationAtIndex:i source:source];
+            if (image) {
+                duration += [self sd_frameDurationAtIndex:i source:source];
 
-            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+                [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
 
-            CGImageRelease(image);
+                CGImageRelease(image);
+            }
         }
 
         if (!duration) {
