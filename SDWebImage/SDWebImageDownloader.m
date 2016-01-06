@@ -112,7 +112,19 @@ static NSString *const kCompletedCallbackKey = @"completed";
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageDownloaderOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock
+{
+    return [self downloadImageWithURL:url options:options progress:progressBlock completed:completedBlock];
+}
+
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageDownloaderOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  transformBlock:(SDWebImageDownloaderTransformBlock)transformBlock
+                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __block SDWebImageDownloaderOperation *operation;
     __weak __typeof(self)wself = self;
 
@@ -148,6 +160,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                                  });
                                                              }
                                                          }
+                                                   transformBlock:transformBlock
                                                         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                                                             SDWebImageDownloader *sself = wself;
                                                             if (!sself) return;
