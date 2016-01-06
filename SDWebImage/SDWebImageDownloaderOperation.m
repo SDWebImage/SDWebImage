@@ -20,6 +20,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 @interface SDWebImageDownloaderOperation () <NSURLConnectionDataDelegate>
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
+@property (copy, nonatomic) SDWebImageDownloaderTransformBlock transformBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
 @property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
 
@@ -47,6 +48,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 - (id)initWithRequest:(NSURLRequest *)request
               options:(SDWebImageDownloaderOptions)options
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
+       transformBlock:(SDWebImageDownloaderTransformBlock)transformBlock
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
             cancelled:(SDWebImageNoParamsBlock)cancelBlock {
     if ((self = [super init])) {
@@ -55,6 +57,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         _shouldUseCredentialStorage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
+        _transformBlock = [transformBlock copy];
         _completedBlock = [completedBlock copy];
         _cancelBlock = [cancelBlock copy];
         _executing = NO;
@@ -388,7 +391,14 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             // Do not force decoding animated GIFs
             if (!image.images) {
                 if (self.shouldDecompressImages) {
-                    image = [UIImage decodedImageWithImage:image];
+                    if (self.transformBlock) {
+                        image = self.transformBlock(image);
+                        self.imageData = nil;
+                    }
+                    else
+                    {
+                        image = [UIImage decodedImageWithImage:image];
+                    }
                 }
             }
             if (CGSizeEqualToSize(image.size, CGSizeZero)) {

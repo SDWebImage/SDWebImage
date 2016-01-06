@@ -72,6 +72,7 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 
 typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDictionary *headers);
 
+typedef UIImage *(^SDWebImageDownloaderTransformBlock)(UIImage *image);
 /**
  * Asynchronous downloader dedicated and optimized for image loading.
  */
@@ -183,6 +184,11 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
 
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageDownloaderOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  transformBlock:(SDWebImageDownloaderTransformBlock)transformBlock
+                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
 /**
  * Sets the download queue suspension state
  */
