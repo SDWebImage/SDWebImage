@@ -199,6 +199,18 @@
  */
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state;
 
+/**
+ *  Show activity UIActivityIndicatorView
+ */
+- (void)sd_setShowActivityIndicatorView:(BOOL)show;
+
+/**
+ *  set desired UIActivityIndicatorViewStyle
+ *
+ *  @param style The style of the UIActivityIndicatorView
+ */
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
+
 @end
 
 
