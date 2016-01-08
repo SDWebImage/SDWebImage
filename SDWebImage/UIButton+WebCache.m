@@ -111,7 +111,7 @@ static char imageURLStorageKey;
 }
 
 - (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
-    [self sd_cancelImageLoadForState:state];
+    [self sd_cancelBackgroundImageLoadForState:state];
 
     [self setBackgroundImage:placeholder forState:state];
 
