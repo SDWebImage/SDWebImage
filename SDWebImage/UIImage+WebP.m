@@ -44,11 +44,14 @@ static void FreeImageData(void *info, const void *data, size_t size)
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     if (!(flags & ANIMATION_FLAG)) {
         // for static single webp image
+        WebPDemuxDelete(demuxer);
         return [self sd_rawWepImageWithData:webpData];
     }
     
     WebPIterator iter;
     if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
+        WebPDemuxReleaseIterator(&iter);
+        WebPDemuxDelete(demuxer);
         return nil;
     }
     
@@ -72,6 +75,8 @@ static void FreeImageData(void *info, const void *data, size_t size)
         
     } while (WebPDemuxNextFrame(&iter));
     
+    WebPDemuxReleaseIterator(&iter);
+    WebPDemuxDelete(demuxer);
     UIImage *animateImage = [UIImage animatedImageWithImages:images duration:duration];
     return animateImage;
 }
