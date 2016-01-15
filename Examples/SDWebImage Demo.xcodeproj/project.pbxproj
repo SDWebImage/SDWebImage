@@ -33,13 +33,6 @@
 			remoteGlobalIDString = 4A2CADFF1AB4BB5300B6BC39;
 			remoteInfo = WebImage;
 		};
-		7522E5D21C47AEC80077E6BC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 00733A4C1BC487C000A5A117;
-			remoteInfo = "WebImage tvOS";
-		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -172,7 +165,6 @@
 				DA248D761954841D00390AB0 /* libSDWebImage+WebP.a */,
 				DA248D781954841D00390AB0 /* libSDWebImage+MKAnnotation.a */,
 				43A0FAAF1BDD16AC00B7582B /* WebImage.framework */,
-				7522E5D31C47AEC80077E6BC /* WebImage.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -235,13 +227,6 @@
 			fileType = wrapper.framework;
 			path = WebImage.framework;
 			remoteRef = 43A0FAAE1BDD16AC00B7582B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7522E5D31C47AEC80077E6BC /* WebImage.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = WebImage.framework;
-			remoteRef = 7522E5D21C47AEC80077E6BC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		DA248D741954841D00390AB0 /* libSDWebImage.a */ = {
