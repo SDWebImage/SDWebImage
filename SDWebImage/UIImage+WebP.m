@@ -44,8 +44,9 @@ static void FreeImageData(void *info, const void *data, size_t size)
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     if (!(flags & ANIMATION_FLAG)) {
         // for static single webp image
+        UIImage *staticImage = [self sd_rawWepImageWithData:webpData];
         WebPDemuxDelete(demuxer);
-        return [self sd_rawWepImageWithData:webpData];
+        return staticImage;
     }
     
     WebPIterator iter;
