@@ -15,7 +15,7 @@
 #import "webp/demux.h"
 #else
 #import "libwebp/webp/decode.h"
-#import "libwebp/webpc/mux_types.h"
+#import "libwebp/webp/mux_types.h"
 #import "libwebp/webp/demux.h"
 #endif
 
