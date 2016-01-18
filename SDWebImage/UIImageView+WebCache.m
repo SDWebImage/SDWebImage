@@ -87,8 +87,8 @@ static char TAG_ACTIVITY_SHOW;
     } else {
         dispatch_main_async_safe(^{
             [self removeActivityIndicator];
-            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
             if (completedBlock) {
+                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
             }
         });
