@@ -1,3 +1,7 @@
+## [3.7.5 Patch release for 3.7.0 on Jan 21st, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.5)
+- fixed #1425 and #1426 - Continuation of Fix #1366, addresses #1350 and reverts a part of #1221 - from commit 6406d8e, the wrong usage of `dispatch_apply`
+- fixed #1422 - Added a fallback for #976 so that if there are images saved with the old format (no extension), they can still be loaded
+
 ## [3.7.4 Patch release for 3.7.0 with tvOS support on Jan 8th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.4)
 
 #### Updates
