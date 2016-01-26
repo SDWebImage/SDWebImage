@@ -32,12 +32,12 @@
 
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
-
-            duration += [self sd_frameDurationAtIndex:i source:source];
-
-            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
-
+            UIImage *decompressedImage = [self createDecompressedImage:image];
             CGImageRelease(image);
+            
+            duration += [self sd_frameDurationAtIndex:i source:source];
+            
+            [images addObject:decompressedImage];
         }
 
         if (!duration) {
@@ -50,6 +50,27 @@
     CFRelease(source);
 
     return animatedImage;
+}
+
++ (UIImage *)createDecompressedImage:(CGImageRef)image {
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(image);
+    if (bitmapInfo | kCGImageAlphaLast) {
+        bitmapInfo = (bitmapInfo & (~kCGImageAlphaLast)) | kCGImageAlphaPremultipliedLast;
+    }
+    CGFloat width = CGImageGetWidth(image);
+    CGFloat height = CGImageGetHeight(image);
+    
+    CGContextRef ctx = CGBitmapContextCreate(NULL, width, height,
+                                             CGImageGetBitsPerComponent(image), 0,
+                                             CGImageGetColorSpace(image),
+                                             bitmapInfo);
+    CGContextDrawImage(ctx, CGRectMake(0,0,width, height), image);
+    CGImageRef decompressedCgImage = CGBitmapContextCreateImage(ctx);
+    CGContextRelease(ctx);
+    
+    UIImage *decompressedImage = [UIImage imageWithCGImage:decompressedCgImage scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
+    CGImageRelease(decompressedCgImage);
+    return decompressedImage;
 }
 
 + (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
