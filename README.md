@@ -12,7 +12,7 @@ This library provides a category for UIImageView with support for remote images 
 
 It provides:
 
-- An UIImageView category adding web image and cache management to the Cocoa Touch framework
+- An `UIImageView` category adding web image and cache management to the Cocoa Touch framework
 - An asynchronous image downloader
 - An asynchronous memory + disk image caching with automatic cache expiration handling
 - Animated GIF support
@@ -51,14 +51,11 @@ handled for you, from async downloads to caching management.
 
 ...
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *MyIdentifier = @"MyIdentifier";
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
-
-    if (cell == nil)
-    {
+    if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                        reuseIdentifier:MyIdentifier] autorelease];
     }
@@ -81,7 +78,9 @@ has completed with success or not:
 // Here we use the new provided sd_setImageWithURL: method to load the web image
 [cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
                       placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                             completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {... completion code here ...}];
+                             completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                                ... completion code here ...
+                             }];
 ```
 
 Note: neither your success nor failure block will be call if your image request is canceled before completion.
@@ -113,19 +112,17 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 It's also possible to use the async image downloader independently:
 
 ```objective-c
-[SDWebImageDownloader.sharedDownloader downloadImageWithURL:imageURL
-                                                    options:0
-                                                   progress:^(NSInteger receivedSize, NSInteger expectedSize)
-                                                   {
-                                                       // progression tracking code
-                                                   }
-                                                   completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished)
-                                                   {
-                                                       if (image && finished)
-                                                       {
-                                                           // do something with image
-                                                       }
-                                                   }];
+SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+[downloader downloadImageWithURL:imageURL
+                         options:0
+                        progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            // progression tracking code
+                        }
+                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            if (image && finished) {
+                                // do something with image
+                            }
+                        }];
 ```
 
 ### Using Asynchronous Image Caching Independently
@@ -144,8 +141,7 @@ the image.
 
 ```objective-c
 SDImageCache *imageCache = [[SDImageCache alloc] initWithNamespace:@"myNamespace"];
-[imageCache queryDiskCacheForKey:myCacheKey done:^(UIImage *image)
-{
+[imageCache queryDiskCacheForKey:myCacheKey done:^(UIImage *image) {
     // image is not nil if image was found
 }];
 ```
@@ -173,8 +169,7 @@ The following example sets a filter in the application delegate that will remove
 the URL before to use it as a cache key:
 
 ```objective-c
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL *url) {
         url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
         return [url absoluteString];
@@ -244,7 +239,7 @@ There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you 
 
 Podfile example:
 ```
-pod 'SDWebImabe/WebP'
+pod 'SDWebImage/WebP'
 ```
 
 ### Installation with Carthage (iOS 8+)

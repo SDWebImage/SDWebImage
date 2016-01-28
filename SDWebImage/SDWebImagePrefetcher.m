@@ -78,14 +78,13 @@
                             didPrefetchURL:self.prefetchURLs[index]
                              finishedCount:self.finishedCount
                                 totalCount:self.prefetchURLs.count
-            ];
+             ];
         }
         if (self.prefetchURLs.count > self.requestedCount) {
             dispatch_async(self.prefetcherQueue, ^{
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
-        }
-        else if (self.finishedCount == self.requestedCount) {
+        } else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
                 self.completionBlock(self.finishedCount, self.skippedCount);
@@ -102,7 +101,7 @@
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)
                           skippedCount:self.skippedCount
-        ];
+         ];
     }
 }
 
@@ -117,11 +116,11 @@
     self.completionBlock = completionBlock;
     self.progressBlock = progressBlock;
 
-    if(urls.count == 0){ 
-        if(completionBlock){
+    if (urls.count == 0) {
+        if (completionBlock) {
             completionBlock(0,0);
         }
-    }else{
+    } else {
         // Starts prefetching from the very first image on the list with the max allowed concurrency
         NSUInteger listCount = self.prefetchURLs.count;
         for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {

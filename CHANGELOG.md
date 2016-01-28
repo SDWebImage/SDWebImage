@@ -1,3 +1,44 @@
+## [3.7.5 Patch release for 3.7.0 on Jan 21st, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.5)
+- fixed #1425 and #1426 - Continuation of Fix #1366, addresses #1350 and reverts a part of #1221 - from commit 6406d8e, the wrong usage of `dispatch_apply`
+- fixed #1422 - Added a fallback for #976 so that if there are images saved with the old format (no extension), they can still be loaded
+
+## [3.7.4 Patch release for 3.7.0 with tvOS support on Jan 8th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.4)
+
+#### Updates
+- bumped `libwep` version to `0.4.4`
+
+#### Features:
+- added tvOS support #1327 and #1358 - fix #1368 and #1302
+
+#### Fixes:
+- #1217 contains several of the above fixes
+- fix #391 -> option to cache only on Disk. will replace #1130
+- fix #343 -> iCloud backup Option
+- fix #371 -> CGBitmapContextCreate: unsupported parameter combination + #1268 #1412 #1340
+- fix #576 -> scale set to screen scale
+- fix #1035 -> progress queue with dispatch_async
+- new feature -> activity indicator using auto layout. The activity indicator feature will replace #131
+- #1218 progress callbacks now report on main thread - fixes #1035
+- #1321 Added a new constructor to SDWebImagePrefetcher - replaces #956
+- #976 append the original path extension to the hash filename - fixes #967
+- replaced #999 with #1221
+- added cache tests #1125
+- #1236 fixes #1203
+- bf899e2 fixes #1261 #1263 compilation issue CocoaPods vs non-CocoaPods
+- #1367 fixes a bug where image scale & orientation are ignored when decoding / decompressing an image
+- cac21e1 fixes #1366, addresses #1350 and reverts a part of #1221 - from commit 6406d8e, the wrong usage of dispatch_apply
+- #1363 fixes #1361 sd_cancelBackgroundImageLoadForState
+- #1348 Create a strong ref of weakOperation in the entry of The image download subOperation, use the strong ref instead weakOperation. At the same time, repair some logic of the 'If cancelled'
+- dcb7985 replaces #1345 - Load local credential file
+- #1323 don't to perform download if url is "" but not nil
+- #1310 Added support for SDWebImageAvoidAutoSetImage option to UIButton and highlighted UIImageView categories
+- #1308 Added Swift installation tips
+- 32923fa Xcode 7.1 updates
+- #1297 cleaner implementation of failedUrl error handling - fixes #1275
+- #1280 Fix sd_animatedImageByScalingAndCroppingToSize
+- Remove logging from the image prefetcher - #1276
+- Fix typos #1256 #1257 #1258 #1331 #1290
+
 ## [3.7.3 Patch release for 3.7.0 with iOS8+ framework and Carthage on Jun 13th, 2015](https://github.com/rs/SDWebImage/releases/tag/3.7.3)
 
 - Adds support for **iOS 8+ Framework and Carthage** [#1071](https://github.com/rs/SDWebImage/pull/1071) [#1081](https://github.com/rs/SDWebImage/pull/1081) [#1101](https://github.com/rs/SDWebImage/pull/1101) 
