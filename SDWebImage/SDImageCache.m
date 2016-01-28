@@ -117,7 +117,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _shouldDecompressImages = YES;
 
         // memory cache enabled
-        _shouldCacheImagesInMemory = YES;
+        _shouldCacheImagesInMemory = NO;
 
         // Disable iCloud
         _shouldDisableiCloud = YES;
@@ -253,6 +253,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
                 [_fileManager createFileAtPath:cachePathForKey contents:data attributes:nil];
 
+                data = nil;
+                
                 // disable iCloud backup
                 if (self.shouldDisableiCloud) {
                     [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:nil];
@@ -260,6 +262,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
         });
     }
+    
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key {
@@ -360,17 +363,20 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (UIImage *)diskImageForKey:(NSString *)key {
-    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
-    if (data) {
-        UIImage *image = [UIImage sd_imageWithData:data];
-        image = [self scaledImageForKey:key image:image];
-        if (self.shouldDecompressImages) {
-            image = [UIImage decodedImageWithImage:image];
+    @autoreleasepool {
+        NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
+        if (data) {
+            UIImage *image = [UIImage sd_imageWithData:data];
+            image = [self scaledImageForKey:key image:image];
+            if (self.shouldDecompressImages) {
+                image = [UIImage decodedImageWithImage:image];
+            }
+            data = nil;
+            return image;
         }
-        return image;
-    }
-    else {
-        return nil;
+        else {
+            return nil;
+        }
     }
 }
 
