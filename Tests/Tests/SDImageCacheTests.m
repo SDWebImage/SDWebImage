@@ -14,7 +14,7 @@
 
 #import "SDImageCache.h"
 
-NSString *kImageTestKey = @"TestImageKey";
+NSString *kImageTestKey = @"TestImageKey.jpg";
 
 @interface SDImageCacheTests : XCTestCase
 @property (strong, nonatomic) SDImageCache *sharedImageCache;
@@ -185,6 +185,25 @@ NSString *kImageTestKey = @"TestImageKey";
     expect(path).notTo.beNil;
 }
 
+// TODO -- Testing image data insertion
+
+- (void)testInsertionOfImageData {
+    
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
+    [self.sharedImageCache storeImageDataToDisk:imageData forKey:kImageTestKey];
+    
+    UIImage *storedImageFromMemory = [self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey];
+    expect(storedImageFromMemory).to.equal(nil);
+    
+    NSString *cachePath = [self.sharedImageCache defaultCachePathForKey:kImageTestKey];
+    NSData *storedImageData = [NSData dataWithContentsOfFile:cachePath];
+    expect([storedImageData isEqualToData:imageData]).will.beTruthy;
+    
+    [self.sharedImageCache diskImageExistsWithKey:kImageTestKey completion:^(BOOL isInCache) {
+        expect(isInCache).to.equal(YES);
+    }];
+}
+
 #pragma mark Helper methods
 
 - (void)clearAllCaches{
@@ -193,9 +212,14 @@ NSString *kImageTestKey = @"TestImageKey";
 }
 
 - (UIImage *)imageForTesting{
-    NSBundle *testBundle=[NSBundle bundleForClass:[self class]];
-    NSString *testBundlePath=[testBundle pathForResource:@"TestImage" ofType:@"jpg"];
-    return [UIImage imageWithContentsOfFile:testBundlePath];
+    
+    return [UIImage imageWithContentsOfFile:[self testImagePath]];
+}
+
+- (NSString *)testImagePath {
+    
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
 }
 
 @end
