@@ -256,7 +256,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)storeImageDataToDisk:(NSData *)imageData forKey:(NSString *)key {
     
-    if (!imageData) return;
+    if (!imageData) {
+        return;
+    }
     
     if (![_fileManager fileExistsAtPath:_diskCachePath]) {
         [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
