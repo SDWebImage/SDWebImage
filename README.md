@@ -213,7 +213,7 @@ Installation
 ------------
 
 There are three ways to use SDWebImage in your project:
-- using Cocoapods
+- using CocoaPods
 - copying all the files into your project
 - importing the project as a static library
 
