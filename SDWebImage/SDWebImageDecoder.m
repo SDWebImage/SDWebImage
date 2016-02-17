@@ -39,14 +39,19 @@
         // current
         CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
         CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
+        size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
         
-        bool unsupportedColorSpace = (imageColorSpaceModel == 0 || imageColorSpaceModel == -1 || imageColorSpaceModel == kCGColorSpaceModelCMYK || imageColorSpaceModel == kCGColorSpaceModelIndexed);
+        BOOL unsupportedColorSpace = (imageColorSpaceModel == 0 || imageColorSpaceModel == -1 || imageColorSpaceModel == kCGColorSpaceModelCMYK || imageColorSpaceModel == kCGColorSpaceModelIndexed);
         if (unsupportedColorSpace)
             colorspaceRef = CGColorSpaceCreateDeviceRGB();
-    
-        CGContextRef context = CGBitmapContextCreate(NULL, width,
+        
+        if (unsupportedBitsPerComponent(bitsPerComponent))
+            bitsPerComponent = 8;
+        
+        CGContextRef context = CGBitmapContextCreate(NULL,
+                                                     width,
                                                      height,
-                                                     CGImageGetBitsPerComponent(imageRef),
+                                                     bitsPerComponent,
                                                      0,
                                                      colorspaceRef,
                                                      kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
@@ -64,6 +69,13 @@
         
         return imageWithAlpha;
     }
+}
+
+/**
+ https://github.com/rs/SDWebImage/issues/1401#issuecomment-171201846
+*/
+static inline BOOL unsupportedBitsPerComponent(size_t bitsPerComponent) {
+    return bitsPerComponent != 8;
 }
 
 @end
