@@ -33,10 +33,17 @@
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
 
-            duration += [self sd_frameDurationAtIndex:i source:source];
-
-            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
-
+            float eachDuration = [self sd_frameDurationAtIndex:i source:source];
+            duration += eachDuration;
+            if (eachDuration>=0.2) { //if duration larger than 0.1; repeat input this duration image
+                int repeatCount = eachDuration/0.1;
+                for (int k=0; k<repeatCount; k++) {
+                    [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+                }
+            }
+            else{
+                [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+            }
             CGImageRelease(image);
         }
 
@@ -59,7 +66,7 @@
     NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary];
 
     NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
-    if (delayTimeUnclampedProp) {
+    if ([delayTimeUnclampedProp floatValue]>0) {
         frameDuration = [delayTimeUnclampedProp floatValue];
     }
     else {
@@ -86,7 +93,26 @@
 + (UIImage *)sd_animatedGIFNamed:(NSString *)name {
     CGFloat scale = [UIScreen mainScreen].scale;
 
-    if (scale > 1.0f) {
+    if (scale > 2.0f) {
+        NSString *retinaPath = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@3x"] ofType:@"gif"];
+        
+        NSData *data = [NSData dataWithContentsOfFile:retinaPath];
+        
+        if (data) {
+            return [UIImage sd_animatedGIFWithData:data];
+        }
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
+        
+        data = [NSData dataWithContentsOfFile:path];
+        
+        if (data) {
+            return [UIImage sd_animatedGIFWithData:data];
+        }
+        
+        return [UIImage imageNamed:name];
+    }
+    else if (scale > 1.0f) {
         NSString *retinaPath = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
 
         NSData *data = [NSData dataWithContentsOfFile:retinaPath];
