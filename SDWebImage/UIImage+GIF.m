@@ -88,37 +88,26 @@
 
 + (UIImage *)sd_animatedGIFNamed:(NSString *)name {
     CGFloat scale = [UIScreen mainScreen].scale;
-
-    if (scale > 1.0f) {
-        NSString *retinaPath = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
-
-        NSData *data = [NSData dataWithContentsOfFile:retinaPath];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
-
-        data = [NSData dataWithContentsOfFile:path];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        return [UIImage imageNamed:name];
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
+    
+    if (scale > 2.0f) {
+        
+        path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@3x"] ofType:@"gif"];
+        
+    } else if (scale > 1.0f) {
+        
+        path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
     }
-    else {
-        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
-
-        NSData *data = [NSData dataWithContentsOfFile:path];
-
-        if (data) {
-            return [UIImage sd_animatedGIFWithData:data];
-        }
-
-        return [UIImage imageNamed:name];
+    
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    
+    if (data) {
+        return [UIImage sd_animatedGIFWithData:data];
     }
+    
+    return [UIImage imageNamed:name];
+
 }
 
 - (UIImage *)sd_animatedImageByScalingAndCroppingToSize:(CGSize)size {
