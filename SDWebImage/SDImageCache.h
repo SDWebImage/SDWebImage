@@ -269,31 +269,4 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (NSString *)defaultCachePathForKey:(NSString *)key;
 
-
-/**
- 
- *  Get the image paths which NSFileModificationDate is between some time
- *  @param from                 NSFileModificationDate from
- *  @param to                   NSFileModificationDate to
- *  @note
- the from/to is for NSFileModificationDate
- from = nil or to =nil  means not limit
- 
- */
-
--(NSArray *)imageHadUseFrom:(NSDate*)from to:(NSDate*)to;
-
-/**
- 
- *  Delete the image paths which NSFileModificationDate is between some time
- *  @param from                 NSFileModificationDate from
- *  @param to                   NSFileModificationDate to
- *  @note
- the from/to is for NSFileModificationDate
- from = nil or to =nil  means not limit
- 
- */
-
--(void )cleanImageWithCreateTimeFrom:(NSDate*)from to:(NSDate*)to WithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock;
-
 @end
