@@ -89,19 +89,23 @@
 + (UIImage *)sd_animatedGIFNamed:(NSString *)name {
     CGFloat scale = [UIScreen mainScreen].scale;
     
-    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
-    
     if (scale > 2.0f) {
-        
-        path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@3x"] ofType:@"gif"];
-        
-    } else if (scale > 1.0f) {
-        
-        path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
+        NSString *path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@3x"] ofType:@"gif"];
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        if (data) {
+            return [UIImage sd_animatedGIFWithData:data];
+        }
+    }
+    if (scale > 1.0f) {
+        NSString *path = [[NSBundle mainBundle] pathForResource:[name stringByAppendingString:@"@2x"] ofType:@"gif"];
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        if (data) {
+            return [UIImage sd_animatedGIFWithData:data];
+        }
     }
     
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"gif"];
     NSData *data = [NSData dataWithContentsOfFile:path];
-    
     if (data) {
         return [UIImage sd_animatedGIFWithData:data];
     }
