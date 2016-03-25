@@ -19,6 +19,11 @@
     // when there are memory warning.
     // on iOS7, do not forget to call
     // [[SDImageCache sharedImageCache] clearMemory];
+
+    if (image == nil) { // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
+        return nil;
+    }
+
     @autoreleasepool{
         // do not decode animated images
         if (image.images) { return image; }
