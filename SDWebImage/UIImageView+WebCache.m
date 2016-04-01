@@ -9,6 +9,7 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "RunLoopTransactions.h"
 
 static char imageURLKey;
 static char TAG_ACTIVITY_INDICATOR;
@@ -50,14 +51,12 @@ static char TAG_ACTIVITY_SHOW;
             self.image = placeholder;
         });
     }
-    
-    if (url) {
 
+    if (url) {
         // check if activityView is enabled or not
         if ([self showActivityIndicatorView]) {
             [self addActivityIndicator];
         }
-
         __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             [wself removeActivityIndicator];
@@ -70,8 +69,13 @@ static char TAG_ACTIVITY_SHOW;
                     return;
                 }
                 else if (image) {
-                    wself.image = image;
-                    [wself setNeedsLayout];
+                    if ((options & SDWebImageDelaySetContents)) {
+                        [wself delaySetImage:image];
+                        [wself setNeedsLayout];
+                    } else {
+                        wself.image = image;
+                        [wself setNeedsLayout];
+                    }
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
@@ -98,8 +102,8 @@ static char TAG_ACTIVITY_SHOW;
 - (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
     UIImage *lastPreviousCachedImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:key];
-    
-    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock];    
+
+    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock];
 }
 
 - (NSURL *)sd_imageURL {
@@ -209,6 +213,16 @@ static char TAG_ACTIVITY_SHOW;
     }
 }
 
+
+- (void)delaySetImage:(UIImage *)image {
+    RunLoopTransactions* transactions = [RunLoopTransactions
+                                         transactionsWithTarget:self
+                                         selector:@selector(setImage:)
+                                         object:image];
+    [transactions commit];
+}
+
+
 @end
 
 
@@ -273,5 +287,6 @@ static char TAG_ACTIVITY_SHOW;
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
     [self sd_setAnimationImagesWithURLs:arrayOfURLs];
 }
+
 
 @end
