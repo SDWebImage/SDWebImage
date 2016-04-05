@@ -166,19 +166,24 @@
 
             // download if no image or requested to refresh anyway, and download allowed by delegate
             SDWebImageDownloaderOptions downloaderOptions = 0;
-            if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
-            if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
-            if (options & SDWebImageContinueInBackground) downloaderOptions |= SDWebImageDownloaderContinueInBackground;
-            if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
-            if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
-            if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
-            if (image && options & SDWebImageRefreshCached) {
-                // force progressive off if image already cached but forced refreshing
-                downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
-                // ignore image read from NSURLCache if image if cached but force refreshing
-                downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
+            if (_isAllowInvalidSSLCertificates) {
+                downloaderOptions |= SDWebImageAllowInvalidSSLCertificates;
+            } else {
+                if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
+                if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
+                if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
+                if (options & SDWebImageContinueInBackground) downloaderOptions |= SDWebImageDownloaderContinueInBackground;
+                if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
+                if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
+                if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
+                if (image && options & SDWebImageRefreshCached) {
+                    // force progressive off if image already cached but forced refreshing
+                    downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
+                    // ignore image read from NSURLCache if image if cached but force refreshing
+                    downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
+                }
             }
+            
             id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 if (weakOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
