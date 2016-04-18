@@ -57,6 +57,14 @@ typedef void(^SDWebImageNoParamsBlock)();
 
 extern NSString *const SDWebImageErrorDomain;
 
+/**
+    Provides the default image scale when it cannot be inferred.
+    You can change this implementation by setting a new block to the SDDefaultImageScale variable.
+    Default implementaion returns [[UIScreen mainScreen] scale]
+*/
+
+extern CGFloat(^SDDefaultImageScale)();
+
 #define dispatch_main_sync_safe(block)\
     if ([NSThread isMainThread]) {\
         block();\
