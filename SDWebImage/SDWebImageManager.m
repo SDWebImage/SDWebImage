@@ -256,8 +256,10 @@
             }];
             
             __weak __typeof(self)weakSelf = self;
+            __weak typeof(subOperation)weakSubOperation = subOperation;
             operation.cancelBlock = ^{
-                [subOperation cancel];
+                __strong typeof(weakSubOperation)strongSubOperation = weakSubOperation;
+                [strongSubOperation cancel];
                 
                 @synchronized (self.runningOperations) {
                     __strong __typeof(weakOperation) strongOperation = weakOperation;
