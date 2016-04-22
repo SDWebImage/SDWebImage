@@ -254,13 +254,16 @@
                     }
                 }
             }];
+            
+            __weak __typeof(self)weakSelf = self;
             operation.cancelBlock = ^{
                 [subOperation cancel];
                 
                 @synchronized (self.runningOperations) {
                     __strong __typeof(weakOperation) strongOperation = weakOperation;
-                    if (strongOperation) {
-                        [self.runningOperations removeObject:strongOperation];
+                    __strong __typeof(weakSelf)strongSelf = weakSelf;
+                    if (strongOperation && strongSelf) {
+                        [strongSelf.runningOperations removeObject:strongOperation];
                     }
                 }
             };
