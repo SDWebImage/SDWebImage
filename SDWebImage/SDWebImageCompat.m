@@ -28,7 +28,7 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image) {
     }
     else {
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-            CGFloat scale = [UIScreen mainScreen].scale;
+            CGFloat scale = 1;
             if (key.length >= 8) {
                 NSRange range = [key rangeOfString:@"@2x."];
                 if (range.location != NSNotFound) {
