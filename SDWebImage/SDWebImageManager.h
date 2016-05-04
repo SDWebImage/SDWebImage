@@ -153,7 +153,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 @interface SDWebImageManager : NSObject
 
 @property (weak, nonatomic) id <SDWebImageManagerDelegate> delegate;
-
+@property (nonatomic, nonatomic) BOOL *isAllowInvalidSSLCertificates;
 @property (strong, nonatomic, readonly) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
 
