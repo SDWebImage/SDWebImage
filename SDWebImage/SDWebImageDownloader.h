@@ -188,4 +188,9 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  */
 - (void)setSuspended:(BOOL)suspended;
 
+/**
+ * Cancel all download image operations
+ */
+- (void)cancelAllDownloadImageOperations;
+
 @end
