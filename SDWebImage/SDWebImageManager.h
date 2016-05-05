@@ -239,6 +239,15 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (BOOL)cachedImageExistsForURL:(NSURL *)url;
 
 /**
+ *  Gets the cached UIImage for given URL
+ *
+ *  @param url image url
+ *
+ *  @return the cached image if exists, nil otherwise
+ */
+- (UIImage *)cachedImageForURL:(NSURL *)url;
+
+/**
  *  Check if image has already been cached on disk only
  *
  *  @param url image url
