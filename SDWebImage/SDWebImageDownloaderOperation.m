@@ -30,7 +30,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 @property (strong, atomic) NSThread *thread;
 
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-@property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
+@property (assign, nonatomic) id<NSObject> backgroundTaskId;
 #endif
 
 @end
@@ -73,25 +73,13 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             return;
         }
 
+        self.backgroundTaskId = nil;
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-        Class UIApplicationClass = NSClassFromString(@"UIApplication");
-        BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
-        if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
-            __weak __typeof__ (self) wself = self;
-            UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
-            self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
-
-                if (sself) {
-                    [sself cancel];
-
-                    [app endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
-            }];
+        if ([self shouldContinueWhenAppEntersBackground]) {
+            self.backgroundTaskId = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityBackground reason:@"webimage-downloader"];
         }
 #endif
-
+		
         self.executing = YES;
         self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];
         self.thread = [NSThread currentThread];
@@ -127,18 +115,19 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
         }
     }
-
+    
+//    [NSProcessInfo processInfo] performExpiringActivityWithReason:<#(NSString *)#> usingBlock:<#^(BOOL expired)block#>
+    
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
     }
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
-        [app endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
+    if (self.backgroundTaskId) {
+        [[NSProcessInfo processInfo] endActivity:self.backgroundTaskId];
     }
 #endif
+
 }
 
 - (void)cancel {

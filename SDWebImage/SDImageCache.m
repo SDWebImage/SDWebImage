@@ -579,22 +579,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)backgroundCleanDisk {
-    Class UIApplicationClass = NSClassFromString(@"UIApplication");
-    if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
-        return;
-    }
-    UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
-    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        // Clean up any unfinished task business by marking where you
-        // stopped or ending the task outright.
-        [application endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-    }];
+    
+    __block id bgTask = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityBackground reason:@"background-clean-disk"];
 
     // Start the long-running task and return immediately.
     [self cleanDiskWithCompletionBlock:^{
-        [application endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
+        [[NSProcessInfo processInfo] endActivity:bgTask];
+        bgTask = nil;
     }];
 }
 
