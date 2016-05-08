@@ -126,7 +126,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             _fileManager = [NSFileManager new];
         });
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
