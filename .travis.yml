@@ -38,4 +38,4 @@ script:
 
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest'
