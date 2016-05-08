@@ -262,6 +262,10 @@ static char TAG_ACTIVITY_SHOW;
     }];
 }
 
+- (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url andPlaceholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
+    [self sd_setImageWithPreviousCachedImageWithURL:url placeholderImage:placeholder options:options progress:progressBlock completed:completedBlock];
+}
+
 - (void)cancelCurrentArrayLoad {
     [self sd_cancelCurrentAnimationImagesLoad];
 }
