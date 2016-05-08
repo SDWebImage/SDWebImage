@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0710"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4A2CADFE1AB4BB5300B6BC39"
-               BuildableName = "WebImage.framework"
-               BlueprintName = "WebImage"
+               BuildableName = "SDWebImage iOS.framework"
+               BlueprintName = "SDWebImage iOS"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A2CADFE1AB4BB5300B6BC39"
-            BuildableName = "WebImage.framework"
-            BlueprintName = "WebImage"
+            BuildableName = "SDWebImage iOS.framework"
+            BlueprintName = "SDWebImage iOS"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A2CADFE1AB4BB5300B6BC39"
-            BuildableName = "WebImage.framework"
-            BlueprintName = "WebImage"
+            BuildableName = "SDWebImage iOS.framework"
+            BlueprintName = "SDWebImage iOS"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
