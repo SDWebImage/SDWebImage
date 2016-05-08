@@ -1,3 +1,23 @@
+## [3.7.6 Patch release for 3.7.0 on May 8th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.6)
+
+#### Infrastructure:
+- Changed the **libwebp git url** so that people from China can access it - #1390 (from `https://chromium.googlesource.com/webm/libwebp` to `https://github.com/webmproject/libwebp`)
+
+#### Features:
+- Added `cancelAllDownloads` method to `SDWebImageDownloader` #1504 
+- Added API to save image `NSData` to disk cache: `[SDImageCache storeImageDataToDisk:forKey:]` #1453 
+
+#### Fixes:
+- Fix #1449: Version 3.7.5 breaks semantic versioning (removes public API). Re-added `sd_setImageWithPreviousCachedImageWithURL:andPlaceholderImage:options:progress:completed:` and deprecated it. Will remove it in 4.0.0 b40124c
+- Fix `CGContextDrawImage: invalid context 0x0` - #1496 (fixes #1401 #1454 #1457)
+- Fix `CGBitmapContextCreateImage: invalid context 0x0` - #1464 (fixes #1423)
+- Fix changed image size when loading from disk #1540 (fixes #1437)
+- Repair memory release in the iPad environment #1549 (had to switch `#if TARGET_OS_IPHONE` to `#if TARGET_OS_IOS`)
+- Fixed completion logic in `MKAnnotationView+WebCache` #1547 
+- Optimize the decoder to avoid unwanted blended layer - #1527 (fixes #1524)
+- Protect against malformed frame for GIFs - #1447
+- updated doc: #1462 #1466 #1486 #1532 #1461 
+
 ## [3.7.5 Patch release for 3.7.0 on Jan 21st, 2016](https://github.com/rs/SDWebImage/releases/tag/3.7.5)
 - fixed #1425 and #1426 - Continuation of Fix #1366, addresses #1350 and reverts a part of #1221 - from commit 6406d8e, the wrong usage of `dispatch_apply`
 - fixed #1422 - Added a fallback for #976 so that if there are images saved with the old format (no extension), they can still be loaded
