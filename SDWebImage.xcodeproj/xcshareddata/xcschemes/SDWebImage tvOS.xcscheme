@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-               BuildableName = "WebImage.framework"
+               BuildableName = "SDWebImage.framework"
                BlueprintName = "SDWebImage tvOS"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-            BuildableName = "WebImage.framework"
+            BuildableName = "SDWebImage.framework"
             BlueprintName = "SDWebImage tvOS"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-            BuildableName = "WebImage.framework"
+            BuildableName = "SDWebImage.framework"
             BlueprintName = "SDWebImage tvOS"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
