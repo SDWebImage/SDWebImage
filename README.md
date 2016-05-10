@@ -1,5 +1,5 @@
-Web Image
-=========
+SDWebImage
+==========
 [![Build Status](http://img.shields.io/travis/rs/SDWebImage/master.svg?style=flat)](https://travis-ci.org/rs/SDWebImage)
 [![Pod Version](http://img.shields.io/cocoapods/v/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
@@ -8,42 +8,54 @@ Web Image
 [![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/rs/SDWebImage)
 
-This library provides a category for UIImageView with support for remote images coming from the web.
+This library provides an async image downloader with cache support. For convenience, we added categories for some `UIControl` elements like `UIImageView`.
 
-It provides:
+## Features
 
-- An `UIImageView` category adding web image and cache management to the Cocoa Touch framework
-- An asynchronous image downloader
-- An asynchronous memory + disk image caching with automatic cache expiration handling
-- Animated GIF support
-- WebP format support
-- A background image decompression
-- A guarantee that the same URL won't be downloaded several times
-- A guarantee that bogus URLs won't be retried again and again
-- A guarantee that main thread will never be blocked
-- Performances!
-- Use GCD and ARC
-- Arm64 support
+- [x] Categories for `UIImageView`, `UIButton`, `MKAnnotationView` adding web image and cache management
+- [x] An asynchronous image downloader
+- [x] An asynchronous memory + disk image caching with automatic cache expiration handling
+- [x] A background image decompression
+- [x] A guarantee that the same URL won't be downloaded several times
+- [x] A guarantee that bogus URLs won't be retried again and again
+- [x] A guarantee that main thread will never be blocked
+- [x] Performances!
+- [x] Use GCD and ARC
 
-NOTE: The version 3.0 of SDWebImage isn't fully backward compatible with 2.0 and requires iOS 5.1.1
-minimum deployment version. If you need iOS < 5.0 support, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
+## Supported Image Formats
 
-[How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
+- Image formats supported by UIImage (JPEG, PNG, ...), including GIF
+- WebP format (use the `WebP` subspec)
 
-Who Uses It
-----------
+## Requirements
 
-Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
+- iOS 5.1.1+ / tvOS 9.0+
+- Xcode 7.1+
 
-How To Use
-----------
+#### Backwards compatibility
 
-API documentation is available at [CocoaDocs - SDWebImage](http://cocoadocs.org/docsets/SDWebImage/)
+- For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
-### Using UIImageView+WebCache category with UITableView
+## Getting Started
 
-Just #import the UIImageView+WebCache.h header, and call the sd_setImageWithURL:placeholderImage:
-method from the tableView:cellForRowAtIndexPath: UITableViewDataSource method. Everything will be
+- Read this Readme doc
+- Read the [How to use section](https://github.com/rs/SDWebImage#how-to-use)
+- Read the [documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
+- Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
+- Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
+- Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
+
+## Who Uses It
+- Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
+
+## Installation
+
+## How To Use
+
+#### Using `UIImageView+WebCache` category with `UITableView`
+
+Just import the `UIImageView+WebCache.h` header, and call the `sd_setImageWithURL:placeholderImage:`
+method from the `tableView:cellForRowAtIndexPath:` `UITableViewDataSource` method. Everything will be
 handled for you, from async downloads to caching management.
 
 ```objective-c
@@ -69,16 +81,26 @@ handled for you, from async downloads to caching management.
 }
 ```
 
+```swift
+import SDWebImage
+...
+func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    static let myIdentifier = "MyIdentifier"
+    let cell = tableView.dequeueReusableCellWithIdentifier(myIdentifier, forIndexPath: indexPath) as UITableViewCell
+
+    cell.imageView.sd_setImageWithURL(imageUrl, placeholderImage:placeholderImage)
+    return cell
+```
+
 ### Using blocks
 
-With blocks, you can be notified about the image download progress and whenever the image retrieval
-has completed with success or not:
+With blocks, you can be notified about the image download progress and whenever the image retrieval has completed with success or not:
 
 ```objective-c
 // Here we use the new provided sd_setImageWithURL: method to load the web image
 [cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
-                      placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                             completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                  placeholderImage:[UIImage imageNamed:@"placeholder.png"]
+                         completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                 ... completion code here ...
                              }];
 ```
@@ -87,11 +109,9 @@ Note: neither your success nor failure block will be call if your image request 
 
 ### Using SDWebImageManager
 
-The SDWebImageManager is the class behind the UIImageView+WebCache category. It ties the
-asynchronous downloader with the image cache store. You can use this class directly to benefit
-from web image downloading with caching in another context than a UIView (ie: with Cocoa).
+The `SDWebImageManager` is the class behind the `UIImageView(WebCache)` category. It ties the asynchronous downloader with the image cache store. You can use this class directly to benefit from web image downloading with caching in another context than a `UIView` (ie: with Cocoa).
 
-Here is a simple example of how to use SDWebImageManager:
+Here is a simple example of how to use `SDWebImageManager`:
 
 ```objective-c
 SDWebImageManager *manager = [SDWebImageManager sharedManager];
@@ -253,63 +273,8 @@ To install with carthage, follow the instruction on [Carthage](https://github.co
 github "rs/SDWebImage"
 ```
 
-#### Usage
-Swift
-
-If you installed using CocoaPods:
-```
-import SDWebImage
-```
-
-If you installed manually:
-```
-import WebImage
-```
-
-Objective-C
-
-```
-@import WebImage;
-```
-
 ### Installation by cloning the repository
-
-In order to gain access to all the files from the repository, you should clone it.
-```
-git clone --recursive https://github.com/rs/SDWebImage.git
-```
-
-### Add the SDWebImage project to your project
-
-- Download and unzip the last version of the framework from the [download page](https://github.com/rs/SDWebImage/releases)
-- Right-click on the project navigator and select "Add Files to "Your Project":
-- In the dialog, select SDWebImage.framework:
-- Check the "Copy items into destination group's folder (if needed)" checkbox
-
-### Add dependencies
-
-- In you application project app’s target settings, find the "Build Phases" section and open the "Link Binary With Libraries" block:
-- Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
-
-### Add Linker Flag
-
-Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
-
-![Other Linker Flags](http://dl.dropbox.com/u/123346/SDWebImage/10_other_linker_flags.jpg)
-
-Alternatively, if this causes compilation problems with frameworks that extend optional libraries, such as Parse,  RestKit or opencv2, instead of the -ObjC flag use:
-```
--force_load SDWebImage.framework/Versions/Current/SDWebImage
-```
-
-If you're using Cocoa Pods and have any frameworks that extend optional libraries, such as Parsen RestKit or opencv2, instead of the -ObjC flag use:
-```
--force_load $(TARGET_BUILD_DIR)/libPods.a
-```
-and this:
-```
-$(inherited)
-```
+- see [Manual install](https://raw.github.com/rs/SDWebImage/master/ManualInstallation.md)
 
 ### Import headers in your source files
 
@@ -332,3 +297,9 @@ Future Enhancements
 ## Licenses
 
 All source code is licensed under the [MIT License](https://raw.github.com/rs/SDWebImage/master/LICENSE).
+
+## Architecture
+
+<p align="center" >
+    <img src="SDWebImageClassDiagram.png" title="SDWebImage class diagram" width=800>
+</p>
