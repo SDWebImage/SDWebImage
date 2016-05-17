@@ -172,3 +172,8 @@ All source code is licensed under the [MIT License](https://raw.github.com/rs/SD
 <p align="center" >
     <img src="Docs/SDWebImageClassDiagram.png" title="SDWebImage class diagram">
 </p>
+
+<p align="center" >
+    <img src="Docs/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
+</p>
+
