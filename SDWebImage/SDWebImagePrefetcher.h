@@ -73,7 +73,7 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 /**
  * Allows you to instantiate a prefetcher with any arbitrary image manager.
  */
-- (id)initWithImageManager:(SDWebImageManager *)manager;
+- (instancetype)initWithImageManager:(SDWebImageManager *)manager NS_DESIGNATED_INITIALIZER;
 
 /**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,

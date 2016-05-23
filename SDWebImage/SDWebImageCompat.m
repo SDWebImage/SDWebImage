@@ -17,7 +17,7 @@ inline UIImage *SDScaledImageForKey(NSString *key, UIImage *image) {
         return nil;
     }
     
-    if ([image.images count] > 0) {
+    if ((image.images).count > 0) {
         NSMutableArray *scaledImages = [NSMutableArray array];
 
         for (UIImage *tempImage in image.images) {

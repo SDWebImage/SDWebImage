@@ -156,7 +156,7 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 - (void)setShowActivityIndicatorView:(BOOL)show{
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, [NSNumber numberWithBool:show], OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
 }
 
 - (BOOL)showActivityIndicatorView{

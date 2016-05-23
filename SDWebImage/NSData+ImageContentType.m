@@ -23,7 +23,7 @@
             return @"image/tiff";
         case 0x52:
             // R as RIFF for WEBP
-            if ([data length] < 12) {
+            if (data.length < 12) {
                 return nil;
             }
 

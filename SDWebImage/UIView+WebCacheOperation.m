@@ -26,13 +26,13 @@ static char loadOperationKey;
 - (void)sd_setImageLoadOperation:(id)operation forKey:(NSString *)key {
     [self sd_cancelImageLoadOperationWithKey:key];
     NSMutableDictionary *operationDictionary = [self operationDictionary];
-    [operationDictionary setObject:operation forKey:key];
+    operationDictionary[key] = operation;
 }
 
 - (void)sd_cancelImageLoadOperationWithKey:(NSString *)key {
     // Cancel in progress downloader from queue
     NSMutableDictionary *operationDictionary = [self operationDictionary];
-    id operations = [operationDictionary objectForKey:key];
+    id operations = operationDictionary[key];
     if (operations) {
         if ([operations isKindOfClass:[NSArray class]]) {
             for (id <SDWebImageOperation> operation in operations) {

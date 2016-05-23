@@ -64,8 +64,8 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *
  *  @return the initialized instance
  */
-- (id)initWithRequest:(NSURLRequest *)request
-              options:(SDWebImageDownloaderOptions)options;
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                        options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Adds handlers for progress and completion. Returns a tokent that can be passed to -cancel: to cancel this set of

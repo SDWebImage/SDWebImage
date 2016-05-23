@@ -28,7 +28,7 @@
 
 @implementation SDWebImageManager
 
-+ (id)sharedManager {
++ (SDWebImageManager*)sharedManager {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -37,7 +37,7 @@
     return instance;
 }
 
-- (id)init {
+- (instancetype)init {
     if ((self = [super init])) {
         _imageCache = [self createCache];
         _imageDownloader = [SDWebImageDownloader sharedDownloader];
@@ -56,7 +56,7 @@
         return self.cacheKeyFilter(url);
     }
     else {
-        return [url absoluteString];
+        return url.absoluteString;
     }
 }
 

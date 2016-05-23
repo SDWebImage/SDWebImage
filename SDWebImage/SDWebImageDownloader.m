@@ -60,7 +60,7 @@
     return instance;
 }
 
-- (id)init {
+- (instancetype)init {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
         _shouldDecompressImages = YES;
@@ -211,7 +211,7 @@
 }
 
 - (void)setSuspended:(BOOL)suspended {
-    [self.downloadQueue setSuspended:suspended];
+    (self.downloadQueue).suspended = suspended;
 }
 
 - (void)cancelAllDownloads {
