@@ -10,15 +10,9 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 
-@interface _SDWebImageDownloaderToken : NSObject
-
-@property (nonatomic, strong) NSURL *url;
-@property (nonatomic, strong) id downloadOperationCancelToken;
-
+@implementation SDWebImageDownloadToken
 @end
 
-@implementation _SDWebImageDownloaderToken
-@end
 
 @interface SDWebImageDownloader ()
 
@@ -119,7 +113,10 @@
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
-- (id)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+- (SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
+                                          options:(SDWebImageDownloaderOptions)options
+                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
@@ -164,22 +161,20 @@
     }];
 }
 
-- (void)cancel:(id)token {
-    if (![token isKindOfClass:[_SDWebImageDownloaderToken class]]) {
-        return;
-    }
-
+- (void)cancel:(SDWebImageDownloadToken *)token {
     dispatch_barrier_async(self.barrierQueue, ^{
-        _SDWebImageDownloaderToken *typedToken = (_SDWebImageDownloaderToken *)token;
-        SDWebImageDownloaderOperation *operation = self.URLOperations[typedToken.url];
-        BOOL canceled = [operation cancel:typedToken.downloadOperationCancelToken];
+        SDWebImageDownloaderOperation *operation = self.URLOperations[token.url];
+        BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
         if (canceled) {
-            [self.URLOperations removeObjectForKey:typedToken.url];
+            [self.URLOperations removeObjectForKey:token.url];
         }
     });
 }
 
-- (id)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
+- (SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+                                  completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock 
+                                          forURL:(NSURL *)url
+                                  createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
@@ -188,7 +183,7 @@
         return nil;
     }
 
-    __block _SDWebImageDownloaderToken *token = nil;
+    __block SDWebImageDownloadToken *token = nil;
 
     dispatch_barrier_sync(self.barrierQueue, ^{
         SDWebImageDownloaderOperation *operation = self.URLOperations[url];
@@ -207,7 +202,7 @@
         }
         id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
 
-        token = [_SDWebImageDownloaderToken new];
+        token = [SDWebImageDownloadToken new];
         token.url = url;
         token.downloadOperationCancelToken = downloadOperationCancelToken;
     });
