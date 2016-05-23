@@ -176,12 +176,19 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.
  *
- * @return A cancellable SDWebImageOperation
+ * @return A token that can be passed to -cancel: to cancel this operation
  */
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
-                                         options:(SDWebImageDownloaderOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (id)downloadImageWithURL:(NSURL *)url
+                   options:(SDWebImageDownloaderOptions)options
+                  progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                 completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+
+/**
+ * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
+ *
+ * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
+ */
+- (void)cancel:(id)token;
 
 /**
  * Sets the download queue suspension state
