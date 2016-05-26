@@ -51,8 +51,17 @@ static char imageURLKey;
             dispatch_main_sync_safe(^{
                 __strong MKAnnotationView *sself = wself;
                 if (!sself) return;
-                if (image) {
-                    sself.image = image;
+                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock) {
+                    completedBlock(image, error, cacheType, url);
+                    return;
+                } else if (image) {
+                    wself.image = image;
+                    [wself setNeedsLayout];
+                } else {
+                    if ((options & SDWebImageDelayPlaceholder)) {
+                        wself.image = placeholder;
+                        [wself setNeedsLayout];
+                    }
                 }
                 if (completedBlock && finished) {
                     completedBlock(image, error, cacheType, url);
