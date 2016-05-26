@@ -28,7 +28,7 @@
 
 @implementation SDWebImageManager
 
-+ (id)sharedManager {
++ (SDWebImageManager*)sharedManager {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -37,7 +37,7 @@
     return instance;
 }
 
-- (id)init {
+- (instancetype)init {
     if ((self = [super init])) {
         _imageCache = [self createCache];
         _imageDownloader = [SDWebImageDownloader sharedDownloader];
@@ -56,7 +56,7 @@
         return self.cacheKeyFilter(url);
     }
     else {
-        return [url absoluteString];
+        return url.absoluteString;
     }
 }
 
@@ -107,7 +107,7 @@
     }];
 }
 
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+- (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
                                          options:(SDWebImageOptions)options
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
@@ -179,7 +179,7 @@
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
-            id <SDWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+            id subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 if (!strongOperation || strongOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
@@ -255,8 +255,8 @@
                 }
             }];
             operation.cancelBlock = ^{
-                [subOperation cancel];
-                
+                [self.imageDownloader cancel:subOperation];
+
                 @synchronized (self.runningOperations) {
                     __strong __typeof(weakOperation) strongOperation = weakOperation;
                     if (strongOperation) {
@@ -347,24 +347,6 @@
 //        self.cancelBlock = nil;
         _cancelBlock = nil;
     }
-}
-
-@end
-
-
-@implementation SDWebImageManager (Deprecated)
-
-// deprecated method, uses the non deprecated method
-// adapter for the completion block
-- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedWithFinishedBlock)completedBlock {
-    return [self downloadImageWithURL:url
-                              options:options
-                             progress:progressBlock
-                            completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                if (completedBlock) {
-                                    completedBlock(image, error, cacheType, finished);
-                                }
-                            }];
 }
 
 @end

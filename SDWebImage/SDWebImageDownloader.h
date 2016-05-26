@@ -73,6 +73,17 @@ typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, 
 typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDictionary *headers);
 
 /**
+ *  A token associated with each download. Can be used to cancel a download
+ */
+@interface SDWebImageDownloadToken : NSObject
+
+@property (nonatomic, strong) NSURL *url;
+@property (nonatomic, strong) id downloadOperationCancelToken;
+
+@end
+
+
+/**
  * Asynchronous downloader dedicated and optimized for image loading.
  */
 @interface SDWebImageDownloader : NSObject
@@ -176,12 +187,19 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.
  *
- * @return A cancellable SDWebImageOperation
+ * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
  */
-- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
-                                         options:(SDWebImageDownloaderOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
+                                          options:(SDWebImageDownloaderOptions)options
+                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+
+/**
+ * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
+ *
+ * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
+ */
+- (void)cancel:(SDWebImageDownloadToken *)token;
 
 /**
  * Sets the download queue suspension state

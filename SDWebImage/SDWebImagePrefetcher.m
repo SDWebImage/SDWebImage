@@ -32,11 +32,11 @@
     return instance;
 }
 
-- (id)init {
+- (instancetype)init {
     return [self initWithImageManager:[SDWebImageManager new]];
 }
 
-- (id)initWithImageManager:(SDWebImageManager *)manager {
+- (instancetype)initWithImageManager:(SDWebImageManager *)manager {
     if ((self = [super init])) {
         _manager = manager;
         _options = SDWebImageLowPriority;
@@ -57,18 +57,18 @@
 - (void)startPrefetchingAtIndex:(NSUInteger)index {
     if (index >= self.prefetchURLs.count) return;
     self.requestedCount++;
-    [self.manager downloadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [self.manager loadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
 
         if (image) {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
             }
         }
         else {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
             }
             // Add last failed
             self.skippedCount++;
@@ -96,7 +96,7 @@
 }
 
 - (void)reportStatus {
-    NSUInteger total = [self.prefetchURLs count];
+    NSUInteger total = (self.prefetchURLs).count;
     if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
         [self.delegate imagePrefetcher:self
                didFinishWithTotalCount:(total - self.skippedCount)

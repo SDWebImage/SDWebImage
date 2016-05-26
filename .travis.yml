@@ -1,26 +1,41 @@
 
 language: objective-c
-
 osx_image: xcode7.1
 
-before_install:
+env:
+  global:
+    - LC_CTYPE=en_US.UTF-8
+    - LANG=en_US.UTF-8
 
-    - export LANG=en_US.UTF-8
+
+before_install:
     - env
     - locale
-    - gem install cocoapods --quiet
+    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
+    - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - pod --version
     - pod setup --silent
     - pod repo update --silent
+    - xcpretty --version
+    - xcodebuild -version
+    - xcodebuild -showsdks
 
 script:
+    - set -o pipefail
 
+    - echo Check if the library described by the podspec can be built
     - pod lib lint --allow-warnings
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator -arch i386 build
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphonesimulator -arch i386 build
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphonesimulator -arch i386 build
 
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator -arch i386 build
+    - echo Build as static library
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage-static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
 
+    - echo Build as dynamic framework
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
+
+    - echo Build the Demo app
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+
+    - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' -configuration Debug | xcpretty -c

@@ -63,13 +63,13 @@
 
     NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
     if (delayTimeUnclampedProp) {
-        frameDuration = [delayTimeUnclampedProp floatValue];
+        frameDuration = delayTimeUnclampedProp.floatValue;
     }
     else {
 
         NSNumber *delayTimeProp = gifProperties[(NSString *)kCGImagePropertyGIFDelayTime];
         if (delayTimeProp) {
-            frameDuration = [delayTimeProp floatValue];
+            frameDuration = delayTimeProp.floatValue;
         }
     }
 
