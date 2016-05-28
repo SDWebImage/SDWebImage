@@ -48,6 +48,14 @@ This library provides an async image downloader with cache support. For convenie
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
 
+## Communication
+
+- If you need help, use Stack Overflow. (Tag 'sdwebimage')
+- If you'd like to ask a general question, use Stack Overflow.
+- If you found a bug, open an issue.
+- If you have a feature request, open an issue.
+- If you want to contribute, submit a pull request.
+
 ## Installation
 
 ## How To Use
