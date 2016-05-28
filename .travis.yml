@@ -23,4 +23,5 @@ script:
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator build
 
     - pod install --project-directory=Tests
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean
     - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test
