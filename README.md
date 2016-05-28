@@ -50,11 +50,11 @@ This library provides an async image downloader with cache support. For convenie
 
 ## Communication
 
-- If you need help, use Stack Overflow. (Tag 'sdwebimage')
-- If you'd like to ask a general question, use Stack Overflow.
-- If you found a bug, open an issue.
-- If you have a feature request, open an issue.
-- If you want to contribute, submit a pull request.
+- If you **need help**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/sdwebimage). (Tag 'sdwebimage')
+- If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/sdwebimage).
+- If you **found a bug**, open an issue.
+- If you **have a feature request**, open an issue.
+- If you **want to contribute**, submit a pull request.
 
 ## Installation
 
