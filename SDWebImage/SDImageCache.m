@@ -84,8 +84,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (id)initWithNamespace:(NSString *)ns {
-    NSString *path = [self makeDiskCachePath:ns];
-    return [self initWithNamespace:ns diskCacheDirectory:path];
+    return [self initWithNamespace:ns diskCacheDirectory:nil];
 }
 
 - (id)initWithNamespace:(NSString *)ns diskCacheDirectory:(NSString *)directory {
