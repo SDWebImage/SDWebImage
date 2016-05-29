@@ -72,6 +72,11 @@
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
+- (UIImage *)cachedImageForURL:(NSURL *)url {
+    NSString *key = [self cacheKeyForURL:url];
+    return [self.imageCache imageFromDiskCacheForKey:key];
+}
+
 - (BOOL)diskImageExistsForURL:(NSURL *)url {
     NSString *key = [self cacheKeyForURL:url];
     return [self.imageCache diskImageExistsWithKey:key];
