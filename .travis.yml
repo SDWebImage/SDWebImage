@@ -14,7 +14,7 @@ before_install:
     - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - pod --version
-    - pod setup --silent
+    - pod setup --silent > /dev/null
     - pod repo update --silent
     - xcpretty --version
     - xcodebuild -version
