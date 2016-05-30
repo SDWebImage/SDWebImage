@@ -56,6 +56,8 @@ extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 typedef void(^SDWebImageNoParamsBlock)();
 
 extern NSString *const SDWebImageErrorDomain;
+extern NSString *const SDWebImageErrorResponseKey;
+extern NSString *const SDWebImageErrorResponseDataKey;
 
 #define dispatch_main_sync_safe(block)\
     if ([NSThread isMainThread]) {\
