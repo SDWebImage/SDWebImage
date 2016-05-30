@@ -85,6 +85,13 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 - (void)prefetchURLs:(NSArray *)urls;
 
 /**
+ * Add a list of URLs to the SDWebImagePrefetcher prefetch queue
+ *
+ * @param urls list of URLs to prefetch
+ */
+- (void)addPrefetchURLs:(NSArray *)urls;
+
+/**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
  * currently one image is downloaded at a time,
  * and skips images for failed downloads and proceed to the next image in the list
