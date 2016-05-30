@@ -103,9 +103,13 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         if (self.progressBlock) {
             self.progressBlock(0, NSURLResponseUnknownLength);
         }
+        /*
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
         });
+        */
+        NSNotification *notification = [NSNotification notificationWithName:SDWebImageDownloadStartNotification object:self];
+        [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 
         if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_5_1) {
             // Make sure to run the runloop in our background thread so it can process downloaded data
