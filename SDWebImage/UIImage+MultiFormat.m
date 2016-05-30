@@ -35,6 +35,10 @@
 #endif
     else {
         image = [[UIImage alloc] initWithData:data];
+        //if this image's size more than 1M use compressImage to zoom into this image
+        if (data.length/1024 > 1024) {
+            image = [self compressImageWith:image];
+        }
         UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
         if (orientation != UIImageOrientationUp) {
             image = [UIImage imageWithCGImage:image.CGImage
@@ -111,6 +115,33 @@
             break;
     }
     return orientation;
+}
+
+//use this way to zoom into an image if this image is to big
++(UIImage *)compressImageWith:(UIImage *)image
+{
+    float imageWidth = image.size.width;
+    float imageHeight = image.size.height;
+    float width = [UIScreen mainScreen].bounds.size.width;
+    float height = image.size.height/(image.size.width/width);
+    
+    float widthScale = imageWidth /width;
+    float heightScale = imageHeight /height;
+    
+    UIGraphicsBeginImageContext(CGSizeMake(width, height));
+    
+    if (widthScale > heightScale) {
+        [image drawInRect:CGRectMake(0, 0, imageWidth /heightScale , height)];
+    }
+    else {
+        [image drawInRect:CGRectMake(0, 0, width , imageHeight /widthScale)];
+    }
+    
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+    
 }
 
 
