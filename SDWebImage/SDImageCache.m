@@ -385,20 +385,20 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return SDScaledImageForKey(key, image);
 }
 
-- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock {
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDCacheQueryCompletedBlock)doneBlock {
     if (!doneBlock) {
         return nil;
     }
 
     if (!key) {
-        doneBlock(nil, SDImageCacheTypeNone);
+        doneBlock(nil, nil, SDImageCacheTypeNone);
         return nil;
     }
 
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
-        doneBlock(image, SDImageCacheTypeMemory);
+        doneBlock(image, nil, SDImageCacheTypeMemory);
         return nil;
     }
 
@@ -409,6 +409,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
 
         @autoreleasepool {
+            NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage && self.shouldCacheImagesInMemory) {
                 NSUInteger cost = SDCacheCostForImage(diskImage);
@@ -416,7 +417,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
 
             dispatch_async(dispatch_get_main_queue(), ^{
-                doneBlock(diskImage, SDImageCacheTypeDisk);
+                doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
             });
         }
     });
