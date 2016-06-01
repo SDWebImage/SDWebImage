@@ -3,4 +3,4 @@
 	url = https://github.com/webmproject/libwebp
 [submodule "Vendors/FLAnimatedImage"]
 	path = Vendors/FLAnimatedImage
-	url = git@github.com:Flipboard/FLAnimatedImage.git
+	url = https://github.com/Flipboard/FLAnimatedImage
