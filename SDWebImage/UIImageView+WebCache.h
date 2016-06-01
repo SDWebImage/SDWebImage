@@ -48,7 +48,7 @@
  * Get the current image URL.
  *
  * Note that because of the limitations of categories this property can get out of sync
- * if you use sd_setImage: directly.
+ * if you use setImage: directly.
  */
 - (NSURL *)sd_imageURL;
 
