@@ -23,32 +23,32 @@ static char imageURLKey;
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
+- (void)sd_setImageWithURL:(NSURL *)url {
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+- (void)sd_setImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDExternalCompletionBlock)completedBlock {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock {
-    [self sd_setAnimatedImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
-- (void)sd_setAnimatedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
-    [self sd_cancelCurrentAnimatedImageLoad];
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
+    [self sd_cancelCurrentImageLoad];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     if (!(options & SDWebImageDelayPlaceholder)) {
@@ -94,7 +94,7 @@ static char imageURLKey;
                 }
             });
         }];
-        [self sd_setImageLoadOperation:operation forKey:@"UIImageViewAnimatedImageLoad"];
+        [self sd_setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
     } else {
         dispatch_main_async_safe(^{
             [self removeActivityIndicator];
@@ -107,8 +107,8 @@ static char imageURLKey;
     }
 }
 
-- (void)sd_cancelCurrentAnimatedImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:@"UIImageViewAnimatedImageLoad"];
+- (void)sd_cancelCurrentImageLoad {
+    [self sd_cancelImageLoadOperationWithKey:@"UIImageViewImageLoad"];
 }
 
 

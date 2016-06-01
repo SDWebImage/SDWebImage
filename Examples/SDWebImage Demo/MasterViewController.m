@@ -124,9 +124,9 @@
     [cell.customImageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
     
     cell.customTextLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
-    [cell.customImageView sd_setAnimatedImageWithURL:[NSURL URLWithString:_objects[indexPath.row]]
-                                    placeholderImage:placeholderImage
-                                             options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
+    [cell.customImageView sd_setImageWithURL:[NSURL URLWithString:_objects[indexPath.row]]
+                            placeholderImage:placeholderImage
+                                     options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
     return cell;
 }
 
