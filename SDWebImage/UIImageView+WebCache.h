@@ -188,4 +188,9 @@
  */
 - (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
 
+- (BOOL)showActivityIndicatorView;
+- (void)addActivityIndicator;
+- (void)removeActivityIndicator;
+
+
 @end

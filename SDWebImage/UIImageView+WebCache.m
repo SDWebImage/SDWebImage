@@ -155,11 +155,11 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (void)setShowActivityIndicatorView:(BOOL)show{
+- (void)setShowActivityIndicatorView:(BOOL)show {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
 }
 
-- (BOOL)showActivityIndicatorView{
+- (BOOL)showActivityIndicatorView {
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
