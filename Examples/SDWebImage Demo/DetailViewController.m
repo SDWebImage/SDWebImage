@@ -8,9 +8,14 @@
 
 #import "DetailViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
 
 @interface DetailViewController ()
+
+@property (strong, nonatomic) IBOutlet FLAnimatedImageView *imageView;
+
 - (void)configureView;
+
 @end
 
 @implementation DetailViewController
@@ -34,20 +39,20 @@
     if (self.imageURL) {
         __block UIActivityIndicatorView *activityIndicator;
         __weak UIImageView *weakImageView = self.imageView;
-        [self.imageView sd_setImageWithURL:self.imageURL
-                          placeholderImage:nil
-                                   options:SDWebImageProgressiveDownload
-                                  progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                                      if (!activityIndicator) {
-                                          [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
-                                          activityIndicator.center = weakImageView.center;
-                                          [activityIndicator startAnimating];
-                                      }
-                                  }
-                                 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                                     [activityIndicator removeFromSuperview];
-                                     activityIndicator = nil;
-                                 }];
+        [self.imageView sd_setAnimatedImageWithURL:self.imageURL
+                                  placeholderImage:nil
+                                           options:SDWebImageProgressiveDownload
+                                          progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                              if (!activityIndicator) {
+                                                  [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
+                                                  activityIndicator.center = weakImageView.center;
+                                                  [activityIndicator startAnimating];
+                                              }
+                                          }
+                                         completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                                             [activityIndicator removeFromSuperview];
+                                             activityIndicator = nil;
+                                         }];
     }
 }
 

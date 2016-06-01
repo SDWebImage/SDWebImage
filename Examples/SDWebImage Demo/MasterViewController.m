@@ -9,6 +9,36 @@
 #import "MasterViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "DetailViewController.h"
+#import <SDWebImage/FLAnimatedImageView.h>
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+
+
+@interface MyCustomTableViewCell : UITableViewCell
+
+@property (nonatomic, strong) UILabel *customTextLabel;
+@property (nonatomic, strong) FLAnimatedImageView *customImageView;
+
+@end
+
+
+@implementation MyCustomTableViewCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        _customImageView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(20.0, 2.0, 60.0, 40.0)];
+        [self.contentView addSubview:_customImageView];
+        _customTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(100.0, 12.0, 200, 20.0)];
+        [self.contentView addSubview:_customTextLabel];
+        
+        _customImageView.clipsToBounds = YES;
+        _customImageView.contentMode = UIViewContentModeScaleAspectFill;
+    }
+    return self;
+}
+
+@end
+
+
 
 @interface MasterViewController () {
     NSMutableArray *_objects;
@@ -38,6 +68,7 @@
         _objects = [NSMutableArray arrayWithObjects:
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
+                    @"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
                     nil];
@@ -79,19 +110,23 @@
 {
     static NSString *CellIdentifier = @"Cell";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil)
-    {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    static UIImage *placeholderImage = nil;
+    if (!placeholderImage) {
+        placeholderImage = [UIImage imageNamed:@"placeholder"];
+    }
+    
+    MyCustomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[MyCustomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    [cell.imageView setShowActivityIndicatorView:YES];
-    [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
-
-    cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
-    cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:_objects[indexPath.row]]
-                      placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
+    [cell.customImageView setShowActivityIndicatorView:YES];
+    [cell.customImageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    
+    cell.customTextLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
+    [cell.customImageView sd_setAnimatedImageWithURL:[NSURL URLWithString:_objects[indexPath.row]]
+                                    placeholderImage:placeholderImage
+                                             options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
     return cell;
 }
 
