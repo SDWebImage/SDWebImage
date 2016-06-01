@@ -35,7 +35,7 @@
 - (void)testThatDownloadingSameURLTwiceAndCancellingFirstWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Correct image downloads"];
 
-    NSURL *imageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.jpg?20120509154705"];
+    NSURL *imageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage000.jpg"];
 
     id token1 = [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL
                                                                       options:0
