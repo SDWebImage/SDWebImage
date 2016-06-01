@@ -95,7 +95,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -110,7 +110,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -126,7 +126,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -143,7 +143,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url` and optionally a placeholder image.
@@ -160,7 +160,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithPreviousCachedImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Download an array of images and starts them in an animation loop

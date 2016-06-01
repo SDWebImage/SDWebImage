@@ -90,7 +90,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageAvoidAutoSetImage = 1 << 11
 };
 
-typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
+typedef void(^SDExternalCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
 
 typedef void(^SDInternalCompletionBlock)(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL);
 

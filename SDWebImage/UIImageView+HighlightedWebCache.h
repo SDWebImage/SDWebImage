@@ -46,7 +46,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -61,7 +61,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -77,7 +77,7 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current download

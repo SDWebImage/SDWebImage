@@ -21,15 +21,15 @@
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:nil];
 }
 
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
 }
 
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
     [self sd_cancelCurrentHighlightedImageLoad];
 
     if (url) {
