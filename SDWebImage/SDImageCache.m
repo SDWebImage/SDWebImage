@@ -10,6 +10,7 @@
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
 #import <CommonCrypto/CommonDigest.h>
+#import "UIImage+GIF.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -398,7 +399,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
-        doneBlock(image, nil, SDImageCacheTypeMemory);
+        NSData *diskData = nil;
+        if ([image isGIF]) {
+            diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+        }
+        doneBlock(image, diskData, SDImageCacheTypeMemory);
         return nil;
     }
 
