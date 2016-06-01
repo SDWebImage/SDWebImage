@@ -100,7 +100,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     //- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock;
     UIImage *imageForTesting = [self imageForTesting];
     [self.sharedImageCache storeImage:imageForTesting forKey:kImageTestKey];
-    NSOperation *operation = [self.sharedImageCache queryDiskCacheForKey:kImageTestKey done:^(UIImage *image, SDImageCacheType cacheType) {
+    NSOperation *operation = [self.sharedImageCache queryDiskCacheForKey:kImageTestKey done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
         expect(image).to.equal(imageForTesting);
     }];
     expect(operation).toNot.beNil;
