@@ -7,11 +7,7 @@
  */
 
 
-#if COCOAPODS
-    @import FLAnimatedImage;
-#else
-    #import "FLAnimatedImageView.h"
-#endif
+#import <FLAnimatedImage/FLAnimatedImageView.h>
 
 #import "SDWebImageManager.h"
 
