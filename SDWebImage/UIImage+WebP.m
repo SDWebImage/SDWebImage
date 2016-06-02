@@ -16,8 +16,7 @@
 #endif
 
 // Callback for CGDataProviderRelease
-static void FreeImageData(void *info, const void *data, size_t size)
-{
+static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
