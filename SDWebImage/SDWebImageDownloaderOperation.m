@@ -67,10 +67,6 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     return self;
 }
 
-- (void)dealloc {
-    
-}
-
 - (void)start {
     @synchronized (self) {
         if (self.isCancelled) {
@@ -99,6 +95,12 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 #endif
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         sessionConfig.timeoutIntervalForRequest = 15;
+        
+        /**
+         *  Create the session for this task
+         *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
+         *  method calls and completion handler calls.
+         */
         self.session = [NSURLSession sessionWithConfiguration:sessionConfig
                                                      delegate:self
                                                 delegateQueue:nil];
