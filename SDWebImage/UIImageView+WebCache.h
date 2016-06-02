@@ -167,7 +167,7 @@
  *
  * @param arrayOfURLs An array of NSURL
  */
-- (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs;
+- (void)sd_setAnimationImagesWithURLs:(NSArray<NSURL *> *)arrayOfURLs;
 
 /**
  * Cancel the current download

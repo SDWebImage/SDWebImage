@@ -19,8 +19,8 @@
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic) NSOperation *lastAddedOperation;
 @property (assign, nonatomic) Class operationClass;
-@property (strong, nonatomic) NSMutableDictionary *URLOperations;
-@property (strong, nonatomic) NSMutableDictionary *HTTPHeaders;
+@property (strong, nonatomic) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
+@property (strong, nonatomic) SDHTTPHeadersMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
 

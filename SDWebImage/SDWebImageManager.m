@@ -21,8 +21,8 @@
 
 @property (strong, nonatomic, readwrite) SDImageCache *imageCache;
 @property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;
-@property (strong, nonatomic) NSMutableSet *failedURLs;
-@property (strong, nonatomic) NSMutableArray *runningOperations;
+@property (strong, nonatomic) NSMutableSet<NSURL *> *failedURLs;
+@property (strong, nonatomic) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
 
 @end
 
@@ -119,9 +119,9 @@
 }
 
 - (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
-                                         options:(SDWebImageOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
+                                     options:(SDWebImageOptions)options
+                                    progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                   completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -313,7 +313,7 @@
 
 - (void)cancelAll {
     @synchronized (self.runningOperations) {
-        NSArray *copiedOperations = [self.runningOperations copy];
+        NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
         [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
         [self.runningOperations removeObjectsInArray:copiedOperations];
     }

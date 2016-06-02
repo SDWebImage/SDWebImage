@@ -106,11 +106,11 @@ static char TAG_ACTIVITY_SHOW;
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
-- (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
+- (void)sd_setAnimationImagesWithURLs:(NSArray<NSURL *> *)arrayOfURLs {
     [self sd_cancelCurrentAnimationImagesLoad];
     __weak __typeof(self)wself = self;
 
-    NSMutableArray *operationsArray = [[NSMutableArray alloc] init];
+    NSMutableArray<id<SDWebImageOperation>> *operationsArray = [[NSMutableArray alloc] init];
 
     for (NSURL *logoImageURL in arrayOfURLs) {
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
@@ -119,7 +119,7 @@ static char TAG_ACTIVITY_SHOW;
                 __strong UIImageView *sself = wself;
                 [sself stopAnimating];
                 if (sself && image) {
-                    NSMutableArray *currentImages = [[sself animationImages] mutableCopy];
+                    NSMutableArray<UIImage *> *currentImages = [[sself animationImages] mutableCopy];
                     if (!currentImages) {
                         currentImages = [[NSMutableArray alloc] init];
                     }
@@ -134,7 +134,7 @@ static char TAG_ACTIVITY_SHOW;
         [operationsArray addObject:operation];
     }
 
-    [self sd_setImageLoadOperation:[NSArray arrayWithArray:operationsArray] forKey:@"UIImageViewAnimationImages"];
+    [self sd_setImageLoadOperation:[operationsArray copy] forKey:@"UIImageViewAnimationImages"];
 }
 
 - (void)sd_cancelCurrentImageLoad {

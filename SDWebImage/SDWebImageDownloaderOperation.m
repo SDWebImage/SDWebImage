@@ -20,9 +20,11 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
 
+typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
+
 @interface SDWebImageDownloaderOperation ()
 
-@property (strong, nonatomic) NSMutableArray *callbackBlocks;
+@property (strong, nonatomic) NSMutableArray<SDCallbacksDictionary *> *callbackBlocks;
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -82,7 +84,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
 
 - (id)addHandlersForProgress:(SDWebImageDownloaderProgressBlock)progressBlock
                    completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
-    NSMutableDictionary *callbacks = [NSMutableDictionary new];
+    SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
     dispatch_barrier_async(self.barrierQueue, ^{
@@ -91,8 +93,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
     return callbacks;
 }
 
-- (NSArray *)callbacksForKey:(NSString *)key {
-    __block NSMutableArray *callbacks = nil;
+- (NSArray<id> *)callbacksForKey:(NSString *)key {
+    __block NSMutableArray<id> *callbacks = nil;
     dispatch_sync(self.barrierQueue, ^{
         // We need to remove [NSNull null] because there might not always be a progress block for each callback
         callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
@@ -410,7 +412,7 @@ didReceiveResponse:(NSURLResponse *)response
 #pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    NSArray *completionBlocks = [[self callbacksForKey:kCompletedCallbackKey] copy];
+    NSArray<id> *completionBlocks = [[self callbacksForKey:kCompletedCallbackKey] copy];
     @synchronized(self) {
         self.thread = nil;
         self.dataTask = nil;

@@ -70,7 +70,10 @@ typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteg
 
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
 
-typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDictionary *headers);
+typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
+typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
+
+typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, SDHTTPHeadersDictionary *headers);
 
 /**
  *  A token associated with each download. Can be used to cancel a download

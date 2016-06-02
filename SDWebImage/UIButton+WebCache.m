@@ -12,6 +12,8 @@
 
 static char imageURLStorageKey;
 
+typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
+
 @implementation UIButton (WebCache)
 
 - (NSURL *)sd_currentImageURL {
@@ -162,8 +164,8 @@ static char imageURLStorageKey;
     [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
-- (NSMutableDictionary *)imageURLStorage {
-    NSMutableDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
+- (SDStateImageURLDictionary *)imageURLStorage {
+    SDStateImageURLDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
     if (!storage)
     {
         storage = [NSMutableDictionary dictionary];

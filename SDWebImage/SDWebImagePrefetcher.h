@@ -82,7 +82,7 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  *
  * @param urls list of URLs to prefetch
  */
-- (void)prefetchURLs:(NSArray *)urls;
+- (void)prefetchURLs:(NSArray<NSURL *> *)urls;
 
 /**
  * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching,
@@ -97,7 +97,9 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  *                        first param is the number of completed (successful or not) requests,
  *                        second parameter is the number of skipped requests
  */
-- (void)prefetchURLs:(NSArray *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock;
+- (void)prefetchURLs:(NSArray<NSURL *> *)urls
+            progress:(SDWebImagePrefetcherProgressBlock)progressBlock
+           completed:(SDWebImagePrefetcherCompletionBlock)completionBlock;
 
 /**
  * Remove and cancel queued list

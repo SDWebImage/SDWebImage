@@ -11,10 +11,12 @@
 
 static char loadOperationKey;
 
+typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
+
 @implementation UIView (WebCacheOperation)
 
-- (NSMutableDictionary *)operationDictionary {
-    NSMutableDictionary *operations = objc_getAssociatedObject(self, &loadOperationKey);
+- (SDOperationsDictionary *)operationDictionary {
+    SDOperationsDictionary *operations = objc_getAssociatedObject(self, &loadOperationKey);
     if (operations) {
         return operations;
     }
@@ -25,13 +27,13 @@ static char loadOperationKey;
 
 - (void)sd_setImageLoadOperation:(id)operation forKey:(NSString *)key {
     [self sd_cancelImageLoadOperationWithKey:key];
-    NSMutableDictionary *operationDictionary = [self operationDictionary];
+    SDOperationsDictionary *operationDictionary = [self operationDictionary];
     operationDictionary[key] = operation;
 }
 
 - (void)sd_cancelImageLoadOperationWithKey:(NSString *)key {
     // Cancel in progress downloader from queue
-    NSMutableDictionary *operationDictionary = [self operationDictionary];
+    SDOperationsDictionary *operationDictionary = [self operationDictionary];
     id operations = operationDictionary[key];
     if (operations) {
         if ([operations isKindOfClass:[NSArray class]]) {
@@ -48,7 +50,7 @@ static char loadOperationKey;
 }
 
 - (void)sd_removeImageLoadOperationWithKey:(NSString *)key {
-    NSMutableDictionary *operationDictionary = [self operationDictionary];
+    SDOperationsDictionary *operationDictionary = [self operationDictionary];
     [operationDictionary removeObjectForKey:key];
 }
 
