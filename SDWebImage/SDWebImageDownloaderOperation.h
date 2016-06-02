@@ -26,13 +26,6 @@ extern NSString *const SDWebImageDownloadFinishNotification;
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
- * Whether the URL connection should consult the credential storage for authenticating the connection. `YES` by default.
- *
- * This is the value that is returned in the `NSURLConnectionDelegate` method `-connectionShouldUseCredentialStorage:`.
- */
-@property (nonatomic, assign) BOOL shouldUseCredentialStorage;
-
-/**
  * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
