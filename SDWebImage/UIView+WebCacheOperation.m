@@ -25,13 +25,15 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
     return operations;
 }
 
-- (void)sd_setImageLoadOperation:(id)operation forKey:(NSString *)key {
-    [self sd_cancelImageLoadOperationWithKey:key];
-    SDOperationsDictionary *operationDictionary = [self operationDictionary];
-    operationDictionary[key] = operation;
+- (void)sd_setImageLoadOperation:(nullable id)operation forKey:(nullable NSString *)key {
+    if (key) {
+        [self sd_cancelImageLoadOperationWithKey:key];
+        SDOperationsDictionary *operationDictionary = [self operationDictionary];
+        operationDictionary[key] = operation;
+    }
 }
 
-- (void)sd_cancelImageLoadOperationWithKey:(NSString *)key {
+- (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key {
     // Cancel in progress downloader from queue
     SDOperationsDictionary *operationDictionary = [self operationDictionary];
     id operations = operationDictionary[key];
@@ -49,9 +51,11 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
     }
 }
 
-- (void)sd_removeImageLoadOperationWithKey:(NSString *)key {
-    SDOperationsDictionary *operationDictionary = [self operationDictionary];
-    [operationDictionary removeObjectForKey:key];
+- (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key {
+    if (key) {
+        SDOperationsDictionary *operationDictionary = [self operationDictionary];
+        [operationDictionary removeObjectForKey:key];
+    }
 }
 
 @end

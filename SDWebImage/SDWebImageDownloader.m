@@ -16,13 +16,13 @@
 
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
-@property (strong, nonatomic) NSOperationQueue *downloadQueue;
-@property (weak, nonatomic) NSOperation *lastAddedOperation;
-@property (assign, nonatomic) Class operationClass;
-@property (strong, nonatomic) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
-@property (strong, nonatomic) SDHTTPHeadersMutableDictionary *HTTPHeaders;
+@property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
+@property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
+@property (assign, nonatomic, nullable) Class operationClass;
+@property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
+@property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
-@property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t barrierQueue;
+@property (SDDispatchQueueSetterSementics, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -54,7 +54,7 @@
     }
 }
 
-+ (SDWebImageDownloader *)sharedDownloader {
++ (nonnull SDWebImageDownloader *)sharedDownloader {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -63,7 +63,7 @@
     return instance;
 }
 
-- (instancetype)init {
+- (nonnull instancetype)init {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
         _shouldDecompressImages = YES;
@@ -102,7 +102,7 @@
     SDDispatchQueueRelease(_barrierQueue);
 }
 
-- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field {
+- (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
     if (value) {
         self.HTTPHeaders[field] = value;
     }
@@ -111,7 +111,7 @@
     }
 }
 
-- (NSString *)valueForHTTPHeaderField:(NSString *)field {
+- (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field {
     return self.HTTPHeaders[field];
 }
 
@@ -127,14 +127,14 @@
     return _downloadQueue.maxConcurrentOperationCount;
 }
 
-- (void)setOperationClass:(Class)operationClass {
+- (void)setOperationClass:(nullable Class)operationClass {
     _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
 }
 
-- (SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
-                                          options:(SDWebImageDownloaderOptions)options
-                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
@@ -180,7 +180,7 @@
     }];
 }
 
-- (void)cancel:(SDWebImageDownloadToken *)token {
+- (void)cancel:(nullable SDWebImageDownloadToken *)token {
     dispatch_barrier_async(self.barrierQueue, ^{
         SDWebImageDownloaderOperation *operation = self.URLOperations[token.url];
         BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
@@ -190,10 +190,10 @@
     });
 }
 
-- (SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
-                                  completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock 
-                                          forURL:(NSURL *)url
-                                  createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
+- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
+                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
+                                                   forURL:(nullable NSURL *)url
+                                           createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {

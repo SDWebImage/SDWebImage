@@ -12,7 +12,7 @@
 
 @interface UIImage (WebP)
 
-+ (UIImage *)sd_imageWithWebPData:(NSData *)data;
++ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
 
 @end
 

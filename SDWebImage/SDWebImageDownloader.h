@@ -63,25 +63,25 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     SDWebImageDownloaderLIFOExecutionOrder
 };
 
-extern NSString *const SDWebImageDownloadStartNotification;
-extern NSString *const SDWebImageDownloadStopNotification;
+extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
+extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize);
 
-typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage *image, NSData *data, NSError *error, BOOL finished);
+typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
 typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
 typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
 
-typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, SDHTTPHeadersDictionary *headers);
+typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterBlock)(NSURL * _Nullable url, SDHTTPHeadersDictionary * _Nullable headers);
 
 /**
  *  A token associated with each download. Can be used to cancel a download
  */
 @interface SDWebImageDownloadToken : NSObject
 
-@property (nonatomic, strong) NSURL *url;
-@property (nonatomic, strong) id downloadOperationCancelToken;
+@property (nonatomic, strong, nullable) NSURL *url;
+@property (nonatomic, strong, nullable) id downloadOperationCancelToken;
 
 @end
 
@@ -121,22 +121,22 @@ typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL
  *
  *  @return global shared instance of downloader class
  */
-+ (SDWebImageDownloader *)sharedDownloader;
++ (nonnull SDWebImageDownloader *)sharedDownloader;
 
 /**
  *  Set the default URL credential to be set for request operations.
  */
-@property (strong, nonatomic) NSURLCredential *urlCredential;
+@property (strong, nonatomic, nullable) NSURLCredential *urlCredential;
 
 /**
  * Set username
  */
-@property (strong, nonatomic) NSString *username;
+@property (strong, nonatomic, nullable) NSString *username;
 
 /**
  * Set password
  */
-@property (strong, nonatomic) NSString *password;
+@property (strong, nonatomic, nullable) NSString *password;
 
 /**
  * Set filter to pick headers for downloading image HTTP request.
@@ -144,7 +144,7 @@ typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL
  * This block will be invoked for each downloading image request, returned
  * NSDictionary will be used as headers in corresponding HTTP request.
  */
-@property (nonatomic, copy) SDWebImageDownloaderHeadersFilterBlock headersFilter;
+@property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.
@@ -152,14 +152,14 @@ typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL
  * @param value The value for the header field. Use `nil` value to remove the header.
  * @param field The name of the header field to set.
  */
-- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+- (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field;
 
 /**
  * Returns the value of the specified HTTP header field.
  *
  * @return The value associated with the header field field, or `nil` if there is no corresponding header field.
  */
-- (NSString *)valueForHTTPHeaderField:(NSString *)field;
+- (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field;
 
 /**
  * Sets a subclass of `SDWebImageDownloaderOperation` as the default
@@ -169,7 +169,7 @@ typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL
  * @param operationClass The subclass of `SDWebImageDownloaderOperation` to set 
  *        as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
  */
-- (void)setOperationClass:(Class)operationClass;
+- (void)setOperationClass:(nullable Class)operationClass;
 
 /**
  * Creates a SDWebImageDownloader async downloader instance with a given URL
@@ -192,17 +192,17 @@ typedef SDHTTPHeadersDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL
  *
  * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
  */
-- (SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
-                                          options:(SDWebImageDownloaderOptions)options
-                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                        completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
  * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
  *
  * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
  */
-- (void)cancel:(SDWebImageDownloadToken *)token;
+- (void)cancel:(nullable SDWebImageDownloadToken *)token;
 
 /**
  * Sets the download queue suspension state

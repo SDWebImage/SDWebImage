@@ -10,22 +10,22 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageOperation.h"
 
-extern NSString *const SDWebImageDownloadStartNotification;
-extern NSString *const SDWebImageDownloadReceiveResponseNotification;
-extern NSString *const SDWebImageDownloadStopNotification;
-extern NSString *const SDWebImageDownloadFinishNotification;
+extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
+extern NSString * _Nonnull const SDWebImageDownloadReceiveResponseNotification;
+extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
+extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
 
 @interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 /**
  * The request used by the operation's task.
  */
-@property (strong, nonatomic, readonly) NSURLRequest *request;
+@property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
 
 /**
  * The operation's task
  */
-@property (strong, nonatomic, readonly) NSURLSessionTask *dataTask;
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
 
 
 @property (assign, nonatomic) BOOL shouldDecompressImages;
@@ -41,7 +41,7 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
-@property (nonatomic, strong) NSURLCredential *credential;
+@property (nonatomic, strong, nullable) NSURLCredential *credential;
 
 /**
  * The SDWebImageDownloaderOptions for the receiver.
@@ -56,7 +56,7 @@ extern NSString *const SDWebImageDownloadFinishNotification;
 /**
  * The response returned by the operation's connection.
  */
-@property (strong, nonatomic) NSURLResponse *response;
+@property (strong, nonatomic, nullable) NSURLResponse *response;
 
 /**
  *  Initializes a `SDWebImageDownloaderOperation` object
@@ -69,9 +69,9 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *
  *  @return the initialized instance
  */
-- (instancetype)initWithRequest:(NSURLRequest *)request
-                      inSession:(NSURLSession *)session
-                        options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
+                              inSession:(nullable NSURLSession *)session
+                                options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Adds handlers for progress and completion. Returns a tokent that can be passed to -cancel: to cancel this set of
@@ -84,8 +84,8 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *
  *  @return the token to use to cancel this set of handlers
  */
-- (id)addHandlersForProgress:(SDWebImageDownloaderProgressBlock)progressBlock
-                   completed:(SDWebImageDownloaderCompletedBlock)completedBlock;
+- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
  *  Cancels a set of callbacks. Once all callbacks are canceled, the operation is cancelled.
@@ -94,6 +94,6 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *
  *  @return YES if the operation was stopped because this was the last token to be canceled. NO otherwise.
  */
-- (BOOL)cancel:(id)token;
+- (BOOL)cancel:(nullable id)token;
 
 @end

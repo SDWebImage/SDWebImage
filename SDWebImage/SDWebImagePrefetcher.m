@@ -10,20 +10,20 @@
 
 @interface SDWebImagePrefetcher ()
 
-@property (strong, nonatomic) SDWebImageManager *manager;
-@property (strong, nonatomic) NSArray<NSURL *> *prefetchURLs;
+@property (strong, nonatomic, nonnull) SDWebImageManager *manager;
+@property (strong, nonatomic, nullable) NSArray<NSURL *> *prefetchURLs;
 @property (assign, nonatomic) NSUInteger requestedCount;
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
 @property (assign, nonatomic) NSTimeInterval startedTime;
-@property (copy, nonatomic) SDWebImagePrefetcherCompletionBlock completionBlock;
-@property (copy, nonatomic) SDWebImagePrefetcherProgressBlock progressBlock;
+@property (copy, nonatomic, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
+@property (copy, nonatomic, nullable) SDWebImagePrefetcherProgressBlock progressBlock;
 
 @end
 
 @implementation SDWebImagePrefetcher
 
-+ (SDWebImagePrefetcher *)sharedImagePrefetcher {
++ (nonnull SDWebImagePrefetcher *)sharedImagePrefetcher {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -32,11 +32,11 @@
     return instance;
 }
 
-- (instancetype)init {
+- (nonnull instancetype)init {
     return [self initWithImageManager:[SDWebImageManager new]];
 }
 
-- (instancetype)initWithImageManager:(SDWebImageManager *)manager {
+- (nonnull instancetype)initWithImageManager:(SDWebImageManager *)manager {
     if ((self = [super init])) {
         _manager = manager;
         _options = SDWebImageLowPriority;
@@ -105,11 +105,13 @@
     }
 }
 
-- (void)prefetchURLs:(NSArray<NSURL *> *)urls {
+- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls {
     [self prefetchURLs:urls progress:nil completed:nil];
 }
 
-- (void)prefetchURLs:(NSArray<NSURL *> *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock {
+- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+            progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
+           completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock {
     [self cancelPrefetching]; // Prevent duplicate prefetch request
     self.startedTime = CFAbsoluteTimeGetCurrent();
     self.prefetchURLs = urls;

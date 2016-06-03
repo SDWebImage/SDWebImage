@@ -12,7 +12,11 @@
 
 @implementation NSData (ImageContentType)
 
-+ (NSString *)sd_contentTypeForImageData:(NSData *)data {
++ (nullable NSString *)sd_contentTypeForImageData:(nullable NSData *)data {
+    if (!data) {
+        return nil;
+    }
+
     uint8_t c;
     [data getBytes:&c length:1];
     switch (c) {
