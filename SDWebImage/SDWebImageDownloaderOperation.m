@@ -17,7 +17,7 @@ NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDown
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
 
-@interface SDWebImageDownloaderOperation () <NSURLSessionTaskDelegate>
+@interface SDWebImageDownloaderOperation ()
 
 @property (copy, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
@@ -27,8 +27,13 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic) NSMutableData *imageData;
 
-@property (strong, nonatomic) NSURLSession *session;
-@property (strong, nonatomic) NSURLSessionDataTask *dataTask;
+// This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
+// the task associated with this operation
+@property (weak, nonatomic) NSURLSession *unownedSession;
+// This is set if we're using not using an injected NSURLSession. We're responsible of invalidating this one
+@property (strong, nonatomic) NSURLSession *ownedSession;
+
+@property (strong, nonatomic, readwrite) NSURLSessionTask *dataTask;
 
 @property (strong, atomic) NSThread *thread;
 
@@ -52,6 +57,21 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
              progress:(SDWebImageDownloaderProgressBlock)progressBlock
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
             cancelled:(SDWebImageNoParamsBlock)cancelBlock {
+
+    return [self initWithRequest:request
+                       inSession:nil
+                         options:options
+                        progress:progressBlock
+                       completed:completedBlock
+                       cancelled:cancelBlock];
+}
+
+- (id)initWithRequest:(NSURLRequest *)request
+            inSession:(NSURLSession *)session
+              options:(SDWebImageDownloaderOptions)options
+             progress:(SDWebImageDownloaderProgressBlock)progressBlock
+            completed:(SDWebImageDownloaderCompletedBlock)completedBlock
+            cancelled:(SDWebImageNoParamsBlock)cancelBlock {
     if ((self = [super init])) {
         _request = request;
         _shouldDecompressImages = YES;
@@ -62,6 +82,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
+        _unownedSession = session;
         responseFromCached = YES; // Initially wrong until `- URLSession:dataTask:willCacheResponse:completionHandler: is called or not called
     }
     return self;
@@ -93,20 +114,24 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             }];
         }
 #endif
-        NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-        sessionConfig.timeoutIntervalForRequest = 15;
+        NSURLSession *session = self.unownedSession;
+        if (!self.unownedSession) {
+            NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+            sessionConfig.timeoutIntervalForRequest = 15;
+            
+            /**
+             *  Create the session for this task
+             *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
+             *  method calls and completion handler calls.
+             */
+            self.ownedSession = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                              delegate:self
+                                                         delegateQueue:nil];
+            session = self.ownedSession;
+        }
         
-        /**
-         *  Create the session for this task
-         *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
-         *  method calls and completion handler calls.
-         */
-        self.session = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                     delegate:self
-                                                delegateQueue:nil];
-        
+        self.dataTask = [session dataTaskWithRequest:self.request];
         self.executing = YES;
-        self.dataTask = [self.session dataTaskWithRequest:self.request];
         self.thread = [NSThread currentThread];
     }
     
@@ -188,8 +213,10 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     self.dataTask = nil;
     self.imageData = nil;
     self.thread = nil;
-    [self.session invalidateAndCancel];
-    self.session = nil;
+    if (self.ownedSession) {
+        [self.ownedSession invalidateAndCancel];
+        self.ownedSession = nil;
+    }
 }
 
 - (void)setFinished:(BOOL)finished {
@@ -208,7 +235,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     return YES;
 }
 
-#pragma mark NSURLSessionTaskDelegate
+#pragma mark NSURLSessionDataDelegate
 
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
@@ -339,32 +366,24 @@ didReceiveResponse:(NSURLResponse *)response
     }
 }
 
-+ (UIImageOrientation)orientationFromPropertyValue:(NSInteger)value {
-    switch (value) {
-        case 1:
-            return UIImageOrientationUp;
-        case 3:
-            return UIImageOrientationDown;
-        case 8:
-            return UIImageOrientationLeft;
-        case 6:
-            return UIImageOrientationRight;
-        case 2:
-            return UIImageOrientationUpMirrored;
-        case 4:
-            return UIImageOrientationDownMirrored;
-        case 5:
-            return UIImageOrientationLeftMirrored;
-        case 7:
-            return UIImageOrientationRightMirrored;
-        default:
-            return UIImageOrientationUp;
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+ willCacheResponse:(NSCachedURLResponse *)proposedResponse
+ completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
+
+    responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
+    NSCachedURLResponse *cachedResponse = proposedResponse;
+
+    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
+        // Prevents caching of responses
+        cachedResponse = nil;
+    }
+    if (completionHandler) {
+        completionHandler(cachedResponse);
     }
 }
 
-- (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image {
-    return SDScaledImageForKey(key, image);
-}
+#pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
@@ -419,32 +438,7 @@ didReceiveResponse:(NSURLResponse *)response
     [self done];
 }
 
-- (void)URLSession:(NSURLSession *)session
-          dataTask:(NSURLSessionDataTask *)dataTask
- willCacheResponse:(NSCachedURLResponse *)proposedResponse
- completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
-    
-    responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
-    NSCachedURLResponse *cachedResponse = proposedResponse;
-
-    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
-        // Prevents caching of responses
-        cachedResponse = nil;
-    }
-    if (completionHandler) {
-        completionHandler(cachedResponse);
-    }
-}
-
-- (BOOL)shouldContinueWhenAppEntersBackground {
-    return self.options & SDWebImageDownloaderContinueInBackground;
-}
-
-- (void)URLSession:(NSURLSession *)session
-              task:(NSURLSessionTask *)task
-didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
- completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
-                             NSURLCredential *credential))completionHandler {
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
     
     NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
     __block NSURLCredential *credential = nil;
@@ -472,6 +466,39 @@ didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
     if (completionHandler) {
         completionHandler(disposition, credential);
     }
+}
+
+#pragma mark Helper methods
+
++ (UIImageOrientation)orientationFromPropertyValue:(NSInteger)value {
+    switch (value) {
+        case 1:
+            return UIImageOrientationUp;
+        case 3:
+            return UIImageOrientationDown;
+        case 8:
+            return UIImageOrientationLeft;
+        case 6:
+            return UIImageOrientationRight;
+        case 2:
+            return UIImageOrientationUpMirrored;
+        case 4:
+            return UIImageOrientationDownMirrored;
+        case 5:
+            return UIImageOrientationLeftMirrored;
+        case 7:
+            return UIImageOrientationRightMirrored;
+        default:
+            return UIImageOrientationUp;
+    }
+}
+
+- (UIImage *)scaledImageForKey:(NSString *)key image:(UIImage *)image {
+    return SDScaledImageForKey(key, image);
+}
+
+- (BOOL)shouldContinueWhenAppEntersBackground {
+    return self.options & SDWebImageDownloaderContinueInBackground;
 }
 
 @end
