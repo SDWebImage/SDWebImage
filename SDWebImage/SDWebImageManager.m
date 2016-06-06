@@ -140,8 +140,10 @@
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
     BOOL isFailedUrl = NO;
-    @synchronized (self.failedURLs) {
-        isFailedUrl = [self.failedURLs containsObject:url];
+    if (url) {
+        @synchronized (self.failedURLs) {
+            isFailedUrl = [self.failedURLs containsObject:url];
+        }
     }
 
     if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
