@@ -29,9 +29,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
-@property (weak, nonatomic) NSURLSession *session;
-// This is set to NO if we're using an injected NSURLSession, and to YES otherwise
-@property (assign, nonatomic) BOOL ownSession;
+@property (weak, nonatomic) NSURLSession *unownedSession;
+// This is set if we're using not using an injected NSURLSession. We're responsible of invalidating this one
+@property (strong, nonatomic) NSURLSession *ownedSession;
 
 @property (strong, nonatomic, readwrite) NSURLSessionTask *dataTask;
 
@@ -82,7 +82,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
-        _session = session;
+        _unownedSession = session;
         responseFromCached = YES; // Initially wrong until `- URLSession:dataTask:willCacheResponse:completionHandler: is called or not called
     }
     return self;
@@ -114,24 +114,24 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             }];
         }
 #endif
-        if (!self.session) {
-            self.ownSession = YES;
-
+        NSURLSession *session = self.unownedSession;
+        if (!self.unownedSession) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
             sessionConfig.timeoutIntervalForRequest = 15;
-
+            
             /**
              *  Create the session for this task
              *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
              *  method calls and completion handler calls.
              */
-            self.session = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                         delegate:self
-                                                    delegateQueue:nil];
+            self.ownedSession = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                              delegate:self
+                                                         delegateQueue:nil];
+            session = self.ownedSession;
         }
         
+        self.dataTask = [session dataTaskWithRequest:self.request];
         self.executing = YES;
-        self.dataTask = [self.session dataTaskWithRequest:self.request];
         self.thread = [NSThread currentThread];
     }
     
@@ -213,9 +213,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     self.dataTask = nil;
     self.imageData = nil;
     self.thread = nil;
-    if (self.ownSession) {
-        [self.session invalidateAndCancel];
-        self.session = nil;
+    if (self.ownedSession) {
+        [self.ownedSession invalidateAndCancel];
+        self.ownedSession = nil;
     }
 }
 
