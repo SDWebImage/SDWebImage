@@ -31,6 +31,12 @@ extern NSString *const SDWebImageDownloadFinishNotification;
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
+ *  Was used to determine whether the URL connection should consult the credential storage for authenticating the connection.
+ *  @deprecated Not used for a couple of versions
+ */
+@property (nonatomic, assign) BOOL shouldUseCredentialStorage __deprecated_msg("Property deprecated. Does nothing. Kept only for backwards compatibility");
+
+/**
  * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
