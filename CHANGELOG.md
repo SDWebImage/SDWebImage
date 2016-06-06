@@ -1,4 +1,4 @@
-## [3.8.0 Minor release - Replaces NSURLConnection (deprecated) with NSURLSession - on May 8th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.0)
+## [3.8.0 Minor release - Replaces NSURLConnection (deprecated) with NSURLSession - on Jun 6th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.0)
 
 #### Infrastructure:
 
@@ -6,12 +6,12 @@
 
 #### Features:
 
-- Replace deprecated `NSURLConnection` with `NSURLSession` #1578 - fixes #1291 #1318 #823 #1566 #1515
+- Replace deprecated `NSURLConnection` with `NSURLSession` #1578 #1586 - fixes #1291 #1318 #823 #1566 #1515
 - Allow to customise cache and image downloader instances used with `SDWebImageManager` 86fc47bf7b - fixes #1398 #870
 
 #### Fixes:
 
-- Removed the URL query params from the filename (key) fb0cdb6d - fixes #1433 #1533
+- Removed the URL query params from the filename (key) fb0cdb6d 1bf62d4 #1584 - fixes #1433 #1533 #1583 #1585
 - Fixed the WebP build with the official 1.0.0 CocoaPods release f1a471e - fixes #1444
 - Updated doc: `removeImageForKey:` not synchronous e6e5c51 - fixes #1379 #1415
 
