@@ -11,7 +11,7 @@
 
 #### Fixes:
 
-- Removed the URL query params from the filename (key) fb0cdb6d 1bf62d4 #1584 - fixes #1433 #1533 #1583 #1585
+- Removed the URL query params from the filename (key) fb0cdb6d 1bf62d4 #1584 - fixes #1433 #1553 #1583 #1585
 - Fixed the WebP build with the official 1.0.0 CocoaPods release f1a471e - fixes #1444
 - Updated doc: `removeImageForKey:` not synchronous e6e5c51 - fixes #1379 #1415
 
