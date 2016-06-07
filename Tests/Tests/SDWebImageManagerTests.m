@@ -1,10 +1,10 @@
-//
-//  SDWebImageManagerTests.m
-//  SDWebImage Tests
-//
-//  Created by Bogdan Poplauschi on 20/06/14.
-//
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #define EXP_SHORTHAND   // required by Expecta
 

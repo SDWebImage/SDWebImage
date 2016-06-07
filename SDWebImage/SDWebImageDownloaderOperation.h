@@ -15,22 +15,26 @@ extern NSString *const SDWebImageDownloadReceiveResponseNotification;
 extern NSString *const SDWebImageDownloadStopNotification;
 extern NSString *const SDWebImageDownloadFinishNotification;
 
-@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation>
+@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 /**
- * The request used by the operation's connection.
+ * The request used by the operation's task.
  */
 @property (strong, nonatomic, readonly) NSURLRequest *request;
+
+/**
+ * The operation's task
+ */
+@property (strong, nonatomic, readonly) NSURLSessionTask *dataTask;
 
 
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
- * Whether the URL connection should consult the credential storage for authenticating the connection. `YES` by default.
- *
- * This is the value that is returned in the `NSURLConnectionDelegate` method `-connectionShouldUseCredentialStorage:`.
+ *  Was used to determine whether the URL connection should consult the credential storage for authenticating the connection.
+ *  @deprecated Not used for a couple of versions
  */
-@property (nonatomic, assign) BOOL shouldUseCredentialStorage;
+@property (nonatomic, assign) BOOL shouldUseCredentialStorage __deprecated_msg("Property deprecated. Does nothing. Kept only for backwards compatibility");
 
 /**
  * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
@@ -60,11 +64,13 @@ extern NSString *const SDWebImageDownloadFinishNotification;
  *  @see SDWebImageDownloaderOperation
  *
  *  @param request        the URL request
+ *  @param session        the URL session in which this operation will run
  *  @param options        downloader options
  *
  *  @return the initialized instance
  */
 - (instancetype)initWithRequest:(NSURLRequest *)request
+                      inSession:(NSURLSession *)session
                         options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
 
 /**
