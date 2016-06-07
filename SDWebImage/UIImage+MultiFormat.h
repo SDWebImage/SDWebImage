@@ -10,6 +10,6 @@
 
 @interface UIImage (MultiFormat)
 
-+ (UIImage *)sd_imageWithData:(NSData *)data;
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
 
 @end

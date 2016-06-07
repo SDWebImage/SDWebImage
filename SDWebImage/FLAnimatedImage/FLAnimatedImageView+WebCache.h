@@ -28,7 +28,7 @@
  * Note that because of the limitations of categories this property can get out of sync
  * if you use setImage: directly.
  */
-- (NSURL *)sd_imageURL;
+- (nullable NSURL *)sd_imageURL;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -36,7 +36,7 @@
  *
  * @param url The url for the image.
  */
-- (void)sd_setImageWithURL:(NSURL *)url;
+- (void)sd_setImageWithURL:(nullable NSURL *)url;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -46,7 +46,8 @@
  * @param url         The url for the image.
  * @param placeholder The image to be set initially, until the image request finishes.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -57,7 +58,9 @@
  *  @param placeholder The image to be set initially, until the image request finishes.
  *  @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -70,7 +73,8 @@
  *                        indicating if the image was retrieved from the local cache or from the network.
  *                        The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -85,7 +89,9 @@
  *                        indicating if the image was retrieved from the local cache or from the network.
  *                        The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDExternalCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -101,7 +107,10 @@
  *                        indicating if the image was retrieved from the local cache or from the network.
  *                        The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -118,7 +127,11 @@
  *                        indicating if the image was retrieved from the local cache or from the network.
  *                        The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the image load

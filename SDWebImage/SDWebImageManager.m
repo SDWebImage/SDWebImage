@@ -12,23 +12,23 @@
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
-@property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
-@property (strong, nonatomic) NSOperation *cacheOperation;
+@property (copy, nonatomic, nullable) SDWebImageNoParamsBlock cancelBlock;
+@property (strong, nonatomic, nullable) NSOperation *cacheOperation;
 
 @end
 
 @interface SDWebImageManager ()
 
-@property (strong, nonatomic, readwrite) SDImageCache *imageCache;
-@property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;
-@property (strong, nonatomic) NSMutableSet *failedURLs;
-@property (strong, nonatomic) NSMutableArray *runningOperations;
+@property (strong, nonatomic, readwrite, nonnull) SDImageCache *imageCache;
+@property (strong, nonatomic, readwrite, nonnull) SDWebImageDownloader *imageDownloader;
+@property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
+@property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
 
 @end
 
 @implementation SDWebImageManager
 
-+ (SDWebImageManager*)sharedManager {
++ (nonnull SDWebImageManager*)sharedManager {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -37,13 +37,13 @@
     return instance;
 }
 
-- (instancetype)init {
+- (nonnull instancetype)init {
     SDImageCache *cache = [SDImageCache sharedImageCache];
     SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
     return [self initWithCache:cache downloader:downloader];
 }
 
-- (instancetype)initWithCache:(SDImageCache *)cache downloader:(SDWebImageDownloader *)downloader {
+- (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
         _imageCache = cache;
         _imageDownloader = downloader;
@@ -53,37 +53,31 @@
     return self;
 }
 
-- (NSString *)cacheKeyForURL:(NSURL *)url {
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
     if (!url) {
         return @"";
     }
-    
+
     if (self.cacheKeyFilter) {
         return self.cacheKeyFilter(url);
     } else {
-        if (NSClassFromString(@"NSURLComponents") && [NSURLComponents instancesRespondToSelector:@selector(string)]) {
-            NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-            urlComponents.query = nil; // Strip out query parameters.
-            return urlComponents.URL.absoluteString;
-        } else {
-            return url.absoluteString;
-        }
+        return url.absoluteString;
     }
 }
 
-- (BOOL)cachedImageExistsForURL:(NSURL *)url {
+- (BOOL)cachedImageExistsForURL:(nullable NSURL *)url {
     NSString *key = [self cacheKeyForURL:url];
     if ([self.imageCache imageFromMemoryCacheForKey:key] != nil) return YES;
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
-- (BOOL)diskImageExistsForURL:(NSURL *)url {
+- (BOOL)diskImageExistsForURL:(nullable NSURL *)url {
     NSString *key = [self cacheKeyForURL:url];
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
-- (void)cachedImageExistsForURL:(NSURL *)url
-                     completion:(SDWebImageCheckCacheCompletionBlock)completionBlock {
+- (void)cachedImageExistsForURL:(nullable NSURL *)url
+                     completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
     
     BOOL isInMemoryCache = ([self.imageCache imageFromMemoryCacheForKey:key] != nil);
@@ -106,8 +100,8 @@
     }];
 }
 
-- (void)diskImageExistsForURL:(NSURL *)url
-                   completion:(SDWebImageCheckCacheCompletionBlock)completionBlock {
+- (void)diskImageExistsForURL:(nullable NSURL *)url
+                   completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
     
     [self.imageCache diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
@@ -118,10 +112,10 @@
     }];
 }
 
-- (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
+- (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
-                                    progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                   completed:(SDInternalCompletionBlock)completedBlock {
+                                    progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                   completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -140,8 +134,10 @@
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
     BOOL isFailedUrl = NO;
-    @synchronized (self.failedURLs) {
-        isFailedUrl = [self.failedURLs containsObject:url];
+    if (url) {
+        @synchronized (self.failedURLs) {
+            isFailedUrl = [self.failedURLs containsObject:url];
+        }
     }
 
     if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
@@ -299,7 +295,7 @@
     return operation;
 }
 
-- (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url {
+- (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url {
     if (image && url) {
         NSString *key = [self cacheKeyForURL:url];
         [self.imageCache storeImage:image forKey:key toDisk:YES];
@@ -308,7 +304,7 @@
 
 - (void)cancelAll {
     @synchronized (self.runningOperations) {
-        NSArray *copiedOperations = [self.runningOperations copy];
+        NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
         [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
         [self.runningOperations removeObjectsInArray:copiedOperations];
     }
@@ -327,7 +323,7 @@
 
 @implementation SDWebImageCombinedOperation
 
-- (void)setCancelBlock:(SDWebImageNoParamsBlock)cancelBlock {
+- (void)setCancelBlock:(nullable SDWebImageNoParamsBlock)cancelBlock {
     // check if the operation is already cancelled, then we just call the cancelBlock
     if (self.isCancelled) {
         if (cancelBlock) {

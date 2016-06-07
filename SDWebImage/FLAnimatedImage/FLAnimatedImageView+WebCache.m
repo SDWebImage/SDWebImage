@@ -19,35 +19,39 @@ static char imageURLKey;
 
 @implementation FLAnimatedImageView (WebCache)
 
-- (NSURL *)sd_imageURL {
+- (nullable NSURL *)sd_imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url {
+- (void)sd_setImageWithURL:(nullable NSURL *)url {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url completed:(SDExternalCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDExternalCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDExternalCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                 completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_cancelCurrentImageLoad];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 

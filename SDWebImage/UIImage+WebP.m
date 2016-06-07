@@ -16,14 +16,13 @@
 #endif
 
 // Callback for CGDataProviderRelease
-static void FreeImageData(void *info, const void *data, size_t size)
-{
+static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
 @implementation UIImage (WebP)
 
-+ (UIImage *)sd_imageWithWebPData:(NSData *)data {
++ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data {
     WebPDecoderConfig config;
     if (!WebPInitDecoderConfig(&config)) {
         return nil;
