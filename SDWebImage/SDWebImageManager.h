@@ -90,11 +90,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageAvoidAutoSetImage = 1 << 11
 };
 
-typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
+typedef void(^SDWebImageCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
-typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL);
+typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
-typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
+typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
 
 
 @class SDWebImageManager;
@@ -111,7 +111,7 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  *
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
  */
-- (BOOL)imageManager:(SDWebImageManager *)imageManager shouldDownloadImageForURL:(NSURL *)imageURL;
+- (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldDownloadImageForURL:(nullable NSURL *)imageURL;
 
 /**
  * Allows to transform the image immediately after it has been downloaded and just before to cache it on disk and memory.
@@ -123,7 +123,7 @@ typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
  *
  * @return The transformed image object.
  */
-- (UIImage *)imageManager:(SDWebImageManager *)imageManager transformDownloadedImage:(UIImage *)image withURL:(NSURL *)imageURL;
+- (nullable UIImage *)imageManager:(nonnull SDWebImageManager *)imageManager transformDownloadedImage:(nullable UIImage *)image withURL:(nullable NSURL *)imageURL;
 
 @end
 
@@ -151,10 +151,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 @interface SDWebImageManager : NSObject
 
-@property (weak, nonatomic) id <SDWebImageManagerDelegate> delegate;
+@property (weak, nonatomic, nullable) id <SDWebImageManagerDelegate> delegate;
 
-@property (strong, nonatomic, readonly) SDImageCache *imageCache;
-@property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
+@property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
+@property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
 
 /**
  * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can
@@ -172,20 +172,20 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
  * @endcode
  */
-@property (nonatomic, copy) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
+@property (nonatomic, copy, nullable) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
 
 /**
  * Returns global SDWebImageManager instance.
  *
  * @return SDWebImageManager shared instance
  */
-+ (SDWebImageManager *)sharedManager;
++ (nonnull SDWebImageManager *)sharedManager;
 
 /**
  * Allows to specify instance of cache and image downloader used with image manager.
  * @return new instance of `SDWebImageManager` with specified cache and downloader.
  */
-- (instancetype)initWithCache:(SDImageCache *)cache downloader:(SDWebImageDownloader *)downloader;
+- (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -209,10 +209,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
-- (id <SDWebImageOperation>)loadImageWithURL:(NSURL *)url
-                                     options:(SDWebImageOptions)options
-                                    progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                   completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
+- (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
+                                              options:(SDWebImageOptions)options
+                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                            completed:(nullable SDWebImageCompletionWithFinishedBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL
@@ -222,7 +222,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  */
 
-- (void)saveImageToCache:(UIImage *)image forURL:(NSURL *)url;
+- (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url;
 
 /**
  * Cancel all current operations
@@ -241,7 +241,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  *  @return if the image was already cached
  */
-- (BOOL)cachedImageExistsForURL:(NSURL *)url;
+- (BOOL)cachedImageExistsForURL:(nullable NSURL *)url;
 
 /**
  *  Check if image has already been cached on disk only
@@ -250,7 +250,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  *  @return if the image was already cached (disk only)
  */
-- (BOOL)diskImageExistsForURL:(NSURL *)url;
+- (BOOL)diskImageExistsForURL:(nullable NSURL *)url;
 
 /**
  *  Async check if image has already been cached
@@ -260,8 +260,8 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *  
  *  @note the completion block is always executed on the main queue
  */
-- (void)cachedImageExistsForURL:(NSURL *)url
-                     completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+- (void)cachedImageExistsForURL:(nullable NSURL *)url
+                     completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 /**
  *  Async check if image has already been cached on disk only
@@ -271,13 +271,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  *  @note the completion block is always executed on the main queue
  */
-- (void)diskImageExistsForURL:(NSURL *)url
-                   completion:(SDWebImageCheckCacheCompletionBlock)completionBlock;
+- (void)diskImageExistsForURL:(nullable NSURL *)url
+                   completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 
 /**
  *Return the cache key for a given URL
  */
-- (NSString *)cacheKeyForURL:(NSURL *)url;
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 
 @end

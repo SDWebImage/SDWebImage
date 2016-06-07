@@ -17,7 +17,7 @@
 
 @implementation UIImage (MultiFormat)
 
-+ (UIImage *)sd_imageWithData:(NSData *)data {
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
     if (!data) {
         return nil;
     }
@@ -48,7 +48,7 @@
 }
 
 
-+(UIImageOrientation)sd_imageOrientationFromImageData:(NSData *)imageData {
++(UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
     CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
     if (imageSource) {

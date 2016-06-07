@@ -17,14 +17,14 @@
 /**
  * Get the current image URL.
  */
-- (NSURL *)sd_currentImageURL;
+- (nullable NSURL *)sd_currentImageURL;
 
 /**
  * Get the image URL for a control state.
  * 
  * @param state Which state you want to know the URL for. The values are described in UIControlState.
  */
-- (NSURL *)sd_imageURLForState:(UIControlState)state;
+- (nullable NSURL *)sd_imageURLForState:(UIControlState)state;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -34,7 +34,8 @@
  * @param url   The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
@@ -46,7 +47,9 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @see sd_setImageWithURL:placeholderImage:options:
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -58,7 +61,10 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -73,7 +79,9 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -89,7 +97,10 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -106,7 +117,11 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -116,7 +131,8 @@
  * @param url   The url for the image.
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state;
 
 /**
  * Set the backgroundImageView `image` with an `url` and a placeholder.
@@ -128,7 +144,9 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @see sd_setImageWithURL:placeholderImage:options:
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -140,7 +158,10 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -155,7 +176,9 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder.
@@ -171,7 +194,10 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -187,7 +213,11 @@
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
  */
-- (void)sd_setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock;
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options
+                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
 
 /**
  * Cancel the current image download
