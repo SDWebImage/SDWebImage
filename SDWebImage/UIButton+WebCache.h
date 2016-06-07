@@ -81,7 +81,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -100,7 +100,7 @@
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -121,7 +121,7 @@
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -178,7 +178,7 @@
  */
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
-                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder.
@@ -197,7 +197,7 @@
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
-                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -217,7 +217,7 @@
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
-                           completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current image download

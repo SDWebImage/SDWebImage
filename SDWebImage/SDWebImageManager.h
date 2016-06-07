@@ -90,9 +90,9 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageAvoidAutoSetImage = 1 << 11
 };
 
-typedef void(^SDWebImageCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
+typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
-typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
+typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
 typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
 
@@ -197,22 +197,24 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  *   This parameter is required.
  * 
- *   This block has no return value and takes the requested UIImage as first parameter.
- *   In case of error the image parameter is nil and the second parameter may contain an NSError.
+ *   This block has no return value and takes the requested UIImage as first parameter and the NSData representation as second parameter.
+ *   In case of error the image parameter is nil and the third parameter may contain an NSError.
  *
- *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
+ *   The forth parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
  *   or from the memory cache or from the network.
  *
- *   The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is 
+ *   The fith parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is
  *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
+ *
+ *   The last parameter is the original image URL
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
 - (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                               options:(SDWebImageOptions)options
                                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                            completed:(nullable SDWebImageCompletionWithFinishedBlock)completedBlock;
+                                            completed:(nullable SDInternalCompletionBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

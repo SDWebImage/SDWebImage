@@ -30,18 +30,18 @@ static char imageURLKey;
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock {
+                 completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_cancelCurrentImageLoad];
 
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -49,7 +49,7 @@ static char imageURLKey;
 
     if (url) {
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong MKAnnotationView *sself = wself;

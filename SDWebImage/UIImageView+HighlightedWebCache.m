@@ -21,40 +21,39 @@
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:nil];
 }
 
-- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageCompletionBlock)completedBlock {
+                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_cancelCurrentHighlightedImageLoad];
 
     if (url) {
         __weak __typeof(self)wself = self;
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            dispatch_main_sync_safe (^
-                                     {
-                                         if (!wself) return;
-                                         if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
-                                         {
-                                             completedBlock(image, error, cacheType, url);
-                                             return;
-                                         }
-                                         else if (image) {
-                                             wself.highlightedImage = image;
-                                             [wself setNeedsLayout];
-                                         }
-                                         if (completedBlock && finished) {
-                                             completedBlock(image, error, cacheType, url);
-                                         }
-                                     });
+            dispatch_main_sync_safe (^{
+                if (!wself) return;
+                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
+                {
+                    completedBlock(image, error, cacheType, url);
+                    return;
+                }
+                else if (image) {
+                    wself.highlightedImage = image;
+                    [wself setNeedsLayout];
+                }
+                if (completedBlock && finished) {
+                    completedBlock(image, error, cacheType, url);
+                }
+            });
         }];
         [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {

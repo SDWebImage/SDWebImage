@@ -42,11 +42,11 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:nil options:0 completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
@@ -54,8 +54,7 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock {
-
+                 completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self setImage:placeholder forState:state];
     [self sd_cancelImageLoadForState:state];
     
@@ -75,7 +74,7 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
     self.imageURLStorage[@(state)] = url;
 
     __weak __typeof(self)wself = self;
-    id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!wself) return;
         dispatch_main_sync_safe(^{
             __strong UIButton *sself = wself;
@@ -108,11 +107,11 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:completedBlock];
 }
 
-- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
@@ -120,14 +119,14 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
-                           completed:(nullable SDWebImageCompletionBlock)completedBlock {
+                           completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_cancelBackgroundImageLoadForState:state];
 
     [self setBackgroundImage:placeholder forState:state];
 
     if (url) {
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong UIButton *sself = wself;

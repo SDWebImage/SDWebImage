@@ -12,6 +12,4 @@
 
 @property (strong, nonatomic) NSURL *imageURL;
 
-@property (strong, nonatomic) IBOutlet UIImageView *imageView;
-
 @end

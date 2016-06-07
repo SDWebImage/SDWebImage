@@ -48,7 +48,7 @@
  *                       The fourth parameter is the original image url.
  */
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
-                            completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -65,7 +65,7 @@
  */
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
-                            completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -84,7 +84,7 @@
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current download

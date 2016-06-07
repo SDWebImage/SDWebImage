@@ -18,7 +18,7 @@
  * Get the current image URL.
  *
  * Note that because of the limitations of categories this property can get out of sync
- * if you use sd_setImage: directly.
+ * if you use setImage: directly.
  */
 - (nullable NSURL *)sd_imageURL;
 
@@ -70,7 +70,7 @@
  *                       The fourth parameter is the original image url.
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder.
@@ -87,7 +87,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -106,7 +106,7 @@
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                 completed:(nullable SDWebImageCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current download

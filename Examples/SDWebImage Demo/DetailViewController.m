@@ -8,9 +8,14 @@
 
 #import "DetailViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
 
 @interface DetailViewController ()
+
+@property (strong, nonatomic) IBOutlet FLAnimatedImageView *imageView;
+
 - (void)configureView;
+
 @end
 
 @implementation DetailViewController
