@@ -6,6 +6,7 @@
  * file that was distributed with this source code.
  */
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #import "FLAnimatedImageView+WebCache.h"
 #import "objc/runtime.h"
@@ -117,3 +118,5 @@ static char imageURLKey;
 
 
 @end
+
+#endif

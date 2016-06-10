@@ -8,6 +8,9 @@
  */
 
 #import <UIKit/UIKit.h>
+#if TARGET_OS_WATCH
+    #import <WatchKit/WatchKit.h>
+#endif
 
 @interface UIImage (GIF)
 

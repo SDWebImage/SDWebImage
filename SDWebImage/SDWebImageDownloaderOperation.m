@@ -41,7 +41,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (strong, atomic, nullable) NSThread *thread;
 @property (SDDispatchQueueSetterSementics, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#if TARGET_OS_IOS || TARGET_OS_TV
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
 
@@ -125,7 +125,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             return;
         }
 
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#if TARGET_OS_IOS || TARGET_OS_TV
         Class UIApplicationClass = NSClassFromString(@"UIApplication");
         BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
         if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
@@ -179,7 +179,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         }
     }
 
-#if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#if TARGET_OS_IOS || TARGET_OS_TV
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
@@ -345,7 +345,7 @@ didReceiveResponse:(NSURLResponse *)response
             // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
 
-#ifdef TARGET_OS_IPHONE
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
             // Workaround for iOS anamorphic image
             if (partialImageRef) {
                 const size_t partialHeight = CGImageGetHeight(partialImageRef);

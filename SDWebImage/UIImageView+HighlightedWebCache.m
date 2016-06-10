@@ -9,6 +9,8 @@
 #import "UIImageView+HighlightedWebCache.h"
 #import "UIView+WebCacheOperation.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 #define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
 
 @implementation UIImageView (HighlightedWebCache)
@@ -71,3 +73,5 @@
 }
 
 @end
+
+#endif

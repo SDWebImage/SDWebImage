@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "SDWebImageManager.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 @interface UIView (WebCacheOperation)
 
 /**
@@ -34,3 +36,5 @@
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key;
 
 @end
+
+#endif

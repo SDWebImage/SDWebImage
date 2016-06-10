@@ -18,17 +18,18 @@
 #endif
 
 #if !TARGET_OS_IPHONE
-#import <AppKit/AppKit.h>
-#ifndef UIImage
-#define UIImage NSImage
-#endif
-#ifndef UIImageView
-#define UIImageView NSImageView
-#endif
+    #import <AppKit/AppKit.h>
+    #ifndef UIImage
+        #define UIImage NSImage
+    #endif
+    #ifndef UIImageView
+        #define UIImageView NSImageView
+    #endif
 #else
-
-#import <UIKit/UIKit.h>
-
+    #import <UIKit/UIKit.h>
+    #if TARGET_OS_WATCH
+        #import <WatchKit/WatchKit.h>
+    #endif
 #endif
 
 #ifndef NS_ENUM

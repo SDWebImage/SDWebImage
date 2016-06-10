@@ -27,7 +27,11 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         return [UIImage animatedImageWithImages:scaledImages duration:image.duration];
     }
     else {
+#if TARGET_OS_WATCH
+        if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
+#else
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+#endif
             CGFloat scale = 1;
             if (key.length >= 8) {
                 NSRange range = [key rangeOfString:@"@2x."];

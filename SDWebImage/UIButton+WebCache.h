@@ -9,6 +9,8 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageManager.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIButtonView.
  */
@@ -230,3 +232,5 @@
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state;
 
 @end
+
+#endif

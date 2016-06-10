@@ -10,6 +10,8 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 static char imageURLKey;
 static char TAG_ACTIVITY_INDICATOR;
 static char TAG_ACTIVITY_STYLE;
@@ -218,3 +220,5 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 @end
+
+#endif

@@ -6,6 +6,7 @@
  * file that was distributed with this source code.
  */
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 
 #if COCOAPODS
     @import FLAnimatedImage;
@@ -139,3 +140,5 @@
 - (void)sd_cancelCurrentImageLoad;
 
 @end
+
+#endif

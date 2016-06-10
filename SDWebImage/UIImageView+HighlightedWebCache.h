@@ -10,6 +10,8 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageManager.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView for highlighted state.
  */
@@ -92,3 +94,5 @@
 - (void)sd_cancelCurrentHighlightedImageLoad;
 
 @end
+
+#endif

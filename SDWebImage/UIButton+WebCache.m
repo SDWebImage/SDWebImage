@@ -10,6 +10,8 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 static char imageURLStorageKey;
 
 typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
@@ -183,3 +185,5 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
 }
 
 @end
+
+#endif
