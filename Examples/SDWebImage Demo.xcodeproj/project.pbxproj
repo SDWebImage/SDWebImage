@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		3E75A9861742DBE700DA412D /* CustomPathImages in Resources */ = {isa = PBXBuildFile; fileRef = 3E75A9851742DBE700DA412D /* CustomPathImages */; };
 		4317396A1CDFCCE20008FEB9 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D741954841D00390AB0 /* libSDWebImage.a */; };
+		43A629D31D0DFD000089D7DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D21D0DFD000089D7DD /* AppDelegate.m */; };
+		43A629D61D0DFD000089D7DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D51D0DFD000089D7DD /* main.m */; };
+		43A629D91D0DFD000089D7DD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D81D0DFD000089D7DD /* ViewController.m */; };
+		43A629DB1D0DFD000089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A629DA1D0DFD000089D7DD /* Assets.xcassets */; };
+		43A629DE1D0DFD000089D7DD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43A629DC1D0DFD000089D7DD /* Main.storyboard */; };
+		43A629EB1D0DFDD40089D7DD /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43A629E71D0DFD000089D7DD /* SDWebImage.framework */; };
 		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
@@ -54,6 +60,20 @@
 			remoteGlobalIDString = 4A2CADFF1AB4BB5300B6BC39;
 			remoteInfo = WebImage;
 		};
+		43A629E61D0DFD000089D7DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4397D2F21D0DDD8C00BB2784;
+			remoteInfo = "SDWebImage OSX";
+		};
+		43A629E91D0DFDCA0089D7DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4397D2761D0DDD8C00BB2784;
+			remoteInfo = "SDWebImage OSX";
+		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -65,7 +85,16 @@
 
 /* Begin PBXFileReference section */
 		3E75A9851742DBE700DA412D /* CustomPathImages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CustomPathImages; sourceTree = SOURCE_ROOT; };
-		53761295155AB74D005750A4 /* SDWebImage Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43A629CF1D0DFD000089D7DD /* SDWebImage OSX Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage OSX Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43A629D11D0DFD000089D7DD /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		43A629D21D0DFD000089D7DD /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		43A629D51D0DFD000089D7DD /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		43A629D71D0DFD000089D7DD /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		43A629D81D0DFD000089D7DD /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		43A629DA1D0DFD000089D7DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		43A629DD1D0DFD000089D7DD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		43A629DF1D0DFD000089D7DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage iOS Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53761299155AB74D005750A4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5376129B155AB74D005750A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		5376129D155AB74D005750A4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -89,6 +118,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		43A629CC1D0DFD000089D7DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A629EB1D0DFDD40089D7DD /* SDWebImage.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53761292155AB74D005750A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -105,11 +142,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		43A629D01D0DFD000089D7DD /* SDWebImage OSX Demo */ = {
+			isa = PBXGroup;
+			children = (
+				43A629D11D0DFD000089D7DD /* AppDelegate.h */,
+				43A629D21D0DFD000089D7DD /* AppDelegate.m */,
+				43A629D71D0DFD000089D7DD /* ViewController.h */,
+				43A629D81D0DFD000089D7DD /* ViewController.m */,
+				43A629DA1D0DFD000089D7DD /* Assets.xcassets */,
+				43A629DC1D0DFD000089D7DD /* Main.storyboard */,
+				43A629DF1D0DFD000089D7DD /* Info.plist */,
+				43A629D41D0DFD000089D7DD /* Supporting Files */,
+			);
+			path = "SDWebImage OSX Demo";
+			sourceTree = "<group>";
+		};
+		43A629D41D0DFD000089D7DD /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				43A629D51D0DFD000089D7DD /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		5376128A155AB74D005750A4 = {
 			isa = PBXGroup;
 			children = (
 				DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */,
 				5376129F155AB74D005750A4 /* SDWebImage Demo */,
+				43A629D01D0DFD000089D7DD /* SDWebImage OSX Demo */,
 				53761298155AB74D005750A4 /* Frameworks */,
 				53761296155AB74D005750A4 /* Products */,
 			);
@@ -118,7 +179,8 @@
 		53761296155AB74D005750A4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				53761295155AB74D005750A4 /* SDWebImage Demo.app */,
+				53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */,
+				43A629CF1D0DFD000089D7DD /* SDWebImage OSX Demo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -172,6 +234,7 @@
 				43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */,
 				431739601CDFCC370008FEB9 /* SDWebImage.framework */,
 				4397D2751D0DDBE100BB2784 /* SDWebImage.framework */,
+				43A629E71D0DFD000089D7DD /* SDWebImage.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,9 +242,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		53761294155AB74D005750A4 /* SDWebImage Demo */ = {
+		43A629CE1D0DFD000089D7DD /* SDWebImage OSX Demo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage Demo" */;
+			buildConfigurationList = 43A629E81D0DFD000089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage OSX Demo" */;
+			buildPhases = (
+				43A629CB1D0DFD000089D7DD /* Sources */,
+				43A629CC1D0DFD000089D7DD /* Frameworks */,
+				43A629CD1D0DFD000089D7DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43A629EA1D0DFDCA0089D7DD /* PBXTargetDependency */,
+			);
+			name = "SDWebImage OSX Demo";
+			productName = "SDWebImage OSX Demo";
+			productReference = 43A629CF1D0DFD000089D7DD /* SDWebImage OSX Demo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		53761294155AB74D005750A4 /* SDWebImage iOS Demo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage iOS Demo" */;
 			buildPhases = (
 				53761291155AB74D005750A4 /* Sources */,
 				53761292155AB74D005750A4 /* Frameworks */,
@@ -192,9 +273,9 @@
 			dependencies = (
 				431739691CDFCCDE0008FEB9 /* PBXTargetDependency */,
 			);
-			name = "SDWebImage Demo";
+			name = "SDWebImage iOS Demo";
 			productName = "SDWebImage Demo";
-			productReference = 53761295155AB74D005750A4 /* SDWebImage Demo.app */;
+			productReference = 53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -205,6 +286,11 @@
 			attributes = {
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = Dailymotion;
+				TargetAttributes = {
+					43A629CE1D0DFD000089D7DD = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
 			};
 			buildConfigurationList = 5376128F155AB74D005750A4 /* Build configuration list for PBXProject "SDWebImage Demo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -212,6 +298,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 5376128A155AB74D005750A4;
 			productRefGroup = 53761296155AB74D005750A4 /* Products */;
@@ -224,7 +311,8 @@
 			);
 			projectRoot = "";
 			targets = (
-				53761294155AB74D005750A4 /* SDWebImage Demo */,
+				53761294155AB74D005750A4 /* SDWebImage iOS Demo */,
+				43A629CE1D0DFD000089D7DD /* SDWebImage OSX Demo */,
 			);
 		};
 /* End PBXProject section */
@@ -251,6 +339,13 @@
 			remoteRef = 43A0FAAE1BDD16AC00B7582B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		43A629E71D0DFD000089D7DD /* SDWebImage.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SDWebImage.framework;
+			remoteRef = 43A629E61D0DFD000089D7DD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		DA248D741954841D00390AB0 /* libSDWebImage.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -261,6 +356,15 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		43A629CD1D0DFD000089D7DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A629DB1D0DFD000089D7DD /* Assets.xcassets in Resources */,
+				43A629DE1D0DFD000089D7DD /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53761293155AB74D005750A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -277,6 +381,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		43A629CB1D0DFD000089D7DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A629D91D0DFD000089D7DD /* ViewController.m in Sources */,
+				43A629D61D0DFD000089D7DD /* main.m in Sources */,
+				43A629D31D0DFD000089D7DD /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53761291155AB74D005750A4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -296,9 +410,22 @@
 			name = SDWebImage;
 			targetProxy = 431739681CDFCCDE0008FEB9 /* PBXContainerItemProxy */;
 		};
+		43A629EA1D0DFDCA0089D7DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SDWebImage OSX";
+			targetProxy = 43A629E91D0DFDCA0089D7DD /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		43A629DC1D0DFD000089D7DD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43A629DD1D0DFD000089D7DD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		537612B1155AB74D005750A4 /* MasterViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -318,6 +445,84 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		43A629E01D0DFD000089D7DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "SDWebImage OSX Demo/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-OSX-Demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		43A629E11D0DFD000089D7DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "SDWebImage OSX Demo/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-OSX-Demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		537612B7155AB74D005750A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -340,7 +545,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -358,7 +562,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -382,6 +585,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -404,6 +608,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -411,6 +616,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		43A629E81D0DFD000089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage OSX Demo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43A629E01D0DFD000089D7DD /* Debug */,
+				43A629E11D0DFD000089D7DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		5376128F155AB74D005750A4 /* Build configuration list for PBXProject "SDWebImage Demo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -420,7 +633,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage Demo" */ = {
+		537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage iOS Demo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				537612BA155AB74D005750A4 /* Debug */,

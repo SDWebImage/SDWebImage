@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "53761294155AB74D005750A4"
-               BuildableName = "SDWebImage Demo.app"
-               BlueprintName = "SDWebImage Demo"
+               BuildableName = "SDWebImage iOS Demo.app"
+               BlueprintName = "SDWebImage iOS Demo"
                ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
+            BuildableName = "SDWebImage iOS Demo.app"
+            BlueprintName = "SDWebImage iOS Demo"
             ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -56,8 +56,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
+            BuildableName = "SDWebImage iOS Demo.app"
+            BlueprintName = "SDWebImage iOS Demo"
             ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,8 +75,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
+            BuildableName = "SDWebImage iOS Demo.app"
+            BlueprintName = "SDWebImage iOS Demo"
             ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
