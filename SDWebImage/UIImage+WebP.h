@@ -8,7 +8,7 @@
 
 #ifdef SD_WEBP
 
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
 
 @interface UIImage (WebP)
 

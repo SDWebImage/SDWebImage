@@ -7,9 +7,10 @@
  */
 
 #import "UIImageView+HighlightedWebCache.h"
-#import "UIView+WebCacheOperation.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
+
+#import "UIView+WebCacheOperation.h"
 
 #define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
 

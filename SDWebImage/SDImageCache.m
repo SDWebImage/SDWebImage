@@ -11,6 +11,8 @@
 #import "UIImage+MultiFormat.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "UIImage+GIF.h"
+#import "NSData+ImageContentType.h"
+#import "NSImage+WebCache.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -21,7 +23,7 @@
 - (nonnull instancetype)init {
     self = [super init];
     if (self) {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeAllObjects) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
     }
@@ -29,7 +31,7 @@
 }
 
 - (void)dealloc {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
 }
@@ -55,7 +57,11 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
+#if SD_MAC
+    return image.size.height * image.size.width;
+#elif SD_UIKIT || SD_WATCH
     return image.size.height * image.size.width * image.scale * image.scale;
+#endif
 }
 
 @interface SDImageCache ()
@@ -129,7 +135,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             _fileManager = [NSFileManager new];
         });
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
@@ -214,7 +220,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSData *data = imageData;
 
             if (image && (recalculate || !data)) {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
+#if SD_UIKIT || SD_WATCH
                 // We need to determine if the image is a PNG or a JPEG
                 // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
                 // The first eight bytes of a PNG file always contain the following (decimal) values:
@@ -240,7 +246,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
                 }
 #else
-                data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
+                NSString *contentType = [NSData sd_contentTypeForImageData:data];
+                NSBitmapImageFileType imageFileType = NSJPEGFileType;
+                if ([contentType isEqualToString:@"image/gif"]) {
+                    imageFileType = NSGIFFileType;
+                } else if ([contentType isEqualToString:@"image/png"]) {
+                    imageFileType = NSPNGFileType;
+                }
+                
+                data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations
+                                                                usingType:imageFileType
+                                                               properties:@{}];
 #endif
             }
 
@@ -592,7 +608,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
 - (void)backgroundCleanDisk {
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {

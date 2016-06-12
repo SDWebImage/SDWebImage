@@ -6,11 +6,11 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
 #import "SDWebImageCompat.h"
-#import "SDWebImageManager.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
+
+#import "SDWebImageManager.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView for highlighted state.

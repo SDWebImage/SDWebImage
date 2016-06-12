@@ -6,10 +6,11 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
-#import "SDWebImageManager.h"
+#import "SDWebImageCompat.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT || SD_MAC
+
+#import "SDWebImageManager.h"
 
 @interface UIView (WebCacheOperation)
 

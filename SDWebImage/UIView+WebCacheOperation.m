@@ -7,9 +7,10 @@
  */
 
 #import "UIView+WebCacheOperation.h"
-#import "objc/runtime.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT || SD_MAC
+
+#import "objc/runtime.h"
 
 static char loadOperationKey;
 

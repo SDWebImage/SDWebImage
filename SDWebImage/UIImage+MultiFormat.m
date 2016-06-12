@@ -35,19 +35,21 @@
 #endif
     else {
         image = [[UIImage alloc] initWithData:data];
+#if SD_UIKIT || SD_WATCH
         UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
         if (orientation != UIImageOrientationUp) {
             image = [UIImage imageWithCGImage:image.CGImage
                                         scale:image.scale
                                   orientation:orientation];
         }
+#endif
     }
 
 
     return image;
 }
 
-
+#if SD_UIKIT || SD_WATCH
 +(UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
     CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
@@ -112,7 +114,7 @@
     }
     return orientation;
 }
-
+#endif
 
 
 @end

@@ -7,10 +7,7 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
-#if TARGET_OS_WATCH
-    #import <WatchKit/WatchKit.h>
-#endif
+#import "SDWebImageCompat.h"
 
 @interface UIImage (GIF)
 

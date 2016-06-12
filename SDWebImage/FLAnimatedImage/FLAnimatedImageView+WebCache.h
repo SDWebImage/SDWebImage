@@ -6,7 +6,9 @@
  * file that was distributed with this source code.
  */
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#import "SDWebImageCompat.h"
+
+#if SD_UIKIT
 
 #if COCOAPODS
     @import FLAnimatedImage;

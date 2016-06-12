@@ -11,6 +11,7 @@
 #import "UIImage+MultiFormat.h"
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
+#import "NSImage+WebCache.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
@@ -41,7 +42,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (strong, atomic, nullable) NSThread *thread;
 @property (SDDispatchQueueSetterSementics, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
 
@@ -49,7 +50,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @implementation SDWebImageDownloaderOperation {
     size_t width, height;
+#if SD_UIKIT || SD_WATCH
     UIImageOrientation orientation;
+#endif
     BOOL responseFromCached;
 }
 
@@ -125,7 +128,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             return;
         }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
         Class UIApplicationClass = NSClassFromString(@"UIApplication");
         BOOL hasApplication = UIApplicationClass && [UIApplicationClass respondsToSelector:@selector(sharedApplication)];
         if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
@@ -179,7 +182,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         }
     }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if SD_UIKIT
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
@@ -337,7 +340,9 @@ didReceiveResponse:(NSURLResponse *)response
                 // which means the image below born of initWithCGIImage will be
                 // oriented incorrectly sometimes. (Unlike the image born of initWithData
                 // in didCompleteWithError.) So save it here and pass it on later.
+#if SD_UIKIT || SD_WATCH
                 orientation = [[self class] orientationFromPropertyValue:(orientationValue == -1 ? 1 : orientationValue)];
+#endif
             }
         }
 
@@ -345,7 +350,7 @@ didReceiveResponse:(NSURLResponse *)response
             // Create the image
             CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
+#if SD_UIKIT || SD_WATCH
             // Workaround for iOS anamorphic image
             if (partialImageRef) {
                 const size_t partialHeight = CGImageGetHeight(partialImageRef);
@@ -366,7 +371,11 @@ didReceiveResponse:(NSURLResponse *)response
 #endif
 
             if (partialImageRef) {
+#if SD_UIKIT || SD_WATCH
                 UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
+#elif SD_MAC
+                UIImage *image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
+#endif
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 UIImage *scaledImage = [self scaledImageForKey:key image:image];
                 if (self.shouldDecompressImages) {
@@ -500,6 +509,7 @@ didReceiveResponse:(NSURLResponse *)response
 
 #pragma mark Helper methods
 
+#if SD_UIKIT || SD_WATCH
 + (UIImageOrientation)orientationFromPropertyValue:(NSInteger)value {
     switch (value) {
         case 1:
@@ -522,6 +532,7 @@ didReceiveResponse:(NSURLResponse *)response
             return UIImageOrientationUp;
     }
 }
+#endif
 
 - (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
     return SDScaledImageForKey(key, image);
