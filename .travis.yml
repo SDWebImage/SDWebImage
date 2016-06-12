@@ -32,6 +32,7 @@ script:
     - echo Build as dynamic framework
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Build the Demo app
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
