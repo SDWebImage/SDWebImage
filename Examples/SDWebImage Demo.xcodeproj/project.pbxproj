@@ -40,6 +40,13 @@
 			remoteGlobalIDString = 53761307155AD0D5005750A4;
 			remoteInfo = SDWebImage;
 		};
+		4397D2741D0DDBE100BB2784 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 431BB7031D06D2C1006A3455;
+			remoteInfo = "SDWebImage watchOS";
+		};
 		43A0FAAE1BDD16AC00B7582B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -162,8 +169,9 @@
 			isa = PBXGroup;
 			children = (
 				DA248D741954841D00390AB0 /* libSDWebImage.a */,
-				43A0FAAF1BDD16AC00B7582B /* WebImage.framework */,
-				431739601CDFCC370008FEB9 /* WebImage.framework */,
+				43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */,
+				431739601CDFCC370008FEB9 /* SDWebImage.framework */,
+				4397D2751D0DDBE100BB2784 /* SDWebImage.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -222,17 +230,24 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		431739601CDFCC370008FEB9 /* WebImage.framework */ = {
+		431739601CDFCC370008FEB9 /* SDWebImage.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = WebImage.framework;
+			path = SDWebImage.framework;
 			remoteRef = 4317395F1CDFCC370008FEB9 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		43A0FAAF1BDD16AC00B7582B /* WebImage.framework */ = {
+		4397D2751D0DDBE100BB2784 /* SDWebImage.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = WebImage.framework;
+			path = SDWebImage.framework;
+			remoteRef = 4397D2741D0DDBE100BB2784 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SDWebImage.framework;
 			remoteRef = 43A0FAAE1BDD16AC00B7582B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
