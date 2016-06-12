@@ -10,7 +10,7 @@
 
 #if SD_UIKIT || SD_MAC
 
-#import "MapKit/MapKit.h"
+#import <MapKit/MapKit.h>
 #import "SDWebImageManager.h"
 
 /**
