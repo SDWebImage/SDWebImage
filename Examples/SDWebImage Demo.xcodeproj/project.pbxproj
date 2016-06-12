@@ -15,7 +15,7 @@
 		4314D1B31D0E1182004B36C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4314D1B11D0E1182004B36C9 /* Main.storyboard */; };
 		4314D1B51D0E1182004B36C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4314D1B41D0E1182004B36C9 /* Assets.xcassets */; };
 		4314D1BC1D0E11A8004B36C9 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 431739601CDFCC370008FEB9 /* SDWebImage.framework */; };
-		4317396A1CDFCCE20008FEB9 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D741954841D00390AB0 /* libSDWebImage.a */; };
+		4317396A1CDFCCE20008FEB9 /* libSDWebImage iOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D741954841D00390AB0 /* libSDWebImage iOS static.a */; };
 		43A629D31D0DFD000089D7DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D21D0DFD000089D7DD /* AppDelegate.m */; };
 		43A629D61D0DFD000089D7DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D51D0DFD000089D7DD /* main.m */; };
 		43A629D91D0DFD000089D7DD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D81D0DFD000089D7DD /* ViewController.m */; };
@@ -244,7 +244,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4317396A1CDFCCE20008FEB9 /* libSDWebImage.a in Frameworks */,
+				4317396A1CDFCCE20008FEB9 /* libSDWebImage iOS static.a in Frameworks */,
 				DA248D44195470FD00390AB0 /* MapKit.framework in Frameworks */,
 				531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */,
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
@@ -407,7 +407,7 @@
 		DA248D6D1954841D00390AB0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DA248D741954841D00390AB0 /* libSDWebImage.a */,
+				DA248D741954841D00390AB0 /* libSDWebImage iOS static.a */,
 				4314D19E1D0E0EB6004B36C9 /* libSDWebImage watchOS static.a */,
 				43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */,
 				431739601CDFCC370008FEB9 /* SDWebImage.framework */,
@@ -598,10 +598,10 @@
 			remoteRef = 43A629E61D0DFD000089D7DD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		DA248D741954841D00390AB0 /* libSDWebImage.a */ = {
+		DA248D741954841D00390AB0 /* libSDWebImage iOS static.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libSDWebImage.a;
+			path = "libSDWebImage iOS static.a";
 			remoteRef = DA248D731954841D00390AB0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -1189,6 +1189,7 @@
 				4314D1B91D0E1182004B36C9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		43A629E81D0DFD000089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage OSX Demo" */ = {
 			isa = XCConfigurationList;
