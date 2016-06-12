@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3E75A9861742DBE700DA412D /* CustomPathImages in Resources */ = {isa = PBXBuildFile; fileRef = 3E75A9851742DBE700DA412D /* CustomPathImages */; };
+		4314D1A11D0E0EE2004B36C9 /* libSDWebImage watchOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4314D19E1D0E0EB6004B36C9 /* libSDWebImage watchOS static.a */; };
 		4317396A1CDFCCE20008FEB9 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D741954841D00390AB0 /* libSDWebImage.a */; };
 		43A629D31D0DFD000089D7DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D21D0DFD000089D7DD /* AppDelegate.m */; };
 		43A629D61D0DFD000089D7DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D51D0DFD000089D7DD /* main.m */; };
@@ -15,6 +16,14 @@
 		43A629DB1D0DFD000089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A629DA1D0DFD000089D7DD /* Assets.xcassets */; };
 		43A629DE1D0DFD000089D7DD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43A629DC1D0DFD000089D7DD /* Main.storyboard */; };
 		43A629EB1D0DFDD40089D7DD /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43A629E71D0DFD000089D7DD /* SDWebImage.framework */; };
+		43A629F21D0E07600089D7DD /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43A629F01D0E07600089D7DD /* Interface.storyboard */; };
+		43A629F41D0E07600089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A629F31D0E07600089D7DD /* Assets.xcassets */; };
+		43A629FB1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 43A629FA1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		43A62A031D0E07600089D7DD /* InterfaceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A62A021D0E07600089D7DD /* InterfaceController.m */; };
+		43A62A061D0E07600089D7DD /* ExtensionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A62A051D0E07600089D7DD /* ExtensionDelegate.m */; };
+		43A62A091D0E07600089D7DD /* NotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A62A081D0E07600089D7DD /* NotificationController.m */; };
+		43A62A0B1D0E07600089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A62A0A1D0E07600089D7DD /* Assets.xcassets */; };
+		43A62A0F1D0E07600089D7DD /* SDWebImage Watch Demo.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */; };
 		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
@@ -32,6 +41,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4314D19D1D0E0EB6004B36C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4314D1991D0E0E3B004B36C9;
+			remoteInfo = "SDWebImage watchOS static";
+		};
+		4314D19F1D0E0EBD004B36C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4314D11B1D0E0E3B004B36C9;
+			remoteInfo = "SDWebImage watchOS static";
+		};
 		4317395F1CDFCC370008FEB9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -74,6 +97,20 @@
 			remoteGlobalIDString = 4397D2761D0DDD8C00BB2784;
 			remoteInfo = "SDWebImage OSX";
 		};
+		43A629FC1D0E07600089D7DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5376128C155AB74D005750A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43A629F91D0E07600089D7DD;
+			remoteInfo = "SDWebImage Watch Demo Extension";
+		};
+		43A62A0D1D0E07600089D7DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5376128C155AB74D005750A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43A629ED1D0E07600089D7DD;
+			remoteInfo = "SDWebImage Watch Demo";
+		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -82,6 +119,31 @@
 			remoteInfo = SDWebImage;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		43A62A131D0E07600089D7DD /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				43A629FB1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43A62A171D0E07600089D7DD /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				43A62A0F1D0E07600089D7DD /* SDWebImage Watch Demo.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3E75A9851742DBE700DA412D /* CustomPathImages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CustomPathImages; sourceTree = SOURCE_ROOT; };
@@ -94,6 +156,20 @@
 		43A629DA1D0DFD000089D7DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		43A629DD1D0DFD000089D7DD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		43A629DF1D0DFD000089D7DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage Watch Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43A629F11D0E07600089D7DD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
+		43A629F31D0E07600089D7DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		43A629F51D0E07600089D7DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43A629FA1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "SDWebImage Watch Demo Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43A62A001D0E07600089D7DD /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		43A62A011D0E07600089D7DD /* InterfaceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterfaceController.h; sourceTree = "<group>"; };
+		43A62A021D0E07600089D7DD /* InterfaceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InterfaceController.m; sourceTree = "<group>"; };
+		43A62A041D0E07600089D7DD /* ExtensionDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionDelegate.h; sourceTree = "<group>"; };
+		43A62A051D0E07600089D7DD /* ExtensionDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExtensionDelegate.m; sourceTree = "<group>"; };
+		43A62A071D0E07600089D7DD /* NotificationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationController.h; sourceTree = "<group>"; };
+		43A62A081D0E07600089D7DD /* NotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationController.m; sourceTree = "<group>"; };
+		43A62A0A1D0E07600089D7DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		43A62A0C1D0E07600089D7DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage iOS Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53761299155AB74D005750A4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5376129B155AB74D005750A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -123,6 +199,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				43A629EB1D0DFDD40089D7DD /* SDWebImage.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43A629F71D0E07600089D7DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4314D1A11D0E0EE2004B36C9 /* libSDWebImage watchOS static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,12 +249,48 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		43A629EF1D0E07600089D7DD /* SDWebImage Watch Demo */ = {
+			isa = PBXGroup;
+			children = (
+				43A629F01D0E07600089D7DD /* Interface.storyboard */,
+				43A629F31D0E07600089D7DD /* Assets.xcassets */,
+				43A629F51D0E07600089D7DD /* Info.plist */,
+			);
+			path = "SDWebImage Watch Demo";
+			sourceTree = "<group>";
+		};
+		43A629FE1D0E07600089D7DD /* SDWebImage Watch Demo Extension */ = {
+			isa = PBXGroup;
+			children = (
+				43A62A011D0E07600089D7DD /* InterfaceController.h */,
+				43A62A021D0E07600089D7DD /* InterfaceController.m */,
+				43A62A041D0E07600089D7DD /* ExtensionDelegate.h */,
+				43A62A051D0E07600089D7DD /* ExtensionDelegate.m */,
+				43A62A071D0E07600089D7DD /* NotificationController.h */,
+				43A62A081D0E07600089D7DD /* NotificationController.m */,
+				43A62A0A1D0E07600089D7DD /* Assets.xcassets */,
+				43A62A0C1D0E07600089D7DD /* Info.plist */,
+				43A629FF1D0E07600089D7DD /* Supporting Files */,
+			);
+			path = "SDWebImage Watch Demo Extension";
+			sourceTree = "<group>";
+		};
+		43A629FF1D0E07600089D7DD /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				43A62A001D0E07600089D7DD /* PushNotificationPayload.apns */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		5376128A155AB74D005750A4 = {
 			isa = PBXGroup;
 			children = (
 				DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */,
 				5376129F155AB74D005750A4 /* SDWebImage Demo */,
 				43A629D01D0DFD000089D7DD /* SDWebImage OSX Demo */,
+				43A629EF1D0E07600089D7DD /* SDWebImage Watch Demo */,
+				43A629FE1D0E07600089D7DD /* SDWebImage Watch Demo Extension */,
 				53761298155AB74D005750A4 /* Frameworks */,
 				53761296155AB74D005750A4 /* Products */,
 			);
@@ -181,6 +301,8 @@
 			children = (
 				53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */,
 				43A629CF1D0DFD000089D7DD /* SDWebImage OSX Demo.app */,
+				43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */,
+				43A629FA1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -231,6 +353,7 @@
 			isa = PBXGroup;
 			children = (
 				DA248D741954841D00390AB0 /* libSDWebImage.a */,
+				4314D19E1D0E0EB6004B36C9 /* libSDWebImage watchOS static.a */,
 				43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */,
 				431739601CDFCC370008FEB9 /* SDWebImage.framework */,
 				4397D2751D0DDBE100BB2784 /* SDWebImage.framework */,
@@ -260,6 +383,41 @@
 			productReference = 43A629CF1D0DFD000089D7DD /* SDWebImage OSX Demo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43A62A141D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo" */;
+			buildPhases = (
+				43A629EC1D0E07600089D7DD /* Resources */,
+				43A62A131D0E07600089D7DD /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43A629FD1D0E07600089D7DD /* PBXTargetDependency */,
+			);
+			name = "SDWebImage Watch Demo";
+			productName = "SDWebImage Watch Demo";
+			productReference = 43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		43A629F91D0E07600089D7DD /* SDWebImage Watch Demo Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43A62A101D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo Extension" */;
+			buildPhases = (
+				43A629F61D0E07600089D7DD /* Sources */,
+				43A629F71D0E07600089D7DD /* Frameworks */,
+				43A629F81D0E07600089D7DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4314D1A01D0E0EBD004B36C9 /* PBXTargetDependency */,
+			);
+			name = "SDWebImage Watch Demo Extension";
+			productName = "SDWebImage Watch Demo Extension";
+			productReference = 43A629FA1D0E07600089D7DD /* SDWebImage Watch Demo Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
+		};
 		53761294155AB74D005750A4 /* SDWebImage iOS Demo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage iOS Demo" */;
@@ -267,11 +425,13 @@
 				53761291155AB74D005750A4 /* Sources */,
 				53761292155AB74D005750A4 /* Frameworks */,
 				53761293155AB74D005750A4 /* Resources */,
+				43A62A171D0E07600089D7DD /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				431739691CDFCCDE0008FEB9 /* PBXTargetDependency */,
+				43A62A0E1D0E07600089D7DD /* PBXTargetDependency */,
 			);
 			name = "SDWebImage iOS Demo";
 			productName = "SDWebImage Demo";
@@ -288,6 +448,12 @@
 				ORGANIZATIONNAME = Dailymotion;
 				TargetAttributes = {
 					43A629CE1D0DFD000089D7DD = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					43A629ED1D0E07600089D7DD = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					43A629F91D0E07600089D7DD = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
 				};
@@ -313,11 +479,20 @@
 			targets = (
 				53761294155AB74D005750A4 /* SDWebImage iOS Demo */,
 				43A629CE1D0DFD000089D7DD /* SDWebImage OSX Demo */,
+				43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */,
+				43A629F91D0E07600089D7DD /* SDWebImage Watch Demo Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		4314D19E1D0E0EB6004B36C9 /* libSDWebImage watchOS static.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libSDWebImage watchOS static.a";
+			remoteRef = 4314D19D1D0E0EB6004B36C9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		431739601CDFCC370008FEB9 /* SDWebImage.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -365,6 +540,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		43A629EC1D0E07600089D7DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A629F41D0E07600089D7DD /* Assets.xcassets in Resources */,
+				43A629F21D0E07600089D7DD /* Interface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43A629F81D0E07600089D7DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A62A0B1D0E07600089D7DD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53761293155AB74D005750A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -391,6 +583,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		43A629F61D0E07600089D7DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43A62A061D0E07600089D7DD /* ExtensionDelegate.m in Sources */,
+				43A62A031D0E07600089D7DD /* InterfaceController.m in Sources */,
+				43A62A091D0E07600089D7DD /* NotificationController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53761291155AB74D005750A4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -405,6 +607,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4314D1A01D0E0EBD004B36C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SDWebImage watchOS static";
+			targetProxy = 4314D19F1D0E0EBD004B36C9 /* PBXContainerItemProxy */;
+		};
 		431739691CDFCCDE0008FEB9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SDWebImage;
@@ -415,6 +622,16 @@
 			name = "SDWebImage OSX";
 			targetProxy = 43A629E91D0DFDCA0089D7DD /* PBXContainerItemProxy */;
 		};
+		43A629FD1D0E07600089D7DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43A629F91D0E07600089D7DD /* SDWebImage Watch Demo Extension */;
+			targetProxy = 43A629FC1D0E07600089D7DD /* PBXContainerItemProxy */;
+		};
+		43A62A0E1D0E07600089D7DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */;
+			targetProxy = 43A62A0D1D0E07600089D7DD /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -424,6 +641,14 @@
 				43A629DD1D0DFD000089D7DD /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		43A629F01D0E07600089D7DD /* Interface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43A629F11D0E07600089D7DD /* Base */,
+			);
+			name = Interface.storyboard;
 			sourceTree = "<group>";
 		};
 		537612B1155AB74D005750A4 /* MasterViewController.xib */ = {
@@ -520,6 +745,160 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-OSX-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		43A62A111D0E07600089D7DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "SDWebImage Watch Demo Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		43A62A121D0E07600089D7DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "SDWebImage Watch Demo Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		43A62A151D0E07600089D7DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = SDWebImage_Watch_Demo_Extension;
+				INFOPLIST_FILE = "SDWebImage Watch Demo/Info.plist";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		43A62A161D0E07600089D7DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				IBSC_MODULE = SDWebImage_Watch_Demo_Extension;
+				INFOPLIST_FILE = "SDWebImage Watch Demo/Info.plist";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Release;
 		};
@@ -623,6 +1002,25 @@
 				43A629E11D0DFD000089D7DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43A62A101D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43A62A111D0E07600089D7DD /* Debug */,
+				43A62A121D0E07600089D7DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43A62A141D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43A62A151D0E07600089D7DD /* Debug */,
+				43A62A161D0E07600089D7DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		5376128F155AB74D005750A4 /* Build configuration list for PBXProject "SDWebImage Demo" */ = {
 			isa = XCConfigurationList;

@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "53761307155AD0D5005750A4"
-               BuildableName = "libSDWebImage.a"
-               BlueprintName = "SDWebImage"
+               BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+               BuildableName = "libSDWebImage watchOS static.a"
+               BlueprintName = "SDWebImage watchOS static"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53761307155AD0D5005750A4"
-            BuildableName = "libSDWebImage.a"
-            BlueprintName = "SDWebImage"
+            BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+            BuildableName = "libSDWebImage watchOS static.a"
+            BlueprintName = "SDWebImage watchOS static"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -60,6 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+            BuildableName = "libSDWebImage watchOS static.a"
+            BlueprintName = "SDWebImage watchOS static"
+            ReferencedContainer = "container:SDWebImage.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
