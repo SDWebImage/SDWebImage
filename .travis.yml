@@ -37,9 +37,10 @@ script:
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Build the Demo apps
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Run the tests
     - pod install --project-directory=Tests
