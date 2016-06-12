@@ -44,5 +44,5 @@ script:
 
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage-static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' -configuration Debug | xcpretty -c
