@@ -12,6 +12,7 @@ before_install:
     - pod --version
     - pod setup --silent > /dev/null
     - pod repo update --silent
+    - brew install carthage
 
 script:
 
@@ -25,3 +26,5 @@ script:
     - pod install --project-directory=Tests
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean
     - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test
+
+    - carthage build --no-skip-current
