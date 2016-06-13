@@ -38,7 +38,7 @@ static int64_t kAsyncTestTimeout = 5;
 - (void)testThatDownloadInvokesCompletionBlockWithCorrectParamsAsync {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
 
-    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage000.jpg"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"];
     
     [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
                                                 options:SDWebImageRefreshCached
