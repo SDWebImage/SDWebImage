@@ -795,6 +795,18 @@
 		43DA7DDF1D10867B0028BE58 /* extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 43DA7DDB1D1086740028BE58 /* extras.h */; };
 		43DA7DE01D10867C0028BE58 /* extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 43DA7DDB1D1086740028BE58 /* extras.h */; };
 		43DA7DE11D10867D0028BE58 /* extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 43DA7DDB1D1086740028BE58 /* extras.h */; };
+		43DA7DE41D109B160028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DE51D109B160028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
+		43DA7DE61D109B980028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DE71D109B980028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
+		43DA7DE81D109B990028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DE91D109B990028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
+		43DA7DEA1D109B9A0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DEB1D109B9A0028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
+		43DA7DEC1D109B9B0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DED1D109B9B0028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
+		43DA7DEE1D109B9B0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */; };
+		43DA7DEF1D109B9B0028BE58 /* alpha_processing_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */; };
 		4A2CAE041AB4BB5400B6BC39 /* SDWebImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2CAE031AB4BB5400B6BC39 /* SDWebImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2CAE181AB4BB6400B6BC39 /* SDWebImageCompat.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D88148C56230056699D /* SDWebImageCompat.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2CAE191AB4BB6400B6BC39 /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5340674F167780C40042B59E /* SDWebImageCompat.m */; };
@@ -933,6 +945,8 @@
 		43DA7C8F1D1086570028BE58 /* yuv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = yuv.c; sourceTree = "<group>"; };
 		43DA7C901D1086570028BE58 /* yuv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yuv.h; sourceTree = "<group>"; };
 		43DA7DDB1D1086740028BE58 /* extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extras.h; sourceTree = "<group>"; };
+		43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alpha_processing_mips_dsp_r2.c; sourceTree = "<group>"; };
+		43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alpha_processing_sse2.c; sourceTree = "<group>"; };
 		4A2CADFF1AB4BB5300B6BC39 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A2CAE021AB4BB5400B6BC39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A2CAE031AB4BB5400B6BC39 /* SDWebImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImage.h; sourceTree = "<group>"; };
@@ -1255,6 +1269,8 @@
 		DA577C651998E60B007367ED /* dsp */ = {
 			isa = PBXGroup;
 			children = (
+				43DA7DE21D109B160028BE58 /* alpha_processing_mips_dsp_r2.c */,
+				43DA7DE31D109B160028BE58 /* alpha_processing_sse2.c */,
 				43DA7C5A1D1086570028BE58 /* alpha_processing_sse41.c */,
 				43DA7C5B1D1086570028BE58 /* alpha_processing.c */,
 				43DA7C5C1D1086570028BE58 /* argb_mips_dsp_r2.c */,
@@ -2017,6 +2033,7 @@
 				00733A621BC4880000A5A117 /* UIView+WebCacheOperation.m in Sources */,
 				4317393C1CDFC8B20008FEB9 /* filters.c in Sources */,
 				43DA7D391D1086600028BE58 /* argb_sse2.c in Sources */,
+				43DA7DEA1D109B9A0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7D631D1086600028BE58 /* rescaler.c in Sources */,
 				43DA7D481D1086600028BE58 /* enc_avx2.c in Sources */,
 				43DA7D571D1086600028BE58 /* lossless_enc.c in Sources */,
@@ -2049,6 +2066,7 @@
 				431738D31CDFC8A40008FEB9 /* alpha.c in Sources */,
 				00733A601BC4880000A5A117 /* UIImageView+HighlightedWebCache.m in Sources */,
 				43DA7D431D1086600028BE58 /* dec_neon.c in Sources */,
+				43DA7DEB1D109B9A0028BE58 /* alpha_processing_sse2.c in Sources */,
 				431739401CDFC8B20008FEB9 /* huffman_encode.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2069,6 +2087,7 @@
 				4314D1271D0E0E3B004B36C9 /* rescaler.c in Sources */,
 				43DA7CF61D10865E0028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				4314D12A1D0E0E3B004B36C9 /* quant.c in Sources */,
+				43DA7DE71D109B980028BE58 /* alpha_processing_sse2.c in Sources */,
 				43DA7CDB1D10865E0028BE58 /* enc_mips_dsp_r2.c in Sources */,
 				4314D12F1D0E0E3B004B36C9 /* thread.c in Sources */,
 				4314D1311D0E0E3B004B36C9 /* SDWebImageDownloader.m in Sources */,
@@ -2091,6 +2110,7 @@
 				43DA7CE41D10865E0028BE58 /* lossless_enc_mips_dsp_r2.c in Sources */,
 				4314D1391D0E0E3B004B36C9 /* color_cache.c in Sources */,
 				4314D13B1D0E0E3B004B36C9 /* UIButton+WebCache.m in Sources */,
+				43DA7DE61D109B980028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7CCF1D10865E0028BE58 /* cost_sse2.c in Sources */,
 				4314D13D1D0E0E3B004B36C9 /* quant_levels_dec.c in Sources */,
 				4314D13E1D0E0E3B004B36C9 /* vp8l.c in Sources */,
@@ -2163,6 +2183,7 @@
 				431BB6921D06D2C1006A3455 /* NSData+ImageContentType.m in Sources */,
 				43DA7D9B1D1086600028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				431BB69A1D06D2C1006A3455 /* SDWebImageDownloader.m in Sources */,
+				43DA7DED1D109B9B0028BE58 /* alpha_processing_sse2.c in Sources */,
 				43DA7D801D1086600028BE58 /* enc_mips_dsp_r2.c in Sources */,
 				43A62A631D0E0A8F0089D7DD /* vp8l.c in Sources */,
 				431BB6A31D06D2C1006A3455 /* UIImageView+WebCache.m in Sources */,
@@ -2185,6 +2206,7 @@
 				43DA7D891D1086600028BE58 /* lossless_enc_mips_dsp_r2.c in Sources */,
 				43A62A341D0E0A860089D7DD /* random.c in Sources */,
 				431BB6B11D06D2C1006A3455 /* UIView+WebCacheOperation.m in Sources */,
+				43DA7DEC1D109B9B0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7D741D1086600028BE58 /* cost_sse2.c in Sources */,
 				431BB6B41D06D2C1006A3455 /* SDWebImageDecoder.m in Sources */,
 				431BB6B61D06D2C1006A3455 /* UIImage+WebP.m in Sources */,
@@ -2279,6 +2301,7 @@
 				43DA7DB61D1086610028BE58 /* enc_avx2.c in Sources */,
 				4397D2901D0DDD8C00BB2784 /* tree.c in Sources */,
 				43DA7DD01D1086610028BE58 /* rescaler_sse2.c in Sources */,
+				43DA7DEE1D109B9B0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7DC01D1086610028BE58 /* lossless_enc_mips_dsp_r2.c in Sources */,
 				43DA7DD21D1086610028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				43DA7DD41D1086610028BE58 /* upsampling_sse2.c in Sources */,
@@ -2291,6 +2314,7 @@
 				4397D2981D0DDD8C00BB2784 /* quant_levels_dec.c in Sources */,
 				4397D2991D0DDD8C00BB2784 /* vp8l.c in Sources */,
 				4397D29B1D0DDD8C00BB2784 /* SDWebImageDownloader.m in Sources */,
+				43DA7DEF1D109B9B0028BE58 /* alpha_processing_sse2.c in Sources */,
 				43DA7DBD1D1086610028BE58 /* filters_mips_dsp_r2.c in Sources */,
 				43DA7DC61D1086610028BE58 /* lossless_mips_dsp_r2.c in Sources */,
 				4397D29C1D0DDD8C00BB2784 /* NSData+ImageContentType.m in Sources */,
@@ -2399,6 +2423,7 @@
 				4A2CAE2A1AB4BB7500B6BC39 /* NSData+ImageContentType.m in Sources */,
 				431738D11CDFC8A30008FEB9 /* webp.c in Sources */,
 				43DA7D021D10865F0028BE58 /* argb_sse2.c in Sources */,
+				43DA7DE81D109B990028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7D2C1D10865F0028BE58 /* rescaler.c in Sources */,
 				43DA7D111D10865F0028BE58 /* enc_avx2.c in Sources */,
 				43DA7D201D10865F0028BE58 /* lossless_enc.c in Sources */,
@@ -2431,6 +2456,7 @@
 				4317391A1CDFC8B20008FEB9 /* bit_reader.c in Sources */,
 				431738C41CDFC8A30008FEB9 /* alpha.c in Sources */,
 				43DA7D0C1D10865F0028BE58 /* dec_neon.c in Sources */,
+				43DA7DE91D109B990028BE58 /* alpha_processing_sse2.c in Sources */,
 				431739321CDFC8B20008FEB9 /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2497,6 +2523,7 @@
 				530E49EC16464C84002868E7 /* SDWebImageDownloaderOperation.m in Sources */,
 				431738851CDFC2580008FEB9 /* webp.c in Sources */,
 				43DA7C941D1086570028BE58 /* argb_sse2.c in Sources */,
+				43DA7DE41D109B160028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7CBE1D1086570028BE58 /* rescaler.c in Sources */,
 				43DA7CA31D1086570028BE58 /* enc_avx2.c in Sources */,
 				43DA7CB21D1086570028BE58 /* lossless_enc.c in Sources */,
@@ -2529,6 +2556,7 @@
 				431738A31CDFC2630008FEB9 /* bit_reader.c in Sources */,
 				431738781CDFC2580008FEB9 /* alpha.c in Sources */,
 				43DA7C9E1D1086570028BE58 /* dec_neon.c in Sources */,
+				43DA7DE51D109B160028BE58 /* alpha_processing_sse2.c in Sources */,
 				431738BB1CDFC2630008FEB9 /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
