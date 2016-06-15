@@ -71,9 +71,9 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _downloadQueue.maxConcurrentOperationCount = 6;
         _URLCallbacks = [NSMutableDictionary new];
 #ifdef SD_WEBP
-        _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];
+        _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8", @"Cache-Control":@"must-revalidate"} mutableCopy];
 #else
-        _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
+        _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8", @"Cache-Control":@"must-revalidate"} mutableCopy];
 #endif
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;

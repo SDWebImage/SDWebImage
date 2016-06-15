@@ -28,6 +28,8 @@
 
 @implementation SDWebImageManager
 
+@synthesize dateCache = _dateCache;
+
 + (id)sharedManager {
     static dispatch_once_t once;
     static id instance;
@@ -45,12 +47,99 @@
 
 - (instancetype)initWithCache:(SDImageCache *)cache downloader:(SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearDates) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+
         _imageCache = cache;
         _imageDownloader = downloader;
         _failedURLs = [NSMutableSet new];
         _runningOperations = [NSMutableArray new];
+
+        NSString *dateDir = [self makeDateDirectoryPath:@"SDWebImageDates"];
+        
+        NSError *error;
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:dateDir] == false){
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:dateDir withIntermediateDirectories:false attributes:nil error:&error];
+        }
+        
+        if (error == nil){
+            
+            NSURL *fileURL = [NSURL fileURLWithPath:dateDir];
+            [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:nil];
+            
+            _datePlistPath = [dateDir stringByAppendingPathComponent:@"lastModifiedDates.plist"];
+        }
     }
     return self;
+}
+
+-(NSCache *)dateCache{
+    
+    if (_dateCache == nil){
+        
+        _dateCache = [NSCache new];
+        _dateCache.countLimit = NSIntegerMax;
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:_datePlistPath]){
+            
+            NSDictionary *newDateDic = [NSDictionary dictionaryWithContentsOfFile:_datePlistPath];
+            
+            if (newDateDic && newDateDic.count > 0){
+                
+                [_dateCache setObject:newDateDic forKey:@"lastModifiedDates"];
+            }
+        }
+    }
+    
+    return _dateCache;
+}
+
+-(void)clearDates{
+    
+    [_dateCache removeAllObjects];
+    _dateCache = nil;
+}
+
+-(nullable NSDictionary *)dateDictionary{
+    
+    return [self.dateCache objectForKey:@"lastModifiedDates"];
+}
+
+-(nullable NSDate *)dateForURL:(NSString *)url{
+    
+    NSDate *date = nil;
+    
+    NSDictionary *dateDic = [self dateDictionary];
+    
+    if (dateDic){
+        
+        date = [dateDic objectForKey:url];
+    }
+    
+    return  date;
+}
+
+-(void)addDate:(NSDate *)date forURL:(NSString *)url{
+    
+    NSDictionary *dateDic = [self dateDictionary];
+    
+    NSMutableDictionary *newDateDic = nil;
+    
+    if (dateDic != nil){
+        
+        newDateDic = [dateDic mutableCopy];
+    }else{
+        
+        newDateDic = [NSMutableDictionary new];
+    }
+    
+    [newDateDic setObject:date forKey:url];
+    
+    [self.dateCache setObject:newDateDic forKey:@"lastModifiedDates"];
+    
+    [newDateDic writeToFile:_datePlistPath atomically:true];
 }
 
 - (NSString *)cacheKeyForURL:(NSURL *)url {
@@ -63,6 +152,12 @@
     } else {
         return [url absoluteString];
     }
+}
+
+// Init the date directory
+-(NSString *)makeDateDirectoryPath:(NSString*)fullNamespace{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
 - (BOOL)cachedImageExistsForURL:(NSURL *)url {

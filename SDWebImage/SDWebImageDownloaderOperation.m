@@ -37,6 +37,8 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
 @property (strong, atomic) NSThread *thread;
 
+@property (nonatomic, retain) NSDate *lastModifiedDate;
+
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -235,6 +237,36 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     return YES;
 }
 
+-(BOOL)isNewContentAvailable:(NSURLResponse *)response{
+    
+    BOOL available = true;
+    
+    NSDictionary *headerFields = [((NSHTTPURLResponse *)response) allHeaderFields];
+    
+    NSString *lastModified = headerFields[@"Last-Modified"];
+    
+    if (lastModified != nil){
+        
+        NSDate *modifiedDate = [[SDWebImageManager sharedManager] dateForURL:response.URL.absoluteString];
+        
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
+        
+        _lastModifiedDate = [formatter dateFromString:lastModified];
+        if (modifiedDate != nil && _lastModifiedDate != nil && [[SDImageCache sharedImageCache] diskImageExistsWithKey:response.URL.absoluteString]){
+            
+            //Check whether the URL has modified/updated file or not
+            if ([_lastModifiedDate compare:modifiedDate] != NSOrderedDescending){
+                
+                available = false;
+            }
+        }
+    }
+    
+    //'304 Not Modified' is an exceptional one
+    return (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304 && available));
+}
+
 #pragma mark NSURLSessionDataDelegate
 
 - (void)URLSession:(NSURLSession *)session
@@ -242,8 +274,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     
-    //'304 Not Modified' is an exceptional one
-    if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
+    if ([self isNewContentAvailable:response]) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         if (self.progressBlock) {
@@ -406,6 +437,11 @@ didReceiveResponse:(NSURLResponse *)response
         
         if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
             responseFromCached = NO;
+        }
+        
+		if (_lastModifiedDate){
+            
+            [[SDWebImageManager sharedManager] addDate:_lastModifiedDate forURL:task.response.URL.absoluteString];
         }
         
         if (completionBlock) {
