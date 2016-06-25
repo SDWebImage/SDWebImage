@@ -7,7 +7,6 @@
 //
 
 #import "UIImage+CCKit.h"
-#import <ImageIO/ImageIO.h>
 #import "UIView+CCKit.h"
 
 @implementation UIImage (CCKit)
