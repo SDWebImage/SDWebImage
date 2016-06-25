@@ -367,6 +367,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return image;
     }
     
+    if (!transformBlock) {
+        // ignore transformKey if transformBlock is nil
+        transformKey = nil;
+    }
+    
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
     UIImage *memCacheImage = diskImage;
