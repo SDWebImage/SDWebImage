@@ -238,25 +238,30 @@
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
                     else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && (transformKey && transformBlock)) {
-                        // transform image
-                        UIImage *transformedImage = transformBlock(downloadedImage, url);
-                        // save the original image to disk and keep transformed image to memory cache
-                        [self.imageCache storeImage:transformedImage imageData:data forKey:key transformKey:transformKey toDisk:cacheOnDisk];
-                        dispatch_main_sync_safe(^{
-                            if (strongOperation && !strongOperation.isCancelled) {
-                                completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                            UIImage *transformedImage = transformBlock(downloadedImage, url);
+                            if (transformedImage && finished) {
+                                // save the original image to disk and keep transformed image to memory cache
+                                [self.imageCache storeImage:transformedImage imageData:data forKey:key transformKey:transformKey toDisk:cacheOnDisk];
                             }
+
+                            dispatch_main_sync_safe(^{
+                                if (strongOperation && !strongOperation.isCancelled) {
+                                    completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                                }
+                            });
                         });
                     }
                     else {
                         if (downloadedImage && finished) {
                             [self.imageCache storeImage:downloadedImage imageData:data forKey:key transformKey:nil toDisk:cacheOnDisk];
-                            dispatch_main_sync_safe(^{
-                                if (strongOperation && !strongOperation.isCancelled) {
-                                    completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
-                                }
-                            });
                         }
+
+                        dispatch_main_sync_safe(^{
+                            if (strongOperation && !strongOperation.isCancelled) {
+                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                            }
+                        });
                     }
                 }
 
