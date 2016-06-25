@@ -160,7 +160,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!transformKey) {
         transformKey = kDefaultTransfromKey;
     }
-    NSCache *cache = _memCacheTransform[transformKey];
+    NSCache *cache = nil;
+    @synchronized (self.memCacheTransform) {
+        cache = _memCacheTransform[transformKey];
+    }
     if (cache) {
         return cache;
     } else {
@@ -169,7 +172,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         NSCache *defaultMemCache = [self memCacheForTransformKey:nil];
         cache.totalCostLimit = defaultMemCache.totalCostLimit;
         cache.countLimit = defaultMemCache.countLimit;
-        _memCacheTransform[transformKey] = cache;
+        @synchronized (self.memCacheTransform) {
+            _memCacheTransform[transformKey] = cache;
+        }
         return cache;
     }
 }
@@ -352,10 +357,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key {
-    return [self imageFromDiskCacheForKey:key transformKey:nil];
+    return [self imageFromDiskCacheForKey:key transformKey:nil transformBlock:nil];
 }
 
-- (UIImage *)imageFromDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey {
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock {
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key transformKey:transformKey];
     if (image) {
@@ -364,11 +369,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
+    UIImage *memCacheImage = diskImage;
     if (diskImage && self.shouldCacheImagesInMemory) {
-        [self setMemCacheWithImage:diskImage forKey:key transformKey:nil];
+        if (transformKey && transformBlock) {
+            memCacheImage = transformBlock(diskImage);
+        }
+        [self setMemCacheWithImage:memCacheImage forKey:key transformKey:transformKey];
     }
     
-    return diskImage;
+    return memCacheImage;
 }
 
 - (NSData *)diskImageDataBySearchingAllPathsForKey:(NSString *)key {
@@ -488,9 +497,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 
     if (self.shouldCacheImagesInMemory) {
-        [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
-            [obj removeObjectForKey:key];
-        }];
+        @synchronized (self.memCacheTransform) {
+            [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+                [obj removeObjectForKey:key];
+            }];
+        }
     }
 
     if (fromDisk) {
@@ -510,9 +521,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost {
-    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
-        obj.totalCostLimit = maxMemoryCost;
-    }];
+    @synchronized (self.memCacheTransform) {
+        [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+            obj.totalCostLimit = maxMemoryCost;
+        }];
+    }
 }
 
 - (NSUInteger)maxMemoryCost {
@@ -526,15 +539,19 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
-    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
-        obj.countLimit = maxCountLimit;
-    }];
+    @synchronized (self.memCacheTransform) {
+        [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+            obj.countLimit = maxCountLimit;
+        }];
+    }
 }
 
 - (void)clearMemory {
-    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
-        [obj removeAllObjects];
-    }];
+    @synchronized (self.memCacheTransform) {
+        [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+            [obj removeAllObjects];
+        }];
+    }
 }
 
 - (void)clearDisk {

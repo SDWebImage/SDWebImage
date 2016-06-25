@@ -163,7 +163,7 @@ typedef UIImage *(^SDWebImageTransformImageBlock)(UIImage *imageOri);
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock done:(SDWebImageQueryCompletedBlock)doneBlock;
 
 /**
- * Query the memory cache synchronously.
+ * Query the default memory cache synchronously.
  *
  * @param key The unique key used to store the wanted image
  */
@@ -178,11 +178,18 @@ typedef UIImage *(^SDWebImageTransformImageBlock)(UIImage *imageOri);
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key transformKey:(NSString *)transformKey;
 
 /**
- * Query the disk cache synchronously after checking the memory cache.
+ * Query the disk cache synchronously after checking the default memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key;
+
+/**
+ * Query the disk cache synchronously after checking the memory cache.
+ *
+ * @param key The unique key used to store the wanted image
+ */
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock;
 
 /**
  * Remove the image from memory and disk cache asynchronously
