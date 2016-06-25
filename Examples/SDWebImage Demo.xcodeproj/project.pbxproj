@@ -21,6 +21,8 @@
 		53A2B50D155B155A00B12423 /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50B155B155A00B12423 /* placeholder.png */; };
 		53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50C155B155A00B12423 /* placeholder@2x.png */; };
 		53EEC18916484553007601E1 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53EEC18816484553007601E1 /* Default-568h@2x.png */; };
+		A767FD981D1E294900439F4D /* UIImage+CCKit.m in Sources */ = {isa = PBXBuildFile; fileRef = A767FD951D1E294900439F4D /* UIImage+CCKit.m */; };
+		A767FD991D1E294900439F4D /* UIView+CCKit.m in Sources */ = {isa = PBXBuildFile; fileRef = A767FD971D1E294900439F4D /* UIView+CCKit.m */; };
 		DA248D44195470FD00390AB0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E3155ABA3C005750A4 /* MapKit.framework */; };
 		DA248D79195484A500390AB0 /* libSDWebImage+WebP.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D761954841D00390AB0 /* libSDWebImage+WebP.a */; };
 /* End PBXBuildFile section */
@@ -85,6 +87,10 @@
 		53A2B50B155B155A00B12423 /* placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder.png; sourceTree = "<group>"; };
 		53A2B50C155B155A00B12423 /* placeholder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder@2x.png"; sourceTree = "<group>"; };
 		53EEC18816484553007601E1 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		A767FD941D1E294900439F4D /* UIImage+CCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+CCKit.h"; sourceTree = "<group>"; };
+		A767FD951D1E294900439F4D /* UIImage+CCKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+CCKit.m"; sourceTree = "<group>"; };
+		A767FD961D1E294900439F4D /* UIView+CCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CCKit.h"; sourceTree = "<group>"; };
+		A767FD971D1E294900439F4D /* UIView+CCKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CCKit.m"; sourceTree = "<group>"; };
 		DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = ../SDWebImage.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -138,6 +144,10 @@
 		5376129F155AB74D005750A4 /* SDWebImage Demo */ = {
 			isa = PBXGroup;
 			children = (
+				A767FD941D1E294900439F4D /* UIImage+CCKit.h */,
+				A767FD951D1E294900439F4D /* UIImage+CCKit.m */,
+				A767FD961D1E294900439F4D /* UIView+CCKit.h */,
+				A767FD971D1E294900439F4D /* UIView+CCKit.m */,
 				3E75A9851742DBE700DA412D /* CustomPathImages */,
 				537612A8155AB74D005750A4 /* AppDelegate.h */,
 				537612A9155AB74D005750A4 /* AppDelegate.m */,
@@ -289,9 +299,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				537612A6155AB74D005750A4 /* main.m in Sources */,
+				A767FD991D1E294900439F4D /* UIView+CCKit.m in Sources */,
 				537612AA155AB74D005750A4 /* AppDelegate.m in Sources */,
 				537612AD155AB74D005750A4 /* MasterViewController.m in Sources */,
 				537612B0155AB74D005750A4 /* DetailViewController.m in Sources */,
+				A767FD981D1E294900439F4D /* UIImage+CCKit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

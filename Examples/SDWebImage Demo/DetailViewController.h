@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <SDWebImage/SDWebImageManager.h>
 
 @interface DetailViewController : UIViewController
 
 @property (strong, nonatomic) NSURL *imageURL;
+@property (copy, nonatomic) SDWebImageTransformDownloadedImageBlock transformImage;
+@property (copy, nonatomic) NSString *transformKey;
 
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 

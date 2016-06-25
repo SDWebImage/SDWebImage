@@ -38,6 +38,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 // PNG signature bytes and data (below)
 static unsigned char kPNGSignatureBytes[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 static NSData *kPNGSignatureData = nil;
+static NSString *const kDefaultTransfromKey = @"default";
 
 BOOL ImageDataHasPNGPreffix(NSData *data);
 
@@ -58,7 +59,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 @interface SDImageCache ()
 
-@property (strong, nonatomic) NSCache *memCache;
+@property (strong, nonatomic) NSMutableDictionary *memCacheTransform;
+
 @property (strong, nonatomic) NSString *diskCachePath;
 @property (strong, nonatomic) NSMutableArray *customPaths;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
@@ -102,8 +104,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _maxCacheAge = kDefaultCacheMaxCacheAge;
 
         // Init the memory cache
-        _memCache = [[AutoPurgeCache alloc] init];
-        _memCache.name = fullNamespace;
+        _memCacheTransform = [[NSMutableDictionary alloc] init];
+        AutoPurgeCache *defaultMemCache = [[AutoPurgeCache alloc] init];
+        _memCacheTransform[kDefaultTransfromKey] = defaultMemCache;
 
         // Init the disk cache
         if (directory != nil) {
@@ -153,6 +156,24 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     SDDispatchQueueRelease(_ioQueue);
 }
 
+- (NSCache *)memCacheForTransformKey:(NSString *)transformKey {
+    if (!transformKey) {
+        transformKey = kDefaultTransfromKey;
+    }
+    NSCache *cache = _memCacheTransform[transformKey];
+    if (cache) {
+        return cache;
+    } else {
+        cache = [[AutoPurgeCache alloc] init];
+        cache.name = transformKey;
+        NSCache *defaultMemCache = [self memCacheForTransformKey:nil];
+        cache.totalCostLimit = defaultMemCache.totalCostLimit;
+        cache.countLimit = defaultMemCache.countLimit;
+        _memCacheTransform[transformKey] = cache;
+        return cache;
+    }
+}
+
 - (void)addReadOnlyCachePath:(NSString *)path {
     if (!self.customPaths) {
         self.customPaths = [NSMutableArray new];
@@ -196,21 +217,22 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key transformKey:(NSString *)transformKey toDisk:(BOOL)toDisk  {
     if (!image || !key) {
         return;
     }
     // if memory cache is enabled
     if (self.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(image);
-        [self.memCache setObject:image forKey:key cost:cost];
+        UIImage *imageCache = image;
+        NSUInteger cost = SDCacheCostForImage(imageCache);
+        [[self memCacheForTransformKey:transformKey] setObject:imageCache forKey:key cost:cost];
     }
 
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
             NSData *data = imageData;
 
-            if (image && (recalculate || !data)) {
+            if (image && !data) {
 #if TARGET_OS_IPHONE
                 // We need to determine if the image is a PNG or a JPEG
                 // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
@@ -247,11 +269,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image imageData:nil forKey:key transformKey:nil toDisk:YES];
 }
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
+    [self storeImage:image imageData:nil forKey:key transformKey:nil toDisk:toDisk];
 }
 
 - (void)storeImageDataToDisk:(NSData *)imageData forKey:(NSString *)key {
@@ -311,25 +333,38 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
+- (void)setMemCacheWithImage:(UIImage *)image forKey:(NSString *)key transformKey:(NSString *)transformKey {
+    NSCache *cache = [self memCacheForTransformKey:transformKey];
+    NSUInteger cost = SDCacheCostForImage(image);
+    [cache setObject:image forKey:key cost:cost];
+}
+
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key {
-    return [self.memCache objectForKey:key];
+    return [self imageFromMemoryCacheForKey:key transformKey:nil];
+}
+
+- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key transformKey:(NSString *)transformKey {
+    NSCache *cache = [self memCacheForTransformKey:transformKey];
+    return [cache objectForKey:key];
 }
 
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key {
+    return [self imageFromDiskCacheForKey:key transformKey:nil];
+}
 
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey {
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
+    UIImage *image = [self imageFromMemoryCacheForKey:key transformKey:transformKey];
     if (image) {
         return image;
     }
-
+    
     // Second check the disk cache...
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(diskImage);
-        [self.memCache setObject:diskImage forKey:key cost:cost];
+        [self setMemCacheWithImage:diskImage forKey:key transformKey:nil];
     }
-
+    
     return diskImage;
 }
 
@@ -386,41 +421,52 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock {
+    return [self queryDiskCacheForKey:key transformKey:nil transformBlock:nil done:doneBlock];
+}
+
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock done:(SDWebImageQueryCompletedBlock)doneBlock {
     if (!doneBlock) {
         return nil;
     }
-
+    
     if (!key) {
         doneBlock(nil, SDImageCacheTypeNone);
         return nil;
     }
-
+    
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
+    UIImage *image = [self imageFromMemoryCacheForKey:key transformKey:transformKey];
     if (image) {
         doneBlock(image, SDImageCacheTypeMemory);
         return nil;
     }
-
+    
     NSOperation *operation = [NSOperation new];
     dispatch_async(self.ioQueue, ^{
         if (operation.isCancelled) {
             return;
         }
-
+        
         @autoreleasepool {
             UIImage *diskImage = [self diskImageForKey:key];
+            UIImage *cacheImage = diskImage;
             if (diskImage && self.shouldCacheImagesInMemory) {
-                NSUInteger cost = SDCacheCostForImage(diskImage);
-                [self.memCache setObject:diskImage forKey:key cost:cost];
+                NSCache *cache = [self memCacheForTransformKey:transformKey];
+                if (transformKey && transformBlock) {
+                    cacheImage = transformBlock(diskImage);
+                }
+                if (cacheImage) {
+                    NSUInteger cost = SDCacheCostForImage(cacheImage);
+                    [cache setObject:cacheImage forKey:key cost:cost];
+                }
             }
-
+            
             dispatch_async(dispatch_get_main_queue(), ^{
-                doneBlock(diskImage, SDImageCacheTypeDisk);
+                doneBlock(cacheImage, SDImageCacheTypeDisk);
             });
         }
     });
-
+    
     return operation;
 }
 
@@ -443,7 +489,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 
     if (self.shouldCacheImagesInMemory) {
-        [self.memCache removeObjectForKey:key];
+        [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+            [obj removeObjectForKey:key];
+        }];
     }
 
     if (fromDisk) {
@@ -463,23 +511,31 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost {
-    self.memCache.totalCostLimit = maxMemoryCost;
+    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+        obj.totalCostLimit = maxMemoryCost;
+    }];
 }
 
 - (NSUInteger)maxMemoryCost {
-    return self.memCache.totalCostLimit;
+    NSCache *cache = [self memCacheForTransformKey:nil];
+    return cache.totalCostLimit;
 }
 
 - (NSUInteger)maxMemoryCountLimit {
-    return self.memCache.countLimit;
+    NSCache *cache = [self memCacheForTransformKey:nil];
+    return cache.countLimit;
 }
 
 - (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
-    self.memCache.countLimit = maxCountLimit;
+    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+        obj.countLimit = maxCountLimit;
+    }];
 }
 
 - (void)clearMemory {
-    [self.memCache removeAllObjects];
+    [_memCacheTransform enumerateKeysAndObjectsUsingBlock:^(NSString *transformKey, NSCache *obj, BOOL *stop) {
+        [obj removeAllObjects];
+    }];
 }
 
 - (void)clearDisk {

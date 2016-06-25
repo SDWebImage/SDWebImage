@@ -11,6 +11,8 @@
 #import "UIView+WebCacheOperation.h"
 
 static char imageURLKey;
+static char imageTransformBlockKey;
+static char imageTransformKey;
 static char TAG_ACTIVITY_INDICATOR;
 static char TAG_ACTIVITY_STYLE;
 static char TAG_ACTIVITY_SHOW;
@@ -51,6 +53,9 @@ static char TAG_ACTIVITY_SHOW;
         });
     }
     
+    NSString *transformKey = [self sd_transformKey];
+    SDWebImageTransformDownloadedImageBlock transformBlock = [self sd_transformBlock];
+    
     if (url) {
 
         // check if activityView is enabled or not
@@ -59,7 +64,7 @@ static char TAG_ACTIVITY_SHOW;
         }
 
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options transformImageBlock:transformBlock transformKey:transformKey progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             [wself removeActivityIndicator];
             if (!wself) return;
             dispatch_main_sync_safe(^{
@@ -104,6 +109,25 @@ static char TAG_ACTIVITY_SHOW;
 
 - (NSURL *)sd_imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
+}
+
+- (void)sd_setTransformDownloadedImageBlock:(SDWebImageTransformDownloadedImageBlock)transformBlock
+                               transformKey:(NSString *)transformKey {
+    if (transformBlock && transformKey) {
+        objc_setAssociatedObject(self, &imageTransformBlockKey, transformBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        objc_setAssociatedObject(self, &imageTransformKey, transformKey, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    } else {
+        objc_setAssociatedObject(self, &imageTransformBlockKey, nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        objc_setAssociatedObject(self, &imageTransformKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+
+- (NSString *)sd_transformKey {
+    return objc_getAssociatedObject(self, &imageTransformKey);
+}
+
+- (SDWebImageTransformDownloadedImageBlock)sd_transformBlock {
+    return objc_getAssociatedObject(self, &imageTransformBlockKey);
 }
 
 - (void)sd_setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {

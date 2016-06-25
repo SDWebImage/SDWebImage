@@ -34,6 +34,7 @@
     if (self.imageURL) {
         __block UIActivityIndicatorView *activityIndicator;
         __weak UIImageView *weakImageView = self.imageView;
+        [weakImageView sd_setTransformDownloadedImageBlock:_transformImage transformKey:_transformKey];
         [self.imageView sd_setImageWithURL:self.imageURL
                           placeholderImage:nil
                                    options:SDWebImageProgressiveDownload

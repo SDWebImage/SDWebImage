@@ -26,9 +26,13 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
 
 typedef void(^SDWebImageQueryCompletedBlock)(UIImage *image, SDImageCacheType cacheType);
 
+typedef void(^SDWebImageStoreCompletedBlock)(UIImage *imageCacheInMemory);
+
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
+
+typedef UIImage *(^SDWebImageTransformImageBlock)(UIImage *imageOri);
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
@@ -124,15 +128,15 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Store an image into memory and optionally disk cache at the given key.
  *
- * @param image       The image to store
- * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
- * @param imageData   The image data as returned by the server, this representation will be used for disk storage
- *                    instead of converting the given image object into a storable/compressed image format in order
- *                    to save quality and CPU
- * @param key         The unique image cache key, usually it's image absolute URL
- * @param toDisk      Store the image to disk cache if YES
+ * @param image        The image to store in memory, if the downloaded image is transformed, image represents the transformed image
+ * @param imageData    The image data as returned by the server, this representation will be used for disk storage
+ *                     instead of converting the given image object into a storable/compressed image format in order
+ *                     to save quality and CPU
+ * @param key          The unique image cache key, usually it's image absolute URL
+ * @param transformKey The transform key used to cache the image to specific memory cache
+ * @param toDisk       Store the image to disk cache if YES
  */
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key transformKey:(NSString *)transformKey toDisk:(BOOL)toDisk;
 
 /**
  * Store image NSData into disk cache at the given key.
@@ -150,11 +154,28 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock;
 
 /**
+ * Query the disk cache asynchronously.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param transformKey The transform key used to identify memory cache
+ * @param transformBlock The transform block used to transform image fetched from disk and keep it in memory cache
+ */
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock done:(SDWebImageQueryCompletedBlock)doneBlock;
+
+/**
  * Query the memory cache synchronously.
  *
  * @param key The unique key used to store the wanted image
  */
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
+
+/**
+ * Query the memory cache synchronously.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param transformKey The transform key used to identify memory cache
+ */
+- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key transformKey:(NSString *)transformKey;
 
 /**
  * Query the disk cache synchronously after checking the memory cache.
