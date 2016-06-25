@@ -334,6 +334,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)setMemCacheWithImage:(UIImage *)image forKey:(NSString *)key transformKey:(NSString *)transformKey {
+    if (!image || !key) {
+        return;
+    }
     NSCache *cache = [self memCacheForTransformKey:transformKey];
     NSUInteger cost = SDCacheCostForImage(image);
     [cache setObject:image forKey:key cost:cost];
@@ -451,14 +454,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             UIImage *diskImage = [self diskImageForKey:key];
             UIImage *cacheImage = diskImage;
             if (diskImage && self.shouldCacheImagesInMemory) {
-                NSCache *cache = [self memCacheForTransformKey:transformKey];
                 if (transformKey && transformBlock) {
                     cacheImage = transformBlock(diskImage);
                 }
-                if (cacheImage) {
-                    NSUInteger cost = SDCacheCostForImage(cacheImage);
-                    [cache setObject:cacheImage forKey:key cost:cost];
-                }
+                [self setMemCacheWithImage:cacheImage forKey:key transformKey:transformKey];
             }
             
             dispatch_async(dispatch_get_main_queue(), ^{

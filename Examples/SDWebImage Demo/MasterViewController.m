@@ -97,6 +97,7 @@
     [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
 
     cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
+    cell.imageView.frame = CGRectMake(cell.imageView.frame.origin.x, cell.imageView.frame.origin.y, 100.0, 100.0);
     cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
     if (indexPath.row % 2 == 1) {
         [cell.imageView sd_setTransformDownloadedImageBlock:^UIImage *(UIImage *image, NSURL *imageUrl) {
