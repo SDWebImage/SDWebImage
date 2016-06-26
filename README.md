@@ -69,6 +69,18 @@ handled for you, from async downloads to caching management.
 }
 ```
 
+You can transform the image and keep it in a separated memory cache with a `transformBlock` and a `transformKey`. For the same url, you will get different images for different `transformKey`s.
+
+```objective-c
+#import <SDWebImage/UIImageView+WebCache.h>
+
+...
+
+[cell.imageView sd_setTransformDownloadedImageBlock:^UIImage *(UIImage *image, NSURL *imageUrl) {
+    ... transform code here ...
+} transformKey:@"cornerRound"];
+```
+
 ### Using blocks
 
 With blocks, you can be notified about the image download progress and whenever the image retrieval
