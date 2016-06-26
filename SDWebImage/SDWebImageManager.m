@@ -163,7 +163,11 @@
     SDWebImageTransformImageBlock cacheTransformImageBlock = nil;
     if (transformBlock) {
         cacheTransformImageBlock = ^(UIImage *image) {
-            return transformBlock(image, url);
+            if (!image.images || (options & SDWebImageTransformAnimatedImage)) {
+                return transformBlock(image, url);
+            } else {
+                return (UIImage *)nil;
+            }
         };
     }
     operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key transformKey:transformKey transformBlock:cacheTransformImageBlock done:^(UIImage *image, SDImageCacheType cacheType) {

@@ -471,7 +471,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 if (transformKey && transformBlock) {
                     cacheImage = transformBlock(diskImage);
                 }
-                [self setMemCacheWithImage:cacheImage forKey:key transformKey:transformKey];
+                // if transform block return nil, we must keep the disk image in default cache rather than the cache indicated by tranform key
+                if (!cacheImage) {
+                    cacheImage = diskImage;
+                    [self setMemCacheWithImage:cacheImage forKey:key transformKey:nil];
+                } else {
+                    [self setMemCacheWithImage:cacheImage forKey:key transformKey:transformKey];
+                }
             }
             
             dispatch_async(dispatch_get_main_queue(), ^{

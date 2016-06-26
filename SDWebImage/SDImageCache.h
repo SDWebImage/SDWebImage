@@ -156,7 +156,7 @@ typedef UIImage *(^SDWebImageTransformImageBlock)(UIImage *imageOri);
  *
  * @param key The unique key used to store the wanted image
  * @param transformKey The transform key used to identify memory cache
- * @param transformBlock The transform block used to transform image fetched from disk and keep it in memory cache
+ * @param transformBlock The transform block used to transform image fetched from disk and keep it in memory cache, if the block returns nil, cache it in default memory.
  */
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock done:(SDWebImageQueryCompletedBlock)doneBlock;
 
