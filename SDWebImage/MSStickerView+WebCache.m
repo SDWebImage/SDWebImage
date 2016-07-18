@@ -5,8 +5,9 @@
 //  Created by Qiao on 16/6/29.
 //  Copyright © 2016年 xinmei. All rights reserved.
 //
-#ifdef __IPHONE_10_0
+
 #import "MSStickerView+WebCache.h"
+#ifdef __IPHONE_10_0
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
@@ -66,7 +67,7 @@ static char TAG_ACTIVITY_SHOW;
                 }
             });
         }];
-        [self sd_setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
+        [self sd_setImageLoadOperation:operation forKey:@"MSStickerViewImageLoad"];
     } else {
         dispatch_main_async_safe(^{
             [self removeActivityIndicator];
@@ -80,11 +81,7 @@ static char TAG_ACTIVITY_SHOW;
 
 
 - (void)sd_cancelCurrentImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:@"UIImageViewImageLoad"];
-}
-
-- (void)sd_cancelCurrentAnimationImagesLoad {
-    [self sd_cancelImageLoadOperationWithKey:@"UIImageViewAnimationImages"];
+    [self sd_cancelImageLoadOperationWithKey:@"MSStickerViewImageLoad"];
 }
 
 

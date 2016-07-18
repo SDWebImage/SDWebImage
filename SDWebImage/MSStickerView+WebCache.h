@@ -5,6 +5,7 @@
 //  Created by Qiao on 16/6/29.
 //  Copyright © 2016年 xinmei. All rights reserved.
 //
+#import <Availability.h>
 #ifdef __IPHONE_10_0
 #import <Messages/Messages.h>
 #import "SDWebImageCompat.h"
