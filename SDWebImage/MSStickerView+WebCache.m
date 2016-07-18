@@ -5,7 +5,7 @@
 //  Created by Qiao on 16/6/29.
 //  Copyright © 2016年 xinmei. All rights reserved.
 //
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+#if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_9_3
 #import "MSStickerView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
