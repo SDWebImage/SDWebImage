@@ -219,15 +219,10 @@ static NSString *const kCompletedCallbackKey = @"completed";
     // find the appropriate operation if it exists and is running or queued
     // only supports SDWebImageDownloaderOperation
     for (NSOperation *operation in self.downloadQueue.operations) {
-        if ([operation isKindOfClass:[SDWebImageDownloaderOperation class]] && [[[(SDWebImageDownloaderOperation *)operation request] URL] isEqual:url]) {
+        SDWebImageDownloaderOperation *downloaderOperation = (SDWebImageDownloaderOperation *)operation;
+        if (!operation.finished && [downloaderOperation isKindOfClass:[SDWebImageDownloaderOperation class]] && [[[downloaderOperation request] URL] isEqual:url]) {
             // found the request, transition to possibly modified queue priority
-            if (options & SDWebImageDownloaderHighPriority) {
-                operation.queuePriority = NSOperationQueuePriorityHigh;
-            } else if (options & SDWebImageDownloaderLowPriority) {
-                // no-op, we never want to downgrade downloads implicitly
-            } else {
-                operation.queuePriority = NSOperationQueuePriorityNormal;
-            }
+            [downloaderOperation updateTaskWithOptions:options];
         }
     }
 }

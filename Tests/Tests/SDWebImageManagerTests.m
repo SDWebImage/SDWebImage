@@ -86,6 +86,7 @@ static int64_t kAsyncTestTimeout = 5;
         if (operation.request.URL == originalImageURL) {
             found = YES;
             expect(operation.queuePriority).to.equal(NSOperationQueuePriorityHigh);
+            expect(operation.dataTask.priority).to.equal(NSURLSessionTaskPriorityHigh);
         }
     }
     expect(found).to.equal(YES);
