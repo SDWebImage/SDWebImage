@@ -32,8 +32,11 @@
 
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
+            if (!image) {
+                continue;
+            }
 
-            duration += [self frameDurationAtIndex:i source:source];
+            duration += [self sd_frameDurationAtIndex:i source:source];
 
             [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
 
@@ -52,7 +55,7 @@
     return animatedImage;
 }
 
-+ (float)frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
++ (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
     float frameDuration = 0.1f;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
@@ -141,17 +144,17 @@
 
     NSMutableArray *scaledImages = [NSMutableArray array];
 
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-
     for (UIImage *image in self.images) {
+        UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+        
         [image drawInRect:CGRectMake(thumbnailPoint.x, thumbnailPoint.y, scaledSize.width, scaledSize.height)];
         UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
 
         [scaledImages addObject:newImage];
+
+        UIGraphicsEndImageContext();
     }
-
-    UIGraphicsEndImageContext();
-
+ 
     return [UIImage animatedImageWithImages:scaledImages duration:self.duration];
 }
 

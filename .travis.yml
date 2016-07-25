@@ -1,0 +1,27 @@
+
+language: objective-c
+
+osx_image: xcode7.1
+
+before_install:
+
+    - export LANG=en_US.UTF-8
+    - env
+    - locale
+    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
+    - pod --version
+    - pod setup --silent > /dev/null
+    - pod repo update --silent
+
+script:
+
+    - pod lib lint --allow-warnings
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator build
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+WebP' -sdk iphonesimulator build
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage+MKAnnotation' -sdk iphonesimulator build
+
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Demo' -sdk iphonesimulator build
+
+    - pod install --project-directory=Tests
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test
