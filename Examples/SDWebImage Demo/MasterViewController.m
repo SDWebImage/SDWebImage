@@ -11,6 +11,8 @@
 #import "DetailViewController.h"
 #import "UIImage+CCKit.h"
 
+const CGFloat CellHeight = 100.0;
+
 @interface SDTableViewCell : UITableViewCell
 
 @property (nonatomic) UIImageView *sdImageView;
@@ -25,6 +27,7 @@
         _sdImageView = [[UIImageView alloc] init];
         [self.contentView addSubview:_sdImageView];
         _sdImageView.contentMode = UIViewContentModeScaleAspectFill;
+        _sdImageView.clipsToBounds = YES;
     }
     return self;
 }
@@ -32,7 +35,7 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    _sdImageView.frame = CGRectMake(0, 0, self.contentView.bounds.size.height, self.contentView.bounds.size.height);
+    _sdImageView.frame = CGRectMake(1, 1, CellHeight-2, CellHeight-2);
 }
 
 @end
@@ -78,7 +81,7 @@
             [_objects addObject:[NSString stringWithFormat:@"https://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage%03d.jpg", i]];
         }
         
-        self.tableView.rowHeight = 100;
+        self.tableView.rowHeight = CellHeight;
 
     }
     [SDWebImageManager.sharedManager.imageDownloader setValue:@"SDWebImage Demo" forHTTPHeaderField:@"AppName"];
@@ -126,7 +129,7 @@
     cell.sdImageView.contentMode = UIViewContentModeScaleAspectFill;
     if (indexPath.row % 2 == 1) {
         [cell.sdImageView sd_setTransformDownloadedImageBlock:^UIImage *(UIImage *image, NSURL *imageUrl) {
-            CGSize size = CGSizeMake(tableView.rowHeight, tableView.rowHeight);
+            CGSize size = CGSizeMake(CellHeight-2, CellHeight-2);
             if (image.images) {
                 NSMutableArray *mArray = [NSMutableArray array];
                 for (UIImage *imageItem in image.images) {
