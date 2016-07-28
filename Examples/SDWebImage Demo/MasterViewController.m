@@ -11,6 +11,32 @@
 #import "DetailViewController.h"
 #import "UIImage+CCKit.h"
 
+@interface SDTableViewCell : UITableViewCell
+
+@property (nonatomic) UIImageView *sdImageView;
+
+@end
+
+@implementation SDTableViewCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        _sdImageView = [[UIImageView alloc] init];
+        [self.contentView addSubview:_sdImageView];
+        _sdImageView.contentMode = UIViewContentModeScaleAspectFill;
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    _sdImageView.frame = CGRectMake(0, 0, self.contentView.bounds.size.height, self.contentView.bounds.size.height);
+}
+
+@end
+
 @interface MasterViewController () {
     NSMutableArray *_objects;
 }
@@ -39,8 +65,8 @@
         _objects = [NSMutableArray arrayWithObjects:
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",
-                    @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
-                    @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
+                    @"http://img1.cache.netease.com/catchpic/1/15/15D5A7755A09D20CD7AF179F1AD0ACE5.gif",
+                    @"http://img1.cache.netease.com/catchpic/1/15/15D5A7755A09D20CD7AF179F1AD0ACE5.gif",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
@@ -87,21 +113,20 @@
 {
     static NSString *CellIdentifier = @"Cell";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    SDTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil)
     {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[SDTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    [cell.imageView setShowActivityIndicatorView:YES];
-    [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [cell.sdImageView setShowActivityIndicatorView:YES];
+    [cell.sdImageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
 
     cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
-    cell.imageView.frame = CGRectMake(cell.imageView.frame.origin.x, cell.imageView.frame.origin.y, 100.0, 100.0);
-    cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    cell.sdImageView.contentMode = UIViewContentModeScaleAspectFill;
     if (indexPath.row % 2 == 1) {
-        [cell.imageView sd_setTransformDownloadedImageBlock:^UIImage *(UIImage *image, NSURL *imageUrl) {
-            CGSize size = cell.imageView.bounds.size;
+        [cell.sdImageView sd_setTransformDownloadedImageBlock:^UIImage *(UIImage *image, NSURL *imageUrl) {
+            CGSize size = CGSizeMake(tableView.rowHeight, tableView.rowHeight);
             if (image.images) {
                 NSMutableArray *mArray = [NSMutableArray array];
                 for (UIImage *imageItem in image.images) {
@@ -113,10 +138,10 @@
             }
         } transformKey:@"cornerRound"];
     } else {
-        [cell.imageView sd_setTransformDownloadedImageBlock:nil transformKey:nil];
+        [cell.sdImageView sd_setTransformDownloadedImageBlock:nil transformKey:nil];
     }
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]
-                      placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
+    [cell.sdImageView sd_setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]
+                        placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached:SDWebImageTransformAnimatedImage];
     return cell;
 }
 
