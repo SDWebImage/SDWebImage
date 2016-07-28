@@ -150,6 +150,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         else {
             request.allHTTPHeaderFields = wself.HTTPHeaders;
         }
+        NSLog(@"begin download url:%@", url);
         operation = [[wself.operationClass alloc] initWithRequest:request
                                                         inSession:self.session
                                                           options:options

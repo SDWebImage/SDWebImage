@@ -116,6 +116,15 @@
                                          options:(SDWebImageOptions)options
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
+    return [self downloadImageWithURL:url options:options transformImageBlock:nil transformKey:nil progress:progressBlock completed:completedBlock];
+}
+
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageOptions)options
+                             transformImageBlock:(SDWebImageTransformDownloadedImageBlock)transformBlock
+                                    transformKey:(NSString *)transformKey
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -151,7 +160,17 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) {
+    SDWebImageTransformImageBlock cacheTransformImageBlock = nil;
+    if (transformBlock) {
+        cacheTransformImageBlock = ^(UIImage *image) {
+            if (!image.images || (options & SDWebImageTransformAnimatedImage)) {
+                return transformBlock(image, url);
+            } else {
+                return (UIImage *)nil;
+            }
+        };
+    }
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key transformKey:transformKey transformBlock:cacheTransformImageBlock done:^(UIImage *image, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
@@ -222,13 +241,12 @@
                     if (options & SDWebImageRefreshCached && image && !downloadedImage) {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     }
-                    else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
+                    else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && (transformKey && transformBlock)) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
-
+                            UIImage *transformedImage = transformBlock(downloadedImage, url);
                             if (transformedImage && finished) {
-                                BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                                [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:(imageWasTransformed ? nil : data) forKey:key toDisk:cacheOnDisk];
+                                // save the original image to disk and keep transformed image to memory cache
+                                [self.imageCache storeImage:transformedImage imageData:data forKey:key transformKey:transformKey toDisk:cacheOnDisk];
                             }
 
                             dispatch_main_sync_safe(^{
@@ -240,7 +258,7 @@
                     }
                     else {
                         if (downloadedImage && finished) {
-                            [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+                            [self.imageCache storeImage:downloadedImage imageData:data forKey:key transformKey:nil toDisk:cacheOnDisk];
                         }
 
                         dispatch_main_sync_safe(^{

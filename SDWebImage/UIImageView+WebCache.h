@@ -44,6 +44,12 @@
  */
 @interface UIImageView (WebCache)
 
+- (void)sd_setTransformDownloadedImageBlock:(SDWebImageTransformDownloadedImageBlock)transformBlock transformKey:(NSString *)transformKey;
+
+- (NSString *)sd_transformKey;
+
+- (SDWebImageTransformDownloadedImageBlock)sd_transformBlock;
+
 /**
  * Get the current image URL.
  *

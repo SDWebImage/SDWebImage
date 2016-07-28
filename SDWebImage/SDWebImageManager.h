@@ -96,6 +96,8 @@ typedef void(^SDWebImageCompletionWithFinishedBlock)(UIImage *image, NSError *er
 
 typedef NSString *(^SDWebImageCacheKeyFilterBlock)(NSURL *url);
 
+typedef UIImage *(^SDWebImageTransformDownloadedImageBlock)(UIImage *image, NSURL *imageUrl);
+
 
 @class SDWebImageManager;
 
@@ -211,6 +213,37 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
                                          options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url            The URL to the image
+ * @param options        A mask to specify options to use for this request
+ * @param transformBlock A block called while image is downloaded or image is fetched from disk. The first parameter is the downloaded image, the second is url of the image, you're responsible to return transformed image, if the transformed image is nil, we will pass the original image in `completedBlock` and keep the image in default memory cache. The block is called in background thread.
+ * @param transformKey   A key used to indicate the memory cache the tranformed image saved in, if `transformBlock` is nil, this param would be ignored.
+ * @param progressBlock  A block called while image is downloading
+ * @param completedBlock A block called when operation has been completed.
+ *
+ *   This parameter is required.
+ *
+ *   This block has no return value and takes the requested UIImage as first parameter.
+ *   In case of error the image parameter is nil and the second parameter may contain an NSError.
+ *
+ *   The third parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
+ *   or from the memory cache or from the network.
+ *
+ *   The last parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is
+ *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
+ *   block is called a last time with the full image and the last parameter set to YES.
+ *
+ * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
+ */
+- (id <SDWebImageOperation>)downloadImageWithURL:(NSURL *)url
+                                         options:(SDWebImageOptions)options
+                             transformImageBlock:(SDWebImageTransformDownloadedImageBlock)transformBlock
+                                    transformKey:(NSString *)transformKey
                                         progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SDWebImageCompletionWithFinishedBlock)completedBlock;
 

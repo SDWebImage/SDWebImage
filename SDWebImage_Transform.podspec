@@ -1,13 +1,12 @@
 Pod::Spec.new do |s|
-  s.name = 'SDWebImage'
-  s.version = '3.8.1'
+  s.name = 'SDWebImage_Transform'
+  s.version = '0.0.1'
   s.ios.deployment_target = '7.0'
-  s.tvos.deployment_target = '9.0'
   s.license = 'MIT'
-  s.summary = 'Asynchronous image downloader with cache support with an UIImageView category.'
-  s.homepage = 'https://github.com/rs/SDWebImage'
-  s.author = { 'Olivier Poitrey' => 'rs@dailymotion.com' }
-  s.source = { :git => 'https://github.com/rs/SDWebImage.git', :tag => s.version.to_s }
+  s.summary = 'Transform image using block instead of delegate, keep transformed file in memcache instread of disk'
+  s.homepage = 'https://github.com/kudocc/SDWebImage'
+  s.author = { 'KudoCC' => 'cangmuma@gmail.com' }
+  s.source = { :git => 'https://github.com/kudocc/SDWebImage.git', :tag => s.version.to_s }
 
   s.description = 'This library provides a category for UIImageView with support for remote '      \
                   'images coming from the web. It provides an UIImageView category adding web '    \

@@ -14,12 +14,9 @@
       location = "group:README.md">
    </FileRef>
    <FileRef
-      location = "group:SDWebImage.podspec">
-   </FileRef>
-   <FileRef
       location = "group:CHANGELOG.md">
    </FileRef>
    <FileRef
-      location = "group:Tests/Pods/Pods.xcodeproj">
+      location = "group:SDWebImage_Transform.podspec">
    </FileRef>
 </Workspace>

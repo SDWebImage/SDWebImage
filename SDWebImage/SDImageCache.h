@@ -30,6 +30,8 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
+typedef UIImage *(^SDWebImageTransformImageBlock)(UIImage *imageOri);
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -105,7 +107,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)addReadOnlyCachePath:(NSString *)path;
 
 /**
- * Store an image into memory and disk cache at the given key.
+ * Store an image into default memory cache and disk cache at the given key.
  *
  * @param image The image to store
  * @param key   The unique image cache key, usually it's image absolute URL
@@ -113,7 +115,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
 
 /**
- * Store an image into memory and optionally disk cache at the given key.
+ * Store an image into default memory cache and optionally disk cache at the given key.
  *
  * @param image  The image to store
  * @param key    The unique image cache key, usually it's image absolute URL
@@ -122,17 +124,17 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
- * Store an image into memory and optionally disk cache at the given key.
+ * Store an image into specific memory cache indicated by `transformKey` and optionally disk cache at the given key.
  *
- * @param image       The image to store
- * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
- * @param imageData   The image data as returned by the server, this representation will be used for disk storage
- *                    instead of converting the given image object into a storable/compressed image format in order
- *                    to save quality and CPU
- * @param key         The unique image cache key, usually it's image absolute URL
- * @param toDisk      Store the image to disk cache if YES
+ * @param image        The image to store in memory, if the downloaded image is transformed, image represents the transformed image
+ * @param imageData    The image data as returned by the server, this representation will be used for disk storage
+ *                     instead of converting the given image object into a storable/compressed image format in order
+ *                     to save quality and CPU
+ * @param key          The unique image cache key, usually it's image absolute URL
+ * @param transformKey The transform key used to cache the image to specific memory cache
+ * @param toDisk       Store the image to disk cache if YES
  */
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key transformKey:(NSString *)transformKey toDisk:(BOOL)toDisk;
 
 /**
  * Store image NSData into disk cache at the given key.
@@ -143,25 +145,51 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImageDataToDisk:(NSData *)imageData forKey:(NSString *)key;
 
 /**
- * Query the disk cache asynchronously.
+ * Query the disk cache asynchronously and keep the result in default memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
 - (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock;
 
 /**
- * Query the memory cache synchronously.
+ * Query the disk cache asynchronously, transform the image with `transformBlock` and keep the result in specific memory cache indicated by `transformKey`.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param transformKey The transform key used to identify memory cache
+ * @param transformBlock The transform block used to transform image fetched from disk and keep it in memory cache, if the block returns nil, cache it in default memory.
+ */
+- (NSOperation *)queryDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock done:(SDWebImageQueryCompletedBlock)doneBlock;
+
+/**
+ * Query the default memory cache synchronously.
  *
  * @param key The unique key used to store the wanted image
  */
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
 
 /**
- * Query the disk cache synchronously after checking the memory cache.
+ * Query the specific memory cache indicated by `transformKey` synchronously.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param transformKey The transform key used to identify memory cache
+ */
+- (UIImage *)imageFromMemoryCacheForKey:(NSString *)key transformKey:(NSString *)transformKey;
+
+/**
+ * Query the disk cache synchronously after checking the default memory cache.
  *
  * @param key The unique key used to store the wanted image
  */
 - (UIImage *)imageFromDiskCacheForKey:(NSString *)key;
+
+/**
+ * Query the disk cache synchronously after checking the specific memory cache indicated by `transformKey`. If the image is fetched from the disk, use `transformBlock` to transform it and keep transformed image into memory cache indicated by `transformKey`.
+ *
+ * @param key The unique key used to store the wanted image
+ * @param transformKey The transform key used to identify memory cache
+ * @param transformBlock The transform block used to transform image fetched from disk and keep it in memory cache, if it is nil, `transformKey` is ignored.
+ */
+- (UIImage *)imageFromDiskCacheForKey:(NSString *)key transformKey:(NSString *)transformKey transformBlock:(SDWebImageTransformImageBlock)transformBlock;
 
 /**
  * Remove the image from memory and disk cache asynchronously
