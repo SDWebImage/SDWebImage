@@ -36,9 +36,22 @@
                 continue;
             }
 
+            CGFloat width = CGImageGetWidth(image);
+            CGFloat height = CGImageGetHeight(image);
+
+            UIGraphicsBeginImageContext(CGSizeMake(width, height));
+            CGContextRef context = UIGraphicsGetCurrentContext();
+            CGContextTranslateCTM(context, 0, height);
+            CGContextScaleCTM(context, 1, -1);
+
+            CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
+
+            UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+
             duration += [self sd_frameDurationAtIndex:i source:source];
 
-            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+            [images addObject:newImage];
 
             CGImageRelease(image);
         }
