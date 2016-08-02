@@ -47,6 +47,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     size_t width, height;
     UIImageOrientation orientation;
     BOOL responseFromCached;
+    CGImageSourceRef incrementallyImgSource;
 }
 
 @synthesize executing = _executing;
@@ -217,6 +218,10 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
     }
+    if (incrementallyImgSource) {
+        CFRelease(incrementallyImgSource);
+        incrementallyImgSource = NULL;
+    }
 }
 
 - (void)setFinished:(BOOL)finished {
@@ -290,12 +295,11 @@ didReceiveResponse:(NSURLResponse *)response
 
         // Get the total bytes downloaded
         const NSInteger totalSize = self.imageData.length;
-
-        // Update the data source, we must pass ALL the data, not just the new bytes
-        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)self.imageData, NULL);
-
+        
         if (width + height == 0) {
-            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+            incrementallyImgSource = CGImageSourceCreateIncremental(NULL);
+            CGImageSourceUpdateData(incrementallyImgSource, (CFDataRef)self.imageData, _finished);
+            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(incrementallyImgSource, 0, NULL);
             if (properties) {
                 NSInteger orientationValue = -1;
                 CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
@@ -317,7 +321,8 @@ didReceiveResponse:(NSURLResponse *)response
 
         if (width + height > 0 && totalSize < self.expectedSize) {
             // Create the image
-            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+            CGImageSourceUpdateData(incrementallyImgSource, (CFDataRef)self.imageData, _finished);
+            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(incrementallyImgSource, 0, NULL);
 
 #ifdef TARGET_OS_IPHONE
             // Workaround for iOS anamorphic image
@@ -358,7 +363,6 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
 
-        CFRelease(imageSource);
     }
 
     if (self.progressBlock) {
