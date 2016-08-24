@@ -107,7 +107,7 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  *
  *  @return global shared instance of downloader class
  */
-+ (SDWebImageDownloader *)sharedDownloader;
++ (instancetype)sharedDownloader;
 
 /**
  *  Set the default URL credential to be set for request operations.
@@ -131,6 +131,13 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  * NSDictionary will be used as headers in corresponding HTTP request.
  */
 @property (nonatomic, copy) SDWebImageDownloaderHeadersFilterBlock headersFilter;
+
+/**
+ * Creates an instance of a downloader with specified session configuration.
+ * *Note*: `timeoutIntervalForRequest` is going to be overwritten.
+ * @return new instance of downloader class
+ */
+- (instancetype)initWithSessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration NS_DESIGNATED_INITIALIZER;
 
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.

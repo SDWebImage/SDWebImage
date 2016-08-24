@@ -53,7 +53,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     }
 }
 
-+ (SDWebImageDownloader *)sharedDownloader {
++ (instancetype)sharedDownloader {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -62,7 +62,11 @@ static NSString *const kCompletedCallbackKey = @"completed";
     return instance;
 }
 
-- (id)init {
+- (instancetype)init {
+    return [self initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+}
+
+- (instancetype)initWithSessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration {
     if ((self = [super init])) {
         _operationClass = [SDWebImageDownloaderOperation class];
         _shouldDecompressImages = YES;
@@ -78,15 +82,14 @@ static NSString *const kCompletedCallbackKey = @"completed";
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;
 
-        NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-        sessionConfig.timeoutIntervalForRequest = _downloadTimeout;
+        sessionConfiguration.timeoutIntervalForRequest = _downloadTimeout;
 
         /**
          *  Create the session for this task
          *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
          *  method calls and completion handler calls.
          */
-        self.session = [NSURLSession sessionWithConfiguration:sessionConfig
+        self.session = [NSURLSession sessionWithConfiguration:sessionConfiguration
                                                      delegate:self
                                                 delegateQueue:nil];
     }
