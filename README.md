@@ -1,5 +1,8 @@
-SDWebImage
-==========
+<p align="center" >
+  <img src="SDWebImage_logo.png" title="SDWebImage logo" float=left>
+</p>
+
+
 [![Build Status](http://img.shields.io/travis/rs/SDWebImage/master.svg?style=flat)](https://travis-ci.org/rs/SDWebImage)
 [![Pod Version](http://img.shields.io/cocoapods/v/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
