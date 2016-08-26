@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "53761294155AB74D005750A4"
-               BuildableName = "SDWebImage Demo.app"
-               BlueprintName = "SDWebImage Demo"
-               ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
+               BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+               BuildableName = "libSDWebImage watchOS static.a"
+               BlueprintName = "SDWebImage watchOS static"
+               ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,15 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
-            ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -51,16 +42,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
-            ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
+            BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+            BuildableName = "libSDWebImage watchOS static.a"
+            BlueprintName = "SDWebImage watchOS static"
+            ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -70,16 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "53761294155AB74D005750A4"
-            BuildableName = "SDWebImage Demo.app"
-            BlueprintName = "SDWebImage Demo"
-            ReferencedContainer = "container:Examples/SDWebImage Demo.xcodeproj">
+            BlueprintIdentifier = "4314D11B1D0E0E3B004B36C9"
+            BuildableName = "libSDWebImage watchOS static.a"
+            BlueprintName = "SDWebImage watchOS static"
+            ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

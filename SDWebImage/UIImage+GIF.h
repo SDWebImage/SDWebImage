@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
 
 @interface UIImage (GIF)
 

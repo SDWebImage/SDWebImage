@@ -6,7 +6,11 @@
  * file that was distributed with this source code.
  */
 
-#import "MapKit/MapKit.h"
+#import "SDWebImageCompat.h"
+
+#if SD_UIKIT || SD_MAC
+
+#import <MapKit/MapKit.h>
 #import "SDWebImageManager.h"
 
 /**
@@ -114,3 +118,5 @@
 - (void)sd_cancelCurrentImageLoad;
 
 @end
+
+#endif

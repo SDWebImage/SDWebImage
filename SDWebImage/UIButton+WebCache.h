@@ -7,6 +7,9 @@
  */
 
 #import "SDWebImageCompat.h"
+
+#if SD_UIKIT
+
 #import "SDWebImageManager.h"
 
 /**
@@ -230,3 +233,5 @@
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state;
 
 @end
+
+#endif

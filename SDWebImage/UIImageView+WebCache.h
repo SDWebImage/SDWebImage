@@ -7,6 +7,9 @@
  */
 
 #import "SDWebImageCompat.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "SDWebImageManager.h"
 
 /**
@@ -179,18 +182,21 @@
                                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                         completed:(nullable SDExternalCompletionBlock)completedBlock;
 
+#if SD_UIKIT
 /**
  * Download an array of images and starts them in an animation loop
  *
  * @param arrayOfURLs An array of NSURL
  */
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs;
+#endif
 
 /**
  * Cancel the current download
  */
 - (void)sd_cancelCurrentImageLoad;
 
+#if SD_UIKIT
 - (void)sd_cancelCurrentAnimationImagesLoad;
 
 /**
@@ -208,6 +214,8 @@
 - (BOOL)showActivityIndicatorView;
 - (void)addActivityIndicator;
 - (void)removeActivityIndicator;
-
+#endif
 
 @end
+
+#endif

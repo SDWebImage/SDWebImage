@@ -23,6 +23,9 @@
         return nil;
     }
     
+#if SD_MAC
+    return image;
+#elif SD_UIKIT || SD_WATCH
     @autoreleasepool{
         // do not decode animated images
         if (image.images != nil) {
@@ -86,6 +89,7 @@
         
         return imageWithoutAlpha;
     }
+#endif
 }
 
 @end

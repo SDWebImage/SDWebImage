@@ -7,6 +7,9 @@
  */
 
 #import "UIImageView+HighlightedWebCache.h"
+
+#if SD_UIKIT
+
 #import "UIView+WebCacheOperation.h"
 
 #define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
@@ -71,3 +74,5 @@
 }
 
 @end
+
+#endif

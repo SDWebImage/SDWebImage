@@ -7,6 +7,9 @@
  */
 
 #import "MKAnnotationView+WebCache.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
@@ -59,11 +62,19 @@ static char imageURLKey;
                     return;
                 } else if (image) {
                     wself.image = image;
+#if SD_UIKIT
                     [wself setNeedsLayout];
+#elif SD_MAC
+                    [wself setNeedsLayout:YES];
+#endif
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
+#if SD_UIKIT
                         [wself setNeedsLayout];
+#elif SD_MAC
+                        [wself setNeedsDisplay:YES];
+#endif
                     }
                 }
                 if (completedBlock && finished) {
@@ -87,3 +98,5 @@ static char imageURLKey;
 }
 
 @end
+
+#endif

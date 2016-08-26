@@ -17,6 +17,9 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         return nil;
     }
     
+#if SD_MAC
+    return image;
+#elif SD_UIKIT || SD_WATCH
     if ((image.images).count > 0) {
         NSMutableArray<UIImage *> *scaledImages = [NSMutableArray array];
 
@@ -27,7 +30,11 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         return [UIImage animatedImageWithImages:scaledImages duration:image.duration];
     }
     else {
+#if SD_WATCH
+        if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
+#elif SD_UIKIT
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+#endif
             CGFloat scale = 1;
             if (key.length >= 8) {
                 NSRange range = [key rangeOfString:@"@2x."];
@@ -46,6 +53,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         }
         return image;
     }
+#endif
 }
 
 NSString *const SDWebImageErrorDomain = @"SDWebImageErrorDomain";

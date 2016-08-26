@@ -7,6 +7,9 @@
  */
 
 #import "UIButton+WebCache.h"
+
+#if SD_UIKIT
+
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
@@ -183,3 +186,5 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
 }
 
 @end
+
+#endif

@@ -7,12 +7,17 @@
  */
 
 #import "UIImageView+WebCache.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
 static char imageURLKey;
+#if SD_UIKIT
 static char TAG_ACTIVITY_INDICATOR;
 static char TAG_ACTIVITY_STYLE;
+#endif
 static char TAG_ACTIVITY_SHOW;
 
 @implementation UIImageView (WebCache)
@@ -75,11 +80,19 @@ static char TAG_ACTIVITY_SHOW;
                 }
                 else if (image) {
                     wself.image = image;
+#if SD_UIKIT
                     [wself setNeedsLayout];
+#elif SD_MAC
+                    [wself setNeedsLayout:YES];
+#endif
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
+#if SD_UIKIT
                         [wself setNeedsLayout];
+#elif SD_MAC
+                        [wself setNeedsLayout:YES];
+#endif
                     }
                 }
                 if (completedBlock && finished) {
@@ -114,6 +127,7 @@ static char TAG_ACTIVITY_SHOW;
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
+#if SD_UIKIT
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs {
     [self sd_cancelCurrentAnimationImagesLoad];
     __weak __typeof(self)wself = self;
@@ -144,17 +158,20 @@ static char TAG_ACTIVITY_SHOW;
 
     [self sd_setImageLoadOperation:[operationsArray copy] forKey:@"UIImageViewAnimationImages"];
 }
+#endif
 
 - (void)sd_cancelCurrentImageLoad {
     [self sd_cancelImageLoadOperationWithKey:@"UIImageViewImageLoad"];
 }
 
+#if SD_UIKIT
 - (void)sd_cancelCurrentAnimationImagesLoad {
     [self sd_cancelImageLoadOperationWithKey:@"UIImageViewAnimationImages"];
 }
-
+#endif
 
 #pragma mark -
+#if SD_UIKIT
 - (UIActivityIndicatorView *)activityIndicator {
     return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
 }
@@ -162,6 +179,7 @@ static char TAG_ACTIVITY_SHOW;
 - (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
 }
+#endif
 
 - (void)setShowActivityIndicatorView:(BOOL)show {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
@@ -171,6 +189,7 @@ static char TAG_ACTIVITY_SHOW;
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
+#if SD_UIKIT
 - (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
 }
@@ -178,8 +197,10 @@ static char TAG_ACTIVITY_SHOW;
 - (int)getIndicatorStyle{
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
 }
+#endif
 
 - (void)addActivityIndicator {
+#if SD_UIKIT
     if (!self.activityIndicator) {
         self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self getIndicatorStyle]];
         self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
@@ -207,14 +228,18 @@ static char TAG_ACTIVITY_SHOW;
     dispatch_main_async_safe(^{
         [self.activityIndicator startAnimating];
     });
-
+#endif
 }
 
 - (void)removeActivityIndicator {
+#if SD_UIKIT
     if (self.activityIndicator) {
         [self.activityIndicator removeFromSuperview];
         self.activityIndicator = nil;
     }
+#endif
 }
 
 @end
+
+#endif

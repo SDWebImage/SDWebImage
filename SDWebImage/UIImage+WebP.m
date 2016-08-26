@@ -7,13 +7,9 @@
  */
 
 #ifdef SD_WEBP
-#import "UIImage+WebP.h"
 
-#if !COCOAPODS
+#import "UIImage+WebP.h"
 #import "webp/decode.h"
-#else
-#import "webp/decode.h"
-#endif
 
 // Callback for CGDataProviderRelease
 static void FreeImageData(void *info, const void *data, size_t size) {
@@ -59,7 +55,11 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGColorSpaceRelease(colorSpaceRef);
     CGDataProviderRelease(provider);
 
+#if SD_UIKIT || SD_WATCH
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+#endif
     CGImageRelease(imageRef);
 
     return image;

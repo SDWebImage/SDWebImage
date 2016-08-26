@@ -6,6 +6,9 @@
  * file that was distributed with this source code.
  */
 
+#import "SDWebImageCompat.h"
+
+#if SD_UIKIT
 
 #if COCOAPODS
     @import FLAnimatedImage;
@@ -139,3 +142,5 @@
 - (void)sd_cancelCurrentImageLoad;
 
 @end
+
+#endif

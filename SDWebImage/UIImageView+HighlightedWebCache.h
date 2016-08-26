@@ -6,8 +6,10 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
 #import "SDWebImageCompat.h"
+
+#if SD_UIKIT
+
 #import "SDWebImageManager.h"
 
 /**
@@ -92,3 +94,5 @@
 - (void)sd_cancelCurrentHighlightedImageLoad;
 
 @end
+
+#endif

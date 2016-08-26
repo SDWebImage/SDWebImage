@@ -7,7 +7,11 @@
  * file that was distributed with this source code.
  */
 
+#import <SDWebImage/SDWebImageCompat.h>
+
+#if SD_UIKIT
 #import <UIKit/UIKit.h>
+#endif
 
 //! Project version number for WebImage.
 FOUNDATION_EXPORT double WebImageVersionNumber;
@@ -20,7 +24,6 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDWebImageManager.h>
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/UIImageView+WebCache.h>
-#import <SDWebImage/SDWebImageCompat.h>
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
 #import <SDWebImage/UIButton+WebCache.h>
@@ -29,10 +32,16 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/SDWebImageOperation.h>
 #import <SDWebImage/SDWebImageDownloader.h>
-#if !TARGET_OS_TV
+#if SD_MAC || SD_UIKIT
 #import <SDWebImage/MKAnnotationView+WebCache.h>
 #endif
 #import <SDWebImage/SDWebImageDecoder.h>
 #import <SDWebImage/UIImage+WebP.h>
 #import <SDWebImage/UIImage+GIF.h>
 #import <SDWebImage/NSData+ImageContentType.h>
+#if SD_MAC
+#import <SDWebImage/NSImage+WebCache.h>
+#endif
+#if SD_UIKIT
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#endif

@@ -6,7 +6,10 @@
  * file that was distributed with this source code.
  */
 
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "SDWebImageManager.h"
 
 @interface UIView (WebCacheOperation)
@@ -34,3 +37,5 @@
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key;
 
 @end
+
+#endif
