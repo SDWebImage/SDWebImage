@@ -73,7 +73,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
             cancelled:(SDWebImageNoParamsBlock)cancelBlock {
     if ((self = [super init])) {
-        _request = request;
+        _request = [request copy];
         _shouldDecompressImages = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
@@ -404,7 +404,7 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
         
-        if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
+        if (![[NSURLCache sharedURLCache] cachedResponseForRequest:self.request]) {
             responseFromCached = NO;
         }
         
