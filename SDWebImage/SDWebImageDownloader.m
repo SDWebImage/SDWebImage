@@ -70,6 +70,7 @@
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
+        _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
         _URLOperations = [NSMutableDictionary new];
 #ifdef SD_WEBP
         _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];

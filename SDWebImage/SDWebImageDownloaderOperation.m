@@ -67,7 +67,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options {
     if ((self = [super init])) {
-        _request = request;
+        _request = [request copy];
         _shouldDecompressImages = YES;
         _options = options;
         _callbackBlocks = [NSMutableArray new];
@@ -438,12 +438,14 @@ didReceiveResponse:(NSURLResponse *)response
             completionBlock(nil, nil, error, YES);
         }
     } else {
-        if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
-            responseFromCached = NO;
-        }
-        
         if (completionBlocks.count > 0) {
-            if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
+            /**
+             *  See #1608 and #1623 - apparently, there is a race condition on `NSURLCache` that causes a crash
+             *  Limited the calls to `cachedResponseForRequest:` only for cases where we should ignore the cached response
+             *    and images for which responseFromCached is YES (only the ones that cannot be cached).
+             *  Note: responseFromCached is set to NO inside `willCacheResponse:`. This method doesn't get called for large images or images behind authentication
+             */
+            if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached && [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request]) {
                 for (SDWebImageDownloaderCompletedBlock completionBlock in completionBlocks) {
                     completionBlock(nil, nil, nil, YES);
                 }
