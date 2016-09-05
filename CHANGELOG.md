@@ -1,3 +1,9 @@
+## [3.8.2 Patch release for 3.8.0 on Sep 5th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.2)
+
+#### Fixes:
+
+- Fixed #1608 #1623 #1644 Crash in `[NSURLCache cachedResponseForRequest:]` -  the fix is actually avoiding to access `NSURLCache` which appears to generate a race condition. We only call it if necesarry (`SDWebImageRefreshCached` is used and the image cannot be cached by the system when it's too big or behind authentication)
+
 ## [3.8.1 Patch release for 3.8.0 on Jun 7th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.1)
 
 #### Fixes:
