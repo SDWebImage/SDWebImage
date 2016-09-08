@@ -1,3 +1,65 @@
+## [4.0.0 - In progress](https://github.com/rs/SDWebImage/tree/4.x)
+
+#### Infrastructure:
+
+- support for **watchOS** and **OS X** platforms #1595
+- the `SDWebImage xcodeproj` contains the following targets:
+    - `SDWebImage iOS static` (iOS static lib)
+    - `SDWebImage watchOS static` (watchOS static lib)
+    - `SDWebImage OSX` (OSX dynamic framework)
+    - `SDWebImage iOS` (iOS dynamic framework)
+    - `SDWebImage tvOS` (tvOS dynamic framework)
+    - `SDWebImage watchOS` (watchOS dynamic framework)
+  - the `SDWebImage Demo xcodeproj` contains the following targets:
+    - `SDWebImage OSX Demo`
+    - `SDWebImage iOS Demo`
+    - `SDWebImage TV Demo`
+    - `SDWebImage Watch Demo`
+- bumped `libwep` version to `0.5.0`
+
+#### Backwards incompatible changes
+
+- removed all deprecated methods (that we carried around for backwards compatibility in previous versions) #774
+- Renamed `SDWebImageManager` `downloadImageWithURL:options:progress:completed:` to `loadImageWithURL:options:progress:completed:` as it makes more sense, since we check the cache first and download only if needed a32a177
+- Deleted targets: `SDWebImage+MKAnnotation`, `SDWebImage+WebP`, `SDWebImageFramework`:  
+  - `SDWebImage `target that build as a static library (all subspecs included) -> `libSDWebImage.a`
+  - `SDWebImageiOS` and `SDWebImagetvOS` targets that build as dynamic frameworks
+- Renamed the dynamic frameworks targets from `WebImage` to `SDWebImage`. Renamed the `WebImage.h` to `SDWebImage.h` to match the framework naming
+- Renamed the schemes for consistency. Updated the Tests Podfile + project.
+- For #883 Fix multiple requests for same image and then canceling one, several breaking changes were needed:
+  - `SDWebImageDownloader` method `- downloadImageWithURL:options:progress:completed:` now returns a `SDWebImageDownloadToken *` instead of `id <SDWebImageOperation>` (give the ability to cancel downloads using the returned token)
+  - `SDWebImageDownloaderOperation` initializer `- initWithRequest:options:progress:completed:cancelled` split into `- initWithRequest:options` and `addHandlersForProgress:completed:`. Note: there is no more cancel block
+- Modern Objective-C syntax done in 64382b9 includes:
+  - initializers now return `instancetype` instead of `id`
+  - explicit designated initializers (i.e. for `SDImageCache`)
+- For #1575 GIF support using FLAnimatedImage, several changes were needed:
+  - replaced type `SDWebImageQueryCompletedBlock` with `SDCacheQueryCompletedBlock` and added an `NSData *` param
+  - because of the change above, the `done` param of `SDImageCache` `queryDiskCacheForKey:done:` is now a `SDCacheQueryCompletedBlock` and those blocks must now include an `NSData *` param
+  - replaced type `SDWebImageCompletionWithFinishedBlock` with `SDInternalCompletionBlock` and added an `NSData *` param
+  - because of the change above, the `completed` param of `SDWebImageManager` `loadImageWithURL:options:progress:completed:` is now `SDInternalCompletionBlock` and those blocks must now include an `NSData *` param
+  - for consistency with the previous change, also renamed `SDWebImageCompletionBlock` to `SDExternalCompletionBlock`
+  - `UIImage` will no longer respond to `sd_animatedGIFNamed:` or `sd_animatedImageByScalingAndCroppingToSize:`
+- Xcode 7 Objective-C updates (Lightweight Generics and Nullability) #1581
+  - breaks compatibility at least for Swift users of the framework
+- **watchOS** and **OS X** support #1595 required
+  - renamed `SDWebImage` iOS static lib target to `SDWebImage iOS static` for clarity
+
+#### Features:
+
+- Switched our GIF support to a better implementation: [FLAnimatedImage by Flipboard](https://github.com/Flipboard/FLAnimatedImage) #1575
+  - requires iOS 8+ (it's the only way due to FLAnimatedImage requirements)
+  - the implementation relies on a `WebCache` category on top of `FLAnimatedImageView`
+  - details in the [README](README.md#animated-images-gif-support)
+- Converted any remaining code to Modern Objective-C syntax - 64382b9
+- Xcode 7 Objective-C updates (Lightweight Generics and Nullability) #1581
+- via #1595 Clarified and simplified the usage of `TARGET_OS_*` macros. Added `SD_MAC`, `SD_UIKIT`, `SD_IOS`, `SD_TV`, `SD_WATCH`. The biggest issue here was `TARGET_OS_MAC` was 1 for all platforms and we couldn't rely on it.
+- Replaces #1398 Allow to customise cache and image downloader instances used with `SDWebImageManager` - added a new initializer (`initWithCache:downloader:`) 9112170
+
+#### Fixes:
+
+- Fix multiple requests for same image and then canceling one #883 + 8a78586
+- Fixed #1444 and the master build thanks to [@kenmaz](https://github.com/kenmaz/SDWebImage/commit/5034c334be50765dfe4e97c48bcb74ef64175188)
+
 ## [3.8.2 Patch release for 3.8.0 on Sep 5th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.2)
 
 #### Fixes:

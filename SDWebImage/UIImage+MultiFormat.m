@@ -1,10 +1,10 @@
-//
-//  UIImage+MultiFormat.m
-//  SDWebImage
-//
-//  Created by Olivier Poitrey on 07/06/13.
-//  Copyright (c) 2013 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "UIImage+MultiFormat.h"
 #import "UIImage+GIF.h"
@@ -17,7 +17,7 @@
 
 @implementation UIImage (MultiFormat)
 
-+ (UIImage *)sd_imageWithData:(NSData *)data {
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
     if (!data) {
         return nil;
     }
@@ -35,20 +35,22 @@
 #endif
     else {
         image = [[UIImage alloc] initWithData:data];
+#if SD_UIKIT || SD_WATCH
         UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
         if (orientation != UIImageOrientationUp) {
             image = [UIImage imageWithCGImage:image.CGImage
                                         scale:image.scale
                                   orientation:orientation];
         }
+#endif
     }
 
 
     return image;
 }
 
-
-+(UIImageOrientation)sd_imageOrientationFromImageData:(NSData *)imageData {
+#if SD_UIKIT || SD_WATCH
++(UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
     UIImageOrientation result = UIImageOrientationUp;
     CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
     if (imageSource) {
@@ -112,7 +114,7 @@
     }
     return orientation;
 }
-
+#endif
 
 
 @end

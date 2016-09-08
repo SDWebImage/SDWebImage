@@ -1,14 +1,22 @@
-//
-// Created by Fabrice Aneche on 06/01/14.
-// Copyright (c) 2014 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ * (c) Fabrice Aneche
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "NSData+ImageContentType.h"
 
 
 @implementation NSData (ImageContentType)
 
-+ (NSString *)sd_contentTypeForImageData:(NSData *)data {
++ (nullable NSString *)sd_contentTypeForImageData:(nullable NSData *)data {
+    if (!data) {
+        return nil;
+    }
+
     uint8_t c;
     [data getBytes:&c length:1];
     switch (c) {
@@ -23,7 +31,7 @@
             return @"image/tiff";
         case 0x52:
             // R as RIFF for WEBP
-            if ([data length] < 12) {
+            if (data.length < 12) {
                 return nil;
             }
 
@@ -35,15 +43,6 @@
             return nil;
     }
     return nil;
-}
-
-@end
-
-
-@implementation NSData (ImageContentTypeDeprecated)
-
-+ (NSString *)contentTypeForImageData:(NSData *)data {
-    return [self sd_contentTypeForImageData:data];
 }
 
 @end

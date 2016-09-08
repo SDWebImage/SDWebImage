@@ -1,29 +1,24 @@
-//
-//  UIImage+WebP.m
-//  SDWebImage
-//
-//  Created by Olivier Poitrey on 07/06/13.
-//  Copyright (c) 2013 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #ifdef SD_WEBP
-#import "UIImage+WebP.h"
 
-#if !COCOAPODS
+#import "UIImage+WebP.h"
 #import "webp/decode.h"
-#else
-#import "webp/decode.h"
-#endif
 
 // Callback for CGDataProviderRelease
-static void FreeImageData(void *info, const void *data, size_t size)
-{
+static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
 @implementation UIImage (WebP)
 
-+ (UIImage *)sd_imageWithWebPData:(NSData *)data {
++ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data {
     WebPDecoderConfig config;
     if (!WebPInitDecoderConfig(&config)) {
         return nil;
@@ -60,19 +55,16 @@ static void FreeImageData(void *info, const void *data, size_t size)
     CGColorSpaceRelease(colorSpaceRef);
     CGDataProviderRelease(provider);
 
+#if SD_UIKIT || SD_WATCH
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+#endif
     CGImageRelease(imageRef);
 
     return image;
 }
 
 @end
-
-#if !COCOAPODS
-// Functions to resolve some undefined symbols when using WebP and force_load flag
-void WebPInitPremultiplyNEON(void) {}
-void WebPInitUpsamplersNEON(void) {}
-void VP8DspInitNEON(void) {}
-#endif
 
 #endif

@@ -1,10 +1,10 @@
-//
-//  SDWebImageManagerTests.m
-//  SDWebImage Tests
-//
-//  Created by Bogdan Poplauschi on 20/06/14.
-//
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #define EXP_SHORTHAND   // required by Expecta
 
@@ -38,9 +38,12 @@ static int64_t kAsyncTestTimeout = 5;
 - (void)testThatDownloadInvokesCompletionBlockWithCorrectParamsAsync {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
 
-    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage000.jpg"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"];
     
-    [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
+                                                options:SDWebImageRefreshCached
+                                               progress:nil
+                                              completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).toNot.beNil();
         expect(error).to.beNil();
         expect(originalImageURL).to.equal(imageURL);
@@ -57,7 +60,10 @@ static int64_t kAsyncTestTimeout = 5;
 
     NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.png"];
     
-    [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
+                                                options:SDWebImageRefreshCached
+                                               progress:nil
+                                              completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).to.beNil();
         expect(error).toNot.beNil();
         expect(originalImageURL).to.equal(imageURL);

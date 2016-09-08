@@ -1,12 +1,15 @@
-//
-//  MKAnnotationView+WebCache.m
-//  SDWebImage
-//
-//  Created by Olivier Poitrey on 14/03/12.
-//  Copyright (c) 2012 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "MKAnnotationView+WebCache.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
@@ -14,31 +17,34 @@ static char imageURLKey;
 
 @implementation MKAnnotationView (WebCache)
 
-- (NSURL *)sd_imageURL {
+- (nullable NSURL *)sd_imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url {
+- (void)sd_setImageWithURL:(nullable NSURL *)url {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                 completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_cancelCurrentImageLoad];
 
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -46,7 +52,7 @@ static char imageURLKey;
 
     if (url) {
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 __strong MKAnnotationView *sself = wself;
@@ -56,11 +62,19 @@ static char imageURLKey;
                     return;
                 } else if (image) {
                     wself.image = image;
+#if SD_UIKIT
                     [wself setNeedsLayout];
+#elif SD_MAC
+                    [wself setNeedsLayout:YES];
+#endif
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
                         wself.image = placeholder;
+#if SD_UIKIT
                         [wself setNeedsLayout];
+#elif SD_MAC
+                        [wself setNeedsDisplay:YES];
+#endif
                     }
                 }
                 if (completedBlock && finished) {
@@ -85,51 +99,4 @@ static char imageURLKey;
 
 @end
 
-
-@implementation MKAnnotationView (WebCacheDeprecated)
-
-- (NSURL *)imageURL {
-    return [self sd_imageURL];
-}
-
-- (void)setImageWithURL:(NSURL *)url {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:nil];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:nil];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
-}
-
-- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if (completedBlock) {
-            completedBlock(image, error, cacheType);
-        }
-    }];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if (completedBlock) {
-            completedBlock(image, error, cacheType);
-        }
-    }];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if (completedBlock) {
-            completedBlock(image, error, cacheType);
-        }
-    }];
-}
-
-- (void)cancelCurrentImageLoad {
-    [self sd_cancelCurrentImageLoad];
-}
-
-@end
+#endif

@@ -1,7 +1,11 @@
-//
-// Created by Fabrice Aneche on 06/01/14.
-// Copyright (c) 2014 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ * (c) Fabrice Aneche
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import <Foundation/Foundation.h>
 
@@ -14,13 +18,6 @@
  *
  *  @return the content type as string (i.e. image/jpeg, image/gif)
  */
-+ (NSString *)sd_contentTypeForImageData:(NSData *)data;
-
-@end
-
-
-@interface NSData (ImageContentTypeDeprecated)
-
-+ (NSString *)contentTypeForImageData:(NSData *)data __deprecated_msg("Use `sd_contentTypeForImageData:`");
++ (nullable NSString *)sd_contentTypeForImageData:(nullable NSData *)data;
 
 @end
