@@ -9,10 +9,10 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "SDActivityIndicatorHolder.h"
 
 static char imageURLKey;
-static char TAG_ACTIVITY_INDICATOR;
-static char TAG_ACTIVITY_STYLE;
+static char TAG_ACTIVITY_INDICATOR_HOLDER;
 static char TAG_ACTIVITY_SHOW;
 
 @implementation UIImageView (WebCache)
@@ -147,12 +147,14 @@ static char TAG_ACTIVITY_SHOW;
 
 
 #pragma mark -
-- (UIActivityIndicatorView *)activityIndicator {
-    return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
-}
-
-- (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
+- (SDActivityIndicatorHolder *)activityIndicatorHolder {
+    SDActivityIndicatorHolder *holder = (SDActivityIndicatorHolder *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR_HOLDER);
+    if (!holder) {
+        holder = [[SDActivityIndicatorHolder alloc] init];
+        objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR_HOLDER, holder, OBJC_ASSOCIATION_RETAIN);
+    }
+    
+    return holder;
 }
 
 - (void)setShowActivityIndicatorView:(BOOL)show{
@@ -164,49 +166,19 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 - (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
+    [[self activityIndicatorHolder] setStyle: style];
 }
 
 - (int)getIndicatorStyle{
-    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
+    return [[self activityIndicatorHolder] style];
 }
 
 - (void)addActivityIndicator {
-    if (!self.activityIndicator) {
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self getIndicatorStyle]];
-        self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
-
-        dispatch_main_async_safe(^{
-            [self addSubview:self.activityIndicator];
-
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterX
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterX
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterY
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterY
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-        });
-    }
-
-    dispatch_main_async_safe(^{
-        [self.activityIndicator startAnimating];
-    });
-
+    [[self activityIndicatorHolder] addIndicatorToView:self];
 }
 
 - (void)removeActivityIndicator {
-    if (self.activityIndicator) {
-        [self.activityIndicator removeFromSuperview];
-        self.activityIndicator = nil;
-    }
+    [[self activityIndicatorHolder] removeIndicator];
 }
 
 @end
