@@ -69,23 +69,4 @@ static int64_t kAsyncTestTimeout = 5;
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
-- (void)testTestThatItCanDownloadAnImageWithARedirection {
-    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
-
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://graph.facebook.com/1815229585429909/picture?width=640&height=640"];
-
-    [[SDWebImageManager sharedManager] downloadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-        
-        expect(image).toNot.beNil();
-        expect(error).to.beNil();
-        expect(originalImageURL).toNot.equal(imageURL);
-        
-        [expectation fulfill];
-        expectation = nil;
-    }];
-    
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
-
-}
-
 @end
