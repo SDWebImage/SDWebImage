@@ -9,8 +9,11 @@
 #import "UIButton+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "SDActivityIndicatorHolder.h"
 
 static char imageURLStorageKey;
+static char TAG_ACTIVITY_INDICATOR_HOLDER;
+static char TAG_ACTIVITY_SHOW;
 
 @implementation UIButton (WebCache)
 
@@ -57,6 +60,7 @@ static char imageURLStorageKey;
         [self.imageURLStorage removeObjectForKey:@(state)];
         
         dispatch_main_async_safe(^{
+            [self removeActivityIndicator];
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
@@ -66,10 +70,15 @@ static char imageURLStorageKey;
         return;
     }
     
+    if ([self showActivityIndicatorView]) {
+        [self addActivityIndicator];
+    }
+    
     self.imageURLStorage[@(state)] = url;
 
     __weak __typeof(self)wself = self;
     id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        [self removeActivityIndicator];
         if (!wself) return;
         dispatch_main_sync_safe(^{
             __strong UIButton *sself = wself;
@@ -171,6 +180,41 @@ static char imageURLStorageKey;
     }
 
     return storage;
+}
+
+#pragma mark -
+- (SDActivityIndicatorHolder *)activityIndicatorHolder {
+    SDActivityIndicatorHolder *holder = (SDActivityIndicatorHolder *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR_HOLDER);
+    if (!holder) {
+        holder = [[SDActivityIndicatorHolder alloc] init];
+        objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR_HOLDER, holder, OBJC_ASSOCIATION_RETAIN);
+    }
+    
+    return holder;
+}
+
+- (void)setShowActivityIndicatorView:(BOOL)show{
+    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, [NSNumber numberWithBool:show], OBJC_ASSOCIATION_RETAIN);
+}
+
+- (BOOL)showActivityIndicatorView{
+    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
+}
+
+- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
+    [[self activityIndicatorHolder] setStyle: style];
+}
+
+- (int)getIndicatorStyle{
+    return [[self activityIndicatorHolder] style];
+}
+
+- (void)addActivityIndicator {
+    [[self activityIndicatorHolder] addIndicatorToView:self];
+}
+
+- (void)removeActivityIndicator {
+    [[self activityIndicatorHolder] removeIndicator];
 }
 
 @end
