@@ -149,6 +149,15 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 #pragma mark - Query and Retrieve Ops
 
 /**
+ *  Async check if image exists in disk cache already (does not load the image)
+ *
+ *  @param key             the key describing the url
+ *  @param completionBlock the block to be executed when the check is done.
+ *  @note the completion block will be always executed on the main queue
+ */
+- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
+
+/**
  * Operation that queries the cache asynchronously and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
@@ -233,15 +242,6 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * Asynchronously calculate the disk cache's size.
  */
 - (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock;
-
-/**
- *  Async check if image exists in disk cache already (does not load the image)
- *
- *  @param key             the key describing the url
- *  @param completionBlock the block to be executed when the check is done.
- *  @note the completion block will be always executed on the main queue
- */
-- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 #pragma mark - Cache Paths
 
