@@ -13,6 +13,7 @@
 #import "UIImage+GIF.h"
 #import "NSData+ImageContentType.h"
 #import "NSImage+WebCache.h"
+#import "SDImageCacheConfig.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -38,7 +39,6 @@
 
 @end
 
-static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
@@ -50,6 +50,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 @interface SDImageCache ()
 
+#pragma mark - Properties
 @property (strong, nonatomic, nonnull) NSCache *memCache;
 @property (strong, nonatomic, nonnull) NSString *diskCachePath;
 @property (strong, nonatomic, nullable) NSMutableArray<NSString *> *customPaths;
@@ -61,6 +62,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 @implementation SDImageCache {
     NSFileManager *_fileManager;
 }
+
+#pragma mark - Singleton, init, dealloc
 
 + (nonnull SDImageCache *)sharedImageCache {
     static dispatch_once_t once;
@@ -87,10 +90,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
-
-        // Init default values
-        _maxCacheAge = kDefaultCacheMaxCacheAge;
-
+        
+        _config = [[SDImageCacheConfig alloc] init];
+        
         // Init the memory cache
         _memCache = [[AutoPurgeCache alloc] init];
         _memCache.name = fullNamespace;
@@ -102,15 +104,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSString *path = [self makeDiskCachePath:ns];
             _diskCachePath = path;
         }
-
-        // Set decompression to YES
-        _shouldDecompressImages = YES;
-
-        // memory cache enabled
-        _shouldCacheImagesInMemory = YES;
-
-        // Disable iCloud
-        _shouldDisableiCloud = YES;
 
         dispatch_sync(_ioQueue, ^{
             _fileManager = [NSFileManager new];
@@ -143,6 +136,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     SDDispatchQueueRelease(_ioQueue);
 }
 
+#pragma mark - Cache paths
+
 - (void)addReadOnlyCachePath:(nonnull NSString *)path {
     if (!self.customPaths) {
         self.customPaths = [NSMutableArray new];
@@ -162,8 +157,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [self cachePathForKey:key inPath:self.diskCachePath];
 }
 
-#pragma mark SDImageCache (private)
-
 - (nullable NSString *)cachedFileNameForKey:(nullable NSString *)key {
     const char *str = key.UTF8String;
     if (str == NULL) {
@@ -178,9 +171,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return filename;
 }
 
-#pragma mark ImageCache
-
-// Init the disk cache
 - (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
@@ -191,7 +181,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return;
     }
     // if memory cache is enabled
-    if (self.shouldCacheImagesInMemory) {
+    if (self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = SDCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
@@ -236,7 +226,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil];
     
     // disable iCloud backup
-    if (self.shouldDisableiCloud) {
+    if (self.config.shouldDisableiCloud) {
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
     }
 }
@@ -335,7 +325,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
-        if (self.shouldDecompressImages) {
+        if (self.config.shouldDecompressImages) {
             image = [UIImage decodedImageWithImage:image];
         }
         return image;
@@ -379,7 +369,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         @autoreleasepool {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage = [self diskImageForKey:key];
-            if (diskImage && self.shouldCacheImagesInMemory) {
+            if (diskImage && self.config.shouldCacheImagesInMemory) {
                 NSUInteger cost = SDCacheCostForImage(diskImage);
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
@@ -411,7 +401,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return;
     }
 
-    if (self.shouldCacheImagesInMemory) {
+    if (self.config.shouldCacheImagesInMemory) {
         [self.memCache removeObjectForKey:key];
     }
 
@@ -486,7 +476,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                                                                       options:NSDirectoryEnumerationSkipsHiddenFiles
                                                                  errorHandler:NULL];
 
-        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
+        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
         NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
         NSUInteger currentCacheSize = 0;
 
@@ -522,9 +512,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
         // If our remaining disk cache exceeds a configured maximum size, perform a second
         // size-based cleanup pass.  We delete the oldest files first.
-        if (self.maxCacheSize > 0 && currentCacheSize > self.maxCacheSize) {
+        if (self.config.maxCacheSize > 0 && currentCacheSize > self.config.maxCacheSize) {
             // Target half of our maximum cache size for this cleanup pass.
-            const NSUInteger desiredCacheSize = self.maxCacheSize / 2;
+            const NSUInteger desiredCacheSize = self.config.maxCacheSize / 2;
 
             // Sort the remaining cache files by their last modification time (oldest first).
             NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
@@ -625,3 +615,4 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 @end
+

@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
+@class SDImageCacheConfig;
+
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * The image wasn't available the SDWebImage caches, but was downloaded from the web.
@@ -30,27 +32,19 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
 @interface SDImageCache : NSObject
 
-/**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
- */
-@property (assign, nonatomic) BOOL shouldDecompressImages;
+#pragma mark - Properties
 
 /**
- *  disable iCloud backup [defaults to YES]
+ *  Cache Config object - storing all kind of settings
  */
-@property (assign, nonatomic) BOOL shouldDisableiCloud;
-
-/**
- * use memory cache [defaults to YES]
- */
-@property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+@property (nonatomic, nonnull, readonly) SDImageCacheConfig *config;
 
 /**
  * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
@@ -62,15 +56,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCountLimit;
 
-/**
- * The maximum length of time to keep an image in the cache, in seconds
- */
-@property (assign, nonatomic) NSInteger maxCacheAge;
-
-/**
- * The maximum size of the cache, in bytes.
- */
-@property (assign, nonatomic) NSUInteger maxCacheSize;
+#pragma mark - Singleton and initialization
 
 /**
  * Returns global shared cache instance
@@ -94,6 +80,8 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory NS_DESIGNATED_INITIALIZER;
+
+#pragma mark - Cache paths
 
 - (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace;
 
