@@ -139,7 +139,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (void)checkIfQueueIsIOQueue {
     const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
     const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
-    NSAssert(strcmp(currentQueueLabel, ioQueueLabel) == 0, @"This method should be called from the ioQueue");
+    if (strcmp(currentQueueLabel, ioQueueLabel) != 0) {
+        NSLog(@"This method should be called from the ioQueue");
+    }
 }
 
 #pragma mark - Cache paths
