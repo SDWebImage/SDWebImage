@@ -174,7 +174,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * Remove the image from memory and disk cache asynchronously
  *
  * @param key             The unique image cache key
- * @param completion      An block that should be executed after the image has been removed (optional)
+ * @param completion      A block that should be executed after the image has been removed (optional)
  */
 - (void)removeImageForKey:(nullable NSString *)key withCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
@@ -191,7 +191,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @param key             The unique image cache key
  * @param fromDisk        Also remove cache entry from disk if YES
- * @param completion      An block that should be executed after the image has been removed (optional)
+ * @param completion      A block that should be executed after the image has been removed (optional)
  */
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
