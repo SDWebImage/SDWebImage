@@ -191,28 +191,16 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)clearMemory;
 
 /**
- * Clear all disk cached images. Non-blocking method - returns immediately.
- * @param completion    An block that should be executed after cache expiration completes (optional)
+ * Async clear all disk cached images. Non-blocking method - returns immediately.
+ * @param completion    A block that should be executed after cache expiration completes (optional)
  */
 - (void)clearDiskOnCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
 /**
- * Clear all disk cached images
- * @see clearDiskOnCompletion:
+ * Async remove all expired cached image from disk. Non-blocking method - returns immediately.
+ * @param completionBlock A block that should be executed after cache expiration completes (optional)
  */
-- (void)clearDisk;
-
-/**
- * Remove all expired cached image from disk. Non-blocking method - returns immediately.
- * @param completionBlock An block that should be executed after cache expiration completes (optional)
- */
-- (void)cleanDiskWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock;
-
-/**
- * Remove all expired cached image from disk
- * @see cleanDiskWithCompletionBlock:
- */
-- (void)cleanDisk;
+- (void)deleteOldFilesWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Get the size used by the disk cache

@@ -117,12 +117,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(cleanDisk)
+                                                 selector:@selector(deleteOldFiles)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(backgroundCleanDisk)
+                                                 selector:@selector(backgroundDeleteOldFiles)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
 #endif
@@ -441,10 +441,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [self.memCache removeAllObjects];
 }
 
-- (void)clearDisk {
-    [self clearDiskOnCompletion:nil];
-}
-
 - (void)clearDiskOnCompletion:(nullable SDWebImageNoParamsBlock)completion {
     dispatch_async(self.ioQueue, ^{
         [_fileManager removeItemAtPath:self.diskCachePath error:nil];
@@ -461,11 +457,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
-- (void)cleanDisk {
-    [self cleanDiskWithCompletionBlock:nil];
+- (void)deleteOldFiles {
+    [self deleteOldFilesWithCompletionBlock:nil];
 }
 
-- (void)cleanDiskWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock {
+- (void)deleteOldFilesWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray<NSString *> *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
@@ -544,7 +540,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 #if SD_UIKIT
-- (void)backgroundCleanDisk {
+- (void)backgroundDeleteOldFiles {
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
@@ -558,7 +554,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }];
 
     // Start the long-running task and return immediately.
-    [self cleanDiskWithCompletionBlock:^{
+    [self deleteOldFilesWithCompletionBlock:^{
         [application endBackgroundTask:bgTask];
         bgTask = UIBackgroundTaskInvalid;
     }];
