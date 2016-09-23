@@ -39,22 +39,6 @@
 @end
 
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
-// PNG signature bytes and data (below)
-static unsigned char kPNGSignatureBytes[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
-static NSData *kPNGSignatureData = nil;
-
-BOOL ImageDataHasPNGPreffix(NSData *data);
-
-BOOL ImageDataHasPNGPreffix(NSData *data) {
-    NSUInteger pngSignatureLength = kPNGSignatureData.length;
-    if (data.length >= pngSignatureLength) {
-        if ([[data subdataWithRange:NSMakeRange(0, pngSignatureLength)] isEqualToData:kPNGSignatureData]) {
-            return YES;
-        }
-    }
-
-    return NO;
-}
 
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
@@ -100,10 +84,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                        diskCacheDirectory:(nonnull NSString *)directory {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
-
-        // initialise PNG signature data
-        kPNGSignatureData = [NSData dataWithBytes:kPNGSignatureBytes length:8];
-
+        
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
 
@@ -218,46 +199,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
             NSData *data = imageData;
-
-            if (image && (recalculate || !data)) {
-#if SD_UIKIT || SD_WATCH
-                // We need to determine if the image is a PNG or a JPEG
-                // PNGs are easier to detect because they have a unique signature (http://www.w3.org/TR/PNG-Structure.html)
-                // The first eight bytes of a PNG file always contain the following (decimal) values:
-                // 137 80 78 71 13 10 26 10
-
-                // If the imageData is nil (i.e. if trying to save a UIImage directly or the image was transformed on download)
-                // and the image has an alpha channel, we will consider it PNG to avoid losing the transparency
-                int alphaInfo = CGImageGetAlphaInfo(image.CGImage);
-                BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
-                                  alphaInfo == kCGImageAlphaNoneSkipFirst ||
-                                  alphaInfo == kCGImageAlphaNoneSkipLast);
-                BOOL imageIsPng = hasAlpha;
-
-                // But if we have an image data, we will look at the preffix
-                if (imageData.length >= kPNGSignatureData.length) {
-                    imageIsPng = ImageDataHasPNGPreffix(imageData);
-                }
-
-                if (imageIsPng) {
-                    data = UIImagePNGRepresentation(image);
-                }
-                else {
-                    data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
-                }
-#else
-                NSString *contentType = [NSData sd_contentTypeForImageData:data];
-                NSBitmapImageFileType imageFileType = NSJPEGFileType;
-                if ([contentType isEqualToString:@"image/gif"]) {
-                    imageFileType = NSGIFFileType;
-                } else if ([contentType isEqualToString:@"image/png"]) {
-                    imageFileType = NSPNGFileType;
-                }
-                
-                data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations
-                                                                usingType:imageFileType
-                                                               properties:@{}];
-#endif
+            
+            if (!data && image) {
+                SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
+                data = [image sd_imageDataAsFormat:imageFormatFromData];
             }
 
             [self storeImageDataToDisk:data forKey:key];

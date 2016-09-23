@@ -116,5 +116,46 @@
 }
 #endif
 
+- (nullable NSData *)sd_imageData {
+    return [self sd_imageDataAsFormat:SDImageFormatUndefined];
+}
+
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat {
+    NSData *imageData = nil;
+    if (self) {
+#if SD_UIKIT || SD_WATCH
+        int alphaInfo = CGImageGetAlphaInfo(self.CGImage);
+        BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
+                          alphaInfo == kCGImageAlphaNoneSkipFirst ||
+                          alphaInfo == kCGImageAlphaNoneSkipLast);
+        
+        BOOL usePNG = hasAlpha;
+        
+        // the imageFormat param has priority here. But if the format is undefined, we relly on the alpha channel
+        if (imageFormat != SDImageFormatUndefined) {
+            usePNG = (imageFormat == SDImageFormatPNG);
+        }
+        
+        if (usePNG) {
+            imageData = UIImagePNGRepresentation(self);
+        } else {
+            imageData = UIImageJPEGRepresentation(self, (CGFloat)1.0);
+        }
+#else
+        NSBitmapImageFileType imageFileType = NSJPEGFileType;
+        if (imageFormat == SDImageFormatGIF) {
+            imageFileType = NSGIFFileType;
+        } else if (imageFormat == SDImageFormatPNG) {
+            imageFileType = NSPNGFileType;
+        }
+        
+        imageData = [NSBitmapImageRep representationOfImageRepsInArray:self.representations
+                                                             usingType:imageFileType
+                                                            properties:@{}];
+#endif
+    }
+    return imageData;
+}
+
 
 @end
