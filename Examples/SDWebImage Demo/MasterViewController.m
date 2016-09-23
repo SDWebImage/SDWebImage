@@ -87,7 +87,7 @@
 - (void)flushCache
 {
     [SDWebImageManager.sharedManager.imageCache clearMemory];
-    [SDWebImageManager.sharedManager.imageCache clearDisk];
+    [SDWebImageManager.sharedManager.imageCache clearDiskOnCompletion:nil];
 }
 							
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
