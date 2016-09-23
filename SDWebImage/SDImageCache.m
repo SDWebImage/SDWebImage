@@ -275,6 +275,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
+#pragma mark - Query Ops
+
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
 }
@@ -354,12 +356,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock {
-    if (!doneBlock) {
-        return nil;
-    }
-
     if (!key) {
-        doneBlock(nil, nil, SDImageCacheTypeNone);
+        if (doneBlock) {
+            doneBlock(nil, nil, SDImageCacheTypeNone);
+        }
         return nil;
     }
 
@@ -370,13 +370,16 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         if ([image isGIF]) {
             diskData = [self diskImageDataBySearchingAllPathsForKey:key];
         }
-        doneBlock(image, diskData, SDImageCacheTypeMemory);
+        if (doneBlock) {
+            doneBlock(image, diskData, SDImageCacheTypeMemory);
+        }
         return nil;
     }
 
     NSOperation *operation = [NSOperation new];
     dispatch_async(self.ioQueue, ^{
         if (operation.isCancelled) {
+            // do not call the completion if cancelled
             return;
         }
 
@@ -388,9 +391,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 [self.memCache setObject:diskImage forKey:key cost:cost];
             }
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-                doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
-            });
+            if (doneBlock) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
+                });
+            }
         }
     });
 
