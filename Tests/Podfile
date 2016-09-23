@@ -5,7 +5,8 @@ workspace '../SDWebImage'
 
 target 'Tests' do
   platform :ios, '7.0'
-  pod 'Expecta', '<=0.3.1'
-  pod 'SDWebImage', :path => '../'
+  pod 'Expecta'
+  pod 'OCMockito'
+  pod 'SDWebImage/WebP', :path => '../'
 
 end
