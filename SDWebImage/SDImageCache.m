@@ -136,6 +136,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     SDDispatchQueueRelease(_ioQueue);
 }
 
+- (void)checkIfQueueIsIOQueue {
+    const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+    const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
+    NSAssert(strcmp(currentQueueLabel, ioQueueLabel) == 0, @"This method should be called from the ioQueue");
+}
+
 #pragma mark - Cache paths
 
 - (void)addReadOnlyCachePath:(nonnull NSString *)path {
@@ -236,9 +242,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return;
     }
     
-    const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
-    NSAssert(strcmp(currentQueueLabel, ioQueueLabel) == 0, @"This method should be called from the ioQueue");
+    [self checkIfQueueIsIOQueue];
     
     if (![_fileManager fileExistsAtPath:_diskCachePath]) {
         [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
@@ -257,6 +261,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 }
 
+#pragma mark - Query and Retrieve Ops
+
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     dispatch_async(_ioQueue, ^{
         BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
@@ -274,8 +280,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
     });
 }
-
-#pragma mark - Query and Retrieve Ops
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
