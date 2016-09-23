@@ -39,7 +39,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, readwrite, nullable) NSURLSessionTask *dataTask;
 
-@property (strong, atomic, nullable) NSThread *thread;
 @property (SDDispatchQueueSetterSementics, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
 #if SD_UIKIT
@@ -164,7 +163,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         
         self.dataTask = [session dataTaskWithRequest:self.request];
         self.executing = YES;
-        self.thread = [NSThread currentThread];
     }
     
     [self.dataTask resume];
@@ -197,18 +195,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (void)cancel {
     @synchronized (self) {
-        if (self.thread) {
-            [self performSelector:@selector(cancelInternalAndStop) onThread:self.thread withObject:nil waitUntilDone:NO];
-        }
-        else {
-            [self cancelInternal];
-        }
+        [self cancelInternal];
     }
-}
-
-- (void)cancelInternalAndStop {
-    if (self.isFinished) return;
-    [self cancelInternal];
 }
 
 - (void)cancelInternal {
@@ -242,7 +230,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     });
     self.dataTask = nil;
     self.imageData = nil;
-    self.thread = nil;
     if (self.ownedSession) {
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
@@ -423,7 +410,6 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     NSArray<id> *completionBlocks = [[self callbacksForKey:kCompletedCallbackKey] copy];
     @synchronized(self) {
-        self.thread = nil;
         self.dataTask = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
