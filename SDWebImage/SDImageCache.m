@@ -275,7 +275,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
-#pragma mark - Query Ops
+#pragma mark - Query and Retrieve Ops
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
@@ -402,6 +402,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return operation;
 }
 
+#pragma mark - Remove Ops
+
 - (void)removeImageForKey:(nullable NSString *)key {
     [self removeImageForKey:key withCompletion:nil];
 }
@@ -440,6 +442,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
 }
 
+# pragma mark - Mem Cache settings
+
 - (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost {
     self.memCache.totalCostLimit = maxMemoryCost;
 }
@@ -455,6 +459,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
     self.memCache.countLimit = maxCountLimit;
 }
+
+#pragma mark - Cache clean Ops
 
 - (void)clearMemory {
     [self.memCache removeAllObjects];
@@ -579,6 +585,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }];
 }
 #endif
+
+#pragma mark - Cache Info
 
 - (NSUInteger)getSize {
     __block NSUInteger size = 0;
