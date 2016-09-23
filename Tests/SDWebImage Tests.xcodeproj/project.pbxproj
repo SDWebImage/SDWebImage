@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		0D87E1F83BD319CEC7622E9F /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0462A7F023A057322E59B3C5 /* libPods-Tests.a */; };
 		1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
+		433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */; };
+		433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB61D7EF8200086B6E9 /* TestImage.gif */; };
+		433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
+		433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */; };
 		5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
 		DA248D59195472AA00390AB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D58195472AA00390AB0 /* Foundation.framework */; };
@@ -22,6 +26,10 @@
 /* Begin PBXFileReference section */
 		0462A7F023A057322E59B3C5 /* libPods-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderTests.m; sourceTree = "<group>"; };
+		433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoderTests.m; sourceTree = "<group>"; };
+		433BBBB61D7EF8200086B6E9 /* TestImage.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = TestImage.gif; sourceTree = "<group>"; };
+		433BBBB81D7EF8260086B6E9 /* TestImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestImage.png; sourceTree = "<group>"; };
+		433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MonochromeTestImage.jpg; sourceTree = "<group>"; };
 		5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TestImage.jpg; sourceTree = "<group>"; };
 		700B00151041D7EE118B1ABD /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		A0085854E7D88C98F2F6C9FC /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -93,12 +101,16 @@
 		DA248D5C195472AA00390AB0 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
+				433BBBB61D7EF8200086B6E9 /* TestImage.gif */,
 				5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */,
+				433BBBB81D7EF8260086B6E9 /* TestImage.png */,
 				DA248D5D195472AA00390AB0 /* Supporting Files */,
 				DA248D68195475D800390AB0 /* SDImageCacheTests.m */,
 				DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */,
 				DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */,
 				1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */,
+				433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -167,7 +179,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
+				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
 				DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */,
+				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
+				433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +244,7 @@
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
 				DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */,
 				DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */,
+				433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */,
 				DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

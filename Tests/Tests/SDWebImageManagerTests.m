@@ -14,8 +14,6 @@
 
 #import "SDWebImageManager.h"
 
-static int64_t kAsyncTestTimeout = 5;
-
 
 @interface SDWebImageManagerTests : XCTestCase
 

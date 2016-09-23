@@ -435,6 +435,18 @@
 		43A62A641D0E0A8F0089D7DD /* vp8li.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D681998E6B2007367ED /* vp8li.h */; };
 		43A62A651D0E0A8F0089D7DD /* webp.c in Sources */ = {isa = PBXBuildFile; fileRef = DA577D691998E6B2007367ED /* webp.c */; };
 		43A62A661D0E0A8F0089D7DD /* webpi.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D6A1998E6B2007367ED /* webpi.h */; };
+		43A918641D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918651D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918671D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918681D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918691D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A9186B1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
+		43A9186C1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
+		43A9186D1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
+		43A9186E1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
+		43A9186F1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
+		43A918701D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
 		43CE75761CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		43CE75771CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		43CE75781CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -882,6 +894,8 @@
 		4397D2F21D0DDD8C00BB2784 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+WebCache.h"; sourceTree = "<group>"; };
 		4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+WebCache.m"; sourceTree = "<group>"; };
+		43A918621D8308FE00B3925F /* SDImageCacheConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCacheConfig.h; sourceTree = "<group>"; };
+		43A918631D8308FE00B3925F /* SDImageCacheConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCacheConfig.m; sourceTree = "<group>"; };
 		43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImage.h; sourceTree = "<group>"; };
 		43CE754A1CFE9427006C64D0 /* FLAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLAnimatedImage.m; sourceTree = "<group>"; };
 		43CE754B1CFE9427006C64D0 /* FLAnimatedImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImageView.h; sourceTree = "<group>"; };
@@ -1218,6 +1232,8 @@
 			children = (
 				53922D85148C56230056699D /* SDImageCache.h */,
 				53922D86148C56230056699D /* SDImageCache.m */,
+				43A918621D8308FE00B3925F /* SDImageCacheConfig.h */,
+				43A918631D8308FE00B3925F /* SDImageCacheConfig.m */,
 			);
 			name = Cache;
 			sourceTree = "<group>";
@@ -1417,6 +1433,7 @@
 				431739361CDFC8B20008FEB9 /* bit_reader_inl.h in Headers */,
 				4317393A1CDFC8B20008FEB9 /* color_cache.h in Headers */,
 				431738E11CDFC8A40008FEB9 /* webpi.h in Headers */,
+				43A918671D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				431739571CDFC8B70008FEB9 /* encode.h in Headers */,
 				431739351CDFC8B20008FEB9 /* bit_reader.h in Headers */,
 				43DA7D5D1D1086600028BE58 /* mips_macro.h in Headers */,
@@ -1488,6 +1505,7 @@
 				43DA7CFE1D10865E0028BE58 /* yuv.h in Headers */,
 				4314D1711D0E0E3B004B36C9 /* huffman.h in Headers */,
 				4314D1721D0E0E3B004B36C9 /* SDWebImageCompat.h in Headers */,
+				43A918651D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				4314D1731D0E0E3B004B36C9 /* vp8li.h in Headers */,
 				4314D1741D0E0E3B004B36C9 /* types.h in Headers */,
 				4314D1761D0E0E3B004B36C9 /* decode.h in Headers */,
@@ -1575,6 +1593,7 @@
 				431BB6F91D06D2C1006A3455 /* UIImage+GIF.h in Headers */,
 				431BB6FA1D06D2C1006A3455 /* SDWebImageDownloader.h in Headers */,
 				431BB6FC1D06D2C1006A3455 /* SDWebImageDecoder.h in Headers */,
+				43A918681D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1606,6 +1625,7 @@
 				4397D2D11D0DDD8C00BB2784 /* decode.h in Headers */,
 				4397D2D21D0DDD8C00BB2784 /* webpi.h in Headers */,
 				43DA7DCB1D1086610028BE58 /* mips_macro.h in Headers */,
+				43A918691D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				4397D2D31D0DDD8C00BB2784 /* thread.h in Headers */,
 				4397D2D41D0DDD8C00BB2784 /* quant_levels.h in Headers */,
 				4397D2D51D0DDD8C00BB2784 /* bit_reader_inl.h in Headers */,
@@ -1650,6 +1670,7 @@
 				4A2CAE041AB4BB5400B6BC39 /* SDWebImage.h in Headers */,
 				431739511CDFC8B70008FEB9 /* format_constants.h in Headers */,
 				431739231CDFC8B20008FEB9 /* filters.h in Headers */,
+				43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				4A2CAE211AB4BB7000B6BC39 /* SDWebImageManager.h in Headers */,
 				4A2CAE1F1AB4BB6C00B6BC39 /* SDImageCache.h in Headers */,
 				43DA7D261D10865F0028BE58 /* mips_macro.h in Headers */,
@@ -1755,6 +1776,7 @@
 				53EDFB8A17623F7C00698166 /* UIImage+MultiFormat.h in Headers */,
 				4317387B1CDFC2580008FEB9 /* decode_vp8.h in Headers */,
 				431738B61CDFC2630008FEB9 /* random.h in Headers */,
+				43A918641D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2017,6 +2039,7 @@
 				43DA7D361D1086600028BE58 /* alpha_processing_sse41.c in Sources */,
 				43DA7D641D1086600028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				431739461CDFC8B20008FEB9 /* random.c in Sources */,
+				43A9186E1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				43DA7D3D1D1086600028BE58 /* cost_sse2.c in Sources */,
 				431738DB1CDFC8A40008FEB9 /* tree.c in Sources */,
 				00733A581BC4880000A5A117 /* SDWebImageManager.m in Sources */,
@@ -2119,6 +2142,7 @@
 				43DA7CFD1D10865E0028BE58 /* yuv.c in Sources */,
 				4314D1401D0E0E3B004B36C9 /* UIImageView+WebCache.m in Sources */,
 				43DA7CDC1D10865E0028BE58 /* enc_mips32.c in Sources */,
+				43A9186C1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				4314D1411D0E0E3B004B36C9 /* SDWebImageDownloaderOperation.m in Sources */,
 				43DA7CCE1D10865E0028BE58 /* cost_mips32.c in Sources */,
 				4314D1421D0E0E3B004B36C9 /* webp.c in Sources */,
@@ -2215,6 +2239,7 @@
 				43DA7DA21D1086600028BE58 /* yuv.c in Sources */,
 				431BB6B91D06D2C1006A3455 /* UIButton+WebCache.m in Sources */,
 				43DA7D811D1086600028BE58 /* enc_mips32.c in Sources */,
+				43A9186F1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				43A62A5F1D0E0A8F0089D7DD /* quant.c in Sources */,
 				43DA7D731D1086600028BE58 /* cost_mips32.c in Sources */,
 				431BB6BD1D06D2C1006A3455 /* UIImage+GIF.m in Sources */,
@@ -2335,6 +2360,7 @@
 				4397D2AA1D0DDD8C00BB2784 /* io.c in Sources */,
 				43DA7DCF1D1086610028BE58 /* rescaler_neon.c in Sources */,
 				43DA7DC31D1086610028BE58 /* lossless_enc_sse2.c in Sources */,
+				43A918701D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				4397D2AB1D0DDD8C00BB2784 /* UIView+WebCacheOperation.m in Sources */,
 				43DA7DA91D1086610028BE58 /* cost_mips_dsp_r2.c in Sources */,
 				43DA7DB01D1086610028BE58 /* dec_mips32.c in Sources */,
@@ -2407,6 +2433,7 @@
 				43DA7CFF1D10865F0028BE58 /* alpha_processing_sse41.c in Sources */,
 				43DA7D2D1D10865F0028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				4A2CAE261AB4BB7000B6BC39 /* SDWebImagePrefetcher.m in Sources */,
+				43A9186D1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				43DA7D061D10865F0028BE58 /* cost_sse2.c in Sources */,
 				4317391F1CDFC8B20008FEB9 /* color_cache.c in Sources */,
 				4A2CAE301AB4BB7500B6BC39 /* UIImage+MultiFormat.m in Sources */,
@@ -2507,6 +2534,7 @@
 				43DA7C911D1086570028BE58 /* alpha_processing_sse41.c in Sources */,
 				43DA7CBF1D1086570028BE58 /* upsampling_mips_dsp_r2.c in Sources */,
 				5376130D155AD0D5005750A4 /* SDWebImagePrefetcher.m in Sources */,
+				43A9186B1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */,
 				43DA7C981D1086570028BE58 /* cost_sse2.c in Sources */,
 				431738A81CDFC2630008FEB9 /* color_cache.c in Sources */,
 				5376130E155AD0D5005750A4 /* UIButton+WebCache.m in Sources */,
@@ -2847,7 +2875,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"SD_WEBP=1",
 					"DEBUG=1",
 					"$(inherited)",
 				);
@@ -2901,10 +2928,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"SD_WEBP=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
