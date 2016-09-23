@@ -66,17 +66,6 @@
     }
 }
 
-- (BOOL)cachedImageExistsForURL:(nullable NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    if ([self.imageCache imageFromMemoryCacheForKey:key] != nil) return YES;
-    return [self.imageCache diskImageExistsWithKey:key];
-}
-
-- (BOOL)diskImageExistsForURL:(nullable NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    return [self.imageCache diskImageExistsWithKey:key];
-}
-
 - (void)cachedImageExistsForURL:(nullable NSURL *)url
                      completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
