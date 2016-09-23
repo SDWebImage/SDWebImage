@@ -79,8 +79,8 @@ static char imageURLKey;
                     completedBlock(image, error, cacheType, url);
                     return;
                 } else if (image) {
-                    NSString *imageContentType = [NSData sd_contentTypeForImageData:data];
-                    if ([imageContentType isEqualToString:@"image/gif"]) {
+                    SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+                    if (imageFormat == SDImageFormatGIF) {
                         wself.animatedImage = [FLAnimatedImage animatedImageWithGIFData:data];
                         wself.image = nil;
                     } else {

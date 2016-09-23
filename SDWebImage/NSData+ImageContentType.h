@@ -9,15 +9,24 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, SDImageFormat) {
+    SDImageFormatUndefined = -1,
+    SDImageFormatJPEG = 0,
+    SDImageFormatPNG,
+    SDImageFormatGIF,
+    SDImageFormatTIFF,
+    SDImageFormatWebP
+};
+
 @interface NSData (ImageContentType)
 
 /**
- *  Compute the content type for an image data
+ *  Return image format
  *
- *  @param data the input data
+ *  @param data the input image data
  *
- *  @return the content type as string (i.e. image/jpeg, image/gif)
+ *  @return the image format as `SDImageFormat` (enum)
  */
-+ (nullable NSString *)sd_contentTypeForImageData:(nullable NSData *)data;
++ (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data;
 
 @end

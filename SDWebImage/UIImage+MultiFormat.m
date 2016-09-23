@@ -23,12 +23,12 @@
     }
     
     UIImage *image;
-    NSString *imageContentType = [NSData sd_contentTypeForImageData:data];
-    if ([imageContentType isEqualToString:@"image/gif"]) {
+    SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+    if (imageFormat == SDImageFormatGIF) {
         image = [UIImage sd_animatedGIFWithData:data];
     }
 #ifdef SD_WEBP
-    else if ([imageContentType isEqualToString:@"image/webp"])
+    else if (imageFormat == SDImageFormatWebP)
     {
         image = [UIImage sd_imageWithWebPData:data];
     }
