@@ -13,7 +13,6 @@
 @property (strong, nonatomic) SDWebImageManager *manager;
 @property (strong, nonatomic) NSMutableOrderedSet *prefetchURLs;
 @property (strong, nonatomic) NSMutableDictionary *unfinishedOperations;
-@property (strong, nonatomic) NSArray *prefetchURLs;
 @property (assign, nonatomic) NSUInteger requestedCount;
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
