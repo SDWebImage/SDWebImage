@@ -132,11 +132,14 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key;
 
 /**
- * Query the disk cache asynchronously.
+ * Query the cache asynchronously and call the completion when done.
  *
- * @param key The unique key used to store the wanted image
+ * @param key       The unique key used to store the wanted image
+ * @param doneBlock The completion block
+ *
+ * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryDiskCacheForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
 
 /**
  * Query the memory cache synchronously.
