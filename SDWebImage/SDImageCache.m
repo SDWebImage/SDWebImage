@@ -209,10 +209,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
-    
-    if (!imageData) {
+    if (!imageData || !key) {
         return;
     }
+    
+    const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+    const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
+    NSAssert(strcmp(currentQueueLabel, ioQueueLabel) == 0, @"This method should be called from the ioQueue");
     
     if (![_fileManager fileExistsAtPath:_diskCachePath]) {
         [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
