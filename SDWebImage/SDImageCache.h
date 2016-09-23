@@ -93,35 +93,48 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (void)addReadOnlyCachePath:(nonnull NSString *)path;
 
-/**
- * Store an image into memory and disk cache at the given key.
- *
- * @param image The image to store
- * @param key   The unique image cache key, usually it's image absolute URL
- */
-- (void)storeImage:(nullable UIImage *)image forKey:(nullable NSString *)key;
+#pragma mark - Store Ops
 
 /**
- * Store an image into memory and optionally disk cache at the given key.
+ * Asynchronously store an image into memory and disk cache at the given key.
  *
- * @param image  The image to store
- * @param key    The unique image cache key, usually it's image absolute URL
- * @param toDisk Store the image to disk cache if YES
+ * @param image      The image to store
+ * @param key        The unique image cache key, usually it's image absolute URL
+ * @param completion A block executed after the operation is finished
  */
-- (void)storeImage:(nullable UIImage *)image forKey:(nullable NSString *)key toDisk:(BOOL)toDisk;
+- (void)storeImage:(nullable UIImage *)image
+            forKey:(nullable NSString *)key
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
- * Store an image into memory and optionally disk cache at the given key.
+ * Asynchronously store an image into memory and disk cache at the given key.
  *
- * @param image       The image to store
- * @param recalculate BOOL indicates if imageData can be used or a new data should be constructed from the UIImage
- * @param imageData   The image data as returned by the server, this representation will be used for disk storage
- *                    instead of converting the given image object into a storable/compressed image format in order
- *                    to save quality and CPU
- * @param key         The unique image cache key, usually it's image absolute URL
- * @param toDisk      Store the image to disk cache if YES
+ * @param image      The image to store
+ * @param key        The unique image cache key, usually it's image absolute URL
+ * @param toDisk     Store the image to disk cache if YES
+ * @param completion A block executed after the operation is finished
  */
-- (void)storeImage:(nullable UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(nullable NSData *)imageData forKey:(nullable NSString *)key toDisk:(BOOL)toDisk;
+- (void)storeImage:(nullable UIImage *)image
+            forKey:(nullable NSString *)key
+            toDisk:(BOOL)toDisk
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+
+/**
+ * Asynchronously store an image into memory and disk cache at the given key.
+ *
+ * @param image      The image to store
+ * @param imageData  The image data as returned by the server, this representation will be used for disk storage
+ *                   instead of converting the given image object into a storable/compressed image format in order
+ *                   to save quality and CPU
+ * @param key        The unique image cache key, usually it's image absolute URL
+ * @param toDisk     Store the image to disk cache if YES
+ * @param completion A block executed after the operation is finished
+ */
+- (void)storeImage:(nullable UIImage *)image
+         imageData:(nullable NSData *)imageData
+            forKey:(nullable NSString *)key
+            toDisk:(BOOL)toDisk
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Synchronously store image NSData into disk cache at the given key.

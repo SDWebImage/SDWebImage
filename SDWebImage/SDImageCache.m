@@ -176,8 +176,30 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
-- (void)storeImage:(nullable UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(nullable NSData *)imageData forKey:(nullable  NSString *)key toDisk:(BOOL)toDisk {
+#pragma mark - Store Ops
+
+- (void)storeImage:(nullable UIImage *)image
+            forKey:(nullable NSString *)key
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    [self storeImage:image imageData:nil forKey:key toDisk:YES completion:completionBlock];
+}
+
+- (void)storeImage:(nullable UIImage *)image
+            forKey:(nullable NSString *)key
+            toDisk:(BOOL)toDisk
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
+}
+
+- (void)storeImage:(nullable UIImage *)image
+         imageData:(nullable NSData *)imageData
+            forKey:(nullable NSString *)key
+            toDisk:(BOOL)toDisk
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
     if (!image || !key) {
+        if (completionBlock) {
+            completionBlock();
+        }
         return;
     }
     // if memory cache is enabled
@@ -185,7 +207,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         NSUInteger cost = SDCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
-
+    
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
             NSData *data = imageData;
@@ -194,18 +216,19 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
                 data = [image sd_imageDataAsFormat:imageFormatFromData];
             }
-
+            
             [self storeImageDataToDisk:data forKey:key];
+            if (completionBlock) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completionBlock();
+                });
+            }
         });
+    } else {
+        if (completionBlock) {
+            completionBlock();
+        }
     }
-}
-
-- (void)storeImage:(nullable UIImage *)image forKey:(nullable NSString *)key {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:YES];
-}
-
-- (void)storeImage:(nullable UIImage *)image forKey:(nullable NSString *)key toDisk:(BOOL)toDisk {
-    [self storeImage:image recalculateFromImage:YES imageData:nil forKey:key toDisk:toDisk];
 }
 
 - (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
