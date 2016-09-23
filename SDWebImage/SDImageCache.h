@@ -227,15 +227,6 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 /**
- *  Check if image exists in disk cache already (does not load the image)
- *
- *  @param key the key describing the url
- *
- *  @return YES if an image exists for the given key
- */
-- (BOOL)diskImageExistsWithKey:(nullable NSString *)key;
-
-/**
  *  Get the cache path for a certain key (needs the cache path root folder)
  *
  *  @param key  the key (can be obtained from url using cacheKeyForURL)

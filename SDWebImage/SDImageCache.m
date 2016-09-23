@@ -231,21 +231,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 }
 
-- (BOOL)diskImageExistsWithKey:(nullable NSString *)key {
-    BOOL exists = NO;
-    
-    // this is an exception to access the filemanager on another queue than ioQueue, but we are using the shared instance
-    // from apple docs on NSFileManager: The methods of the shared NSFileManager object can be called from multiple threads safely.
-    exists = [[NSFileManager defaultManager] fileExistsAtPath:[self defaultCachePathForKey:key]];
-
-    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-    // checking the key with and without the extension
-    if (!exists) {
-        exists = [[NSFileManager defaultManager] fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
-    }
-    
-    return exists;
-}
 
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     dispatch_async(_ioQueue, ^{
