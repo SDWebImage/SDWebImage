@@ -404,20 +404,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark - Remove Ops
 
-- (void)removeImageForKey:(nullable NSString *)key {
-    [self removeImageForKey:key withCompletion:nil];
-}
-
 - (void)removeImageForKey:(nullable NSString *)key withCompletion:(nullable SDWebImageNoParamsBlock)completion {
     [self removeImageForKey:key fromDisk:YES withCompletion:completion];
 }
 
-- (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk {
-    [self removeImageForKey:key fromDisk:fromDisk withCompletion:nil];
-}
-
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion {
-    
     if (key == nil) {
         return;
     }
