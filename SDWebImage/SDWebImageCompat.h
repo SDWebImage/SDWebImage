@@ -112,3 +112,5 @@ extern NSString *const SDWebImageErrorDomain;
     } else {\
         dispatch_async(dispatch_get_main_queue(), block);\
     }
+
+static int64_t kAsyncTestTimeout = 5;
