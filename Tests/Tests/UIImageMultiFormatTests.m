@@ -10,9 +10,9 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
+#import <Expecta/Expecta.h>
 
-#import "UIImage+MultiFormat.h"
+#import <SDWebImage/UIImage+MultiFormat.h>
 
 
 @interface UIImageMultiFormatTests : XCTestCase

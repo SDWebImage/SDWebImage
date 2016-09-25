@@ -11,9 +11,8 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
-
-#import "SDWebImageDecoder.h"
+#import <Expecta/Expecta.h>
+#import <SDWebImage/SDWebImageDecoder.h>
 
 @interface SDWebImageDecoderTests : XCTestCase
 

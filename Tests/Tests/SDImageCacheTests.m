@@ -10,9 +10,9 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
+#import <Expecta/Expecta.h>
 
-#import "SDImageCache.h"
+#import <SDWebImage/SDImageCache.h>
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
 

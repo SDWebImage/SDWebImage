@@ -10,9 +10,9 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
+#import <Expecta/Expecta.h>
 
-#import "SDWebImageManager.h"
+#import <SDWebImage/SDWebImageManager.h>
 
 NSString *workingImageURL = @"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg";
 

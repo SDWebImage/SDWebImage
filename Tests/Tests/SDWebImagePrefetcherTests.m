@@ -11,9 +11,9 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
+#import <Expecta/Expecta.h>
 
-#import "SDWebImagePrefetcher.h"
+#import <SDWebImage/SDWebImagePrefetcher.h>
 
 @interface SDWebImagePrefetcherTests : XCTestCase
 

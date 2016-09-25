@@ -11,10 +11,10 @@
 
 
 #import <XCTest/XCTest.h>
-#import <Expecta.h>
+#import <Expecta/Expecta.h>
 
-#import "SDWebImageDownloader.h"
-#import "SDWebImageDownloaderOperation.h"
+#import <SDWebImage/SDWebImageDownloader.h>
+#import <SDWebImage/SDWebImageDownloaderOperation.h>
 
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
