@@ -435,12 +435,12 @@
 		43A62A641D0E0A8F0089D7DD /* vp8li.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D681998E6B2007367ED /* vp8li.h */; };
 		43A62A651D0E0A8F0089D7DD /* webp.c in Sources */ = {isa = PBXBuildFile; fileRef = DA577D691998E6B2007367ED /* webp.c */; };
 		43A62A661D0E0A8F0089D7DD /* webpi.h in Headers */ = {isa = PBXBuildFile; fileRef = DA577D6A1998E6B2007367ED /* webpi.h */; };
-		43A918641D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
-		43A918651D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
-		43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
-		43A918671D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
-		43A918681D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
-		43A918691D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; };
+		43A918641D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		43A918651D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		43A918671D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		43A918681D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		43A918691D8308FE00B3925F /* SDImageCacheConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 43A918621D8308FE00B3925F /* SDImageCacheConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		43A9186B1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
 		43A9186C1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
 		43A9186D1D8308FE00B3925F /* SDImageCacheConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A918631D8308FE00B3925F /* SDImageCacheConfig.m */; };
