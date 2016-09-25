@@ -892,8 +892,8 @@
 		4314D1991D0E0E3B004B36C9 /* libSDWebImage watchOS static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSDWebImage watchOS static.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		431BB7031D06D2C1006A3455 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4397D2F21D0DDD8C00BB2784 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+WebCache.h"; sourceTree = "<group>"; };
-		4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+WebCache.m"; sourceTree = "<group>"; };
+		4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSImage+WebCache.h"; path = "SDWebImage/NSImage+WebCache.h"; sourceTree = "<group>"; };
+		4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSImage+WebCache.m"; path = "SDWebImage/NSImage+WebCache.m"; sourceTree = "<group>"; };
 		43A918621D8308FE00B3925F /* SDImageCacheConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCacheConfig.h; sourceTree = "<group>"; };
 		43A918631D8308FE00B3925F /* SDImageCacheConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCacheConfig.m; sourceTree = "<group>"; };
 		43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImage.h; sourceTree = "<group>"; };
@@ -999,8 +999,8 @@
 		A18A6CC6172DC28500419892 /* UIImage+GIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+GIF.m"; sourceTree = "<group>"; };
 		AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+WebCacheOperation.h"; sourceTree = "<group>"; };
 		AB615302192DA24600A2D8E9 /* UIView+WebCacheOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCacheOperation.m"; sourceTree = "<group>"; };
-		ABBE71A518C43B4D00B75E91 /* UIImageView+HighlightedWebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+HighlightedWebCache.h"; sourceTree = "<group>"; };
-		ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+HighlightedWebCache.m"; sourceTree = "<group>"; };
+		ABBE71A518C43B4D00B75E91 /* UIImageView+HighlightedWebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+HighlightedWebCache.h"; path = "SDWebImage/UIImageView+HighlightedWebCache.h"; sourceTree = "<group>"; };
+		ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+HighlightedWebCache.m"; path = "SDWebImage/UIImageView+HighlightedWebCache.m"; sourceTree = "<group>"; };
 		DA577CA81998E60B007367ED /* bit_reader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bit_reader.c; sourceTree = "<group>"; };
 		DA577CA91998E60B007367ED /* bit_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bit_reader.h; sourceTree = "<group>"; };
 		DA577CAA1998E60B007367ED /* bit_reader_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bit_reader_inl.h; sourceTree = "<group>"; };
@@ -1103,6 +1103,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4369C2851D9811BB007E863A /* WebCache Categories */ = {
+			isa = PBXGroup;
+			children = (
+				4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */,
+				4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */,
+				535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */,
+				535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */,
+				53922D93148C56230056699D /* UIButton+WebCache.h */,
+				53922D94148C56230056699D /* UIButton+WebCache.m */,
+				ABBE71A518C43B4D00B75E91 /* UIImageView+HighlightedWebCache.h */,
+				ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */,
+				53922D95148C56230056699D /* UIImageView+WebCache.h */,
+				53922D96148C56230056699D /* UIImageView+WebCache.m */,
+			);
+			name = "WebCache Categories";
+			path = ..;
+			sourceTree = "<group>";
+		};
 		43CE75451CFE9427006C64D0 /* FLAnimatedImage */ = {
 			isa = PBXGroup;
 			children = (
@@ -1195,6 +1213,7 @@
 				53922DAA148C56470056699D /* Cache */,
 				53922DAC148C56DD0056699D /* Utils */,
 				53922DA9148C562D0056699D /* Categories */,
+				4369C2851D9811BB007E863A /* WebCache Categories */,
 				43CE75CD1CFE98B3006C64D0 /* FLAnimatedImage */,
 			);
 			path = SDWebImage;
@@ -1203,26 +1222,16 @@
 		53922DA9148C562D0056699D /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */,
-				535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */,
 				5D5B9140188EE8DD006D06BD /* NSData+ImageContentType.h */,
 				5D5B9141188EE8DD006D06BD /* NSData+ImageContentType.m */,
-				53922D93148C56230056699D /* UIButton+WebCache.h */,
-				53922D94148C56230056699D /* UIButton+WebCache.m */,
 				A18A6CC5172DC28500419892 /* UIImage+GIF.h */,
 				A18A6CC6172DC28500419892 /* UIImage+GIF.m */,
 				53EDFB8817623F7C00698166 /* UIImage+MultiFormat.h */,
 				53EDFB8917623F7C00698166 /* UIImage+MultiFormat.m */,
 				53EDFB911762547C00698166 /* UIImage+WebP.h */,
 				53EDFB921762547C00698166 /* UIImage+WebP.m */,
-				ABBE71A518C43B4D00B75E91 /* UIImageView+HighlightedWebCache.h */,
-				ABBE71A618C43B4D00B75E91 /* UIImageView+HighlightedWebCache.m */,
-				53922D95148C56230056699D /* UIImageView+WebCache.h */,
-				53922D96148C56230056699D /* UIImageView+WebCache.m */,
 				AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */,
 				AB615302192DA24600A2D8E9 /* UIView+WebCacheOperation.m */,
-				4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */,
-				4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
