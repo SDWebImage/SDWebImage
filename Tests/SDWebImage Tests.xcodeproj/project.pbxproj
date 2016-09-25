@@ -13,6 +13,7 @@
 		433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
 		433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */; };
 		4369C1D11D97F80F007E863A /* SDWebImagePrefetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */; };
+		4369C2741D9804B1007E863A /* SDCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C2731D9804B1007E863A /* SDCategoriesTests.m */; };
 		53F0240D24D359127872F512 /* Pods_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DAAA77E3CA7387F702040D9 /* Pods_Tests.framework */; };
 		5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
@@ -32,6 +33,7 @@
 		433BBBB81D7EF8260086B6E9 /* TestImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestImage.png; sourceTree = "<group>"; };
 		433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MonochromeTestImage.jpg; sourceTree = "<group>"; };
 		4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImagePrefetcherTests.m; sourceTree = "<group>"; };
+		4369C2731D9804B1007E863A /* SDCategoriesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDCategoriesTests.m; sourceTree = "<group>"; };
 		5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TestImage.jpg; sourceTree = "<group>"; };
 		700B00151041D7EE118B1ABD /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		A0085854E7D88C98F2F6C9FC /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */,
 				433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */,
 				4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */,
+				4369C2731D9804B1007E863A /* SDCategoriesTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
+				4369C2741D9804B1007E863A /* SDCategoriesTests.m in Sources */,
 				4369C1D11D97F80F007E863A /* SDWebImagePrefetcherTests.m in Sources */,
 				DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */,
 				DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */,
