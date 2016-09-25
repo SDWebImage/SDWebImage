@@ -88,11 +88,6 @@
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock;
 
-/**
- * Cancel the current download
- */
-- (void)sd_cancelCurrentHighlightedImageLoad;
-
 @end
 
 #endif

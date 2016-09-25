@@ -12,13 +12,7 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
-
-static char imageURLKey;
-#if SD_UIKIT
-static char TAG_ACTIVITY_INDICATOR;
-static char TAG_ACTIVITY_STYLE;
-#endif
-static char TAG_ACTIVITY_SHOW;
+#import "UIView+WebCache.h"
 
 @implementation UIImageView (WebCache)
 
@@ -51,65 +45,13 @@ static char TAG_ACTIVITY_SHOW;
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_cancelCurrentImageLoad];
-    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-    if (!(options & SDWebImageDelayPlaceholder)) {
-        dispatch_main_async_safe(^{
-            self.image = placeholder;
-        });
-    }
-    
-    if (url) {
-
-        // check if activityView is enabled or not
-        if ([self showActivityIndicatorView]) {
-            [self addActivityIndicator];
-        }
-
-        __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-            [wself removeActivityIndicator];
-            if (!wself) return;
-            dispatch_main_sync_safe(^{
-                if (!wself) return;
-                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
-                {
-                    completedBlock(image, error, cacheType, url);
-                    return;
-                }
-                else if (image) {
-                    wself.image = image;
-#if SD_UIKIT
-                    [wself setNeedsLayout];
-#elif SD_MAC
-                    [wself setNeedsLayout:YES];
-#endif
-                } else {
-                    if ((options & SDWebImageDelayPlaceholder)) {
-                        wself.image = placeholder;
-#if SD_UIKIT
-                        [wself setNeedsLayout];
-#elif SD_MAC
-                        [wself setNeedsLayout:YES];
-#endif
-                    }
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
-                }
-            });
-        }];
-        [self sd_setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
-    } else {
-        dispatch_main_async_safe(^{
-            [self removeActivityIndicator];
-            if (completedBlock) {
-                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
-                completedBlock(nil, error, SDImageCacheTypeNone, url);
-            }
-        });
-    }
+    [self sd_internalSetImageWithURL:url
+                    placeholderImage:placeholder
+                             options:options
+                        operationKey:nil
+                       setImageBlock:nil
+                            progress:progressBlock
+                           completed:completedBlock];
 }
 
 - (void)sd_setImageWithPreviousCachedImageWithURL:(nullable NSURL *)url
@@ -123,11 +65,10 @@ static char TAG_ACTIVITY_SHOW;
     [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock];    
 }
 
-- (nullable NSURL *)sd_imageURL {
-    return objc_getAssociatedObject(self, &imageURLKey);
-}
-
 #if SD_UIKIT
+
+#pragma mark - Animation of multiple images
+
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs {
     [self sd_cancelCurrentAnimationImagesLoad];
     __weak __typeof(self)wself = self;
@@ -158,87 +99,11 @@ static char TAG_ACTIVITY_SHOW;
 
     [self sd_setImageLoadOperation:[operationsArray copy] forKey:@"UIImageViewAnimationImages"];
 }
-#endif
 
-- (void)sd_cancelCurrentImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:@"UIImageViewImageLoad"];
-}
-
-#if SD_UIKIT
 - (void)sd_cancelCurrentAnimationImagesLoad {
     [self sd_cancelImageLoadOperationWithKey:@"UIImageViewAnimationImages"];
 }
 #endif
-
-#pragma mark -
-#if SD_UIKIT
-- (UIActivityIndicatorView *)activityIndicator {
-    return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
-}
-
-- (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
-}
-#endif
-
-- (void)setShowActivityIndicatorView:(BOOL)show {
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
-}
-
-- (BOOL)showActivityIndicatorView {
-    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
-}
-
-#if SD_UIKIT
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
-}
-
-- (int)getIndicatorStyle{
-    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
-}
-#endif
-
-- (void)addActivityIndicator {
-#if SD_UIKIT
-    if (!self.activityIndicator) {
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self getIndicatorStyle]];
-        self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
-
-        dispatch_main_async_safe(^{
-            [self addSubview:self.activityIndicator];
-
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterX
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterX
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterY
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterY
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-        });
-    }
-
-    dispatch_main_async_safe(^{
-        [self.activityIndicator startAnimating];
-    });
-#endif
-}
-
-- (void)removeActivityIndicator {
-#if SD_UIKIT
-    if (self.activityIndicator) {
-        [self.activityIndicator removeFromSuperview];
-        self.activityIndicator = nil;
-    }
-#endif
-}
 
 @end
 

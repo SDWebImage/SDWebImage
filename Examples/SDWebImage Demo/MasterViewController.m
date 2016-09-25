@@ -11,6 +11,7 @@
 #import "DetailViewController.h"
 #import <SDWebImage/FLAnimatedImageView.h>
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#import <SDWebImage/UIView+WebCache.h>
 
 
 @interface MyCustomTableViewCell : UITableViewCell
