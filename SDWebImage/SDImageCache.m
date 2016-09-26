@@ -101,10 +101,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
 
+        _cacheClearBy = SDImageCacheModifiedDate;
+        
         // Init the memory cache
         _memCache = [[AutoPurgeCache alloc] init];
         _memCache.name = fullNamespace;
-
+        
         // Init the disk cache
         if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
@@ -510,8 +512,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
-        NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
-
+        
+        // Remove files that are older than the expiration date and haven't been accessed since maxCacheAge expiry
+        
+        NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey, NSURLContentAccessDateKey];
+        
         // This enumerator prefetches useful properties for our cache files.
         NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtURL:diskCacheURL
                                                    includingPropertiesForKeys:resourceKeys
@@ -521,7 +526,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];
         NSUInteger currentCacheSize = 0;
-
+        
         // Enumerate all of the files in the cache directory.  This loop has two purposes:
         //
         //  1. Removing files that are older than the expiration date.
@@ -535,13 +540,26 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 continue;
             }
 
-            // Remove files that are older than the expiration date;
-            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
-            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-                [urlsToDelete addObject:fileURL];
+            NSDate *modifiedDate = resourceValues[NSURLContentModificationDateKey];
+            
+            if ([[modifiedDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
+                
+                if(_cacheClearBy == SDImageCacheAccessedDate)
+                {
+                    //Only clear the file if the file hasn't been accessed since the expiry as well
+                    NSDate *accessDate = resourceValues[NSURLContentAccessDateKey];
+                    if ([[accessDate laterDate:expirationDate] isEqualToDate:expirationDate])
+                    {
+                        [urlsToDelete addObject:fileURL];
+                    }
+                }
+                else
+                {
+                    [urlsToDelete addObject:fileURL];
+                }
                 continue;
             }
-
+            
             // Store a reference to this file and account for its total size.
             NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
             currentCacheSize += [totalAllocatedSize unsignedIntegerValue];
