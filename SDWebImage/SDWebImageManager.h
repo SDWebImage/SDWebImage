@@ -87,7 +87,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * have the hand before setting the image (apply a filter or add it with cross-fade animation for instance)
      * Use this flag if you want to manually set the image in the completion when success
      */
-    SDWebImageAvoidAutoSetImage = 1 << 11
+    SDWebImageAvoidAutoSetImage = 1 << 11,
+
+    /**
+     *
+     * By default, image is added to the imageView/CALayer after download. But in some cases, we want to
+     * Delay the action (In order to guarantee the UIScrollView scrolling smoothness, only in the main thread RunLoop spare time )。
+     */
+    SDWebImageDelaySetContents = 1 << 12,
 };
 
 typedef void(^SDWebImageCompletionBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL);
