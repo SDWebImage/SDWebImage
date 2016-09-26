@@ -49,6 +49,10 @@ static char TAG_ACTIVITY_SHOW;
         dispatch_main_async_safe(^{
             self.image = placeholder;
         });
+    } else {
+        dispatch_main_async_safe(^{
+            self.image = nil;
+        });
     }
     
     if (url) {
