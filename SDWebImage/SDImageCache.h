@@ -43,6 +43,11 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
+ *  [defaults to YES]
+ */
+@property (assign, nonatomic) BOOL shouldScaleImage;
+
+/**
  *  disable iCloud backup [defaults to YES]
  */
 @property (assign, nonatomic) BOOL shouldDisableiCloud;

@@ -75,6 +75,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     if ((self = [super init])) {
         _request = [request copy];
         _shouldDecompressImages = YES;
+        _shouldScaleImage = YES;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
@@ -416,7 +417,10 @@ didReceiveResponse:(NSURLResponse *)response
             } else if (self.imageData) {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = [self scaledImageForKey:key image:image];
+                
+                if (self.shouldScaleImage) {
+                    image = [self scaledImageForKey:key image:image];
+                }
                 
                 // Do not force decoding animated GIFs
                 if (!image.images) {

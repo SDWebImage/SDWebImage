@@ -83,6 +83,8 @@ typedef NSDictionary *(^SDWebImageDownloaderHeadersFilterBlock)(NSURL *url, NSDi
  */
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
+@property (assign, nonatomic) BOOL shouldScaleImage;
+
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
 /**

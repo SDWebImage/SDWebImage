@@ -30,6 +30,8 @@ extern NSString *const SDWebImageDownloadFinishNotification;
 
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
+@property (assign, nonatomic) BOOL shouldScaleImage;
+
 /**
  *  Was used to determine whether the URL connection should consult the credential storage for authenticating the connection.
  *  @deprecated Not used for a couple of versions
