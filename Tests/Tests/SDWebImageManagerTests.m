@@ -13,9 +13,13 @@
 #import <Expecta.h>
 
 #import "SDWebImageManager.h"
+#import "SDWebImageDownloaderOperation.h"
 
 static int64_t kAsyncTestTimeout = 5;
 
+@interface SDWebImageDownloader (Tests)
+@property (strong, nonatomic) NSOperationQueue *downloadQueue;
+@end
 
 @interface SDWebImageManagerTests : XCTestCase
 
@@ -69,4 +73,21 @@ static int64_t kAsyncTestTimeout = 5;
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
+- (void)testThatDownloadQueuePrioritiesUpgrade  {
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage000.jpg"];
+    
+    SDWebImageDownloader *downloader = [[SDWebImageManager sharedManager] imageDownloader];
+    [downloader downloadImageWithURL:originalImageURL options:SDWebImageDownloaderLowPriority progress:nil completed:nil];
+    // immediately transition to high priority
+    [downloader downloadImageWithURL:originalImageURL options:SDWebImageDownloaderHighPriority progress:nil completed:nil];
+    
+    BOOL found = NO;
+    for (SDWebImageDownloaderOperation *operation in downloader.downloadQueue.operations) {
+        if (operation.request.URL == originalImageURL) {
+            found = YES;
+            expect(operation.queuePriority).to.equal(NSOperationQueuePriorityHigh);
+        }
+    }
+    expect(found).to.equal(YES);
+}
 @end

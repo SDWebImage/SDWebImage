@@ -135,6 +135,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     __block SDWebImageDownloaderOperation *operation;
     __weak __typeof(self)wself = self;
 
+    [self transitionOptions:options forURL:url];
     [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^{
         NSTimeInterval timeoutInterval = wself.downloadTimeout;
         if (timeoutInterval == 0.0) {
@@ -213,6 +214,18 @@ static NSString *const kCompletedCallbackKey = @"completed";
     }];
 
     return operation;
+}
+
+- (void)transitionOptions:(SDWebImageDownloaderOptions)options forURL:(NSURL *)url {
+    // find the appropriate operation if it exists and is running or queued
+    // only supports SDWebImageDownloaderOperation
+    for (NSOperation *operation in self.downloadQueue.operations) {
+        SDWebImageDownloaderOperation *downloaderOperation = (SDWebImageDownloaderOperation *)operation;
+        if (!operation.finished && [downloaderOperation isKindOfClass:[SDWebImageDownloaderOperation class]] && [[[downloaderOperation request] URL] isEqual:url]) {
+            // found the request, transition to possibly modified queue priority
+            [downloaderOperation updateTaskWithOptions:options];
+        }
+    }
 }
 
 - (void)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {

@@ -131,6 +131,7 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         }
         
         self.dataTask = [session dataTaskWithRequest:self.request];
+        [self updateTaskWithOptions:self.options];
         self.executing = YES;
         self.thread = [NSThread currentThread];
     }
@@ -233,6 +234,19 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
 - (BOOL)isConcurrent {
     return YES;
+}
+
+- (void)updateTaskWithOptions:(SDWebImageDownloaderOptions)options {
+    // found the request, transition to possibly modified queue priority
+    if (options & SDWebImageDownloaderHighPriority) {
+        self.queuePriority = NSOperationQueuePriorityHigh;
+        self.dataTask.priority = NSURLSessionTaskPriorityHigh;
+    } else if (options & SDWebImageDownloaderLowPriority) {
+        // no-op, we never want to downgrade downloads implicitly
+    } else {
+        self.queuePriority = NSOperationQueuePriorityNormal;
+        self.dataTask.priority = NSURLSessionTaskPriorityDefault;
+    }
 }
 
 #pragma mark NSURLSessionDataDelegate

@@ -103,4 +103,13 @@ extern NSString *const SDWebImageDownloadFinishNotification;
             cancelled:(SDWebImageNoParamsBlock)cancelBlock
 __deprecated_msg("Method deprecated. Use `initWithRequest:inSession:options:progress:completed:cancelled`");
 
+/**
+ *  Updates the operation with new options
+ *
+ *  Modifies both the queue priority and the session priority as they are different stacks
+ *
+ *  @param options        the downloading options
+ */
+- (void)updateTaskWithOptions:(SDWebImageDownloaderOptions)options;
+
 @end
