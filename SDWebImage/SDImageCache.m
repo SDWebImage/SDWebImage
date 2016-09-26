@@ -231,7 +231,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 }
 
                 if (imageIsPng) {
-                    data = UIImagePNGRepresentation(image);
+                    if(image.imageOrientation!=0)//PNGs do not support a rotation flag
+                        data = UIImagePNGRepresentation([image imageWithNoOrientation]);
+                    else
+                        data = UIImagePNGRepresentation(image);
                 }
                 else {
                     data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
