@@ -24,4 +24,7 @@ script:
 
     - pod install --project-directory=Tests
     - xctool -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator clean
-    - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test
+    - xctool -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
