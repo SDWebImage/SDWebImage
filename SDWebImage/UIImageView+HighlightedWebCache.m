@@ -11,8 +11,7 @@
 #if SD_UIKIT
 
 #import "UIView+WebCacheOperation.h"
-
-#define UIImageViewHighlightedWebCacheOperationKey @"highlightedImage"
+#import "UIView+WebCache.h"
 
 @implementation UIImageView (HighlightedWebCache)
 
@@ -36,41 +35,16 @@
                               options:(SDWebImageOptions)options
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_cancelCurrentHighlightedImageLoad];
-
-    if (url) {
-        __weak __typeof(self)wself = self;
-        id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-            if (!wself) return;
-            dispatch_main_sync_safe (^{
-                if (!wself) return;
-                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
-                {
-                    completedBlock(image, error, cacheType, url);
-                    return;
-                }
-                else if (image) {
-                    wself.highlightedImage = image;
-                    [wself setNeedsLayout];
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
-                }
-            });
-        }];
-        [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
-    } else {
-        dispatch_main_async_safe(^{
-            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
-            if (completedBlock) {
-                completedBlock(nil, error, SDImageCacheTypeNone, url);
-            }
-        });
-    }
-}
-
-- (void)sd_cancelCurrentHighlightedImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:UIImageViewHighlightedWebCacheOperationKey];
+    __weak typeof(self)weakSelf = self;
+    [self sd_internalSetImageWithURL:url
+                    placeholderImage:nil
+                             options:options
+                        operationKey:@"UIImageViewImageOperationHighlighted"
+                       setImageBlock:^(UIImage *image, NSData *imageData) {
+                           weakSelf.highlightedImage = image;
+                       }
+                            progress:progressBlock
+                           completed:completedBlock];
 }
 
 @end

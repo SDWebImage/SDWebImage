@@ -11,9 +11,9 @@
 #if SD_UIKIT
 
 #if COCOAPODS
-    @import FLAnimatedImage;
+@import FLAnimatedImage;
 #else
-    #import "FLAnimatedImageView.h"
+#import "FLAnimatedImageView.h"
 #endif
 
 #import "SDWebImageManager.h"
@@ -24,14 +24,6 @@
  *  Very similar to the base class category (UIImageView (WebCache))
  */
 @interface FLAnimatedImageView (WebCache)
-
-/**
- * Get the current image URL.
- *
- * Note that because of the limitations of categories this property can get out of sync
- * if you use setImage: directly.
- */
-- (nullable NSURL *)sd_imageURL;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -135,11 +127,6 @@
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
-
-/**
- * Cancel the image load
- */
-- (void)sd_cancelCurrentImageLoad;
 
 @end
 

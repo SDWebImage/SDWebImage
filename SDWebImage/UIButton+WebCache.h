@@ -22,6 +22,8 @@
  */
 - (nullable NSURL *)sd_currentImageURL;
 
+#pragma mark - Image
+
 /**
  * Get the image URL for a control state.
  * 
@@ -126,6 +128,8 @@
                    options:(SDWebImageOptions)options
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
+#pragma mark - Background image
+
 /**
  * Set the backgroundImageView `image` with an `url`.
  *
@@ -221,6 +225,8 @@
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+#pragma mark - Cancel
 
 /**
  * Cancel the current image download

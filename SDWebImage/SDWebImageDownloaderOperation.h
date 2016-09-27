@@ -15,7 +15,30 @@ extern NSString * _Nonnull const SDWebImageDownloadReceiveResponseNotification;
 extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
 extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
 
-@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+
+
+/**
+ Describes a downloader operation. If one wants to use a custom downloader op, it needs to inherit from `NSOperation` and conform to this protocol
+ */
+@protocol SDWebImageDownloaderOperationInterface<NSObject>
+
+- (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
+                              inSession:(nullable NSURLSession *)session
+                                options:(SDWebImageDownloaderOptions)options;
+
+- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+
+- (BOOL)shouldDecompressImages;
+- (void)setShouldDecompressImages:(BOOL)value;
+
+- (nullable NSURLCredential *)credential;
+- (void)setCredential:(nullable NSURLCredential *)value;
+
+@end
+
+
+@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperationInterface, SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 /**
  * The request used by the operation's task.

@@ -66,17 +66,6 @@
     }
 }
 
-- (BOOL)cachedImageExistsForURL:(nullable NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    if ([self.imageCache imageFromMemoryCacheForKey:key] != nil) return YES;
-    return [self.imageCache diskImageExistsWithKey:key];
-}
-
-- (BOOL)diskImageExistsForURL:(nullable NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    return [self.imageCache diskImageExistsWithKey:key];
-}
-
 - (void)cachedImageExistsForURL:(nullable NSURL *)url
                      completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
@@ -154,7 +143,7 @@
     }
     NSString *key = [self cacheKeyForURL:url];
 
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
+    operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
             @synchronized (self.runningOperations) {
                 [self.runningOperations removeObject:operation];
@@ -229,7 +218,8 @@
 
                             if (transformedImage && finished) {
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                                [self.imageCache storeImage:transformedImage recalculateFromImage:imageWasTransformed imageData:(imageWasTransformed ? nil : downloadedData) forKey:key toDisk:cacheOnDisk];
+                                // pass nil if the image was transformed, so we can recalculate the data from the image
+                                [self.imageCache storeImage:transformedImage imageData:(imageWasTransformed ? nil : downloadedData) forKey:key toDisk:cacheOnDisk completion:nil];
                             }
 
                             dispatch_main_sync_safe(^{
@@ -240,7 +230,7 @@
                         });
                     } else {
                         if (downloadedImage && finished) {
-                            [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:downloadedData forKey:key toDisk:cacheOnDisk];
+                            [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
                         }
 
                         dispatch_main_sync_safe(^{
@@ -299,7 +289,7 @@
 - (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url {
     if (image && url) {
         NSString *key = [self cacheKeyForURL:url];
-        [self.imageCache storeImage:image forKey:key toDisk:YES];
+        [self.imageCache storeImage:image forKey:key toDisk:YES completion:nil];
     }
 }
 

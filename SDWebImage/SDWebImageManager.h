@@ -237,24 +237,6 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (BOOL)isRunning;
 
 /**
- *  Check if image has already been cached
- *
- *  @param url image url
- *
- *  @return if the image was already cached
- */
-- (BOOL)cachedImageExistsForURL:(nullable NSURL *)url;
-
-/**
- *  Check if image has already been cached on disk only
- *
- *  @param url image url
- *
- *  @return if the image was already cached (disk only)
- */
-- (BOOL)diskImageExistsForURL:(nullable NSURL *)url;
-
-/**
  *  Async check if image has already been cached
  *
  *  @param url              image url

@@ -48,14 +48,6 @@
 @interface UIImageView (WebCache)
 
 /**
- * Get the current image URL.
- *
- * Note that because of the limitations of categories this property can get out of sync
- * if you use setImage: directly.
- */
-- (nullable NSURL *)sd_imageURL;
-
-/**
  * Set the imageView `image` with an `url`.
  *
  * The download is asynchronous and cached.
@@ -183,37 +175,18 @@
                                         completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #if SD_UIKIT
+
+#pragma mark - Animation of multiple images
+
 /**
  * Download an array of images and starts them in an animation loop
  *
  * @param arrayOfURLs An array of NSURL
  */
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs;
-#endif
 
-/**
- * Cancel the current download
- */
-- (void)sd_cancelCurrentImageLoad;
-
-#if SD_UIKIT
 - (void)sd_cancelCurrentAnimationImagesLoad;
 
-/**
- *  Show activity UIActivityIndicatorView
- */
-- (void)setShowActivityIndicatorView:(BOOL)show;
-
-/**
- *  set desired UIActivityIndicatorViewStyle
- *
- *  @param style The style of the UIActivityIndicatorView
- */
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
-
-- (BOOL)showActivityIndicatorView;
-- (void)addActivityIndicator;
-- (void)removeActivityIndicator;
 #endif
 
 @end

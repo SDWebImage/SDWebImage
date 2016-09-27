@@ -129,7 +129,11 @@
 }
 
 - (void)setOperationClass:(nullable Class)operationClass {
-    _operationClass = operationClass ?: [SDWebImageDownloaderOperation class];
+    if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperationInterface)]) {
+        _operationClass = operationClass;
+    } else {
+        _operationClass = [SDWebImageDownloaderOperation class];
+    }
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url

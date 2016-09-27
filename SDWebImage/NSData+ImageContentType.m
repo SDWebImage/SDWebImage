@@ -12,37 +12,35 @@
 
 @implementation NSData (ImageContentType)
 
-+ (nullable NSString *)sd_contentTypeForImageData:(nullable NSData *)data {
++ (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data {
     if (!data) {
-        return nil;
+        return SDImageFormatUndefined;
     }
-
+    
     uint8_t c;
     [data getBytes:&c length:1];
     switch (c) {
         case 0xFF:
-            return @"image/jpeg";
+            return SDImageFormatJPEG;
         case 0x89:
-            return @"image/png";
+            return SDImageFormatPNG;
         case 0x47:
-            return @"image/gif";
+            return SDImageFormatGIF;
         case 0x49:
         case 0x4D:
-            return @"image/tiff";
+            return SDImageFormatTIFF;
         case 0x52:
             // R as RIFF for WEBP
             if (data.length < 12) {
-                return nil;
+                return SDImageFormatUndefined;
             }
-
+            
             NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
             if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
-                return @"image/webp";
+                return SDImageFormatWebP;
             }
-
-            return nil;
     }
-    return nil;
+    return SDImageFormatUndefined;
 }
 
 @end

@@ -10,6 +10,7 @@
 [![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/3.3/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/3.3)
 [![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/rs/SDWebImage)
+[![codecov](https://codecov.io/gh/rs/SDWebImage/branch/testing/graph/badge.svg)](https://codecov.io/gh/rs/SDWebImage)
 
 This library provides an async image downloader with cache support. For convenience, we added categories for some `UIControl` elements like `UIImageView`.
 

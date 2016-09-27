@@ -97,6 +97,9 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  */
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
+/**
+ *  The maximum number of concurrent downloads
+ */
 @property (assign, nonatomic) NSInteger maxConcurrentDownloads;
 
 /**
