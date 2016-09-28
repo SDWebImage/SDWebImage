@@ -158,15 +158,16 @@ static NSString *const kCompletedCallbackKey = @"completed";
                                                              SDWebImageDownloader *sself = wself;
                                                              if (!sself) return;
                                                              __block NSArray *callbacksForURL;
-                                                             dispatch_sync(sself.barrierQueue, ^{
+                                                             dispatch_barrier_sync(sself.barrierQueue, ^{
                                                                  callbacksForURL = [sself.URLCallbacks[url] copy];
                                                              });
-                                                             for (NSDictionary *callbacks in callbacksForURL) {
-                                                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                                             if (!sself) return;
+                                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                                 for (NSDictionary *callbacks in callbacksForURL) {
                                                                      SDWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
                                                                      if (callback) callback(receivedSize, expectedSize);
-                                                                 });
-                                                             }
+                                                                 }
+                                                             });
                                                          }
                                                         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                                                             SDWebImageDownloader *sself = wself;
