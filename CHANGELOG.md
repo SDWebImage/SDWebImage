@@ -16,6 +16,7 @@
     - `SDWebImage TV Demo`
     - `SDWebImage Watch Demo`
 - bumped `libwep` version to `0.5.0`
+- improved unit testing code coverage (*35%* -> **77%**) and integrated [CodeCov](https://codecov.io/gh/rs/SDWebImage)
 
 #### Backwards incompatible changes
 
@@ -43,6 +44,22 @@
   - breaks compatibility at least for Swift users of the framework
 - **watchOS** and **OS X** support #1595 required
   - renamed `SDWebImage` iOS static lib target to `SDWebImage iOS static` for clarity
+- improving the unit tests code coverage #1681 required
+  - Refactored `NSData` `ImageContentType` category, instead of returning the contentType as a string, the new added method `sd_imageFormatForImageData` will return a `SDImageFormat` enum value
+  - `SDImageCache` configuration properties moved into `SDImageCacheConfiguration` (which is now available via `config` property):
+    - `shouldDecompressImages`
+    - `shouldDisableiCloud`
+    - `shouldCacheImagesInMemory`
+    - `maxCacheAge`
+    - `maxCacheSize`
+  - The `storeImage:` methods from `SDImageCache` were async already, but declared as sync. Properly marked them as async + added completion. Got rid of the recalculate param. If the `NSData` is provided, use it. Otherwise, recalculate from the `UIImage`
+  - Removed the synchronous methods `diskImageExistsForURL:` and `cachedImageExistsForURL:` from `SDWebImageManager`
+  - Removed the synchronous method `diskImageExistsWithKey:` from `SDImageCache`
+  - Get rid of the confusion caused by `cleanDisk` and `clearDisk` on `SDImageCache`. Renamed `cleanDisk` to `deleteOldFiles`. No longer expose the sync `clearDisk` and `deleteOldFiles`, just the async ones.
+  - Renamed `SDImageCache` `queryDiskCacheForKey:done:` to `queryCacheOperationForKey:done:`
+  - Another `SDImageCache` clarification: `imageFromDiskCacheForKey:` used to also check the memory cache which I think is misleading. Now `imageFromDiskCacheForKey` only checks the disk cache and the new method `imageFromCacheForKey` checks both caches
+  - Got rid of `removeImageForKey:` and `removeImageForKey:fromDisk:` from `SDImageCache` that looked sync but were async. Left only the 2 async ones
+  - Removed `UIImageView` `sd_cancelCurrentHighlightedImageLoad`
 
 #### Features:
 
@@ -54,11 +71,17 @@
 - Xcode 7 Objective-C updates (Lightweight Generics and Nullability) #1581
 - via #1595 Clarified and simplified the usage of `TARGET_OS_*` macros. Added `SD_MAC`, `SD_UIKIT`, `SD_IOS`, `SD_TV`, `SD_WATCH`. The biggest issue here was `TARGET_OS_MAC` was 1 for all platforms and we couldn't rely on it.
 - Replaces #1398 Allow to customise cache and image downloader instances used with `SDWebImageManager` - added a new initializer (`initWithCache:downloader:`) 9112170
+- `UIImage` responds to `sd_imageData` and `sd_imageDataAsFormat:` via the `MultiFormat` category. Those methods transform a `UIImage` to the `NSData` representation 82d1f2e
+- Created `SDWebImageDownloaderOperationInterface` to describe the behavior of a downloader operation. Any custom operation must conform to this protocol df3b6a5
+- Refactored all the duplicate code from our `WebCache` categories into a `UIView` `WebCache` category. All the other categories will make calls to this one. Customization of setting the image is done via the `setImageBlock` and the `operationKey` e1840c3
+- Due to the change above, the activity indicator can now be added to `UIButton`, `MKAnnotationView`, `UIImageView`
 
 #### Fixes:
 
 - Fix multiple requests for same image and then canceling one #883 + 8a78586
 - Fixed #1444 and the master build thanks to [@kenmaz](https://github.com/kenmaz/SDWebImage/commit/5034c334be50765dfe4e97c48bcb74ef64175188)
+- Fixed an issue with the `SDWebImageDownloaderOperation` : `cancelInternal` was not called because of the old mechanism rellying on the `thread` property - probably because that thread did not have a runloop. Removed that and now cancelInternal is called as expected f4bdae6
+
 
 ## [3.8.2 Patch release for 3.8.0 on Sep 5th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.2)
 
