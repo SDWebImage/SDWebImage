@@ -477,6 +477,18 @@
 		43C892941D9D62D40022038D /* msa_macro.h in Headers */ = {isa = PBXBuildFile; fileRef = 43C892841D9D62B60022038D /* msa_macro.h */; };
 		43C892951D9D62D40022038D /* msa_macro.h in Headers */ = {isa = PBXBuildFile; fileRef = 43C892841D9D62B60022038D /* msa_macro.h */; };
 		43C892961D9D62D40022038D /* msa_macro.h in Headers */ = {isa = PBXBuildFile; fileRef = 43C892841D9D62B60022038D /* msa_macro.h */; };
+		43C8929A1D9D6DD70022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C8929B1D9D6DD70022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
+		43C8929C1D9D6DD90022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C8929D1D9D6DD90022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C8929E1D9D6DDA0022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C8929F1D9D6DDA0022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C892A01D9D6DDA0022038D /* anim_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892981D9D6DD70022038D /* anim_decode.c */; };
+		43C892A11D9D6DDC0022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
+		43C892A21D9D6DDD0022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
+		43C892A31D9D6DDD0022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
+		43C892A41D9D6DDD0022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
+		43C892A51D9D6DDE0022038D /* demux.c in Sources */ = {isa = PBXBuildFile; fileRef = 43C892991D9D6DD70022038D /* demux.c */; };
 		43CE75761CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		43CE75771CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		43CE75781CFE9427006C64D0 /* FLAnimatedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -931,6 +943,8 @@
 		43C892821D9D62B60022038D /* common_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_sse2.h; sourceTree = "<group>"; };
 		43C892831D9D62B60022038D /* dec_msa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dec_msa.c; sourceTree = "<group>"; };
 		43C892841D9D62B60022038D /* msa_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msa_macro.h; sourceTree = "<group>"; };
+		43C892981D9D6DD70022038D /* anim_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = anim_decode.c; sourceTree = "<group>"; };
+		43C892991D9D6DD70022038D /* demux.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = demux.c; sourceTree = "<group>"; };
 		43CE75491CFE9427006C64D0 /* FLAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImage.h; sourceTree = "<group>"; };
 		43CE754A1CFE9427006C64D0 /* FLAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLAnimatedImage.m; sourceTree = "<group>"; };
 		43CE754B1CFE9427006C64D0 /* FLAnimatedImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImageView.h; sourceTree = "<group>"; };
@@ -1158,6 +1172,15 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
+		43C892971D9D6DBB0022038D /* demux */ = {
+			isa = PBXGroup;
+			children = (
+				43C892981D9D6DD70022038D /* anim_decode.c */,
+				43C892991D9D6DD70022038D /* demux.c */,
+			);
+			path = demux;
+			sourceTree = "<group>";
+		};
 		43CE75451CFE9427006C64D0 /* FLAnimatedImage */ = {
 			isa = PBXGroup;
 			children = (
@@ -1321,6 +1344,7 @@
 			isa = PBXGroup;
 			children = (
 				DA577D5A1998E6B2007367ED /* dec */,
+				43C892971D9D6DBB0022038D /* demux */,
 				DA577C651998E60B007367ED /* dsp */,
 				DA577CA71998E60B007367ED /* utils */,
 				DA577CC31998E60B007367ED /* webp */,
@@ -2078,6 +2102,7 @@
 				00733A5B1BC4880000A5A117 /* NSData+ImageContentType.m in Sources */,
 				43DA7D5A1D1086600028BE58 /* lossless_sse2.c in Sources */,
 				43DA7D451D1086600028BE58 /* dec_sse41.c in Sources */,
+				43C8929E1D9D6DDA0022038D /* anim_decode.c in Sources */,
 				431738D71CDFC8A40008FEB9 /* frame.c in Sources */,
 				43DA7D561D1086600028BE58 /* lossless_enc_sse41.c in Sources */,
 				43DA7D4A1D1086600028BE58 /* enc_mips32.c in Sources */,
@@ -2096,6 +2121,7 @@
 				431738D51CDFC8A40008FEB9 /* buffer.c in Sources */,
 				43DA7D4B1D1086600028BE58 /* enc_neon.c in Sources */,
 				431739371CDFC8B20008FEB9 /* bit_writer.c in Sources */,
+				43C892A31D9D6DDD0022038D /* demux.c in Sources */,
 				43DA7D511D1086600028BE58 /* filters.c in Sources */,
 				00733A611BC4880000A5A117 /* UIImageView+WebCache.m in Sources */,
 				43DA7D491D1086600028BE58 /* enc_mips_dsp_r2.c in Sources */,
@@ -2174,6 +2200,7 @@
 				4314D11F1D0E0E3B004B36C9 /* quant_levels.c in Sources */,
 				4314D1201D0E0E3B004B36C9 /* idec.c in Sources */,
 				4314D1211D0E0E3B004B36C9 /* random.c in Sources */,
+				43C8929C1D9D6DD90022038D /* anim_decode.c in Sources */,
 				4314D1231D0E0E3B004B36C9 /* SDImageCache.m in Sources */,
 				4314D1241D0E0E3B004B36C9 /* SDWebImageDecoder.m in Sources */,
 				4314D1271D0E0E3B004B36C9 /* rescaler.c in Sources */,
@@ -2207,6 +2234,7 @@
 				43DA7DE61D109B980028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7CCF1D10865E0028BE58 /* cost_sse2.c in Sources */,
 				4314D13D1D0E0E3B004B36C9 /* quant_levels_dec.c in Sources */,
+				43C892A11D9D6DDC0022038D /* demux.c in Sources */,
 				4314D13E1D0E0E3B004B36C9 /* vp8l.c in Sources */,
 				43DA7CD51D10865E0028BE58 /* dec_neon.c in Sources */,
 				43DA7CF91D10865E0028BE58 /* upsampling.c in Sources */,
@@ -2273,6 +2301,7 @@
 				43A62A2A1D0E0A860089D7DD /* filters.c in Sources */,
 				431BB68E1D06D2C1006A3455 /* SDWebImagePrefetcher.m in Sources */,
 				43A62A651D0E0A8F0089D7DD /* webp.c in Sources */,
+				43C8929F1D9D6DDA0022038D /* anim_decode.c in Sources */,
 				43A62A3A1D0E0A860089D7DD /* utils.c in Sources */,
 				43A62A271D0E0A860089D7DD /* color_cache.c in Sources */,
 				431BB6921D06D2C1006A3455 /* NSData+ImageContentType.m in Sources */,
@@ -2306,6 +2335,7 @@
 				43DA7DEC1D109B9B0028BE58 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				43DA7D741D1086600028BE58 /* cost_sse2.c in Sources */,
 				431BB6B41D06D2C1006A3455 /* SDWebImageDecoder.m in Sources */,
+				43C892A41D9D6DDD0022038D /* demux.c in Sources */,
 				431BB6B61D06D2C1006A3455 /* UIImage+WebP.m in Sources */,
 				43DA7D7A1D1086600028BE58 /* dec_neon.c in Sources */,
 				43DA7D9E1D1086600028BE58 /* upsampling.c in Sources */,
@@ -2384,6 +2414,7 @@
 				4397D2F71D0DE2DF00BB2784 /* NSImage+WebCache.m in Sources */,
 				4397D2821D0DDD8C00BB2784 /* rescaler.c in Sources */,
 				43DA7DC41D1086610028BE58 /* lossless_enc_sse41.c in Sources */,
+				43C892A01D9D6DDA0022038D /* anim_decode.c in Sources */,
 				4397D2851D0DDD8C00BB2784 /* quant.c in Sources */,
 				43DA7DA51D1086610028BE58 /* alpha_processing.c in Sources */,
 				43DA7DD51D1086610028BE58 /* upsampling.c in Sources */,
@@ -2391,6 +2422,7 @@
 				4397D28A1D0DDD8C00BB2784 /* thread.c in Sources */,
 				43DA7DB11D1086610028BE58 /* dec_neon.c in Sources */,
 				43DA7DBB1D1086610028BE58 /* enc_sse41.c in Sources */,
+				43C892A51D9D6DDE0022038D /* demux.c in Sources */,
 				43DA7DBA1D1086610028BE58 /* enc_sse2.c in Sources */,
 				43DA7DCD1D1086610028BE58 /* rescaler_mips_dsp_r2.c in Sources */,
 				4397D28C1D0DDD8C00BB2784 /* UIImageView+WebCache.m in Sources */,
@@ -2480,6 +2512,7 @@
 				4A2CAE321AB4BB7500B6BC39 /* UIImage+WebP.m in Sources */,
 				43DA7D231D10865F0028BE58 /* lossless_sse2.c in Sources */,
 				43DA7D0E1D10865F0028BE58 /* dec_sse41.c in Sources */,
+				43C8929D1D9D6DD90022038D /* anim_decode.c in Sources */,
 				43CE75D41CFE98E0006C64D0 /* FLAnimatedImageView+WebCache.m in Sources */,
 				43DA7D1F1D10865F0028BE58 /* lossless_enc_sse41.c in Sources */,
 				43DA7D131D10865F0028BE58 /* enc_mips32.c in Sources */,
@@ -2498,6 +2531,7 @@
 				4A2CAE361AB4BB7500B6BC39 /* UIImageView+WebCache.m in Sources */,
 				43DA7D141D10865F0028BE58 /* enc_neon.c in Sources */,
 				431739221CDFC8B20008FEB9 /* filters.c in Sources */,
+				43C892A21D9D6DDD0022038D /* demux.c in Sources */,
 				43DA7D1A1D10865F0028BE58 /* filters.c in Sources */,
 				4A2CAE1E1AB4BB6800B6BC39 /* SDWebImageDownloaderOperation.m in Sources */,
 				43DA7D121D10865F0028BE58 /* enc_mips_dsp_r2.c in Sources */,
@@ -2583,6 +2617,7 @@
 				5376130A155AD0D5005750A4 /* SDWebImageDecoder.m in Sources */,
 				43DA7CB51D1086570028BE58 /* lossless_sse2.c in Sources */,
 				43DA7CA01D1086570028BE58 /* dec_sse41.c in Sources */,
+				43C8929A1D9D6DD70022038D /* anim_decode.c in Sources */,
 				43CE75D31CFE98E0006C64D0 /* FLAnimatedImageView+WebCache.m in Sources */,
 				43DA7CB11D1086570028BE58 /* lossless_enc_sse41.c in Sources */,
 				43DA7CA51D1086570028BE58 /* enc_mips32.c in Sources */,
@@ -2601,6 +2636,7 @@
 				5376130B155AD0D5005750A4 /* SDWebImageDownloader.m in Sources */,
 				43DA7CA61D1086570028BE58 /* enc_neon.c in Sources */,
 				431738AB1CDFC2630008FEB9 /* filters.c in Sources */,
+				43C8929B1D9D6DD70022038D /* demux.c in Sources */,
 				43DA7CAC1D1086570028BE58 /* filters.c in Sources */,
 				438096751CDFC0A100DC626B /* UIImage+WebP.m in Sources */,
 				43DA7CA41D1086570028BE58 /* enc_mips_dsp_r2.c in Sources */,
