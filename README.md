@@ -41,7 +41,7 @@ This library provides an async image downloader with cache support. For convenie
 
 #### Backwards compatibility
 
-- For iOS < 7.0, please use the last [3.x version - currently 3.8.1](https://github.com/rs/SDWebImage/tree/3.8.1)
+- For iOS < 7.0, please use the last [3.x version - currently 3.8.2](https://github.com/rs/SDWebImage/tree/3.8.2)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 ## Getting Started
