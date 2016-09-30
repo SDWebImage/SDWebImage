@@ -31,8 +31,10 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
 - (void)sd_setImageLoadOperation:(nullable id)operation forKey:(nullable NSString *)key {
     if (key) {
         [self sd_cancelImageLoadOperationWithKey:key];
-        SDOperationsDictionary *operationDictionary = [self operationDictionary];
-        operationDictionary[key] = operation;
+        if (operation) {
+            SDOperationsDictionary *operationDictionary = [self operationDictionary];
+            operationDictionary[key] = operation;
+        }
     }
 }
 
