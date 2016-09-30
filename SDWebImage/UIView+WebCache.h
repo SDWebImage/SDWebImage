@@ -61,18 +61,18 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 /**
  *  Show activity UIActivityIndicatorView
  */
-- (void)setShowActivityIndicatorView:(BOOL)show;
+- (void)sd_setShowActivityIndicatorView:(BOOL)show;
 
 /**
  *  set desired UIActivityIndicatorViewStyle
  *
  *  @param style The style of the UIActivityIndicatorView
  */
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
 
-- (BOOL)showActivityIndicatorView;
-- (void)addActivityIndicator;
-- (void)removeActivityIndicator;
+- (BOOL)sd_showActivityIndicatorView;
+- (void)sd_addActivityIndicator;
+- (void)sd_removeActivityIndicator;
 
 #endif
 

@@ -46,14 +46,14 @@ static char TAG_ACTIVITY_SHOW;
     
     if (url) {
         // check if activityView is enabled or not
-        if ([self showActivityIndicatorView]) {
-            [self addActivityIndicator];
+        if ([self sd_showActivityIndicatorView]) {
+            [self sd_addActivityIndicator];
         }
         
         __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
-            [sself removeActivityIndicator];
+            [sself sd_removeActivityIndicator];
             if (!sself) {
                 return;
             }
@@ -81,7 +81,7 @@ static char TAG_ACTIVITY_SHOW;
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
         dispatch_main_async_safe(^{
-            [self removeActivityIndicator];
+            [self sd_removeActivityIndicator];
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
@@ -136,28 +136,28 @@ static char TAG_ACTIVITY_SHOW;
 }
 #endif
 
-- (void)setShowActivityIndicatorView:(BOOL)show {
+- (void)sd_setShowActivityIndicatorView:(BOOL)show {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
 }
 
-- (BOOL)showActivityIndicatorView {
+- (BOOL)sd_showActivityIndicatorView {
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
 #if SD_UIKIT
-- (void)setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
+- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
 }
 
-- (int)getIndicatorStyle{
+- (int)sd_getIndicatorStyle{
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
 }
 #endif
 
-- (void)addActivityIndicator {
+- (void)sd_addActivityIndicator {
 #if SD_UIKIT
     if (!self.activityIndicator) {
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self getIndicatorStyle]];
+        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
         self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
         
         dispatch_main_async_safe(^{
@@ -186,7 +186,7 @@ static char TAG_ACTIVITY_SHOW;
 #endif
 }
 
-- (void)removeActivityIndicator {
+- (void)sd_removeActivityIndicator {
 #if SD_UIKIT
     if (self.activityIndicator) {
         [self.activityIndicator removeFromSuperview];
