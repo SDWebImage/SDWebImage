@@ -504,10 +504,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         //  2. Storing file attributes for the size-based cleanup pass.
         NSMutableArray<NSURL *> *urlsToDelete = [[NSMutableArray alloc] init];
         for (NSURL *fileURL in fileEnumerator) {
-            NSDictionary<NSString *, id> *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];
+            NSError *error;
+            NSDictionary<NSString *, id> *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:&error];
 
-            // Skip directories.
-            if ([resourceValues[NSURLIsDirectoryKey] boolValue]) {
+            // Skip directories and errors.
+            if (error || [resourceValues[NSURLIsDirectoryKey] boolValue]) {
                 continue;
             }
 
