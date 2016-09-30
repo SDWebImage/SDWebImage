@@ -14,7 +14,6 @@
 		4314D1B31D0E1182004B36C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4314D1B11D0E1182004B36C9 /* Main.storyboard */; };
 		4314D1B51D0E1182004B36C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4314D1B41D0E1182004B36C9 /* Assets.xcassets */; };
 		4314D1BC1D0E11A8004B36C9 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 431739601CDFCC370008FEB9 /* SDWebImage.framework */; };
-		4317396A1CDFCCE20008FEB9 /* libSDWebImage iOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D741954841D00390AB0 /* libSDWebImage iOS static.a */; };
 		43A629D31D0DFD000089D7DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D21D0DFD000089D7DD /* AppDelegate.m */; };
 		43A629D61D0DFD000089D7DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D51D0DFD000089D7DD /* main.m */; };
 		43A629D91D0DFD000089D7DD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A629D81D0DFD000089D7DD /* ViewController.m */; };
@@ -30,6 +29,7 @@
 		43A62A0B1D0E07600089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A62A0A1D0E07600089D7DD /* Assets.xcassets */; };
 		43A62A0F1D0E07600089D7DD /* SDWebImage Watch Demo.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */; };
 		43F04B3F1D9E468D003F9640 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4397D2751D0DDBE100BB2784 /* SDWebImage.framework */; };
+		43F100181D9EE18300F6E0CE /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43A0FAAF1BDD16AC00B7582B /* SDWebImage.framework */; };
 		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
@@ -67,13 +67,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 00733A4C1BC487C000A5A117;
 			remoteInfo = "WebImage tvOS";
-		};
-		431739681CDFCCDE0008FEB9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 53761307155AD0D5005750A4;
-			remoteInfo = SDWebImage;
 		};
 		4397D2741D0DDBE100BB2784 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -123,6 +116,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 431BB6891D06D2C1006A3455;
 			remoteInfo = "SDWebImage watchOS";
+		};
+		43F100161D9EE17C00F6E0CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A2CADFE1AB4BB5300B6BC39;
+			remoteInfo = "SDWebImage iOS";
 		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -244,7 +244,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4317396A1CDFCCE20008FEB9 /* libSDWebImage iOS static.a in Frameworks */,
+				43F100181D9EE18300F6E0CE /* SDWebImage.framework in Frameworks */,
 				DA248D44195470FD00390AB0 /* MapKit.framework in Frameworks */,
 				531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */,
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
@@ -503,7 +503,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				431739691CDFCCDE0008FEB9 /* PBXTargetDependency */,
+				43F100171D9EE17C00F6E0CE /* PBXTargetDependency */,
 				43A62A0E1D0E07600089D7DD /* PBXTargetDependency */,
 			);
 			name = "SDWebImage iOS Demo";
@@ -708,11 +708,6 @@
 			name = "SDWebImage tvOS";
 			targetProxy = 4314D1BA1D0E11A0004B36C9 /* PBXContainerItemProxy */;
 		};
-		431739691CDFCCDE0008FEB9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SDWebImage;
-			targetProxy = 431739681CDFCCDE0008FEB9 /* PBXContainerItemProxy */;
-		};
 		43A629EA1D0DFDCA0089D7DD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "SDWebImage OSX";
@@ -732,6 +727,11 @@
 			isa = PBXTargetDependency;
 			name = "SDWebImage watchOS";
 			targetProxy = 43F04B3D1D9E467E003F9640 /* PBXContainerItemProxy */;
+		};
+		43F100171D9EE17C00F6E0CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SDWebImage iOS";
+			targetProxy = 43F100161D9EE17C00F6E0CE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1145,7 +1145,7 @@
 					"\"$(TARGET_BUILD_DIR)/usr/local/lib/include\"",
 				);
 				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
@@ -1170,7 +1170,7 @@
 					"\"$(TARGET_BUILD_DIR)/usr/local/lib/include\"",
 				);
 				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
