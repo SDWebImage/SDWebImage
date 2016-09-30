@@ -29,7 +29,7 @@
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
     
-    NSString *urlString = @"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage000.jpg";
+    NSString *urlString = @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png";
     [[SDWebImageManager sharedManager] loadImageWithURL:[NSURL URLWithString:urlString] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         self.imageInterface.image = image;
     }];
