@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3E75A9861742DBE700DA412D /* CustomPathImages in Resources */ = {isa = PBXBuildFile; fileRef = 3E75A9851742DBE700DA412D /* CustomPathImages */; };
-		4314D1A11D0E0EE2004B36C9 /* libSDWebImage watchOS static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4314D19E1D0E0EB6004B36C9 /* libSDWebImage watchOS static.a */; };
 		4314D1AA1D0E1181004B36C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4314D1A91D0E1181004B36C9 /* main.m */; };
 		4314D1AD1D0E1181004B36C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4314D1AC1D0E1181004B36C9 /* AppDelegate.m */; };
 		4314D1B01D0E1182004B36C9 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4314D1AF1D0E1182004B36C9 /* ViewController.m */; };
@@ -30,6 +29,7 @@
 		43A62A091D0E07600089D7DD /* NotificationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43A62A081D0E07600089D7DD /* NotificationController.m */; };
 		43A62A0B1D0E07600089D7DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43A62A0A1D0E07600089D7DD /* Assets.xcassets */; };
 		43A62A0F1D0E07600089D7DD /* SDWebImage Watch Demo.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 43A629EE1D0E07600089D7DD /* SDWebImage Watch Demo.app */; };
+		43F04B3F1D9E468D003F9640 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4397D2751D0DDBE100BB2784 /* SDWebImage.framework */; };
 		531041C1157EAC8F00BBABC3 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E6155ABA44005750A4 /* ImageIO.framework */; };
 		5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53761299155AB74D005750A4 /* UIKit.framework */; };
 		5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5376129B155AB74D005750A4 /* Foundation.framework */; };
@@ -52,13 +52,6 @@
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4314D1991D0E0E3B004B36C9;
-			remoteInfo = "SDWebImage watchOS static";
-		};
-		4314D19F1D0E0EBD004B36C9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4314D11B1D0E0E3B004B36C9;
 			remoteInfo = "SDWebImage watchOS static";
 		};
 		4314D1BA1D0E11A0004B36C9 /* PBXContainerItemProxy */ = {
@@ -123,6 +116,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 43A629ED1D0E07600089D7DD;
 			remoteInfo = "SDWebImage Watch Demo";
+		};
+		43F04B3D1D9E467E003F9640 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 431BB6891D06D2C1006A3455;
+			remoteInfo = "SDWebImage watchOS";
 		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -236,7 +236,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4314D1A11D0E0EE2004B36C9 /* libSDWebImage watchOS static.a in Frameworks */,
+				43F04B3F1D9E468D003F9640 /* SDWebImage.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,7 +484,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				4314D1A01D0E0EBD004B36C9 /* PBXTargetDependency */,
+				43F04B3E1D9E467E003F9640 /* PBXTargetDependency */,
 			);
 			name = "SDWebImage Watch Demo Extension";
 			productName = "SDWebImage Watch Demo Extension";
@@ -703,11 +703,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4314D1A01D0E0EBD004B36C9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "SDWebImage watchOS static";
-			targetProxy = 4314D19F1D0E0EBD004B36C9 /* PBXContainerItemProxy */;
-		};
 		4314D1BB1D0E11A0004B36C9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "SDWebImage tvOS";
@@ -732,6 +727,11 @@
 			isa = PBXTargetDependency;
 			target = 43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */;
 			targetProxy = 43A62A0D1D0E07600089D7DD /* PBXContainerItemProxy */;
+		};
+		43F04B3E1D9E467E003F9640 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SDWebImage watchOS";
+			targetProxy = 43F04B3D1D9E467E003F9640 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
