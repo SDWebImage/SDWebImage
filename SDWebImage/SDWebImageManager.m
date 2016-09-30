@@ -145,10 +145,7 @@
 
     operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
         if (operation.isCancelled) {
-            @synchronized (self.runningOperations) {
-                [self.runningOperations removeObject:operation];
-            }
-
+            [self safelyRemoveOperationFromRunning:operation];
             return;
         }
 
@@ -242,22 +239,13 @@
                 }
 
                 if (finished) {
-                    @synchronized (self.runningOperations) {
-                        if (strongOperation) {
-                            [self.runningOperations removeObject:strongOperation];
-                        }
-                    }
+                    [self safelyRemoveOperationFromRunning:strongOperation];
                 }
             }];
             operation.cancelBlock = ^{
                 [self.imageDownloader cancel:subOperation];
-
-                @synchronized (self.runningOperations) {
-                    __strong __typeof(weakOperation) strongOperation = weakOperation;
-                    if (strongOperation) {
-                        [self.runningOperations removeObject:strongOperation];
-                    }
-                }
+                __strong __typeof(weakOperation) strongOperation = weakOperation;
+                [self safelyRemoveOperationFromRunning:strongOperation];
             };
         } else if (cachedImage) {
             dispatch_main_async_safe(^{
@@ -266,9 +254,7 @@
                     completedBlock(cachedImage, cachedData, nil, cacheType, YES, url);
                 }
             });
-            @synchronized (self.runningOperations) {
-                [self.runningOperations removeObject:operation];
-            }
+            [self safelyRemoveOperationFromRunning:operation];
         } else {
             // Image not in cache and download disallowed by delegate
             dispatch_main_async_safe(^{
@@ -277,9 +263,7 @@
                     completedBlock(nil, nil, nil, SDImageCacheTypeNone, YES, url);
                 }
             });
-            @synchronized (self.runningOperations) {
-                [self.runningOperations removeObject:operation];
-            }
+            [self safelyRemoveOperationFromRunning:operation];
         }
     }];
 
@@ -303,10 +287,18 @@
 
 - (BOOL)isRunning {
     BOOL isRunning = NO;
-    @synchronized(self.runningOperations) {
+    @synchronized (self.runningOperations) {
         isRunning = (self.runningOperations.count > 0);
     }
     return isRunning;
+}
+
+- (void)safelyRemoveOperationFromRunning:(nullable SDWebImageCombinedOperation*)operation {
+    @synchronized (self.runningOperations) {
+        if (operation) {
+            [self.runningOperations removeObject:operation];
+        }
+    }
 }
 
 @end
