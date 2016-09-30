@@ -12,6 +12,7 @@
 #import "webp/decode.h"
 #import "webp/mux_types.h"
 #import "webp/demux.h"
+#import "NSImage+WebCache.h"
 
 // Callback for CGDataProviderRelease
 static void FreeImageData(void *info, const void *data, size_t size) {
@@ -71,8 +72,16 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     WebPDemuxReleaseIterator(&iter);
     WebPDemuxDelete(demuxer);
-    UIImage *animateImage = [UIImage animatedImageWithImages:images duration:duration];
-    return animateImage;
+    
+    UIImage *finalImage = nil;
+#if SD_UIKIT || SD_WATCH
+    finalImage = [UIImage animatedImageWithImages:images duration:duration];
+#elif SD_MAC
+    if ([images count] > 0) {
+        finalImage = images[0];
+    }
+#endif
+    return finalImage;
 }
 
 
@@ -98,7 +107,11 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGContextDrawImage(blendCanvas, imageRect, image.CGImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(blendCanvas);
     
+#if SD_UIKIT || SD_WATCH
     image = [UIImage imageWithCGImage:newImageRef];
+#elif SD_MAC
+    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
     
     CGImageRelease(newImageRef);
     CGContextRelease(blendCanvas);

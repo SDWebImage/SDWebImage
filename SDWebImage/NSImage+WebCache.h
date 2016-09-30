@@ -14,6 +14,7 @@
 
 @interface NSImage (WebCache)
 
+- (CGImageRef)CGImage;
 - (NSArray<NSImage *> *)images;
 - (BOOL)isGIF;
 
