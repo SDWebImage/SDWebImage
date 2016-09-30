@@ -273,7 +273,7 @@
             // Image not in cache and download disallowed by delegate
             dispatch_main_async_safe(^{
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
-                if (strongOperation && !weakOperation.isCancelled) {
+                if (strongOperation && !strongOperation.isCancelled) {
                     completedBlock(nil, nil, nil, SDImageCacheTypeNone, YES, url);
                 }
             });
