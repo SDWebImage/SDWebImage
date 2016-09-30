@@ -372,7 +372,7 @@ didReceiveResponse:(NSURLResponse *)response
                     image = scaledImage;
                 }
                 CGImageRelease(partialImageRef);
-                dispatch_main_sync_safe(^{
+                dispatch_main_async_safe(^{
                     for (SDWebImageDownloaderCompletedBlock completedBlock in [self callbacksForKey:kCompletedCallbackKey]) {
                         completedBlock(image, nil, nil, NO);
                     }

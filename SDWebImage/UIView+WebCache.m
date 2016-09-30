@@ -57,7 +57,7 @@ static char TAG_ACTIVITY_SHOW;
             if (!sself) {
                 return;
             }
-            dispatch_main_sync_safe(^{
+            dispatch_main_async_safe(^{
                 if (!sself) {
                     return;
                 }

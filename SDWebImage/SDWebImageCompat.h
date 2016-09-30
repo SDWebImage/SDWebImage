@@ -99,13 +99,6 @@ typedef void(^SDWebImageNoParamsBlock)();
 
 extern NSString *const SDWebImageErrorDomain;
 
-#define dispatch_main_sync_safe(block)\
-    if ([NSThread isMainThread]) {\
-        block();\
-    } else {\
-        dispatch_sync(dispatch_get_main_queue(), block);\
-    }
-
 #define dispatch_main_async_safe(block)\
     if (strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(dispatch_get_main_queue())) == 0) {\
         block();\
