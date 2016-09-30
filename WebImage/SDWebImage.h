@@ -22,7 +22,9 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <WebImage/PublicHeader.h>
 
 #import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImage/SDImageCacheConfig.h>
 #import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/UIView+WebCache.h>
 #import <SDWebImage/UIImageView+WebCache.h>
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
