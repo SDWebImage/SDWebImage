@@ -193,6 +193,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * @param url            The URL to the image
  * @param options        A mask to specify options to use for this request
  * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called when operation has been completed.
  *
  *   This parameter is required.

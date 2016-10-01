@@ -191,6 +191,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @param url            The URL to the image to download
  * @param options        The options to be used for this download
  * @param progressBlock  A block called repeatedly while the image is downloading
+ *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called once the download is completed.
  *                       If the download succeeded, the image parameter is set, in case of error,
  *                       error parameter is set with the error. The last parameter is always YES

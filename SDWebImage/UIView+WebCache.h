@@ -35,6 +35,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  * @param operationKey   A string to be used as the operation key. If nil, will use the class name
  * @param setImageBlock  Block used for custom set image code
  * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called when operation has been completed. This block has no return value
  *                       and takes the requested UIImage as first parameter. In case of error the image parameter
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
