@@ -211,7 +211,7 @@
     SDWebImageDownloaderOperation *operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request
                                                                                             inSession:nil
                                                                                               options:0];
-    [operation addHandlersForProgress:^(NSInteger receivedSize, NSInteger expectedSize) {
+    [operation addHandlersForProgress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *imageURL) {
         
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
