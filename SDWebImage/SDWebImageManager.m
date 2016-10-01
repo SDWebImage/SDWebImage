@@ -29,7 +29,7 @@
 
 @implementation SDWebImageManager
 
-+ (nonnull SDWebImageManager*)sharedManager {
++ (nonnull instancetype)sharedManager {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{

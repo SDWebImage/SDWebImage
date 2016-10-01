@@ -65,7 +65,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark - Singleton, init, dealloc
 
-+ (nonnull SDImageCache *)sharedImageCache {
++ (nonnull instancetype)sharedImageCache {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{

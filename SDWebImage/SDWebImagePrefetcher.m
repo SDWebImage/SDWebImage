@@ -23,7 +23,7 @@
 
 @implementation SDWebImagePrefetcher
 
-+ (nonnull SDWebImagePrefetcher *)sharedImagePrefetcher {
++ (nonnull instancetype)sharedImagePrefetcher {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{

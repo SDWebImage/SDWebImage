@@ -54,7 +54,7 @@
     }
 }
 
-+ (nonnull SDWebImageDownloader *)sharedDownloader {
++ (nonnull instancetype)sharedDownloader {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{

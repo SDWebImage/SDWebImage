@@ -63,7 +63,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @return SDImageCache global instance
  */
-+ (nonnull SDImageCache *)sharedImageCache;
++ (nonnull instancetype)sharedImageCache;
 
 /**
  * Init a new cache store with a specific namespace

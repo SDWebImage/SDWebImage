@@ -124,7 +124,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  *
  *  @return global shared instance of downloader class
  */
-+ (nonnull SDWebImageDownloader *)sharedDownloader;
++ (nonnull instancetype)sharedDownloader;
 
 /**
  *  Set the default URL credential to be set for request operations.
