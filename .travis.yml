@@ -48,7 +48,5 @@ script:
     - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6,OS=latest' -configuration Debug | xcpretty -c
 
-    - carthage build --no-skip-current
-
 after_success:
     - bash <(curl -s https://codecov.io/bash)
