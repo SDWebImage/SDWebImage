@@ -180,10 +180,12 @@ In the source files where you need to use the library, import the header file:
 At this point your workspace should build without error. If you are having problem, post to the Issue and the
 community can help you solve it.
 
-Future Enhancements
--------------------
+## Author
+- [Olivier Poitrey](https://github.com/rs)
 
-- LRU memory cache cleanup instead of reset on memory warning
+## Collaborators
+- [Konstantinos K.](https://github.com/mythodeia)
+- [Bogdan Poplauschi](https://github.com/bpoplauschi)
 
 ## Licenses
 
@@ -198,4 +200,3 @@ All source code is licensed under the [MIT License](https://raw.github.com/rs/SD
 <p align="center" >
     <img src="Docs/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
 </p>
-
