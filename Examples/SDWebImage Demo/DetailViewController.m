@@ -42,7 +42,7 @@
         [self.imageView sd_setImageWithURL:self.imageURL
                           placeholderImage:nil
                                    options:SDWebImageProgressiveDownload
-                                  progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                  progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *targetURL) {
                                       if (!activityIndicator) {
                                           [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
                                           activityIndicator.center = weakImageView.center;

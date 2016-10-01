@@ -169,7 +169,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, NSURLResponseUnknownLength);
+            progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
@@ -262,7 +262,7 @@ didReceiveResponse:(NSURLResponse *)response
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, expected);
+            progressBlock(0, expected, self.request.URL);
         }
         
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -378,7 +378,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
 
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.imageData.length, self.expectedSize);
+        progressBlock(self.imageData.length, self.expectedSize, self.request.URL);
     }
 }
 
