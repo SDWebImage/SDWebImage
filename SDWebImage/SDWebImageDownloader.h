@@ -150,6 +150,13 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
 /**
+ * Creates an instance of a downloader with specified session configuration.
+ * *Note*: `timeoutIntervalForRequest` is going to be overwritten.
+ * @return new instance of downloader class
+ */
+- (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration NS_DESIGNATED_INITIALIZER;
+
+/**
  * Set a value for a HTTP header to be appended to each download HTTP request.
  *
  * @param value The value for the header field. Use `nil` value to remove the header.
