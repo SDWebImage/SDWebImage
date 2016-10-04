@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SDWebImageCompat.h"
 
 @interface SDImageCacheConfig : NSObject
 
