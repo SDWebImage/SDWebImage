@@ -6,9 +6,9 @@
  * file that was distributed with this source code.
  */
 
-#if SD_UIKIT
-
 #import "FLAnimatedImageView+WebCache.h"
+
+#if SD_UIKIT
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
@@ -53,9 +53,9 @@
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
-                           SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+                           SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                            if (imageFormat == SDImageFormatGIF) {
-                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:data];
+                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
                                weakSelf.image = nil;
                            } else {
                                weakSelf.image = image;
