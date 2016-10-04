@@ -137,7 +137,7 @@
                             expect(error).to.beNil();
                             expect(originalImageURL).to.equal(imageURL);
                             
-                            expect(imageView.image).to.equal(image);
+                            expect(imageView.animatedImage).toNot.beNil();
                             [expectation fulfill];
                                 }];
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
