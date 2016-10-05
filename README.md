@@ -41,7 +41,7 @@ This library provides an async image downloader with cache support. For convenie
 
 #### Backwards compatibility
 
-- For iOS < 7.0, please use the last [3.x version - currently 3.8.2](https://github.com/rs/SDWebImage/tree/3.8.2)
+- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/rs/SDWebImage/tree/3.7.6)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 ## Getting Started
@@ -52,6 +52,7 @@ This library provides an async image downloader with cache support. For convenie
 - Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
+- Read the [SDWebImage 4.0 Migration Guide](https://raw.github.com/rs/SDWebImage/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
