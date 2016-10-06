@@ -41,6 +41,9 @@ static const size_t kBitsPerComponent = 8;
                                                      bytesPerRow,
                                                      colorspaceRef,
                                                      kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
+        if (context == NULL) {
+            return image;
+        }
         
         // Draw the image into the context and retrieve the new bitmap image without alpha
         CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
@@ -130,7 +133,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         
         if (destContext == NULL) {
-            free( destBitmapData );
+            free(destBitmapData);
             return image;
         }
         CGContextSetInterpolationQuality(destContext, kCGInterpolationHigh);
