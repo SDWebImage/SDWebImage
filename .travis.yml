@@ -19,7 +19,6 @@ before_install:
     - xcpretty --version
     - xcodebuild -version
     - xcodebuild -showsdks
-    - brew install carthage
 
 script:
     - set -o pipefail
