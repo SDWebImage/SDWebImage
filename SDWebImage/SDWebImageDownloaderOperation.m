@@ -433,7 +433,14 @@ didReceiveResponse:(NSURLResponse *)response
                 // Do not force decoding animated GIFs
                 if (!image.images) {
                     if (self.shouldDecompressImages) {
-                        image = [UIImage decodedImageWithImage:image];
+                        if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
+#if SD_UIKIT || SD_WATCH
+                            image = [UIImage decodedAndScaledDownImageWithImage:image];
+                            [self.imageData setData:UIImagePNGRepresentation(image)];
+#endif
+                        } else {
+                            image = [UIImage decodedImageWithImage:image];
+                        }
                     }
                 }
                 if (CGSizeEqualToSize(image.size, CGSizeZero)) {
