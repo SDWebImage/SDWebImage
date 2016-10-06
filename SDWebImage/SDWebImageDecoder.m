@@ -73,7 +73,7 @@ static const CGFloat kDestImageSizeMB = 60.0f;
 static const CGFloat kSourceImageTileSizeMB = 20.0f;
 
 static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
-static const CGFloat kPixelsPerMB = kBytesPerMB * kBytesPerPixel;
+static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
 static const CGFloat kDestTotalPixels = kDestImageSizeMB * kPixelsPerMB;
 static const CGFloat kTileTotalPixels = kSourceImageTileSizeMB * kPixelsPerMB;
 
