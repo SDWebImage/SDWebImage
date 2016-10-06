@@ -4,7 +4,11 @@ See [all tickets marked for the 4.0.0 release](https://github.com/rs/SDWebImage/
 
 #### Features
 
-- Add an option to scale down large images #787 00bf467 efad1e5 8d1a0ae. Fixed #538 and #880. This one is a more robust solution than #884 or #894. Can be activated via `SDWebImageScaleDownLargeImages` or `SDWebImageDownloaderScaleDownLargeImages`
+- Add an option to scale down large images #787 00bf467 efad1e5 8d1a0ae. Fixed #538, #880 and #586. This one is a more robust solution than #884 or #894. Can be activated via `SDWebImageScaleDownLargeImages` or `SDWebImageDownloaderScaleDownLargeImages`
+
+#### Fixes
+
+- Fixed #1668 CGContextDrawImage: invalid context 0x0 - b366d84
 
 ## [4.0.0 beta - New platforms (Mac OS X and watchOS) + refactoring, on Oct 5th, 2016](https://github.com/rs/SDWebImage/releases/tag/4.0.0-beta)
 
