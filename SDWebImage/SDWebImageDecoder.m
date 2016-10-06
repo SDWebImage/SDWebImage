@@ -9,55 +9,27 @@
 
 #import "SDWebImageDecoder.h"
 
+@implementation UIImage (ForceDecode)
+
 #if SD_UIKIT || SD_WATCH
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
-#endif
-
-
-@implementation UIImage (ForceDecode)
 
 + (nullable UIImage *)decodedImageWithImage:(nullable UIImage *)image {
-    if (image == nil) { return nil; } // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
+    if (![UIImage shouldDecodeImage:image]) {
+        return image;
+    }
     
-#if SD_MAC
-    return image;
-#elif SD_UIKIT || SD_WATCH
-    
-    // while downloading huge amount of images
-    // autorelease the bitmap context
-    // and all vars to help system to free memory
-    // when there are memory warning.
-    // on iOS7, do not forget to call
-    // [[SDImageCache sharedImageCache] clearMemory];
+    // autorelease the bitmap context and all vars to help system to free memory when there are memory warning.
+    // on iOS7, do not forget to call [[SDImageCache sharedImageCache] clearMemory];
     @autoreleasepool{
-        if (image.images != nil) { return image; } // do not decode animated images
         
         CGImageRef imageRef = image.CGImage;
-        
-        CGImageAlphaInfo alpha = CGImageGetAlphaInfo(imageRef);
-        BOOL anyAlpha = (alpha == kCGImageAlphaFirst ||
-                         alpha == kCGImageAlphaLast ||
-                         alpha == kCGImageAlphaPremultipliedFirst ||
-                         alpha == kCGImageAlphaPremultipliedLast);
-        if (anyAlpha) { return image; } // do not decode images with alpha
-        
-        // current
-        CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
-        CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
-        
-        BOOL unsupportedColorSpace = (imageColorSpaceModel == kCGColorSpaceModelUnknown ||
-                                      imageColorSpaceModel == kCGColorSpaceModelMonochrome ||
-                                      imageColorSpaceModel == kCGColorSpaceModelCMYK ||
-                                      imageColorSpaceModel == kCGColorSpaceModelIndexed);
-        if (unsupportedColorSpace) {
-            colorspaceRef = CGColorSpaceCreateDeviceRGB();
-        }
+        CGColorSpaceRef colorspaceRef = [UIImage colorSpaceForImageRef:imageRef];
         
         size_t width = CGImageGetWidth(imageRef);
         size_t height = CGImageGetHeight(imageRef);
         size_t bytesPerRow = kBytesPerPixel * width;
-
 
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
@@ -77,16 +49,11 @@ static const size_t kBitsPerComponent = 8;
                                                          scale:image.scale
                                                    orientation:image.imageOrientation];
         
-        if (unsupportedColorSpace) {
-            CGColorSpaceRelease(colorspaceRef);
-        }
-        
         CGContextRelease(context);
         CGImageRelease(imageRefWithoutAlpha);
         
         return imageWithoutAlpha;
     }
-#endif
 }
 
 /*
@@ -95,7 +62,7 @@ static const size_t kBitsPerComponent = 8;
  * Suggested value for iPad2 and iPhone 4: 120.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 30.
  */
-#define kDestImageSizeMB 60.0f
+static const CGFloat kDestImageSizeMB = 60.0f;
 
 /*
  * Defines the maximum size in MB of a tile used to decode image when the flag `SDWebImageScaleDownLargeImages` is set
@@ -103,47 +70,29 @@ static const size_t kBitsPerComponent = 8;
  * Suggested value for iPad2 and iPhone 4: 40.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 10.
  */
-#define kSourceImageTileSizeMB 20.0f
+static const CGFloat kSourceImageTileSizeMB = 20.0f;
 
-#define bytesPerMB 1048576.0f
-#define pixelsPerMB ( bytesPerMB / kBytesPerPixel )
-#define destTotalPixels kDestImageSizeMB * pixelsPerMB
-#define tileTotalPixels kSourceImageTileSizeMB * pixelsPerMB
-#define destSeemOverlap 2.0f // the numbers of pixels to overlap the seems where tiles meet.
+static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
+static const CGFloat kPixelsPerMB = kBytesPerMB * kBytesPerPixel;
+static const CGFloat kDestTotalPixels = kDestImageSizeMB * kPixelsPerMB;
+static const CGFloat kTileTotalPixels = kSourceImageTileSizeMB * kPixelsPerMB;
+
+static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
 
 + (nullable UIImage *)decodedAndScaledDownImageWithImage:(nullable UIImage *)image {
-    if (image == nil) { return nil; } // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
+    if (![UIImage shouldDecodeImage:image]) {
+        return image;
+    }
     
-#if SD_MAC
-    return image;
-#elif SD_UIKIT || SD_WATCH
-    
-    BOOL shouldDownSize = ({
-        BOOL shouldDoIt = YES;
-        
-        CGImageRef sourceImageRef = image.CGImage;
-        CGSize sourceResolution = CGSizeZero;
-        sourceResolution.width = CGImageGetWidth(sourceImageRef);
-        sourceResolution.height = CGImageGetHeight(sourceImageRef);
-        float sourceTotalPixels = sourceResolution.width * sourceResolution.height;
-        float imageScale = destTotalPixels / sourceTotalPixels;
-        if (imageScale < 1) {
-            shouldDoIt = YES;
-        } else {
-            shouldDoIt = NO;
-        }
-        shouldDoIt;
-    });
-    
-    if (!shouldDownSize) {
+    if (![UIImage shouldScaleDownImage:image]) {
         return [UIImage decodedImageWithImage:image];
     }
     
     CGContextRef destContext;
     
+    // autorelease the bitmap context and all vars to help system to free memory when there are memory warning.
+    // on iOS7, do not forget to call [[SDImageCache sharedImageCache] clearMemory];
     @autoreleasepool {
-        if (image.images != nil) { return image; } // do not decode animated images
-        
         CGImageRef sourceImageRef = image.CGImage;
         
         CGSize sourceResolution = CGSizeZero;
@@ -153,41 +102,21 @@ static const size_t kBitsPerComponent = 8;
         // Determine the scale ratio to apply to the input image
         // that results in an output image of the defined size.
         // see kDestImageSizeMB, and how it relates to destTotalPixels.
-        float imageScale = destTotalPixels / sourceTotalPixels;
+        float imageScale = kDestTotalPixels / sourceTotalPixels;
         CGSize destResolution = CGSizeZero;
         destResolution.width = (int)(sourceResolution.width*imageScale);
         destResolution.height = (int)(sourceResolution.height*imageScale);
         
-        CGImageAlphaInfo alpha = CGImageGetAlphaInfo(sourceImageRef);
-        BOOL anyAlpha = (alpha == kCGImageAlphaFirst ||
-                         alpha == kCGImageAlphaLast ||
-                         alpha == kCGImageAlphaPremultipliedFirst ||
-                         alpha == kCGImageAlphaPremultipliedLast);
-        if (anyAlpha) { return image; }  // do not decode images with alpha
-        
         // current color space
-        CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(sourceImageRef));
-        CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(sourceImageRef);
-        
-        BOOL unsupportedColorSpace = (imageColorSpaceModel == kCGColorSpaceModelUnknown ||
-                                      imageColorSpaceModel == kCGColorSpaceModelMonochrome ||
-                                      imageColorSpaceModel == kCGColorSpaceModelCMYK ||
-                                      imageColorSpaceModel == kCGColorSpaceModelIndexed);
-        if (unsupportedColorSpace) {
-            colorspaceRef = CGColorSpaceCreateDeviceRGB();
-        }
+        CGColorSpaceRef colorspaceRef = [UIImage colorSpaceForImageRef:sourceImageRef];
         
         size_t bytesPerRow = kBytesPerPixel * destResolution.width;
         
         // Allocate enough pixel data to hold the output image.
         void* destBitmapData = malloc( bytesPerRow * destResolution.height );
         if (destBitmapData == NULL) {
-            if (unsupportedColorSpace) {
-                CGColorSpaceRelease(colorspaceRef);
-            }
             return image;
         }
-        
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
@@ -199,10 +128,6 @@ static const size_t kBitsPerComponent = 8;
                                             bytesPerRow,
                                             colorspaceRef,
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
-        
-        if (unsupportedColorSpace) {
-            CGColorSpaceRelease(colorspaceRef);
-        }
         
         if (destContext == NULL) {
             free( destBitmapData );
@@ -224,7 +149,7 @@ static const size_t kBitsPerComponent = 8;
         // The source tile height is dynamic. Since we specified the size
         // of the source tile in MB, see how many rows of pixels high it
         // can be given the input image width.
-        sourceTile.size.height = (int)( tileTotalPixels / sourceTile.size.width );
+        sourceTile.size.height = (int)(kTileTotalPixels / sourceTile.size.width );
         sourceTile.origin.x = 0.0f;
         // The output tile is the same proportions as the input tile, but
         // scaled to image scale.
@@ -234,7 +159,7 @@ static const size_t kBitsPerComponent = 8;
         destTile.origin.x = 0.0f;
         // The source seem overlap is proportionate to the destination seem overlap.
         // this is the amount of pixels to overlap each tile as we assemble the ouput image.
-        float sourceSeemOverlap = (int)((destSeemOverlap/destResolution.height)*sourceResolution.height);
+        float sourceSeemOverlap = (int)((kDestSeemOverlap/destResolution.height)*sourceResolution.height);
         CGImageRef sourceTileImageRef;
         // calculate the number of read/write operations required to assemble the
         // output image.
@@ -248,11 +173,11 @@ static const size_t kBitsPerComponent = 8;
         // Add seem overlaps to the tiles, but save the original tile height for y coordinate calculations.
         float sourceTileHeightMinusOverlap = sourceTile.size.height;
         sourceTile.size.height += sourceSeemOverlap;
-        destTile.size.height += destSeemOverlap;
+        destTile.size.height += kDestSeemOverlap;
         for( int y = 0; y < iterations; ++y ) {
             @autoreleasepool {
                 sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap;
-                destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + destSeemOverlap);
+                destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + kDestSeemOverlap);
                 sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
                 if( y == iterations - 1 && remainder ) {
                     float dify = destTile.size.height;
@@ -277,8 +202,75 @@ static const size_t kBitsPerComponent = 8;
         }
         return destImage;
     }
-#endif
 }
 
++ (BOOL)shouldDecodeImage:(nullable UIImage *)image {
+    // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
+    if (image == nil) {
+        return NO;
+    }
+
+    // do not decode animated images
+    if (image.images != nil) {
+        return NO;
+    }
+    
+    CGImageRef imageRef = image.CGImage;
+    
+    CGImageAlphaInfo alpha = CGImageGetAlphaInfo(imageRef);
+    BOOL anyAlpha = (alpha == kCGImageAlphaFirst ||
+                     alpha == kCGImageAlphaLast ||
+                     alpha == kCGImageAlphaPremultipliedFirst ||
+                     alpha == kCGImageAlphaPremultipliedLast);
+    // do not decode images with alpha
+    if (anyAlpha) {
+        return NO;
+    }
+    
+    return YES;
+}
+
++ (BOOL)shouldScaleDownImage:(nonnull UIImage *)image {
+    BOOL shouldScaleDown = YES;
+        
+    CGImageRef sourceImageRef = image.CGImage;
+    CGSize sourceResolution = CGSizeZero;
+    sourceResolution.width = CGImageGetWidth(sourceImageRef);
+    sourceResolution.height = CGImageGetHeight(sourceImageRef);
+    float sourceTotalPixels = sourceResolution.width * sourceResolution.height;
+    float imageScale = kDestTotalPixels / sourceTotalPixels;
+    if (imageScale < 1) {
+        shouldScaleDown = YES;
+    } else {
+        shouldScaleDown = NO;
+    }
+    
+    return shouldScaleDown;
+}
+
++ (CGColorSpaceRef)colorSpaceForImageRef:(CGImageRef)imageRef {
+    // current
+    CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
+    CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
+    
+    BOOL unsupportedColorSpace = (imageColorSpaceModel == kCGColorSpaceModelUnknown ||
+                                  imageColorSpaceModel == kCGColorSpaceModelMonochrome ||
+                                  imageColorSpaceModel == kCGColorSpaceModelCMYK ||
+                                  imageColorSpaceModel == kCGColorSpaceModelIndexed);
+    if (unsupportedColorSpace) {
+        colorspaceRef = CGColorSpaceCreateDeviceRGB();
+        CFAutorelease(colorspaceRef);
+    }
+    return colorspaceRef;
+}
+#elif SD_MAC
++ (nullable UIImage *)decodedImageWithImage:(nullable UIImage *)image {
+    return image;
+}
+
++ (nullable UIImage *)decodedAndScaledDownImageWithImage:(nullable UIImage *)image {
+    return image;
+}
+#endif
 
 @end
