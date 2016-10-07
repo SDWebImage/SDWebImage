@@ -52,7 +52,7 @@ This library provides an async image downloader with cache support. For convenie
 - Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
-- Read the [SDWebImage 4.0 Migration Guide](https://raw.github.com/rs/SDWebImage/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
+- Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
@@ -84,7 +84,7 @@ Swift:
 imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage:UIImage(imageNamed:"placeholder.png"))
 ```
 
-- For details about how to use the library and clear examples, see [The detailed How to use](https://raw.github.com/rs/SDWebImage/master/Docs/HowToUse.md)
+- For details about how to use the library and clear examples, see [The detailed How to use](Docs/HowToUse.md)
 
 ## Animated Images (GIF) support
 
@@ -166,7 +166,7 @@ github "rs/SDWebImage"
 ```
 
 ### Installation by cloning the repository
-- see [Manual install](https://raw.github.com/rs/SDWebImage/master/Docs/ManualInstallation.md)
+- see [Manual install](ManualInstallation.md)
 
 ### Import headers in your source files
 
