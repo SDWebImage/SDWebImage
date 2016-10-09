@@ -227,9 +227,8 @@
                     [self safelyRemoveOperationFromRunning:strongOperation];
                 }
             }];
-            __weak typeof(subOperationToken)weakSubOperationToken = subOperationToken;
             operation.cancelBlock = ^{
-                [self.imageDownloader cancel:weakSubOperationToken];
+                [self.imageDownloader cancel:subOperationToken];
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 [self safelyRemoveOperationFromRunning:strongOperation];
             };
