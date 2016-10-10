@@ -52,17 +52,24 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     NSMutableArray *images = [NSMutableArray array];
     NSTimeInterval duration = 0;
-    
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(canvasWidth , canvasHeight), NO, 1);
     do {
-        UIImage *image;
-        if (iter.blend_method == WEBP_MUX_BLEND) {
-            image = [self sd_blendWebpImageWithOriginImage:[images lastObject] iterator:iter];
-        } else {
-            image = [self sd_rawWepImageWithData:iter.fragment];
-        }
-        
+        UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
         if (!image) {
             continue;
+        }
+        if (iter.blend_method == WEBP_MUX_NO_BLEND) {
+            [[UIColor clearColor] setFill];
+            UIRectFill(CGRectMake(iter.x_offset, iter.y_offset, iter.width, iter.height));
+        }
+        [image drawAtPoint:CGPointMake(iter.x_offset, iter.y_offset)];
+        image = UIGraphicsGetImageFromCurrentImageContext();
+        
+        if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
+            [[UIColor clearColor] setFill];
+            UIRectFill(CGRectMake(iter.x_offset, iter.y_offset, iter.width, iter.height));
         }
         
         [images addObject:image];
@@ -70,6 +77,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         
     } while (WebPDemuxNextFrame(&iter));
     
+    UIGraphicsEndImageContext();
     WebPDemuxReleaseIterator(&iter);
     WebPDemuxDelete(demuxer);
     
@@ -82,42 +90,6 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     }
 #endif
     return finalImage;
-}
-
-
-+ (nullable UIImage *)sd_blendWebpImageWithOriginImage:(nullable UIImage *)originImage iterator:(WebPIterator)iter {
-    if (!originImage) {
-        return nil;
-    }
-    
-    CGSize size = originImage.size;
-    CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
-    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
-    
-    UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
-    if (!image) {
-        return nil;
-    }
-    
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
-    CGContextRef blendCanvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
-    CGContextDrawImage(blendCanvas, CGRectMake(0, 0, size.width, size.height), originImage.CGImage);
-    CGContextDrawImage(blendCanvas, imageRect, image.CGImage);
-    CGImageRef newImageRef = CGBitmapContextCreateImage(blendCanvas);
-    
-#if SD_UIKIT || SD_WATCH
-    image = [UIImage imageWithCGImage:newImageRef];
-#elif SD_MAC
-    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-    
-    CGImageRelease(newImageRef);
-    CGContextRelease(blendCanvas);
-    CGColorSpaceRelease(colorSpaceRef);
-    
-    return image;
 }
 
 + (nullable UIImage *)sd_rawWepImageWithData:(WebPData)webpData {
