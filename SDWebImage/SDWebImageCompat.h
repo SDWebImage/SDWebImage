@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+#import <Availability.h>
 #import <TargetConditionals.h>
 
 #ifdef __OBJC_GC__
