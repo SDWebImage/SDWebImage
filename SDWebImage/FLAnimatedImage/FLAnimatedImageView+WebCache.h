@@ -10,7 +10,7 @@
 
 #if SD_UIKIT
 
-#if COCOAPODS
+#if !COCOAPODS
 @import FLAnimatedImage;
 #else
 #import "FLAnimatedImageView.h"
