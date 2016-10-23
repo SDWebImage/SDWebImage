@@ -9,7 +9,6 @@
 #import "UIImage+MultiFormat.h"
 #import "UIImage+GIF.h"
 #import "NSData+ImageContentType.h"
-#import <ImageIO/ImageIO.h>
 
 #ifdef SD_WEBP
 #import "UIImage+WebP.h"
@@ -25,7 +24,7 @@
     UIImage *image;
     SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
     if (imageFormat == SDImageFormatGIF) {
-        image = [UIImage sd_animatedGIFWithData:data];
+        image = [UIImage sd_staticGIFImageWithData:data];
     }
 #ifdef SD_WEBP
     else if (imageFormat == SDImageFormatWebP)
@@ -36,7 +35,9 @@
     else {
         image = [[UIImage alloc] initWithData:data];
 #if SD_UIKIT || SD_WATCH
-        UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+        UIImageOrientation orientation = [self sd_imageOrientationFromCGImageSource:imageSource];
+        CFRelease(imageSource);
         if (orientation != UIImageOrientationUp) {
             image = [UIImage imageWithCGImage:image.CGImage
                                         scale:image.scale
@@ -44,15 +45,12 @@
         }
 #endif
     }
-
-
     return image;
 }
 
 #if SD_UIKIT || SD_WATCH
-+(UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
++ (UIImageOrientation)sd_imageOrientationFromCGImageSource:(CGImageSourceRef)imageSource {
     UIImageOrientation result = UIImageOrientationUp;
-    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
     if (imageSource) {
         CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
         if (properties) {
@@ -67,7 +65,6 @@
         } else {
             //NSLog(@"NO PROPERTIES, FAIL");
         }
-        CFRelease(imageSource);
     }
     return result;
 }
@@ -75,7 +72,7 @@
 #pragma mark EXIF orientation tag converter
 // Convert an EXIF image orientation to an iOS one.
 // reference see here: http://sylvana.net/jpegcrop/exif_orientation.html
-+ (UIImageOrientation) sd_exifOrientationToiOSOrientation:(int)exifOrientation {
++ (UIImageOrientation)sd_exifOrientationToiOSOrientation:(int)exifOrientation {
     UIImageOrientation orientation = UIImageOrientationUp;
     switch (exifOrientation) {
         case 1:

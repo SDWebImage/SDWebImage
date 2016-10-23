@@ -10,10 +10,23 @@
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <ImageIO/ImageIO.h>
 #import "UIImage+GIF.h"
 #import "NSData+ImageContentType.h"
 #import "NSImage+WebCache.h"
 #import "SDImageCacheConfig.h"
+
+#if SD_UIKIT || SD_WATCH
+#import <MobileCoreServices/MobileCoreServices.h>
+#endif
+
+#if SD_MAC
+#import <CoreServices/CoreServices.h>
+#endif
+
+#ifdef SD_WEBP
+#import "UIImage+WebP.h"
+#endif
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -309,52 +322,106 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return image;
 }
 
-- (nullable NSData *)diskImageDataBySearchingAllPathsForKey:(nullable NSString *)key {
+- (nullable NSString *)diskImageCachePathBySearchingAllPathsForKey:(nullable NSString *)key {
     NSString *defaultPath = [self defaultCachePathForKey:key];
-    NSData *data = [NSData dataWithContentsOfFile:defaultPath];
-    if (data) {
-        return data;
+    if ([_fileManager fileExistsAtPath:defaultPath]) {
+        return defaultPath;
     }
 
     // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
-    data = [NSData dataWithContentsOfFile:defaultPath.stringByDeletingPathExtension];
-    if (data) {
-        return data;
+    if ([_fileManager fileExistsAtPath:defaultPath.stringByDeletingPathExtension]) {
+        return defaultPath.stringByDeletingPathExtension;
     }
 
     NSArray<NSString *> *customPaths = [self.customPaths copy];
     for (NSString *path in customPaths) {
         NSString *filePath = [self cachePathForKey:key inPath:path];
-        NSData *imageData = [NSData dataWithContentsOfFile:filePath];
-        if (imageData) {
-            return imageData;
+        if ([_fileManager fileExistsAtPath:filePath]) {
+            return filePath;
         }
-
         // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
         // checking the key with and without the extension
-        imageData = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension];
-        if (imageData) {
-            return imageData;
+        if ([_fileManager fileExistsAtPath:filePath.stringByDeletingPathExtension]) {
+            return filePath.stringByDeletingPathExtension;
         }
     }
 
     return nil;
 }
 
+- (nullable NSData *)diskImageDataForKey:(nullable NSString *)key {
+    return [NSData dataWithContentsOfFile:[self diskImageCachePathBySearchingAllPathsForKey:key]];
+}
+
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
-    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
-    if (data) {
-        UIImage *image = [UIImage sd_imageWithData:data];
-        image = [self scaledImageForKey:key image:image];
-        if (self.config.shouldDecompressImages) {
-            image = [UIImage decodedImageWithImage:image];
-        }
-        return image;
-    }
-    else {
+    NSString *filePath = [self diskImageCachePathBySearchingAllPathsForKey:key];
+    if (!filePath) {
         return nil;
     }
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+
+    UIImage *resultImage = nil;
+
+    // Try using ImageIO first.
+    CGImageSourceRef imageSource = CGImageSourceCreateWithURL((__bridge CFURLRef)fileURL, NULL);
+    if (imageSource) {
+        CGImageRef image = CGImageSourceCreateImageAtIndex(imageSource,
+                                                           0,
+                                                           NULL);
+
+        if (image) {
+            CFStringRef utType = CGImageGetUTType(image);
+            size_t count = CGImageSourceGetCount(imageSource);
+
+            CFComparisonResult result = CFStringCompareWithOptions(utType, kUTTypeGIF, CFRangeMake(0 ,CFStringGetLength(utType)), kCFCompareCaseInsensitive);
+            if (result == kCFCompareEqualTo) {
+                if (count <= 1) {
+                    NSData *data = [self diskImageDataForKey:key];
+                    if (data) {
+                        resultImage = [[UIImage alloc] initWithData:data];
+                    }
+                } else {
+                    resultImage = [UIImage sd_staticGIFImageWithCGImageSource:imageSource];
+                }
+            } else {
+#if SD_MAC
+                resultImage = [[UIImage alloc] initWithCGImage:image size:NSZeroSize];
+#endif
+#if SD_UIKIT || SD_WATCH
+                resultImage = [UIImage imageWithCGImage:image];
+                UIImageOrientation orientation = [UIImage sd_imageOrientationFromCGImageSource:imageSource];
+
+                if (orientation != UIImageOrientationUp) {
+                    resultImage = [UIImage imageWithCGImage:resultImage.CGImage
+                                                      scale:resultImage.scale
+                                                orientation:orientation];
+                }
+
+#endif
+            }
+            CFRelease(image);
+        } else {
+#ifdef SD_WEBP
+            NSData *data = [self diskImageDataForKey:key];
+            if (data) {
+                resultImage = [UIImage sd_imageWithWebPData:data];
+            }
+#endif
+        }
+    }
+
+    if (imageSource) {
+        CFRelease(imageSource);
+    }
+    if (resultImage) {
+        resultImage = [self scaledImageForKey:key image:resultImage];
+        if (self.config.shouldDecompressImages) {
+            resultImage = [UIImage decodedImageWithImage:resultImage];
+        }
+        return resultImage;
+    }
+    return nil;
 }
 
 - (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
@@ -373,8 +440,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
         NSData *diskData = nil;
+        // We need the diskData for GIF (and only for GIF), because FLAnimatedImage requires NSData to initialize itself.
         if ([image isGIF]) {
-            diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+            diskData = [self diskImageDataForKey:key];
         }
         if (doneBlock) {
             doneBlock(image, diskData, SDImageCacheTypeMemory);
@@ -390,7 +458,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
 
         @autoreleasepool {
-            NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+            NSData *diskData = [self diskImageDataForKey:key];
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage && self.config.shouldCacheImagesInMemory) {
                 NSUInteger cost = SDCacheCostForImage(diskImage);

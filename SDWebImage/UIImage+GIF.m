@@ -8,13 +8,12 @@
  */
 
 #import "UIImage+GIF.h"
-#import <ImageIO/ImageIO.h>
 #import "objc/runtime.h"
 #import "NSImage+WebCache.h"
 
 @implementation UIImage (GIF)
 
-+ (UIImage *)sd_animatedGIFWithData:(NSData *)data {
++ (UIImage *)sd_staticGIFImageWithData:(NSData *)data {
     if (!data) {
         return nil;
     }
@@ -28,28 +27,34 @@
     if (count <= 1) {
         staticImage = [[UIImage alloc] initWithData:data];
     } else {
-        // we will only retrieve the 1st frame. the full GIF support is available via the FLAnimatedImageView category.
-        // this here is only code to allow drawing animated images as static ones
-#if SD_WATCH
-        CGFloat scale = 1;
-        scale = [WKInterfaceDevice currentDevice].screenScale;
-#elif SD_UIKIT
-        CGFloat scale = 1;
-        scale = [UIScreen mainScreen].scale;
-#endif
-        
-        CGImageRef CGImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-#if SD_UIKIT || SD_WATCH
-        UIImage *frameImage = [UIImage imageWithCGImage:CGImage scale:scale orientation:UIImageOrientationUp];
-        staticImage = [UIImage animatedImageWithImages:@[frameImage] duration:0.0f];
-#elif SD_MAC
-        staticImage = [[UIImage alloc] initWithCGImage:CGImage size:NSZeroSize];
-#endif
-        CGImageRelease(CGImage);
+        staticImage = [self sd_staticGIFImageWithCGImageSource:source];
     }
 
     CFRelease(source);
 
+    return staticImage;
+}
+
++ (UIImage *)sd_staticGIFImageWithCGImageSource:(CGImageSourceRef)imageSource {
+    UIImage *staticImage;
+    // we will only retrieve the 1st frame. the full GIF support is available via the FLAnimatedImageView category.
+    // this here is only code to allow drawing animated images as static ones
+#if SD_WATCH
+    CGFloat scale = 1;
+    scale = [WKInterfaceDevice currentDevice].screenScale;
+#elif SD_UIKIT
+    CGFloat scale = 1;
+    scale = [UIScreen mainScreen].scale;
+#endif
+
+    CGImageRef CGImage = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+#if SD_UIKIT || SD_WATCH
+    UIImage *frameImage = [UIImage imageWithCGImage:CGImage scale:scale orientation:UIImageOrientationUp];
+    staticImage = [UIImage animatedImageWithImages:@[frameImage] duration:0.0f];
+#elif SD_MAC
+    staticImage = [[UIImage alloc] initWithCGImage:CGImage size:NSZeroSize];
+#endif
+    CGImageRelease(CGImage);
     return staticImage;
 }
 
