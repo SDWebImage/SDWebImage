@@ -166,7 +166,7 @@ github "rs/SDWebImage"
 ```
 
 ### Installation by cloning the repository
-- see [Manual install](ManualInstallation.md)
+- see [Manual install](Docs/ManualInstallation.md)
 
 ### Import headers in your source files
 
