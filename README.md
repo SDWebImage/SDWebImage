@@ -119,7 +119,17 @@ If you don't control the image server you're using, you may not be able to chang
 
 ### Add a progress indicator
 
-See this category: https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage
+Add these before you call ```sd_setImageWithURL```
+
+``` objective-c
+[imageView setShowActivityIndicatorView:YES];
+[imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+```
+
+``` swift
+imageView.setShowActivityIndicatorView(true)
+imageView.setIndicatorStyle(.Gray)
+```
 
 Installation
 ------------
