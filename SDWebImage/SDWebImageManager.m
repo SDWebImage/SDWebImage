@@ -324,6 +324,9 @@
         self.cacheOperation = nil;
     }
     if (self.cancelBlock) {
+        // http://clang.llvm.org/docs/AutomaticReferenceCounting.html#self
+        __unused id strongSelf = self;
+        
         self.cancelBlock();
         
         // TODO: this is a temporary fix to #809.
