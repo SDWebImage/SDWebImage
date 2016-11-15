@@ -315,4 +315,8 @@ didReceiveResponse:(NSURLResponse *)response
     [dataOperation URLSession:session task:task didReceiveChallenge:challenge completionHandler:completionHandler];
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
+    completionHandler(request);
+}
+
 @end
