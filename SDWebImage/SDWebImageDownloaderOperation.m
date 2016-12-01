@@ -430,11 +430,7 @@ didReceiveResponse:(NSURLResponse *)response
                 the response data will be nil.
                 So we don't need to check the cache option here, because we have set the cache option of the request already, and system will obey it.
              */
-            
-//            if (self.options & SDWebImageDownloaderUseNSURLCache) {
-//                // hack
-//                [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
-//            } else if (self.imageData) {
+            if (self.imageData) {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
@@ -460,7 +456,7 @@ didReceiveResponse:(NSURLResponse *)response
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
             }
-//        }
+        }
     }
     [self done];
 }
