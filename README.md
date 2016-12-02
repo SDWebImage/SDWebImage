@@ -88,8 +88,8 @@ imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.
 
 ## Animated Images (GIF) support
 
-- Starting with the 4.0 version, we relly on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
-- To use it, simply make sure you us `FLAnimatedImageView` instead of `UIImageView`.
+- Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
+- To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
 - **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
 - **Important**: FLAnimatedImage only works on the iOS platform, so for all the other platforms (OS X, tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
 
