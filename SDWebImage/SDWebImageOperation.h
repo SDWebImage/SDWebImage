@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
+//SDWebImage的Operation接口
 @protocol SDWebImageOperation <NSObject>
 
 - (void)cancel;
