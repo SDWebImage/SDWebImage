@@ -81,7 +81,7 @@ Objective-C:
 ```swift
 Swift:
 
-imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage:UIImage(imageNamed:"placeholder.png"))
+imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
 
 - For details about how to use the library and clear examples, see [The detailed How to use](Docs/HowToUse.md)
