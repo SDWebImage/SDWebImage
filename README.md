@@ -124,13 +124,13 @@ If you don't control the image server you're using, you may not be able to chang
 Add these before you call ```sd_setImageWithURL```
 
 ``` objective-c
-[imageView setShowActivityIndicatorView:YES];
-[imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+[imageView sd_setShowActivityIndicatorView:YES];
+[imageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
 ```
 
 ``` swift
-imageView.setShowActivityIndicatorView(true)
-imageView.setIndicatorStyle(.Gray)
+imageView.sd_setShowActivityIndicatorView(true)
+imageView.sd_setIndicatorStyle(.Gray)
 ```
 
 Installation
