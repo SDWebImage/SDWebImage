@@ -14,27 +14,26 @@ import Foundation
     public typealias SDImageType = NSImage
     public typealias SDColorType = NSColor
     public typealias SDImageViewType = NSImageView
-    typealias Button = NSButton
 #else
     import UIKit
     public typealias SDImageType = UIImage
     public typealias SDColorType = UIColor
-    #if !os(watchOS)
-        public typealias SDImageViewType = UIImageView
-    #endif
+#if !os(watchOS)
+    public typealias SDImageViewType = UIImageView
+#endif
 #endif
 
+#if !os(watchOS)
 extension SDImageViewType {
 
-    @nonobjc public func sd_setImage(url: URL?, placeholderImage: SDImageType? = nil, options: SDWebImageOptions = .init(rawValue: 0), progress: SDWebImageDownloaderProgressBlock? = nil, completed: SDExternalCompletionBlock? = nil) {
+    @nonobjc public func sd_setImage(with url: URL?, placeholderImage: SDImageType? = nil, options: SDWebImageOptions = .init(rawValue: 0), progress: SDWebImageDownloaderProgressBlock? = nil, completed: SDExternalCompletionBlock? = nil) {
         __sd_setImage(with: url, placeholderImage: placeholderImage, options: options, progress: progress, completed: completed)
     }
 
     #if os(iOS) || os(tvOS)
     @nonobjc public func sd_setHighlightedImage(url: URL?, options: SDWebImageOptions = .init(rawValue: 0), progress: SDWebImageDownloaderProgressBlock? = nil, completed: SDExternalCompletionBlock? = nil) {
-    __sd_setHighlightedImage(with: url, options: options, progress: progress, completed: completed)
+        __sd_setHighlightedImage(with: url, options: options, progress: progress, completed: completed)
     }
     #endif
-
 }
-
+#endif
