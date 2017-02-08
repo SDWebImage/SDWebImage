@@ -41,6 +41,13 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 
 #pragma mark - Properties
 
+@property (assign, nonatomic) NSInteger maxCacheAge;
+ 
+/**
+*  The maximum size of the cache, in bytes.
+*/
+@property (assign, nonatomic) NSUInteger maxCacheSize;
+
 /**
  *  Cache Config object - storing all kind of settings
  */
