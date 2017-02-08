@@ -63,9 +63,10 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.imageURLStorage removeObjectForKey:@(state)];
-    } else {
-        self.imageURLStorage[@(state)] = url;
+        return;
     }
+    
+    self.imageURLStorage[@(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
@@ -108,9 +109,10 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.imageURLStorage removeObjectForKey:@(state)];
-    } else {
-        self.imageURLStorage[@(state)] = url;
+        return;
     }
+    
+    self.imageURLStorage[@(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
