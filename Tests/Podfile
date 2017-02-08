@@ -1,11 +1,15 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
+use_frameworks!
+
 xcodeproj 'SDWebImage Tests'
 workspace '../SDWebImage'
 
 target 'Tests' do
-  platform :ios, '7.0'
-  pod 'Expecta', '<=0.3.1'
-  pod 'SDWebImage', :path => '../'
+  platform :ios, '8.0'
+  pod 'Expecta'
+  pod 'SDWebImage/WebP', :path => '../'
+  pod 'SDWebImage/MapKit', :path => '../'
+  pod 'SDWebImage/GIF', :path => '../'
 
 end

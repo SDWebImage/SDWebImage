@@ -17,14 +17,14 @@
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
 @property (assign, nonatomic) NSTimeInterval startedTime;
-@property (copy, nonatomic) SDWebImagePrefetcherCompletionBlock completionBlock;
-@property (copy, nonatomic) SDWebImagePrefetcherProgressBlock progressBlock;
+@property (copy, nonatomic, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
+@property (copy, nonatomic, nullable) SDWebImagePrefetcherProgressBlock progressBlock;
 
 @end
 
 @implementation SDWebImagePrefetcher
 
-+ (instancetype)sharedImagePrefetcher {
++ (nonnull instancetype)sharedImagePrefetcher {
     static dispatch_once_t once;
     static id instance;
     dispatch_once(&once, ^{
@@ -33,11 +33,11 @@
     return instance;
 }
 
-- (instancetype)init {
+- (nonnull instancetype)init {
     return [self initWithImageManager:[SDWebImageManager new]];
 }
 
-- (id)initWithImageManager:(SDWebImageManager *)manager {
+- (nonnull instancetype)initWithImageManager:(SDWebImageManager *)manager {
     if ((self = [super init])) {
         _manager = manager;
         _options = SDWebImageLowPriority;
@@ -103,12 +103,12 @@
 
         if (image) {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
             }
         }
         else {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
             }
 
             // Add last failed
@@ -150,6 +150,42 @@
     id<SDWebImageOperation> operation = self.unfinishedOperations[url];
     if (operation) {
         [self.manager cancelOperations:@[operation]];
+    }
+}
+
+- (void)reportStatus {
+    NSUInteger total = (self.prefetchURLs).count;
+    if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
+        [self.delegate imagePrefetcher:self
+               didFinishWithTotalCount:(total - self.skippedCount)
+                          skippedCount:self.skippedCount
+         ];
+    }
+}
+
+- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls {
+    [self prefetchURLs:urls progress:nil completed:nil];
+}
+
+- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+            progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
+           completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock {
+    [self cancelPrefetching]; // Prevent duplicate prefetch request
+    self.startedTime = CFAbsoluteTimeGetCurrent();
+    self.prefetchURLs = urls;
+    self.completionBlock = completionBlock;
+    self.progressBlock = progressBlock;
+
+    if (urls.count == 0) {
+        if (completionBlock) {
+            completionBlock(0,0);
+        }
+    } else {
+        // Starts prefetching from the very first image on the list with the max allowed concurrency
+        NSUInteger listCount = self.prefetchURLs.count;
+        for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
+            [self startPrefetchingAtIndex:i];
+        }
     }
 }
 
