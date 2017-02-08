@@ -137,12 +137,6 @@
             }
         }
     }];
-
-    @synchronized(self.unfinishedOperations) {
-        if (operation) {
-            self.unfinishedOperations[url] = operation;
-        }
-    }
 }
 
 - (void)cancelPrefetchingForURL:(NSURL *)url
