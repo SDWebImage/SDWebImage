@@ -64,7 +64,7 @@ static char TAG_ACTIVITY_SHOW;
                 if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock) {
                     completedBlock(image, error, cacheType, url);
                     return;
-                } else if (image) {
+                } else if (image || data) {
                     [sself sd_setImage:image imageData:data basedOnClassOrViaCustomSetImageBlock:setImageBlock];
                     [sself sd_setNeedsLayout];
                 } else {

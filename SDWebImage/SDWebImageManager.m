@@ -70,8 +70,8 @@
                      completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     NSString *key = [self cacheKeyForURL:url];
     
-    BOOL isInMemoryCache = ([self.imageCache imageFromMemoryCacheForKey:key] != nil);
-    
+    BOOL isInMemoryCache = ([self.imageCache objectFromMemoryCacheForKey:key] != nil);
+
     if (isInMemoryCache) {
         // making sure we call the completion block on the main queue
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -146,7 +146,7 @@
             return;
         }
 
-        if ((!cachedImage || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
+        if (((!cachedImage && !cachedData) || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
                 // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
@@ -217,7 +217,7 @@
                             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         });
                     } else {
-                        if (downloadedImage && finished) {
+                        if ((downloadedImage || downloadedData) && finished) {
                             [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
                         }
                         [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
@@ -233,7 +233,7 @@
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 [self safelyRemoveOperationFromRunning:strongOperation];
             };
-        } else if (cachedImage) {
+        } else if (cachedImage || cachedData) {
             __strong __typeof(weakOperation) strongOperation = weakOperation;
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
             [self safelyRemoveOperationFromRunning:operation];

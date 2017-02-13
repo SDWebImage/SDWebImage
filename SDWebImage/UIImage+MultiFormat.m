@@ -25,7 +25,7 @@
     UIImage *image;
     SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
     if (imageFormat == SDImageFormatGIF) {
-        image = [UIImage sd_animatedGIFWithData:data];
+        return [[UIImage alloc] initWithData:data];
     }
 #ifdef SD_WEBP
     else if (imageFormat == SDImageFormatWebP)
