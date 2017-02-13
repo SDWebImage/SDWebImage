@@ -157,10 +157,10 @@ static char TAG_ACTIVITY_SHOW;
 - (void)sd_addActivityIndicator {
 #if SD_UIKIT
     if (!self.activityIndicator) {
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
-        self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
-        
         dispatch_main_async_safe(^{
+            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
+            self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+        
             [self addSubview:self.activityIndicator];
             
             [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
