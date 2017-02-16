@@ -13,6 +13,7 @@
 #import <Expecta/Expecta.h>
 
 #import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/UIImage+GIF.h>
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
 
@@ -215,6 +216,23 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     }];
 }
 
+- (void)test41InsertionOfGif {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"storeImage forKey"];
+    
+    NSData *data = [self gifDataForTesting];
+    UIImage *image = [UIImage sd_animatedGIFWithData:data];
+    [self.sharedImageCache storeImage:image imageData:data forKey:kImageTestKey toDisk:YES completion:nil];
+    expect([self.sharedImageCache objectFromMemoryCacheForKey:kImageTestKey]).to.equal(data);
+    [self.sharedImageCache diskImageExistsWithKey:kImageTestKey completion:^(BOOL isInCache) {
+        if (isInCache) {
+            [expectation fulfill];
+        } else {
+            XCTFail(@"Gif should be in cache");
+        }
+    }];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+}
+
 #pragma mark Helper methods
 
 - (void)clearAllCaches{
@@ -233,10 +251,23 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     return reusableImage;
 }
 
+- (NSData *)gifDataForTesting {
+    static NSData *reusableGifData = nil;
+    if (!reusableGifData) {
+        reusableGifData = [NSData dataWithContentsOfFile:[self testGifPath]];
+    }
+    return reusableGifData;
+}
+
 - (NSString *)testImagePath {
     
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
 }
 
+- (NSString *)testGifPath {
+    
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    return [testBundle pathForResource:@"TestImage" ofType:@"gif"];
+}
 @end
