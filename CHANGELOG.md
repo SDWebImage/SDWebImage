@@ -1,3 +1,8 @@
+## [4.0.0 - New platforms (Mac OS X and watchOS) + refactoring, on Jan 28th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.0.0)
+
+See [all tickets marked for the 4.0.0 release](https://github.com/rs/SDWebImage/milestone/3)
+Versions 4.0.0-beta and 4.0.0-beta 2 list all the changes. 
+
 ## [4.0.0 beta 2 - New platforms (Mac OS X and watchOS) + refactoring, on Oct 6th, 2016](https://github.com/rs/SDWebImage/releases/tag/4.0.0-beta2)
 
 See [all tickets marked for the 4.0.0 release](https://github.com/rs/SDWebImage/milestone/3)
@@ -60,7 +65,7 @@ See [all tickets marked for the 4.0.0 release](https://github.com/rs/SDWebImage/
   - renamed `SDWebImage` iOS static lib target to `SDWebImage iOS static` for clarity
 - improving the unit tests code coverage #1681 required
   - Refactored `NSData` `ImageContentType` category, instead of returning the contentType as a string, the new added method `sd_imageFormatForImageData` will return a `SDImageFormat` enum value
-  - `SDImageCache` configuration properties moved into `SDImageCacheConfiguration` (which is now available via `config` property):
+  - `SDImageCache` configuration properties moved into `SDImageCacheConfig` (which is now available via `config` property):
     - `shouldDecompressImages`
     - `shouldDisableiCloud`
     - `shouldCacheImagesInMemory`

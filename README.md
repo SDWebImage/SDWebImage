@@ -81,7 +81,9 @@ Objective-C:
 ```swift
 Swift:
 
-imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage:UIImage(imageNamed:"placeholder.png"))
+@import SDWebImage
+
+imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
 
 - For details about how to use the library and clear examples, see [The detailed How to use](Docs/HowToUse.md)
@@ -89,6 +91,7 @@ imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.
 ## Animated Images (GIF) support
 
 - Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
+- If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
 - To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
 - **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
 - **Important**: FLAnimatedImage only works on the iOS platform, so for all the other platforms (OS X, tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
@@ -119,7 +122,17 @@ If you don't control the image server you're using, you may not be able to chang
 
 ### Add a progress indicator
 
-See this category: https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage
+Add these before you call ```sd_setImageWithURL```
+
+``` objective-c
+[imageView sd_setShowActivityIndicatorView:YES];
+[imageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+```
+
+``` swift
+imageView.sd_setShowActivityIndicatorView(true)
+imageView.sd_setIndicatorStyle(.Gray)
+```
 
 Installation
 ------------
@@ -147,7 +160,7 @@ use_frameworks!
 
 #### Subspecs
 
-There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+There are 4 subspecs available now: `Core`, `MapKit`, `GIF` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
 
 Podfile example:
 ```
@@ -166,7 +179,7 @@ github "rs/SDWebImage"
 ```
 
 ### Installation by cloning the repository
-- see [Manual install](ManualInstallation.md)
+- see [Manual install](Docs/ManualInstallation.md)
 
 ### Import headers in your source files
 
