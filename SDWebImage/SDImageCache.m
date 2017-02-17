@@ -215,7 +215,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         NSUInteger cost = SDCacheCostForImage(image);
         SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
         if (imageFormat == SDImageFormatGIF) {
-            [self.memCache setObject:imageData forKey:key];
+            [self.memCache setObject:imageData forKey:key cost: imageData.length];
         } else {
             [self.memCache setObject:image forKey:key cost:cost];
         }
@@ -405,7 +405,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage && self.config.shouldCacheImagesInMemory) {
                 if ([NSData sd_imageFormatForImageData:diskData] == SDImageFormatGIF) {
-                    [self.memCache setObject:diskData forKey:key];
+                    [self.memCache setObject:diskData forKey:key cost: diskData.length];
                 } else {
                     NSUInteger cost = SDCacheCostForImage(diskImage);
                     [self.memCache setObject:diskImage forKey:key cost:cost];
