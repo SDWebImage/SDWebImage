@@ -13,7 +13,6 @@
 #import "UIImage+GIF.h"
 #import "NSData+ImageContentType.h"
 #import "NSImage+WebCache.h"
-#import "SDImageCacheConfig.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
