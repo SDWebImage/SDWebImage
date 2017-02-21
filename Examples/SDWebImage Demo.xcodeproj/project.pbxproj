@@ -532,6 +532,9 @@
 					43A629F91D0E07600089D7DD = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
+					53761294155AB74D005750A4 = {
+						ProvisioningStyle = Manual;
+					};
 				};
 			};
 			buildConfigurationList = 5376128F155AB74D005750A4 /* Build configuration list for PBXProject "SDWebImage Demo" */;
@@ -1133,6 +1136,7 @@
 		537612BA155AB74D005750A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -1158,6 +1162,7 @@
 		537612BB155AB74D005750A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",

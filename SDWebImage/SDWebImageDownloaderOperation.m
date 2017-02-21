@@ -67,21 +67,21 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                                 options:(SDWebImageDownloaderOptions)options {
     if ((self = [super init])) {
         _request = [request copy];
-        _shouldDecompressImages = YES;
-        _options = options;
-        _callbackBlocks = [NSMutableArray new];
+        _shouldDecompressImages = YES;//是否解压图片
+        _options = options;//图片的下载选项
+        _callbackBlocks = [NSMutableArray new];//保存图片下载过程的回调Block的数组
         _executing = NO;
         _finished = NO;
-        _expectedSize = 0;
+        _expectedSize = 0;//预计图片数据量大小
         _unownedSession = session;
         responseFromCached = YES; // Initially wrong until `- URLSession:dataTask:willCacheResponse:completionHandler: is called or not called
-        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
+        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);//创建并发队列
     }
     return self;
 }
 
 - (void)dealloc {
-    SDDispatchQueueRelease(_barrierQueue);
+    SDDispatchQueueRelease(_barrierQueue);//释放队列
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
