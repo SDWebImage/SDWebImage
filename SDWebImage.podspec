@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
     gif.dependency 'SDWebImage/Core'
     gif.dependency 'FLAnimatedImage', '~> 1.0'
     gif.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/FLAnimatedImage/FLAnimatedImage'
+      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(PODS_ROOT)/FLAnimatedImage/FLAnimatedImage'
     }
   end
 
@@ -55,11 +55,11 @@ Pod::Spec.new do |s|
     webp.source_files = 'SDWebImage/UIImage+WebP.{h,m}'
     webp.xcconfig = { 
       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
+      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(PODS_ROOT)/libwebp/src'
     }
     webp.watchos.xcconfig = {
       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1 WEBP_USE_INTRINSICS=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
+      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(PODS_ROOT)/libwebp/src'
     }
     webp.dependency 'SDWebImage/Core'
     webp.dependency 'libwebp'
