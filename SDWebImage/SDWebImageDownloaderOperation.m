@@ -52,8 +52,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation orientation;
 #endif
-    //useless now
-//    BOOL responseFromCached;
 }
 
 @synthesize executing = _executing;
@@ -75,7 +73,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _finished = NO;
         _expectedSize = 0;
         _unownedSession = session;
-//        responseFromCached = YES; // Initially wrong until `- URLSession:dataTask:willCacheResponse:completionHandler: is called or not called
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
@@ -387,8 +384,7 @@ didReceiveResponse:(NSURLResponse *)response
           dataTask:(NSURLSessionDataTask *)dataTask
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
  completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
-
-//    responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
+    
     NSCachedURLResponse *cachedResponse = proposedResponse;
 
     if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
@@ -418,17 +414,10 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
-             *  See #1608 and #1623 - apparently, there is a race condition on `NSURLCache` that causes a crash
-             *  Limited the calls to `cachedResponseForRequest:` only for cases where we should ignore the cached response
-             *    and images for which responseFromCached is YES (only the ones that cannot be cached).
-             *  Note: responseFromCached is set to NO inside `willCacheResponse:`. This method doesn't get called for large images or images behind authentication
-             */
-            
-            /**
-                If you specified to use `NSURLCache`, then the response you get here is what you need.
-                if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`(This name is confusing),
-                the response data will be nil.
-                So we don't need to check the cache option here, because we have set the cache option of the request already, and system will obey it.
+             *  If you specified to use `NSURLCache`, then the response you get here is what you need.
+             *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
+             *  the response data will be nil.
+             *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             if (self.imageData) {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
