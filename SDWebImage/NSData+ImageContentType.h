@@ -1,26 +1,33 @@
-//
-// Created by Fabrice Aneche on 06/01/14.
-// Copyright (c) 2014 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ * (c) Fabrice Aneche
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import <Foundation/Foundation.h>
+#import "SDWebImageCompat.h"
+
+typedef NS_ENUM(NSInteger, SDImageFormat) {
+    SDImageFormatUndefined = -1,
+    SDImageFormatJPEG = 0,
+    SDImageFormatPNG,
+    SDImageFormatGIF,
+    SDImageFormatTIFF,
+    SDImageFormatWebP
+};
 
 @interface NSData (ImageContentType)
 
 /**
- *  Compute the content type for an image data
+ *  Return image format
  *
- *  @param data the input data
+ *  @param data the input image data
  *
- *  @return the content type as string (i.e. image/jpeg, image/gif)
+ *  @return the image format as `SDImageFormat` (enum)
  */
-+ (NSString *)sd_contentTypeForImageData:(NSData *)data;
-
-@end
-
-
-@interface NSData (ImageContentTypeDeprecated)
-
-+ (NSString *)contentTypeForImageData:(NSData *)data __deprecated_msg("Use `sd_contentTypeForImageData:`");
++ (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data;
 
 @end
