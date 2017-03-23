@@ -10,8 +10,8 @@
 
 #if SD_UIKIT
 
-#if COCOAPODS
-@import FLAnimatedImage;
+#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
+#import <FLAnimatedImage/FLAnimatedImage.h>
 #else
 #import "FLAnimatedImageView.h"
 #endif

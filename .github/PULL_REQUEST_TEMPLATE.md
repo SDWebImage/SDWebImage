@@ -6,7 +6,7 @@
 
 * [ ] I have updated this branch with the latest master to avoid conflicts (via merge from master or rebase)
 * [ ] I have added the required tests to prove the fix/feature I am adding
-* [ ] I have updated the documentation (if necesarry)
+* [ ] I have updated the documentation (if necessary)
 * [ ] I have run the tests and they pass
 * [ ] I have run the lint and it passes (`pod lib lint`)
 

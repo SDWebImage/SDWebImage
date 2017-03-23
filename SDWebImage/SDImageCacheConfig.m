@@ -1,10 +1,10 @@
-//
-//  SDImageCacheConfig.m
-//  SDWebImage
-//
-//  Created by Bogdan on 09/09/16.
-//  Copyright © 2016 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "SDImageCacheConfig.h"
 

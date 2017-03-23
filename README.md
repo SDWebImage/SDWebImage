@@ -7,12 +7,12 @@
 [![Pod Version](http://img.shields.io/cocoapods/v/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod License](http://img.shields.io/cocoapods/l/SDWebImage.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/3.3/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/3.3)
+[![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage)
 [![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/rs/SDWebImage)
-[![codecov](https://codecov.io/gh/rs/SDWebImage/branch/testing/graph/badge.svg)](https://codecov.io/gh/rs/SDWebImage)
+[![codecov](https://codecov.io/gh/rs/SDWebImage/branch/master/graph/badge.svg)](https://codecov.io/gh/rs/SDWebImage)
 
-This library provides an async image downloader with cache support. For convenience, we added categories for some `UIControl` elements like `UIImageView`.
+This library provides an async image downloader with cache support. For convenience, we added categories for UI elements like `UIImageView`, `UIButton`, `MKAnnotationView`.
 
 ## Features
 
@@ -29,7 +29,7 @@ This library provides an async image downloader with cache support. For convenie
 ## Supported Image Formats
 
 - Image formats supported by UIImage (JPEG, PNG, ...), including GIF
-- WebP format (use the `WebP` subspec)
+- WebP format, including animated WebP (use the `WebP` subspec)
 
 ## Requirements
 
@@ -41,7 +41,7 @@ This library provides an async image downloader with cache support. For convenie
 
 #### Backwards compatibility
 
-- For iOS < 7.0, please use the last [3.x version - currently 3.8.2](https://github.com/rs/SDWebImage/tree/3.8.2)
+- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/rs/SDWebImage/tree/3.7.6)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 ## Getting Started
@@ -52,6 +52,7 @@ This library provides an async image downloader with cache support. For convenie
 - Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
+- Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
@@ -80,15 +81,18 @@ Objective-C:
 ```swift
 Swift:
 
-imageView.sd_setImageWithURL(NSURL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage:UIImage(imageNamed:"placeholder.png"))
+@import SDWebImage
+
+imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
 
-- For details about how to use the library and clear examples, see [The detailed How to use](https://raw.github.com/rs/SDWebImage/master/Docs/HowToUse.md)
+- For details about how to use the library and clear examples, see [The detailed How to use](Docs/HowToUse.md)
 
 ## Animated Images (GIF) support
 
-- Starting with the 4.0 version, we relly on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
-- To use it, simply make sure you us `FLAnimatedImageView` instead of `UIImageView`.
+- Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
+- If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
+- To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
 - **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
 - **Important**: FLAnimatedImage only works on the iOS platform, so for all the other platforms (OS X, tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
 
@@ -118,7 +122,17 @@ If you don't control the image server you're using, you may not be able to chang
 
 ### Add a progress indicator
 
-See this category: https://github.com/JJSaccolo/UIActivityIndicator-for-SDWebImage
+Add these before you call ```sd_setImageWithURL```
+
+``` objective-c
+[imageView sd_setShowActivityIndicatorView:YES];
+[imageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+```
+
+``` swift
+imageView.sd_setShowActivityIndicatorView(true)
+imageView.sd_setIndicatorStyle(.Gray)
+```
 
 Installation
 ------------
@@ -146,7 +160,7 @@ use_frameworks!
 
 #### Subspecs
 
-There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+There are 4 subspecs available now: `Core`, `MapKit`, `GIF` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
 
 Podfile example:
 ```
@@ -165,7 +179,7 @@ github "rs/SDWebImage"
 ```
 
 ### Installation by cloning the repository
-- see [Manual install](https://raw.github.com/rs/SDWebImage/master/Docs/ManualInstallation.md)
+- see [Manual install](Docs/ManualInstallation.md)
 
 ### Import headers in your source files
 
@@ -186,6 +200,7 @@ community can help you solve it.
 ## Collaborators
 - [Konstantinos K.](https://github.com/mythodeia)
 - [Bogdan Poplauschi](https://github.com/bpoplauschi)
+- [Chester Liu](https://github.com/skyline75489)
 
 ## Licenses
 
