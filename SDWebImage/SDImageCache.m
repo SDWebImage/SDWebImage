@@ -217,7 +217,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         if (imageFormat == SDImageFormatGIF) {
             [self.memCache setObject:imageData forKey:key cost: imageData.length];
         } else {
-            [self.memCache setObject:image forKey:key cost:cost];
+            if (image) {
+                [self.memCache setObject:image forKey:key cost:cost];
+            }
         }
 
     }
