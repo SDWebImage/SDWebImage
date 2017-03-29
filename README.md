@@ -200,6 +200,7 @@ community can help you solve it.
 ## Collaborators
 - [Konstantinos K.](https://github.com/mythodeia)
 - [Bogdan Poplauschi](https://github.com/bpoplauschi)
+- [Chester Liu](https://github.com/skyline75489)
 
 ## Licenses
 
