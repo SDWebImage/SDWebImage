@@ -448,7 +448,7 @@ didReceiveResponse:(NSURLResponse *)response
                         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                     }
                     else {
-                        [self callCompletionBlocksWithImage:nil imageData:self.imageData error:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Could not decode image"}] finished:YES];
+                        [self callCompletionBlocksWithImage:nil imageData:self.imageData error:nil finished:YES];
                     }
                 } else {
                     [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
