@@ -421,7 +421,7 @@ didReceiveResponse:(NSURLResponse *)response
              *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             if (self.imageData) {
-                [self convertToImage:self.imageData completed:^(UIImage *image) {
+                [self getImageWithData:self.imageData completed:^(UIImage *image) {
                     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                     image = [self scaledImageForKey:key image:image];
                     
@@ -536,7 +536,7 @@ didReceiveResponse:(NSURLResponse *)response
     });
 }
 
-- (void)convertToImage:(NSData *)data completed:(void (^)(UIImage *))completionHandler {
+- (void)getImageWithData:(NSData *)data completed:(void (^)(UIImage *))completionHandler {
     completionHandler([UIImage sd_imageWithData:data]);
 }
 
