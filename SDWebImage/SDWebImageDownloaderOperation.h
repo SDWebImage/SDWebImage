@@ -119,4 +119,6 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
  */
 - (BOOL)cancel:(nullable id)token;
 
+- (UIImage *)imageWithData:(NSData *)data;
+
 @end
