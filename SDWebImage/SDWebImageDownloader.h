@@ -23,14 +23,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
-     * I think this option should be renamed to 'SDWebImageDownloaderUsingCachedResponseDontLoad'
      */
+
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
-    
     /**
      * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
      * extra time in background to let the request finish. If the background task expires the operation will be cancelled.
      */
+
     SDWebImageDownloaderContinueInBackground = 1 << 4,
 
     /**
@@ -54,6 +54,10 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * Scale down the image
      */
     SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
+    /**
+     * ignore http redirect
+     */
+    SDWebImageDownloaderIgnoreHTTPRedirection = 1 << 9,
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
