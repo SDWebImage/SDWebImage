@@ -411,6 +411,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     if (error) {
         [self callCompletionBlocksWithError:error];
+        [self done];
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
@@ -420,34 +421,38 @@ didReceiveResponse:(NSURLResponse *)response
              *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             if (self.imageData) {
-                UIImage *image = [self imageWithData:self.imageData];
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = [self scaledImageForKey:key image:image];
-                
-                // Do not force decoding animated GIFs
-                if (!image.images) {
-                    if (self.shouldDecompressImages) {
-                        if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
+                [self getImageWithData:self.imageData completed:^(UIImage *image) {
+                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                    image = [self scaledImageForKey:key image:image];
+                    
+                    // Do not force decoding animated GIFs
+                    if (!image.images) {
+                        if (self.shouldDecompressImages) {
+                            if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
 #if SD_UIKIT || SD_WATCH
-                            image = [UIImage decodedAndScaledDownImageWithImage:image];
-                            [self.imageData setData:UIImagePNGRepresentation(image)];
+                                image = [UIImage decodedAndScaledDownImageWithImage:image];
+                                [self.imageData setData:UIImagePNGRepresentation(image)];
 #endif
-                        } else {
-                            image = [UIImage decodedImageWithImage:image];
+                            } else {
+                                image = [UIImage decodedImageWithImage:image];
+                            }
                         }
                     }
-                }
-                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                } else {
-                    [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
-                }
+                    if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                    } else {
+                        [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
+                    }
+                    [self done];
+                }];
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
+                [self done];
             }
+        } else {
+            [self done];
         }
     }
-    [self done];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
@@ -531,8 +536,8 @@ didReceiveResponse:(NSURLResponse *)response
     });
 }
 
-- (UIImage *)imageWithData:(NSData *)data {
-    return [UIImage sd_imageWithData:data];
+- (void)getImageWithData:(NSData *)data completed:(void (^)(UIImage *))completionHandler {
+    completionHandler([UIImage sd_imageWithData:data]);
 }
 
 @end
