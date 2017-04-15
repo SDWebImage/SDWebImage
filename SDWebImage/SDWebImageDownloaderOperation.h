@@ -119,6 +119,9 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
  */
 - (BOOL)cancel:(nullable id)token;
 
-- (UIImage *)imageWithData:(NSData *)data;
+/**
+ *  Converts downloaded image data to a UIImage object.
+ */
+- (nullable UIImage *)imageWithData:(nonnull NSData *)data forCacheKey:(nonnull NSString *)key;
 
 @end
