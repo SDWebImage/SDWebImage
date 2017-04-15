@@ -420,8 +420,17 @@ didReceiveResponse:(NSURLResponse *)response
              *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             if (self.imageData) {
+                NSData *preparedImageData = [self prepareImageData:self.imageData];
+                if (preparedImageData) {
+                    [self.imageData setData:preparedImageData]; 
+                } else {
+                    self.imageData = nil;
+                }
+            }
+
+            if (self.imageData) {
+                UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                UIImage *image = [self imageWithData:self.imageData forCacheKey:key];
                 image = [self scaledImageForKey:key image:image];
                 
                 // Do not force decoding animated GIFs
@@ -531,8 +540,8 @@ didReceiveResponse:(NSURLResponse *)response
     });
 }
 
-- (UIImage *)imageWithData:(NSData *)data forCacheKey:(NSString *)key {
-    return [UIImage sd_imageWithData:data];
+- (NSData *)prepareImageData:(NSData *)data {
+    return data;
 }
 
 @end
