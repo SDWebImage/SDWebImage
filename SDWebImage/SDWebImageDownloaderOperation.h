@@ -97,7 +97,7 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
                                 options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
 
 /**
- *  Adds handlers for progress and completion. Returns a tokent that can be passed to -cancel: to cancel this set of
+ *  Adds handlers for progress and completion. Returns a token that can be passed to -cancel: to cancel this set of
  *  callbacks.
  *
  *  @param progressBlock  the block executed when a new chunk of data arrives.
@@ -119,6 +119,9 @@ extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
  */
 - (BOOL)cancel:(nullable id)token;
 
+/*
+ *  May be implemented by a subclass to prepare image data after download (e.g. decrypt, decompress)
+ */
 - (nullable NSData *)prepareImageData:(nonnull NSData *)data;
 
 @end
