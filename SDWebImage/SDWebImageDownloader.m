@@ -175,13 +175,16 @@ static NSString *const kCompletedCallbackKey = @"completed";
         } else if (options & SDWebImageDownloaderLowPriority) {
             operation.queuePriority = NSOperationQueuePriorityLow;
         }
-
+////--------------------------------------////
+//        APPLE:If the receiver is already executing its task, adding dependencies has no practical effect
+//        i think these code can not make sure LIFO execution
         [wself.downloadQueue addOperation:operation];
         if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
             [wself.lastAddedOperation addDependency:operation];
             wself.lastAddedOperation = operation;
         }
+////--------------------------------------////
     }];
 
     return operation;
