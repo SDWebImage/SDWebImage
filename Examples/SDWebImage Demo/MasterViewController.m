@@ -1,14 +1,45 @@
-//
-//  MasterViewController.m
-//  SDWebImage Demo
-//
-//  Created by Olivier Poitrey on 09/05/12.
-//  Copyright (c) 2012 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "MasterViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "DetailViewController.h"
+#import <SDWebImage/FLAnimatedImageView.h>
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#import <SDWebImage/UIView+WebCache.h>
+
+
+@interface MyCustomTableViewCell : UITableViewCell
+
+@property (nonatomic, strong) UILabel *customTextLabel;
+@property (nonatomic, strong) FLAnimatedImageView *customImageView;
+
+@end
+
+
+@implementation MyCustomTableViewCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        _customImageView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(20.0, 2.0, 60.0, 40.0)];
+        [self.contentView addSubview:_customImageView];
+        _customTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(100.0, 12.0, 200, 20.0)];
+        [self.contentView addSubview:_customTextLabel];
+        
+        _customImageView.clipsToBounds = YES;
+        _customImageView.contentMode = UIViewContentModeScaleAspectFill;
+    }
+    return self;
+}
+
+@end
+
+
 
 @interface MasterViewController () {
     NSMutableArray *_objects;
@@ -19,7 +50,7 @@
 
 @synthesize detailViewController = _detailViewController;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self)
@@ -38,8 +69,12 @@
         _objects = [NSMutableArray arrayWithObjects:
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
+                    @"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp",
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
+                    @"http://littlesvr.ca/apng/images/SteamEngine.webp",
+                    @"http://littlesvr.ca/apng/images/world-cup-2014-42.webp",
+                    @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png",
                     nil];
 
         for (int i=0; i<100; i++) {
@@ -55,7 +90,7 @@
 - (void)flushCache
 {
     [SDWebImageManager.sharedManager.imageCache clearMemory];
-    [SDWebImageManager.sharedManager.imageCache clearDisk];
+    [SDWebImageManager.sharedManager.imageCache clearDiskOnCompletion:nil];
 }
 							
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -79,19 +114,23 @@
 {
     static NSString *CellIdentifier = @"Cell";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil)
-    {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    static UIImage *placeholderImage = nil;
+    if (!placeholderImage) {
+        placeholderImage = [UIImage imageNamed:@"placeholder"];
+    }
+    
+    MyCustomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[MyCustomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    [cell.imageView setShowActivityIndicatorView:YES];
-    [cell.imageView setIndicatorStyle:UIActivityIndicatorViewStyleGray];
-
-    cell.textLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
-    cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:[_objects objectAtIndex:indexPath.row]]
-                      placeholderImage:[UIImage imageNamed:@"placeholder"] options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
+    [cell.customImageView sd_setShowActivityIndicatorView:YES];
+    [cell.customImageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    
+    cell.customTextLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
+    [cell.customImageView sd_setImageWithURL:[NSURL URLWithString:_objects[indexPath.row]]
+                            placeholderImage:placeholderImage
+                                     options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
     return cell;
 }
 
@@ -101,7 +140,7 @@
     {
         self.detailViewController = [[DetailViewController alloc] initWithNibName:@"DetailViewController" bundle:nil];
     }
-    NSString *largeImageURL = [[_objects objectAtIndex:indexPath.row] stringByReplacingOccurrencesOfString:@"small" withString:@"source"];
+    NSString *largeImageURL = [_objects[indexPath.row] stringByReplacingOccurrencesOfString:@"small" withString:@"source"];
     self.detailViewController.imageURL = [NSURL URLWithString:largeImageURL];
     [self.navigationController pushViewController:self.detailViewController animated:YES];
 }
