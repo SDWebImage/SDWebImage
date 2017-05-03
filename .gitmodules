@@ -1,6 +1,6 @@
 [submodule "Vendors/libwebp"]
 	path = Vendors/libwebp
-	url = https://github.com/webmproject/libwebp
+	url = https://chromium.googlesource.com/webm/libwebp
 [submodule "Vendors/FLAnimatedImage"]
 	path = Vendors/FLAnimatedImage
 	url = https://github.com/Flipboard/FLAnimatedImage
