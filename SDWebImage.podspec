@@ -23,6 +23,8 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
+
+  s.preserve_paths = 'SDWebImage/Swift/*'
   
   s.default_subspec = 'Core'
 
@@ -63,5 +65,14 @@ Pod::Spec.new do |s|
     }
     webp.dependency 'SDWebImage/Core'
     webp.dependency 'libwebp'
+  end
+
+  s.subspec 'Swift' do |sw|
+    sw.ios.deployment_target = '8.0'
+    sw.osx.deployment_target = '10.10'
+    sw.watchos.deployment_target = '2.0'
+    sw.tvos.deployment_target = '9.0'
+    sw.dependency 'SDWebImage/Core'
+    sw.source_files = 'SDWebImage/Swift/SDWebImage.swift'
   end
 end
