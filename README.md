@@ -81,7 +81,7 @@ Objective-C:
 ```swift
 Swift:
 
-@import SDWebImage
+import SDWebImage
 
 imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
