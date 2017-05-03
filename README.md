@@ -65,8 +65,6 @@ This library provides an async image downloader with cache support. For convenie
 - If you **have a feature request**, open an issue.
 - If you **want to contribute**, submit a pull request.
 
-## Installation
-
 ## How To Use
 
 ```objective-c
@@ -96,8 +94,7 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 - **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
 - **Important**: FLAnimatedImage only works on the iOS platform, so for all the other platforms (OS X, tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
 
-Common Problems
----------------
+## Common Problems
 
 ### Using dynamic image size with UITableViewCell
 
@@ -134,8 +131,7 @@ imageView.sd_setShowActivityIndicatorView(true)
 imageView.sd_setIndicatorStyle(.Gray)
 ```
 
-Installation
-------------
+## Installation
 
 There are three ways to use SDWebImage in your project:
 - using CocoaPods
