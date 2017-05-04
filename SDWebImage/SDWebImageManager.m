@@ -50,7 +50,10 @@
 - (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
         
+#if SD_UIKIT
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearDates) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
         
         _imageCache = cache;
         _imageDownloader = downloader;
