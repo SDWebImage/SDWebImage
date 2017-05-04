@@ -21,4 +21,10 @@
  */
 - (BOOL)isGIF;
 
+/**
+ * Check if contains a GIF
+ */
+
+- (BOOL)isAnimatedGIF;
+
 @end

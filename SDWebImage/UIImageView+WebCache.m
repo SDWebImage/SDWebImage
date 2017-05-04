@@ -105,6 +105,12 @@
 }
 #endif
 
+- (BOOL)isAnimatedGIF
+{
+    return (self.image.images != nil);
+}
+
+
 @end
 
 #endif

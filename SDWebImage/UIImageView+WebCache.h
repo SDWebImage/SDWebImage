@@ -191,6 +191,14 @@
 
 #endif
 
+/**
+ * Check if UIImageView is displaying a GIF
+ */
+
+- (BOOL)isAnimatedGIF;
+
+
+
 @end
 
 #endif

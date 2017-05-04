@@ -57,4 +57,9 @@
     return (self.images != nil);
 }
 
+- (BOOL)isAnimatedGIF
+{
+    return (self.images != nil);
+}
+
 @end
