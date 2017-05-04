@@ -31,8 +31,6 @@
 
 @synthesize dateCache = _dateCache;
 
-+ (id)sharedManager {
-
  + (nonnull instancetype)sharedManager {
 
     static dispatch_once_t once;
@@ -51,9 +49,9 @@
 
 - (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(clearDates) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-
+        
         _imageCache = cache;
         _imageDownloader = downloader;
         _failedURLs = [NSMutableSet new];
@@ -162,17 +160,6 @@
 -(NSString *)makeDateDirectoryPath:(NSString*)fullNamespace{
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
-}
-
-- (BOOL)cachedImageExistsForURL:(NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    if ([self.imageCache imageFromMemoryCacheForKey:key] != nil) return YES;
-    return [self.imageCache diskImageExistsWithKey:key];
-}
-
-- (BOOL)diskImageExistsForURL:(NSURL *)url {
-    NSString *key = [self cacheKeyForURL:url];
-    return [self.imageCache diskImageExistsWithKey:key];
 }
 
 - (void)cachedImageExistsForURL:(nullable NSURL *)url

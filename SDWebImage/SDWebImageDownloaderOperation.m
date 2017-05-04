@@ -250,9 +250,19 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     return YES;
 }
 
--(BOOL)isNewContentAvailable:(NSURLResponse *)response{
+-(void)isNewContentAvailable:(NSURLResponse *)response completion:(void(^)(BOOL available))completion{
     
-    BOOL available = true;
+    BOOL available = (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304));
+    
+    if (available == false){
+        
+        if (completion != nil){
+            
+            completion(false);
+        }
+        
+        return;
+    }
     
     NSDictionary *headerFields = [((NSHTTPURLResponse *)response) allHeaderFields];
     
@@ -266,18 +276,45 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         formatter.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
         
         _lastModifiedDate = [formatter dateFromString:lastModified];
-        if (modifiedDate != nil && _lastModifiedDate != nil && [[SDImageCache sharedImageCache] diskImageExistsWithKey:response.URL.absoluteString]){
+        if (modifiedDate != nil && _lastModifiedDate != nil){
             
-            //Check whether the URL has modified/updated file or not
-            if ([_lastModifiedDate compare:modifiedDate] != NSOrderedDescending){
+            [[SDImageCache sharedImageCache] diskImageExistsWithKey:response.URL.absoluteString completion:^(BOOL isInCache) {
+               
+                if (isInCache){
+                    
+                    //Check whether the URL has modified/updated file or not
+                    if ([_lastModifiedDate compare:modifiedDate] != NSOrderedDescending){
+                        
+                        //'304 Not Modified' is an exceptional one
+                        
+                        if (completion != nil){
+                            
+                            completion(false);
+                        }
+                        
+                    }else{
+                        
+                        if (completion != nil){
+                            
+                            completion(true);
+                        }
+                    }
+                }else{
+                    
+                    if (completion != nil){
+                        
+                        completion(true);
+                    }
+                }
+            }];
+        }else{
+            
+            if (completion != nil){
                 
-                available = false;
+                completion(true);
             }
         }
     }
-    
-    //'304 Not Modified' is an exceptional one
-    return (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304 && available));
 }
 
 #pragma mark NSURLSessionDataDelegate
@@ -287,37 +324,41 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     
-    if ([self isNewContentAvailable:response]) {
-        NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
-        self.expectedSize = expected;
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, expected, self.request.URL);
+    [self isNewContentAvailable:response completion:^(BOOL available) {
+        
+        if (available){
+            
+            NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
+            self.expectedSize = expected;
+            for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+                progressBlock(0, expected, self.request.URL);
+            }
+            
+            self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
+            self.response = response;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
+            });
+        }else{
+            
+            NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
+            
+            //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
+            //In case of 304 we need just cancel the operation and return cached image from the cache.
+            if (code == 304) {
+                [self cancelInternal];
+            } else {
+                [self.dataTask cancel];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            });
+            
+            [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
+            
+            [self done];
         }
-        
-        self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
-        self.response = response;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
-        });
-    }
-    else {
-        NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
-        
-        //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
-        //In case of 304 we need just cancel the operation and return cached image from the cache.
-        if (code == 304) {
-            [self cancelInternal];
-        } else {
-            [self.dataTask cancel];
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-        });
-        
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
-
-        [self done];
-    }
+    }];
     
     if (completionHandler) {
         completionHandler(NSURLSessionResponseAllow);
@@ -430,6 +471,7 @@ didReceiveResponse:(NSURLResponse *)response
 #pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    
     @synchronized(self) {
         self.dataTask = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -443,23 +485,13 @@ didReceiveResponse:(NSURLResponse *)response
     if (error) {
         [self callCompletionBlocksWithError:error];
     } else {
-        SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
         
-        if (![[NSURLCache sharedURLCache] cachedResponseForRequest:_request]) {
-            responseFromCached = NO;
-        }
-        
-		    if (_lastModifiedDate){
+        if (_lastModifiedDate){
             
             [[SDWebImageManager sharedManager] addDate:_lastModifiedDate forURL:task.response.URL.absoluteString];
         }
         
-        if (completionBlock) {
-            if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached) {
-                completionBlock(nil, nil, nil, YES);
-            } else if (self.imageData) {
-              
-              if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
+        if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
              *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
@@ -494,6 +526,7 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
     }
+    
     [self done];
 }
 

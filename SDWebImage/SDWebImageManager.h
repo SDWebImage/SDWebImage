@@ -10,6 +10,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
+#import <UIKit/UIKit.h>
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
