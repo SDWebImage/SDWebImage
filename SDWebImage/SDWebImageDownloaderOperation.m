@@ -250,17 +250,14 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     return YES;
 }
 
--(void)isNewContentAvailable:(NSURLResponse *)response completion:(void(^)(BOOL available))completion{
+-(void)isNewContentAvailable:(NSURLResponse *)response completion:(nonnull void(^)(BOOL available))completion{
     
     BOOL available = (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304));
     
     if (available == false){
         
-        if (completion != nil){
-            
-            completion(false);
-        }
-        
+        completion(false);
+
         return;
     }
     
@@ -285,35 +282,24 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                     //Check whether the URL has modified/updated file or not
                     if ([_lastModifiedDate compare:modifiedDate] != NSOrderedDescending){
                         
-                        //'304 Not Modified' is an exceptional one
-                        
-                        if (completion != nil){
-                            
-                            completion(false);
-                        }
-                        
+                        completion(false);
+
                     }else{
-                        
-                        if (completion != nil){
-                            
-                            completion(true);
-                        }
-                    }
-                }else{
-                    
-                    if (completion != nil){
                         
                         completion(true);
                     }
+                }else{
+                    
+                    completion(true);
                 }
             }];
         }else{
             
-            if (completion != nil){
-                
-                completion(true);
-            }
+            completion(true);
         }
+    }else{
+        
+        completion(true);
     }
 }
 
