@@ -41,6 +41,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (SDDispatchQueueSetterSementics, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
+@property (nonatomic, retain) NSDate *lastModifiedDate;
+
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -248,6 +250,59 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     return YES;
 }
 
+-(void)isNewContentAvailable:(NSURLResponse *)response completion:(nonnull void(^)(BOOL available))completion{
+    
+    BOOL available = (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304));
+    
+    if (available == false){
+        
+        completion(false);
+
+        return;
+    }
+    
+    NSDictionary *headerFields = [((NSHTTPURLResponse *)response) allHeaderFields];
+    
+    NSString *lastModified = headerFields[@"Last-Modified"];
+    
+    if (lastModified != nil){
+        
+        NSDate *modifiedDate = [[SDWebImageManager sharedManager] dateForURL:response.URL.absoluteString];
+        
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
+        
+        _lastModifiedDate = [formatter dateFromString:lastModified];
+        if (modifiedDate != nil && _lastModifiedDate != nil){
+            
+            [[SDImageCache sharedImageCache] diskImageExistsWithKey:response.URL.absoluteString completion:^(BOOL isInCache) {
+               
+                if (isInCache){
+                    
+                    //Check whether the URL has modified/updated file or not
+                    if ([_lastModifiedDate compare:modifiedDate] != NSOrderedDescending){
+                        
+                        completion(false);
+
+                    }else{
+                        
+                        completion(true);
+                    }
+                }else{
+                    
+                    completion(true);
+                }
+            }];
+        }else{
+            
+            completion(true);
+        }
+    }else{
+        
+        completion(true);
+    }
+}
+
 #pragma mark NSURLSessionDataDelegate
 
 - (void)URLSession:(NSURLSession *)session
@@ -255,39 +310,41 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     
-    //'304 Not Modified' is an exceptional one
-    if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
-        NSInteger expected = (NSInteger)response.expectedContentLength;
-        expected = expected > 0 ? expected : 0;
-        self.expectedSize = expected;
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, expected, self.request.URL);
+    [self isNewContentAvailable:response completion:^(BOOL available) {
+        
+        if (available){
+            
+            NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
+            self.expectedSize = expected;
+            for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+                progressBlock(0, expected, self.request.URL);
+            }
+            
+            self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
+            self.response = response;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
+            });
+        }else{
+            
+            NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
+            
+            //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
+            //In case of 304 we need just cancel the operation and return cached image from the cache.
+            if (code == 304) {
+                [self cancelInternal];
+            } else {
+                [self.dataTask cancel];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            });
+            
+            [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
+            
+            [self done];
         }
-        
-        self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
-        self.response = response;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
-        });
-    }
-    else {
-        NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
-        
-        //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
-        //In case of 304 we need just cancel the operation and return cached image from the cache.
-        if (code == 304) {
-            [self cancelInternal];
-        } else {
-            [self.dataTask cancel];
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
-        });
-        
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
-
-        [self done];
-    }
+    }];
     
     if (completionHandler) {
         completionHandler(NSURLSessionResponseAllow);
@@ -400,6 +457,7 @@ didReceiveResponse:(NSURLResponse *)response
 #pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    
     @synchronized(self) {
         self.dataTask = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -413,6 +471,12 @@ didReceiveResponse:(NSURLResponse *)response
     if (error) {
         [self callCompletionBlocksWithError:error];
     } else {
+        
+        if (_lastModifiedDate){
+            
+            [[SDWebImageManager sharedManager] addDate:_lastModifiedDate forURL:task.response.URL.absoluteString];
+        }
+        
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
@@ -448,6 +512,7 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
     }
+    
     [self done];
 }
 

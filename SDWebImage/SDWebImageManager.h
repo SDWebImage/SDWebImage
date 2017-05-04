@@ -162,6 +162,8 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 @property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
+@property (nonatomic, retain, readonly, nullable) NSString *datePlistPath;
+@property (nonatomic, retain, readonly, nullable) NSCache *dateCache;
 
 /**
  * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can
@@ -268,8 +270,16 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 
 /**
- *Return the cache key for a given URL
+ *Return the date for a given URL string
  */
+-(nullable NSDate *)dateForURL:(nullable NSString *)url;
+
+/**
+ *Add the date for a given URL string
+ */
+-(void)addDate:(nonnull NSDate *)date forURL:(nonnull NSString *)url;
+
+
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 
 @end

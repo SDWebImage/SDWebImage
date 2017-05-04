@@ -254,7 +254,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     NSString *cachePathForKey = [self defaultCachePathForKey:key];
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
-    
+
     [_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil];
     
     // disable iCloud backup
