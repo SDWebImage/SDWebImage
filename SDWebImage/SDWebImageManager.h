@@ -10,7 +10,6 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
-#import <UIKit/UIKit.h>
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
@@ -161,10 +160,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 @property (weak, nonatomic, nullable) id <SDWebImageManagerDelegate> delegate;
 
-@property (strong, nonatomic, readonly) SDImageCache *imageCache;
-@property (strong, nonatomic, readonly) SDWebImageDownloader *imageDownloader;
-@property (nonatomic, retain, readonly) NSString *datePlistPath;
-@property (nonatomic, retain, readonly) NSCache *dateCache;
+@property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
+@property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
+@property (nonatomic, retain, readonly, nullable) NSString *datePlistPath;
+@property (nonatomic, retain, readonly, nullable) NSCache *dateCache;
 
 /**
  * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can
@@ -271,40 +270,16 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 
 /**
- *Return the cache key for a given URL
- */
-- (NSString *)cacheKeyForURL:(NSURL *)url;
-
-/**
  *Return the date for a given URL string
  */
--(NSDate *)dateForURL:(NSString *)url;
+-(nullable NSDate *)dateForURL:(nullable NSString *)url;
 
 /**
  *Add the date for a given URL string
  */
--(void)addDate:(NSDate *)date forURL:(NSString *)url;
-
-@end
+-(void)addDate:(nonnull NSDate *)date forURL:(nonnull NSString *)url;
 
 
-#pragma mark - Deprecated
-
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionBlock`");
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `SDWebImageCompletionWithFinishedBlock`");
-
-
-@interface SDWebImageManager (Deprecated)
-
-/**
- *  Downloads the image at the given URL if not present in cache or return the cached version otherwise.
- *
- *  @deprecated This method has been deprecated. Use `downloadImageWithURL:options:progress:completed:`
- */
-- (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 
 @end
