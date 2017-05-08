@@ -77,6 +77,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     }
     return self;
 }
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (void)dealloc {
     SDDispatchQueueRelease(_barrierQueue);
