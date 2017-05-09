@@ -29,6 +29,7 @@
     MasterViewController *masterViewController = [[MasterViewController alloc] initWithNibName:@"MasterViewController" bundle:nil];
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:masterViewController];
     self.window.rootViewController = self.navigationController;
+    NSLog(@"asdasdasdasdasdsd");
     [self.window makeKeyAndVisible];
     return YES;
 }
