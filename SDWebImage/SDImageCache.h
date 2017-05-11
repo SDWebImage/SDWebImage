@@ -156,7 +156,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  * @param key        The unique image cache key, usually it's image absolute URL
  * @param errorPtr   NSError pointer. If error occurs then (*errorPtr) != nil.
  */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
                        error:(NSError * _Nullable * _Nullable)errorPtr;
 
@@ -170,7 +170,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  * @param fileManager The file manager for storing image. If nil, then will be used local object.
  * @param errorPtr    NSError pointer. If error occurs then (*errorPtr) != nil.
  */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
                  fileManager:(nullable NSFileManager *)fileManager
                        error:(NSError * _Nullable * _Nullable)errorPtr;

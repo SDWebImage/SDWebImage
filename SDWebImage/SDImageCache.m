@@ -245,18 +245,18 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:nil];
 }
 
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
                        error:(NSError * _Nullable * _Nullable)errorPtr {
-    [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:errorPtr];
+    return [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:errorPtr];
 }
 
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
                  fileManager:(nullable NSFileManager *)fileManager
                        error:(NSError * _Nullable * _Nullable)errorPtr {
     if (!imageData || !key) {
-        return;
+        return YES;
     }
     
     [self checkIfQueueIsIOQueue];
@@ -272,12 +272,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     if (![fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
         *errorPtr = [[NSError alloc] initWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return NO;
     }
     
     // disable iCloud backup
     if (self.config.shouldDisableiCloud) {
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
     }
+    
+    return YES;
 }
 
 #pragma mark - Query and Retrieve Ops
