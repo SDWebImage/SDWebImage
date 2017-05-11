@@ -187,14 +187,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:YES completion:completionBlock];
 }
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
 }
 
@@ -202,10 +202,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     if (!image || !key) {
         if (completionBlock) {
-            completionBlock();
+            completionBlock(nil);
         }
         return;
     }
@@ -217,37 +217,52 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
+            NSError * writeError = nil;
             @autoreleasepool {
                 NSData *data = imageData;
                 if (!data && image) {
                     SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
                     data = [image sd_imageDataAsFormat:imageFormatFromData];
                 }                
-                [self storeImageDataToDisk:data forKey:key];
+                [self storeImageDataToDisk:data forKey:key error:&writeError];
             }
             
             if (completionBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock();
+                    completionBlock(writeError);
                 });
             }
         });
     } else {
         if (completionBlock) {
-            completionBlock();
+            completionBlock(nil);
         }
     }
 }
 
-- (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key {
+    [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:nil];
+}
+
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                       error:(NSError * _Nullable * _Nullable)errorPtr {
+    [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:errorPtr];
+}
+
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                 fileManager:(nullable NSFileManager *)fileManager
+                       error:(NSError * _Nullable * _Nullable)errorPtr {
     if (!imageData || !key) {
         return;
     }
     
     [self checkIfQueueIsIOQueue];
     
-    if (![_fileManager fileExistsAtPath:_diskCachePath]) {
-        [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+    if (![fileManager fileExistsAtPath:_diskCachePath]) {
+        [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
     }
     
     // get cache Path for image key
@@ -255,7 +270,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    [_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil];
+    if (![fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
+        *errorPtr = [[NSError alloc] initWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+    }
     
     // disable iCloud backup
     if (self.config.shouldDisableiCloud) {

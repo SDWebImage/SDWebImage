@@ -31,6 +31,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
+typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable error);
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
@@ -103,7 +104,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -116,7 +117,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -133,7 +134,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Synchronously store image NSData into disk cache at the given key.
@@ -143,7 +144,36 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
  */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key;
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key;
+
+/**
+ * Synchronously store image NSData into disk cache at the given key.
+ *
+ * @warning This method is synchronous, make sure to call it from the ioQueue
+ *
+ * @param imageData  The image data to store
+ * @param key        The unique image cache key, usually it's image absolute URL
+ * @param errorPtr   NSError pointer. If error occurs then (*errorPtr) != nil.
+ */
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                       error:(NSError * _Nullable * _Nullable)errorPtr;
+
+/**
+ * Synchronously store image NSData into disk cache at the given key.
+ *
+ * @warning This method is synchronous, make sure to call it from the ioQueue
+ *
+ * @param imageData   The image data to store
+ * @param key         The unique image cache key, usually it's image absolute URL
+ * @param fileManager The file manager for storing image. If nil, then will be used local object.
+ * @param errorPtr    NSError pointer. If error occurs then (*errorPtr) != nil.
+ */
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                 fileManager:(nullable NSFileManager *)fileManager
+                       error:(NSError * _Nullable * _Nullable)errorPtr;
 
 #pragma mark - Query and Retrieve Ops
 

@@ -13,6 +13,7 @@
 #import <Expecta/Expecta.h>
 
 #import <SDWebImage/SDImageCache.h>
+#import "MockFileManager.h"
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
 
@@ -213,6 +214,26 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     [self.sharedImageCache calculateSizeWithCompletionBlock:^(NSUInteger fileCount, NSUInteger totalSize) {
         expect(fileCount).to.beLessThan(100);
     }];
+}
+
+- (void)test41StoreImageDataToDistWithError {
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
+    NSError * error = nil;
+    [self.sharedImageCache storeImageDataToDisk:imageData
+                                         forKey:kImageTestKey
+                                    fileManager:[[MockFileManager alloc] initWithSendError:EACCES]
+                                          error:&error];
+    XCTAssertEqual(error.code, EACCES);
+}
+
+- (void)test42StoreImageDataToDiskWithoutError {
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
+    NSError * error = nil;
+    [self.sharedImageCache storeImageDataToDisk:imageData
+                                         forKey:kImageTestKey
+                                    fileManager:[[MockFileManager alloc] initWithSendError:0]
+                                          error:&error];
+    XCTAssertNil(error);
 }
 
 #pragma mark Helper methods
