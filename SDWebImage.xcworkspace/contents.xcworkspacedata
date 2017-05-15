@@ -23,6 +23,6 @@
       location = "group:Docs">
    </FileRef>
    <FileRef
-      location = "group:Tests/Pods/Pods.xcodeproj">
+      location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>

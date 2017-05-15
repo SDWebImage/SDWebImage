@@ -54,12 +54,10 @@ Pod::Spec.new do |s|
   s.subspec 'WebP' do |webp|
     webp.source_files = 'SDWebImage/UIImage+WebP.{h,m}'
     webp.xcconfig = { 
-      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1'
     }
     webp.watchos.xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1 WEBP_USE_INTRINSICS=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1 WEBP_USE_INTRINSICS=1'
     }
     webp.dependency 'SDWebImage/Core'
     webp.dependency 'libwebp'

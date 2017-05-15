@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2106A94718E77EE39A2ADB35 /* libPods-SDWebImage Watch Demo Extension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 483FC15FF3CC643408F1B978 /* libPods-SDWebImage Watch Demo Extension.a */; };
 		3E75A9861742DBE700DA412D /* CustomPathImages in Resources */ = {isa = PBXBuildFile; fileRef = 3E75A9851742DBE700DA412D /* CustomPathImages */; };
 		4314D1AA1D0E1181004B36C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4314D1A91D0E1181004B36C9 /* main.m */; };
 		4314D1AD1D0E1181004B36C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4314D1AC1D0E1181004B36C9 /* AppDelegate.m */; };
@@ -44,6 +45,10 @@
 		53A2B50E155B155A00B12423 /* placeholder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53A2B50C155B155A00B12423 /* placeholder@2x.png */; };
 		53EEC18916484553007601E1 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 53EEC18816484553007601E1 /* Default-568h@2x.png */; };
 		DA248D44195470FD00390AB0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E3155ABA3C005750A4 /* MapKit.framework */; };
+		DB69F226A083BE27F647BA46 /* libPods-SDWebImage TV Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C1E3EDCD7AE0E45EA5BA0F98 /* libPods-SDWebImage TV Demo.a */; };
+		DB87C1FE2C6ECAFF1A6ACB31 /* libPods-SDWebImage OSX Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA6C0249C0C53FCB8FA5B94F /* libPods-SDWebImage OSX Demo.a */; };
+		EC3C937D7A601B1ED5EF907C /* libPods-SDWebImage iOS Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4485BED3FDD1308A222EF609 /* libPods-SDWebImage iOS Demo.a */; };
+		FD226F1CE4D78BCCE2DD3B90 /* libPods-SDWebImage Watch Demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AD5FF238198C0C0D73BE256 /* libPods-SDWebImage Watch Demo.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,13 +108,6 @@
 			remoteGlobalIDString = 43A629F91D0E07600089D7DD;
 			remoteInfo = "SDWebImage Watch Demo Extension";
 		};
-		43A62A0D1D0E07600089D7DD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5376128C155AB74D005750A4 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 43A629ED1D0E07600089D7DD;
-			remoteInfo = "SDWebImage Watch Demo";
-		};
 		43F04B3D1D9E467E003F9640 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */;
@@ -123,6 +121,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4A2CADFE1AB4BB5300B6BC39;
 			remoteInfo = "SDWebImage iOS";
+		};
+		AB977BE51EC9607E0007E443 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5376128C155AB74D005750A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43A629F91D0E07600089D7DD;
+			remoteInfo = "SDWebImage Watch Demo Extension";
+		};
+		AB977BFD1EC978E40007E443 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5376128C155AB74D005750A4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43A629ED1D0E07600089D7DD;
+			remoteInfo = "SDWebImage Watch Demo";
 		};
 		DA248D731954841D00390AB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -159,7 +171,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0767D250B8029571A1BBD44A /* Pods-SDWebImage OSX Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage OSX Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		1396B5166BDC8633059A1348 /* Pods-SDWebImage TV Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage TV Demo.release.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo.release.xcconfig"; sourceTree = "<group>"; };
+		15E11CD68A1CB229CF82A2CF /* Pods_Base_SDWebImage_iOS_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Base_SDWebImage_iOS_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		20682178774759C10014CFF2 /* libPods-Demo-SDWebImage Watch Demo Extension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo-SDWebImage Watch Demo Extension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E75A9851742DBE700DA412D /* CustomPathImages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CustomPathImages; sourceTree = SOURCE_ROOT; };
+		43127645969A3CF2D637B16C /* Pods-SDWebImage Watch Demo Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage Watch Demo Extension.release.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension.release.xcconfig"; sourceTree = "<group>"; };
 		4314D1A61D0E1181004B36C9 /* SDWebImage TV Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage TV Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4314D1A91D0E1181004B36C9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4314D1AB1D0E1181004B36C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -192,6 +209,9 @@
 		43A62A081D0E07600089D7DD /* NotificationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationController.m; sourceTree = "<group>"; };
 		43A62A0A1D0E07600089D7DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		43A62A0C1D0E07600089D7DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4485BED3FDD1308A222EF609 /* libPods-SDWebImage iOS Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SDWebImage iOS Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		483FC15FF3CC643408F1B978 /* libPods-SDWebImage Watch Demo Extension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SDWebImage Watch Demo Extension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AD7E37386E6BDA0829F533A /* Pods-SDWebImage TV Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage TV Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo.debug.xcconfig"; sourceTree = "<group>"; };
 		53761295155AB74D005750A4 /* SDWebImage iOS Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SDWebImage iOS Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53761299155AB74D005750A4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5376129B155AB74D005750A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -212,7 +232,24 @@
 		53A2B50B155B155A00B12423 /* placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder.png; sourceTree = "<group>"; };
 		53A2B50C155B155A00B12423 /* placeholder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "placeholder@2x.png"; sourceTree = "<group>"; };
 		53EEC18816484553007601E1 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		5AD5FF238198C0C0D73BE256 /* libPods-SDWebImage Watch Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SDWebImage Watch Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BE79B1E30E750C521F61BC4 /* libPods-Demo-SDWebImage OSX Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo-SDWebImage OSX Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FAA202E873CA98C30EE86F9 /* Pods-SDWebImage Watch Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage Watch Demo.release.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage Watch Demo/Pods-SDWebImage Watch Demo.release.xcconfig"; sourceTree = "<group>"; };
+		624883D0A8DB88BBE1EC3F8F /* Pods-SDWebImage iOS Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage iOS Demo.release.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo.release.xcconfig"; sourceTree = "<group>"; };
+		6521BF9508A8146DE6CC92DA /* Pods-SDWebImage OSX Demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage OSX Demo.release.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo.release.xcconfig"; sourceTree = "<group>"; };
+		872939276848EB72AC46533E /* libPods-Demo-SDWebImage TV Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo-SDWebImage TV Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		939D310966EA630EB7A1FE42 /* Pods-SDWebImage iOS Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage iOS Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		B427688E683E99F11291403A /* Pods_Base_SDWebImage_Watch_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Base_SDWebImage_Watch_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1E3EDCD7AE0E45EA5BA0F98 /* libPods-SDWebImage TV Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SDWebImage TV Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7FD9BD795AD14B10DE11C90 /* Pods-SDWebImage Watch Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage Watch Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage Watch Demo/Pods-SDWebImage Watch Demo.debug.xcconfig"; sourceTree = "<group>"; };
+		CBF8AC5EA0AE6C12BC9DE1D8 /* Pods-SDWebImage Watch Demo Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage Watch Demo Extension.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension.debug.xcconfig"; sourceTree = "<group>"; };
 		DA248D6C1954841D00390AB0 /* SDWebImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDWebImage.xcodeproj; path = ../SDWebImage.xcodeproj; sourceTree = "<group>"; };
+		E57FD16CDD2075B2E831ED3D /* Pods_Base_SDWebImage_Watch_Demo_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Base_SDWebImage_Watch_Demo_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5FE31A05575EAF97EC2878A /* Pods_Base_SDWebImage_TV_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Base_SDWebImage_TV_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE9261E6243EB1429EE1CF65 /* Pods_Base_SDWebImage_OSX_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Base_SDWebImage_OSX_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3C19723212A071831A4BF76 /* libPods-Demo-SDWebImage Watch Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo-SDWebImage Watch Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F785386DB12CBE9EB1F60625 /* libPods-Demo-SDWebImage iOS Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Demo-SDWebImage iOS Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA6C0249C0C53FCB8FA5B94F /* libPods-SDWebImage OSX Demo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SDWebImage OSX Demo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,6 +258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4314D1BC1D0E11A8004B36C9 /* SDWebImage.framework in Frameworks */,
+				DB69F226A083BE27F647BA46 /* libPods-SDWebImage TV Demo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +267,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				43A629EB1D0DFDD40089D7DD /* SDWebImage.framework in Frameworks */,
+				DB87C1FE2C6ECAFF1A6ACB31 /* libPods-SDWebImage OSX Demo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,6 +276,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				43F04B3F1D9E468D003F9640 /* SDWebImage.framework in Frameworks */,
+				2106A94718E77EE39A2ADB35 /* libPods-SDWebImage Watch Demo Extension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +290,15 @@
 				5376129A155AB74D005750A4 /* UIKit.framework in Frameworks */,
 				5376129C155AB74D005750A4 /* Foundation.framework in Frameworks */,
 				5376129E155AB74D005750A4 /* CoreGraphics.framework in Frameworks */,
+				EC3C937D7A601B1ED5EF907C /* libPods-SDWebImage iOS Demo.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D08D3E086D8625372EE42D3A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD226F1CE4D78BCCE2DD3B90 /* libPods-SDWebImage Watch Demo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +396,7 @@
 				4314D1A71D0E1181004B36C9 /* SDWebImage TV Demo */,
 				53761298155AB74D005750A4 /* Frameworks */,
 				53761296155AB74D005750A4 /* Products */,
+				8799EE2F567E2CEB8BDCA1D9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -370,6 +420,21 @@
 				53761299155AB74D005750A4 /* UIKit.framework */,
 				5376129B155AB74D005750A4 /* Foundation.framework */,
 				5376129D155AB74D005750A4 /* CoreGraphics.framework */,
+				EE9261E6243EB1429EE1CF65 /* Pods_Base_SDWebImage_OSX_Demo.framework */,
+				E5FE31A05575EAF97EC2878A /* Pods_Base_SDWebImage_TV_Demo.framework */,
+				B427688E683E99F11291403A /* Pods_Base_SDWebImage_Watch_Demo.framework */,
+				E57FD16CDD2075B2E831ED3D /* Pods_Base_SDWebImage_Watch_Demo_Extension.framework */,
+				15E11CD68A1CB229CF82A2CF /* Pods_Base_SDWebImage_iOS_Demo.framework */,
+				5BE79B1E30E750C521F61BC4 /* libPods-Demo-SDWebImage OSX Demo.a */,
+				872939276848EB72AC46533E /* libPods-Demo-SDWebImage TV Demo.a */,
+				F3C19723212A071831A4BF76 /* libPods-Demo-SDWebImage Watch Demo.a */,
+				20682178774759C10014CFF2 /* libPods-Demo-SDWebImage Watch Demo Extension.a */,
+				F785386DB12CBE9EB1F60625 /* libPods-Demo-SDWebImage iOS Demo.a */,
+				FA6C0249C0C53FCB8FA5B94F /* libPods-SDWebImage OSX Demo.a */,
+				C1E3EDCD7AE0E45EA5BA0F98 /* libPods-SDWebImage TV Demo.a */,
+				483FC15FF3CC643408F1B978 /* libPods-SDWebImage Watch Demo Extension.a */,
+				5AD5FF238198C0C0D73BE256 /* libPods-SDWebImage Watch Demo.a */,
+				4485BED3FDD1308A222EF609 /* libPods-SDWebImage iOS Demo.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -404,6 +469,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		8799EE2F567E2CEB8BDCA1D9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0767D250B8029571A1BBD44A /* Pods-SDWebImage OSX Demo.debug.xcconfig */,
+				6521BF9508A8146DE6CC92DA /* Pods-SDWebImage OSX Demo.release.xcconfig */,
+				4AD7E37386E6BDA0829F533A /* Pods-SDWebImage TV Demo.debug.xcconfig */,
+				1396B5166BDC8633059A1348 /* Pods-SDWebImage TV Demo.release.xcconfig */,
+				CBF8AC5EA0AE6C12BC9DE1D8 /* Pods-SDWebImage Watch Demo Extension.debug.xcconfig */,
+				43127645969A3CF2D637B16C /* Pods-SDWebImage Watch Demo Extension.release.xcconfig */,
+				C7FD9BD795AD14B10DE11C90 /* Pods-SDWebImage Watch Demo.debug.xcconfig */,
+				5FAA202E873CA98C30EE86F9 /* Pods-SDWebImage Watch Demo.release.xcconfig */,
+				939D310966EA630EB7A1FE42 /* Pods-SDWebImage iOS Demo.debug.xcconfig */,
+				624883D0A8DB88BBE1EC3F8F /* Pods-SDWebImage iOS Demo.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		DA248D6D1954841D00390AB0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -424,9 +506,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4314D1B71D0E1182004B36C9 /* Build configuration list for PBXNativeTarget "SDWebImage TV Demo" */;
 			buildPhases = (
+				A60B2B6E9981FF7B6A00A9D0 /* [CP] Check Pods Manifest.lock */,
 				4314D1A21D0E1181004B36C9 /* Sources */,
 				4314D1A31D0E1181004B36C9 /* Frameworks */,
 				4314D1A41D0E1181004B36C9 /* Resources */,
+				0294DCD1BEDA703B9FFB62A4 /* [CP] Embed Pods Frameworks */,
+				BA0DC9E09AF89CC2F7116B7F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -442,9 +527,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 43A629E81D0DFD000089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage OSX Demo" */;
 			buildPhases = (
+				8443B4E1F944670663046429 /* [CP] Check Pods Manifest.lock */,
 				43A629CB1D0DFD000089D7DD /* Sources */,
 				43A629CC1D0DFD000089D7DD /* Frameworks */,
 				43A629CD1D0DFD000089D7DD /* Resources */,
+				706C92A2367154B758464CB8 /* [CP] Embed Pods Frameworks */,
+				661D009030A20334E93A29CF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -460,8 +548,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 43A62A141D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo" */;
 			buildPhases = (
+				61E7FD26528EF7061F6ADB55 /* [CP] Check Pods Manifest.lock */,
 				43A629EC1D0E07600089D7DD /* Resources */,
 				43A62A131D0E07600089D7DD /* Embed App Extensions */,
+				D08D3E086D8625372EE42D3A /* Frameworks */,
+				55EF6283C1CE70B85554128D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -477,9 +568,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 43A62A101D0E07600089D7DD /* Build configuration list for PBXNativeTarget "SDWebImage Watch Demo Extension" */;
 			buildPhases = (
+				F4CF655A1773AC0A006E49F2 /* [CP] Check Pods Manifest.lock */,
 				43A629F61D0E07600089D7DD /* Sources */,
 				43A629F71D0E07600089D7DD /* Frameworks */,
 				43A629F81D0E07600089D7DD /* Resources */,
+				49093D65608A4B672EC45CED /* [CP] Embed Pods Frameworks */,
+				294DC3442C4B7B15FA41B6E9 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -495,16 +589,20 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 537612B9155AB74D005750A4 /* Build configuration list for PBXNativeTarget "SDWebImage iOS Demo" */;
 			buildPhases = (
+				90869FFE7BB11B565D8EF830 /* [CP] Check Pods Manifest.lock */,
 				53761291155AB74D005750A4 /* Sources */,
 				53761292155AB74D005750A4 /* Frameworks */,
 				53761293155AB74D005750A4 /* Resources */,
 				43A62A171D0E07600089D7DD /* Embed Watch Content */,
+				0535F4B5D9BE13E074935FB6 /* [CP] Embed Pods Frameworks */,
+				5AF8566DA0303D98D5DCF97C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AB977BFE1EC978E40007E443 /* PBXTargetDependency */,
+				AB977BE61EC9607E0007E443 /* PBXTargetDependency */,
 				43F100171D9EE17C00F6E0CE /* PBXTargetDependency */,
-				43A62A0E1D0E07600089D7DD /* PBXTargetDependency */,
 			);
 			name = "SDWebImage iOS Demo";
 			productName = "SDWebImage Demo";
@@ -517,7 +615,7 @@
 		5376128C155AB74D005750A4 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0710;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = Dailymotion;
 				TargetAttributes = {
 					4314D1A51D0E1181004B36C9 = {
@@ -658,6 +756,219 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		0294DCD1BEDA703B9FFB62A4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		0535F4B5D9BE13E074935FB6 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		294DC3442C4B7B15FA41B6E9 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		49093D65608A4B672EC45CED /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		55EF6283C1CE70B85554128D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage Watch Demo/Pods-SDWebImage Watch Demo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5AF8566DA0303D98D5DCF97C /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		61E7FD26528EF7061F6ADB55 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		661D009030A20334E93A29CF /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		706C92A2367154B758464CB8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8443B4E1F944670663046429 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		90869FFE7BB11B565D8EF830 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		A60B2B6E9981FF7B6A00A9D0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		BA0DC9E09AF89CC2F7116B7F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F4CF655A1773AC0A006E49F2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		4314D1A21D0E1181004B36C9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -718,11 +1029,6 @@
 			target = 43A629F91D0E07600089D7DD /* SDWebImage Watch Demo Extension */;
 			targetProxy = 43A629FC1D0E07600089D7DD /* PBXContainerItemProxy */;
 		};
-		43A62A0E1D0E07600089D7DD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */;
-			targetProxy = 43A62A0D1D0E07600089D7DD /* PBXContainerItemProxy */;
-		};
 		43F04B3E1D9E467E003F9640 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "SDWebImage watchOS";
@@ -732,6 +1038,16 @@
 			isa = PBXTargetDependency;
 			name = "SDWebImage iOS";
 			targetProxy = 43F100161D9EE17C00F6E0CE /* PBXContainerItemProxy */;
+		};
+		AB977BE61EC9607E0007E443 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43A629F91D0E07600089D7DD /* SDWebImage Watch Demo Extension */;
+			targetProxy = AB977BE51EC9607E0007E443 /* PBXContainerItemProxy */;
+		};
+		AB977BFE1EC978E40007E443 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43A629ED1D0E07600089D7DD /* SDWebImage Watch Demo */;
+			targetProxy = AB977BFD1EC978E40007E443 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -781,6 +1097,7 @@
 /* Begin XCBuildConfiguration section */
 		4314D1B81D0E1182004B36C9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4AD7E37386E6BDA0829F533A /* Pods-SDWebImage TV Demo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -809,6 +1126,7 @@
 				INFOPLIST_FILE = "SDWebImage TV Demo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-TV-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -819,6 +1137,7 @@
 		};
 		4314D1B91D0E1182004B36C9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1396B5166BDC8633059A1348 /* Pods-SDWebImage TV Demo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -849,6 +1168,7 @@
 				INFOPLIST_FILE = "SDWebImage TV Demo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-TV-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -859,6 +1179,7 @@
 		};
 		43A629E01D0DFD000089D7DD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0767D250B8029571A1BBD44A /* Pods-SDWebImage OSX Demo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -889,6 +1210,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-OSX-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -897,6 +1219,7 @@
 		};
 		43A629E11D0DFD000089D7DD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6521BF9508A8146DE6CC92DA /* Pods-SDWebImage OSX Demo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -929,6 +1252,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-OSX-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -937,6 +1261,7 @@
 		};
 		43A62A111D0E07600089D7DD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CBF8AC5EA0AE6C12BC9DE1D8 /* Pods-SDWebImage Watch Demo Extension.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -963,6 +1288,7 @@
 				INFOPLIST_FILE = "SDWebImage Watch Demo Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -974,6 +1300,7 @@
 		};
 		43A62A121D0E07600089D7DD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 43127645969A3CF2D637B16C /* Pods-SDWebImage Watch Demo Extension.release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1002,6 +1329,7 @@
 				INFOPLIST_FILE = "SDWebImage Watch Demo Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -1013,6 +1341,7 @@
 		};
 		43A62A151D0E07600089D7DD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7FD9BD795AD14B10DE11C90 /* Pods-SDWebImage Watch Demo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1040,6 +1369,7 @@
 				IBSC_MODULE = SDWebImage_Watch_Demo_Extension;
 				INFOPLIST_FILE = "SDWebImage Watch Demo/Info.plist";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1051,6 +1381,7 @@
 		};
 		43A62A161D0E07600089D7DD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5FAA202E873CA98C30EE86F9 /* Pods-SDWebImage Watch Demo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1080,6 +1411,7 @@
 				IBSC_MODULE = SDWebImage_Watch_Demo_Extension;
 				INFOPLIST_FILE = "SDWebImage Watch Demo/Info.plist";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.SDWebImage-iOS-Demo.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1094,11 +1426,22 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1106,8 +1449,11 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 			};
@@ -1118,12 +1464,26 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				VALIDATE_PRODUCT = YES;
@@ -1132,6 +1492,7 @@
 		};
 		537612BA155AB74D005750A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 939D310966EA630EB7A1FE42 /* Pods-SDWebImage iOS Demo.debug.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1139,15 +1500,15 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
-				HEADER_SEARCH_PATHS = (
-					"\"$(OBJROOT)/UninstalledProducts/include\"",
-					"\"$(TARGET_BUILD_DIR)/usr/local/lib/include\"",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1157,6 +1518,7 @@
 		};
 		537612BB155AB74D005750A4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 624883D0A8DB88BBE1EC3F8F /* Pods-SDWebImage iOS Demo.release.xcconfig */;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1164,14 +1526,15 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "";
-				HEADER_SEARCH_PATHS = (
-					"\"$(OBJROOT)/UninstalledProducts/include\"",
-					"\"$(TARGET_BUILD_DIR)/usr/local/lib/include\"",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"$(inherited)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dailymotion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

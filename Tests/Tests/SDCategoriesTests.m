@@ -17,8 +17,7 @@
 #import <SDWebImage/MKAnnotationView+WebCache.h>
 #import <SDWebImage/UIButton+WebCache.h>
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
-
-@import FLAnimatedImage;
+#import <FLAnimatedImage/FLAnimatedImageView.h>
 
 @interface SDCategoriesTests : XCTestCase
 
