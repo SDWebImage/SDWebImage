@@ -121,6 +121,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     @synchronized (self) {
         if (self.isCancelled) {
             self.finished = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadOperationCompleteNotification object:self];
             [self reset];
             return;
         }
@@ -530,6 +531,7 @@ didReceiveResponse:(NSURLResponse *)response
                              finished:(BOOL)finished {
     NSArray<id> *completionBlocks = [self callbacksForKey:kCompletedCallbackKey];
     dispatch_main_async_safe(^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadOperationCompleteNotification object:self];
         for (SDWebImageDownloaderCompletedBlock completedBlock in completionBlocks) {
             completedBlock(image, imageData, error, finished);
         }

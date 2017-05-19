@@ -10,6 +10,8 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 
+NSString *const SDWebImageDownloadOperationCompleteNotification = @"SDWebImageDownloadOperationComplete";
+
 @implementation SDWebImageDownloadToken
 @end
 
