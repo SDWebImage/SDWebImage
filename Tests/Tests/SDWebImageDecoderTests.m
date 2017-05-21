@@ -30,6 +30,8 @@
     UIImage *decodedImage = [UIImage decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
+    expect(decodedImage.size.width).to.equal(image.size.width);
+    expect(decodedImage.size.height).to.equal(image.size.height);
 }
 
 - (void)test03ThatDecodedImageWithImageDoesNotDecodeAnimatedImages {
@@ -55,6 +57,29 @@
     UIImage *decodedImage = [UIImage decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
+    expect(decodedImage.size.width).to.equal(image.size.width);
+    expect(decodedImage.size.height).to.equal(image.size.height);
+}
+
+- (void)test06ThatDecodeAndScaleDownImageWorks {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *decodedImage = [UIImage decodedAndScaledDownImageWithImage:image];
+    expect(decodedImage).toNot.beNil();
+    expect(decodedImage).toNot.equal(image);
+    expect(decodedImage.size.width).toNot.equal(image.size.width);
+    expect(decodedImage.size.height).toNot.equal(image.size.height);
+    expect(decodedImage.size.width * decodedImage.size.height).to.beLessThanOrEqualTo(60 * 1024 * 1024 / 4);    // how many pixels in 60 megs
+}
+
+- (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerImage {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
+    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *decodedImage = [UIImage decodedAndScaledDownImageWithImage:image];
+    expect(decodedImage).toNot.beNil();
+    expect(decodedImage).toNot.equal(image);
+    expect(decodedImage.size.width).to.equal(image.size.width);
+    expect(decodedImage.size.height).to.equal(image.size.height);
 }
 
 @end

@@ -109,7 +109,7 @@
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
-    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
+    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, Xcode won't
     // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
     if ([url isKindOfClass:NSString.class]) {
         url = [NSURL URLWithString:(NSString *)url];
@@ -162,12 +162,15 @@
             if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
             if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
             if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
+            if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
+            
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // force progressive off if image already cached but forced refreshing
                 downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
                 // ignore image read from NSURLCache if image if cached but force refreshing
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
+            
             SDWebImageDownloadToken *subOperationToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 if (!strongOperation || strongOperation.isCancelled) {
@@ -183,7 +186,8 @@
                         && error.code != NSURLErrorInternationalRoamingOff
                         && error.code != NSURLErrorDataNotAllowed
                         && error.code != NSURLErrorCannotFindHost
-                        && error.code != NSURLErrorCannotConnectToHost) {
+                        && error.code != NSURLErrorCannotConnectToHost
+                        && error.code != NSURLErrorNetworkConnectionLost) {
                         @synchronized (self.failedURLs) {
                             [self.failedURLs addObject:url];
                         }
@@ -224,9 +228,8 @@
                     [self safelyRemoveOperationFromRunning:strongOperation];
                 }
             }];
-            __weak typeof(subOperationToken)weakSubOperationToken = subOperationToken;
             operation.cancelBlock = ^{
-                [self.imageDownloader cancel:weakSubOperationToken];
+                [self.imageDownloader cancel:subOperationToken];
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 [self safelyRemoveOperationFromRunning:strongOperation];
             };

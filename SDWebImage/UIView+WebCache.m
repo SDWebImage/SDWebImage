@@ -156,11 +156,11 @@ static char TAG_ACTIVITY_SHOW;
 
 - (void)sd_addActivityIndicator {
 #if SD_UIKIT
-    if (!self.activityIndicator) {
-        self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
-        self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+    dispatch_main_async_safe(^{
+        if (!self.activityIndicator) {
+            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
+            self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
         
-        dispatch_main_async_safe(^{
             [self addSubview:self.activityIndicator];
             
             [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
@@ -177,10 +177,7 @@ static char TAG_ACTIVITY_SHOW;
                                                              attribute:NSLayoutAttributeCenterY
                                                             multiplier:1.0
                                                               constant:0.0]];
-        });
-    }
-    
-    dispatch_main_async_safe(^{
+        }
         [self.activityIndicator startAnimating];
     });
 #endif
@@ -188,10 +185,12 @@ static char TAG_ACTIVITY_SHOW;
 
 - (void)sd_removeActivityIndicator {
 #if SD_UIKIT
-    if (self.activityIndicator) {
-        [self.activityIndicator removeFromSuperview];
-        self.activityIndicator = nil;
-    }
+    dispatch_main_async_safe(^{
+        if (self.activityIndicator) {
+            [self.activityIndicator removeFromSuperview];
+            self.activityIndicator = nil;
+        }
+    });
 #endif
 }
 

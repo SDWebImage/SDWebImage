@@ -13,7 +13,6 @@
 #import "UIImage+GIF.h"
 #import "NSData+ImageContentType.h"
 #import "NSImage+WebCache.h"
-#import "SDImageCacheConfig.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -218,14 +217,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
-            NSData *data = imageData;
-            
-            if (!data && image) {
-                SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
-                data = [image sd_imageDataAsFormat:imageFormatFromData];
+            @autoreleasepool {
+                NSData *data = imageData;
+                if (!data && image) {
+                    SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
+                    data = [image sd_imageDataAsFormat:imageFormatFromData];
+                }                
+                [self storeImageDataToDisk:data forKey:key];
             }
             
-            [self storeImageDataToDisk:data forKey:key];
             if (completionBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completionBlock();

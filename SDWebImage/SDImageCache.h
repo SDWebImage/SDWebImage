@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
-
-@class SDImageCacheConfig;
+#import "SDImageCacheConfig.h"
 
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
@@ -98,9 +97,9 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
  *
- * @param image      The image to store
- * @param key        The unique image cache key, usually it's image absolute URL
- * @param completion A block executed after the operation is finished
+ * @param image           The image to store
+ * @param key             The unique image cache key, usually it's image absolute URL
+ * @param completionBlock A block executed after the operation is finished
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
@@ -109,10 +108,10 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
  *
- * @param image      The image to store
- * @param key        The unique image cache key, usually it's image absolute URL
- * @param toDisk     Store the image to disk cache if YES
- * @param completion A block executed after the operation is finished
+ * @param image           The image to store
+ * @param key             The unique image cache key, usually it's image absolute URL
+ * @param toDisk          Store the image to disk cache if YES
+ * @param completionBlock A block executed after the operation is finished
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
@@ -122,13 +121,13 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
  *
- * @param image      The image to store
- * @param imageData  The image data as returned by the server, this representation will be used for disk storage
- *                   instead of converting the given image object into a storable/compressed image format in order
- *                   to save quality and CPU
- * @param key        The unique image cache key, usually it's image absolute URL
- * @param toDisk     Store the image to disk cache if YES
- * @param completion A block executed after the operation is finished
+ * @param image           The image to store
+ * @param imageData       The image data as returned by the server, this representation will be used for disk storage
+ *                        instead of converting the given image object into a storable/compressed image format in order
+ *                        to save quality and CPU
+ * @param key             The unique image cache key, usually it's image absolute URL
+ * @param toDisk          Store the image to disk cache if YES
+ * @param completionBlock A block executed after the operation is finished
  */
 - (void)storeImage:(nullable UIImage *)image
          imageData:(nullable NSData *)imageData
