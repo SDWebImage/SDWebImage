@@ -203,11 +203,16 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    if (!image || !key || !imageData) {
-        if (completionBlock) {
-            completionBlock();
+    if (!image || !key) {
+        if (imageData && key) {
+            toDisk = YES;
         }
-        return;
+        else {
+            if (completionBlock) {
+                completionBlock();
+            }
+            return;
+        }
     }
     // if memory cache is enabled
     if (self.config.shouldCacheImagesInMemory && image) {
