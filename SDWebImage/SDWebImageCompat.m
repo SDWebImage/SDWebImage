@@ -14,6 +14,7 @@
 
 inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image) {
     if (!image) {
+        NSLog(@"");
         return nil;
     }
     
