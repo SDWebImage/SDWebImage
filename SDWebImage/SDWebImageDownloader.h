@@ -71,7 +71,7 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
 extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
-extern NSString *const SDWebImageDownloadOperationCompleteNotification;
+extern NSString * _Nonnull const SDWebImageDownloadOperationCompleteNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 
