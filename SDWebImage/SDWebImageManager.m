@@ -102,6 +102,11 @@
     }];
 }
 
+- (BOOL)isDiskImageExistsForURL:(nullable NSURL *)url {
+    NSString *key = [self cacheKeyForURL:url];
+    return [self.imageCache isDiskImageExistsWithKey:key];
+}
+
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
                                     progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock

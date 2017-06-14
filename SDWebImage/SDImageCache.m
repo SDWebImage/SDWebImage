@@ -288,6 +288,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
+- (BOOL)isDiskImageExistsWithKey:(NSString *)key {
+    BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
+    if (!exists) {
+        exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
+    }
+    return exists;
+}
+
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
 }

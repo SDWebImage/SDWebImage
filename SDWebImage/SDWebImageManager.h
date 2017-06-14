@@ -266,6 +266,14 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (void)diskImageExistsForURL:(nullable NSURL *)url
                    completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
+/**
+ *  Sync check if image has already been cached on disk only
+ *
+ *  @param url              image url
+ *
+ *  @note thread unsafe. Use -(void)diskImageExistsForURL:completion: for thread safe check
+ */
+- (BOOL)isDiskImageExistsForURL:(nullable NSURL *)url;
 
 /**
  *Return the cache key for a given URL
