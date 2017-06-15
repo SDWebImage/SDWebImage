@@ -203,7 +203,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    if (!image || !key) {
+    //we want to work with GIF like video
+    if ((!image || image.isGIF) || !key) {
         if (imageData && key) {
             toDisk = YES;
         }
