@@ -257,7 +257,8 @@ didReceiveResponse:(NSURLResponse *)response
     
     //'304 Not Modified' is an exceptional one
     if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
-        NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
+        NSInteger expected = (NSInteger)response.expectedContentLength;
+        expected = expected > 0 ? expected : 0;
         self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
