@@ -56,9 +56,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     do {
         UIImage *image;
         if (iter.blend_method == WEBP_MUX_BLEND) {
-            image = [self sd_blendWebpImageWithOriginImage:[images lastObject] iterator:iter];
+            image = [self sd_blendWebpImageWithOriginImage:[images lastObject] demuxer:demuxer iterator:iter];
         } else {
-            image = [self sd_rawWepImageWithData:iter.fragment];
+            image = [self sd_nonblendWebpImageWithData:iter.fragment demuxer:demuxer iterator:iter];
         }
         
         if (!image) {
@@ -85,22 +85,24 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 }
 
 
-+ (nullable UIImage *)sd_blendWebpImageWithOriginImage:(nullable UIImage *)originImage iterator:(WebPIterator)iter {
++ (nullable UIImage *)sd_blendWebpImageWithOriginImage:(nullable UIImage *)originImage demuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
     if (!originImage) {
         return nil;
     }
-    
-    CGSize size = originImage.size;
-    CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
-    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
     
     UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
     if (!image) {
         return nil;
     }
     
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
+    CGFloat tmpX = iter.x_offset;
+    CGFloat tmpY = size.height - iter.height - iter.y_offset;
+    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    
+    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
     uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
     CGContextRef blendCanvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
     CGContextDrawImage(blendCanvas, CGRectMake(0, 0, size.width, size.height), originImage.CGImage);
@@ -115,7 +117,40 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     CGImageRelease(newImageRef);
     CGContextRelease(blendCanvas);
-    CGColorSpaceRelease(colorSpaceRef);
+    
+    return image;
+}
+
++ (nullable UIImage *)sd_nonblendWebpImageWithData:(WebPData)webpData demuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
+    UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
+    if (!image) {
+        return nil;
+    }
+    
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
+    CGFloat tmpX = iter.x_offset;
+    CGFloat tmpY = size.height - iter.height - iter.y_offset;
+    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    if (CGRectEqualToRect(imageRect, CGRectMake(0, 0, canvasWidth, canvasHeight))) {
+        return image;
+    }
+    
+    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
+    uint32_t bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    CGContextRef canvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
+    CGContextDrawImage(canvas, imageRect, image.CGImage);
+    CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
+    
+#if SD_UIKIT || SD_WATCH
+    image = [UIImage imageWithCGImage:newImageRef];
+#elif SD_MAC
+    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
+    
+    CGImageRelease(newImageRef);
+    CGContextRelease(canvas);
     
     return image;
 }
@@ -148,13 +183,12 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     // Construct a UIImage from the decoded RGBA value array.
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
-    CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
     CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
     size_t components = config.input.has_alpha ? 4 : 3;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
 
-    CGColorSpaceRelease(colorSpaceRef);
     CGDataProviderRelease(provider);
 
 #if SD_UIKIT || SD_WATCH
@@ -165,6 +199,15 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGImageRelease(imageRef);
 
     return image;
+}
+
+CGColorSpaceRef sd_CGColorSpaceGetDeviceRGB() {
+    static CGColorSpaceRef space;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        space = CGColorSpaceCreateDeviceRGB();
+    });
+    return space;
 }
 
 @end
