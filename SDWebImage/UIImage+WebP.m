@@ -53,12 +53,16 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     NSMutableArray *images = [NSMutableArray array];
     NSTimeInterval duration = 0;
     
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, sd_CGColorSpaceGetDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast);
+    
     do {
         UIImage *image;
         if (iter.blend_method == WEBP_MUX_BLEND) {
-            image = [self sd_blendWebpImageWithOriginImage:images.lastObject demuxer:demuxer iterator:iter];
+            image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
         } else {
-            image = [self sd_nonblendWebpImageWithDemuxer:demuxer iterator:iter];
+            image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
         }
         
         if (!image) {
@@ -72,6 +76,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     WebPDemuxReleaseIterator(&iter);
     WebPDemuxDelete(demuxer);
+    CGContextRelease(canvas);
     
     UIImage *finalImage = nil;
 #if SD_UIKIT || SD_WATCH
@@ -85,62 +90,19 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 }
 
 
-+ (nullable UIImage *)sd_blendWebpImageWithOriginImage:(nullable UIImage *)originImage demuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
-    if (!originImage) {
-        return nil;
-    }
-    
++ (nullable UIImage *)sd_blendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
     UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
     if (!image) {
         return nil;
     }
     
-    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
-    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    size_t canvasWidth = CGBitmapContextGetWidth(canvas);
+    size_t canvasHeight = CGBitmapContextGetHeight(canvas);
     CGSize size = CGSizeMake(canvasWidth, canvasHeight);
     CGFloat tmpX = iter.x_offset;
     CGFloat tmpY = size.height - iter.height - iter.y_offset;
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
     
-    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
-    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
-    CGContextRef blendCanvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
-    CGContextDrawImage(blendCanvas, CGRectMake(0, 0, size.width, size.height), originImage.CGImage);
-    CGContextDrawImage(blendCanvas, imageRect, image.CGImage);
-    CGImageRef newImageRef = CGBitmapContextCreateImage(blendCanvas);
-    
-#if SD_UIKIT || SD_WATCH
-    image = [UIImage imageWithCGImage:newImageRef];
-#elif SD_MAC
-    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-    
-    CGImageRelease(newImageRef);
-    CGContextRelease(blendCanvas);
-    
-    return image;
-}
-
-+ (nullable UIImage *)sd_nonblendWebpImageWithDemuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
-    if (!image) {
-        return nil;
-    }
-    
-    if (iter.x_offset == 0 && iter.y_offset == 0) {
-        return image;
-    }
-    
-    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
-    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
-    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
-    CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
-    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
-    
-    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
-    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
-    CGContextRef canvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
     CGContextDrawImage(canvas, imageRect, image.CGImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
     
@@ -151,7 +113,46 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #endif
     
     CGImageRelease(newImageRef);
-    CGContextRelease(canvas);
+    
+    if (iter.dispose_method == WEBP_MUX_DISPOSE_NONE) {
+        // do not dispose
+    } else {
+        CGContextClearRect(canvas, imageRect);
+    }
+    
+    return image;
+}
+
++ (nullable UIImage *)sd_nonblendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
+    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
+    if (!image) {
+        return nil;
+    }
+    
+    size_t canvasWidth = CGBitmapContextGetWidth(canvas);
+    size_t canvasHeight = CGBitmapContextGetHeight(canvas);
+    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
+    CGFloat tmpX = iter.x_offset;
+    CGFloat tmpY = size.height - iter.height - iter.y_offset;
+    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    
+    CGContextClearRect(canvas, imageRect);
+    CGContextDrawImage(canvas, imageRect, image.CGImage);
+    CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
+    
+#if SD_UIKIT || SD_WATCH
+    image = [UIImage imageWithCGImage:newImageRef];
+#elif SD_MAC
+    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
+    
+    CGImageRelease(newImageRef);
+    
+    if (iter.dispose_method == WEBP_MUX_DISPOSE_NONE) {
+        // do not dispose
+    } else {
+        CGContextClearRect(canvas, imageRect);
+    }
     
     return image;
 }
@@ -202,7 +203,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     return image;
 }
 
-CGColorSpaceRef sd_CGColorSpaceGetDeviceRGB() {
+static CGColorSpaceRef sd_CGColorSpaceGetDeviceRGB() {
     static CGColorSpaceRef space;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
