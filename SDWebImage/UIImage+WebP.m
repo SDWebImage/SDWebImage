@@ -38,7 +38,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     if (!(flags & ANIMATION_FLAG)) {
         // for static single webp image
-        UIImage *staticImage = [self sd_rawWepImageWithData:webpData];
+        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
         WebPDemuxDelete(demuxer);
         return staticImage;
     }
@@ -56,9 +56,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     do {
         UIImage *image;
         if (iter.blend_method == WEBP_MUX_BLEND) {
-            image = [self sd_blendWebpImageWithOriginImage:[images lastObject] demuxer:demuxer iterator:iter];
+            image = [self sd_blendWebpImageWithOriginImage:images.lastObject demuxer:demuxer iterator:iter];
         } else {
-            image = [self sd_nonblendWebpImageWithData:iter.fragment demuxer:demuxer iterator:iter];
+            image = [self sd_nonblendWebpImageWithDemuxer:demuxer iterator:iter];
         }
         
         if (!image) {
@@ -90,7 +90,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         return nil;
     }
     
-    UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
+    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
     if (!image) {
         return nil;
     }
@@ -103,7 +103,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
     
     CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
-    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
+    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     CGContextRef blendCanvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
     CGContextDrawImage(blendCanvas, CGRectMake(0, 0, size.width, size.height), originImage.CGImage);
     CGContextDrawImage(blendCanvas, imageRect, image.CGImage);
@@ -121,10 +121,14 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     return image;
 }
 
-+ (nullable UIImage *)sd_nonblendWebpImageWithData:(WebPData)webpData demuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWepImageWithData:iter.fragment];
++ (nullable UIImage *)sd_nonblendWebpImageWithDemuxer:(WebPDemuxer *)demuxer iterator:(WebPIterator)iter {
+    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
     if (!image) {
         return nil;
+    }
+    
+    if (iter.x_offset == 0 && iter.y_offset == 0) {
+        return image;
     }
     
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
@@ -133,12 +137,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGFloat tmpX = iter.x_offset;
     CGFloat tmpY = size.height - iter.height - iter.y_offset;
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
-    if (CGRectEqualToRect(imageRect, CGRectMake(0, 0, canvasWidth, canvasHeight))) {
-        return image;
-    }
     
     CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
-    uint32_t bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    uint32_t bitmapInfo = iter.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     CGContextRef canvas = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, colorSpaceRef, bitmapInfo);
     CGContextDrawImage(canvas, imageRect, image.CGImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
@@ -155,7 +156,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     return image;
 }
 
-+ (nullable UIImage *)sd_rawWepImageWithData:(WebPData)webpData {
++ (nullable UIImage *)sd_rawWebpImageWithData:(WebPData)webpData {
     WebPDecoderConfig config;
     if (!WebPInitDecoderConfig(&config)) {
         return nil;
@@ -184,7 +185,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
     CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
-    CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : 0;
+    CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     size_t components = config.input.has_alpha ? 4 : 3;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
