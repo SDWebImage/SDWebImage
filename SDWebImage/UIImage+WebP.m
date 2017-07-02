@@ -50,12 +50,20 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         return nil;
     }
     
-    NSMutableArray *images = [NSMutableArray array];
-    NSTimeInterval duration = 0;
-    
+    int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
-    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, sd_CGColorSpaceGetDeviceRGB(), kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast);
+    CGBitmapInfo bitmapInfo;
+    if (!(flags & ALPHA_FLAG)) {
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
+    } else {
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    }
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+    
+    NSMutableArray<UIImage *> *images = [NSMutableArray array];
+    NSTimeInterval duration = 0;
+    int durations[frameCount];
     
     do {
         UIImage *image;
@@ -70,7 +78,11 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         }
         
         [images addObject:image];
-        duration += iter.duration / 1000.0f;
+        duration += iter.duration;
+        size_t count = images.count;
+        if (count) {
+            durations[count - 1] = iter.duration;
+        }
         
     } while (WebPDemuxNextFrame(&iter));
     
@@ -80,11 +92,10 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     UIImage *finalImage = nil;
 #if SD_UIKIT || SD_WATCH
-    finalImage = [UIImage animatedImageWithImages:images duration:duration];
+    NSArray<UIImage *> *animatedImages = [self sd_animatedImagesWithImages:images durations:durations totalDuration:duration];
+    finalImage = [UIImage animatedImageWithImages:animatedImages duration:duration / 1000.0];
 #elif SD_MAC
-    if ([images count] > 0) {
-        finalImage = images[0];
-    }
+    finalImage = images.firstObject;
 #endif
     return finalImage;
 }
@@ -185,7 +196,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     // Construct a UIImage from the decoded RGBA value array.
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
-    CGColorSpaceRef colorSpaceRef = sd_CGColorSpaceGetDeviceRGB();
+    CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
     CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     size_t components = config.input.has_alpha ? 4 : 3;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
@@ -203,13 +214,56 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     return image;
 }
 
-static CGColorSpaceRef sd_CGColorSpaceGetDeviceRGB() {
++ (NSArray<UIImage *> *)sd_animatedImagesWithImages:(NSArray<UIImage *> *)images durations:(int const * const)durations totalDuration:(NSTimeInterval)totalDuration
+{
+    // [UIImage animatedImageWithImages:duration:] only use the average duration for per frame
+    // divide the total duration to implement per frame duration for animated WebP
+    NSUInteger count = images.count;
+    if (!count) {
+        return nil;
+    }
+    if (count == 1) {
+        return images;
+    }
+    
+    int const gcd = gcdArray(count, durations);
+    NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:count];
+    [images enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
+        int duration = durations[idx];
+        int repeatCount = duration / gcd;
+        for (int i = 0; i < repeatCount; ++i) {
+            [animatedImages addObject:image];
+        }
+    }];
+    
+    return animatedImages;
+}
+
+static CGColorSpaceRef SDCGColorSpaceGetDeviceRGB() {
     static CGColorSpaceRef space;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         space = CGColorSpaceCreateDeviceRGB();
     });
     return space;
+}
+
+static int gcdArray(size_t const count, int const * const values) {
+    int result = values[0];
+    for (size_t i = 1; i < count; ++i) {
+        result = gcd(values[i], result);
+    }
+    return result;
+}
+
+static int gcd(int a,int b) {
+    int c;
+    while (a != 0) {
+        c = a;
+        a = b % a;
+        b = c;
+    }
+    return b;
 }
 
 @end
