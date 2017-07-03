@@ -234,9 +234,14 @@ NSString *const SDWebImageDownloadOperationCompleteNotification = @"SDWebImageDo
             operation.completionBlock = ^{
               SDWebImageDownloaderOperation *soperation = woperation;
               if (!soperation) return;
-              if (self.URLOperations[url] == soperation) {
-                  [self.URLOperations removeObjectForKey:url];
-              };
+                
+                dispatch_barrier_async(self.barrierQueue, ^{
+                    if (self.URLOperations[url] == soperation) {
+                        [self.URLOperations removeObjectForKey:url];
+                    };
+                });
+                
+                
             };
         }
         id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
