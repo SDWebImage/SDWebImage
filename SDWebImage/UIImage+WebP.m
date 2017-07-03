@@ -14,12 +14,20 @@
 #import "webp/demux.h"
 #import "NSImage+WebCache.h"
 
+#import "objc/runtime.h"
+
 // Callback for CGDataProviderRelease
 static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
 @implementation UIImage (WebP)
+
+- (NSInteger)sd_webpLoopCount
+{
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_webpLoopCount));
+    return value.integerValue;
+}
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data {
     if (!data) {
@@ -51,6 +59,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     }
     
     int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
+    int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
     CGBitmapInfo bitmapInfo;
@@ -62,7 +71,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
     
     NSMutableArray<UIImage *> *images = [NSMutableArray array];
-    NSTimeInterval duration = 0;
+    NSTimeInterval totalDuration = 0;
     int durations[frameCount];
     
     do {
@@ -78,10 +87,16 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         }
         
         [images addObject:image];
-        duration += iter.duration;
+        int duration = iter.duration;
+        if (!duration) {
+            // WebP standard says duration for 0 is used for canvas updating but not showing image, but actually Chrome set this to the default 100ms duration.
+            // Some animated WebP images also create without duration, we should keep compatibility
+            duration = 100;
+        }
+        totalDuration += duration;
         size_t count = images.count;
         if (count) {
-            durations[count - 1] = iter.duration;
+            durations[count - 1] = duration;
         }
         
     } while (WebPDemuxNextFrame(&iter));
@@ -92,8 +107,11 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     UIImage *finalImage = nil;
 #if SD_UIKIT || SD_WATCH
-    NSArray<UIImage *> *animatedImages = [self sd_animatedImagesWithImages:images durations:durations totalDuration:duration];
-    finalImage = [UIImage animatedImageWithImages:animatedImages duration:duration / 1000.0];
+    NSArray<UIImage *> *animatedImages = [self sd_animatedImagesWithImages:images durations:durations totalDuration:totalDuration];
+    finalImage = [UIImage animatedImageWithImages:animatedImages duration:totalDuration / 1000.0];
+    if (finalImage) {
+        objc_setAssociatedObject(finalImage, @selector(sd_webpLoopCount), @(loopCount), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 #elif SD_MAC
     finalImage = images.firstObject;
 #endif
@@ -230,7 +248,12 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:count];
     [images enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
         int duration = durations[idx];
-        int repeatCount = duration / gcd;
+        int repeatCount;
+        if (gcd) {
+            repeatCount = duration / gcd;
+        } else {
+            repeatCount = 1;
+        }
         for (int i = 0; i < repeatCount; ++i) {
             [animatedImages addObject:image];
         }
