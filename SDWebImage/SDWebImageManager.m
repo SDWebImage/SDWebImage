@@ -102,6 +102,11 @@
     }];
 }
 
+- (BOOL)isDiskImageExistsForURL:(nullable NSURL *)url {
+    NSString *key = [self cacheKeyForURL:url];
+    return [self.imageCache isDiskImageExistsWithKey:key];
+}
+
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
                                     progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
@@ -217,7 +222,7 @@
                             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         });
                     } else {
-                        if (downloadedImage && finished) {
+                        if ((downloadedImage || downloadedData) && finished) {
                             [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
                         }
                         [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];

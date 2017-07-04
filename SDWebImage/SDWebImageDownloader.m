@@ -10,6 +10,8 @@
 #import "SDWebImageDownloaderOperation.h"
 #import <ImageIO/ImageIO.h>
 
+NSString *const SDWebImageDownloadOperationCompleteNotification = @"SDWebImageDownloadOperationComplete";
+
 @implementation SDWebImageDownloadToken
 @end
 
@@ -230,11 +232,13 @@
 
             __weak SDWebImageDownloaderOperation *woperation = operation;
             operation.completionBlock = ^{
-              SDWebImageDownloaderOperation *soperation = woperation;
-              if (!soperation) return;
-              if (self.URLOperations[url] == soperation) {
-                  [self.URLOperations removeObjectForKey:url];
-              };
+                dispatch_barrier_sync(self.barrierQueue, ^{
+                    SDWebImageDownloaderOperation *soperation = woperation;
+                    if (!soperation) return;
+                    if (self.URLOperations[url] == soperation) {
+                        [self.URLOperations removeObjectForKey:url];
+                    };
+                });
             };
         }
         id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];

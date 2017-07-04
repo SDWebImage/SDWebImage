@@ -121,6 +121,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     @synchronized (self) {
         if (self.isCancelled) {
             self.finished = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadOperationCompleteNotification object:self];
             [self reset];
             return;
         }
@@ -202,7 +203,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     if (self.dataTask) {
         [self.dataTask cancel];
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
         });
 
         // As we cancelled the connection, its callback won't be called and thus won't
@@ -281,7 +282,7 @@ didReceiveResponse:(NSURLResponse *)response
             [self.dataTask cancel];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
         });
         
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
@@ -403,7 +404,7 @@ didReceiveResponse:(NSURLResponse *)response
     @synchronized(self) {
         self.dataTask = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:nil];
             if (!error) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
             }
@@ -439,7 +440,12 @@ didReceiveResponse:(NSURLResponse *)response
                     }
                 }
                 if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                    if (self.imageData.length == 0) {
+                        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                    }
+                    else {
+                        [self callCompletionBlocksWithImage:nil imageData:self.imageData error:nil finished:YES];
+                    }
                 } else {
                     [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
                 }
@@ -526,6 +532,7 @@ didReceiveResponse:(NSURLResponse *)response
                              finished:(BOOL)finished {
     NSArray<id> *completionBlocks = [self callbacksForKey:kCompletedCallbackKey];
     dispatch_main_async_safe(^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadOperationCompleteNotification object:self];
         for (SDWebImageDownloaderCompletedBlock completedBlock in completionBlocks) {
             completedBlock(image, imageData, error, finished);
         }

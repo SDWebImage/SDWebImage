@@ -203,14 +203,20 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    if (!image || !key) {
-        if (completionBlock) {
-            completionBlock();
+    //we want to work with GIF like video
+    if ((!image || image.isGIF) || !key) {
+        if (imageData && key) {
+            toDisk = YES;
         }
-        return;
+        else {
+            if (completionBlock) {
+                completionBlock();
+            }
+            return;
+        }
     }
     // if memory cache is enabled
-    if (self.config.shouldCacheImagesInMemory) {
+    if (self.config.shouldCacheImagesInMemory && image) {
         NSUInteger cost = SDCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
@@ -281,6 +287,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             });
         }
     });
+}
+
+- (BOOL)isDiskImageExistsWithKey:(NSString *)key {
+    BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
+    if (!exists) {
+        exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
+    }
+    return exists;
 }
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
