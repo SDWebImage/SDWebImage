@@ -37,4 +37,9 @@
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
+/**
+ * The correct image path extension.
+ */
+@property (copy, nonatomic) NSArray *correctPathExtensionArray;
+
 @end

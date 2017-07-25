@@ -19,6 +19,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         _shouldCacheImagesInMemory = YES;
         _maxCacheAge = kDefaultCacheMaxCacheAge;
         _maxCacheSize = 0;
+        _correctPathExtensionArray = @[@"jpeg",@"jpg",@"png",@"gif",@"tiff",@"webp"];
     }
     return self;
 }
