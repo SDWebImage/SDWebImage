@@ -58,8 +58,10 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         return nil;
     }
     
-    int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
+#if SD_UIKIT || SD_WATCH
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
+#endif
+    int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
     CGBitmapInfo bitmapInfo;
@@ -69,6 +71,11 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     }
     CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+    if (!canvas) {
+        WebPDemuxReleaseIterator(&iter);
+        WebPDemuxDelete(demuxer);
+        return nil;
+    }
     
     NSMutableArray<UIImage *> *images = [NSMutableArray array];
     NSTimeInterval totalDuration = 0;
@@ -87,17 +94,20 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         }
         
         [images addObject:image];
+        
+#if SD_MAC
+        break;
+#endif
+        
         int duration = iter.duration;
-        if (!duration) {
-            // WebP standard says duration for 0 is used for canvas updating but not showing image, but actually Chrome set this to the default 100ms duration.
-            // Some animated WebP images also create without duration, we should keep compatibility
+        if (duration <= 10) {
+            // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
+            // Some animated WebP images also created without duration, we should keep compatibility
             duration = 100;
         }
         totalDuration += duration;
         size_t count = images.count;
-        if (count) {
-            durations[count - 1] = duration;
-        }
+        durations[count - 1] = duration;
         
     } while (WebPDemuxNextFrame(&iter));
     
@@ -143,9 +153,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     CGImageRelease(newImageRef);
     
-    if (iter.dispose_method == WEBP_MUX_DISPOSE_NONE) {
-        // do not dispose
-    } else {
+    if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
         CGContextClearRect(canvas, imageRect);
     }
     
@@ -177,9 +185,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
     CGImageRelease(newImageRef);
     
-    if (iter.dispose_method == WEBP_MUX_DISPOSE_NONE) {
-        // do not dispose
-    } else {
+    if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
         CGContextClearRect(canvas, imageRect);
     }
     
@@ -199,7 +205,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     config.output.colorspace = config.input.has_alpha ? MODE_rgbA : MODE_RGB;
     config.options.use_threads = 1;
 
-    // Decode the WebP image data into a RGBA value array.
+    // Decode the WebP image data into a RGBA value array
     if (WebPDecode(webpData.bytes, webpData.size, &config) != VP8_STATUS_OK) {
         return nil;
     }
@@ -211,7 +217,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         height = config.options.scaled_height;
     }
 
-    // Construct a UIImage from the decoded RGBA value array.
+    // Construct a UIImage from the decoded RGBA value array
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
     CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
