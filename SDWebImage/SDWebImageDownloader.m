@@ -119,8 +119,7 @@
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
     if (value) {
         self.HTTPHeaders[field] = value;
-    }
-    else {
+    } else {
         [self.HTTPHeaders removeObjectForKey:field];
     }
 }
@@ -264,7 +263,7 @@
 }
 
 - (void)setSuspended:(BOOL)suspended {
-    (self.downloadQueue).suspended = suspended;
+    self.downloadQueue.suspended = suspended;
 }
 
 - (void)cancelAllDownloads {

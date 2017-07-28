@@ -28,8 +28,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         }
 
         return [UIImage animatedImageWithImages:scaledImages duration:image.duration];
-    }
-    else {
+    } else {
 #if SD_WATCH
         if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
 #elif SD_UIKIT
