@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
-    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}'
+    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageManager+ALAsset.{h,m}', 'SDWebImage/SDWebImageManager+PHAsset.{h,m}'
     core.tvos.exclude_files = 'SDWebImage/MKAnnotationView+WebCache.*'
   end
 
@@ -63,5 +63,19 @@ Pod::Spec.new do |s|
     }
     webp.dependency 'SDWebImage/Core'
     webp.dependency 'libwebp'
+  end
+
+  s.subspec 'ALAsset' do |al|
+    al.source_files = 'SDWebImage/SDWebImageManager+ALAsset.{h,m}'
+    al.framework = 'AssetsLibrary'
+    al.dependency 'SDWebImage/Core'
+  end
+
+  s.subspec 'PHAsset' do |ph|
+    ph.source_files = 'SDWebImage/SDWebImageManager+PHAsset.{h,m}'
+    ph.ios.deployment_target = '8.0'
+    ph.tvos.deployment_target = '10.0'
+    ph.framework = 'Photos'
+    ph.dependency 'SDWebImage/Core'
   end
 end

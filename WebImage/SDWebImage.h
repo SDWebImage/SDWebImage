@@ -46,4 +46,9 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #endif
 #if SD_UIKIT
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#import <SDWebImage/SDWebImageManager+PHAsset.h>
 #endif
+#if SD_IOS && (!SD_WATCH)
+#import <SDWebImage/SDWebImageManager+ALAsset.h>
+#endif
+
