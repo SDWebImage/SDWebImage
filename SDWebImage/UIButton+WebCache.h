@@ -40,7 +40,7 @@
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
-                  forState:(UIControlState)state;
+                  forState:(UIControlState)state NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
@@ -54,7 +54,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
-          placeholderImage:(nullable UIImage *)placeholder;
+          placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -69,7 +69,7 @@
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
-                   options:(SDWebImageOptions)options;
+                   options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -105,7 +105,7 @@
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
-                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -139,7 +139,7 @@
  * @param state The state that uses the specified title. The values are described in UIControlState.
  */
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
-                            forState:(UIControlState)state;
+                            forState:(UIControlState)state NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the backgroundImageView `image` with an `url` and a placeholder.
@@ -153,7 +153,7 @@
  */
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
-                    placeholderImage:(nullable UIImage *)placeholder;
+                    placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
@@ -168,7 +168,7 @@
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
-                             options:(SDWebImageOptions)options;
+                             options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
@@ -204,7 +204,7 @@
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
-                           completed:(nullable SDExternalCompletionBlock)completedBlock;
+                           completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.

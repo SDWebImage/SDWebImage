@@ -120,6 +120,15 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 
 
 /**
+ * The configuration in use by the internal NSURLSession.
+ * Mutating this object directly has no effect.
+ *
+ * @see createNewSessionWithConfiguration:
+ */
+@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
+
+
+/**
  * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
  */
 @property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
@@ -229,5 +238,15 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * Cancels all download operations in the queue
  */
 - (void)cancelAllDownloads;
+
+/**
+ * Forces SDWebImageDownloader to create and use a new NSURLSession that is
+ * initialized with the given configuration.
+ * *Note*: All existing download operations in the queue will be cancelled.
+ * *Note*: `timeoutIntervalForRequest` is going to be overwritten.
+ *
+ * @param sessionConfiguration The configuration to use for the new NSURLSession
+ */
+- (void)createNewSessionWithConfiguration:(nonnull NSURLSessionConfiguration *)sessionConfiguration;
 
 @end

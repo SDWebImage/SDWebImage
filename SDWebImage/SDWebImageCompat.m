@@ -28,6 +28,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         for (UIImage *tempImage in image.images) {
             [scaledImages addObject:SDScaledImageForKey(key, tempImage)];
         }
+        
         UIImage *animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
 #ifdef SD_WEBP
         if (animatedImage) {
@@ -40,8 +41,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         }
 #endif
         return animatedImage;
-    }
-    else {
+    } else {
 #if SD_WATCH
         if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
 #elif SD_UIKIT
