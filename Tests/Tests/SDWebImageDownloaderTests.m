@@ -91,7 +91,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
@@ -142,7 +141,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
     [SDWebImageDownloader sharedDownloader].username = nil;
     [SDWebImageDownloader sharedDownloader].password = nil;
@@ -160,7 +158,6 @@
             // progressive updates
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
@@ -175,7 +172,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
@@ -236,7 +232,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
@@ -250,7 +245,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
@@ -264,7 +258,6 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
