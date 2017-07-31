@@ -74,6 +74,7 @@
                     @"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp",
                     @"http://littlesvr.ca/apng/images/SteamEngine.webp",
                     @"http://littlesvr.ca/apng/images/world-cup-2014-42.webp",
+                    @"https://isparta.github.io/compare-webp/image/gif_webp/webp/2.webp",
                     @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png",
                     nil];
 
