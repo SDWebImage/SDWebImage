@@ -9,9 +9,9 @@
 #ifdef SD_WEBP
 
 #import "UIImage+WebP.h"
-#import "webp/decode.h"
-#import "webp/mux_types.h"
-#import "webp/demux.h"
+#import <libwebp/webp/decode.h>
+#import <libwebp/webp/mux_types.h>
+#import <libwebp/webp/demux.h>
 #import "NSImage+WebCache.h"
 
 #import "objc/runtime.h"

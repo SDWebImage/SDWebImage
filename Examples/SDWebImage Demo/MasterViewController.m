@@ -9,7 +9,7 @@
 #import "MasterViewController.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import "DetailViewController.h"
-#import <SDWebImage/FLAnimatedImageView.h>
+#import <FLAnimatedImage/FLAnimatedImageView.h>
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
 #import <SDWebImage/UIView+WebCache.h>
 
