@@ -10,10 +10,10 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageOperation.h"
 
-extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
-extern NSString * _Nonnull const SDWebImageDownloadReceiveResponseNotification;
-extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
-extern NSString * _Nonnull const SDWebImageDownloadFinishNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadReceiveResponseNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification;
 
 
 

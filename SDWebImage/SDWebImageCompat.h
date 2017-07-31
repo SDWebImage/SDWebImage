@@ -93,11 +93,11 @@
     #define SDDispatchQueueSetterSementics assign
 #endif
 
-extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
+FOUNDATION_EXPORT UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
 typedef void(^SDWebImageNoParamsBlock)();
 
-extern NSString *const SDWebImageErrorDomain;
+FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
 
 #ifndef dispatch_main_async_safe
 #define dispatch_main_async_safe(block)\
