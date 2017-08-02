@@ -115,16 +115,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         
         size_t bytesPerRow = kBytesPerPixel * destResolution.width;
         
-        // Allocate enough pixel data to hold the output image.
-        void* destBitmapData = malloc( bytesPerRow * destResolution.height );
-        if (destBitmapData == NULL) {
-            return image;
-        }
-        
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
         // to create bitmap graphics contexts without alpha info.
-        destContext = CGBitmapContextCreate(destBitmapData,
+        destContext = CGBitmapContextCreate(NULL,
                                             destResolution.width,
                                             destResolution.height,
                                             kBitsPerComponent,
@@ -133,7 +127,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         
         if (destContext == NULL) {
-            free(destBitmapData);
             return image;
         }
         CGContextSetInterpolationQuality(destContext, kCGInterpolationHigh);
