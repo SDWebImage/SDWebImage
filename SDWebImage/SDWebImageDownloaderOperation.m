@@ -376,7 +376,9 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
 
-        CFRelease(imageSource);
+        if (imageSource) {
+            CFRelease(imageSource);
+        }
     }
 
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
