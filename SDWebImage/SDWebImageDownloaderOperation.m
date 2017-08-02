@@ -444,7 +444,7 @@ didReceiveResponse:(NSURLResponse *)response
                         }
                     }
                 }
-                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                if (CGSizeEqualToSize(image.size, CGSizeZero) && self.imageData == nil) {
                     [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                 } else {
                     [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];

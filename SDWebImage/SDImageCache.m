@@ -203,7 +203,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    if (!image || !key) {
+    if ((!image && !imageData) || !key) {
         if (completionBlock) {
             completionBlock();
         }
@@ -212,7 +212,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // if memory cache is enabled
     if (self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = SDCacheCostForImage(image);
-        [self.memCache setObject:image forKey:key cost:cost];
+        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+        if (imageFormat == SDImageFormatGIF) {
+            [self.memCache setObject:imageData forKey:key cost: imageData.length];
+        } else {
+            if (image) {
+                [self.memCache setObject:image forKey:key cost:cost];
+            }
+        }
+
     }
     
     if (toDisk) {
@@ -283,7 +291,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
-- (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
+- (nullable id)objectFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
 }
 
@@ -299,14 +307,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key {
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image) {
-        return image;
+    id object = [self objectFromMemoryCacheForKey:key];
+    if (object && [object isKindOfClass:[UIImage class]]) {
+        return object;
     }
     
     // Second check the disk cache...
-    image = [self imageFromDiskCacheForKey:key];
-    return image;
+    return [self imageFromDiskCacheForKey:key];
 }
 
 - (nullable NSData *)diskImageDataBySearchingAllPathsForKey:(nullable NSString *)key {
@@ -369,11 +376,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 
     // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image) {
+    id object = [self objectFromMemoryCacheForKey:key];
+    if (object) {
         NSData *diskData = nil;
-        if ([image isGIF]) {
-            diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+        UIImage *image = nil;
+        if ([object isKindOfClass:[UIImage class]]) {
+            image = object;
+        } else if ([object isKindOfClass:[NSData class]]) {
+            diskData = object;
+            if ([NSData sd_imageFormatForImageData:diskData] == SDImageFormatGIF) {
+                image = [UIImage sd_animatedGIFWithData:diskData];
+            }
         }
         if (doneBlock) {
             doneBlock(image, diskData, SDImageCacheTypeMemory);
@@ -392,8 +405,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage = [self diskImageForKey:key];
             if (diskImage && self.config.shouldCacheImagesInMemory) {
-                NSUInteger cost = SDCacheCostForImage(diskImage);
-                [self.memCache setObject:diskImage forKey:key cost:cost];
+                if ([NSData sd_imageFormatForImageData:diskData] == SDImageFormatGIF) {
+                    [self.memCache setObject:diskData forKey:key cost: diskData.length];
+                } else {
+                    NSUInteger cost = SDCacheCostForImage(diskImage);
+                    [self.memCache setObject:diskImage forKey:key cost:cost];
+                }
             }
 
             if (doneBlock) {
