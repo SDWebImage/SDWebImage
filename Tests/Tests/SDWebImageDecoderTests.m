@@ -7,14 +7,10 @@
  * file that was distributed with this source code.
  */
 
-#define EXP_SHORTHAND   // required by Expecta
-
-
-#import <XCTest/XCTest.h>
-#import <Expecta/Expecta.h>
+#import "SDTestCase.h"
 #import <SDWebImage/SDWebImageDecoder.h>
 
-@interface SDWebImageDecoderTests : XCTestCase
+@interface SDWebImageDecoderTests : SDTestCase
 
 @end
 
