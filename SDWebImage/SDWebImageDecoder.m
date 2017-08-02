@@ -125,7 +125,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             bytesPerRow,
                                             colorspaceRef,
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
-        
+        free(destBitmapData);
         if (destContext == NULL) {
             return image;
         }
