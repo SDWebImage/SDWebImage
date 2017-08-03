@@ -7,11 +7,7 @@
  * file that was distributed with this source code.
  */
 
-#define EXP_SHORTHAND   // required by Expecta
-
-#import <XCTest/XCTest.h>
-#import <Expecta/Expecta.h>
-
+#import "SDTestCase.h"
 #import <SDWebImage/UIImageView+WebCache.h>
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
 #import <SDWebImage/MKAnnotationView+WebCache.h>
@@ -20,7 +16,7 @@
 
 @import FLAnimatedImage;
 
-@interface SDCategoriesTests : XCTestCase
+@interface SDCategoriesTests : SDTestCase
 
 @end
 
@@ -39,7 +35,7 @@
                             expect(imageView.image).to.equal(image);
                             [expectation fulfill];
                         }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testUIImageViewSetHighlightedImageWithURL {
@@ -55,7 +51,7 @@
                                        expect(imageView.highlightedImage).to.equal(image);
                                        [expectation fulfill];
                                    }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testMKAnnotationViewSetImageWithURL {
@@ -71,7 +67,7 @@
                                  expect(annotationView.image).to.equal(image);
                                  [expectation fulfill];
                              }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testUIButtonSetImageWithURLNormalState {
@@ -88,7 +84,7 @@
                          expect([button imageForState:UIControlStateNormal]).to.equal(image);
                          [expectation fulfill];
                      }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testUIButtonSetImageWithURLHighlightedState {
@@ -105,7 +101,7 @@
                          expect([button imageForState:UIControlStateHighlighted]).to.equal(image);
                          [expectation fulfill];
                      }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testUIButtonSetBackgroundImageWithURLNormalState {
@@ -122,7 +118,7 @@
                                    expect([button backgroundImageForState:UIControlStateNormal]).to.equal(image);
                                    [expectation fulfill];
                                }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testFLAnimatedImageViewSetImageWithURL {
@@ -140,7 +136,7 @@
                             expect(imageView.animatedImage).toNot.beNil();
                             [expectation fulfill];
                                 }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 @end

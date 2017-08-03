@@ -6,17 +6,12 @@
  * file that was distributed with this source code.
  */
 
-#define EXP_SHORTHAND   // required by Expecta
-
-
-#import <XCTest/XCTest.h>
-#import <Expecta/Expecta.h>
-
+#import "SDTestCase.h"
 #import <SDWebImage/SDImageCache.h>
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
 
-@interface SDImageCacheTests : XCTestCase
+@interface SDImageCacheTests : SDTestCase
 @property (strong, nonatomic) SDImageCache *sharedImageCache;
 @end
 
@@ -56,7 +51,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
         }];
         expect([self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey]).to.equal([self imageForTesting]);
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test05ClearMemoryCache{
@@ -72,7 +67,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
             XCTFail(@"Image should be in cache");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 // Testing storeImage:forKey:
@@ -89,7 +84,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
             XCTFail(@"Image should be in cache");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 // Testing storeImage:forKey:toDisk:YES
@@ -106,7 +101,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
             XCTFail(@"Image should be in cache");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 // Testing storeImage:forKey:toDisk:NO
@@ -125,7 +120,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     }];
     [self.sharedImageCache clearMemory];
     expect([self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey]).to.beNil();
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test09RetrieveImageThroughNSOperation{

@@ -7,12 +7,7 @@
  * file that was distributed with this source code.
  */
 
-#define EXP_SHORTHAND   // required by Expecta
-
-
-#import <XCTest/XCTest.h>
-#import <Expecta/Expecta.h>
-
+#import "SDTestCase.h"
 #import <SDWebImage/SDWebImageDownloader.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
 
@@ -55,7 +50,7 @@
 
 
 
-@interface SDWebImageDownloaderTests : XCTestCase
+@interface SDWebImageDownloaderTests : SDTestCase
 
 @end
 
@@ -91,7 +86,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test05ThatSetAndGetMaxConcurrentDownloadsWorks {
@@ -141,7 +136,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
     [SDWebImageDownloader sharedDownloader].username = nil;
     [SDWebImageDownloader sharedDownloader].password = nil;
 }
@@ -158,7 +153,7 @@
             // progressive updates
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test10That404CaseCallsCompletionWithError {
@@ -172,7 +167,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test11ThatCancelWorks {
@@ -193,7 +188,7 @@
         [expectation fulfill];
     });
     
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test12ThatWeCanUseAnotherSessionForEachDownloadOperation {
@@ -219,7 +214,7 @@
     
     [operation start];
     
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test13ThatDownloadCanContinueWhenTheAppEntersBackground {
@@ -232,7 +227,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test14ThatPNGWorks {
@@ -245,7 +240,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test15ThatWEBPWorks {
@@ -258,7 +253,7 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 /**
@@ -296,7 +291,7 @@
 
     [[SDWebImageDownloader sharedDownloader] cancel:token1];
 
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 /**
@@ -335,7 +330,7 @@
                                        }];
     expect(token2).toNot.beNil();
     
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 @end

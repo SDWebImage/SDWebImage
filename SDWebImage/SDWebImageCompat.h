@@ -107,5 +107,3 @@ FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
         dispatch_async(dispatch_get_main_queue(), block);\
     }
 #endif
-
-static int64_t kAsyncTestTimeout = 5;

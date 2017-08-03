@@ -7,15 +7,10 @@
  * file that was distributed with this source code.
  */
 
-#define EXP_SHORTHAND   // required by Expecta
-
-
-#import <XCTest/XCTest.h>
-#import <Expecta/Expecta.h>
-
+#import "SDTestCase.h"
 #import <SDWebImage/SDWebImagePrefetcher.h>
 
-@interface SDWebImagePrefetcherTests : XCTestCase
+@interface SDWebImagePrefetcherTests : SDTestCase
 
 @end
 
@@ -51,7 +46,7 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test03PrefetchWithEmptyArrayWillCallTheCompletionWithAllZeros {
@@ -63,7 +58,7 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 // TODO: test the prefetcher delegate works
