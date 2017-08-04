@@ -21,7 +21,7 @@
     
 #if SD_MAC
     return [[UIImage alloc] initWithData:data];
-#endif
+#else
 
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
 
@@ -53,6 +53,7 @@
     CFRelease(source);
 
     return staticImage;
+#endif
 }
 
 - (BOOL)isGIF {
