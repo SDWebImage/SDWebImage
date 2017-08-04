@@ -60,8 +60,8 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     
 #if SD_UIKIT || SD_WATCH
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
-#endif
     int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
+#endif
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
     CGBitmapInfo bitmapInfo;
@@ -78,8 +78,10 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     }
     
     NSMutableArray<UIImage *> *images = [NSMutableArray array];
+#if SD_UIKIT || SD_WATCH
     NSTimeInterval totalDuration = 0;
     int durations[frameCount];
+#endif
     
     do {
         UIImage *image;
@@ -97,7 +99,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         
 #if SD_MAC
         break;
-#endif
+#else
         
         int duration = iter.duration;
         if (duration <= 10) {
@@ -108,7 +110,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         totalDuration += duration;
         size_t count = images.count;
         durations[count - 1] = duration;
-        
+#endif
     } while (WebPDemuxNextFrame(&iter));
     
     WebPDemuxReleaseIterator(&iter);
