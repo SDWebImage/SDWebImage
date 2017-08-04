@@ -9,10 +9,17 @@
 #ifdef SD_WEBP
 
 #import "UIImage+WebP.h"
+#import "NSImage+WebCache.h"
+
+#if __has_include(<webp/decode.h>) && __has_include(<webp/mux_types.h>) && __has_include(<webp/demux.h>)
+#import <webp/decode.h>
+#import <webp/mux_types.h>
+#import <webp/demux.h>
+#else
 #import "webp/decode.h"
 #import "webp/mux_types.h"
 #import "webp/demux.h"
-#import "NSImage+WebCache.h"
+#endif
 
 #import "objc/runtime.h"
 
