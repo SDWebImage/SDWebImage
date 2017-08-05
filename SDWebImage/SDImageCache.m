@@ -347,6 +347,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
         image = [self scaledImageForKey:key image:image];
+#ifdef SD_WEBP
+        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+        if (imageFormat == SDImageFormatWebP) {
+            return image;
+        }
+#endif
         if (self.config.shouldDecompressImages) {
             image = [UIImage decodedImageWithImage:image];
         }
