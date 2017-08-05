@@ -66,7 +66,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     CGImageSourceRef _imageSource;
 #ifdef SD_WEBP
     WebPIDecoder *_idec;
-    WebPDecoderConfig _config;
 #endif
 }
 
@@ -96,6 +95,16 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (void)dealloc {
     SDDispatchQueueRelease(_barrierQueue);
+    if (_imageSource) {
+        CFRelease(_imageSource);
+        _imageSource = NULL;
+    }
+#ifdef SD_WEBP
+    if (_idec) {
+        WebPIDelete(_idec);
+        _idec = NULL;
+    }
+#endif
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
@@ -483,9 +492,8 @@ didReceiveResponse:(NSURLResponse *)response
         // Workaround for iOS anamorphic image
         if (partialImageRef) {
             const size_t partialHeight = CGImageGetHeight(partialImageRef);
-            CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+            CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
             CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, _width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-            CGColorSpaceRelease(colorSpace);
             if (bmContext) {
                 CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
                 CGImageRelease(partialImageRef);
@@ -522,15 +530,15 @@ didReceiveResponse:(NSURLResponse *)response
     if (finished) {
         if (_imageSource) {
             CFRelease(_imageSource);
+            _imageSource = NULL;
         }
     }
 }
 #ifdef SD_WEBP
 - (void)progressiveDownloadForWebP {
     if (!_idec) {
-        // Progressive images need transparent, so always use RGBA
-        _config.output.colorspace = MODE_rgbA;
-        _idec = WebPINewDecoder(&_config.output);
+        // Progressive images need transparent, so always use premultiplied RGBA
+        _idec = WebPINewRGB(MODE_rgbA, NULL, 0, 0);
         if (!_idec) {
             return;
         }
@@ -546,14 +554,12 @@ didReceiveResponse:(NSURLResponse *)response
         return;
     }
     
-    int partialHeight;
-    int stride;
-    WebPIDecGetRGB(_idec, &partialHeight, (int *)&_width, (int *)&_height, &stride);
+    uint8_t *rgba = WebPIDecGetRGB(_idec, NULL, (int *)&_width, (int *)&_height, NULL);
     
-    if (_config.output.u.RGBA.rgba) {
+    if (_width + _height > 0 && totalSize < self.expectedSize) {
         // Construct a UIImage from the decoded RGBA value array
         CGDataProviderRef provider =
-        CGDataProviderCreateWithData(NULL, _config.output.u.RGBA.rgba, _config.output.u.RGBA.size, NULL);
+        CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
         CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
         
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
@@ -594,15 +600,16 @@ didReceiveResponse:(NSURLResponse *)response
         
         [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
     }
-
+    
     if (finished) {
         if (_idec) {
             WebPIDelete(_idec);
+            _idec = NULL;
         }
-        WebPFreeDecBuffer(&_config.output);
     }
 }
 #endif
+
 static CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void) {
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
