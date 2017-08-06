@@ -8,6 +8,267 @@
  */
 
 #import "SDWebImageDecoder.h"
+#import "NSData+ImageContentType.h"
+#import <ImageIO/ImageIO.h>
+#ifdef SD_WEBP
+#if __has_include(<webp/decode.h>)
+#import <webp/decode.h>
+#else
+#import "webp/decode.h"
+#endif
+#endif
+
+@interface SDWebImageDecoder ()
+
+@property (assign, nonatomic) SDWebImageDecoderType type;
+
+@end
+
+@implementation SDWebImageDecoder {
+    size_t _width, _height;
+#if SD_UIKIT || SD_WATCH
+    UIImageOrientation _orientation;
+#endif
+    CGImageSourceRef _imageSource;
+#ifdef SD_WEBP
+    WebPIDecoder *_idec;
+#endif
+}
+
+- (void)dealloc {
+    if (_imageSource) {
+        CFRelease(_imageSource);
+        _imageSource = NULL;
+    }
+#ifdef SD_WEBP
+    if (_idec) {
+        WebPIDelete(_idec);
+        _idec = NULL;
+    }
+#endif
+}
+
+- (instancetype)initWithType:(SDWebImageDecoderType)type {
+    self = [super init];
+    if (self) {
+        self.type = type;
+    }
+    
+    return self;
+}
+
+- (UIImage *)incrementalDecodedImageWithUpdateData:(NSData *)updateData finished:(BOOL)finished {
+    if (!updateData) {
+        return nil;
+    }
+    
+    UIImage *image;
+    NSData *imageData = [updateData copy];
+    // check image format until it recognize the format
+    if (self.type == SDWebImageDecoderTypeAuto) {
+        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+        if (imageFormat == SDImageFormatUndefined) {
+            return nil;
+        } else if (imageFormat == SDWebImageDecoderTypeWebP) {
+            self.type = SDWebImageDecoderTypeWebP;
+        } else {
+            self.type = SDWebImageDecoderTypeImageIO;
+        }
+    }
+    
+    if (self.type == SDWebImageDecoderTypeWebP) {
+#ifdef SD_WEBP
+        image = [self incrementalWebPDecodedImageWithData:imageData finished:finished];
+#endif
+    } else {
+        image = [self incrementalImageIODecodedImageWithData:imageData finished:finished];
+    }
+    
+    return image;
+}
+
+- (UIImage *)incrementalImageIODecodedImageWithData:(NSData *)imageData finished:(BOOL)finished {
+    UIImage *image;
+    
+    if (!_imageSource) {
+        _imageSource = CGImageSourceCreateIncremental(NULL);
+    }
+    // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
+    // Thanks to the author @Nyx0uf
+    
+    // Update the data source, we must pass ALL the data, not just the new bytes
+    CGImageSourceUpdateData(_imageSource, (__bridge CFDataRef)imageData, finished);
+    
+    if (_width + _height == 0) {
+        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(_imageSource, 0, NULL);
+        if (properties) {
+            NSInteger orientationValue = -1;
+            CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+            if (val) CFNumberGetValue(val, kCFNumberLongType, &_height);
+            val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+            if (val) CFNumberGetValue(val, kCFNumberLongType, &_width);
+            val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
+            if (val) CFNumberGetValue(val, kCFNumberNSIntegerType, &orientationValue);
+            CFRelease(properties);
+            
+            // When we draw to Core Graphics, we lose orientation information,
+            // which means the image below born of initWithCGIImage will be
+            // oriented incorrectly sometimes. (Unlike the image born of initWithData
+            // in didCompleteWithError.) So save it here and pass it on later.
+#if SD_UIKIT || SD_WATCH
+            _orientation = [[self class] orientationFromPropertyValue:(orientationValue == -1 ? 1 : orientationValue)];
+#endif
+        }
+    }
+    
+    if (_width + _height > 0) {
+        // Create the image
+        CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
+        
+#if SD_UIKIT || SD_WATCH
+        // Workaround for iOS anamorphic image
+        if (partialImageRef) {
+            const size_t partialHeight = CGImageGetHeight(partialImageRef);
+            CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
+            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, _width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
+            if (bmContext) {
+                CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
+                CGImageRelease(partialImageRef);
+                partialImageRef = CGBitmapContextCreateImage(bmContext);
+                CGContextRelease(bmContext);
+            }
+            else {
+                CGImageRelease(partialImageRef);
+                partialImageRef = nil;
+            }
+        }
+#endif
+        
+        if (partialImageRef) {
+#if SD_UIKIT || SD_WATCH
+            image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:_orientation];
+#elif SD_MAC
+            image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
+#endif
+            CGImageRelease(partialImageRef);
+        }
+    }
+    
+    if (finished) {
+        if (_imageSource) {
+            CFRelease(_imageSource);
+            _imageSource = NULL;
+        }
+    }
+    
+    return image;
+}
+
+#ifdef SD_WEBP
+- (UIImage *)incrementalWebPDecodedImageWithData:(NSData *)imageData finished:(BOOL)finished {
+    UIImage *image;
+    
+    if (!_idec) {
+        // Progressive images need transparent, so always use premultiplied RGBA
+        _idec = WebPINewRGB(MODE_rgbA, NULL, 0, 0);
+        if (!_idec) {
+            return nil;
+        }
+    }
+    
+    VP8StatusCode status = WebPIUpdate(_idec, imageData.bytes, imageData.length);
+    if (status != VP8_STATUS_OK && status != VP8_STATUS_SUSPENDED) {
+        return nil;
+    }
+    
+    uint8_t *rgba = WebPIDecGetRGB(_idec, NULL, (int *)&_width, (int *)&_height, NULL);
+    
+    if (_width + _height > 0) {
+        // Construct a UIImage from the decoded RGBA value array
+        CGDataProviderRef provider =
+        CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
+        CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
+        
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+        size_t components = 4;
+        CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+        CGImageRef imageRef = CGImageCreate(_width, _height, 8, components * 8, components * _width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
+        
+        CGDataProviderRelease(provider);
+        
+        if (!imageRef) {
+            return nil;
+        }
+        
+        CGContextRef canvas = CGBitmapContextCreate(NULL, _width, _height, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+        if (!canvas) {
+            CGImageRelease(imageRef);
+            return nil;
+        }
+        
+        CGContextDrawImage(canvas, CGRectMake(0, 0, _width, _height), imageRef);
+        CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
+        CGImageRelease(imageRef);
+        if (!newImageRef) {
+            CGContextRelease(canvas);
+            return nil;
+        }
+        
+#if SD_UIKIT || SD_WATCH
+        image = [[UIImage alloc] initWithCGImage:newImageRef];
+#else
+        image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
+        CGImageRelease(newImageRef);
+        CGContextRelease(canvas);
+    }
+    
+    if (finished) {
+        if (_idec) {
+            WebPIDelete(_idec);
+            _idec = NULL;
+        }
+    }
+    
+    return image;
+}
+#endif
+
+static CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void) {
+    static CGColorSpaceRef colorSpace;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+    });
+    return colorSpace;
+}
+
+#if SD_UIKIT || SD_WATCH
++ (UIImageOrientation)orientationFromPropertyValue:(NSInteger)value {
+    switch (value) {
+        case 1:
+            return UIImageOrientationUp;
+        case 3:
+            return UIImageOrientationDown;
+        case 8:
+            return UIImageOrientationLeft;
+        case 6:
+            return UIImageOrientationRight;
+        case 2:
+            return UIImageOrientationUpMirrored;
+        case 4:
+            return UIImageOrientationDownMirrored;
+        case 5:
+            return UIImageOrientationLeftMirrored;
+        case 7:
+            return UIImageOrientationRightMirrored;
+        default:
+            return UIImageOrientationUp;
+    }
+}
+#endif
+
+@end
 
 @implementation UIImage (ForceDecode)
 
@@ -254,8 +515,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                   imageColorSpaceModel == kCGColorSpaceModelCMYK ||
                                   imageColorSpaceModel == kCGColorSpaceModelIndexed);
     if (unsupportedColorSpace) {
-        colorspaceRef = CGColorSpaceCreateDeviceRGB();
-        CFAutorelease(colorspaceRef);
+        colorspaceRef = SDCGColorSpaceGetDeviceRGB();
     }
     return colorspaceRef;
 }
