@@ -166,14 +166,7 @@
         }
 
         // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
-        NSURLRequestCachePolicy cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        if (options & SDWebImageDownloaderUseNSURLCache) {
-            if (options & SDWebImageDownloaderIgnoreCachedResponse) {
-                cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-            } else {
-                cachePolicy = NSURLRequestUseProtocolCachePolicy;
-            }
-        }
+        NSURLRequestCachePolicy cachePolicy = options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData;
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
                                                                     cachePolicy:cachePolicy
                                                                 timeoutInterval:timeoutInterval];
