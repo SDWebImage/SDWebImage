@@ -303,19 +303,21 @@ didReceiveResponse:(NSURLResponse *)response
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
         UIImage *image;
         if (!self.decoder) {
-#ifdef SD_WEBP
-            if ([self.MIMEType isEqualToString:kWebPMIMEType]) {
-                self.decoder = [[SDWebImageDecoder alloc] initWithType:SDWebImageDecoderTypeWebP];
-            } else {
-#endif
-                self.decoder = [[SDWebImageDecoder alloc] initWithType:SDWebImageDecoderTypeImageIO];
-#ifdef SD_WEBP
-            }
-#endif
+            self.decoder = [[SDWebImageDecoder alloc] init];
         }
-        const NSInteger totalSize = self.imageData.length;
+        
+        NSData *imageData = [self.imageData copy];
+        SDImageFormat format = [NSData sd_imageFormatForImageData:imageData];
+        if (format == SDImageFormatUndefined) {
+            // Check MIME type in case of current received data is too short
+            if ([self.MIMEType isEqualToString:kWebPMIMEType]) {
+                format = SDImageFormatWebP;
+            }
+        }
+        
+        const NSInteger totalSize = imageData.length;
         BOOL finished = (self.expectedSize == totalSize);
-        image = [self.decoder incrementalDecodedImageWithUpdateData:self.imageData finished:finished];
+        image = [self.decoder incrementalDecodedImageWithData:imageData format:format finished:finished];
         if (image) {
             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
             UIImage *scaledImage = SDScaledImageForKey(key, image);

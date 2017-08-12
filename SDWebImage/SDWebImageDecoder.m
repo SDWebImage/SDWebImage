@@ -8,7 +8,6 @@
  */
 
 #import "SDWebImageDecoder.h"
-#import "NSData+ImageContentType.h"
 #import <ImageIO/ImageIO.h>
 #ifdef SD_WEBP
 #if __has_include(<webp/decode.h>)
@@ -17,12 +16,6 @@
 #import "webp/decode.h"
 #endif
 #endif
-
-@interface SDWebImageDecoder ()
-
-@property (assign, nonatomic) SDWebImageDecoderType type;
-
-@end
 
 @implementation SDWebImageDecoder {
     size_t _width, _height;
@@ -48,40 +41,18 @@
 #endif
 }
 
-- (instancetype)initWithType:(SDWebImageDecoderType)type {
-    self = [super init];
-    if (self) {
-        self.type = type;
-    }
-    
-    return self;
-}
-
-- (UIImage *)incrementalDecodedImageWithUpdateData:(NSData *)updateData finished:(BOOL)finished {
-    if (!updateData) {
+- (nullable UIImage *)incrementalDecodedImageWithData:(nullable NSData *)data format:(SDImageFormat)format finished:(BOOL)finished {
+    if (!data) {
         return nil;
     }
     
     UIImage *image;
-    NSData *imageData = [updateData copy];
-    // check image format until it recognize the format
-    if (self.type == SDWebImageDecoderTypeAuto) {
-        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-        if (imageFormat == SDImageFormatUndefined) {
-            return nil;
-        } else if (imageFormat == SDWebImageDecoderTypeWebP) {
-            self.type = SDWebImageDecoderTypeWebP;
-        } else {
-            self.type = SDWebImageDecoderTypeImageIO;
-        }
-    }
-    
-    if (self.type == SDWebImageDecoderTypeWebP) {
+    if (format == SDImageFormatWebP) {
 #ifdef SD_WEBP
-        image = [self incrementalWebPDecodedImageWithData:imageData finished:finished];
+        image = [self incrementalWebPDecodedImageWithData:data finished:finished];
 #endif
     } else {
-        image = [self incrementalImageIODecodedImageWithData:imageData finished:finished];
+        image = [self incrementalImageIODecodedImageWithData:data finished:finished];
     }
     
     return image;
