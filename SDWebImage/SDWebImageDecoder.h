@@ -9,20 +9,11 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-typedef NS_ENUM(NSUInteger, SDWebImageDecoderType) {
-    SDWebImageDecoderTypeAuto = 0, // default, will check image format by sd_imageFormatForImageData and decode only the recognized format
-    SDWebImageDecoderTypeImageIO, // use ImageIO to decode image format that ImageIO support
-    SDWebImageDecoderTypeWebP // use libwebp to decode WebP format
-};
+#import "NSData+ImageContentType.h"
 
 @interface SDWebImageDecoder : NSObject
 
-- (instancetype)initWithType:(SDWebImageDecoderType)type;
-
-- (nullable UIImage *)incrementalDecodedImageWithUpdateData:(nullable NSData *)updateData finished:(BOOL)finished;
+- (nullable UIImage *)incrementalDecodedImageWithData:(nullable NSData *)data format:(SDImageFormat)format finished:(BOOL)finished;
 
 @end
 
@@ -33,5 +24,3 @@ typedef NS_ENUM(NSUInteger, SDWebImageDecoderType) {
 + (nullable UIImage *)decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
 
 @end
-
-NS_ASSUME_NONNULL_END
