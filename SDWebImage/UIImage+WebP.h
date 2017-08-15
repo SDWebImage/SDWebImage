@@ -27,3 +27,8 @@
 @end
 
 #endif
+
+/**
+ * Whether WebP is available in SDWebImage.
+ */
+extern BOOL SDWebImageWebPAvailable();
