@@ -299,4 +299,14 @@ static int gcd(int a,int b) {
 
 @end
 
+BOOL SDWebImageWebPAvailable() {
+    return YES;
+}
+
+#else
+
+BOOL SDWebImageWebPAvailable() {
+    return NO;
+}
+
 #endif
