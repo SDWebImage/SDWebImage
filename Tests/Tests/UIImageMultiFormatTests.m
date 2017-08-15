@@ -8,6 +8,7 @@
 
 #import "SDTestCase.h"
 #import <SDWebImage/UIImage+MultiFormat.h>
+#import <SDWebImage/UIImage+WebP.h>
 
 @interface UIImageMultiFormatTests : SDTestCase
 
@@ -31,6 +32,7 @@
 }
 
 - (void)test02AnimatedWebPImageArrayWithEqualSizeAndScale {
+    expect(SDWebImageWebPAvailable()).to.beTruthy();
     NSURL *webpURL = [NSURL URLWithString:@"https://isparta.github.io/compare-webp/image/gif_webp/webp/2.webp"];
     NSData *data = [NSData dataWithContentsOfURL:webpURL];
 #pragma clang diagnostic push
