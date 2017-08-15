@@ -95,7 +95,7 @@
 
 FOUNDATION_EXPORT UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
-typedef void(^SDWebImageNoParamsBlock)();
+typedef void(^SDWebImageNoParamsBlock)(void);
 
 FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
 
