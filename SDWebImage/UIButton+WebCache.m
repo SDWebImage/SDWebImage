@@ -62,6 +62,7 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                    options:(SDWebImageOptions)options
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
+        [self setImage:placeholder forState:state];
         [self.imageURLStorage removeObjectForKey:@(state)];
         return;
     }
@@ -108,6 +109,7 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                              options:(SDWebImageOptions)options
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
+        [self setBackgroundImage:placeholder forState:state];
         [self.imageURLStorage removeObjectForKey:@(state)];
         return;
     }
