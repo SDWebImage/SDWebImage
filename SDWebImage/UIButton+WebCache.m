@@ -18,7 +18,13 @@ static char imageURLStorageKey;
 
 typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
 
+static inline NSNumber * backgroundImageURLKeyForState(UIControlState state) {
+    return @(NSUIntegerMax - state - 1);
+}
+
 @implementation UIButton (WebCache)
+
+#pragma mark - Image
 
 - (nullable NSURL *)sd_currentImageURL {
     NSURL *url = self.imageURLStorage[@(self.state)];
@@ -33,8 +39,6 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state {
     return self.imageURLStorage[@(state)];
 }
-
-#pragma mark - Image
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
     [self sd_setImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
@@ -82,6 +86,20 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
 
 #pragma mark - Background image
 
+- (nullable NSURL *)sd_currentBackgroundImageURL {
+    NSURL *url = self.imageURLStorage[backgroundImageURLKeyForState(self.state)];
+    
+    if (!url) {
+        url = self.imageURLStorage[backgroundImageURLKeyForState(UIControlStateNormal)];
+    }
+    
+    return url;
+}
+
+- (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
+    return self.imageURLStorage[backgroundImageURLKeyForState(state)];
+}
+
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
 }
@@ -108,11 +126,11 @@ typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
                              options:(SDWebImageOptions)options
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
-        [self.imageURLStorage removeObjectForKey:@(state)];
+        [self.imageURLStorage removeObjectForKey:backgroundImageURLKeyForState(state)];
         return;
     }
     
-    self.imageURLStorage[@(state)] = url;
+    self.imageURLStorage[backgroundImageURLKeyForState(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
