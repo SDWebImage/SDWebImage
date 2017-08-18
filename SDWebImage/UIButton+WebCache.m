@@ -16,10 +16,14 @@
 
 static char imageURLStorageKey;
 
-typedef NSMutableDictionary<NSNumber *, NSURL *> SDStateImageURLDictionary;
+typedef NSMutableDictionary<NSString *, NSURL *> SDStateImageURLDictionary;
 
-static inline NSNumber * backgroundImageURLKeyForState(UIControlState state) {
-    return @(NSUIntegerMax - state - 1);
+static inline NSString * imageURLKeyForState(UIControlState state) {
+    return [NSString stringWithFormat:@"image_%lu", (unsigned long)state];
+}
+
+static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
+    return [NSString stringWithFormat:@"backgroundImage_%lu", (unsigned long)state];
 }
 
 @implementation UIButton (WebCache)
@@ -27,17 +31,17 @@ static inline NSNumber * backgroundImageURLKeyForState(UIControlState state) {
 #pragma mark - Image
 
 - (nullable NSURL *)sd_currentImageURL {
-    NSURL *url = self.imageURLStorage[@(self.state)];
+    NSURL *url = self.imageURLStorage[imageURLKeyForState(self.state)];
 
     if (!url) {
-        url = self.imageURLStorage[@(UIControlStateNormal)];
+        url = self.imageURLStorage[imageURLKeyForState(UIControlStateNormal)];
     }
 
     return url;
 }
 
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state {
-    return self.imageURLStorage[@(state)];
+    return self.imageURLStorage[imageURLKeyForState(state)];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
@@ -66,11 +70,11 @@ static inline NSNumber * backgroundImageURLKeyForState(UIControlState state) {
                    options:(SDWebImageOptions)options
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
-        [self.imageURLStorage removeObjectForKey:@(state)];
+        [self.imageURLStorage removeObjectForKey:imageURLKeyForState(state)];
         return;
     }
     
-    self.imageURLStorage[@(state)] = url;
+    self.imageURLStorage[imageURLKeyForState(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
