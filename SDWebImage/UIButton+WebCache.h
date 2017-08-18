@@ -17,12 +17,12 @@
  */
 @interface UIButton (WebCache)
 
+#pragma mark - Image
+
 /**
  * Get the current image URL.
  */
 - (nullable NSURL *)sd_currentImageURL;
-
-#pragma mark - Image
 
 /**
  * Get the image URL for a control state.
@@ -129,6 +129,18 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #pragma mark - Background image
+
+/**
+ * Get the current background image URL.
+ */
+- (nullable NSURL *)sd_currentBackgroundImageURL;
+
+/**
+ * Get the background image URL for a control state.
+ * 
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state;
 
 /**
  * Set the backgroundImageView `image` with an `url`.
