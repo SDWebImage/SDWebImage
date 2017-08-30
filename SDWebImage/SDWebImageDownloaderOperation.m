@@ -380,7 +380,7 @@ didReceiveResponse:(NSURLResponse *)response
             if (self.imageData) {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = SDScaledImageForKey(key, image);
+                image = [self scaledImageForKey:key image:image];
                 
                 // Do not force decoding animated GIFs
                 if (!image.images) {
@@ -436,6 +436,10 @@ didReceiveResponse:(NSURLResponse *)response
     if (completionHandler) {
         completionHandler(disposition, credential);
     }
+}
+
+- (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
+    return SDScaledImageForKey(key, image);
 }
 
 #pragma mark Helper methods
