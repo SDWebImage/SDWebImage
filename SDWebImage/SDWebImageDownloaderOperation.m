@@ -228,7 +228,20 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         [weakSelf.callbackBlocks removeAllObjects];
     });
     self.dataTask = nil;
-    self.imageData = nil;
+    
+    NSOperationQueue *delegateQueue;
+    if (self.unownedSession) {
+        delegateQueue = self.unownedSession.delegateQueue;
+    } else {
+        delegateQueue = self.ownedSession.delegateQueue;
+    }
+    if (delegateQueue) {
+        NSAssert(delegateQueue.maxConcurrentOperationCount == 1, @"NSURLSession delegate queue should be a serial queue");
+        [delegateQueue addOperationWithBlock:^{
+            weakSelf.imageData = nil;
+        }];
+    }
+    
     if (self.ownedSession) {
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
@@ -427,8 +440,9 @@ didReceiveResponse:(NSURLResponse *)response
              *  the response data will be nil.
              *  So we don't need to check the cache option here, since the system will obey the cache option
              */
-            if (self.imageData) {
-                UIImage *image = [UIImage sd_imageWithData:self.imageData];
+            NSData *imageData = [self.imageData copy];
+            if (imageData) {
+                UIImage *image = [UIImage sd_imageWithData:imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
                 
@@ -438,7 +452,7 @@ didReceiveResponse:(NSURLResponse *)response
                         if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
 #if SD_UIKIT || SD_WATCH
                             image = [UIImage decodedAndScaledDownImageWithImage:image];
-                            [self.imageData setData:UIImagePNGRepresentation(image)];
+                            imageData = UIImagePNGRepresentation(image);
 #endif
                         } else {
                             image = [UIImage decodedImageWithImage:image];
@@ -448,7 +462,7 @@ didReceiveResponse:(NSURLResponse *)response
                 if (CGSizeEqualToSize(image.size, CGSizeZero)) {
                     [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                 } else {
-                    [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
+                    [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
