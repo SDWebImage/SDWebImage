@@ -371,8 +371,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             image = [UIImage decodedImageWithImage:image];
         }
         return image;
-    }
-    else {
+    } else {
         return nil;
     }
 }

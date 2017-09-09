@@ -84,18 +84,28 @@
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;
 
-        sessionConfiguration.timeoutIntervalForRequest = _downloadTimeout;
-
-        /**
-         *  Create the session for this task
-         *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
-         *  method calls and completion handler calls.
-         */
-        self.session = [NSURLSession sessionWithConfiguration:sessionConfiguration
-                                                     delegate:self
-                                                delegateQueue:nil];
+        [self createNewSessionWithConfiguration:sessionConfiguration];
     }
     return self;
+}
+
+- (void)createNewSessionWithConfiguration:(NSURLSessionConfiguration *)sessionConfiguration {
+    [self cancelAllDownloads];
+
+    if (self.session) {
+        [self.session invalidateAndCancel];
+    }
+
+    sessionConfiguration.timeoutIntervalForRequest = self.downloadTimeout;
+
+    /**
+     *  Create the session for this task
+     *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
+     *  method calls and completion handler calls.
+     */
+    self.session = [NSURLSession sessionWithConfiguration:sessionConfiguration
+                                                 delegate:self
+                                            delegateQueue:nil];
 }
 
 - (void)dealloc {
@@ -109,8 +119,7 @@
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
     if (value) {
         self.HTTPHeaders[field] = value;
-    }
-    else {
+    } else {
         [self.HTTPHeaders removeObjectForKey:field];
     }
 }
@@ -129,6 +138,10 @@
 
 - (NSInteger)maxConcurrentDownloads {
     return _downloadQueue.maxConcurrentOperationCount;
+}
+
+- (NSURLSessionConfiguration *)sessionConfiguration {
+    return self.session.configuration;
 }
 
 - (void)setOperationClass:(nullable Class)operationClass {
@@ -211,7 +224,7 @@
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
                                            completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
-                                           createCallback:(SDWebImageDownloaderOperation *(^)())createCallback {
+                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
@@ -230,11 +243,13 @@
 
             __weak SDWebImageDownloaderOperation *woperation = operation;
             operation.completionBlock = ^{
-              SDWebImageDownloaderOperation *soperation = woperation;
-              if (!soperation) return;
-              if (self.URLOperations[url] == soperation) {
-                  [self.URLOperations removeObjectForKey:url];
-              };
+				dispatch_barrier_sync(self.barrierQueue, ^{
+					SDWebImageDownloaderOperation *soperation = woperation;
+					if (!soperation) return;
+					if (self.URLOperations[url] == soperation) {
+						[self.URLOperations removeObjectForKey:url];
+					};
+				});
             };
         }
         id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
@@ -248,7 +263,7 @@
 }
 
 - (void)setSuspended:(BOOL)suspended {
-    (self.downloadQueue).suspended = suspended;
+    self.downloadQueue.suspended = suspended;
 }
 
 - (void)cancelAllDownloads {

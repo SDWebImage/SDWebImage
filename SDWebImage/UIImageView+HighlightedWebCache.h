@@ -24,7 +24,7 @@
  *
  * @param url The url for the image.
  */
-- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url;
+- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.
@@ -35,7 +35,7 @@
  * @param options The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  */
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
-                              options:(SDWebImageOptions)options;
+                              options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `highlightedImage` with an `url`.
@@ -50,7 +50,7 @@
  *                       The fourth parameter is the original image url.
  */
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
-                            completed:(nullable SDExternalCompletionBlock)completedBlock;
+                            completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `highlightedImage` with an `url` and custom options.

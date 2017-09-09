@@ -75,7 +75,7 @@
 
     NSMutableArray<id<SDWebImageOperation>> *operationsArray = [[NSMutableArray alloc] init];
 
-    for (NSURL *logoImageURL in arrayOfURLs) {
+    [arrayOfURLs enumerateObjectsUsingBlock:^(NSURL *logoImageURL, NSUInteger idx, BOOL * _Nonnull stop) {
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_async_safe(^{
@@ -86,7 +86,16 @@
                     if (!currentImages) {
                         currentImages = [[NSMutableArray alloc] init];
                     }
-                    [currentImages addObject:image];
+                    
+                    // We know what index objects should be at when they are returned so
+                    // we will put the object at the index, filling any empty indexes
+                    // with the image that was returned too "early". These images will
+                    // be overwritten. (does not require additional sorting datastructure)
+                    while ([currentImages count] < idx) {
+                        [currentImages addObject:image];
+                    }
+                    
+                    currentImages[idx] = image;
 
                     sself.animationImages = currentImages;
                     [sself setNeedsLayout];
@@ -95,7 +104,7 @@
             });
         }];
         [operationsArray addObject:operation];
-    }
+    }];
 
     [self sd_setImageLoadOperation:[operationsArray copy] forKey:@"UIImageViewAnimationImages"];
 }

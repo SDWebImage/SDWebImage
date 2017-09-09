@@ -1,3 +1,33 @@
+## [4.1.0 - Swift API cleanup, on Jul 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.0)
+See [all tickets marked for the 4.1.0 release](https://github.com/rs/SDWebImage/milestone/13)
+
+#### Features
+
+- add ability to change `NSURLSessionConfiguration` used by `SDWebImageDownloader` #1891 fixes #1870
+- support animated GIF on `macOS` #1975
+- cleanup the Swift interface by making unavailable all methods with missing params that have alternatives - see #1797 - this may cause require some changes in the Swift code
+
+#### Fixes
+
+- handle `NSURLErrorNetworkConnectionLost` #1767
+- fixed `CFBundleVersion` and `CFBundleShortVersionString` not valid for all platforms #1784 + 23a8be8 fixes #1780
+- fixed `UIActivityIndicator` not always initialized on main thread #1802 + a6af214 fixes #1801
+- `SDImageCacheConfig` forward declaration changed to import #1805
+- making image downloading cache policy more clearer #1737
+- added `@autoreleasepool` to `SDImageCache.storeImage` #1849
+- fixed 32bit machine `long long` type transfer to NSInteger may become negative #1879
+- fixed crash on multiple concurrent downloads when accessing `self.URLOperations` dictionary #1911 fixes #1909 #1950 #1835 #1838
+- fixed crash due to incorrectly retained pointer to operation `self` which appears to create a dangled pointer #1940 fixes #1807 #1858 #1859 #1821 #1925 #1883 #1816 #1716
+- fixed Swift naming collision (due to the Obj-C interface that offers multiple variants of the same method but with mixed and missing params) #1797 fixes #1764
+- coding style #1971
+- fixed Umbrella header warning for the FLAnimatedImage (while using Carthage) d9f7cf4 (replaces #1781) fixes #1776
+- fixed issue where animated image arrays could be populated out of order (order of download) #1452
+- fixed animated WebP decoding issue, including canvas size, the support for dispose method and the duration per frame #1952 (replaces #1694) fixes #1951
+
+#### Docs
+
+- #1778 #1779 #1788 #1799 b1c3bb7 (replaces #1806) 0df32ea #1847 5eb83c3 (replaces #1828) #1946 #1966
+
 ## [4.0.0 - New platforms (Mac OS X and watchOS) + refactoring, on Jan 28th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.0.0)
 
 See [all tickets marked for the 4.0.0 release](https://github.com/rs/SDWebImage/milestone/3)

@@ -54,7 +54,7 @@
  *
  * @param url The url for the image.
  */
-- (void)sd_setImageWithURL:(nullable NSURL *)url;
+- (void)sd_setImageWithURL:(nullable NSURL *)url NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url` and a placeholder.
@@ -66,7 +66,7 @@
  * @see sd_setImageWithURL:placeholderImage:options:
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
-          placeholderImage:(nullable UIImage *)placeholder;
+          placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.
@@ -79,7 +79,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
-                   options:(SDWebImageOptions)options;
+                   options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`.
@@ -111,7 +111,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
-                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
  * Set the imageView `image` with an `url`, placeholder and custom options.

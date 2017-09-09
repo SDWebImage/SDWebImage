@@ -68,8 +68,8 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     SDWebImageDownloaderLIFOExecutionOrder
 };
 
-extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
-extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 
@@ -117,6 +117,15 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  *  The timeout value (in seconds) for the download operation. Default: 15.0.
  */
 @property (assign, nonatomic) NSTimeInterval downloadTimeout;
+
+
+/**
+ * The configuration in use by the internal NSURLSession.
+ * Mutating this object directly has no effect.
+ *
+ * @see createNewSessionWithConfiguration:
+ */
+@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
 
 
 /**
@@ -229,5 +238,15 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * Cancels all download operations in the queue
  */
 - (void)cancelAllDownloads;
+
+/**
+ * Forces SDWebImageDownloader to create and use a new NSURLSession that is
+ * initialized with the given configuration.
+ * *Note*: All existing download operations in the queue will be cancelled.
+ * *Note*: `timeoutIntervalForRequest` is going to be overwritten.
+ *
+ * @param sessionConfiguration The configuration to use for the new NSURLSession
+ */
+- (void)createNewSessionWithConfiguration:(nonnull NSURLSessionConfiguration *)sessionConfiguration;
 
 @end
