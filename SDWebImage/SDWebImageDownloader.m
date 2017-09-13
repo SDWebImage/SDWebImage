@@ -154,6 +154,7 @@
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
+                                     additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;

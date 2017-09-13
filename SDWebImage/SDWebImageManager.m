@@ -104,6 +104,7 @@
 
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
+                       additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                     progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                    completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
@@ -171,7 +172,7 @@
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             
-            SDWebImageDownloadToken *subOperationToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+            SDWebImageDownloadToken *subOperationToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions additionalHTTPHeaders:additionalHTTPHeaders progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong __typeof(weakOperation) strongOperation = weakOperation;
                 if (!strongOperation || strongOperation.isCancelled) {
                     // Do nothing if the operation was cancelled

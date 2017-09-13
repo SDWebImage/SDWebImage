@@ -19,38 +19,40 @@
 @implementation FLAnimatedImageView (WebCache)
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
+     additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
+               additionalHTTPHeaders:additionalHTTPHeaders
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];

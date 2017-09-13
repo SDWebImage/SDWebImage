@@ -197,11 +197,12 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
  *
- * @param url            The URL to the image
- * @param options        A mask to specify options to use for this request
- * @param progressBlock  A block called while image is downloading
- *                       @note the progress block is executed on a background queue
- * @param completedBlock A block called when operation has been completed.
+ * @param url                   The URL to the image
+ * @param options               A mask to specify options to use for this request
+ * @param additionalHTTPHeaders A dictionary of HTTP headers to be appended to this request
+ * @param progressBlock         A block called while image is downloading
+ *                              @note the progress block is executed on a background queue
+ * @param completedBlock        A block called when operation has been completed.
  *
  *   This parameter is required.
  * 
@@ -221,6 +222,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                               options:(SDWebImageOptions)options
+                                additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                             completed:(nullable SDInternalCompletionBlock)completedBlock;
 

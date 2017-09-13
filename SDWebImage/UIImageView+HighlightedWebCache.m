@@ -16,29 +16,31 @@
 @implementation UIImageView (HighlightedWebCache)
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url {
-    [self sd_setHighlightedImageWithURL:url options:0 progress:nil completed:nil];
+    [self sd_setHighlightedImageWithURL:url options:0 additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options {
-    [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:nil];
+    [self sd_setHighlightedImageWithURL:url options:options additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setHighlightedImageWithURL:url options:0 progress:nil completed:completedBlock];
+    [self sd_setHighlightedImageWithURL:url options:0 additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
+    [self sd_setHighlightedImageWithURL:url options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
+                additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:nil
                              options:options
+               additionalHTTPHeaders:additionalHTTPHeaders
                         operationKey:@"UIImageViewImageOperationHighlighted"
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            weakSelf.highlightedImage = image;

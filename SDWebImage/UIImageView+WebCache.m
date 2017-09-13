@@ -17,37 +17,39 @@
 @implementation UIImageView (WebCache)
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
+     additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
+               additionalHTTPHeaders:additionalHTTPHeaders
                         operationKey:nil
                        setImageBlock:nil
                             progress:progressBlock
@@ -57,12 +59,13 @@
 - (void)sd_setImageWithPreviousCachedImageWithURL:(nullable NSURL *)url
                                  placeholderImage:(nullable UIImage *)placeholder
                                           options:(SDWebImageOptions)options
+                            additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                         completed:(nullable SDExternalCompletionBlock)completedBlock {
     NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
     UIImage *lastPreviousCachedImage = [[SDImageCache sharedImageCache] imageFromCacheForKey:key];
     
-    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options progress:progressBlock completed:completedBlock];    
+    [self sd_setImageWithURL:url placeholderImage:lastPreviousCachedImage ?: placeholder options:options additionalHTTPHeaders:additionalHTTPHeaders progress:progressBlock completed:completedBlock];
 }
 
 #if SD_UIKIT
@@ -76,7 +79,7 @@
     NSMutableArray<id<SDWebImageOperation>> *operationsArray = [[NSMutableArray alloc] init];
 
     [arrayOfURLs enumerateObjectsUsingBlock:^(NSURL *logoImageURL, NSUInteger idx, BOOL * _Nonnull stop) {
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:logoImageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             dispatch_main_async_safe(^{
                 __strong UIImageView *sself = wself;

@@ -202,23 +202,26 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  *
  * @see SDWebImageDownloaderDelegate
  *
- * @param url            The URL to the image to download
- * @param options        The options to be used for this download
- * @param progressBlock  A block called repeatedly while the image is downloading
- *                       @note the progress block is executed on a background queue
- * @param completedBlock A block called once the download is completed.
- *                       If the download succeeded, the image parameter is set, in case of error,
- *                       error parameter is set with the error. The last parameter is always YES
- *                       if SDWebImageDownloaderProgressiveDownload isn't use. With the
- *                       SDWebImageDownloaderProgressiveDownload option, this block is called
- *                       repeatedly with the partial image object and the finished argument set to NO
- *                       before to be called a last time with the full image and finished argument
- *                       set to YES. In case of error, the finished argument is always YES.
+ * @param url                   The URL to the image to download
+ * @param options               The options to be used for this download
+ * @param additionalHTTPHeaders A dictionary of HTTP headers to be appended to this download
+ *                              @note existing values in the global HTTP headers will be overridden
+ * @param progressBlock         A block called repeatedly while the image is downloading
+ *                              @note the progress block is executed on a background queue
+ * @param completedBlock        A block called once the download is completed.
+ *                              If the download succeeded, the image parameter is set, in case of error,
+ *                              error parameter is set with the error. The last parameter is always YES
+ *                              if SDWebImageDownloaderProgressiveDownload isn't use. With the
+ *                              SDWebImageDownloaderProgressiveDownload option, this block is called
+ *                              repeatedly with the partial image object and the finished argument set to NO
+ *                              before to be called a last time with the full image and finished argument
+ *                              set to YES. In case of error, the finished argument is always YES.
  *
  * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
+                                     additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 

@@ -17,33 +17,35 @@
 @implementation MKAnnotationView (WebCache)
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:nil options:0 additionalHTTPHeaders:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil completed:completedBlock];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
+     additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
+               additionalHTTPHeaders:additionalHTTPHeaders
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            weakSelf.image = image;
