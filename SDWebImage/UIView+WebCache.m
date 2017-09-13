@@ -52,7 +52,7 @@ static char TAG_ACTIVITY_SHOW;
         }
         
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options additionalHTTPHeaders:additionalHTTPHeaders progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options additionalHTTPHeaders:additionalHTTPHeaders progress:progressBlock completed:^(UIImage *image, NSData *data, SDHTTPHeadersDictionary *responseHeaders, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) {

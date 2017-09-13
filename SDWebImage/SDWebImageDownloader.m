@@ -191,6 +191,7 @@
         else {
             request.allHTTPHeaderFields = HTTPHeaders;
         }
+        NSLog(@"headers: %@", [request.allHTTPHeaderFields description]);
         SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
         operation.shouldDecompressImages = sself.shouldDecompressImages;
         
@@ -234,7 +235,7 @@
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
-            completedBlock(nil, nil, nil, NO);
+            completedBlock(nil, nil, nil, nil, NO);
         }
         return nil;
     }

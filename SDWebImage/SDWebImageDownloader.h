@@ -71,12 +71,12 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
-typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
-
-typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
-
 typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
 typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
+
+typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
+
+typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished);
 
 typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterBlock)(NSURL * _Nullable url, SDHTTPHeadersDictionary * _Nullable headers);
 
