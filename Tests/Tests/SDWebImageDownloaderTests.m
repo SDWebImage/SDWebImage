@@ -337,4 +337,20 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test22AdditionalHTTPHeaders {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Additional HTTP headers"];
+    NSURL *imageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage022.jpg"];
+    SDHTTPHeadersDictionary *HTTPHeaders = @{ @"Range" : @"bytes=0-9" };
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:HTTPHeaders progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
+        if (!image && !data && error && finished) {
+            NSString *contentLength = responseHeaders[@"Content-Length"];
+            expect(contentLength).equal(@"10");
+            [expectation fulfill];
+        } else {
+            XCTFail(@"Something went wrong");
+        }
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 @end
