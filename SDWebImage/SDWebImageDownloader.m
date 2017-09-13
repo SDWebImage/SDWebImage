@@ -180,11 +180,16 @@
         
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;
+        SDHTTPHeadersMutableDictionary *HTTPHeaders = sself.HTTPHeaders;
+        if (additionalHTTPHeaders) {
+            HTTPHeaders = [HTTPHeaders mutableCopy];
+            [HTTPHeaders addEntriesFromDictionary:additionalHTTPHeaders];
+        }
         if (sself.headersFilter) {
-            request.allHTTPHeaderFields = sself.headersFilter(url, [sself.HTTPHeaders copy]);
+            request.allHTTPHeaderFields = sself.headersFilter(url, [HTTPHeaders copy]);
         }
         else {
-            request.allHTTPHeaderFields = sself.HTTPHeaders;
+            request.allHTTPHeaderFields = HTTPHeaders;
         }
         SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
         operation.shouldDecompressImages = sself.shouldDecompressImages;
