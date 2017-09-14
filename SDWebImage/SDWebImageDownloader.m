@@ -153,14 +153,18 @@
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
-    return [self downloadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+    return [self downloadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
+        if (completedBlock) {
+            completedBlock(image, data, error, finished);
+        }
+    }];
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
                                      additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+                                                 completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
@@ -233,7 +237,7 @@
 }
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
-                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
+                                           completedBlock:(SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.

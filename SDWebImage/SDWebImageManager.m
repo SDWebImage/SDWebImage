@@ -103,14 +103,18 @@
 }
 
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDInternalCompletionBlock)completedBlock {
-    return [self loadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+    return [self loadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        if (completedBlock) {
+            completedBlock(image, data, error, cacheType, finished, url);
+        }
+    }];
 }
 
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
                        additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                     progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                   completed:(nullable SDInternalCompletionBlock)completedBlock {
+                                   completed:(nullable SDInternalCompletionWithHeadersBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -285,7 +289,7 @@
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation
-                             completion:(nullable SDInternalCompletionBlock)completionBlock
+                             completion:(nullable SDInternalCompletionWithHeadersBlock)completionBlock
                         responseHeaders:(nullable SDHTTPHeadersDictionary *)responseHeaders
                                   error:(nullable NSError *)error
                                     url:(nullable NSURL *)url {
@@ -293,7 +297,7 @@
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation
-                             completion:(nullable SDInternalCompletionBlock)completionBlock
+                             completion:(nullable SDInternalCompletionWithHeadersBlock)completionBlock
                                   image:(nullable UIImage *)image
                                    data:(nullable NSData *)data
                         responseHeaders:(nullable SDHTTPHeadersDictionary *)responseHeaders

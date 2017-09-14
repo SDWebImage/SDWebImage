@@ -76,7 +76,9 @@ typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictiona
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 
-typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished);
+typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
+
+typedef void(^SDWebImageDownloaderCompletedWithHeadersBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished);
 
 typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterBlock)(NSURL * _Nullable url, SDHTTPHeadersDictionary * _Nullable headers);
 
@@ -251,7 +253,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
                                                    options:(SDWebImageDownloaderOptions)options
                                      additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+                                                 completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock;
 
 /**
  * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:

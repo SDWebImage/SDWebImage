@@ -83,7 +83,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+                            completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock {
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
@@ -549,7 +549,7 @@ didReceiveResponse:(NSURLResponse *)response
                              finished:(BOOL)finished {
     NSArray<id> *completionBlocks = [self callbacksForKey:kCompletedCallbackKey];
     dispatch_main_async_safe(^{
-        for (SDWebImageDownloaderCompletedBlock completedBlock in completionBlocks) {
+        for (SDWebImageDownloaderCompletedWithHeadersBlock completedBlock in completionBlocks) {
             completedBlock(image, imageData, responseHeaders, error, finished);
         }
     });
