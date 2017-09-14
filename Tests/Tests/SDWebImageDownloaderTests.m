@@ -19,7 +19,7 @@
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
-                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
+                                           completedBlock:(SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)())createCallback;
 @end
@@ -42,7 +42,7 @@
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+                            completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock {
     return nil;
 }
 
