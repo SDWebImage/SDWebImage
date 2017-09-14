@@ -64,6 +64,10 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:0 additionalHTTPHeaders:nil completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options additionalHTTPHeaders:nil completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
@@ -124,6 +128,10 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 additionalHTTPHeaders:nil completed:completedBlock];
+}
+
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options additionalHTTPHeaders:nil completed:completedBlock];
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url

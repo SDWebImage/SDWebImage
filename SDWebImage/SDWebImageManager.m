@@ -102,6 +102,10 @@
     }];
 }
 
+- (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDInternalCompletionBlock)completedBlock {
+    return [self loadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+}
+
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
                        additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders

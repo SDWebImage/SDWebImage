@@ -199,13 +199,43 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @param url                   The URL to the image
  * @param options               A mask to specify options to use for this request
- * @param additionalHTTPHeaders A dictionary of HTTP headers to be appended to this request
  * @param progressBlock         A block called while image is downloading
  *                              @note the progress block is executed on a background queue
  * @param completedBlock        A block called when operation has been completed.
  *
  *   This parameter is required.
  * 
+ *   This block has no return value and takes the requested UIImage as first parameter and the NSData representation as second parameter.
+ *   In case of error the image parameter is nil and the third parameter may contain an NSError.
+ *
+ *   The forth parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
+ *   or from the memory cache or from the network.
+ *
+ *   The fith parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is
+ *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
+ *   block is called a last time with the full image and the last parameter set to YES.
+ *
+ *   The last parameter is the original image URL
+ *
+ * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
+ */
+- (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
+                                              options:(SDWebImageOptions)options
+                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                            completed:(nullable SDInternalCompletionBlock)completedBlock;
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url                   The URL to the image
+ * @param options               A mask to specify options to use for this request
+ * @param additionalHTTPHeaders A dictionary of HTTP headers to be appended to this request
+ * @param progressBlock         A block called while image is downloading
+ *                              @note the progress block is executed on a background queue
+ * @param completedBlock        A block called when operation has been completed.
+ *
+ *   This parameter is required.
+ *
  *   This block has no return value and takes the requested UIImage as first parameter and the NSData representation as second parameter.
  *   In case of error the image parameter is nil and the third parameter may contain an NSError.
  *

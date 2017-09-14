@@ -31,6 +31,10 @@
     [self sd_setHighlightedImageWithURL:url options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
+- (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setHighlightedImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
                 additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders

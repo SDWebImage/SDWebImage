@@ -42,6 +42,10 @@
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options

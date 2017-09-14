@@ -116,6 +116,27 @@
  * @param state                 The state that uses the specified title. The values are described in UIControlState.
  * @param placeholder           The image to be set initially, until the image request finishes.
  * @param options               The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param completedBlock        A block called when operation has been completed. This block has no return value
+ *                              and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                              is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                              indicating if the image was retrieved from the local cache or from the network.
+ *                              The fourth parameter is the original image url.
+ */
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+/**
+ * Set the imageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url                   The url for the image.
+ * @param state                 The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder           The image to be set initially, until the image request finishes.
+ * @param options               The options to use when downloading the image. @see SDWebImageOptions for the possible values.
  * @param additionalHTTPHeaders A dictionary of HTTP headers to be appended to this request
  * @param completedBlock        A block called when operation has been completed. This block has no return value
  *                              and takes the requested UIImage as first parameter. In case of error the image parameter
@@ -219,6 +240,26 @@
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                            completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
+
+/**
+ * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url                   The url for the image.
+ * @param placeholder           The image to be set initially, until the image request finishes.
+ * @param options               The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param completedBlock        A block called when operation has been completed. This block has no return value
+ *                              and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                              is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                              indicating if the image was retrieved from the local cache or from the network.
+ *                              The fourth parameter is the original image url.
+ */
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
  * Set the backgroundImageView `image` with an `url`, placeholder and custom options.

@@ -152,6 +152,10 @@
     }
 }
 
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+    return [self downloadImageWithURL:url options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+}
+
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
                                      additionalHTTPHeaders:(nullable SDHTTPHeadersDictionary *)additionalHTTPHeaders

@@ -36,6 +36,10 @@
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 additionalHTTPHeaders:nil completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options

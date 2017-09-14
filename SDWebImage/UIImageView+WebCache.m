@@ -40,6 +40,10 @@
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:nil completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
@@ -54,6 +58,10 @@
                        setImageBlock:nil
                             progress:progressBlock
                            completed:completedBlock];
+}
+
+- (void)sd_setImageWithPreviousCachedImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithPreviousCachedImageWithURL:url placeholderImage:placeholder options:options additionalHTTPHeaders:nil progress:progressBlock completed:completedBlock];
 }
 
 - (void)sd_setImageWithPreviousCachedImageWithURL:(nullable NSURL *)url
