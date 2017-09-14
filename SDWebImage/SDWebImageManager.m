@@ -167,8 +167,6 @@
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // force progressive off if image already cached but forced refreshing
                 downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
-                // ignore image read from NSURLCache if image if cached but force refreshing
-                downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             
             SDWebImageDownloadToken *subOperationToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
