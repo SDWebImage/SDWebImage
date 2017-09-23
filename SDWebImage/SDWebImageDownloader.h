@@ -23,7 +23,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
-     * I think this option should be renamed to 'SDWebImageDownloaderUsingCachedResponseDontLoad'
+     * This will check NSURLCache without sending any request to the server.
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     

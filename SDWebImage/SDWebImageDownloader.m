@@ -171,6 +171,14 @@
                                                                     cachePolicy:cachePolicy
                                                                 timeoutInterval:timeoutInterval];
         
+        if (options & SDWebImageDownloaderUseNSURLCache && options & SDWebImageDownloaderIgnoreCachedResponse) {
+            NSCachedURLResponse *response = [sself.sessionConfiguration.URLCache cachedResponseForRequest:request];
+            // Check if the response can be read from NSURLCache, return nil and let caller to call completion with nil
+            if (response) {
+                return nil;
+            }
+        }
+        
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;
         if (sself.headersFilter) {
@@ -218,7 +226,7 @@
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
                                            completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
-                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback {
+                                           createCallback:(nullable SDWebImageDownloaderOperation *(^)(void))createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
@@ -233,6 +241,14 @@
         SDWebImageDownloaderOperation *operation = self.URLOperations[url];
         if (!operation) {
             operation = createCallback();
+            if (!operation) {
+                dispatch_main_async_safe(^{
+                    if (completedBlock) {
+                        completedBlock(nil, nil, nil, YES);
+                    }
+                });
+                return;
+            }
             self.URLOperations[url] = operation;
 
             __weak SDWebImageDownloaderOperation *woperation = operation;
