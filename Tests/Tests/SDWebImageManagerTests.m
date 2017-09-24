@@ -73,7 +73,7 @@ NSString *workingImageURL = @"http://s3.amazonaws.com/fast-image-cache/demo-imag
             XCTFail(@"Image should be in cache");
         }
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test05DiskImageExistsForURL {
@@ -105,6 +105,25 @@ NSString *workingImageURL = @"http://s3.amazonaws.com/fast-image-cache/demo-imag
         [expectation fulfill];
     });
     
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test07ThatLoadImageWithSDWebImageRefreshCachedWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image download twice with SDWebImageRefresh failed"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage007.jpg"];
+    [[SDImageCache sharedImageCache] clearDiskOnCompletion:nil];
+    
+    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).toNot.beNil();
+        expect(error).to.beNil();
+        // #1993, load image with SDWebImageRefreshCached twice should not fail if the first time success.
+        
+        [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(image).toNot.beNil();
+            expect(error).to.beNil();
+            [expectation fulfill];
+        }];
+    }];
     [self waitForExpectationsWithCommonTimeout];
 }
 
