@@ -16,6 +16,12 @@
 #import "webp/decode.h"
 #endif
 #endif
+#if SD_MAC
+#import <CoreServices/CoreServices.h>
+#import "NSImage+WebCache.h"
+#else
+#import <MobileCoreServices/MobileCoreServices.h>
+#endif
 
 @implementation SDWebImageDecoder {
     size_t _width, _height;
@@ -205,6 +211,77 @@
 }
 #endif
 
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format properties:(NSDictionary *)properties {
+    if (!image) {
+        return nil;
+    }
+    
+    NSData *imageData;
+    if (format == SDImageFormatWebP) {
+        imageData = nil; // WebP encode is currently not supported
+    } else {
+        imageData = [self encodedImageIODataWithImage:image format:format properties:properties];
+    }
+    
+    return imageData;
+}
+
+- (NSData *)encodedImageIODataWithImage:(UIImage *)image format:(SDImageFormat)format properties:(NSDictionary *)properties {
+    
+    NSMutableData *imageData = [NSMutableData data];
+    CFStringRef UTType = [[self class] UTTypeFromImageFormat:format];
+    
+    // Create an image destination.
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, UTType, 1, NULL);
+    if (!imageDestination) {
+        // Handle failure.
+        return nil;
+    }
+    
+    // Add your image to the destination.
+    CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
+    
+    // Finalize the destination.
+    if (CGImageDestinationFinalize(imageDestination) == NO) {
+        // Handle failure.
+        imageData = nil;
+    }
+    
+    CFRelease(imageDestination);
+    
+    return [imageData copy];
+}
+
+- (NSDictionary *)propertiesOfImageData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+    
+    NSDictionary *properties;
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    if (format == SDImageFormatWebP) {
+        properties = nil; // WebP encode is currently not supported
+    } else {
+        properties = [self propertiesOfImageIOData:data];
+    }
+    
+    return properties;
+}
+
+- (NSDictionary *)propertiesOfImageIOData:(NSData *)data {
+    NSDictionary *properties;
+    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    if (!imageSource) {
+        return properties;
+    }
+    
+    properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+    
+    CFRelease(imageSource);
+    
+    return properties;
+}
+
 static CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void) {
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
@@ -212,6 +289,29 @@ static CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void) {
         colorSpace = CGColorSpaceCreateDeviceRGB();
     });
     return colorSpace;
+}
+
++ (CFStringRef)UTTypeFromImageFormat:(SDImageFormat)format {
+    CFStringRef UTType;
+    switch (format) {
+        case SDImageFormatJPEG:
+            UTType = kUTTypeJPEG;
+            break;
+        case SDImageFormatPNG:
+            UTType = kUTTypePNG;
+            break;
+        case SDImageFormatGIF:
+            UTType = kUTTypeGIF;
+            break;
+        case SDImageFormatTIFF:
+            UTType = kUTTypeTIFF;
+            break;
+        default:
+            UTType = kUTTypePNG; // default save to PNG
+            break;
+    }
+    
+    return UTType;
 }
 
 #if SD_UIKIT || SD_WATCH

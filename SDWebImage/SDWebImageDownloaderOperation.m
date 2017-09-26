@@ -401,10 +401,21 @@ didReceiveResponse:(NSURLResponse *)response
                 if (!image.images) {
                     if (self.shouldDecompressImages) {
                         if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
-#if SD_UIKIT || SD_WATCH
-                            image = [UIImage decodedAndScaledDownImageWithImage:image];
-                            imageData = UIImagePNGRepresentation(image);
-#endif
+                            UIImage *decodedImage = [UIImage decodedAndScaledDownImageWithImage:image];
+                            if (decodedImage && ![decodedImage isEqual:image]) {
+                                image = decodedImage;
+                                if (!self.decoder) {
+                                    self.decoder = [[SDWebImageDecoder alloc] init];
+                                }
+                                // Encode image data and keep EXIF metadata
+                                SDImageFormat format = [NSData sd_imageFormatForImageData:imageData];
+                                NSDictionary *properties = [self.decoder propertiesOfImageData:imageData];
+                                NSData *decodedData = [self.decoder encodedDataWithImage:image format:format properties:properties];
+                                if (decodedData) {
+                                    // Protect decoded image data is nil
+                                    imageData = decodedData;
+                                }
+                            }
                         } else {
                             image = [UIImage decodedImageWithImage:image];
                         }

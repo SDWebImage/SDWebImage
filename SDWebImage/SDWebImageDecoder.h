@@ -15,6 +15,10 @@
 
 - (nullable UIImage *)incrementalDecodedImageWithData:(nullable NSData *)data format:(SDImageFormat)format finished:(BOOL)finished;
 
+- (nullable NSData *)encodedDataWithImage:(nullable UIImage *)image format:(SDImageFormat)format properties:(nullable NSDictionary *)properties;
+
+- (nullable NSDictionary *)propertiesOfImageData:(nullable NSData *)data;
+
 @end
 
 @interface UIImage (ForceDecode)
