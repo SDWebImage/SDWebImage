@@ -256,6 +256,21 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test16ThatProgressiveWebPWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive WebP download"];
+    NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (image && data && !error && finished) {
+            [expectation fulfill];
+        } else if (finished) {
+            XCTFail(@"Something went wrong");
+        } else {
+            // progressive updates
+        }
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 /**
  *  Per #883 - Fix multiple requests for same image and then canceling one
  *  Old SDWebImage (3.x) could not handle correctly multiple requests for the same image + cancel
