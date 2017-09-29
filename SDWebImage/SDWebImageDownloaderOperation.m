@@ -446,8 +446,20 @@ didReceiveResponse:(NSURLResponse *)response
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
                 
-                // Do not force decoding animated GIFs
-                if (!image.images) {
+                BOOL shouldDecode = YES;
+                // Do not force decoding animated GIFs and WebPs
+                if (image.images) {
+                    shouldDecode = NO;
+                } else {
+#ifdef SD_WEBP
+                    SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:self.imageData];
+                    if (imageFormat == SDImageFormatWebP) {
+                        shouldDecode = NO;
+                    }
+#endif
+                }
+
+                if (shouldDecode) {
                     if (self.shouldDecompressImages) {
                         if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
 #if SD_UIKIT || SD_WATCH
