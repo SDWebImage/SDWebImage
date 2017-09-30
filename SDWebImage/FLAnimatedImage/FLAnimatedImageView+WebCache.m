@@ -54,8 +54,13 @@
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                            if (imageFormat == SDImageFormatGIF) {
-                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                               weakSelf.image = nil;
+                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                                   dispatch_main_async_safe(^{
+                                       weakSelf.animatedImage = animatedImage;
+                                       weakSelf.image = nil;
+                                   });
+                               });
                            } else {
                                weakSelf.image = image;
                                weakSelf.animatedImage = nil;
