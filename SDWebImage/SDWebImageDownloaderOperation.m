@@ -451,9 +451,6 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
-             *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
-             *  the response data will be nil.
-             *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             NSData *imageData = [self.imageData copy];
             if (imageData) {
