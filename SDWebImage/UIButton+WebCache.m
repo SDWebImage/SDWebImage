@@ -76,10 +76,9 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.imageURLStorage removeObjectForKey:imageURLKeyForState(state)];
-        return;
+    } else {
+        self.imageURLStorage[imageURLKeyForState(state)] = url;
     }
-    
-    self.imageURLStorage[imageURLKeyForState(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
@@ -142,10 +141,9 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.imageURLStorage removeObjectForKey:backgroundImageURLKeyForState(state)];
-        return;
+    } else {
+        self.imageURLStorage[backgroundImageURLKeyForState(state)] = url;
     }
-    
-    self.imageURLStorage[backgroundImageURLKeyForState(state)] = url;
     
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url

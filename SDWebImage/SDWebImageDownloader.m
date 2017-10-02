@@ -8,7 +8,6 @@
 
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
-#import <ImageIO/ImageIO.h>
 
 @implementation SDWebImageDownloadToken
 @end
@@ -175,16 +174,10 @@
         }
 
         // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
-        NSURLRequestCachePolicy cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-        if (options & SDWebImageDownloaderUseNSURLCache) {
-            if (options & SDWebImageDownloaderIgnoreCachedResponse) {
-                cachePolicy = NSURLRequestReturnCacheDataDontLoad;
-            } else {
-                cachePolicy = NSURLRequestUseProtocolCachePolicy;
-            }
-        }
-        
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:cachePolicy timeoutInterval:timeoutInterval];
+        NSURLRequestCachePolicy cachePolicy = options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData;
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
+                                                                    cachePolicy:cachePolicy
+                                                                timeoutInterval:timeoutInterval];
         
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;

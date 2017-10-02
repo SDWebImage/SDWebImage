@@ -43,20 +43,14 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         return nil;
     }
     
-    uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
-    if (!(flags & ANIMATION_FLAG)) {
-        // for static single webp image
-        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
-        WebPDemuxDelete(demuxer);
-        return staticImage;
-    }
-    
     WebPIterator iter;
     if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
         WebPDemuxReleaseIterator(&iter);
         WebPDemuxDelete(demuxer);
         return nil;
     }
+    
+    uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     
 #if SD_UIKIT || SD_WATCH
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
@@ -77,6 +71,30 @@ static void FreeImageData(void *info, const void *data, size_t size) {
         return nil;
     }
     
+    if (!(flags & ANIMATION_FLAG)) {
+        // for static single webp image
+        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
+        if (staticImage) {
+            // draw on CGBitmapContext can reduce memory usage
+            CGImageRef imageRef = staticImage.CGImage;
+            size_t width = CGImageGetWidth(imageRef);
+            size_t height = CGImageGetHeight(imageRef);
+            CGContextDrawImage(canvas, CGRectMake(0, 0, width, height), imageRef);
+            CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
+#if SD_UIKIT || SD_WATCH
+            staticImage = [[UIImage alloc] initWithCGImage:newImageRef];
+#else
+            staticImage = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
+            CGImageRelease(newImageRef);
+        }
+        WebPDemuxReleaseIterator(&iter);
+        WebPDemuxDelete(demuxer);
+        CGContextRelease(canvas);
+        return staticImage;
+    }
+    
+    // for animated webp image
     NSMutableArray<UIImage *> *images = [NSMutableArray array];
 #if SD_UIKIT || SD_WATCH
     NSTimeInterval totalDuration = 0;
@@ -84,33 +102,36 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #endif
     
     do {
-        UIImage *image;
-        if (iter.blend_method == WEBP_MUX_BLEND) {
-            image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
-        } else {
-            image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
-        }
-        
-        if (!image) {
-            continue;
-        }
-        
-        [images addObject:image];
-        
+        @autoreleasepool {
+            UIImage *image;
+            if (iter.blend_method == WEBP_MUX_BLEND) {
+                image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
+            } else {
+                image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
+            }
+            
+            if (!image) {
+                continue;
+            }
+            
+            [images addObject:image];
+            
 #if SD_MAC
-        break;
+            break;
 #else
-        
-        int duration = iter.duration;
-        if (duration <= 10) {
-            // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
-            // Some animated WebP images also created without duration, we should keep compatibility
-            duration = 100;
-        }
-        totalDuration += duration;
-        size_t count = images.count;
-        durations[count - 1] = duration;
+            
+            int duration = iter.duration;
+            if (duration <= 10) {
+                // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
+                // Some animated WebP images also created without duration, we should keep compatibility
+                duration = 100;
+            }
+            totalDuration += duration;
+            size_t count = images.count;
+            durations[count - 1] = duration;
 #endif
+        }
+        
     } while (WebPDemuxNextFrame(&iter));
     
     WebPDemuxReleaseIterator(&iter);
