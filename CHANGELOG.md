@@ -1,3 +1,31 @@
+## [4.1.1 - 4.1 patch, on Oct 6th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.1)
+See [all tickets marked for the 4.1.1 release](https://github.com/rs/SDWebImage/milestone/14)
+
+#### Fixes
+
+- Fixed crash on `[SDWebImageDownloaderOperation reset]_block_invoke` 2f892f9 fixes #1883
+- Fixed `SDWebImageDownloadOperation` `imageData` multi-thread issue #2011 fixes #1998 `[SDWebImageDownloaderOperation URLSession:dataTask:didReceiveData:]` crash
+- Fixed `CFRelease` on `NULL` if `CGImageSourceRef` create failed #1978 fixes #1968 #1834 #1947
+- Fixed request cache policy #1994 #2032 fixes #1993 #1861 #1623 was introduced by #1737 (unit test #2031)
+- Fixed `CGBitmapContextCreate` bitmap memory leak #1976 replaces #1860 fixes #1974
+- Fixed issue #2001, add `sd_currentBackgroundImageURL` and `sd_backgroundImageURLForState:` for `UIButton` #2002
+- Set `UIButton` placeholer-image even if the url is `nil` #2043 fixes #1721 #1964 replaces #1790
+- Use `CGImageSourceCreateIncremental` to perform progressive decoding instead of decode partial data each time from the beginning to improve performance and remove that gray background #2040 fixes #1899
+- Fix *SDWebImage v4* can not import *libwebp* framework's header files #1983 fixes #1887
+- Fix unreachable code build warning on `macOS` #1984
+
+#### Improvements
+
+- Performance enhancement related to single `WebP` and animated `WebP` decoding #1985 fixes #1999 #1885
+- Use `FOUNDATION_EXPORT` over `extern` #1977
+- Move common test logic to `SDTestCase` #1980
+- Enabled `CLANG_WARN_STRICT_PROTOTYPES` #1995 #2027 fixes #2022
+- Update `macOS Demo` deployment target to `10.10` to support build on `Xcode 9` #2035
+
+#### Docs
+
+- Updated *Manual Installation* section #2030 fixes #2012
+
 ## [4.1.0 - Swift API cleanup, on Jul 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.0)
 See [all tickets marked for the 4.1.0 release](https://github.com/rs/SDWebImage/milestone/13)
 
