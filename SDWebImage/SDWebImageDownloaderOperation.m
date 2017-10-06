@@ -30,6 +30,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
+@property (copy, nonatomic, nullable) NSData *cachedData;
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -148,6 +149,14 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             }];
         }
 #endif
+        if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
+            // Grab the cached data for later check
+            NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request];
+            if (cachedResponse) {
+                self.cachedData = cachedResponse.data;
+            }
+        }
+        
         NSURLSession *session = self.unownedSession;
         if (!self.unownedSession) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -451,13 +460,22 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
-             *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
-             *  the response data will be nil.
-             *  So we don't need to check the cache option here, since the system will obey the cache option
              */
             NSData *imageData = [self.imageData copy];
             if (imageData) {
                 UIImage *image = [UIImage sd_imageWithData:imageData];
+                /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
+                 *  then we should check if the cached data is equal to image data
+                 */
+                if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
+                    if (self.cachedData) {
+                        if ([self.cachedData isEqualToData:imageData]) {
+                            // call completion block with nil
+                            [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+                            return;
+                        }
+                    }
+                }
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
                 
