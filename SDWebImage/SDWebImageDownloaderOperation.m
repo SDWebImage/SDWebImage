@@ -480,7 +480,7 @@ didReceiveResponse:(NSURLResponse *)response
                         shouldDecode = NO;
                     } else {
 #ifdef SD_WEBP
-                        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:self.imageData];
+                        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                         if (imageFormat == SDImageFormatWebP) {
                             shouldDecode = NO;
                         }
