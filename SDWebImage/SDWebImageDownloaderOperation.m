@@ -467,47 +467,43 @@ didReceiveResponse:(NSURLResponse *)response
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data
                  */
-                if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
-                    if (self.cachedData) {
-                        if ([self.cachedData isEqualToData:imageData]) {
-                            // call completion block with nil
-                            [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
-                            return;
-                        }
-                    }
-                }
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = [self scaledImageForKey:key image:image];
-                
-                BOOL shouldDecode = YES;
-                // Do not force decoding animated GIFs and WebPs
-                if (image.images) {
-                    shouldDecode = NO;
+                if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
+                    // call completion block with nil
+                    [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
                 } else {
-#ifdef SD_WEBP
-                    SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:self.imageData];
-                    if (imageFormat == SDImageFormatWebP) {
+                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                    image = [self scaledImageForKey:key image:image];
+                    
+                    BOOL shouldDecode = YES;
+                    // Do not force decoding animated GIFs and WebPs
+                    if (image.images) {
                         shouldDecode = NO;
+                    } else {
+#ifdef SD_WEBP
+                        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:self.imageData];
+                        if (imageFormat == SDImageFormatWebP) {
+                            shouldDecode = NO;
+                        }
+#endif
                     }
-#endif
-                }
-
-                if (shouldDecode) {
-                    if (self.shouldDecompressImages) {
-                        if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
+                    
+                    if (shouldDecode) {
+                        if (self.shouldDecompressImages) {
+                            if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
 #if SD_UIKIT || SD_WATCH
-                            image = [UIImage decodedAndScaledDownImageWithImage:image];
-                            imageData = UIImagePNGRepresentation(image);
+                                image = [UIImage decodedAndScaledDownImageWithImage:image];
+                                imageData = UIImagePNGRepresentation(image);
 #endif
-                        } else {
-                            image = [UIImage decodedImageWithImage:image];
+                            } else {
+                                image = [UIImage decodedImageWithImage:image];
+                            }
                         }
                     }
-                }
-                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                } else {
-                    [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                    if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                    } else {
+                        [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                    }
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
