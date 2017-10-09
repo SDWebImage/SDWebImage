@@ -1,3 +1,12 @@
+## [4.1.2 - 4.1 patch, on Oct 9th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.2)
+See [all tickets marked for the 4.1.2 release](https://github.com/rs/SDWebImage/milestone/17)
+
+#### Fixes
+
+- Fix `SDWebImageDownloaderOperation` not call `done` when use `SDWebImageDownloaderIgnoreCachedResponse` #2049
+- Static `WebP` decoding little enhancement. Do not need create `WebP` iterator for static images #2050
+- Change `finished` check from `equal` to `equal or greater than` to protect accident condition #2051
+
 ## [4.1.1 - 4.1 patch, on Oct 6th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.1)
 See [all tickets marked for the 4.1.1 release](https://github.com/rs/SDWebImage/milestone/14)
 
