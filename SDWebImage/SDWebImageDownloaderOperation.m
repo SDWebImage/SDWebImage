@@ -337,7 +337,7 @@ didReceiveResponse:(NSURLResponse *)response
         // Get the total bytes downloaded
         const NSInteger totalSize = imageData.length;
         // Get the finish status
-        BOOL finished = (self.expectedSize == totalSize);
+        BOOL finished = (totalSize >= self.expectedSize);
         
         if (!_imageSource) {
             _imageSource = CGImageSourceCreateIncremental(NULL);
