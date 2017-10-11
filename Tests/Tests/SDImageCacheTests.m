@@ -193,7 +193,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 - (void)test40InsertionOfImageData {
     
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
-    [self.sharedImageCache storeImageDataToDisk:imageData forKey:kImageTestKey];
+    [self.sharedImageCache storeImageDataToDisk:imageData forKey:kImageTestKey error:nil];
     
     UIImage *storedImageFromMemory = [self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey];
     expect(storedImageFromMemory).to.equal(nil);
@@ -211,23 +211,29 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     }];
 }
 
-- (void)test41StoreImageDataToDistWithError {
+- (void)test41StoreImageDataToDiskWithError {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
     NSError * error = nil;
-    [self.sharedImageCache storeImageDataToDisk:imageData
-                                         forKey:kImageTestKey
-                                    fileManager:[[MockFileManager alloc] initWithSendError:EACCES]
-                                          error:&error];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
+                                               diskCacheDirectory:@"/"
+                                                      fileManager:[[MockFileManager alloc] initWithSendError:EACCES]];
+    [cache storeImageDataToDisk:imageData
+                         forKey:kImageTestKey
+                          error:&error];
+    
     XCTAssertEqual(error.code, EACCES);
 }
 
 - (void)test42StoreImageDataToDiskWithoutError {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
     NSError * error = nil;
-    [self.sharedImageCache storeImageDataToDisk:imageData
-                                         forKey:kImageTestKey
-                                    fileManager:[[MockFileManager alloc] initWithSendError:0]
-                                          error:&error];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
+                                               diskCacheDirectory:@"/"
+                                                      fileManager:[[MockFileManager alloc] initWithSendError:0]];
+    [cache storeImageDataToDisk:imageData
+                         forKey:kImageTestKey
+                          error:&error];
+
     XCTAssertNil(error);
 }
 

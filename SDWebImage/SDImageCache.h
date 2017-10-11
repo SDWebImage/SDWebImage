@@ -79,7 +79,18 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  * @param directory Directory to cache disk images in
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory NS_DESIGNATED_INITIALIZER;
+                       diskCacheDirectory:(nonnull NSString *)directory;
+
+/**
+ * Init a new cache store with a specific namespace and directory
+ *
+ * @param ns          The namespace to use for this cache store
+ * @param directory   Directory to cache disk images in
+ * @param fileManager The file manager for storing image, if nil then will be created new one
+ */
+- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
+                       diskCacheDirectory:(nonnull NSString *)directory
+                              fileManager:(nullable NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Cache paths
 
@@ -143,37 +154,12 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
- */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key;
-
-/**
- * Synchronously store image NSData into disk cache at the given key.
- *
- * @warning This method is synchronous, make sure to call it from the ioQueue
- *
- * @param imageData  The image data to store
- * @param key        The unique image cache key, usually it's image absolute URL
  * @param errorPtr   NSError pointer. If error occurs then (*errorPtr) != nil.
  */
 - (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
                        error:(NSError * _Nullable * _Nullable)errorPtr;
 
-/**
- * Synchronously store image NSData into disk cache at the given key.
- *
- * @warning This method is synchronous, make sure to call it from the ioQueue
- *
- * @param imageData   The image data to store
- * @param key         The unique image cache key, usually it's image absolute URL
- * @param fileManager The file manager for storing image. If nil, then will be used local object.
- * @param errorPtr    NSError pointer. If error occurs then (*errorPtr) != nil.
- */
-- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key
-                 fileManager:(nullable NSFileManager *)fileManager
-                       error:(NSError * _Nullable * _Nullable)errorPtr;
 
 #pragma mark - Query and Retrieve Ops
 

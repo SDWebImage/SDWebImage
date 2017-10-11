@@ -84,6 +84,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory {
+    return [self initWithNamespace:ns diskCacheDirectory:directory fileManager: nil];
+}
+
+- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
+                       diskCacheDirectory:(nonnull NSString *)directory
+                              fileManager:(nullable NSFileManager *)fileManager {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
         
@@ -95,7 +101,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // Init the memory cache
         _memCache = [[AutoPurgeCache alloc] init];
         _memCache.name = fullNamespace;
-
+        
         // Init the disk cache
         if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
@@ -103,32 +109,39 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSString *path = [self makeDiskCachePath:ns];
             _diskCachePath = path;
         }
-
-        dispatch_sync(_ioQueue, ^{
-            _fileManager = [NSFileManager new];
-        });
-
+        
+        if (fileManager == nil) {
+            dispatch_sync(_ioQueue, ^{
+                _fileManager = [NSFileManager new];
+            });
+        } else {
+            _fileManager = fileManager;
+        }
+        
+        
 #if SD_UIKIT
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(deleteOldFiles)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundDeleteOldFiles)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
 #endif
     }
-
+    
     return self;
+
 }
+
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -240,20 +253,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
 }
 
-- (void)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key {
-    [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:nil];
-}
-
 - (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
-                       error:(NSError * _Nullable * _Nullable)errorPtr {
-    return [self storeImageDataToDisk:imageData forKey:key fileManager:_fileManager error:errorPtr];
-}
-
-- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key
-                 fileManager:(nullable NSFileManager *)fileManager
                        error:(NSError * _Nullable * _Nullable)errorPtr {
     if (!imageData || !key) {
         return YES;
@@ -261,8 +262,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     [self checkIfQueueIsIOQueue];
     
-    if (![fileManager fileExistsAtPath:_diskCachePath]) {
-        [fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+    if (![_fileManager fileExistsAtPath:_diskCachePath]) {
+        [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
     }
     
     // get cache Path for image key
@@ -270,7 +271,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    if (![fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
+    if (![_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
         *errorPtr = [[NSError alloc] initWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
         return NO;
     }
