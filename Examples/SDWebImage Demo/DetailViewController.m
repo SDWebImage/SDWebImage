@@ -43,11 +43,13 @@
                           placeholderImage:nil
                                    options:SDWebImageProgressiveDownload
                                   progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *targetURL) {
-                                      if (!activityIndicator) {
-                                          [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
-                                          activityIndicator.center = weakImageView.center;
-                                          [activityIndicator startAnimating];
-                                      }
+                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                          if (!activityIndicator) {
+                                              [weakImageView addSubview:activityIndicator = [UIActivityIndicatorView.alloc initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray]];
+                                              activityIndicator.center = weakImageView.center;
+                                              [activityIndicator startAnimating];
+                                          }
+                                      });
                                   }
                                  completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                      [activityIndicator removeFromSuperview];
