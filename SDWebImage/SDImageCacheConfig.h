@@ -18,7 +18,7 @@
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
- *  disable iCloud backup [defaults to YES]
+ * disable iCloud backup [defaults to YES]
  */
 @property (assign, nonatomic) BOOL shouldDisableiCloud;
 
@@ -28,7 +28,13 @@
 @property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
 
 /**
- * The maximum length of time to keep an image in the cache, in seconds
+ * The reading options while reading cache from disk.
+ * Defaults to 0. You can set this to mapped file to improve performance.
+ */
+@property (assign, nonatomic) NSDataReadingOptions diskCacheReadingOptions;
+
+/**
+ * The maximum length of time to keep an image in the cache, in seconds.
  */
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
