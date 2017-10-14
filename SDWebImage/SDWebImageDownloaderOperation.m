@@ -101,7 +101,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
     __block NSMutableArray<id> *callbacks = nil;
-    dispatch_sync(self.barrierQueue, ^{
+    dispatch_barrier_sync(self.barrierQueue, ^{
         // We need to remove [NSNull null] because there might not always be a progress block for each callback
         callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
         [callbacks removeObjectIdenticalTo:[NSNull null]];
