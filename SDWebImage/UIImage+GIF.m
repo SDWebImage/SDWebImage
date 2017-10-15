@@ -45,7 +45,9 @@
         CGImageRef CGImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 #if SD_UIKIT || SD_WATCH
         UIImage *frameImage = [UIImage imageWithCGImage:CGImage scale:scale orientation:UIImageOrientationUp];
-        staticImage = [UIImage animatedImageWithImages:@[frameImage] duration:0.0f];
+        if (frameImage) {
+            staticImage = [UIImage animatedImageWithImages:@[frameImage] duration:0.0f];
+        }
 #endif
         CGImageRelease(CGImage);
     }
