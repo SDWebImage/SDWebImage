@@ -7,12 +7,9 @@
  */
 
 #import "SDImageCache.h"
-#import "SDWebImageDecoder.h"
-#import "UIImage+MultiFormat.h"
 #import <CommonCrypto/CommonDigest.h>
-#import "UIImage+GIF.h"
-#import "NSData+ImageContentType.h"
 #import "NSImage+WebCache.h"
+#import "SDWebImageCodersManager.h"
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
@@ -220,9 +217,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             @autoreleasepool {
                 NSData *data = imageData;
                 if (!data && image) {
-                    SDImageFormat imageFormatFromData = [NSData sd_imageFormatForImageData:data];
-                    data = [image sd_imageDataAsFormat:imageFormatFromData];
-                }                
+                    // If we do not have any data to detect image format, use PNG format
+                    data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:SDImageFormatPNG];
+                }
                 [self storeImageDataToDisk:data forKey:key];
             }
             
@@ -345,16 +342,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
-        UIImage *image = [UIImage sd_imageWithData:data];
+        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
         image = [self scaledImageForKey:key image:image];
-#ifdef SD_WEBP
-        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
-        if (imageFormat == SDImageFormatWebP) {
-            return image;
-        }
-#endif
         if (self.config.shouldDecompressImages) {
-            image = [UIImage decodedImageWithImage:image];
+            image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
         }
         return image;
     } else {
@@ -378,7 +369,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
         NSData *diskData = nil;
-        if ([image isGIF]) {
+        if (image.images) {
             diskData = [self diskImageDataBySearchingAllPathsForKey:key];
         }
         if (doneBlock) {
