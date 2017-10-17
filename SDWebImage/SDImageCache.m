@@ -109,11 +109,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSString *path = [self makeDiskCachePath:ns];
             _diskCachePath = path;
         }
-        
+
         dispatch_sync(_ioQueue, ^{
             _fileManager = fileManager ? fileManager : [NSFileManager new];
         });
-        
+
 #if SD_UIKIT
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
