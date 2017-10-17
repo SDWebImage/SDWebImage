@@ -67,7 +67,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
         // Do not support GIF and WebP decoding
-        case SDImageFormatGIF:
         case SDImageFormatWebP:
             return NO;
         default:
@@ -91,6 +90,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data];
+    if (!image) {
+        return nil;
+    }
+    
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    if (format == SDImageFormatGIF) {
+        // static single GIF need to be created animated for FLAnimatedImageView logic
+        // GIF does not support EXIF image orientation
+        image = [UIImage animatedImageWithImages:@[image] duration:image.duration];
+        return image;
+    }
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation orientation = [[self class] sd_imageOrientationFromImageData:data];
     if (orientation != UIImageOrientationUp) {
@@ -373,7 +383,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     switch (format) {
         // Do not support GIF and WebP encoding
-        case SDImageFormatGIF:
         case SDImageFormatWebP:
             return NO;
         default:

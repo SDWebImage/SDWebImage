@@ -17,10 +17,10 @@
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `GIFCoder`, `WebPCoder`
- - calling `coders` will return `@[WebPCoder, GIFCoder, IOCoder]`
+ - by default we internally set coders = `IOCoder`, `WebPCoder`
+ - calling `coders` will return `@[WebPCoder, IOCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
- - calling `coders` now returns `@[MyCrazyCoder, WebPCoder, GIFCoder, IOCoder]`
+ - calling `coders` now returns `@[MyCrazyCoder, WebPCoder, IOCoder]`
  
  Coders
  ------

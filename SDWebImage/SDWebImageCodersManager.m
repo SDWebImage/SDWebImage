@@ -34,7 +34,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         // initialize with default coders
-        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder], [SDWebImageGIFCoder sharedCoder]] mutableCopy];
+        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder]] mutableCopy];
 #ifdef SD_WEBP
         [_mutableCoders addObject:[SDWebImageWebPCoder sharedCoder]];
 #endif
