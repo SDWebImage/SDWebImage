@@ -101,7 +101,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // Init the memory cache
         _memCache = [[AutoPurgeCache alloc] init];
         _memCache.name = fullNamespace;
-        
+
         // Init the disk cache
         if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
@@ -110,14 +110,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             _diskCachePath = path;
         }
         
-        if (fileManager == nil) {
-            dispatch_sync(_ioQueue, ^{
-                _fileManager = [NSFileManager new];
-            });
-        } else {
-            _fileManager = fileManager;
-        }
-        
+        dispatch_sync(_ioQueue, ^{
+            _fileManager = fileManager ? fileManager : [NSFileManager new];
+        });
         
 #if SD_UIKIT
         // Subscribe to app events
@@ -125,23 +120,21 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                                                  selector:@selector(clearMemory)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(deleteOldFiles)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(backgroundDeleteOldFiles)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
 #endif
     }
-    
+
     return self;
-
 }
-
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -257,7 +250,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                       forKey:(nullable NSString *)key
                        error:(NSError * _Nullable * _Nullable)errorPtr {
     if (!imageData || !key) {
-        return YES;
+        return NO;
     }
     
     [self checkIfQueueIsIOQueue];

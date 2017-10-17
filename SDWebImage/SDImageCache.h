@@ -82,7 +82,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
                        diskCacheDirectory:(nonnull NSString *)directory;
 
 /**
- * Init a new cache store with a specific namespace and directory
+ * Init a new cache store with a specific namespace, directory and file manager
  *
  * @param ns          The namespace to use for this cache store
  * @param directory   Directory to cache disk images in
