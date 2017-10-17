@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D7AF05F1F329763000083C2 /* SDTestCase.m */; };
+		321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259EB1F39E3240096FE0E /* TestImageStatic.webp */; };
+		321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
+		32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */; };
 		433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */; };
 		433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB61D7EF8200086B6E9 /* TestImage.gif */; };
 		433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
@@ -24,7 +27,6 @@
 		DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA248D5F195472AA00390AB0 /* InfoPlist.strings */; };
 		DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D68195475D800390AB0 /* SDImageCacheTests.m */; };
 		DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */; };
-		DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,10 @@
 		1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderTests.m; sourceTree = "<group>"; };
 		2D7AF05E1F329763000083C2 /* SDTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDTestCase.h; sourceTree = "<group>"; };
 		2D7AF05F1F329763000083C2 /* SDTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDTestCase.m; sourceTree = "<group>"; };
+		321259EB1F39E3240096FE0E /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
+		321259ED1F39E4110096FE0E /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
+		32E6F0301F3A1B4700A945E6 /* SDWebImageTestDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDecoder.h; sourceTree = "<group>"; };
+		32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDecoder.m; sourceTree = "<group>"; };
 		433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoderTests.m; sourceTree = "<group>"; };
 		433BBBB61D7EF8200086B6E9 /* TestImage.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = TestImage.gif; sourceTree = "<group>"; };
 		433BBBB81D7EF8260086B6E9 /* TestImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestImage.png; sourceTree = "<group>"; };
@@ -51,7 +57,6 @@
 		DA248D64195472AA00390AB0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		DA248D68195475D800390AB0 /* SDImageCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCacheTests.m; sourceTree = "<group>"; };
 		DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageManagerTests.m; sourceTree = "<group>"; };
-		DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImageMultiFormatTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,16 +120,19 @@
 				5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */,
 				43828A441DA67F9900000E62 /* TestImageLarge.jpg */,
 				433BBBB81D7EF8260086B6E9 /* TestImage.png */,
+				321259ED1F39E4110096FE0E /* TestImageAnimated.webp */,
+				321259EB1F39E3240096FE0E /* TestImageStatic.webp */,
 				DA248D5D195472AA00390AB0 /* Supporting Files */,
 				DA248D68195475D800390AB0 /* SDImageCacheTests.m */,
 				DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */,
-				DA91BEBB19795BC9006F2536 /* UIImageMultiFormatTests.m */,
 				1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */,
 				433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */,
 				4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */,
 				4369C2731D9804B1007E863A /* SDCategoriesTests.m */,
 				2D7AF05E1F329763000083C2 /* SDTestCase.h */,
 				2D7AF05F1F329763000083C2 /* SDTestCase.m */,
+				32E6F0301F3A1B4700A945E6 /* SDWebImageTestDecoder.h */,
+				32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -192,9 +200,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
+				321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */,
 				DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */,
@@ -210,13 +220,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		85E5D3885A03BFC23B050908 /* [CP] Copy Pods Resources */ = {
@@ -240,9 +253,18 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Expecta/Expecta.framework",
+				"${BUILT_PRODUCTS_DIR}/FLAnimatedImage/FLAnimatedImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/libwebp/libwebp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLAnimatedImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -256,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */,
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
 				4369C2741D9804B1007E863A /* SDCategoriesTests.m in Sources */,
 				2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */,
@@ -263,7 +286,6 @@
 				DA248D69195475D800390AB0 /* SDImageCacheTests.m in Sources */,
 				DA248D6B195476AC00390AB0 /* SDWebImageManagerTests.m in Sources */,
 				433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */,
-				DA91BEBC19795BC9006F2536 /* UIImageMultiFormatTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

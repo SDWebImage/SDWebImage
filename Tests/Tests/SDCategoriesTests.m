@@ -125,7 +125,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"FLAnimatedImageView setImageWithURL"];
     
     FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"https://www.interntheory.com/img/loading-small.gif"];
     
     [imageView sd_setImageWithURL:originalImageURL
                         completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {

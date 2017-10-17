@@ -10,6 +10,8 @@
 #import "SDTestCase.h"
 #import <SDWebImage/SDWebImageDownloader.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
+#import <SDWebImage/SDWebImageCodersManager.h>
+#import "SDWebImageTestDecoder.h"
 
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
@@ -256,6 +258,21 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test16ThatProgressiveWebPWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive WebP download"];
+    NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (image && data && !error && finished) {
+            [expectation fulfill];
+        } else if (finished) {
+            XCTFail(@"Something went wrong");
+        } else {
+            // progressive updates
+        }
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 /**
  *  Per #883 - Fix multiple requests for same image and then canceling one
  *  Old SDWebImage (3.x) could not handle correctly multiple requests for the same image + cancel
@@ -329,6 +346,35 @@
                                            }
                                        }];
     expect(token2).toNot.beNil();
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test22ThatCustomDecoderWorksForImageDownload {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Custom decoder for SDWebImageDownloader not works"];
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    SDWebImageTestDecoder *testDecoder = [[SDWebImageTestDecoder alloc] init];
+    [[SDWebImageCodersManager sharedInstance] addCoder:testDecoder];
+    NSURL * testImageURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"png"];
+    
+    // Decoded result is JPEG
+    NSString *testJPEGImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
+    UIImage *testJPEGImage = [UIImage imageWithContentsOfFile:testJPEGImagePath];
+    
+    [downloader downloadImageWithURL:testImageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
+        NSData *data2 = UIImagePNGRepresentation(image);
+        if (![data1 isEqualToData:data2]) {
+            XCTFail(@"The image data is not equal to cutom decoder, check -[SDWebImageTestDecoder decodedImageWithData:]");
+        }
+        NSString *str1 = @"TestDecompress";
+        NSString *str2 = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (![str1 isEqualToString:str2]) {
+            XCTFail(@"The image data is not modified by the custom decoder, check -[SDWebImageTestDecoder decompressedImageWithImage:data:options:]");
+        }
+        [[SDWebImageCodersManager sharedInstance] removeCoder:testDecoder];
+        [expectation fulfill];
+    }];
     
     [self waitForExpectationsWithCommonTimeout];
 }
