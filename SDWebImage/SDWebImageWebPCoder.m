@@ -190,11 +190,12 @@
         return nil;
     }
     
-    int width;
-    int height;
-    uint8_t *rgba = WebPIDecGetRGB(_idec, NULL, (int *)&width, (int *)&height, NULL);
-    
-    if (width + height > 0) {
+    int width = 0;
+    int height = 0;
+    int last_y = 0;
+    int stride = 0;
+    uint8_t *rgba = WebPIDecGetRGB(_idec, &last_y, &width, &height, &stride);
+    if (width + height > 0 && height >= last_y) {
         // Construct a UIImage from the decoded RGBA value array
         CGDataProviderRef provider =
         CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
@@ -203,7 +204,13 @@
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
         size_t components = 4;
         CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
-        CGImageRef imageRef = CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
+        // Why to use last_y for image height is because of libwebp's bug (https://bugs.chromium.org/p/webp/issues/detail?id=362)
+        // It will not keep memory barrier safe on x86 architechure (macOS & iPhone simulator) but on ARM architecture (iPhone & iPad & tv & watch) it works great
+        // If different threads use WebPIDecGetRGB to grab rgba bitmap, it will contain the previous decoded bitmap data
+        // So this will cause our drawed image looks strange(above is the current part but below is the previous part)
+        // We only grab the last_y height and draw the last_y heigh instead of total height image
+        // Besides fix, this can enhance performance since we do not need to create extra bitmap
+        CGImageRef imageRef = CGImageCreate(width, last_y, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
         
         CGDataProviderRelease(provider);
         
@@ -217,7 +224,8 @@
             return nil;
         }
         
-        CGContextDrawImage(canvas, CGRectMake(0, 0, width, height), imageRef);
+        // Only draw the last_y image height, keep remains transparent, in Core Graphics coordinate system
+        CGContextDrawImage(canvas, CGRectMake(0, height - last_y, width, last_y), imageRef);
         CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
         CGImageRelease(imageRef);
         if (!newImageRef) {
