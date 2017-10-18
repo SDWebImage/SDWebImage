@@ -160,6 +160,9 @@
         return nil;
     }
     
+#ifdef SD_MAC
+    CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
+#else
     if (!image.images) {
         // for static single GIF images
         CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
@@ -178,6 +181,7 @@
             }
         }
     }
+#endif
     
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {

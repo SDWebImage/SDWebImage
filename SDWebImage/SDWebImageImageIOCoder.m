@@ -89,6 +89,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return nil;
     }
     
+#if SD_MAC
+    return [[UIImage alloc] initWithData:data];
+#else
+    
     UIImage *image = [[UIImage alloc] initWithData:data];
     if (!image) {
         return nil;
@@ -111,6 +115,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
     
     return image;
+#endif
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
