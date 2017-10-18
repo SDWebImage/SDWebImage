@@ -31,6 +31,7 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
+typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable error);
 
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
@@ -78,7 +79,18 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * @param directory Directory to cache disk images in
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory NS_DESIGNATED_INITIALIZER;
+                       diskCacheDirectory:(nonnull NSString *)directory;
+
+/**
+ * Init a new cache store with a specific namespace, directory and file manager
+ *
+ * @param ns          The namespace to use for this cache store
+ * @param directory   Directory to cache disk images in
+ * @param fileManager The file manager for storing image, if nil then will be created new one
+ */
+- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
+                       diskCacheDirectory:(nonnull NSString *)directory
+                              fileManager:(nullable NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Cache paths
 
@@ -103,7 +115,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -116,7 +128,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -133,7 +145,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
 
 /**
  * Synchronously store image NSData into disk cache at the given key.
@@ -142,8 +154,12 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
+ * @param errorPtr   NSError pointer. If error occurs then (*errorPtr) != nil.
  */
-- (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key;
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                       error:(NSError * _Nullable * _Nullable)errorPtr;
+
 
 #pragma mark - Query and Retrieve Ops
 

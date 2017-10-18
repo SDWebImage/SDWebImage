@@ -81,6 +81,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory {
+    return [self initWithNamespace:ns diskCacheDirectory:directory fileManager: nil];
+}
+
+- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
+                       diskCacheDirectory:(nonnull NSString *)directory
+                              fileManager:(nullable NSFileManager *)fileManager {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
         
@@ -102,7 +108,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
 
         dispatch_sync(_ioQueue, ^{
-            _fileManager = [NSFileManager new];
+            _fileManager = fileManager ? fileManager : [NSFileManager new];
         });
 
 #if SD_UIKIT
@@ -184,14 +190,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:YES completion:completionBlock];
 }
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
 }
 
@@ -199,10 +205,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
     if (!image || !key) {
         if (completionBlock) {
-            completionBlock();
+            completionBlock(nil);
         }
         return;
     }
@@ -214,31 +220,34 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
+            NSError * writeError = nil;
             @autoreleasepool {
                 NSData *data = imageData;
                 if (!data && image) {
                     // If we do not have any data to detect image format, use PNG format
                     data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:SDImageFormatPNG];
                 }
-                [self storeImageDataToDisk:data forKey:key];
+                [self storeImageDataToDisk:data forKey:key error:&writeError];
             }
             
             if (completionBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock();
+                    completionBlock(writeError);
                 });
             }
         });
     } else {
         if (completionBlock) {
-            completionBlock();
+            completionBlock(nil);
         }
     }
 }
 
-- (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
+- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key
+                       error:(NSError * _Nullable * _Nullable)errorPtr {
     if (!imageData || !key) {
-        return;
+        return NO;
     }
     
     [self checkIfQueueIsIOQueue];
@@ -252,12 +261,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    [_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil];
+    if (![_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
+        *errorPtr = [[NSError alloc] initWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return NO;
+    }
     
     // disable iCloud backup
     if (self.config.shouldDisableiCloud) {
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
     }
+    
+    return YES;
 }
 
 #pragma mark - Query and Retrieve Ops

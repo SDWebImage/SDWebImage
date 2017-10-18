@@ -10,6 +10,7 @@
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDWebImageCodersManager.h>
 #import "SDWebImageTestDecoder.h"
+#import "SDMockFileManager.h"
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
 
@@ -196,7 +197,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     
     UIImage *image = [UIImage imageWithContentsOfFile:[self testImagePath]];
     NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
-    [self.sharedImageCache storeImageDataToDisk:imageData forKey:kImageTestKey];
+    [self.sharedImageCache storeImageDataToDisk:imageData forKey:kImageTestKey error:nil];
     
     UIImage *storedImageFromMemory = [self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey];
     expect(storedImageFromMemory).to.equal(nil);
@@ -238,7 +239,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
     NSString *key = @"TestPNGImageEncodedToDataAndRetrieveToJPEG";
     
-    [cache storeImage:image imageData:nil forKey:key toDisk:YES completion:^{
+    [cache storeImage:image imageData:nil forKey:key toDisk:YES completion:^(NSError * _Nullable error) {
         [cache clearMemory];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -272,6 +273,32 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test41StoreImageDataToDiskWithError {
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
+    NSError * error = nil;
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
+                                               diskCacheDirectory:@"/"
+                                                      fileManager:[[SDMockFileManager alloc] initWithError:EACCES]];
+    [cache storeImageDataToDisk:imageData
+                         forKey:kImageTestKey
+                          error:&error];
+    
+    XCTAssertEqual(error.code, EACCES);
+}
+
+- (void)test42StoreImageDataToDiskWithoutError {
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
+    NSError * error = nil;
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
+                                               diskCacheDirectory:@"/"
+                                                      fileManager:[[SDMockFileManager alloc] initWithError:0]];
+    [cache storeImageDataToDisk:imageData
+                         forKey:kImageTestKey
+                          error:&error];
+
+    XCTAssertNil(error);
 }
 
 #pragma mark Helper methods

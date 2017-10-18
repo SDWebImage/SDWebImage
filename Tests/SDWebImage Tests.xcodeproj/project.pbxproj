@@ -12,6 +12,7 @@
 		321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259EB1F39E3240096FE0E /* TestImageStatic.webp */; };
 		321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
 		32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */; };
+		37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D122871EC48B5E00D98CEB /* SDMockFileManager.m */; };
 		433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */; };
 		433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB61D7EF8200086B6E9 /* TestImage.gif */; };
 		433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
@@ -38,6 +39,8 @@
 		321259ED1F39E4110096FE0E /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		32E6F0301F3A1B4700A945E6 /* SDWebImageTestDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDecoder.h; sourceTree = "<group>"; };
 		32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDecoder.m; sourceTree = "<group>"; };
+		37D122861EC48B5E00D98CEB /* SDMockFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMockFileManager.h; sourceTree = "<group>"; };
+		37D122871EC48B5E00D98CEB /* SDMockFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDMockFileManager.m; sourceTree = "<group>"; };
 		433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoderTests.m; sourceTree = "<group>"; };
 		433BBBB61D7EF8200086B6E9 /* TestImage.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = TestImage.gif; sourceTree = "<group>"; };
 		433BBBB81D7EF8260086B6E9 /* TestImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestImage.png; sourceTree = "<group>"; };
@@ -129,6 +132,8 @@
 				433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */,
 				4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */,
 				4369C2731D9804B1007E863A /* SDCategoriesTests.m */,
+				37D122861EC48B5E00D98CEB /* SDMockFileManager.h */,
+				37D122871EC48B5E00D98CEB /* SDMockFileManager.m */,
 				2D7AF05E1F329763000083C2 /* SDTestCase.h */,
 				2D7AF05F1F329763000083C2 /* SDTestCase.m */,
 				32E6F0301F3A1B4700A945E6 /* SDWebImageTestDecoder.h */,
@@ -229,7 +234,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		85E5D3885A03BFC23B050908 /* [CP] Copy Pods Resources */ = {
@@ -280,6 +285,7 @@
 			files = (
 				32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */,
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
+				37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */,
 				4369C2741D9804B1007E863A /* SDCategoriesTests.m in Sources */,
 				2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */,
 				4369C1D11D97F80F007E863A /* SDWebImagePrefetcherTests.m in Sources */,
