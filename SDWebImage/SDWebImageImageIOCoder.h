@@ -11,6 +11,8 @@
 
 /**
  Built in coder that supports PNG, JPEG, TIFF, includes support for progressive decoding
+ Also supports static GIF (meaning will only handle the 1st frame).
+ For a full GIF support, we recommend `FLAnimatedImage` or our less performant `SDWebImageGIFCoder`
  */
 @interface SDWebImageImageIOCoder : NSObject <SDWebImageProgressiveCoder>
 

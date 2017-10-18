@@ -10,7 +10,10 @@
 #import "SDWebImageCoder.h"
 
 /**
- Built in coder that supports GIF
+ Built in coder using ImageIO that supports GIF encoding/decoding
+ @note `SDWebImageIOCoder` supports GIF but only as static (will use the 1st frame).
+ @note Use `SDWebImageGIFCoder` for fully animated GIFs - less performant than `FLAnimatedImage`
+ @note The recommended approach for animated GIFs is using `FLAnimatedImage`
  */
 @interface SDWebImageGIFCoder : NSObject <SDWebImageCoder>
 
