@@ -45,8 +45,7 @@
     
     if (count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data];
-    }
-    else {
+    } else {
         NSMutableArray *images = [NSMutableArray array];
         
         NSTimeInterval duration = 0.0f;
@@ -103,9 +102,7 @@
     NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
     if (delayTimeUnclampedProp) {
         frameDuration = [delayTimeUnclampedProp floatValue];
-    }
-    else {
-        
+    } else {
         NSNumber *delayTimeProp = gifProperties[(NSString *)kCGImagePropertyGIFDelayTime];
         if (delayTimeProp) {
             frameDuration = [delayTimeProp floatValue];
@@ -147,11 +144,22 @@
     }
     
     NSMutableData *imageData = [NSMutableData data];
+    NSUInteger frameCount = 0; // assume static images by default
     CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:format];
-    NSUInteger frameCount = 1;
-    if (image.images) {
-        frameCount = image.images.count;
+#if SD_MAC
+    NSBitmapImageRep *bitmapRep;
+    for (NSImageRep *imageRep in image.representations) {
+        if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+            bitmapRep = (NSBitmapImageRep *)imageRep;
+            break;
+        }
     }
+    if (bitmapRep) {
+        frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
+    }
+#else
+    frameCount = image.images.count;
+#endif
     
     // Create an image destination. GIF does not support EXIF image orientation
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frameCount, NULL);
@@ -160,25 +168,30 @@
         return nil;
     }
     
-    if (!image.images) {
+    if (frameCount == 0) {
         // for static single GIF images
         CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
     } else {
         // for animated GIF images
         NSUInteger loopCount = image.sd_imageLoopCount;
-        NSTimeInterval totalDuration = image.duration;
-        NSTimeInterval frameDuration = totalDuration / frameCount;
         NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary: @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)}};
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)gifProperties);
         for (size_t i = 0; i < frameCount; i++) {
             @autoreleasepool {
-                NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
+#if SD_MAC
+                // NSBitmapImageRep need to manually change frame. "Good taste" API
+                [bitmapRep setProperty:NSImageCurrentFrame withValue:@(i)];
+                float frameDuration = [[bitmapRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
+                CGImageRef frameImageRef = bitmapRep.CGImage;
+#else
+                float frameDuration = image.duration / frameCount;
                 CGImageRef frameImageRef = image.images[i].CGImage;
+#endif
+                NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
                 CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
             }
         }
     }
-    
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {
         // Handle failure.
