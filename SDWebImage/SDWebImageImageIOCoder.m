@@ -89,11 +89,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return nil;
     }
     
-#if SD_MAC
-    return [[UIImage alloc] initWithData:data];
-#else
-    
     UIImage *image = [[UIImage alloc] initWithData:data];
+    
+#if SD_MAC
+    return image;
+#else
     if (!image) {
         return nil;
     }
@@ -105,14 +105,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         image = [UIImage animatedImageWithImages:@[image] duration:image.duration];
         return image;
     }
-#if SD_UIKIT || SD_WATCH
     UIImageOrientation orientation = [[self class] sd_imageOrientationFromImageData:data];
     if (orientation != UIImageOrientationUp) {
         image = [UIImage imageWithCGImage:image.CGImage
                                     scale:image.scale
                               orientation:orientation];
     }
-#endif
     
     return image;
 #endif
