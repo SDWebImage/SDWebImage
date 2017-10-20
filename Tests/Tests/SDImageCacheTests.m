@@ -46,11 +46,15 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     [self.sharedImageCache clearDiskOnCompletion:^{
         [self.sharedImageCache diskImageExistsWithKey:kImageTestKey completion:^(BOOL isInCache) {
             if (!isInCache) {
-                [expectation fulfill];
+                [self.sharedImageCache calculateSizeWithCompletionBlock:^(NSUInteger fileCount, NSUInteger totalSize) {
+                    expect(fileCount).to.beLessThan(100);
+                    [expectation fulfill];
+                }];
             } else {
                 XCTFail(@"Image should not be in cache");
             }
         }];
+        
         expect([self.sharedImageCache imageFromMemoryCacheForKey:kImageTestKey]).to.equal([self imageForTesting]);
     }];
     [self waitForExpectationsWithCommonTimeout];

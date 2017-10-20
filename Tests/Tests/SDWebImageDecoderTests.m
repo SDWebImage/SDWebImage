@@ -11,6 +11,7 @@
 #import <SDWebImage/SDWebImageImageIOCoder.h>
 #import <SDWebImage/SDWebImageWebPCoder.h>
 #import <SDWebImage/UIImage+ForceDecode.h>
+#import <SDWebImage/SDWebImageGIFCoder.h>
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -97,9 +98,13 @@
 - (void)test09ThatStaticWebPCoderWorks {
     NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
     NSData *staticWebPData = [NSData dataWithContentsOfURL:staticWebPURL];
+    expect([[SDWebImageWebPCoder sharedCoder] canDecodeFromData:staticWebPData]).to.beTruthy();
+    expect([[SDWebImageImageIOCoder sharedCoder] canDecodeFromData:staticWebPData]).to.beFalsy();
     UIImage *staticWebPImage = [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:staticWebPData];
     expect(staticWebPImage).toNot.beNil();
     
+    expect([[SDWebImageWebPCoder sharedCoder] canEncodeToFormat:SDImageFormatWebP]).to.beTruthy();
+    expect([[SDWebImageImageIOCoder sharedCoder] canEncodeToFormat:SDImageFormatWebP]).to.beFalsy();
     NSData *outputData = [[SDWebImageWebPCoder sharedCoder] encodedDataWithImage:staticWebPImage format:SDImageFormatWebP];
     expect(outputData).toNot.beNil();
 }
@@ -107,6 +112,7 @@
 - (void)test10ThatAnimatedWebPCoderWorks {
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
     NSData *animatedWebPData = [NSData dataWithContentsOfURL:animatedWebPURL];
+    expect([[SDWebImageWebPCoder sharedCoder] canDecodeFromData:animatedWebPData]).to.beTruthy();
     UIImage *animatedWebPImage = [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:animatedWebPData];
     expect(animatedWebPImage).toNot.beNil();
     expect(animatedWebPImage.images.count).to.beGreaterThan(0);
@@ -120,7 +126,35 @@
         expect(imageScale).to.equal(scale);
     }];
     
+    expect([[SDWebImageWebPCoder sharedCoder] canEncodeToFormat:SDImageFormatWebP]).to.beTruthy();
     NSData *outputData = [[SDWebImageWebPCoder sharedCoder] encodedDataWithImage:animatedWebPImage format:SDImageFormatWebP];
+    expect(outputData).toNot.beNil();
+}
+
+- (void)test20ThatOurGIFCoderWorksNotFLAnimatedImage {
+    NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
+    NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
+    expect([[SDWebImageGIFCoder sharedCoder] canDecodeFromData:gifData]).to.beTruthy();
+    // the IOCoder can also decode GIF
+    expect([[SDWebImageImageIOCoder sharedCoder] canDecodeFromData:gifData]).to.beTruthy();
+    UIImage *gifImage = [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:gifData];
+    expect(gifImage).toNot.beNil();
+    expect(gifImage.images.count).to.beGreaterThan(0);
+    CGSize imageSize = gifImage.size;
+    CGFloat imageScale = gifImage.scale;
+    [gifImage.images enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
+        CGSize size = image.size;
+        CGFloat scale = image.scale;
+        expect(imageSize.width).to.equal(size.width);
+        expect(imageSize.height).to.equal(size.height);
+        expect(imageScale).to.equal(scale);
+    }];
+    
+    expect([[SDWebImageGIFCoder sharedCoder] decompressedImageWithImage:gifImage data:nil  options:nil]).to.equal(gifImage);
+    
+    expect([[SDWebImageGIFCoder sharedCoder] canEncodeToFormat:SDImageFormatGIF]).to.beTruthy();
+    expect([[SDWebImageImageIOCoder sharedCoder] canEncodeToFormat:SDImageFormatGIF]).to.beTruthy();
+    NSData *outputData = [[SDWebImageGIFCoder sharedCoder] encodedDataWithImage:gifImage format:SDImageFormatGIF];
     expect(outputData).toNot.beNil();
 }
 
