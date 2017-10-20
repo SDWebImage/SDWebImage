@@ -47,7 +47,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
         [self.sharedImageCache diskImageExistsWithKey:kImageTestKey completion:^(BOOL isInCache) {
             if (!isInCache) {
                 [self.sharedImageCache calculateSizeWithCompletionBlock:^(NSUInteger fileCount, NSUInteger totalSize) {
-                    expect(fileCount).to.beLessThan(100);
+                    expect(fileCount).to.equal(0);
                     [expectation fulfill];
                 }];
             } else {
