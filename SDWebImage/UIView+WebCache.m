@@ -34,13 +34,35 @@ static char TAG_ACTIVITY_SHOW;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_internalSetImageWithURL:url
+                    placeholderImage:placeholder
+                             options:options
+                        operationKey:operationKey
+                      warmImageBlock:nil
+                       setImageBlock:setImageBlock
+                            progress:progressBlock
+                           completed:completedBlock];
+}
+
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+                    warmImageBlock:(nullable SDWarmImageBlock)warmImageBlock
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         dispatch_main_async_safe(^{
-            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+            [self sd_setImage:placeholder
+                    imageData:nil
+          customSetImageBlock:setImageBlock
+               warmImageBlock:warmImageBlock
+               completedBlock:nil];
         });
     }
     
@@ -65,16 +87,29 @@ static char TAG_ACTIVITY_SHOW;
                     completedBlock(image, error, cacheType, url);
                     return;
                 } else if (image) {
-                    [sself sd_setImage:image imageData:data basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setImage:image
+                             imageData:data
+                   customSetImageBlock:setImageBlock
+                        warmImageBlock:warmImageBlock
+                        completedBlock:^{
+                            if (completedBlock && finished) {
+                                completedBlock(image, error, cacheType, url);
+                            }
+                        }];
                     [sself sd_setNeedsLayout];
                 } else {
                     if ((options & SDWebImageDelayPlaceholder)) {
-                        [sself sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                        [sself sd_setImage:placeholder
+                                 imageData:nil
+                       customSetImageBlock:setImageBlock
+                            warmImageBlock:warmImageBlock
+                            completedBlock:^{
+                                if (completedBlock && finished) {
+                                    completedBlock(image, error, cacheType, url);
+                                }
+                            }];
                         [sself sd_setNeedsLayout];
                     }
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
                 }
             });
         }];
@@ -94,9 +129,33 @@ static char TAG_ACTIVITY_SHOW;
     [self sd_cancelImageLoadOperationWithKey:NSStringFromClass([self class])];
 }
 
-- (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
+- (void)sd_setImage:(UIImage *)image
+          imageData:(NSData *)imageData
+customSetImageBlock:(SDSetImageBlock)setImageBlock
+     warmImageBlock:(SDWarmImageBlock)warmImageBlock
+     completedBlock:(SDWebImageNoParamsBlock)completedBlock {
     if (setImageBlock) {
-        setImageBlock(image, imageData);
+        if (!warmImageBlock) {
+            setImageBlock(image, imageData);
+            if (completedBlock) {
+                completedBlock();
+            }
+        } else {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                NSOperation *warmImageOnBackgroundThreadOp = [NSBlockOperation blockOperationWithBlock:^{
+                    warmImageBlock(image, imageData);
+                }];
+                warmImageOnBackgroundThreadOp.completionBlock = ^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        setImageBlock(image, imageData);
+                        if (completedBlock) {
+                            completedBlock();
+                        }
+                    });
+                };
+                [warmImageOnBackgroundThreadOp start];
+            });
+        }
         return;
     }
     
@@ -113,6 +172,9 @@ static char TAG_ACTIVITY_SHOW;
         [button setImage:image forState:UIControlStateNormal];
     }
 #endif
+    if (completedBlock) {
+        completedBlock();
+    }
 }
 
 - (void)sd_setNeedsLayout {

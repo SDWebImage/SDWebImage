@@ -13,6 +13,7 @@
 #import "SDWebImageManager.h"
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
+typedef void(^SDWarmImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
 
 @interface UIView (WebCache)
 
@@ -46,6 +47,15 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
                       operationKey:(nullable NSString *)operationKey
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+                    warmImageBlock:(nullable SDWarmImageBlock)warmImageBlock
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock;
