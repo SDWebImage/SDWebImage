@@ -13,12 +13,6 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
-#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
-#import <FLAnimatedImage/FLAnimatedImage.h>
-#else
-#import "FLAnimatedImage.h"
-#endif
-
 static char imageURLKey;
 
 #if SD_UIKIT
@@ -83,7 +77,7 @@ static char TAG_ACTIVITY_SHOW;
                 targetImage = placeholder;
                 targetData = nil;
             }
-            if ([sself isKindOfClass:[FLAnimatedImageView class]]) {
+            if ([sself isKindOfClass:NSClassFromString(@"FLAnimatedImageView")]) {
                 // performance enhancement for `FLAnimatedImage`
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
