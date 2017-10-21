@@ -47,14 +47,20 @@
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
+    __block FLAnimatedImage *animatedImage = nil;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
+                      warmImageBlock:^(UIImage *image, NSData *imageData) {
+                          SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                          if (imageFormat == SDImageFormatGIF) {
+                              animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                          }
+                      }
                        setImageBlock:^(UIImage *image, NSData *imageData) {
-                           SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                           if (imageFormat == SDImageFormatGIF) {
-                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                           if (animatedImage != nil) {
+                               weakSelf.animatedImage = animatedImage;
                                weakSelf.image = nil;
                            } else {
                                weakSelf.image = image;
