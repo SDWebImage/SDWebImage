@@ -52,19 +52,21 @@
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
+                           // This setImageBlock may not called from main queue
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                           FLAnimatedImage *animatedImage;
                            if (imageFormat == SDImageFormatGIF) {
-                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                                   dispatch_main_async_safe(^{
-                                       weakSelf.animatedImage = animatedImage;
-                                       weakSelf.image = nil;
-                                   });
-                               });
-                           } else {
-                               weakSelf.image = image;
-                               weakSelf.animatedImage = nil;
+                               animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
                            }
+                           dispatch_main_async_safe(^{
+                               if (animatedImage) {
+                                   weakSelf.animatedImage = animatedImage;
+                                   weakSelf.image = nil;
+                               } else {
+                                   weakSelf.image = image;
+                                   weakSelf.animatedImage = nil;
+                               }
+                           });
                        }
                             progress:progressBlock
                            completed:completedBlock];

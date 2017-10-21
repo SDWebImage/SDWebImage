@@ -13,6 +13,12 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
+#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
+#import <FLAnimatedImage/FLAnimatedImage.h>
+#else
+#import "FLAnimatedImage.h"
+#endif
+
 static char imageURLKey;
 
 #if SD_UIKIT
@@ -52,31 +58,57 @@ static char TAG_ACTIVITY_SHOW;
         
         __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+            // in fact, this completed block is **always** called from main queue. Maybe we should do some cleanup
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) {
                 return;
             }
-            dispatch_main_async_safe(^{
-                if (!sself) {
-                    return;
-                }
-                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock) {
-                    completedBlock(image, error, cacheType, url);
-                    return;
-                } else if (image) {
-                    [sself sd_setImage:image imageData:data basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                    [sself sd_setNeedsLayout];
-                } else {
-                    if ((options & SDWebImageDelayPlaceholder)) {
-                        [sself sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                        [sself sd_setNeedsLayout];
+            if ((image && (options & SDWebImageAvoidAutoSetImage)) || (!image && !(options & SDWebImageDelayPlaceholder))) {
+                dispatch_main_async_safe(^{
+                    if (completedBlock) {
+                        completedBlock(image, error, cacheType, url);
                     }
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
-                }
-            });
+                });
+                // no need to call setImageBlock and return
+                return;
+            }
+            
+            UIImage *targetImage;
+            NSData *targetData;
+            if (image) {
+                targetImage = image;
+                targetData = data;
+            } else if (options & SDWebImageDelayPlaceholder) {
+                targetImage = placeholder;
+                targetData = nil;
+            }
+            if ([sself isKindOfClass:[FLAnimatedImageView class]]) {
+                // performance enhancement for `FLAnimatedImage`
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    dispatch_main_async_safe(^{
+                        if (!sself) {
+                            return;
+                        }
+                        [sself sd_setNeedsLayout];
+                        if (completedBlock && finished) {
+                            completedBlock(image, error, cacheType, url);
+                        }
+                    });
+                });
+            } else {
+                dispatch_main_async_safe(^{
+                    if (!sself) {
+                        return;
+                    }
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setNeedsLayout];
+                    if (completedBlock && finished) {
+                        completedBlock(image, error, cacheType, url);
+                    }
+                });
+            }
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
