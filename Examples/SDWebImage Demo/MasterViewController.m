@@ -76,6 +76,7 @@
                     @"http://littlesvr.ca/apng/images/world-cup-2014-42.webp",
                     @"https://isparta.github.io/compare-webp/image/gif_webp/webp/2.webp",
                     @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png",
+                    @"http://via.placeholder.com/200x200.jpg",
                     nil];
 
         for (int i=0; i<100; i++) {
