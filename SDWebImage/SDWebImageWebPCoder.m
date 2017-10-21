@@ -207,7 +207,7 @@
         // Why to use last_y for image height is because of libwebp's bug (https://bugs.chromium.org/p/webp/issues/detail?id=362)
         // It will not keep memory barrier safe on x86 architechure (macOS & iPhone simulator) but on ARM architecture (iPhone & iPad & tv & watch) it works great
         // If different threads use WebPIDecGetRGB to grab rgba bitmap, it will contain the previous decoded bitmap data
-        // So this will cause our drawed image looks strange(above is the current part but below is the previous part)
+        // So this will cause our drawn image looks strange(above is the current part but below is the previous part)
         // We only grab the last_y height and draw the last_y heigh instead of total height image
         // Besides fix, this can enhance performance since we do not need to create extra bitmap
         CGImageRef imageRef = CGImageCreate(width, last_y, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
@@ -394,18 +394,20 @@
             return nil;
         }
         for (NSUInteger i = 0; i < images.count; i++) {
-            NSData *webpData = [self sd_encodedWebpDataWithImage:images[i]];
-            int duration = durations[i];
-            WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
-                .bitstream.size = webpData.length,
-                .duration = duration,
-                .id = WEBP_CHUNK_ANMF,
-                .dispose_method = WEBP_MUX_DISPOSE_BACKGROUND, // each frame will clear canvas
-                .blend_method = WEBP_MUX_NO_BLEND
-            };
-            if (WebPMuxPushFrame(mux, &frame, 0) != WEBP_MUX_OK) {
-                WebPMuxDelete(mux);
-                return nil;
+            @autoreleasepool {
+                NSData *webpData = [self sd_encodedWebpDataWithImage:images[i]];
+                int duration = durations[i];
+                WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
+                    .bitstream.size = webpData.length,
+                    .duration = duration,
+                    .id = WEBP_CHUNK_ANMF,
+                    .dispose_method = WEBP_MUX_DISPOSE_BACKGROUND, // each frame will clear canvas
+                    .blend_method = WEBP_MUX_NO_BLEND
+                };
+                if (WebPMuxPushFrame(mux, &frame, 0) != WEBP_MUX_OK) {
+                    WebPMuxDelete(mux);
+                    return nil;
+                }
             }
         }
         
