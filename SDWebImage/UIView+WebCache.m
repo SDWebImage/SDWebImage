@@ -65,13 +65,14 @@ static char TAG_ACTIVITY_SHOW;
             if (!sself) {
                 return;
             }
+            BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             if ((image && (options & SDWebImageAvoidAutoSetImage)) || (!image && !(options & SDWebImageDelayPlaceholder))) {
                 // no need to call setImageBlock and layout, then return
                 dispatch_main_async_safe(^{
                     if (!sself) {
                         return;
                     }
-                    if (completedBlock) {
+                    if (completedBlock && shouldCallCompletedBlock) {
                         completedBlock(image, error, cacheType, url);
                     }
                 });
@@ -102,7 +103,7 @@ static char TAG_ACTIVITY_SHOW;
                         return;
                     }
                     [sself sd_setNeedsLayout];
-                    if (completedBlock && finished) {
+                    if (completedBlock && shouldCallCompletedBlock) {
                         completedBlock(image, error, cacheType, url);
                     }
                 });
