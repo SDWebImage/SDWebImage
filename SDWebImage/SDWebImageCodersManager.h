@@ -11,13 +11,13 @@
 
 /**
  Global object holding the array of coders, so that we avoid passing them from object to object.
- Uses a priority queue behind scenes, which means the latest added coders have priority.
+ Uses a priority queue behind scenes, which means the latest added coders have the highest priority.
  This is done so when encoding/decoding something, we go through the list and ask each coder if they can handle the current data.
  That way, users can add their custom coders while preserving our existing prebuilt ones
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `WebPCoder`
+ - by default we internally set coders = `IOCoder`, `WebPCoder`. (`GIFCoder` is not recommended to add only if you want to get GIF support without `FLAnimatedImage`)
  - calling `coders` will return `@[WebPCoder, IOCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
  - calling `coders` now returns `@[MyCrazyCoder, WebPCoder, IOCoder]`

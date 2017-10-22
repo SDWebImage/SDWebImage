@@ -13,7 +13,8 @@
  Built in coder using ImageIO that supports GIF encoding/decoding
  @note `SDWebImageIOCoder` supports GIF but only as static (will use the 1st frame).
  @note Use `SDWebImageGIFCoder` for fully animated GIFs - less performant than `FLAnimatedImage`
- @note The recommended approach for animated GIFs is using `FLAnimatedImage`
+ @note If you decide to make all `UIImageView`(including `FLAnimatedImageView`) instance support GIF. You should add this coder to `SDWebImageCodersManager` and make sure that it has a higher priority than `SDWebImageIOCoder`
+ @note The recommended approach for animated GIFs is using `FLAnimatedImage`. It's more performant than `UIImageView` for GIF displaying
  */
 @interface SDWebImageGIFCoder : NSObject <SDWebImageCoder>
 

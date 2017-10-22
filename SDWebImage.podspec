@@ -47,6 +47,7 @@ Pod::Spec.new do |s|
     gif.dependency 'SDWebImage/Core'
     gif.dependency 'FLAnimatedImage', '~> 1.0'
     gif.xcconfig = {
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_GIF=1',
       'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/FLAnimatedImage/FLAnimatedImage'
     }
   end
