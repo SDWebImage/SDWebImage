@@ -52,19 +52,21 @@ static char TAG_ACTIVITY_SHOW;
         
         __weak __typeof(self)wself = self;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-            // in fact, this completed block is **always** called from main queue. Maybe we should do some cleanup
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) {
                 return;
             }
             if ((image && (options & SDWebImageAvoidAutoSetImage)) || (!image && !(options & SDWebImageDelayPlaceholder))) {
+                // no need to call setImageBlock and layout, then return
                 dispatch_main_async_safe(^{
+                    if (!sself) {
+                        return;
+                    }
                     if (completedBlock) {
                         completedBlock(image, error, cacheType, url);
                     }
                 });
-                // no need to call setImageBlock and return
                 return;
             }
             
@@ -77,32 +79,26 @@ static char TAG_ACTIVITY_SHOW;
                 targetImage = placeholder;
                 targetData = nil;
             }
+            dispatch_queue_t targetQueue;
             if ([sself isKindOfClass:NSClassFromString(@"FLAnimatedImageView")]) {
                 // performance enhancement for `FLAnimatedImage`
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                    dispatch_main_async_safe(^{
-                        if (!sself) {
-                            return;
-                        }
-                        [sself sd_setNeedsLayout];
-                        if (completedBlock && finished) {
-                            completedBlock(image, error, cacheType, url);
-                        }
-                    });
-                });
+                targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
             } else {
+                targetQueue = dispatch_get_main_queue();
+            }
+            
+            dispatch_async(targetQueue, ^{
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
                 dispatch_main_async_safe(^{
                     if (!sself) {
                         return;
                     }
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
                     [sself sd_setNeedsLayout];
                     if (completedBlock && finished) {
                         completedBlock(image, error, cacheType, url);
                     }
                 });
-            }
+            });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
