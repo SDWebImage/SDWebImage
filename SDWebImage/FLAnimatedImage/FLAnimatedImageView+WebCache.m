@@ -69,7 +69,8 @@
                            });
                        }
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:completedBlock
+                             context:@{SDWebImageInternalSetImageInGlobalQueueKey: @(YES)}];
 }
 
 @end

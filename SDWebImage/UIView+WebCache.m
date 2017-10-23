@@ -13,13 +13,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
-#ifdef SD_GIF
-#if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
-#import <FLAnimatedImage/FLAnimatedImage.h>
-#else
-#import "FLAnimatedImage.h"
-#endif
-#endif
+NSString * const SDWebImageInternalSetImageInGlobalQueueKey = @"setImageInGlobalQueue";
 
 static char imageURLKey;
 
@@ -42,6 +36,17 @@ static char TAG_ACTIVITY_SHOW;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock {
+    return [self sd_internalSetImageWithURL:url placeholderImage:placeholder options:options operationKey:operationKey setImageBlock:setImageBlock progress:progressBlock completed:completedBlock context:nil];
+}
+
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock
+                           context:(nullable NSDictionary *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -88,13 +93,11 @@ static char TAG_ACTIVITY_SHOW;
                 targetImage = placeholder;
                 targetData = nil;
             }
-            dispatch_queue_t targetQueue = dispatch_get_main_queue();
-#ifdef SD_GIF
-            if ([sself isKindOfClass:[FLAnimatedImageView class]]) {
-                // performance enhancement for `FLAnimatedImage`
-                targetQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+            BOOL shouldUseGlobalQueue = NO;
+            if (context && [context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey]) {
+                shouldUseGlobalQueue = [[context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey] boolValue];
             }
-#endif
+            dispatch_queue_t targetQueue = shouldUseGlobalQueue ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0) : dispatch_get_main_queue();
             
             dispatch_async(targetQueue, ^{
                 [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
