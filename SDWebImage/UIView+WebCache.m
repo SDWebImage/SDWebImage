@@ -68,6 +68,7 @@ static char TAG_ACTIVITY_SHOW;
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) { return; }
+            BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
             SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
@@ -75,7 +76,7 @@ static char TAG_ACTIVITY_SHOW;
                 if (!shouldNotSetImage) {
                     [sself sd_setNeedsLayout];
                 }
-                if (completedBlock && (shouldNotSetImage || finished)) {
+                if (completedBlock && shouldCallCompletedBlock) {
                     completedBlock(image, error, cacheType, url);
                 }
             };
