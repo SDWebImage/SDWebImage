@@ -213,7 +213,16 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!shouldScaleDown) {
         return [self sd_decompressedImageWithImage:image];
     } else {
-        return [self sd_decompressedAndScaledDownImageWithImage:image];
+        UIImage *scaledDownImage = [self sd_decompressedAndScaledDownImageWithImage:image];
+        if (scaledDownImage && !CGSizeEqualToSize(scaledDownImage.size, image.size)) {
+            // if the image is scaled down, need to modify the data pointer as well
+            SDImageFormat format = [NSData sd_imageFormatForImageData:*data];
+            NSData *imageData = [self encodedDataWithImage:scaledDownImage format:format];
+            if (imageData) {
+                *data = imageData;
+            }
+        }
+        return scaledDownImage;
     }
 #endif
 }
