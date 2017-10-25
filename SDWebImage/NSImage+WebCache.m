@@ -23,7 +23,18 @@
 }
 
 - (BOOL)isGIF {
-    return NO;
+    BOOL isGIF = NO;
+    for (NSImageRep *rep in self.representations) {
+        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
+            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
+            NSUInteger frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
+            if (frameCount > 1) {
+                isGIF = YES;
+                break;
+            }
+        }
+    }
+    return isGIF;
 }
 
 @end

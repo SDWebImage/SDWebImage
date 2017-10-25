@@ -1,3 +1,64 @@
+## [4.2.0 - Pluginable coders, on Oct XX, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
+See [all tickets marked for the 4.2.0 release](https://github.com/rs/SDWebImage/milestone/16)
+
+#### Features
+- Refactor decoding code and provide decoding plugin #1991
+- Welcome back our previous `UIImage+GIF` category for animated GIF! Not enabled by default. #2064
+- Add the animated GIF encoding support for `SDWebImageGIFCoder` on `macOS` (use `NSImage` API) #2067
+- Implemented `-[NSImage isGIF]` method to return whether current `NSImage` has GIF representation #2071
+- Allow user to provide reading options such as mapped file to improve performance in `SDImageCache` disk cache #2057
+- Add progressive image load for WebP images #1991 #1987 #1986
+- CI builds use Xcode 9
+- Fixed our tests and improved the code coverage #2068
+
+#### Fixes
+- Fixed lost orientation issues #1991 #2034 #2026 #1014 #1040 #815
+- Fixed `UIImage(GIF) sd_animatedGIFWithData` crash #1991 #1837
+- Fixed progressive WebP height issue #2066
+- Fixed `SDWebImageManager.m __destroy_helper_block_` crash #2048 #1941
+- Fixed cached image filename are sometimes generated with invalid path extensions #2061
+- Fixed GIF performance problem #1901 by creating `FLAnimatedImage` instance on global queue #2047
+
+#### Docs
+- Updated diagrams
+
+## [4.1.2 - 4.1 patch, on Oct 9th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.2)
+See [all tickets marked for the 4.1.2 release](https://github.com/rs/SDWebImage/milestone/17)
+
+#### Fixes
+
+- Fix `SDWebImageDownloaderOperation` not call `done` when use `SDWebImageDownloaderIgnoreCachedResponse` #2049
+- Static `WebP` decoding little enhancement. Do not need create `WebP` iterator for static images #2050
+- Change `finished` check from `equal` to `equal or greater than` to protect accident condition #2051
+
+## [4.1.1 - 4.1 patch, on Oct 6th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.1)
+See [all tickets marked for the 4.1.1 release](https://github.com/rs/SDWebImage/milestone/14)
+
+#### Fixes
+
+- Fixed crash on `[SDWebImageDownloaderOperation reset]_block_invoke` 2f892f9 fixes #1883
+- Fixed `SDWebImageDownloadOperation` `imageData` multi-thread issue #2011 fixes #1998 `[SDWebImageDownloaderOperation URLSession:dataTask:didReceiveData:]` crash
+- Fixed `CFRelease` on `NULL` if `CGImageSourceRef` create failed #1978 fixes #1968 #1834 #1947
+- Fixed request cache policy #1994 #2032 fixes #1993 #1861 #1623 was introduced by #1737 (unit test #2031)
+- Fixed `CGBitmapContextCreate` bitmap memory leak #1976 replaces #1860 fixes #1974
+- Fixed issue #2001, add `sd_currentBackgroundImageURL` and `sd_backgroundImageURLForState:` for `UIButton` #2002
+- Set `UIButton` placeholer-image even if the url is `nil` #2043 fixes #1721 #1964 replaces #1790
+- Use `CGImageSourceCreateIncremental` to perform progressive decoding instead of decode partial data each time from the beginning to improve performance and remove that gray background #2040 fixes #1899
+- Fix *SDWebImage v4* can not import *libwebp* framework's header files #1983 fixes #1887
+- Fix unreachable code build warning on `macOS` #1984
+
+#### Improvements
+
+- Performance enhancement related to single `WebP` and animated `WebP` decoding #1985 fixes #1999 #1885
+- Use `FOUNDATION_EXPORT` over `extern` #1977
+- Move common test logic to `SDTestCase` #1980
+- Enabled `CLANG_WARN_STRICT_PROTOTYPES` #1995 #2027 fixes #2022
+- Update `macOS Demo` deployment target to `10.10` to support build on `Xcode 9` #2035
+
+#### Docs
+
+- Updated *Manual Installation* section #2030 fixes #2012
+
 ## [4.1.0 - Swift API cleanup, on Jul 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.0)
 See [all tickets marked for the 4.1.0 release](https://github.com/rs/SDWebImage/milestone/13)
 

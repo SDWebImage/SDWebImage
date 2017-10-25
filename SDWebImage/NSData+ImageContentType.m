@@ -8,7 +8,11 @@
  */
 
 #import "NSData+ImageContentType.h"
-
+#if SD_MAC
+#import <CoreServices/CoreServices.h>
+#else
+#import <MobileCoreServices/MobileCoreServices.h>
+#endif
 
 @implementation NSData (ImageContentType)
 
@@ -41,6 +45,29 @@
             }
     }
     return SDImageFormatUndefined;
+}
+
++ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format {
+    CFStringRef UTType;
+    switch (format) {
+        case SDImageFormatJPEG:
+            UTType = kUTTypeJPEG;
+            break;
+        case SDImageFormatPNG:
+            UTType = kUTTypePNG;
+            break;
+        case SDImageFormatGIF:
+            UTType = kUTTypeGIF;
+            break;
+        case SDImageFormatTIFF:
+            UTType = kUTTypeTIFF;
+            break;
+        default:
+            // default is kUTTypePNG
+            UTType = kUTTypePNG;
+            break;
+    }
+    return UTType;
 }
 
 @end

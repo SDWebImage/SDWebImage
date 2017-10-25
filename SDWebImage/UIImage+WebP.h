@@ -19,8 +19,9 @@
  * Note that because of the limitations of categories this property can get out of sync
  * if you create another instance with CGImage or other methods.
  * @return WebP image loop count
+ * @deprecated use `sd_imageLoopCount` instead.
  */
-- (NSInteger)sd_webpLoopCount;
+- (NSInteger)sd_webpLoopCount __deprecated_msg("Method deprecated. Use `sd_imageLoopCount` in `UIImage+MultiFormat.h`");
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
 

@@ -23,7 +23,6 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
-     * I think this option should be renamed to 'SDWebImageDownloaderUsingCachedResponseDontLoad'
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     
@@ -114,12 +113,10 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  */
 @property (readonly, nonatomic) NSUInteger currentDownloadCount;
 
-
 /**
  *  The timeout value (in seconds) for the download operation. Default: 15.0.
  */
 @property (assign, nonatomic) NSTimeInterval downloadTimeout;
-
 
 /**
  * The configuration in use by the internal NSURLSession.

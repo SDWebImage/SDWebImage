@@ -30,4 +30,12 @@ typedef NS_ENUM(NSInteger, SDImageFormat) {
  */
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data;
 
+/**
+ Convert SDImageFormat to UTType
+
+ @param format Format as SDImageFormat
+ @return The UTType as CFStringRef
+ */
++ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format;
+
 @end

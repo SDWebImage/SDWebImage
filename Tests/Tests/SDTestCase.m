@@ -10,6 +10,8 @@
 #import "SDTestCase.h"
 
 const int64_t kAsyncTestTimeout = 5;
+NSString *const kTestJpegURL = @"http://via.placeholder.com/50x50.jpg";
+NSString *const kTestPNGURL = @"http://via.placeholder.com/50x50.png";
 
 @implementation SDTestCase
 
