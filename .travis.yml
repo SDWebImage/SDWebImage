@@ -30,6 +30,12 @@ script:
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS static' -sdk watchsimulator -configuration Debug | xcpretty -c
 
+    - echo Build as dynamic core framework
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Core OSX' -sdk macosx -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Core iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Core tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Core watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
+
     - echo Build as dynamic framework
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
