@@ -13,6 +13,8 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
+NSString * const SDWebImageInternalSetImageInGlobalQueueKey = @"setImageInGlobalQueue";
+
 static char imageURLKey;
 
 #if SD_UIKIT
@@ -34,6 +36,17 @@ static char TAG_ACTIVITY_SHOW;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock {
+    return [self sd_internalSetImageWithURL:url placeholderImage:placeholder options:options operationKey:operationKey setImageBlock:setImageBlock progress:progressBlock completed:completedBlock context:nil];
+}
+
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock
+                           context:(nullable NSDictionary *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -54,28 +67,48 @@ static char TAG_ACTIVITY_SHOW;
         id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
-            if (!sself) {
+            if (!sself) { return; }
+            BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
+            BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
+                                      (!image && !(options & SDWebImageDelayPlaceholder)));
+            SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
+                if (!sself) { return; }
+                if (!shouldNotSetImage) {
+                    [sself sd_setNeedsLayout];
+                }
+                if (completedBlock && shouldCallCompletedBlock) {
+                    completedBlock(image, error, cacheType, url);
+                }
+            };
+            
+            // case 1a: we got an image, but the SDWebImageAvoidAutoSetImage flag is set
+            // OR
+            // case 1b: we got no image and the SDWebImageDelayPlaceholder is not set
+            if (shouldNotSetImage) {
+                dispatch_main_async_safe(callCompletedBlockClojure);
                 return;
             }
-            dispatch_main_async_safe(^{
-                if (!sself) {
-                    return;
-                }
-                if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock) {
-                    completedBlock(image, error, cacheType, url);
-                    return;
-                } else if (image) {
-                    [sself sd_setImage:image imageData:data basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                    [sself sd_setNeedsLayout];
-                } else {
-                    if ((options & SDWebImageDelayPlaceholder)) {
-                        [sself sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                        [sself sd_setNeedsLayout];
-                    }
-                }
-                if (completedBlock && finished) {
-                    completedBlock(image, error, cacheType, url);
-                }
+            
+            UIImage *targetImage = nil;
+            NSData *targetData = nil;
+            if (image) {
+                // case 2a: we got an image and the SDWebImageAvoidAutoSetImage is not set
+                targetImage = image;
+                targetData = data;
+            } else if (options & SDWebImageDelayPlaceholder) {
+                // case 2b: we got no image and the SDWebImageDelayPlaceholder flag is set
+                targetImage = placeholder;
+                targetData = nil;
+            }
+            BOOL shouldUseGlobalQueue = NO;
+            if (context && [context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey]) {
+                shouldUseGlobalQueue = [[context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey] boolValue];
+            }
+            dispatch_queue_t targetQueue = shouldUseGlobalQueue ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0) : dispatch_get_main_queue();
+            
+            dispatch_async(targetQueue, ^{
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                dispatch_main_async_safe(callCompletedBlockClojure);
             });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
