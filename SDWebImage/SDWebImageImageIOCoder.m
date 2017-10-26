@@ -397,6 +397,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // Do not support WebP encoding
         case SDImageFormatWebP:
             return NO;
+        case SDImageFormatHEIC:
+            return [[self class] canEncodeToHEICFormat];
         default:
             return YES;
     }
@@ -467,6 +469,28 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     return YES;
+}
+
++ (BOOL)canEncodeToHEICFormat
+{
+    static BOOL canEncode = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableData *imageData = [NSMutableData data];
+        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIC];
+        
+        // Create an image destination.
+        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
+        if (!imageDestination) {
+            // Can encode to HEIC
+            canEncode = NO;
+        } else {
+            // Can't encode to HEIF
+            CFRelease(imageDestination);
+            canEncode = YES;
+        }
+    });
+    return canEncode;
 }
 
 #if SD_UIKIT || SD_WATCH
