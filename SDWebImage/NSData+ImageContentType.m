@@ -21,6 +21,7 @@
         return SDImageFormatUndefined;
     }
     
+    // File signatures table: http://www.garykessler.net/library/file_sigs.html
     uint8_t c;
     [data getBytes:&c length:1];
     switch (c) {
@@ -33,16 +34,26 @@
         case 0x49:
         case 0x4D:
             return SDImageFormatTIFF;
-        case 0x52:
-            // R as RIFF for WEBP
-            if (data.length < 12) {
-                return SDImageFormatUndefined;
+        case 0x52: {
+            if (data.length >= 12) {
+                //RIFF....WEBP
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
+                if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
+                    return SDImageFormatWebP;
+                }
             }
-            
-            NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
-            if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
-                return SDImageFormatWebP;
+            break;
+        }
+        case 0x00: {
+            if (data.length >= 12) {
+                //....ftypheic
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(4, 8)] encoding:NSASCIIStringEncoding];
+                if ([testString hasPrefix:@"ftyp"] && [testString hasSuffix:@"heic"]) {
+                    return SDImageFormatHEIC;
+                }
             }
+            break;
+        }
     }
     return SDImageFormatUndefined;
 }
