@@ -66,8 +66,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #pragma mark - Decode
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
-        // Do not support WebP decoding
         case SDImageFormatWebP:
+            // Do not support WebP decoding
             return NO;
         default:
             return YES;
@@ -76,8 +76,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 
 - (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
-        // Support static GIF progressive decoding
         case SDImageFormatWebP:
+            // Do not support WebP progressive decoding
             return NO;
         default:
             return YES;
@@ -394,10 +394,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #pragma mark - Encode
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     switch (format) {
-        // Do not support WebP encoding
         case SDImageFormatWebP:
+            // Do not support WebP encoding
             return NO;
         case SDImageFormatHEIC:
+            // Check HEIC encoding compatibility
             return [[self class] canEncodeToHEICFormat];
         default:
             return YES;
@@ -482,10 +483,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // Create an image destination.
         CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
         if (!imageDestination) {
-            // Can encode to HEIC
+            // Can't encode to HEIC
             canEncode = NO;
         } else {
-            // Can't encode to HEIF
+            // Can encode to HEIC
             CFRelease(imageDestination);
             canEncode = YES;
         }
