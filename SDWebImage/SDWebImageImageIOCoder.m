@@ -472,8 +472,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return YES;
 }
 
-+ (BOOL)canEncodeToHEICFormat
-{
++ (BOOL)canEncodeToHEICFormat {
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
