@@ -3,6 +3,7 @@ See [all tickets marked for the 4.2.0 release](https://github.com/rs/SDWebImage/
 
 #### Features
 - Refactor decoding code and provide decoding plugin #1991
+- HEIC format support #2080 #1853 #2038
 - Welcome back our previous `UIImage+GIF` category for animated GIF! Not enabled by default. #2064
 - Add the animated GIF encoding support for `SDWebImageGIFCoder` on `macOS` (use `NSImage` API) #2067
 - Implemented `-[NSImage isGIF]` method to return whether current `NSImage` has GIF representation #2071
