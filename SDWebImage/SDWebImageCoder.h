@@ -33,10 +33,12 @@ CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
 
 /**
  This is the image coder protocol to provide custom image decoding/encoding.
+ These methods are all required to implement.
  @note Pay attention that these methods are not called from main queue.
  */
 @protocol SDWebImageCoder <NSObject>
 
+@required
 #pragma mark - Decoding
 /**
  Returns YES if this coder can decode some data. Otherwise, the data should be passed to another coder.
@@ -90,10 +92,12 @@ CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
 
 /**
  This is the image coder protocol to provide custom progressive image decoding.
+ These methods are all required to implement.
  @note Pay attention that these methods are not called from main queue.
  */
 @protocol SDWebImageProgressiveCoder <SDWebImageCoder>
 
+@required
 /**
  Returns YES if this coder can incremental decode some data. Otherwise, it should be passed to another coder.
  

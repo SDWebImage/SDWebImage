@@ -1,3 +1,28 @@
+## [4.2.0 - Pluginable coders, on Oct XX, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
+See [all tickets marked for the 4.2.0 release](https://github.com/rs/SDWebImage/milestone/16)
+
+#### Features
+- Refactor decoding code and provide decoding plugin #1991
+- HEIC format support #2080 #1853 #2038
+- Welcome back our previous `UIImage+GIF` category for animated GIF! Not enabled by default. #2064
+- Add the animated GIF encoding support for `SDWebImageGIFCoder` on `macOS` (use `NSImage` API) #2067
+- Implemented `-[NSImage isGIF]` method to return whether current `NSImage` has GIF representation #2071
+- Allow user to provide reading options such as mapped file to improve performance in `SDImageCache` disk cache #2057
+- Add progressive image load for WebP images #1991 #1987 #1986
+- CI builds use Xcode 9
+- Fixed our tests and improved the code coverage #2068
+
+#### Fixes
+- Fixed lost orientation issues #1991 #2034 #2026 #1014 #1040 #815
+- Fixed `UIImage(GIF) sd_animatedGIFWithData` crash #1991 #1837
+- Fixed progressive WebP height issue #2066
+- Fixed `SDWebImageManager.m __destroy_helper_block_` crash #2048 #1941
+- Fixed cached image filename are sometimes generated with invalid path extensions #2061
+- Fixed GIF performance problem #1901 by creating `FLAnimatedImage` instance on global queue #2047
+
+#### Docs
+- Updated diagrams
+
 ## [4.1.2 - 4.1 patch, on Oct 9th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.1.2)
 See [all tickets marked for the 4.1.2 release](https://github.com/rs/SDWebImage/milestone/17)
 

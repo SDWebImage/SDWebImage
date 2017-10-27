@@ -218,6 +218,19 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test34CachePathForSimpleKeyWithExtension {
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestJpegURL inPath:@""];
+    expect(cachePath).toNot.beNil();
+    expect([cachePath pathExtension]).to.equal(@"jpg");
+}
+
+- (void)test35CachePathForKeyWithDotButNoExtension {
+    NSString *urlString = @"https://maps.googleapis.com/maps/api/staticmap?center=48.8566,2.3522&format=png&maptype=roadmap&scale=2&size=375x200&zoom=15";
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:urlString inPath:@""];
+    expect(cachePath).toNot.beNil();
+    expect([cachePath pathExtension]).to.equal(@"");
+}
+
 - (void)test40InsertionOfImageData {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Insertion of image data works"];
     
