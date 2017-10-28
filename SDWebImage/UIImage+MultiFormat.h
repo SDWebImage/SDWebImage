@@ -11,7 +11,7 @@
 
 @interface UIImage (MultiFormat)
 
-
+#if SD_UIKIT || SD_WATCH
 /**
  * For static image format, this value is always 0.
  * For animated image format, 0 means infinite looping.
@@ -19,6 +19,7 @@
  * if you create another instance with CGImage or other methods.
  */
 @property (nonatomic, assign) NSUInteger sd_imageLoopCount;
+#endif
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
 - (nullable NSData *)sd_imageData;

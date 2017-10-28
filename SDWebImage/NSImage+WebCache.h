@@ -14,6 +14,13 @@
 
 @interface NSImage (WebCache)
 
+/**
+ NSImage currently only support animated via GIF imageRep unlike UIImage.
+ The getter of this property will get the loop count from GIF imageRep
+ The setter of this property will set the loop count from GIF imageRep
+ */
+@property (nonatomic, assign) NSUInteger sd_imageLoopCount;
+
 - (CGImageRef)CGImage;
 - (NSArray<NSImage *> *)images;
 - (BOOL)isGIF;

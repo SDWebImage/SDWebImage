@@ -13,6 +13,7 @@
 
 @implementation UIImage (MultiFormat)
 
+#if SD_UIKIT || SD_WATCH
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageLoopCount));
@@ -26,6 +27,7 @@
     NSNumber *value = @(sd_imageLoopCount);
     objc_setAssociatedObject(self, @selector(sd_imageLoopCount), value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+#endif
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
     return [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
