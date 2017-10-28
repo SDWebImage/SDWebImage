@@ -1,10 +1,10 @@
-//
-//  SDWebImageFrame.m
-//  SDWebImage
-//
-//  Created by lizhuoli on 2017/10/28.
-//  Copyright © 2017年 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "SDWebImageFrame.h"
 
