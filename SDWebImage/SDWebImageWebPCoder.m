@@ -118,13 +118,7 @@
     
     do {
         @autoreleasepool {
-            UIImage *image;
-            if (iter.blend_method == WEBP_MUX_BLEND) {
-                image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
-            } else {
-                image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
-            }
-            
+            UIImage *image = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter];
             if (!image) {
                 continue;
             }
@@ -235,7 +229,7 @@
     return image;
 }
 
-- (nullable UIImage *)sd_blendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
+- (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
     UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
     if (!image) {
         return nil;
@@ -247,39 +241,12 @@
     CGFloat tmpX = iter.x_offset;
     CGFloat tmpY = size.height - iter.height - iter.y_offset;
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    BOOL shouldBlend = iter.blend_method == WEBP_MUX_BLEND;
     
-    CGContextDrawImage(canvas, imageRect, image.CGImage);
-    CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
-    
-#if SD_UIKIT || SD_WATCH
-    image = [UIImage imageWithCGImage:newImageRef];
-#elif SD_MAC
-    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-    
-    CGImageRelease(newImageRef);
-    
-    if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
+    // If not blend, cover the target image rect. (firstly clear then draw)
+    if (!shouldBlend) {
         CGContextClearRect(canvas, imageRect);
     }
-    
-    return image;
-}
-
-- (nullable UIImage *)sd_nonblendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
-    if (!image) {
-        return nil;
-    }
-    
-    size_t canvasWidth = CGBitmapContextGetWidth(canvas);
-    size_t canvasHeight = CGBitmapContextGetHeight(canvas);
-    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
-    CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
-    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
-    
-    CGContextClearRect(canvas, imageRect);
     CGContextDrawImage(canvas, imageRect, image.CGImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
     

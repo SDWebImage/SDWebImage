@@ -57,6 +57,7 @@
     [frames enumerateObjectsUsingBlock:^(SDWebImageFrame * _Nonnull frame, NSUInteger idx, BOOL * _Nonnull stop) {
         UIImage *image = frame.image;
         NSUInteger duration = frame.duration;
+        totalDuration += duration;
         NSUInteger repeatCount;
         if (gcd) {
             repeatCount = duration / gcd;
@@ -64,7 +65,6 @@
             repeatCount = 1;
         }
         for (size_t i = 0; i < repeatCount; ++i) {
-            totalDuration += duration;
             [animatedImages addObject:image];
         }
     }];
