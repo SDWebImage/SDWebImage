@@ -13,6 +13,7 @@
 #import "UIImage+MultiFormat.h"
 #import "NSData+ImageContentType.h"
 #import <ImageIO/ImageIO.h>
+#import "SDWebPImage.h"
 #if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
 #import <webp/decode.h>
 #import <webp/encode.h>
@@ -54,11 +55,11 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data {
+- (SDWebPImage *)webPimageWithData:(NSData *)data {
     if (!data) {
         return nil;
     }
-    
+
     WebPData webpData;
     WebPDataInit(&webpData);
     webpData.bytes = data.bytes;
@@ -67,7 +68,7 @@
     if (!demuxer) {
         return nil;
     }
-    
+
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
 #if SD_UIKIT || SD_WATCH
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
@@ -86,7 +87,131 @@
         WebPDemuxDelete(demuxer);
         return nil;
     }
-    
+
+    if (!(flags & ANIMATION_FLAG)) {
+        // for static single webp image
+        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
+        if (staticImage) {
+            // draw on CGBitmapContext can reduce memory usage
+            CGImageRef imageRef = staticImage.CGImage;
+            size_t width = CGImageGetWidth(imageRef);
+            size_t height = CGImageGetHeight(imageRef);
+            CGContextDrawImage(canvas, CGRectMake(0, 0, width, height), imageRef);
+            CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
+#if SD_UIKIT || SD_WATCH
+            staticImage = [[UIImage alloc] initWithCGImage:newImageRef];
+#else
+            staticImage = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#endif
+            CGImageRelease(newImageRef);
+        }
+        WebPDemuxDelete(demuxer);
+        CGContextRelease(canvas);
+        return staticImage ? [[SDWebPImage alloc] initWithImages:@[staticImage] durations:@[@(CGFLOAT_MAX)] loopCount:loopCount] : nil;
+    }
+
+    // for animated webp image
+    WebPIterator iter;
+    if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
+        WebPDemuxReleaseIterator(&iter);
+        WebPDemuxDelete(demuxer);
+        CGContextRelease(canvas);
+        return nil;
+    }
+
+    NSMutableArray<UIImage *> *images = [NSMutableArray array];
+#if SD_UIKIT || SD_WATCH
+    NSTimeInterval totalDuration = 0;
+    int durations[frameCount];
+#endif
+
+    do {
+        @autoreleasepool {
+            UIImage *image;
+            if (iter.blend_method == WEBP_MUX_BLEND) {
+                image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
+            } else {
+                image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
+            }
+
+            if (!image) {
+                continue;
+            }
+
+            [images addObject:image];
+
+#if SD_MAC
+            break;
+#else
+
+            int duration = iter.duration;
+            if (duration <= 10) {
+                // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
+                // Some animated WebP images also created without duration, we should keep compatibility
+                duration = 100;
+            }
+            totalDuration += duration;
+            size_t count = images.count;
+            durations[count - 1] = duration;
+#endif
+        }
+
+    } while (WebPDemuxNextFrame(&iter));
+
+    WebPDemuxReleaseIterator(&iter);
+    WebPDemuxDelete(demuxer);
+    CGContextRelease(canvas);
+
+    UIImage *finalImage = nil;
+#if SD_UIKIT || SD_WATCH
+
+    NSMutableArray *objcDurations = [[NSMutableArray alloc] initWithCapacity:frameCount];
+    for (int i = 0; i < frameCount; i++) {
+        [objcDurations addObject:@(durations[i])];
+    }
+
+    return [[SDWebPImage alloc] initWithImages:images durations:objcDurations loopCount:loopCount];
+
+#elif SD_MAC
+    finalImage = images.firstObject;
+#endif
+
+    return [[SDWebPImage alloc] initWithImages:@[finalImage] durations:@[@(CGFLOAT_MAX)] loopCount:0];
+}
+
+- (UIImage *)decodedImageWithData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+
+    WebPData webpData;
+    WebPDataInit(&webpData);
+    webpData.bytes = data.bytes;
+    webpData.size = data.length;
+    WebPDemuxer *demuxer = WebPDemux(&webpData);
+    if (!demuxer) {
+        return nil;
+    }
+
+    uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
+#if SD_UIKIT || SD_WATCH
+    int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
+    int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
+#endif
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    CGBitmapInfo bitmapInfo;
+    if (!(flags & ALPHA_FLAG)) {
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
+    } else {
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    }
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+    if (!canvas) {
+        WebPDemuxDelete(demuxer);
+        return nil;
+    }
+
     if (!(flags & ANIMATION_FLAG)) {
         // for static single webp image
         UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
@@ -108,7 +233,7 @@
         CGContextRelease(canvas);
         return staticImage;
     }
-    
+
     // for animated webp image
     WebPIterator iter;
     if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
@@ -117,13 +242,13 @@
         CGContextRelease(canvas);
         return nil;
     }
-    
+
     NSMutableArray<UIImage *> *images = [NSMutableArray array];
 #if SD_UIKIT || SD_WATCH
     NSTimeInterval totalDuration = 0;
     int durations[frameCount];
 #endif
-    
+
     do {
         @autoreleasepool {
             UIImage *image;
@@ -132,17 +257,17 @@
             } else {
                 image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
             }
-            
+
             if (!image) {
                 continue;
             }
-            
+
             [images addObject:image];
-            
+
 #if SD_MAC
             break;
 #else
-            
+
             int duration = iter.duration;
             if (duration <= 10) {
                 // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
@@ -154,13 +279,13 @@
             durations[count - 1] = duration;
 #endif
         }
-        
+
     } while (WebPDemuxNextFrame(&iter));
-    
+
     WebPDemuxReleaseIterator(&iter);
     WebPDemuxDelete(demuxer);
     CGContextRelease(canvas);
-    
+
     UIImage *finalImage = nil;
 #if SD_UIKIT || SD_WATCH
     NSArray<UIImage *> *animatedImages = [self sd_animatedImagesWithImages:images durations:durations totalDuration:totalDuration];
@@ -172,6 +297,7 @@
     finalImage = images.firstObject;
 #endif
     return finalImage;
+
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
@@ -482,7 +608,7 @@
     if (count == 1) {
         return images;
     }
-    
+
     int const gcd = gcdArray(count, durations);
     NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:count];
     [images enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
