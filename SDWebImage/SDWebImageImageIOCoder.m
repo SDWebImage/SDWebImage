@@ -519,30 +519,31 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 
 // Convert an EXIF image orientation to an iOS one.
 + (UIImageOrientation)sd_imageOrientationFromEXIFOrientation:(NSInteger)exifOrientation {
+    // CGImagePropertyOrientation is available on iOS 8 above. Currently kept for compatibility
     UIImageOrientation imageOrientation = UIImageOrientationUp;
     switch (exifOrientation) {
-        case kCGImagePropertyOrientationUp:
+        case 1:
             imageOrientation = UIImageOrientationUp;
             break;
-        case kCGImagePropertyOrientationDown:
+        case 3:
             imageOrientation = UIImageOrientationDown;
             break;
-        case kCGImagePropertyOrientationLeft:
+        case 8:
             imageOrientation = UIImageOrientationLeft;
             break;
-        case kCGImagePropertyOrientationRight:
+        case 6:
             imageOrientation = UIImageOrientationRight;
             break;
-        case kCGImagePropertyOrientationUpMirrored:
+        case 2:
             imageOrientation = UIImageOrientationUpMirrored;
             break;
-        case kCGImagePropertyOrientationDownMirrored:
+        case 4:
             imageOrientation = UIImageOrientationDownMirrored;
             break;
-        case kCGImagePropertyOrientationLeftMirrored:
+        case 5:
             imageOrientation = UIImageOrientationLeftMirrored;
             break;
-        case kCGImagePropertyOrientationRightMirrored:
+        case 7:
             imageOrientation = UIImageOrientationRightMirrored;
             break;
         default:
@@ -553,31 +554,32 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 
 // Convert an iOS orientation to an EXIF image orientation.
 + (NSInteger)sd_exifOrientationFromImageOrientation:(UIImageOrientation)imageOrientation {
-    NSInteger exifOrientation = kCGImagePropertyOrientationUp;
+    // CGImagePropertyOrientation is available on iOS 8 above. Currently kept for compatibility
+    NSInteger exifOrientation = 1;
     switch (imageOrientation) {
         case UIImageOrientationUp:
-            exifOrientation = kCGImagePropertyOrientationUp;
+            exifOrientation = 1;
             break;
         case UIImageOrientationDown:
-            exifOrientation = kCGImagePropertyOrientationDown;
+            exifOrientation = 3;
             break;
         case UIImageOrientationLeft:
-            exifOrientation = kCGImagePropertyOrientationLeft;
+            exifOrientation = 8;
             break;
         case UIImageOrientationRight:
-            exifOrientation = kCGImagePropertyOrientationRight;
+            exifOrientation = 6;
             break;
         case UIImageOrientationUpMirrored:
-            exifOrientation = kCGImagePropertyOrientationUpMirrored;
+            exifOrientation = 2;
             break;
         case UIImageOrientationDownMirrored:
-            exifOrientation = kCGImagePropertyOrientationDownMirrored;
+            exifOrientation = 4;
             break;
         case UIImageOrientationLeftMirrored:
-            exifOrientation = kCGImagePropertyOrientationLeftMirrored;
+            exifOrientation = 5;
             break;
         case UIImageOrientationRightMirrored:
-            exifOrientation = kCGImagePropertyOrientationRightMirrored;
+            exifOrientation = 7;
             break;
         default:
             break;
