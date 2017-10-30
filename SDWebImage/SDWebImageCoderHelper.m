@@ -34,17 +34,13 @@
     return hasAlpha;
 }
 
-+ (UIImage *)animatedImageWithFrames:(NSArray<SDWebImageFrame *> *)frames properties:(NSDictionary *)properties {
++ (UIImage *)animatedImageWithFrames:(NSArray<SDWebImageFrame *> *)frames {
     NSUInteger frameCount = frames.count;
     if (frameCount == 0) {
         return nil;
     }
     
     UIImage *animatedImage;
-    NSUInteger loopCount = 0;
-    if ([properties objectForKey:SDWebImageFrameLoopCountKey]) {
-        loopCount = [[properties objectForKey:SDWebImageFrameLoopCountKey] unsignedIntegerValue];
-    }
     
 #if SD_UIKIT || SD_WATCH
     NSUInteger durations[frameCount];
@@ -81,8 +77,7 @@
         // Handle failure.
         return nil;
     }
-    NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary: @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)}};
-    CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)gifProperties);
+    
     for (size_t i = 0; i < frameCount; i++) {
         @autoreleasepool {
             SDWebImageFrame *frame = frames[i];
@@ -101,8 +96,6 @@
     CFRelease(imageDestination);
     animatedImage = [[NSImage alloc] initWithData:imageData];
 #endif
-    
-    animatedImage.sd_imageLoopCount = loopCount;
     
     return animatedImage;
 }
@@ -138,7 +131,7 @@
         if ([image isEqual:previousImage]) {
             repeatCount++;
         } else {
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount property:nil];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
             [frames addObject:frame];
             repeatCount = 1;
             index++;
@@ -146,7 +139,7 @@
         previousImage = image;
         // last one
         if (idx == frameCount - 1) {
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount property:nil];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
             [frames addObject:frame];
         }
     }];
@@ -174,7 +167,7 @@
             [bitmapRep setProperty:NSImageCurrentFrame withValue:@(i)];
             float frameDuration = [[bitmapRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
             NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapRep.CGImage size:CGSizeZero];
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration * 1000 property:nil];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration * 1000];
             [frames addObject:frame];
         }
     }

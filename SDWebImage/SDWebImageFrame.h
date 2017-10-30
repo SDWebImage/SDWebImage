@@ -9,12 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
-/**
- A NSUInteger value represent the loop count of an animated image. 0 means infinite looping (NSNumber)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageFrameLoopCountKey;
-
 @interface SDWebImageFrame : NSObject
+
+// This class is used for creating animated images via `animatedImageWithFrames` in `SDWebImageCoderHelper`. Attension if you need animated images loop count, use `sd_imageLoopCount` property in `UIImage+MultiFormat`
 
 /**
  The image of current frame. You should not set an animated image.
@@ -24,19 +21,14 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageFrameLoopCountKey;
  The duration of current frame to be displayed. The number is milliseconds but not seconds to avoid losing precision. You should not set this to zero.
  */
 @property (nonatomic, readonly, assign) NSUInteger duration;
-/**
- The property of current frame. You can provide extra information here for current frame decoding/encoding such as scale, rotation, tag, etc.
- */
-@property (nonatomic, assign, readonly, nullable) NSDictionary *property;
 
 /**
- Create a frame instance with specify image, duration and optional property
+ Create a frame instance with specify image and duration
 
  @param image current frame's image
  @param duration current frame's duration
- @param property current frame's property
  @return frame instance
  */
-+ (instancetype _Nonnull)frameWithImage:(UIImage * _Nonnull)image duration:(NSUInteger)duration property:(NSDictionary * _Nullable)property;
++ (instancetype _Nonnull)frameWithImage:(UIImage * _Nonnull)image duration:(NSUInteger)duration;
 
 @end

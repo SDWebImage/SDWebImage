@@ -33,10 +33,9 @@
  For AppKit, NSImage does not support animates other than GIF. This will try to encode the frames to GIF format and then create an animated NSImage for rendering.
 
  @param frames The frames array. If no frames or frames is empty, return nil
- @param properties Image Properties. It contains information like loop count, see `SDWebImageFrameLoopCountKey`
  @return A animated image for rendering on UIImageView(UIKit) or NSImageView(AppKit)
  */
-+ (UIImage * _Nullable)animatedImageWithFrames:(NSArray<SDWebImageFrame *> * _Nullable)frames properties:(NSDictionary * _Nullable)properties;
++ (UIImage * _Nullable)animatedImageWithFrames:(NSArray<SDWebImageFrame *> * _Nullable)frames;
 
 /**
  Return frames array from an animated image.

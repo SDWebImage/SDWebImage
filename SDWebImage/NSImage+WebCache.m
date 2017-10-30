@@ -12,28 +12,6 @@
 
 @implementation NSImage (WebCache)
 
-- (NSUInteger)sd_imageLoopCount {
-    NSUInteger imageLoopCount = 0;
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            imageLoopCount = [[bitmapRep valueForProperty:NSImageLoopCount] unsignedIntegerValue];
-            break;
-        }
-    }
-    return imageLoopCount;
-}
-
-- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            [bitmapRep setProperty:NSImageLoopCount withValue:@(sd_imageLoopCount)];
-            break;
-        }
-    }
-}
-
 - (CGImageRef)CGImage {
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
     CGImageRef cgImage = [self CGImageForProposedRect:&imageRect context:NULL hints:nil];

@@ -68,7 +68,7 @@
             UIImage *image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration * 1000 property:nil];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration * 1000];
             [frames addObject:frame];
         }
         
@@ -82,7 +82,8 @@
             }
         }
         
-        animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames properties:@{SDWebImageFrameLoopCountKey: @(loopCount)}];
+        animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+        animatedImage.sd_imageLoopCount = loopCount;
     }
     
     CFRelease(source);

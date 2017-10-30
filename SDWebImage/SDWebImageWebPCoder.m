@@ -129,7 +129,7 @@
                 // Some animated WebP images also created without duration, we should keep compatibility
                 duration = 100;
             }
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration property:nil];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
@@ -139,9 +139,10 @@
     WebPDemuxDelete(demuxer);
     CGContextRelease(canvas);
     
-    UIImage *finalImage = [SDWebImageCoderHelper animatedImageWithFrames:frames properties:@{SDWebImageFrameLoopCountKey: @(loopCount)}];
+    UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+    animatedImage.sd_imageLoopCount = loopCount;
     
-    return finalImage;
+    return animatedImage;
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {

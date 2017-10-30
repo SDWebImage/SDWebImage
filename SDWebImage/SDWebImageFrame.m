@@ -8,23 +8,19 @@
 
 #import "SDWebImageFrame.h"
 
-NSString * _Nonnull const SDWebImageFrameLoopCountKey = @"loopCount";
-
 @interface SDWebImageFrame ()
 
 @property (nonatomic, strong, readwrite, nonnull) UIImage *image;
 @property (nonatomic, readwrite, assign) NSUInteger duration;
-@property (nonatomic, assign, readwrite, nullable) NSDictionary *property;
 
 @end
 
 @implementation SDWebImageFrame
 
-+ (instancetype)frameWithImage:(UIImage *)image duration:(NSUInteger)duration property:(NSDictionary *)property {
++ (instancetype)frameWithImage:(UIImage *)image duration:(NSUInteger)duration {
     SDWebImageFrame *frame = [[SDWebImageFrame alloc] init];
     frame.image = image;
     frame.duration = duration;
-    frame.property = property;
     
     return frame;
 }
