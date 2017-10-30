@@ -26,7 +26,7 @@
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
 
-- (nullable SDWebPImage *)webPimageWithData:(nullable NSData *)data;
++ (nullable SDWebPImage *)webPimageWithData:(nullable NSData *)data;
 
 @end
 
