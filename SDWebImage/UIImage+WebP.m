@@ -25,6 +25,14 @@
     return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data];
 }
 
++ (nullable SDWebPImage *)webPimageWithData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+
+    return [[SDWebImageWebPCoder sharedCoder] webPimageWithData:data];
+}
+
 @end
 
 #endif

@@ -9,6 +9,7 @@
 #ifdef SD_WEBP
 
 #import "SDWebImageCompat.h"
+#import "SDWebPImage.h"
 
 @interface UIImage (WebP)
 
@@ -24,6 +25,8 @@
 - (NSInteger)sd_webpLoopCount __deprecated_msg("Method deprecated. Use `sd_imageLoopCount` in `UIImage+MultiFormat.h`");
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
+
++ (nullable SDWebPImage *)webPimageWithData:(nullable NSData *)data;
 
 @end
 
