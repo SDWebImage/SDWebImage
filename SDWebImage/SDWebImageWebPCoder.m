@@ -129,7 +129,7 @@
                 // Some animated WebP images also created without duration, we should keep compatibility
                 duration = 100;
             }
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration / 1000.f];
             [frames addObject:frame];
         }
         
@@ -337,7 +337,7 @@
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *currentFrame = frames[i];
             NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image];
-            int duration = (int)currentFrame.duration;
+            int duration = currentFrame.duration * 1000;
             WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
                 .bitstream.size = webpData.length,
                 .duration = duration,

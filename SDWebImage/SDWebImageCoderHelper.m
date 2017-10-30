@@ -45,14 +45,14 @@
 #if SD_UIKIT || SD_WATCH
     NSUInteger durations[frameCount];
     for (size_t i = 0; i < frameCount; i++) {
-        durations[i] = frames[i].duration;
+        durations[i] = frames[i].duration * 1000;
     }
     NSUInteger const gcd = gcdArray(frameCount, durations);
     __block NSUInteger totalDuration = 0;
     NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:frameCount];
     [frames enumerateObjectsUsingBlock:^(SDWebImageFrame * _Nonnull frame, NSUInteger idx, BOOL * _Nonnull stop) {
         UIImage *image = frame.image;
-        NSUInteger duration = frame.duration;
+        NSUInteger duration = frame.duration * 1000;
         totalDuration += duration;
         NSUInteger repeatCount;
         if (gcd) {
@@ -81,7 +81,7 @@
     for (size_t i = 0; i < frameCount; i++) {
         @autoreleasepool {
             SDWebImageFrame *frame = frames[i];
-            float frameDuration = frame.duration / 1000.f;
+            float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
@@ -115,9 +115,9 @@
         return nil;
     }
     
-    NSUInteger avgDuration = animatedImage.duration * 1000 / frameCount;
+    NSTimeInterval avgDuration = animatedImage.duration / frameCount;
     if (avgDuration == 0) {
-        avgDuration = 100; // if it's a animated image but no duration, set it to default 100ms (this do not have that 10ms limit like GIF or WebP to allow custom coder provide the limit)
+        avgDuration = 0.1; // if it's a animated image but no duration, set it to default 100ms (this do not have that 10ms limit like GIF or WebP to allow custom coder provide the limit)
     }
     
     __block NSUInteger index = 0;
@@ -167,7 +167,7 @@
             [bitmapRep setProperty:NSImageCurrentFrame withValue:@(i)];
             float frameDuration = [[bitmapRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
             NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapRep.CGImage size:CGSizeZero];
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration * 1000];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration];
             [frames addObject:frame];
         }
     }

@@ -68,7 +68,7 @@
             UIImage *image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration * 1000];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
@@ -163,7 +163,7 @@
         
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *frame = frames[i];
-            double frameDuration = frame.duration / 1000.f;
+            float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);

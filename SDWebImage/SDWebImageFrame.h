@@ -18,9 +18,9 @@
  */
 @property (nonatomic, strong, readonly, nonnull) UIImage *image;
 /**
- The duration of current frame to be displayed. The number is milliseconds but not seconds to avoid losing precision. You should not set this to zero.
+ The duration of current frame to be displayed. The number is seconds but not milliseconds. You should not set this to zero.
  */
-@property (nonatomic, readonly, assign) NSUInteger duration;
+@property (nonatomic, readonly, assign) NSTimeInterval duration;
 
 /**
  Create a frame instance with specify image and duration
@@ -29,6 +29,6 @@
  @param duration current frame's duration
  @return frame instance
  */
-+ (instancetype _Nonnull)frameWithImage:(UIImage * _Nonnull)image duration:(NSUInteger)duration;
++ (instancetype _Nonnull)frameWithImage:(UIImage * _Nonnull)image duration:(NSTimeInterval)duration;
 
 @end
