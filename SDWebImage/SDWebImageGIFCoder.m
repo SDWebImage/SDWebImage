@@ -11,6 +11,7 @@
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
 #import "UIImage+MultiFormat.h"
+#import "SDWebImageCoderHelper.h"
 
 @implementation SDWebImageGIFCoder
 
@@ -38,7 +39,9 @@
 #else
     
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-    
+    if (!source) {
+        return nil;
+    }
     size_t count = CGImageSourceGetCount(source);
     
     UIImage *animatedImage;
@@ -46,17 +49,15 @@
     if (count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data];
     } else {
-        NSMutableArray *images = [NSMutableArray array];
-        
-        NSTimeInterval duration = 0.0f;
+        NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
         
         for (size_t i = 0; i < count; i++) {
-            CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
-            if (!image) {
+            CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, i, NULL);
+            if (!imageRef) {
                 continue;
             }
             
-            duration += [self sd_frameDurationAtIndex:i source:source];
+            float duration = [self sd_frameDurationAtIndex:i source:source];
 #if SD_WATCH
             CGFloat scale = 1;
             scale = [WKInterfaceDevice currentDevice].screenScale;
@@ -64,16 +65,12 @@
             CGFloat scale = 1;
             scale = [UIScreen mainScreen].scale;
 #endif
-            [images addObject:[UIImage imageWithCGImage:image scale:scale orientation:UIImageOrientationUp]];
+            UIImage *image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+            CGImageRelease(imageRef);
             
-            CGImageRelease(image);
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
+            [frames addObject:frame];
         }
-        
-        if (!duration) {
-            duration = (1.0f / 10.0f) * count;
-        }
-        
-        animatedImage = [UIImage animatedImageWithImages:images duration:duration];
         
         NSUInteger loopCount = 0;
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
@@ -84,6 +81,8 @@
                 loopCount = gifLoopCount.unsignedIntegerValue;
             }
         }
+        
+        animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
     }
     
@@ -144,31 +143,16 @@
     }
     
     NSMutableData *imageData = [NSMutableData data];
-    NSUInteger frameCount = 0; // assume static images by default
-    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:format];
-#if SD_MAC
-    NSBitmapImageRep *bitmapRep;
-    for (NSImageRep *imageRep in image.representations) {
-        if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
-            bitmapRep = (NSBitmapImageRep *)imageRep;
-            break;
-        }
-    }
-    if (bitmapRep) {
-        frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
-    }
-#else
-    frameCount = image.images.count;
-#endif
+    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
+    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. GIF does not support EXIF image orientation
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frameCount, NULL);
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
     if (!imageDestination) {
         // Handle failure.
         return nil;
     }
-    
-    if (frameCount == 0) {
+    if (frames.count == 0) {
         // for static single GIF images
         CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
     } else {
@@ -176,20 +160,13 @@
         NSUInteger loopCount = image.sd_imageLoopCount;
         NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary: @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)}};
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)gifProperties);
-        for (size_t i = 0; i < frameCount; i++) {
-            @autoreleasepool {
-#if SD_MAC
-                // NSBitmapImageRep need to manually change frame. "Good taste" API
-                [bitmapRep setProperty:NSImageCurrentFrame withValue:@(i)];
-                float frameDuration = [[bitmapRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
-                CGImageRef frameImageRef = bitmapRep.CGImage;
-#else
-                float frameDuration = image.duration / frameCount;
-                CGImageRef frameImageRef = image.images[i].CGImage;
-#endif
-                NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
-                CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
-            }
+        
+        for (size_t i = 0; i < frames.count; i++) {
+            SDWebImageFrame *frame = frames[i];
+            float frameDuration = frame.duration;
+            CGImageRef frameImageRef = frame.image.CGImage;
+            NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFUnclampedDelayTime : @(frameDuration)}};
+            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
         }
     }
     // Finalize the destination.
