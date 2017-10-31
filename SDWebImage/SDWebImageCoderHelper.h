@@ -30,7 +30,7 @@
  @param animatedImage A animated image. If it's not animated, return nil
  @return The frames array
  */
-+ (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nonnull)animatedImage;
++ (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage;
 
 #if SD_UIKIT || SD_WATCH
 /**

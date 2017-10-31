@@ -230,7 +230,7 @@
 
 #pragma mark - Helper Fuction
 #if SD_UIKIT || SD_WATCH
-static NSUInteger gcd(NSUInteger a,NSUInteger b) {
+static NSUInteger gcd(NSUInteger a, NSUInteger b) {
     NSUInteger c;
     while (a != 0) {
         c = a;
