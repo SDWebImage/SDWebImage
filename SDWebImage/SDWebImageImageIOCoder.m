@@ -159,7 +159,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // Workaround for iOS anamorphic image
         if (partialImageRef) {
             const size_t partialHeight = CGImageGetHeight(partialImageRef);
-            CGColorSpaceRef colorSpace = [SDWebImageCoderHelper currentDeviceRGB];
+            CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
             CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, _width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
             if (bmContext) {
                 CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
@@ -412,7 +412,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDWebImageCoderHelper containsAlphaForImageRef:image.CGImage];
+        BOOL hasAlpha = SDCGImageRefContainsAlpha(image.CGImage);
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {
@@ -464,7 +464,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     CGImageRef imageRef = image.CGImage;
     
-    BOOL hasAlpha = [SDWebImageCoderHelper containsAlphaForImageRef:imageRef];
+    BOOL hasAlpha = SDCGImageRefContainsAlpha(imageRef);
     // do not decode images with alpha
     if (hasAlpha) {
         return NO;
@@ -548,7 +548,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                   imageColorSpaceModel == kCGColorSpaceModelCMYK ||
                                   imageColorSpaceModel == kCGColorSpaceModelIndexed);
     if (unsupportedColorSpace) {
-        colorspaceRef = [SDWebImageCoderHelper currentDeviceRGB];
+        colorspaceRef = SDCGColorSpaceGetDeviceRGB();
     }
     return colorspaceRef;
 }

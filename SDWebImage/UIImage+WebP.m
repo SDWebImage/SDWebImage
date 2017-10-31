@@ -11,7 +11,6 @@
 #import "UIImage+WebP.h"
 #import "SDWebImageWebPCoder.h"
 #import "UIImage+MultiFormat.h"
-#import "NSImage+WebCache.h"
 
 @implementation UIImage (WebP)
 

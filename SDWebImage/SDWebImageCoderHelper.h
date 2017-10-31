@@ -13,21 +13,6 @@
 @interface SDWebImageCoderHelper : NSObject
 
 /**
- Return the shared device-dependent RGB color space created with CGColorSpaceCreateDeviceRGB.
- 
- @return The device-dependent RGB color space
- */
-+ (CGColorSpaceRef _Nonnull)currentDeviceRGB;
-
-/**
- Check whether CGImageRef contains alpha channel.
- 
- @param imageRef The CGImageRef
- @return Return YES if CGImageRef contains alpha channel, otherwise return NO
- */
-+ (BOOL)containsAlphaForImageRef:(CGImageRef _Nullable)imageRef;
-
-/**
  Return an animated image with frames array.
  For UIKit, this will apply the patch and then create animated UIImage. The patch is because that `+[UIImage animatedImageWithImages:duration:]` just use the averate of duration for each image. So it will not work if different frame has different duration. Therefore we repeat the specify frame for specify times to let it work.
  For AppKit, NSImage does not support animates other than GIF. This will try to encode the frames to GIF format and then create an animated NSImage for rendering.

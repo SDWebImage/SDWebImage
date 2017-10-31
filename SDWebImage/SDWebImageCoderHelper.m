@@ -14,26 +14,6 @@
 
 @implementation SDWebImageCoderHelper
 
-+ (CGColorSpaceRef)currentDeviceRGB {
-    static CGColorSpaceRef colorSpace;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        colorSpace = CGColorSpaceCreateDeviceRGB();
-    });
-    return colorSpace;
-}
-
-+ (BOOL)containsAlphaForImageRef:(CGImageRef)imageRef {
-    if (!imageRef) {
-        return NO;
-    }
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
-    BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
-                      alphaInfo == kCGImageAlphaNoneSkipFirst ||
-                      alphaInfo == kCGImageAlphaNoneSkipLast);
-    return hasAlpha;
-}
-
 + (UIImage *)animatedImageWithFrames:(NSArray<SDWebImageFrame *> *)frames {
     NSUInteger frameCount = frames.count;
     if (frameCount == 0) {

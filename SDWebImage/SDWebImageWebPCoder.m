@@ -77,7 +77,7 @@
     } else {
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     }
-    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, [SDWebImageCoderHelper currentDeviceRGB], bitmapInfo);
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
     if (!canvas) {
         WebPDemuxDelete(demuxer);
         return nil;
@@ -170,7 +170,7 @@
         // Construct a UIImage from the decoded RGBA value array
         CGDataProviderRef provider =
         CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
-        CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper currentDeviceRGB];
+        CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
         
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
         size_t components = 4;
@@ -189,7 +189,7 @@
             return nil;
         }
         
-        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, [SDWebImageCoderHelper currentDeviceRGB], bitmapInfo);
+        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
         if (!canvas) {
             CGImageRelease(imageRef);
             return nil;
@@ -294,7 +294,7 @@
     // Construct a UIImage from the decoded RGBA value array
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
-    CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper currentDeviceRGB];
+    CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
     CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     size_t components = config.input.has_alpha ? 4 : 3;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;

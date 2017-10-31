@@ -16,6 +16,22 @@
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageCoderScaleDownLargeImagesKey;
 
 /**
+ Return the shared device-dependent RGB color space created with CGColorSpaceCreateDeviceRGB.
+
+ @return The device-dependent RGB color space
+ */
+CG_EXTERN CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void);
+
+/**
+ Check whether CGImageRef contains alpha channel.
+
+ @param imageRef The CGImageRef
+ @return Return YES if CGImageRef contains alpha channel, otherwise return NO
+ */
+CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
+
+
+/**
  This is the image coder protocol to provide custom image decoding/encoding.
  These methods are all required to implement.
  @note Pay attention that these methods are not called from main queue.
