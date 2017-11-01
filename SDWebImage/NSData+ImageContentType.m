@@ -51,9 +51,12 @@
         }
         case 0x00: {
             if (data.length >= 12) {
-                //....ftypheic
+                //....ftypheic ....ftypheix ....ftyphevc ....ftyphevx
                 NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(4, 8)] encoding:NSASCIIStringEncoding];
-                if ([testString isEqualToString:@"ftypheic"]) {
+                if ([testString isEqualToString:@"ftypheic"]
+                    || [testString isEqualToString:@"ftypheix"]
+                    || [testString isEqualToString:@"ftyphevc"]
+                    || [testString isEqualToString:@"ftyphevx"]) {
                     return SDImageFormatHEIC;
                 }
             }

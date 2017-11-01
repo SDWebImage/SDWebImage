@@ -28,10 +28,8 @@
         if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
             NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
             NSUInteger frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
-            if (frameCount > 1) {
-                isGIF = YES;
-                break;
-            }
+            isGIF = frameCount > 1 ? YES : NO;
+            break;
         }
     }
     return isGIF;

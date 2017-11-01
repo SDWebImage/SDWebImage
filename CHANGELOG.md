@@ -1,4 +1,13 @@
-## [4.2.0 - Pluginable coders, on Oct XX, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
+## [4.2.1 - 4.2 Patch, on Oct 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.1)
+See [all tickets marked for the 4.2.1 release](https://github.com/rs/SDWebImage/milestone/18)
+
+#### Features
+- Feature refactor built-in coders and support animated webp on macOS #2082 (reusable code into `SDWebImageCoderHelper`; `SDWebImageFrame` abstracts animated images frames)
+
+#### Fixes
+- Fixed EXIF orientation method will crash on iOS 7 because it’s an iOS 8 above API #2082
+
+## [4.2.0 - Pluginable coders, on Oct 30th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
 See [all tickets marked for the 4.2.0 release](https://github.com/rs/SDWebImage/milestone/16)
 
 #### Features
