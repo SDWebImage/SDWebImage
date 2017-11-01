@@ -82,7 +82,10 @@
         return nil;
     }
 
-    return [self framesWithData:data demuxer:demuxer canvas:canvas];
+    NSArray *frames = [self framesWithData:data demuxer:demuxer canvas:canvas];
+    CGContextRelease(canvas);
+    WebPDemuxDelete(demuxer);
+    return frames;
 }
 
 - (NSArray <SDWebImageFrame *> *)framesWithData:(NSData *)data demuxer:(WebPDemuxer *)demuxer canvas:(CGContextRef)canvas {
@@ -91,8 +94,7 @@
     WebPIterator iter;
     if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
         WebPDemuxReleaseIterator(&iter);
-        WebPDemuxDelete(demuxer);
-        CGContextRelease(canvas);
+
         return nil;
     }
 
@@ -118,8 +120,6 @@
     } while (WebPDemuxNextFrame(&iter));
 
     WebPDemuxReleaseIterator(&iter);
-    WebPDemuxDelete(demuxer);
-    CGContextRelease(canvas);
 
     return frames;
 }
@@ -178,7 +178,8 @@
     
     UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:[self framesWithData:data demuxer:demuxer canvas:canvas]];
     animatedImage.sd_imageLoopCount = loopCount;
-    
+    CGContextRelease(canvas);
+    WebPDemuxDelete(demuxer);
     return animatedImage;
 }
 
