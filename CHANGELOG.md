@@ -1,8 +1,18 @@
-## [4.2.0 - Pluginable coders, on Oct XX, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
+## [4.2.1 - 4.2 Patch, on Oct 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.1)
+See [all tickets marked for the 4.2.1 release](https://github.com/rs/SDWebImage/milestone/18)
+
+#### Features
+- Feature refactor built-in coders and support animated webp on macOS #2082 (reusable code into `SDWebImageCoderHelper`; `SDWebImageFrame` abstracts animated images frames)
+
+#### Fixes
+- Fixed EXIF orientation method will crash on iOS 7 because it’s an iOS 8 above API #2082
+
+## [4.2.0 - Pluginable coders, on Oct 30th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.0)
 See [all tickets marked for the 4.2.0 release](https://github.com/rs/SDWebImage/milestone/16)
 
 #### Features
 - Refactor decoding code and provide decoding plugin #1991
+- HEIC format support #2080 #1853 #2038
 - Welcome back our previous `UIImage+GIF` category for animated GIF! Not enabled by default. #2064
 - Add the animated GIF encoding support for `SDWebImageGIFCoder` on `macOS` (use `NSImage` API) #2067
 - Implemented `-[NSImage isGIF]` method to return whether current `NSImage` has GIF representation #2071

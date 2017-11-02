@@ -9,10 +9,9 @@
 #ifdef SD_WEBP
 
 #import "SDWebImageWebPCoder.h"
+#import "SDWebImageCoderHelper.h"
 #import "NSImage+WebCache.h"
 #import "UIImage+MultiFormat.h"
-#import "NSData+ImageContentType.h"
-#import <ImageIO/ImageIO.h>
 #if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
 #import <webp/decode.h>
 #import <webp/encode.h>
@@ -69,10 +68,7 @@
     }
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
-#if SD_UIKIT || SD_WATCH
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
-    int frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
-#endif
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
     CGBitmapInfo bitmapInfo;
@@ -118,30 +114,14 @@
         return nil;
     }
     
-    NSMutableArray<UIImage *> *images = [NSMutableArray array];
-#if SD_UIKIT || SD_WATCH
-    NSTimeInterval totalDuration = 0;
-    int durations[frameCount];
-#endif
+    NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
     
     do {
         @autoreleasepool {
-            UIImage *image;
-            if (iter.blend_method == WEBP_MUX_BLEND) {
-                image = [self sd_blendWebpImageWithCanvas:canvas iterator:iter];
-            } else {
-                image = [self sd_nonblendWebpImageWithCanvas:canvas iterator:iter];
-            }
-            
+            UIImage *image = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter];
             if (!image) {
                 continue;
             }
-            
-            [images addObject:image];
-            
-#if SD_MAC
-            break;
-#else
             
             int duration = iter.duration;
             if (duration <= 10) {
@@ -149,10 +129,8 @@
                 // Some animated WebP images also created without duration, we should keep compatibility
                 duration = 100;
             }
-            totalDuration += duration;
-            size_t count = images.count;
-            durations[count - 1] = duration;
-#endif
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration / 1000.f];
+            [frames addObject:frame];
         }
         
     } while (WebPDemuxNextFrame(&iter));
@@ -161,17 +139,10 @@
     WebPDemuxDelete(demuxer);
     CGContextRelease(canvas);
     
-    UIImage *finalImage = nil;
-#if SD_UIKIT || SD_WATCH
-    NSArray<UIImage *> *animatedImages = [self sd_animatedImagesWithImages:images durations:durations totalDuration:totalDuration];
-    finalImage = [UIImage animatedImageWithImages:animatedImages duration:totalDuration / 1000.0];
-    if (finalImage) {
-        finalImage.sd_imageLoopCount = loopCount;
-    }
-#elif SD_MAC
-    finalImage = images.firstObject;
-#endif
-    return finalImage;
+    UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+    animatedImage.sd_imageLoopCount = loopCount;
+    
+    return animatedImage;
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
@@ -259,7 +230,7 @@
     return image;
 }
 
-- (nullable UIImage *)sd_blendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
+- (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
     UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
     if (!image) {
         return nil;
@@ -271,39 +242,12 @@
     CGFloat tmpX = iter.x_offset;
     CGFloat tmpY = size.height - iter.height - iter.y_offset;
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    BOOL shouldBlend = iter.blend_method == WEBP_MUX_BLEND;
     
-    CGContextDrawImage(canvas, imageRect, image.CGImage);
-    CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
-    
-#if SD_UIKIT || SD_WATCH
-    image = [UIImage imageWithCGImage:newImageRef];
-#elif SD_MAC
-    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-    
-    CGImageRelease(newImageRef);
-    
-    if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
+    // If not blend, cover the target image rect. (firstly clear then draw)
+    if (!shouldBlend) {
         CGContextClearRect(canvas, imageRect);
     }
-    
-    return image;
-}
-
-- (nullable UIImage *)sd_nonblendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
-    if (!image) {
-        return nil;
-    }
-    
-    size_t canvasWidth = CGBitmapContextGetWidth(canvas);
-    size_t canvasHeight = CGBitmapContextGetHeight(canvas);
-    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
-    CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
-    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
-    
-    CGContextClearRect(canvas, imageRect);
     CGContextDrawImage(canvas, imageRect, image.CGImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
     
@@ -379,23 +323,21 @@
     }
     
     NSData *data;
-#if SD_UIKIT || SD_WATCH
-    if (!image.images) {
-#endif
+    
+    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
+    if (frames.count == 0) {
         // for static single webp image
         data = [self sd_encodedWebpDataWithImage:image];
-#if SD_UIKIT || SD_WATCH
     } else {
         // for animated webp image
-        int durations[image.images.count];
-        NSArray<UIImage *> *images = [self sd_imagesFromAnimatedImages:image.images totalDuration:image.duration durations:durations];
         WebPMux *mux = WebPMuxNew();
         if (!mux) {
             return nil;
         }
-        for (NSUInteger i = 0; i < images.count; i++) {
-            NSData *webpData = [self sd_encodedWebpDataWithImage:images[i]];
-            int duration = durations[i];
+        for (size_t i = 0; i < frames.count; i++) {
+            SDWebImageFrame *currentFrame = frames[i];
+            NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image];
+            int duration = currentFrame.duration * 1000;
             WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
                 .bitstream.size = webpData.length,
                 .duration = duration,
@@ -427,7 +369,6 @@
         data = [NSData dataWithBytes:outputData.bytes length:outputData.size];
         WebPDataClear(&outputData);
     }
-#endif
     
     return data;
 }
@@ -471,97 +412,8 @@
     return webpData;
 }
 
-- (NSArray<UIImage *> *)sd_animatedImagesWithImages:(NSArray<UIImage *> *)images durations:(int const * const)durations totalDuration:(NSTimeInterval)totalDuration
-{
-    // [UIImage animatedImageWithImages:duration:] only use the average duration for per frame
-    // divide the total duration to implement per frame duration for animated WebP
-    NSUInteger count = images.count;
-    if (!count) {
-        return nil;
-    }
-    if (count == 1) {
-        return images;
-    }
-    
-    int const gcd = gcdArray(count, durations);
-    NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:count];
-    [images enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
-        int duration = durations[idx];
-        int repeatCount;
-        if (gcd) {
-            repeatCount = duration / gcd;
-        } else {
-            repeatCount = 1;
-        }
-        for (int i = 0; i < repeatCount; ++i) {
-            [animatedImages addObject:image];
-        }
-    }];
-    
-    return animatedImages;
-}
-
-- (NSArray<UIImage *> *)sd_imagesFromAnimatedImages:(NSArray<UIImage *> *)animatedImages totalDuration:(NSTimeInterval)totalDuration durations:(int * const)durations {
-    // This is the reversed procedure to sd_animatedImagesWithImages:durations:totalDuration
-    // To avoid precision loss, convert from s to ms during this method
-    NSUInteger count = animatedImages.count;
-    if (!count) {
-        return nil;
-    }
-    if (count == 1) {
-        durations[0] = totalDuration * 1000; // s -> ms
-    }
-    
-    int const duration = totalDuration * 1000 / count;
-    
-    __block NSUInteger index = 0;
-    __block int repeatCount = 1;
-    __block UIImage *previousImage = animatedImages.firstObject;
-    NSMutableArray<UIImage *> *images = [NSMutableArray array];
-    [animatedImages enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
-        // ignore first
-        if (idx == 0) {
-            return;
-        }
-        if ([image isEqual:previousImage]) {
-            repeatCount++;
-        } else {
-            [images addObject:previousImage];
-            durations[index] = duration * repeatCount;
-            repeatCount = 1;
-            index++;
-        }
-        previousImage = image;
-        // last one
-        if (idx == count - 1) {
-            [images addObject:previousImage];
-            durations[index] = duration * repeatCount;
-        }
-    }];
-    
-    return images;
-}
-
 static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
-}
-
-static int gcdArray(size_t const count, int const * const values) {
-    int result = values[0];
-    for (size_t i = 1; i < count; ++i) {
-        result = gcd(values[i], result);
-    }
-    return result;
-}
-
-static int gcd(int a,int b) {
-    int c;
-    while (a != 0) {
-        c = a;
-        a = b % a;
-        b = c;
-    }
-    return b;
 }
 
 @end

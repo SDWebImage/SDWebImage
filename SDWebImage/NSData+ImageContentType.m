@@ -14,6 +14,11 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
 
+// Currently Image/IO does not support WebP
+#define kSDUTTypeWebP ((__bridge CFStringRef)@"public.webp")
+// AVFileTypeHEIC is defined in AVFoundation via iOS 11, we use this without import AVFoundation
+#define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
+
 @implementation NSData (ImageContentType)
 
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data {
@@ -21,6 +26,7 @@
         return SDImageFormatUndefined;
     }
     
+    // File signatures table: http://www.garykessler.net/library/file_sigs.html
     uint8_t c;
     [data getBytes:&c length:1];
     switch (c) {
@@ -33,16 +39,29 @@
         case 0x49:
         case 0x4D:
             return SDImageFormatTIFF;
-        case 0x52:
-            // R as RIFF for WEBP
-            if (data.length < 12) {
-                return SDImageFormatUndefined;
+        case 0x52: {
+            if (data.length >= 12) {
+                //RIFF....WEBP
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
+                if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
+                    return SDImageFormatWebP;
+                }
             }
-            
-            NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 12)] encoding:NSASCIIStringEncoding];
-            if ([testString hasPrefix:@"RIFF"] && [testString hasSuffix:@"WEBP"]) {
-                return SDImageFormatWebP;
+            break;
+        }
+        case 0x00: {
+            if (data.length >= 12) {
+                //....ftypheic ....ftypheix ....ftyphevc ....ftyphevx
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(4, 8)] encoding:NSASCIIStringEncoding];
+                if ([testString isEqualToString:@"ftypheic"]
+                    || [testString isEqualToString:@"ftypheix"]
+                    || [testString isEqualToString:@"ftyphevc"]
+                    || [testString isEqualToString:@"ftyphevx"]) {
+                    return SDImageFormatHEIC;
+                }
             }
+            break;
+        }
     }
     return SDImageFormatUndefined;
 }
@@ -61,6 +80,12 @@
             break;
         case SDImageFormatTIFF:
             UTType = kUTTypeTIFF;
+            break;
+        case SDImageFormatWebP:
+            UTType = kSDUTTypeWebP;
+            break;
+        case SDImageFormatHEIC:
+            UTType = kSDUTTypeHEIC;
             break;
         default:
             // default is kUTTypePNG
