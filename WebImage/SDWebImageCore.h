@@ -1,5 +1,5 @@
 /*
- * This file is part of the SDWebImage package.
+ * This file is part of the SDWebImageCore package.
  * (c) Olivier Poitrey <rs@dailymotion.com>
  * (c) Florent Vilmart
  *
@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImageCore/SDWebImageCompat.h>
 
 #if SD_UIKIT
 #import <UIKit/UIKit.h>
@@ -21,28 +21,30 @@ FOUNDATION_EXPORT const unsigned char WebImageCoreVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <WebImageCore/PublicHeader.h>
 
-#import <SDWebImage/SDWebImageManager.h>
-#import <SDWebImage/SDImageCacheConfig.h>
-#import <SDWebImage/SDImageCache.h>
-#import <SDWebImage/UIView+WebCache.h>
-#import <SDWebImage/UIImageView+WebCache.h>
-#import <SDWebImage/UIImageView+HighlightedWebCache.h>
-#import <SDWebImage/SDWebImageDownloaderOperation.h>
-#import <SDWebImage/UIButton+WebCache.h>
-#import <SDWebImage/SDWebImagePrefetcher.h>
-#import <SDWebImage/UIView+WebCacheOperation.h>
-#import <SDWebImage/UIImage+MultiFormat.h>
-#import <SDWebImage/SDWebImageOperation.h>
-#import <SDWebImage/SDWebImageDownloader.h>
+#import <SDWebImageCore/SDWebImageManager.h>
+#import <SDWebImageCore/SDImageCacheConfig.h>
+#import <SDWebImageCore/SDImageCache.h>
+#import <SDWebImageCore/UIView+WebCache.h>
+#import <SDWebImageCore/UIImageView+WebCache.h>
+#import <SDWebImageCore/UIImageView+HighlightedWebCache.h>
+#import <SDWebImageCore/SDWebImageDownloaderOperation.h>
+#import <SDWebImageCore/UIButton+WebCache.h>
+#import <SDWebImageCore/SDWebImagePrefetcher.h>
+#import <SDWebImageCore/UIView+WebCacheOperation.h>
+#import <SDWebImageCore/UIImage+MultiFormat.h>
+#import <SDWebImageCore/SDWebImageOperation.h>
+#import <SDWebImageCore/SDWebImageDownloader.h>
 
-#import <SDWebImage/SDWebImageCodersManager.h>
-#import <SDWebImage/SDWebImageCoder.h>
-#import <SDWebImage/SDWebImageGIFCoder.h>
-#import <SDWebImage/SDWebImageImageIOCoder.h>
-#import <SDWebImage/UIImage+GIF.h>
-#import <SDWebImage/UIImage+ForceDecode.h>
-#import <SDWebImage/NSData+ImageContentType.h>
+#import <SDWebImageCore/SDWebImageCodersManager.h>
+#import <SDWebImageCore/SDWebImageCoder.h>
+#import <SDWebImageCore/SDWebImageGIFCoder.h>
+#import <SDWebImageCore/SDWebImageImageIOCoder.h>
+#import <SDWebImageCore/SDWebImageFrame.h>
+#import <SDWebImageCore/SDWebImageCoderHelper.h>
+#import <SDWebImageCore/UIImage+GIF.h>
+#import <SDWebImageCore/UIImage+ForceDecode.h>
+#import <SDWebImageCore/NSData+ImageContentType.h>
 
 #if SD_MAC
-    #import <SDWebImage/NSImage+WebCache.h>
+    #import <SDWebImageCore/NSImage+WebCache.h>
 #endif
