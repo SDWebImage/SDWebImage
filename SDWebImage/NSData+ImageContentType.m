@@ -16,7 +16,7 @@
 
 // Currently Image/IO does not support WebP
 #define kSDUTTypeWebP ((__bridge CFStringRef)@"public.webp")
-// AVFileTypeHEIC is defined in AVFoundation via iOS 11, we use this without import AVFoundation
+// AVFileTypeHEIC is defined in AVFoundation via iOS 11 and A9 above CPU(iPhone 7 above models), we use this without import AVFoundation
 #define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
 
 @implementation NSData (ImageContentType)
