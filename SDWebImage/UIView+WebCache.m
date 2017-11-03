@@ -106,7 +106,7 @@ static char TAG_ACTIVITY_SHOW;
             }
             dispatch_queue_t targetQueue = shouldUseGlobalQueue ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0) : dispatch_get_main_queue();
             
-            dispatch_async(targetQueue, ^{
+            dispatch_queue_async_safe(targetQueue, ^{
                 [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
                 dispatch_main_async_safe(callCompletedBlockClojure);
             });
