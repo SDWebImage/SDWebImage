@@ -27,7 +27,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
                                 options:(SDWebImageDownloaderOptions)options;
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+                            completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock;
 
 - (BOOL)shouldDecompressImages;
 - (void)setShouldDecompressImages:(BOOL)value;
@@ -108,7 +108,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  *  @return the token to use to cancel this set of handlers
  */
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+                            completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock;
 
 /**
  *  Cancels a set of callbacks. Once all callbacks are canceled, the operation is cancelled.

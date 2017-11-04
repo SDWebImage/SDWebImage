@@ -21,7 +21,7 @@
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
-                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
+                                           completedBlock:(SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback;
 @end
@@ -44,7 +44,7 @@
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+                            completed:(nullable SDWebImageDownloaderCompletedWithHeadersBlock)completedBlock {
     return nil;
 }
 
@@ -81,7 +81,7 @@
 - (void)test04ThatASimpleDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Simple download"];
     NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -116,7 +116,7 @@
 
 - (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with nils"];
-    [[SDWebImageDownloader sharedDownloader] addProgressCallback:nil completedBlock:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] addProgressCallback:nil completedBlock:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (!image && !data && !error) {
             [expectation fulfill];
         } else {
@@ -131,7 +131,7 @@
     [SDWebImageDownloader sharedDownloader].username = @"httpwatch";
     [SDWebImageDownloader sharedDownloader].password = @"httpwatch01";
     NSURL *imageURL = [NSURL URLWithString:@"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -146,7 +146,7 @@
 - (void)test09ThatProgressiveJPEGWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive JPEG download"];
     NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {
@@ -162,7 +162,7 @@
     NSURL *imageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.jpg?20120509154705"];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"404"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (!image && !data && error && finished) {
             [expectation fulfill];
         } else {
@@ -177,7 +177,7 @@
     
     NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
-                                      downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+                                      downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
                                           XCTFail(@"Should not get here");
                                       }];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
@@ -206,7 +206,7 @@
                                                                                               options:0];
     [operation addHandlersForProgress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *imageURL) {
         
-    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -222,7 +222,7 @@
 - (void)test13ThatDownloadCanContinueWhenTheAppEntersBackground {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Simple download"];
     NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderContinueInBackground progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderContinueInBackground additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -235,7 +235,7 @@
 - (void)test14ThatPNGWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"PNG"];
     NSURL *imageURL = [NSURL URLWithString:kTestPNGURL];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -248,7 +248,7 @@
 - (void)test15ThatWEBPWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"WEBP"];
     NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
@@ -261,7 +261,7 @@
 - (void)test16ThatProgressiveWebPWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive WebP download"];
     NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveDownload additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {
@@ -287,8 +287,9 @@
     SDWebImageDownloadToken *token1 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
                                        options:0
+                                       additionalHTTPHeaders:nil
                                        progress:nil
-                                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                       completed:^(UIImage *image, NSData *data, SDHTTPHeadersDictionary *responseHeaders, NSError *error, BOOL finished) {
                                            XCTFail(@"Shouldn't have completed here.");
                                        }];
     expect(token1).toNot.beNil();
@@ -296,8 +297,9 @@
     SDWebImageDownloadToken *token2 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
                                        options:0
+                                       additionalHTTPHeaders:nil
                                        progress:nil
-                                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                       completed:^(UIImage *image, NSData *data, SDHTTPHeadersDictionary *responseHeaders, NSError *error, BOOL finished) {
                                            if (image && data && !error && finished) {
                                                [expectation fulfill];
                                            } else {
@@ -325,8 +327,9 @@
     SDWebImageDownloadToken *token1 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
                                        options:0
+                                       additionalHTTPHeaders:nil
                                        progress:nil
-                                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                       completed:^(UIImage *image, NSData *data, SDHTTPHeadersDictionary *responseHeaders, NSError *error, BOOL finished) {
                                            XCTFail(@"Shouldn't have completed here.");
                                        }];
     expect(token1).toNot.beNil();
@@ -336,8 +339,9 @@
     SDWebImageDownloadToken *token2 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
                                        options:0
+                                       additionalHTTPHeaders:nil
                                        progress:nil
-                                       completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                       completed:^(UIImage *image, NSData *data, SDHTTPHeadersDictionary *responseHeaders, NSError *error, BOOL finished) {
                                            if (image && data && !error && finished) {
                                                [expectation fulfill];
                                            } else {
@@ -361,7 +365,7 @@
     NSString *testJPEGImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *testJPEGImage = [UIImage imageWithContentsOfFile:testJPEGImagePath];
     
-    [downloader downloadImageWithURL:testImageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:testImageURL options:0 additionalHTTPHeaders:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
         NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
         NSData *data2 = UIImagePNGRepresentation(image);
         if (![data1 isEqualToData:data2]) {
@@ -376,6 +380,22 @@
         [expectation fulfill];
     }];
     
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test23AdditionalHTTPHeaders {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Additional HTTP headers"];
+    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    SDHTTPHeadersDictionary *HTTPHeaders = @{ @"Range" : @"bytes=0-9" };
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 additionalHTTPHeaders:HTTPHeaders progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, SDHTTPHeadersDictionary * _Nullable responseHeaders, NSError * _Nullable error, BOOL finished) {
+        if (!image && !data && error && finished) {
+            NSString *contentLength = responseHeaders[@"Content-Length"];
+            expect(contentLength).equal(@"10");
+            [expectation fulfill];
+        } else {
+            XCTFail(@"Something went wrong");
+        }
+    }];
     [self waitForExpectationsWithCommonTimeout];
 }
 
