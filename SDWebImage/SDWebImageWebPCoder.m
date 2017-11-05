@@ -166,7 +166,8 @@
     int last_y = 0;
     int stride = 0;
     uint8_t *rgba = WebPIDecGetRGB(_idec, &last_y, &width, &height, &stride);
-    if (width + height > 0 && height >= last_y) {
+    // last_y may be 0, means no enough bitmap data to decode, ignore this
+    if (width + height > 0 && last_y > 0 && height >= last_y) {
         // Construct a UIImage from the decoded RGBA value array
         CGDataProviderRef provider =
         CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
