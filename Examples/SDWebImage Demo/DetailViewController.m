@@ -36,8 +36,6 @@
 {
     if (!_progressView) {
         _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
-        _progressView.frame = CGRectMake(0, CGRectGetMaxY(self.navigationController.navigationBar.frame), CGRectGetWidth(self.view.frame), 2.0);
-        _progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
         [self.view addSubview:_progressView];
     }
     return _progressView;
@@ -73,6 +71,12 @@
 {
     [super viewDidLoad];
     [self configureView];
+}
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    self.progressView.frame = CGRectMake(0, self.topLayoutGuide.length, CGRectGetWidth(self.view.bounds), 2.0);
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
