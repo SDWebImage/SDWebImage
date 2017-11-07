@@ -1,3 +1,13 @@
+## [4.2.2 - 4.2 Patch, on Nov 7th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.2)
+See [all tickets marked for the 4.2.2 release](https://github.com/rs/SDWebImage/milestone/19)
+
+#### Features
+- Update our iOS demo to modern way, add a `UIProgressView` to show image download progress #2096
+
+#### Fixes
+- Fix that completion block and set image block are called asynchronously for `UIView+WebCache` #2093 #2097 #2092
+- Fix WebP progressive decoding may do extra calculate #2095
+
 ## [4.2.1 - 4.2 Patch, on Oct 31st, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.1)
 See [all tickets marked for the 4.2.1 release](https://github.com/rs/SDWebImage/milestone/18)
 
