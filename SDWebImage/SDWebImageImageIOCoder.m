@@ -160,7 +160,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (partialImageRef) {
             const size_t partialHeight = CGImageGetHeight(partialImageRef);
             CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
-            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, _width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
+            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, SDCGByteAlign(_width * 4, 64), colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
             if (bmContext) {
                 CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
                 CGImageRelease(partialImageRef);
@@ -252,7 +252,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                                      width,
                                                      height,
                                                      kBitsPerComponent,
-                                                     bytesPerRow,
+                                                     SDCGByteAlign(bytesPerRow, 64),
                                                      colorspaceRef,
                                                      kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         if (context == NULL) {
@@ -313,7 +313,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             destResolution.width,
                                             destResolution.height,
                                             kBitsPerComponent,
-                                            bytesPerRow,
+                                            SDCGByteAlign(bytesPerRow, 64),
                                             colorspaceRef,
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         
@@ -553,5 +553,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return colorspaceRef;
 }
 #endif
+
+// 64 bytes align to avoid extra `CA::Render::aligned_malloc` call
+static inline size_t SDCGByteAlign(size_t size, size_t alignment) {
+    return ((size + (alignment - 1)) / alignment) * alignment;
+}
 
 @end
