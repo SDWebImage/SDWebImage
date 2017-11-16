@@ -54,8 +54,15 @@
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                            if (imageFormat == SDImageFormatGIF) {
-                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                               weakSelf.image = nil;
+                               // Firstly set the static poster image to avoid flashing
+                               weakSelf.image = image;
+                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                   // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
+                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                                   dispatch_main_async_safe(^{
+                                       weakSelf.animatedImage = animatedImage;
+                                   });
+                               });
                            } else {
                                weakSelf.image = image;
                                weakSelf.animatedImage = nil;
