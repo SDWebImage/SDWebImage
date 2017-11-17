@@ -47,6 +47,7 @@
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
+    dispatch_group_t group = dispatch_group_create();
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
@@ -61,15 +62,18 @@
                                    FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
                                    dispatch_main_async_safe(^{
                                        weakSelf.animatedImage = animatedImage;
+                                       dispatch_group_leave(group);
                                    });
                                });
                            } else {
                                weakSelf.image = image;
                                weakSelf.animatedImage = nil;
+                               dispatch_group_leave(group);
                            }
                        }
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:completedBlock
+                             context:@{SDWebImageInternalSetImageGroupKey : group}];
 }
 
 @end
