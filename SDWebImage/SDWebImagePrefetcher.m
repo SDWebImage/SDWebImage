@@ -57,25 +57,21 @@
 - (void)startPrefetchingAtIndex:(NSUInteger)index {
     if (index >= self.prefetchURLs.count) return;
     self.requestedCount++;
-    [self.manager loadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    NSURL *currentURL = self.prefetchURLs[index];
+    [self.manager loadImageWithURL:currentURL options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
 
-        if (image) {
-            if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
-            }
+        if (self.progressBlock) {
+            self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
         }
-        else {
-            if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
-            }
+        if (!image) {
             // Add last failed
             self.skippedCount++;
         }
         if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)]) {
             [self.delegate imagePrefetcher:self
-                            didPrefetchURL:self.prefetchURLs[index]
+                            didPrefetchURL:currentURL
                              finishedCount:self.finishedCount
                                 totalCount:self.prefetchURLs.count
              ];
