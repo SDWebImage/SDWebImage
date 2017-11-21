@@ -11,7 +11,7 @@
 @interface SDWebImagePrefetcher ()
 
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
-@property (strong, nonatomic, nullable) NSArray<NSURL *> *prefetchURLs;
+@property (strong, atomic, nullable) NSArray<NSURL *> *prefetchURLs; // may be accessed from different queue
 @property (assign, nonatomic) NSUInteger requestedCount;
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
