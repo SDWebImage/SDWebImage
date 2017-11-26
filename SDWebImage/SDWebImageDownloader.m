@@ -107,6 +107,14 @@
                                             delegateQueue:nil];
 }
 
+- (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations {
+    if (cancelPendingOperations) {
+        [self.session invalidateAndCancel];
+    } else {
+        [self.session finishTasksAndInvalidate];
+    }
+}
+
 - (void)dealloc {
     [self.session invalidateAndCancel];
     self.session = nil;
