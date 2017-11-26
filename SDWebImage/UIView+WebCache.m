@@ -14,6 +14,7 @@
 #import "UIView+WebCacheOperation.h"
 
 NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
+NSString * const SDWebImageExternalCustomManagerKey = @"externalCustomManager";
 
 static char imageURLKey;
 
@@ -67,8 +68,15 @@ static char TAG_ACTIVITY_SHOW;
             [self sd_addActivityIndicator];
         }
         
+        SDWebImageManager *manager;
+        if ([context valueForKey:SDWebImageExternalCustomManagerKey]) {
+            manager = (SDWebImageManager *)[context valueForKey:SDWebImageExternalCustomManagerKey];
+        } else {
+            manager = [SDWebImageManager sharedManager];
+        }
+        
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) { return; }
