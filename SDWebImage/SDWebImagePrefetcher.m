@@ -55,9 +55,12 @@
 }
 
 - (void)startPrefetchingAtIndex:(NSUInteger)index {
-    if (index >= self.prefetchURLs.count) return;
-    self.requestedCount++;
-    NSURL *currentURL = self.prefetchURLs[index];
+    NSURL *currentURL;
+    @synchronized(self) {
+        if (index >= self.prefetchURLs.count) return;
+        currentURL = self.prefetchURLs[index];
+        self.requestedCount++;
+    }
     [self.manager loadImageWithURL:currentURL options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
@@ -77,7 +80,7 @@
              ];
         }
         if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(self.prefetcherQueue, ^{
+            dispatch_queue_async_safe(self.prefetcherQueue, ^{
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         } else if (self.finishedCount == self.requestedCount) {
@@ -128,10 +131,12 @@
 }
 
 - (void)cancelPrefetching {
-    self.prefetchURLs = nil;
-    self.skippedCount = 0;
-    self.requestedCount = 0;
-    self.finishedCount = 0;
+    @synchronized(self) {
+        self.prefetchURLs = nil;
+        self.skippedCount = 0;
+        self.requestedCount = 0;
+        self.finishedCount = 0;
+    }
     [self.manager cancelAll];
 }
 
