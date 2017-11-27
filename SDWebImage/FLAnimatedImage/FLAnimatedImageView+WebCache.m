@@ -56,7 +56,8 @@
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                            if (imageFormat == SDImageFormatGIF) {
                                // Firstly set the static poster image to avoid flashing
-                               weakSelf.image = image;
+                               UIImage *posterImage = image.images ? image.images.firstObject : image;
+                               weakSelf.image = posterImage;
                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                                    // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
                                    FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
