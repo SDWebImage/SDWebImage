@@ -77,7 +77,7 @@
     } else {
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     }
-    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, SDCGByteAlign(canvasWidth * 4, 64), SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
     if (!canvas) {
         WebPDemuxDelete(demuxer);
         return nil;
@@ -190,7 +190,7 @@
             return nil;
         }
         
-        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, SDCGByteAlign(width * 4, 64), SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
         if (!canvas) {
             CGImageRelease(imageRef);
             return nil;
@@ -415,11 +415,6 @@
 
 static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
-}
-
-// 64 bytes align to avoid extra `CA::Render::aligned_malloc` call
-static inline size_t SDCGByteAlign(size_t size, size_t alignment) {
-    return ((size + (alignment - 1)) / alignment) * alignment;
 }
 
 @end
