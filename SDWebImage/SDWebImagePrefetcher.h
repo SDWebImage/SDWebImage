@@ -109,4 +109,10 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 - (void)cancelPrefetching;
 
 
+/**
+ cancels prefetching the given url if this prefetcher is currently or is queued to download it.
+ @param url the URL to cancel.
+ */
+- (void)cancelPrefetchingForURL:(NSURL *)url;
+
 @end

@@ -10,8 +10,9 @@
 
 @interface SDWebImagePrefetcher ()
 
-@property (strong, nonatomic, nonnull) SDWebImageManager *manager;
-@property (strong, nonatomic, nullable) NSArray<NSURL *> *prefetchURLs;
+@property (strong, nonatomic) SDWebImageManager *manager;
+@property (strong, nonatomic) NSMutableOrderedSet *prefetchURLs;
+@property (strong, nonatomic) NSMutableDictionary *unfinishedOperations;
 @property (assign, nonatomic) NSUInteger requestedCount;
 @property (assign, nonatomic) NSUInteger skippedCount;
 @property (assign, nonatomic) NSUInteger finishedCount;
@@ -42,6 +43,7 @@
         _options = SDWebImageLowPriority;
         _prefetcherQueue = dispatch_get_main_queue();
         self.maxConcurrentDownloads = 3;
+        _unfinishedOperations = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -54,10 +56,48 @@
     return self.manager.imageDownloader.maxConcurrentDownloads;
 }
 
-- (void)startPrefetchingAtIndex:(NSUInteger)index {
-    if (index >= self.prefetchURLs.count) return;
+- (void)reportStatus {
+    NSUInteger total = [self.prefetchURLs count];
+    NSLog(@"Finished prefetching (%@ successful, %@ skipped, timeElasped %.2f)", @(total - self.skippedCount), @(self.skippedCount), CFAbsoluteTimeGetCurrent() - self.startedTime);
+    if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
+        [self.delegate imagePrefetcher:self
+               didFinishWithTotalCount:(total - self.skippedCount)
+                          skippedCount:self.skippedCount
+         ];
+    }
+}
+
+- (void)prefetchURLs:(NSArray *)urls {
+    [self prefetchURLs:urls progress:nil completed:nil];
+}
+
+- (void)prefetchURLs:(NSArray *)urls progress:(SDWebImagePrefetcherProgressBlock)progressBlock completed:(SDWebImagePrefetcherCompletionBlock)completionBlock {
+    self.startedTime = CFAbsoluteTimeGetCurrent();
+    self.progressBlock = progressBlock;
+    self.completionBlock = completionBlock;
+
+    if (urls.count == 0) {
+        if (completionBlock) {
+            completionBlock(0,0);
+        }
+    } else {
+        // get only the urls that are not currently being prefetched.
+        NSMutableOrderedSet *newUrls = [NSMutableOrderedSet orderedSetWithArray:urls];
+        [newUrls minusOrderedSet:self.prefetchURLs];
+
+        // add the new urls to the current list.
+        [self.prefetchURLs unionOrderedSet:newUrls];
+
+        for (NSURL *url in newUrls) {
+            [self startPrefetchingUrl:url];
+        }
+    }
+}
+
+
+- (void)startPrefetchingUrl:(NSURL *)url {
     self.requestedCount++;
-    [self.manager loadImageWithURL:self.prefetchURLs[index] options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [self.manager loadImageWithURL:url options:self.options progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         if (!finished) return;
         self.finishedCount++;
 
@@ -70,21 +110,19 @@
             if (self.progressBlock) {
                 self.progressBlock(self.finishedCount,(self.prefetchURLs).count);
             }
+
             // Add last failed
             self.skippedCount++;
         }
+
         if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)]) {
             [self.delegate imagePrefetcher:self
-                            didPrefetchURL:self.prefetchURLs[index]
+                            didPrefetchURL:url
                              finishedCount:self.finishedCount
                                 totalCount:self.prefetchURLs.count
              ];
         }
-        if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_async(self.prefetcherQueue, ^{
-                [self startPrefetchingAtIndex:self.requestedCount];
-            });
-        } else if (self.finishedCount == self.requestedCount) {
+        else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
                 self.completionBlock(self.finishedCount, self.skippedCount);
@@ -92,42 +130,20 @@
             }
             self.progressBlock = nil;
         }
+
+        @synchronized(self.unfinishedOperations) {
+            if ([self.unfinishedOperations objectForKey:url]) {
+                [self.unfinishedOperations removeObjectForKey:url];
+            }
+        }
     }];
 }
 
-- (void)reportStatus {
-    NSUInteger total = (self.prefetchURLs).count;
-    if ([self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)]) {
-        [self.delegate imagePrefetcher:self
-               didFinishWithTotalCount:(total - self.skippedCount)
-                          skippedCount:self.skippedCount
-         ];
-    }
-}
-
-- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls {
-    [self prefetchURLs:urls progress:nil completed:nil];
-}
-
-- (void)prefetchURLs:(nullable NSArray<NSURL *> *)urls
-            progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
-           completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock {
-    [self cancelPrefetching]; // Prevent duplicate prefetch request
-    self.startedTime = CFAbsoluteTimeGetCurrent();
-    self.prefetchURLs = urls;
-    self.completionBlock = completionBlock;
-    self.progressBlock = progressBlock;
-
-    if (urls.count == 0) {
-        if (completionBlock) {
-            completionBlock(0,0);
-        }
-    } else {
-        // Starts prefetching from the very first image on the list with the max allowed concurrency
-        NSUInteger listCount = self.prefetchURLs.count;
-        for (NSUInteger i = 0; i < self.maxConcurrentDownloads && self.requestedCount < listCount; i++) {
-            [self startPrefetchingAtIndex:i];
-        }
+- (void)cancelPrefetchingForURL:(NSURL *)url
+{
+    id<SDWebImageOperation> operation = self.unfinishedOperations[url];
+    if (operation) {
+        [self.manager cancelOperations:@[operation]];
     }
 }
 
@@ -136,7 +152,8 @@
     self.skippedCount = 0;
     self.requestedCount = 0;
     self.finishedCount = 0;
-    [self.manager cancelAll];
+    [self.manager cancelOperations:self.unfinishedOperations.allValues];
+    [self.unfinishedOperations removeAllObjects];
 }
 
 @end
