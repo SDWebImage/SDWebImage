@@ -14,7 +14,17 @@ CGColorSpaceRef SDCGColorSpaceGetDeviceRGB(void) {
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        colorSpace = CGColorSpaceCreateDeviceRGB();
+        BOOL shouldUseSRGB;
+#if SD_MAC
+        shouldUseSRGB = NO;
+#else
+        shouldUseSRGB = NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_8_x_Max;
+#endif
+        if (shouldUseSRGB) {
+            colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+        } else {
+            colorSpace = CGColorSpaceCreateDeviceRGB();
+        }
     });
     return colorSpace;
 }
