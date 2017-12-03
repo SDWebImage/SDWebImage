@@ -111,10 +111,10 @@ static char TAG_ACTIVITY_SHOW;
                 dispatch_main_async_safe(^{
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
                 });
+                // ensure completion block is called after custom setImage process finish
                 dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                    dispatch_main_async_safe(callCompletedBlockClojure);
+                    callCompletedBlockClojure();
                 });
-                return;
             } else {
                 dispatch_main_async_safe(^{
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
