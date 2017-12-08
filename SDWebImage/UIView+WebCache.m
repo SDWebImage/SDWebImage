@@ -13,7 +13,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
-NSString * const SDWebImageInternalSetImageGroupKey = @"setImageGroup";
+NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
 
 static char imageURLKey;
 

@@ -13,7 +13,7 @@
 #import "SDWebImageManager.h"
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should only be used internal and may be changed in the future. (dispatch_group_t)
+ A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
  */
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
 
