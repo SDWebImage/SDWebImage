@@ -63,18 +63,22 @@
                                    FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
                                    dispatch_main_async_safe(^{
                                        weakSelf.animatedImage = animatedImage;
-                                       dispatch_group_leave(group);
+                                       if (group) {
+                                           dispatch_group_leave(group);
+                                       }
                                    });
                                });
                            } else {
                                weakSelf.image = image;
                                weakSelf.animatedImage = nil;
-                               dispatch_group_leave(group);
+                               if (group) {
+                                   dispatch_group_leave(group);
+                               }
                            }
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:@{SDWebImageInternalSetImageGroupKey : group}];
+                             context:group ? @{SDWebImageInternalSetImageGroupKey : group} : nil];
 }
 
 @end
