@@ -81,18 +81,6 @@
 #define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
-#if OS_OBJECT_USE_OBJC
-    #undef SDDispatchQueueRelease
-    #undef SDDispatchQueueSetterSementics
-    #define SDDispatchQueueRelease(q)
-    #define SDDispatchQueueSetterSementics strong
-#else
-    #undef SDDispatchQueueRelease
-    #undef SDDispatchQueueSetterSementics
-    #define SDDispatchQueueRelease(q) (dispatch_release(q))
-    #define SDDispatchQueueSetterSementics assign
-#endif
-
 FOUNDATION_EXPORT UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
 typedef void(^SDWebImageNoParamsBlock)(void);
