@@ -79,6 +79,9 @@ static char TAG_ACTIVITY_SHOW;
                 if (completedBlock && shouldCallCompletedBlock) {
                     completedBlock(image, error, cacheType, url);
                 }
+                
+                // break retain cycle, see #2125
+                [self sd_removeImageLoadOperationWithKey:validOperationKey];
             };
             
             // case 1a: we got an image, but the SDWebImageAvoidAutoSetImage flag is set
