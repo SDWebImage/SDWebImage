@@ -12,7 +12,10 @@
 
 #import "SDWebImageManager.h"
 
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageInGlobalQueueKey;
+/**
+ A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
+ */
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
 

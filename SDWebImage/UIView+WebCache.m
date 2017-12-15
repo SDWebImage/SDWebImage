@@ -13,7 +13,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
-NSString * const SDWebImageInternalSetImageInGlobalQueueKey = @"setImageInGlobalQueue";
+NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
 
 static char imageURLKey;
 
@@ -52,6 +52,10 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     if (!(options & SDWebImageDelayPlaceholder)) {
+        if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
+            dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+            dispatch_group_enter(group);
+        }
         dispatch_main_async_safe(^{
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
         });
@@ -100,16 +104,23 @@ static char TAG_ACTIVITY_SHOW;
                 targetImage = placeholder;
                 targetData = nil;
             }
-            BOOL shouldUseGlobalQueue = NO;
-            if (context && [context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey]) {
-                shouldUseGlobalQueue = [[context valueForKey:SDWebImageInternalSetImageInGlobalQueueKey] boolValue];
-            }
-            dispatch_queue_t targetQueue = shouldUseGlobalQueue ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0) : dispatch_get_main_queue();
             
-            dispatch_queue_async_safe(targetQueue, ^{
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-                dispatch_main_async_safe(callCompletedBlockClojure);
-            });
+            if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
+                dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+                dispatch_group_enter(group);
+                dispatch_main_async_safe(^{
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                });
+                // ensure completion block is called after custom setImage process finish
+                dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+                    callCompletedBlockClojure();
+                });
+            } else {
+                dispatch_main_async_safe(^{
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    callCompletedBlockClojure();
+                });
+            }
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
