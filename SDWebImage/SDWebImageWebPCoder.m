@@ -169,8 +169,9 @@
     // last_y may be 0, means no enough bitmap data to decode, ignore this
     if (width + height > 0 && last_y > 0 && height >= last_y) {
         // Construct a UIImage from the decoded RGBA value array
+        size_t rgbaSize = last_y * stride;
         CGDataProviderRef provider =
-        CGDataProviderCreateWithData(NULL, rgba, 0, NULL);
+        CGDataProviderCreateWithData(NULL, rgba, rgbaSize, NULL);
         CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
         
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
