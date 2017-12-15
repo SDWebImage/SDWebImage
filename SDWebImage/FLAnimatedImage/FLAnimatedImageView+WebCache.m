@@ -13,7 +13,6 @@
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
 #import "NSData+ImageContentType.h"
-#import "FLAnimatedImage.h"
 #import "UIImageView+WebCache.h"
 
 @implementation FLAnimatedImageView (WebCache)
@@ -53,17 +52,25 @@
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
+                           // This setImageBlock may not called from main queue
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                           FLAnimatedImage *animatedImage;
                            if (imageFormat == SDImageFormatGIF) {
-                               weakSelf.animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                               weakSelf.image = nil;
-                           } else {
-                               weakSelf.image = image;
-                               weakSelf.animatedImage = nil;
+                               animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
                            }
+                           dispatch_main_async_safe(^{
+                               if (animatedImage) {
+                                   weakSelf.animatedImage = animatedImage;
+                                   weakSelf.image = nil;
+                               } else {
+                                   weakSelf.image = image;
+                                   weakSelf.animatedImage = nil;
+                               }
+                           });
                        }
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:completedBlock
+                             context:@{SDWebImageInternalSetImageInGlobalQueueKey: @(YES)}];
 }
 
 @end

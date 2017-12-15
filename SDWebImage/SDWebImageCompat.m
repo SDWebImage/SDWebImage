@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImageCompat.h"
+#import "UIImage+MultiFormat.h"
 
 #if !__has_feature(objc_arc)
 #error SDWebImage is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
@@ -26,10 +27,13 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         for (UIImage *tempImage in image.images) {
             [scaledImages addObject:SDScaledImageForKey(key, tempImage)];
         }
-
-        return [UIImage animatedImageWithImages:scaledImages duration:image.duration];
-    }
-    else {
+        
+        UIImage *animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
+        if (animatedImage) {
+            animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
+        }
+        return animatedImage;
+    } else {
 #if SD_WATCH
         if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
 #elif SD_UIKIT

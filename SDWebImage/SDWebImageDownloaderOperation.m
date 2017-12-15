@@ -7,11 +7,9 @@
  */
 
 #import "SDWebImageDownloaderOperation.h"
-#import "SDWebImageDecoder.h"
-#import "UIImage+MultiFormat.h"
-#import <ImageIO/ImageIO.h>
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
+#import "SDWebImageCodersManager.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
@@ -30,6 +28,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
+@property (copy, nonatomic, nullable) NSData *cachedData;
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -45,14 +44,11 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
 
+@property (strong, nonatomic, nullable) id<SDWebImageProgressiveCoder> progressiveCoder;
+
 @end
 
-@implementation SDWebImageDownloaderOperation {
-    size_t width, height;
-#if SD_UIKIT || SD_WATCH
-    UIImageOrientation orientation;
-#endif
-}
+@implementation SDWebImageDownloaderOperation
 
 @synthesize executing = _executing;
 @synthesize finished = _finished;
@@ -143,6 +139,14 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             }];
         }
 #endif
+        if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
+            // Grab the cached data for later check
+            NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request];
+            if (cachedResponse) {
+                self.cachedData = cachedResponse.data;
+            }
+        }
+        
         NSURLSession *session = self.unownedSession;
         if (!self.unownedSession) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -169,8 +173,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
+        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
         });
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}]];
@@ -201,8 +206,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         [self.dataTask cancel];
+        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
         });
 
         // As we cancelled the connection, its callback won't be called and thus won't
@@ -221,11 +227,25 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (void)reset {
+    __weak typeof(self) weakSelf = self;
     dispatch_barrier_async(self.barrierQueue, ^{
-        [self.callbackBlocks removeAllObjects];
+        [weakSelf.callbackBlocks removeAllObjects];
     });
     self.dataTask = nil;
-    self.imageData = nil;
+    
+    NSOperationQueue *delegateQueue;
+    if (self.unownedSession) {
+        delegateQueue = self.unownedSession.delegateQueue;
+    } else {
+        delegateQueue = self.ownedSession.delegateQueue;
+    }
+    if (delegateQueue) {
+        NSAssert(delegateQueue.maxConcurrentOperationCount == 1, @"NSURLSession delegate queue should be a serial queue");
+        [delegateQueue addOperationWithBlock:^{
+            weakSelf.imageData = nil;
+        }];
+    }
+    
     if (self.ownedSession) {
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
@@ -257,7 +277,8 @@ didReceiveResponse:(NSURLResponse *)response
     
     //'304 Not Modified' is an exceptional one
     if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
-        NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
+        NSInteger expected = (NSInteger)response.expectedContentLength;
+        expected = expected > 0 ? expected : 0;
         self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
@@ -265,11 +286,11 @@ didReceiveResponse:(NSURLResponse *)response
         
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
         self.response = response;
+        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
         });
-    }
-    else {
+    } else {
         NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
         
         //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
@@ -279,8 +300,9 @@ didReceiveResponse:(NSURLResponse *)response
         } else {
             [self.dataTask cancel];
         }
+        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
         });
         
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
@@ -297,82 +319,34 @@ didReceiveResponse:(NSURLResponse *)response
     [self.imageData appendData:data];
 
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
-        // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
-        // Thanks to the author @Nyx0uf
-
+        // Get the image data
+        NSData *imageData = [self.imageData copy];
         // Get the total bytes downloaded
-        const NSInteger totalSize = self.imageData.length;
-
-        // Update the data source, we must pass ALL the data, not just the new bytes
-        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)self.imageData, NULL);
-
-        if (width + height == 0) {
-            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-            if (properties) {
-                NSInteger orientationValue = -1;
-                CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
-                if (val) CFNumberGetValue(val, kCFNumberLongType, &height);
-                val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
-                if (val) CFNumberGetValue(val, kCFNumberLongType, &width);
-                val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
-                if (val) CFNumberGetValue(val, kCFNumberNSIntegerType, &orientationValue);
-                CFRelease(properties);
-
-                // When we draw to Core Graphics, we lose orientation information,
-                // which means the image below born of initWithCGIImage will be
-                // oriented incorrectly sometimes. (Unlike the image born of initWithData
-                // in didCompleteWithError.) So save it here and pass it on later.
-#if SD_UIKIT || SD_WATCH
-                orientation = [[self class] orientationFromPropertyValue:(orientationValue == -1 ? 1 : orientationValue)];
-#endif
+        const NSInteger totalSize = imageData.length;
+        // Get the finish status
+        BOOL finished = (totalSize >= self.expectedSize);
+        
+        if (!self.progressiveCoder) {
+            // We need to create a new instance for progressive decoding to avoid conflicts
+            for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedInstance].coders) {
+                if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
+                    [((id<SDWebImageProgressiveCoder>)coder) canIncrementallyDecodeFromData:imageData]) {
+                    self.progressiveCoder = [[[coder class] alloc] init];
+                    break;
+                }
             }
         }
-
-        if (width + height > 0 && totalSize < self.expectedSize) {
-            // Create the image
-            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
-
-#if SD_UIKIT || SD_WATCH
-            // Workaround for iOS anamorphic image
-            if (partialImageRef) {
-                const size_t partialHeight = CGImageGetHeight(partialImageRef);
-                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-                CGContextRef bmContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-                CGColorSpaceRelease(colorSpace);
-                if (bmContext) {
-                    CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = width, .size.height = partialHeight}, partialImageRef);
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = CGBitmapContextCreateImage(bmContext);
-                    CGContextRelease(bmContext);
-                }
-                else {
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = nil;
-                }
+        
+        UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
+        if (image) {
+            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+            image = [self scaledImageForKey:key image:image];
+            if (self.shouldDecompressImages) {
+                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
             }
-#endif
-
-            if (partialImageRef) {
-#if SD_UIKIT || SD_WATCH
-                UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
-#elif SD_MAC
-                UIImage *image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
-#endif
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                UIImage *scaledImage = [self scaledImageForKey:key image:image];
-                if (self.shouldDecompressImages) {
-                    image = [UIImage decodedImageWithImage:scaledImage];
-                }
-                else {
-                    image = scaledImage;
-                }
-                CGImageRelease(partialImageRef);
-                
-                [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
-            }
+            
+            [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
         }
-
-        CFRelease(imageSource);
     }
 
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
@@ -401,10 +375,11 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
         self.dataTask = nil;
+        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
             if (!error) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:weakSelf];
             }
         });
     }
@@ -415,32 +390,44 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
-             *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
-             *  the response data will be nil.
-             *  So we don't need to check the cache option here, since the system will obey the cache option
              */
-            if (self.imageData) {
-                UIImage *image = [UIImage sd_imageWithData:self.imageData];
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = [self scaledImageForKey:key image:image];
-                
-                // Do not force decoding animated GIFs
-                if (!image.images) {
-                    if (self.shouldDecompressImages) {
-                        if (self.options & SDWebImageDownloaderScaleDownLargeImages) {
-#if SD_UIKIT || SD_WATCH
-                            image = [UIImage decodedAndScaledDownImageWithImage:image];
-                            [self.imageData setData:UIImagePNGRepresentation(image)];
+            NSData *imageData = [self.imageData copy];
+            if (imageData) {
+                /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
+                 *  then we should check if the cached data is equal to image data
+                 */
+                if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
+                    // call completion block with nil
+                    [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+                } else {
+                    UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
+                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                    image = [self scaledImageForKey:key image:image];
+                    
+                    BOOL shouldDecode = YES;
+                    // Do not force decoding animated GIFs and WebPs
+                    if (image.images) {
+                        shouldDecode = NO;
+                    } else {
+#ifdef SD_WEBP
+                        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                        if (imageFormat == SDImageFormatWebP) {
+                            shouldDecode = NO;
+                        }
 #endif
-                        } else {
-                            image = [UIImage decodedImageWithImage:image];
+                    }
+                    
+                    if (shouldDecode) {
+                        if (self.shouldDecompressImages) {
+                            BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
+                            image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
                         }
                     }
-                }
-                if (CGSizeEqualToSize(image.size, CGSizeZero)) {
-                    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                } else {
-                    [self callCompletionBlocksWithImage:image imageData:self.imageData error:nil finished:YES];
+                    if (CGSizeEqualToSize(image.size, CGSizeZero)) {
+                        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                    } else {
+                        [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                    }
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
@@ -481,32 +468,6 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 #pragma mark Helper methods
-
-#if SD_UIKIT || SD_WATCH
-+ (UIImageOrientation)orientationFromPropertyValue:(NSInteger)value {
-    switch (value) {
-        case 1:
-            return UIImageOrientationUp;
-        case 3:
-            return UIImageOrientationDown;
-        case 8:
-            return UIImageOrientationLeft;
-        case 6:
-            return UIImageOrientationRight;
-        case 2:
-            return UIImageOrientationUpMirrored;
-        case 4:
-            return UIImageOrientationDownMirrored;
-        case 5:
-            return UIImageOrientationLeftMirrored;
-        case 7:
-            return UIImageOrientationRightMirrored;
-        default:
-            return UIImageOrientationUp;
-    }
-}
-#endif
-
 - (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
     return SDScaledImageForKey(key, image);
 }

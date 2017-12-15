@@ -34,16 +34,36 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/SDWebImageOperation.h>
 #import <SDWebImage/SDWebImageDownloader.h>
+
 #if SD_MAC || SD_UIKIT
-#import <SDWebImage/MKAnnotationView+WebCache.h>
+    #import <SDWebImage/MKAnnotationView+WebCache.h>
 #endif
-#import <SDWebImage/SDWebImageDecoder.h>
+
+#import <SDWebImage/SDWebImageCodersManager.h>
+#import <SDWebImage/SDWebImageCoder.h>
+#import <SDWebImage/SDWebImageWebPCoder.h>
+#import <SDWebImage/SDWebImageGIFCoder.h>
+#import <SDWebImage/SDWebImageImageIOCoder.h>
+#import <SDWebImage/SDWebImageFrame.h>
+#import <SDWebImage/SDWebImageCoderHelper.h>
 #import <SDWebImage/UIImage+WebP.h>
 #import <SDWebImage/UIImage+GIF.h>
+#import <SDWebImage/UIImage+ForceDecode.h>
 #import <SDWebImage/NSData+ImageContentType.h>
+
 #if SD_MAC
-#import <SDWebImage/NSImage+WebCache.h>
+    #import <SDWebImage/NSImage+WebCache.h>
 #endif
+
 #if SD_UIKIT
-#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+    #import <SDWebImage/FLAnimatedImageView+WebCache.h>
+
+    #if __has_include(<SDWebImage/FLAnimatedImage.h>)
+        #import <SDWebImage/FLAnimatedImage.h>
+    #endif
+
+    #if __has_include(<SDWebImage/FLAnimatedImageView.h>)
+        #import <SDWebImage/FLAnimatedImageView.h>
+    #endif
+
 #endif

@@ -23,7 +23,6 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
-     * I think this option should be renamed to 'SDWebImageDownloaderUsingCachedResponseDontLoad'
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     
@@ -68,8 +67,8 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     SDWebImageDownloaderLIFOExecutionOrder
 };
 
-extern NSString * _Nonnull const SDWebImageDownloadStartNotification;
-extern NSString * _Nonnull const SDWebImageDownloadStopNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
 typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 
@@ -112,11 +111,18 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  */
 @property (readonly, nonatomic) NSUInteger currentDownloadCount;
 
-
 /**
  *  The timeout value (in seconds) for the download operation. Default: 15.0.
  */
 @property (assign, nonatomic) NSTimeInterval downloadTimeout;
+
+/**
+ * The configuration in use by the internal NSURLSession.
+ * Mutating this object directly has no effect.
+ *
+ * @see createNewSessionWithConfiguration:
+ */
+@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
 
 
 /**
@@ -156,7 +162,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 
 /**
  * Creates an instance of a downloader with specified session configuration.
- * *Note*: `timeoutIntervalForRequest` is going to be overwritten.
+ * @note `timeoutIntervalForRequest` is going to be overwritten.
  * @return new instance of downloader class
  */
 - (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration NS_DESIGNATED_INITIALIZER;
@@ -229,5 +235,22 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * Cancels all download operations in the queue
  */
 - (void)cancelAllDownloads;
+
+/**
+ * Forces SDWebImageDownloader to create and use a new NSURLSession that is
+ * initialized with the given configuration.
+ * @note All existing download operations in the queue will be cancelled.
+ * @note `timeoutIntervalForRequest` is going to be overwritten.
+ *
+ * @param sessionConfiguration The configuration to use for the new NSURLSession
+ */
+- (void)createNewSessionWithConfiguration:(nonnull NSURLSessionConfiguration *)sessionConfiguration;
+
+/**
+ * Invalidates the managed session, optionally canceling pending operations.
+ * @note If you use custom downloader instead of the shared downloader, you need call this method when you do not use it to avoid memory leak
+ * @param cancelPendingOperations Whether or not to cancel pending operations.
+ */
+- (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations;
 
 @end
