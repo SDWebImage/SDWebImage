@@ -16,7 +16,7 @@ static char loadOperationKey;
 
 // key is copy, value is weak because operation instance is retained by SDWebImageManager's runningOperations property
 // we should use lock to keep thread-safe because these method may not be acessed from main queue
-typedef NSMapTable<NSString *, id> SDOperationsDictionary;
+typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 
 @implementation UIView (WebCacheOperation)
 
@@ -47,13 +47,13 @@ typedef NSMapTable<NSString *, id> SDOperationsDictionary;
 - (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key {
     // Cancel in progress downloader from queue
     SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
-    id operation;
+    id<SDWebImageOperation> operation;
     @synchronized (self) {
         operation = [operationDictionary objectForKey:key];
     }
     if (operation) {
         if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]){
-            [(id<SDWebImageOperation>) operation cancel];
+            [operation cancel];
         }
         @synchronized (self) {
             [operationDictionary removeObjectForKey:key];

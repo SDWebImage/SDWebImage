@@ -109,18 +109,18 @@
     }];
 }
 
-static char animationloadOperationKey;
+static char animationLoadOperationKey;
 
 // element is weak because operation instance is retained by SDWebImageManager's runningOperations property
 // we should use lock to keep thread-safe because these method may not be acessed from main queue
 - (NSPointerArray *)sd_animationOperationArray {
     @synchronized(self) {
-        NSPointerArray *operationsArray = objc_getAssociatedObject(self, &animationloadOperationKey);
+        NSPointerArray *operationsArray = objc_getAssociatedObject(self, &animationLoadOperationKey);
         if (operationsArray) {
             return operationsArray;
         }
         operationsArray = [NSPointerArray weakObjectsPointerArray];
-        objc_setAssociatedObject(self, &animationloadOperationKey, operationsArray, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, &animationLoadOperationKey, operationsArray, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return operationsArray;
     }
 }
