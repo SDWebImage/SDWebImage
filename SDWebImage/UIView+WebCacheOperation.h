@@ -20,7 +20,7 @@
  *  @param operation the operation
  *  @param key       key for storing the operation
  */
-- (void)sd_setImageLoadOperation:(nullable id)operation forKey:(nullable NSString *)key;
+- (void)sd_setImageLoadOperation:(nullable id<SDWebImageOperation>)operation forKey:(nullable NSString *)key;
 
 /**
  *  Cancel all operations for the current UIView and key
