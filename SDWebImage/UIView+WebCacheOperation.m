@@ -14,18 +14,22 @@
 
 static char loadOperationKey;
 
-typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
+// key is copy, value is weak because operation instance is retained by SDWebImageManager's runningOperations property
+// we should use lock to keep thread-safe because these method may not be acessed from main queue
+typedef NSMapTable<NSString *, id> SDOperationsDictionary;
 
 @implementation UIView (WebCacheOperation)
 
 - (SDOperationsDictionary *)operationDictionary {
-    SDOperationsDictionary *operations = objc_getAssociatedObject(self, &loadOperationKey);
-    if (operations) {
+    @synchronized(self) {
+        SDOperationsDictionary *operations = objc_getAssociatedObject(self, &loadOperationKey);
+        if (operations) {
+            return operations;
+        }
+        operations = [[NSMapTable alloc] initWithKeyOptions:NSMapTableCopyIn valueOptions:NSMapTableWeakMemory capacity:0];
+        objc_setAssociatedObject(self, &loadOperationKey, operations, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return operations;
     }
-    operations = [NSMutableDictionary dictionary];
-    objc_setAssociatedObject(self, &loadOperationKey, operations, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    return operations;
 }
 
 - (void)sd_setImageLoadOperation:(nullable id)operation forKey:(nullable NSString *)key {
@@ -33,7 +37,9 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
         [self sd_cancelImageLoadOperationWithKey:key];
         if (operation) {
             SDOperationsDictionary *operationDictionary = [self operationDictionary];
-            operationDictionary[key] = operation;
+            @synchronized (self) {
+                [operationDictionary setObject:operation forKey:key];
+            }
         }
     }
 }
@@ -41,7 +47,10 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
 - (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key {
     // Cancel in progress downloader from queue
     SDOperationsDictionary *operationDictionary = [self operationDictionary];
-    id operations = operationDictionary[key];
+    id operations;
+    @synchronized (self) {
+        operations = [operationDictionary objectForKey:key];
+    }
     if (operations) {
         if ([operations isKindOfClass:[NSArray class]]) {
             for (id <SDWebImageOperation> operation in operations) {
@@ -52,14 +61,18 @@ typedef NSMutableDictionary<NSString *, id> SDOperationsDictionary;
         } else if ([operations conformsToProtocol:@protocol(SDWebImageOperation)]){
             [(id<SDWebImageOperation>) operations cancel];
         }
-        [operationDictionary removeObjectForKey:key];
+        @synchronized (self) {
+            [operationDictionary removeObjectForKey:key];
+        }
     }
 }
 
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key {
     if (key) {
         SDOperationsDictionary *operationDictionary = [self operationDictionary];
-        [operationDictionary removeObjectForKey:key];
+        @synchronized (self) {
+            [operationDictionary removeObjectForKey:key];
+        }
     }
 }
 
