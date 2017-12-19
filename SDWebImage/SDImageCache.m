@@ -217,8 +217,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             @autoreleasepool {
                 NSData *data = imageData;
                 if (!data && image) {
-                    // If we do not have any data to detect image format, use PNG format
-                    data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:SDImageFormatPNG];
+                    // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
+                    SDImageFormat format;
+                    if (SDCGImageRefContainsAlpha(image.CGImage)) {
+                        format = SDImageFormatPNG;
+                    } else {
+                        format = SDImageFormatJPEG;
+                    }
+                    data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:format];
                 }
                 [self storeImageDataToDisk:data forKey:key];
             }
