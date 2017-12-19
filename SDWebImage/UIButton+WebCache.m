@@ -146,16 +146,8 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
                            completed:completedBlock];
 }
 
-- (void)sd_setImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
-    [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
-}
-
 - (void)sd_cancelImageLoadForState:(UIControlState)state {
     [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];
-}
-
-- (void)sd_setBackgroundImageLoadOperation:(id<SDWebImageOperation>)operation forState:(UIControlState)state {
-    [self sd_setImageLoadOperation:operation forKey:[NSString stringWithFormat:@"UIButtonBackgroundImageOperation%@", @(state)]];
 }
 
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state {
