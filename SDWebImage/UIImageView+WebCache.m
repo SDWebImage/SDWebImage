@@ -134,9 +134,7 @@ static char animationLoadOperationKey;
                     [operation cancel];
                 }
             }
-            for (size_t i = 0; i < operationsArray.count; i++) {
-                [operationsArray removePointerAtIndex:i];
-            }
+            operationsArray.count = 0;
         }
     }
 }
