@@ -11,6 +11,7 @@
 #import "NSImage+Additions.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageTransformer.h"
+#import "SDWebImageCoderHelper.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -294,12 +295,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 if (!data && image) {
                     // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
                     SDImageFormat format;
-                    if (SDCGImageRefContainsAlpha(image.CGImage)) {
+                    if ([SDWebImageCoderHelper imageRefContainsAlpha:image.CGImage]) {
                         format = SDImageFormatPNG;
                     } else {
                         format = SDImageFormatJPEG;
                     }
-                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format];
+                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
                 [self _storeImageDataToDisk:data forKey:key error:&writeError];
             }
@@ -476,10 +477,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data {
     if (data) {
-        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data];
+        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:nil];
         image = [self scaledImageForKey:key image:image];
         if (self.config.shouldDecompressImages) {
-            image = [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+            image = [SDWebImageCoderHelper decodedImageWithImage:image];
         }
         return image;
     } else {

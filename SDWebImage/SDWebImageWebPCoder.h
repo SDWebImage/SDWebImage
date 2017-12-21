@@ -14,7 +14,7 @@
 /**
  Built in coder that supports WebP and animated WebP
  */
-@interface SDWebImageWebPCoder : NSObject <SDWebImageProgressiveCoder>
+@interface SDWebImageWebPCoder : NSObject <SDWebImageProgressiveCoder, SDWebImageAnimatedCoder>
 
 @property (nonatomic, class, readonly, nonnull) SDWebImageWebPCoder *sharedCoder;
 

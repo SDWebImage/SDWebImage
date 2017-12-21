@@ -9,27 +9,19 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
+#import "SDAnimatedImage.h"
+
+typedef NSString * SDWebImageCoderOption NS_STRING_ENUM;
+typedef NSDictionary<SDWebImageCoderOption, id> SDWebImageCoderOptions;
 
 /**
- A Boolean value indicating whether to scale down large images during decompressing. (NSNumber)
+ A Boolean value indicating whether to decode the first frame only for animated image during decoding. (NSNumber)
  */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageCoderScaleDownLargeImagesKey;
-
+FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeFirstFrameOnly;
 /**
- Return the shared device-dependent RGB color space created with CGColorSpaceCreateDeviceRGB.
-
- @return The device-dependent RGB color space
+ A double value between 0.0-1.0 indicating the encode quality to produce the image data. If not provide, use 1.0. (NSNumber)
  */
-CG_EXTERN CGColorSpaceRef _Nonnull SDCGColorSpaceGetDeviceRGB(void);
-
-/**
- Check whether CGImageRef contains alpha channel.
-
- @param imageRef The CGImageRef
- @return Return YES if CGImageRef contains alpha channel, otherwise return NO
- */
-CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
-
+FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeQuality;
 
 /**
  This is the image coder protocol to provide custom image decoding/encoding.
@@ -52,21 +44,11 @@ CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
  Decode the image data to image.
 
  @param data The image data to be decoded
+ @param optionsDict A dictionary containing any decoding options. Pass {SDWebImageCoderDecodeFirstFrameOnlyKey: @(YES)} to decode the first frame only.
  @return The decoded image from data
  */
-- (nullable UIImage *)decodedImageWithData:(nullable NSData *)data;
-
-/**
- Decompress the image with original image and image data.
-
- @param image The original image to be decompressed
- @param data The pointer to original image data. The pointer itself is nonnull but image data can be null. This data will set to cache if needed. If you do not need to modify data at the sametime, ignore this param.
- @param optionsDict A dictionary containing any decompressing options. Pass {SDWebImageCoderScaleDownLargeImagesKey: @(YES)} to scale down large images
- @return The decompressed image
- */
-- (nullable UIImage *)decompressedImageWithImage:(nullable UIImage *)image
-                                            data:(NSData * _Nullable * _Nonnull)data
-                                         options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict;
+- (nullable UIImage *)decodedImageWithData:(nullable NSData *)data
+                                   options:(nullable SDWebImageCoderOptions *)options;
 
 #pragma mark - Encoding
 
@@ -85,7 +67,9 @@ CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
  @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible
  @return The encoded image data
  */
-- (nullable NSData *)encodedDataWithImage:(nullable UIImage *)image format:(SDImageFormat)format;
+- (nullable NSData *)encodedDataWithImage:(nullable UIImage *)image
+                                   format:(SDImageFormat)format
+                                  options:(nullable SDWebImageCoderOptions *)options;
 
 @end
 
@@ -107,13 +91,42 @@ CG_EXTERN BOOL SDCGImageRefContainsAlpha(_Nullable CGImageRef imageRef);
 - (BOOL)canIncrementallyDecodeFromData:(nullable NSData *)data;
 
 /**
+ Because incremental decoding need to keep the decoded context, we will alloc a new instance with the same class for each download operation to avoid conflicts
+ This init method should not return nil
+
+ @return A new instance to do incremental decoding for the specify image format
+ */
+- (nonnull instancetype)initIncrementally;
+
+/**
  Incremental decode the image data to image.
  
  @param data The image data has been downloaded so far
  @param finished Whether the download has finished
- @warning because incremental decoding need to keep the decoded context, we will alloc a new instance with the same class for each download operation to avoid conflicts
  @return The decoded image from data
  */
 - (nullable UIImage *)incrementallyDecodedImageWithData:(nullable NSData *)data finished:(BOOL)finished;
+
+@end
+
+@protocol SDWebImageAnimatedCoder <SDWebImageCoder, SDAnimatedImage>
+
+@required
+/**
+ Because animated image coder should keep the original data, we will alloc a new instance with the same class for the specify animated image data
+ The init method should return nil if it can't decode the specify animated image data
+
+ @param data The animated image data to be decode
+ @return A new instance to do animated decoding for specify image data
+ */
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data;
+
+/**
+ Return the current animated image data. This is used for image instance archive or image information retrieval
+ You can return back the desired data(may be not the same instance provide for init method, but have the equal data)
+
+ @return The animated image data
+ */
+- (nullable NSData *)animatedImageData;
 
 @end

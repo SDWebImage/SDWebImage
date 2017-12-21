@@ -14,7 +14,47 @@
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 
-@implementation SDWebImageGIFCoder
+@interface SDGIFCoderFrame : NSObject
+
+@property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
+@property (nonatomic, assign) NSTimeInterval duration; // Frame duration in seconds
+
+@end
+
+@implementation SDGIFCoderFrame
+@end
+
+@implementation SDWebImageGIFCoder {
+    size_t _width, _height;
+#if SD_UIKIT || SD_WATCH
+    UIImageOrientation _orientation;
+#endif
+    CGImageSourceRef _imageSource;
+    NSData *_imageData;
+    NSUInteger _loopCount;
+    NSUInteger _frameCount;
+    NSArray<SDGIFCoderFrame *> *_frames;
+}
+
+- (void)dealloc
+{
+    if (_imageSource) {
+        CFRelease(_imageSource);
+        _imageSource = NULL;
+    }
+#if SD_UIKIT
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+}
+
+- (void)didReceiveMemoryWarning:(NSNotification *)notification
+{
+    if (_imageSource) {
+        for (size_t i = 0; i < _frameCount; i++) {
+            CGImageSourceRemoveCacheAtIndex(_imageSource, i);
+        }
+    }
+}
 
 + (instancetype)sharedCoder {
     static SDWebImageGIFCoder *coder;
@@ -30,7 +70,7 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable NSDictionary<SDWebImageCoderOption,id> *)optionsDict {
     if (!data) {
         return nil;
     }
@@ -50,7 +90,8 @@
     
     UIImage *animatedImage;
     
-    if (count <= 1) {
+    BOOL decodeFirstFrame = [optionsDict[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data];
     } else {
         NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
@@ -69,15 +110,7 @@
             [frames addObject:frame];
         }
         
-        NSUInteger loopCount = 1;
-        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
-        NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
-        if (gifProperties) {
-            NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount];
-            if (gifLoopCount != nil) {
-                loopCount = gifLoopCount.unsignedIntegerValue;
-            }
-        }
+        NSUInteger loopCount = [self sd_imageLoopCountWithSource:source];
         
         animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
@@ -87,6 +120,19 @@
     
     return animatedImage;
 #endif
+}
+
+- (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source {
+    NSUInteger loopCount = 1;
+    NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
+    NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
+    if (gifProperties) {
+        NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount];
+        if (gifLoopCount != nil) {
+            loopCount = gifLoopCount.unsignedIntegerValue;
+        }
+    }
+    return loopCount;
 }
 
 - (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
@@ -121,19 +167,12 @@
     return frameDuration;
 }
 
-- (UIImage *)decompressedImageWithImage:(UIImage *)image
-                                   data:(NSData *__autoreleasing  _Nullable *)data
-                                options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    // GIF do not decompress
-    return image;
-}
-
 #pragma mark - Encode
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     return (format == SDImageFormatGIF);
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
@@ -178,6 +217,100 @@
     CFRelease(imageDestination);
     
     return [imageData copy];
+}
+
+#pragma mark - SDWebImageAnimatedCoder
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data {
+    if (!data) {
+        return nil;
+    }
+    self = [super init];
+    if (self) {
+        // use Image/IO cache because it's already keep a balance between CPU & memory
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
+        if (!imageSource) {
+            return nil;
+        }
+        BOOL framesValid = [self scanAndCheckFramesValidWithImageSource:imageSource];
+        if (!framesValid) {
+            CFRelease(imageSource);
+            return nil;
+        }
+        _imageSource = imageSource;
+        _imageData = data;
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+    }
+    return self;
+}
+
+- (BOOL)scanAndCheckFramesValidWithImageSource:(CGImageSourceRef)imageSource
+{
+    if (!imageSource) {
+        return NO;
+    }
+    NSUInteger frameCount = CGImageSourceGetCount(imageSource);
+    NSUInteger loopCount = [self sd_imageLoopCountWithSource:imageSource];
+    NSMutableArray<SDGIFCoderFrame *> *frames = [NSMutableArray array];
+    
+    for (size_t i = 0; i < frameCount; i++) {
+        SDGIFCoderFrame *frame = [[SDGIFCoderFrame alloc] init];
+        frame.index = i;
+        frame.duration = [self sd_frameDurationAtIndex:i source:imageSource];
+        [frames addObject:frame];
+    }
+    
+    _frameCount = frameCount;
+    _loopCount = loopCount;
+    _frames = [frames copy];
+    
+    return YES;
+}
+
+- (NSData *)animatedImageData
+{
+    return _imageData;
+}
+
+- (NSUInteger)animatedImageLoopCount
+{
+    return _loopCount;
+}
+
+- (NSUInteger)animatedImageFrameCount
+{
+    return _frameCount;
+}
+
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index
+{
+    if (index >= _frameCount) {
+        return 0;
+    }
+    return _frames[index].duration;
+}
+
+- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index
+{
+    CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
+    if (!imageRef) {
+        return nil;
+    }
+    // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
+    CGImageRef newImageRef = [SDWebImageCoderHelper imageRefCreateDecoded:imageRef];
+    if (!newImageRef) {
+        newImageRef = imageRef;
+    } else {
+        CGImageRelease(imageRef);
+    }
+#if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+#else
+    UIImage *image = [UIImage imageWithCGImage:newImageRef];
+#endif
+    CGImageRelease(newImageRef);
+    return image;
 }
 
 @end

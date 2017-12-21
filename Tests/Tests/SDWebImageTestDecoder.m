@@ -19,10 +19,18 @@
     return YES;
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
+}
+
+- (instancetype)initIncrementally
+{
+    self = [super init];
+    if (self) {
+    }
+    return self;
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
@@ -31,17 +39,11 @@
     return image;
 }
 
-- (UIImage *)decompressedImageWithImage:(UIImage *)image
-                                   data:(NSData *__autoreleasing  _Nullable *)data
-                                options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    NSString *testString = @"TestDecompress";
-    NSData *testData = [testString dataUsingEncoding:NSUTF8StringEncoding];
-    *data = testData;
-    
-    return image;
+- (BOOL)canIncrementallyDecodeFromData:(nullable NSData *)data {
+    return YES;
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
     NSString *testString = @"TestEncode";
     NSData *data = [testString dataUsingEncoding:NSUTF8StringEncoding];
     return data;

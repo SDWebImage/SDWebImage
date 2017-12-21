@@ -8,13 +8,13 @@
 
 #import "MasterViewController.h"
 #import "DetailViewController.h"
-#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#import <SDWebImage/SDAnimatedImageView+WebCache.h>
 #import <SDWebImage/UIView+WebCache.h>
 
 @interface MyCustomTableViewCell : UITableViewCell
 
 @property (nonatomic, strong) UILabel *customTextLabel;
-@property (nonatomic, strong) FLAnimatedImageView *customImageView;
+@property (nonatomic, strong) SDAnimatedImageView *customImageView;
 
 @end
 
@@ -22,7 +22,7 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        _customImageView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(20.0, 2.0, 60.0, 40.0)];
+        _customImageView = [[SDAnimatedImageView alloc] initWithFrame:CGRectMake(20.0, 2.0, 60.0, 40.0)];
         [self.contentView addSubview:_customImageView];
         _customTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(100.0, 12.0, 200, 20.0)];
         [self.contentView addSubview:_customTextLabel];

@@ -12,7 +12,7 @@
 @implementation UIImage (MultiFormat)
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
-    return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data];
+    return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:nil];
 }
 
 - (nullable NSData *)sd_imageData {
@@ -22,7 +22,7 @@
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat {
     NSData *imageData = nil;
     if (self) {
-        imageData = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat];
+        imageData = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:nil];
     }
     return imageData;
 }

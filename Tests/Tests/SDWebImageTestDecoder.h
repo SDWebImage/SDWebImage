@@ -10,6 +10,6 @@
 #import <Foundation/Foundation.h>
 #import <SDWebImage/SDWebImageCoder.h>
 
-@interface SDWebImageTestDecoder : NSObject <SDWebImageCoder>
+@interface SDWebImageTestDecoder : NSObject <SDWebImageProgressiveCoder>
 
 @end

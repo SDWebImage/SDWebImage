@@ -17,7 +17,7 @@
     if (!data) {
         return nil;
     }
-    return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data];
+    return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data options:nil];
 }
 
 @end

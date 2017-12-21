@@ -16,7 +16,7 @@
     if (!data) {
         return nil;
     }
-    return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data];
+    return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data options:nil];
 }
 
 @end

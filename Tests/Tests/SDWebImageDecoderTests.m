@@ -135,7 +135,7 @@
     expect([coder canDecodeFromData:inputImageData]).to.beTruthy();
     
     // 2 - decode from NSData to UIImage and check it
-    UIImage *inputImage = [coder decodedImageWithData:inputImageData];
+    UIImage *inputImage = [coder decodedImageWithData:inputImageData options:nil];
     expect(inputImage).toNot.beNil();
     
     if (isAnimated) {
@@ -159,7 +159,7 @@
     // 4 - encode from UIImage to NSData using the inputImageFormat and check it
     NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat];
     expect(outputImageData).toNot.beNil();
-    UIImage *outputImage = [coder decodedImageWithData:outputImageData];
+    UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
     expect(outputImage.size).to.equal(inputImage.size);
     expect(outputImage.scale).to.equal(inputImage.scale);
     expect(outputImage.images.count).to.equal(inputImage.images.count);

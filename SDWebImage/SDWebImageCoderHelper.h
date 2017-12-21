@@ -30,7 +30,58 @@
  @param animatedImage A animated image. If it's not animated, return nil
  @return The frames array
  */
-+ (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage;
++ (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
+
+/**
+ Return the shared device-dependent RGB color space.
+ On iOS, it's created with deviceRGB (if available, use sRGB).
+ On macOS, it's from the screen colorspace (if failed, use deviceRGB)
+ Because it's shared, you should not retain or release this object.
+ 
+ @return The device-dependent RGB color space
+ */
++ (CGColorSpaceRef _Nonnull)colorSpaceGetDeviceRGB CF_RETURNS_NOT_RETAINED;
+
+/**
+ Retuen the color space of the CGImage
+
+ @param imageRef The CGImage
+ @return The color space of CGImage, or if not supported, return the device-dependent RGB color space
+ */
++ (CGColorSpaceRef _Nonnull)imageRefGetColorSpace:(_Nonnull CGImageRef)imageRef CF_RETURNS_NOT_RETAINED;
+
+/**
+ Check whether CGImage contains alpha channel.
+ 
+ @param imageRef The CGImage
+ @return Return YES if CGImage contains alpha channel, otherwise return NO
+ */
++ (BOOL)imageRefContainsAlpha:(_Nonnull CGImageRef)imageRef;
+
+/**
+ Create a decoded image by the provided image. This follows The Create Rule and you are response to call release after usage.
+ It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
+
+ @param imageRef The CGImage
+ @return A new created decoded image
+ */
++ (CGImageRef _Nullable)imageRefCreateDecoded:(_Nonnull CGImageRef)imageRef CF_RETURNS_RETAINED;
+
+/**
+ Return the decoded image by the provided image. This one unlike `imageRefCreateDecoded:`, will not decode the image which contains alpha channel or animated image
+ @param image The image to be decoded
+ @return The decoded image
+ */
++ (UIImage * _Nullable)decodedImageWithImage:(UIImage * _Nullable)image;
+
+/**
+ Return the decoded and probably scaled down image by the provided image. If the image is large than the limit size, will try to scale down. Or just works as `decodedImageWithImage:`
+
+ @param image The image to be decoded and scaled down
+ @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @return The decoded and probably scaled down image
+ */
++ (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
 
 #if SD_UIKIT || SD_WATCH
 /**
@@ -39,7 +90,8 @@
  @param exifOrientation EXIF orientation
  @return iOS orientation
  */
-+ (UIImageOrientation)imageOrientationFromEXIFOrientation:(NSInteger)exifOrientation;
++ (UIImageOrientation)imageOrientationFromEXIFOrientation:(NSInteger)exifOrientation NS_SWIFT_NAME(imageOrientation(from:));
+
 /**
  Convert an iOS orientation to an EXIF image orientation.
 
