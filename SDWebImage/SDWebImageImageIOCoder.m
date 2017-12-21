@@ -497,9 +497,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             canEncode = NO;
         } else {
             // Can encode to HEIC
-            CFRelease(imageDestination);
             canEncode = YES;
         }
+        CFRelease(imageDestination);
     });
     return canEncode;
 }
