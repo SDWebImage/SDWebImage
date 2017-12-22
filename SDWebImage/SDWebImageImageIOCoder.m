@@ -160,7 +160,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (partialImageRef) {
             const size_t partialHeight = CGImageGetHeight(partialImageRef);
             CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
-            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, _width * 4, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
+            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, 0, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
             if (bmContext) {
                 CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
                 CGImageRelease(partialImageRef);
@@ -243,7 +243,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         
         size_t width = CGImageGetWidth(imageRef);
         size_t height = CGImageGetHeight(imageRef);
-        size_t bytesPerRow = kBytesPerPixel * width;
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
@@ -252,7 +251,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                                      width,
                                                      height,
                                                      kBitsPerComponent,
-                                                     bytesPerRow,
+                                                     0,
                                                      colorspaceRef,
                                                      kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         if (context == NULL) {
@@ -304,8 +303,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // current color space
         CGColorSpaceRef colorspaceRef = [[self class] colorSpaceForImageRef:sourceImageRef];
         
-        size_t bytesPerRow = kBytesPerPixel * destResolution.width;
-        
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
         // to create bitmap graphics contexts without alpha info.
@@ -313,7 +310,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             destResolution.width,
                                             destResolution.height,
                                             kBitsPerComponent,
-                                            bytesPerRow,
+                                            0,
                                             colorspaceRef,
                                             kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
         

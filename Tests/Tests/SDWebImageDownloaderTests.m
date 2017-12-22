@@ -61,6 +61,7 @@
 - (void)test01ThatSharedDownloaderIsNotEqualToInitDownloader {
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
     expect(downloader).toNot.equal([SDWebImageDownloader sharedDownloader]);
+    [downloader invalidateSessionAndCancel:YES];
 }
 
 - (void)test02ThatByDefaultDownloaderSetsTheAcceptHTTPHeader {
@@ -377,6 +378,7 @@
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+    [downloader invalidateSessionAndCancel:YES];
 }
 
 @end

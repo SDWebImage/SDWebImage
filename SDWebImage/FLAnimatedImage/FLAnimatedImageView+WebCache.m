@@ -47,30 +47,38 @@
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
+    dispatch_group_t group = dispatch_group_create();
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
-                           // This setImageBlock may not called from main queue
                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                           FLAnimatedImage *animatedImage;
                            if (imageFormat == SDImageFormatGIF) {
-                               animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                           }
-                           dispatch_main_async_safe(^{
-                               if (animatedImage) {
-                                   weakSelf.animatedImage = animatedImage;
-                                   weakSelf.image = nil;
-                               } else {
-                                   weakSelf.image = image;
-                                   weakSelf.animatedImage = nil;
+                               // Firstly set the static poster image to avoid flashing
+                               UIImage *posterImage = image.images ? image.images.firstObject : image;
+                               weakSelf.image = posterImage;
+                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                   // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
+                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                                   dispatch_main_async_safe(^{
+                                       weakSelf.animatedImage = animatedImage;
+                                       if (group) {
+                                           dispatch_group_leave(group);
+                                       }
+                                   });
+                               });
+                           } else {
+                               weakSelf.image = image;
+                               weakSelf.animatedImage = nil;
+                               if (group) {
+                                   dispatch_group_leave(group);
                                }
-                           });
+                           }
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:@{SDWebImageInternalSetImageInGlobalQueueKey: @(YES)}];
+                             context:group ? @{SDWebImageInternalSetImageGroupKey : group} : nil];
 }
 
 @end
