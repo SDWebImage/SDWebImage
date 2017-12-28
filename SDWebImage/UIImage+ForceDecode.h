@@ -10,8 +10,8 @@
 
 @interface UIImage (ForceDecode)
 
-+ (nullable UIImage *)decodedImageWithImage:(nullable UIImage *)image;
++ (nullable UIImage *)sd_decodedImageWithImage:(nullable UIImage *)image;
 
-+ (nullable UIImage *)decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
++ (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
 
 @end
