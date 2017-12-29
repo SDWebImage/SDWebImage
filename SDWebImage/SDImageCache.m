@@ -280,7 +280,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // NSFileManager's `createFileAtPath:` is used just for old code compatibility and will not trigger any delegate methods, so it's useless for custom NSFileManager at all.
     // And also, NSFileManager's `createFileAtPath:` can only grab underlying POSIX errno, but NSData can grab errors defined in NSCocoaErrorDomain, which is better for user to check.
-    if (![imageData writeToFile:cachePathForKey options:NSDataWritingAtomic error:error]) {
+    if (![imageData writeToFile:cachePathForKey options:self.config.diskCacheWritingOptions error:error]) {
         return NO;
     }
     
