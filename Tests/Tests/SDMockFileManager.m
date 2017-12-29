@@ -10,24 +10,25 @@
 
 @interface SDMockFileManager ()
 
-@property (nonatomic, assign) int errorNumber;
-
 @end
 
 @implementation SDMockFileManager
 
-- (id)initWithError:(int)errorNumber {
-    self = [super init];
-    if (self) {
-        _errorNumber = errorNumber;
+- (BOOL)createDirectoryAtPath:(NSString *)path withIntermediateDirectories:(BOOL)createIntermediates attributes:(NSDictionary<NSFileAttributeKey,id> *)attributes error:(NSError * _Nullable __autoreleasing *)error {
+    NSError *mockError = [self.mockSelectors objectForKey:NSStringFromSelector(_cmd)];
+    if ([mockError isEqual:[NSNull null]]) {
+        if (error) {
+            *error = nil;
+        }
+        return NO;
+    } else if (mockError) {
+        if (error) {
+            *error = mockError;
+        }
+        return NO;
+    } else {
+        return [super createDirectoryAtPath:path withIntermediateDirectories:createIntermediates attributes:attributes error:error];
     }
-    
-    return self;
-}
-
-- (BOOL)createFileAtPath:(NSString *)path contents:(NSData *)data attributes:(NSDictionary<NSString *,id> *)attr {
-    errno = self.errorNumber;
-    return (self.errorNumber == 0);
 }
 
 @end

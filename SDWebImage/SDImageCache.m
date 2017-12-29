@@ -137,14 +137,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)checkIfQueueIsIOQueue {
-    const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
-    if (strcmp(currentQueueLabel, ioQueueLabel) != 0) {
-        NSLog(@"This method should be called from the ioQueue");
-    }
-}
-
 #pragma mark - Cache paths
 
 - (void)addReadOnlyCachePath:(nonnull NSString *)path {
@@ -233,7 +225,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     }
                     data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:format];
                 }
-                [self storeImageDataToDisk:data forKey:key error:&writeError];
+                [self safeStoreImageDataToDisk:data forKey:key error:&writeError];
             }
             
             if (completionBlock) {
@@ -251,15 +243,34 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
-                       error:(NSError * _Nullable * _Nullable)errorPtr {
+                       error:(NSError * _Nullable __autoreleasing * _Nullable)error {
     if (!imageData || !key) {
         return NO;
     }
+    __autoreleasing NSError *fileError;
+    if (!error) {
+        error = &fileError;
+    }
     
-    [self checkIfQueueIsIOQueue];
+    __block BOOL success = YES;
+    void(^storeImageDataBlock)(void) =  ^{
+        success = [self safeStoreImageDataToDisk:imageData forKey:key error:error];
+    };
+    dispatch_sync(self.ioQueue, storeImageDataBlock);
     
+    return success;
+}
+
+- (BOOL)safeStoreImageDataToDisk:(nullable NSData *)imageData
+                          forKey:(nullable NSString *)key
+                           error:(NSError * _Nullable __autoreleasing * _Nonnull)error {
+    if (!imageData || !key) {
+        return NO;
+    }
     if (![_fileManager fileExistsAtPath:_diskCachePath]) {
-        [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+        if (![_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:error]) {
+            return NO;
+        }
     }
     
     // get cache Path for image key
@@ -267,8 +278,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    if (![_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil] && errorPtr) {
-        *errorPtr = [[NSError alloc] initWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+    // NSFileManager's `createFileAtPath:` is used just for old code compatibility and will not trigger any delegate methods, so it's useless for custom NSFileManager at all.
+    // And also, NSFileManager's `createFileAtPath:` can only grab underlying POSIX errno, but NSData can grab errors defined in NSCocoaErrorDomain, which is better for user to check.
+    if (![imageData writeToFile:cachePathForKey options:NSDataWritingAtomic error:error]) {
         return NO;
     }
     
