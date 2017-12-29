@@ -53,14 +53,11 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  */
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
 
-
-@property (assign, nonatomic) BOOL shouldDecompressImages;
-
 /**
- *  Was used to determine whether the URL connection should consult the credential storage for authenticating the connection.
- *  @deprecated Not used for a couple of versions
+ * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
+ * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
  */
-@property (nonatomic, assign) BOOL shouldUseCredentialStorage __deprecated_msg("Property deprecated. Does nothing. Kept only for backwards compatibility");
+@property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
  * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
