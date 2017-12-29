@@ -70,6 +70,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         case SDImageFormatWebP:
             // Do not support WebP decoding
             return NO;
+        case SDImageFormatHEIC:
+            return [[self class] canDecodeHEICFormat];
         default:
             return YES;
     }
@@ -470,6 +472,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return YES;
 }
 
++ (BOOL)canDecodeHEICFormat {
+    static BOOL canDecode = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        if ([[UIDevice currentDevice].systemVersion doubleValue] >= 11.0 && !TARGET_IPHONE_SIMULATOR) {
+            canDecode = YES;
+        }
+    });
+    return canDecode;
+}
+
 + (BOOL)canEncodeToHEICFormat {
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
@@ -484,9 +497,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             canEncode = NO;
         } else {
             // Can encode to HEIC
-            CFRelease(imageDestination);
             canEncode = YES;
         }
+        CFRelease(imageDestination);
     });
     return canEncode;
 }
