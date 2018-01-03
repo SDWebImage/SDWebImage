@@ -2,8 +2,8 @@ Pod::Spec.new do |s|
   s.name = 'SDWebImage'
   s.version = '4.2.3'
 
-  s.osx.deployment_target = '10.8'
-  s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.10'
+  s.ios.deployment_target = '8.0'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
 
@@ -33,8 +33,8 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.8'
-    mk.ios.deployment_target = '7.0'
+    mk.osx.deployment_target = '10.10'
+    mk.ios.deployment_target = '8.0'
     mk.tvos.deployment_target = '9.0'
     mk.source_files = 'SDWebImage/MKAnnotationView+WebCache.*'
     mk.framework = 'MapKit'
@@ -42,7 +42,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'GIF' do |gif|
-    gif.ios.deployment_target = '7.0'
+    gif.ios.deployment_target = '8.0'
     gif.source_files = 'SDWebImage/FLAnimatedImage/*.{h,m}'
     gif.dependency 'SDWebImage/Core'
     gif.dependency 'FLAnimatedImage', '~> 1.0'
