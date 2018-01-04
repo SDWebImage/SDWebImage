@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+// This is a mock class to provide custom error for methods
 @interface SDMockFileManager : NSFileManager
 
-- (id)initWithError:(int)errorNumber;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, NSError *> *mockSelectors; // used to specify mocked selectors which will return NO with specify error instead of normal process. If you specify a NSNull, will use nil instead.
 
 @end

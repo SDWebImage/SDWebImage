@@ -150,15 +150,13 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 /**
  * Synchronously store image NSData into disk cache at the given key.
  *
- * @warning This method is synchronous, make sure to call it from the ioQueue
- *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
- * @param errorPtr   NSError pointer. If error occurs then (*errorPtr) != nil.
+ * @param error      NSError pointer, for possible file I/O errors, See FoundationErrors.h
  */
 - (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key
-                       error:(NSError * _Nullable * _Nullable)errorPtr;
+                       error:(NSError * _Nullable * _Nullable)error;
 
 
 #pragma mark - Query and Retrieve Ops

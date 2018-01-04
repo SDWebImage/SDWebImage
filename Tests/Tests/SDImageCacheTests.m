@@ -309,23 +309,28 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 
 - (void)test41StoreImageDataToDiskWithError {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
-    NSError * error = nil;
+    NSError *targetError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteNoPermissionError userInfo:nil];
+    NSError *error = nil;
+    SDMockFileManager *fileManager = [[SDMockFileManager alloc] init];
+    fileManager.mockSelectors = @{NSStringFromSelector(@selector(createDirectoryAtPath:withIntermediateDirectories:attributes:error:)) : targetError};
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
                                                diskCacheDirectory:@"/"
-                                                      fileManager:[[SDMockFileManager alloc] initWithError:EACCES]];
+                                                      fileManager:fileManager];
     [cache storeImageDataToDisk:imageData
                          forKey:kImageTestKey
                           error:&error];
     
-    XCTAssertEqual(error.code, EACCES);
+    XCTAssertEqual(error.code, NSFileWriteNoPermissionError);
 }
 
 - (void)test42StoreImageDataToDiskWithoutError {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
-    NSError * error = nil;
+    NSError *error = nil;
+    SDMockFileManager *fileManager = [[SDMockFileManager alloc] init];
+    fileManager.mockSelectors = @{NSStringFromSelector(@selector(createDirectoryAtPath:withIntermediateDirectories:attributes:error:)) : [NSNull null]};
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
                                                diskCacheDirectory:@"/"
-                                                      fileManager:[[SDMockFileManager alloc] initWithError:0]];
+                                                      fileManager:fileManager];
     [cache storeImageDataToDisk:imageData
                          forKey:kImageTestKey
                           error:&error];
