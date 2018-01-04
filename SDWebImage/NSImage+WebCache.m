@@ -10,7 +10,7 @@
 
 #if SD_MAC
 
-@implementation NSImage (WebCache)
+@implementation NSImage (Additions)
 
 - (CGImageRef)CGImage {
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
@@ -20,19 +20,6 @@
 
 - (NSArray<NSImage *> *)images {
     return nil;
-}
-
-- (BOOL)isGIF {
-    BOOL isGIF = NO;
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            NSUInteger frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
-            isGIF = frameCount > 1 ? YES : NO;
-            break;
-        }
-    }
-    return isGIF;
 }
 
 @end

@@ -10,13 +10,10 @@
 
 #if SD_MAC
 
-#import <Cocoa/Cocoa.h>
+@interface NSImage (Additions)
 
-@interface NSImage (WebCache)
-
-- (CGImageRef)CGImage;
-- (NSArray<NSImage *> *)images;
-- (BOOL)isGIF;
+- (nullable CGImageRef)CGImage;
+- (nullable NSArray<NSImage *> *)images;
 
 @end
 
