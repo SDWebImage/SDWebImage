@@ -72,15 +72,13 @@
             [frames addObject:frame];
         }
         
-        NSUInteger loopCount = 1;
+        NSUInteger loopCount = 0;
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
         NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
         if (gifProperties) {
             NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount];
-            if (gifLoopCount && gifLoopCount.unsignedIntegerValue == 0) {
-                loopCount = 0;
-            } else {
-                loopCount = gifLoopCount.unsignedIntegerValue + 1;
+            if (gifLoopCount != nil) {
+                loopCount = gifLoopCount.unsignedIntegerValue;
             }
         }
         
@@ -101,11 +99,11 @@
     NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary];
     
     NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
-    if (delayTimeUnclampedProp) {
+    if (delayTimeUnclampedProp != nil) {
         frameDuration = [delayTimeUnclampedProp floatValue];
     } else {
         NSNumber *delayTimeProp = gifProperties[(NSString *)kCGImagePropertyGIFDelayTime];
-        if (delayTimeProp) {
+        if (delayTimeProp != nil) {
             frameDuration = [delayTimeProp floatValue];
         }
     }

@@ -108,6 +108,9 @@
 }
 
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations {
+    if (self == [SDWebImageDownloader sharedDownloader]) {
+        return;
+    }
     if (cancelPendingOperations) {
         [self.session invalidateAndCancel];
     } else {

@@ -1,3 +1,22 @@
+## [4.2.3 - 4.2 Patch, on Nov 30th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.3)
+See [all tickets marked for the 4.2.3 release](https://github.com/rs/SDWebImage/milestone/20)
+
+#### Features
+- Add a public API to allow user to invalidate URLSession used in SDWebImageDownloader to avoid memory leak on non-singleton instance #2116
+- Add a SDWebImageExternalCustomManagerKey context arguments to allow user to custom image manager for UIView category #2115
+- Allow custom SDWebImageDownloaderOperation to handle HTTP redirect #2123
+
+#### Fixes
+- Fix that FLAnimatedImageView blink and flash when collectionView reload #2102 #2106
+- Fix that SDWebImagePrefetcher startPrefetchingAtIndex accident crash #2110 #2111
+- Fix that Progressive WebP decoding not showing on iOS 11.2 #2130 #2131
+- Fix crash in method implementation of sd_cancelImageLoadOperationWithKey, and avoid retain of operation #2113 #2125 #2132
+- Fix Clang Static Analyzer warning for number nil check from Xcode 9.2 #2142 #2143
+
+#### Improvements
+- Adopt the current requirement, change ImageIO coder's canDecodeFromHEIC to actual implementation #2146 #2138
+- When store image with no data for SDImageCache, check whether it contains alpha to use PNG or JPEG format #2136
+
 ## [4.2.2 - 4.2 Patch, on Nov 7th, 2017](https://github.com/rs/SDWebImage/releases/tag/4.2.2)
 See [all tickets marked for the 4.2.2 release](https://github.com/rs/SDWebImage/milestone/19)
 

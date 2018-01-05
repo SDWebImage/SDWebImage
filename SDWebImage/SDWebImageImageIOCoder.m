@@ -71,7 +71,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             // Do not support WebP decoding
             return NO;
         case SDImageFormatHEIC:
-            return [[self class] canDecodeHEICFormat];
+            // Check HEIC decoding compatibility
+            return [[self class] canDecodeFromHEICFormat];
         default:
             return YES;
     }
@@ -82,6 +83,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         case SDImageFormatWebP:
             // Do not support WebP progressive decoding
             return NO;
+        case SDImageFormatHEIC:
+            // Check HEIC decoding compatibility
+            return [[self class] canDecodeFromHEICFormat];
         default:
             return YES;
     }
@@ -472,13 +476,29 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return YES;
 }
 
-+ (BOOL)canDecodeHEICFormat {
++ (BOOL)canDecodeFromHEICFormat {
     static BOOL canDecode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        if ([[UIDevice currentDevice].systemVersion doubleValue] >= 11.0 && !TARGET_IPHONE_SIMULATOR) {
-            canDecode = YES;
+#if TARGET_OS_SIMULATOR || SD_WATCH
+        canDecode = NO;
+#elif SD_MAC
+        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+        if ([processInfo respondsToSelector:@selector(operatingSystemVersion)]) {
+            // macOS 10.13+
+            canDecode = processInfo.operatingSystemVersion.minorVersion >= 13;
+        } else {
+            canDecode = NO;
         }
+#elif SD_UIKIT
+        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+        if ([processInfo respondsToSelector:@selector(operatingSystemVersion)]) {
+            // iOS 11+ && tvOS 11+
+            canDecode = processInfo.operatingSystemVersion.majorVersion >= 11;
+        } else {
+            canDecode = NO;
+        }
+#endif
     });
     return canDecode;
 }
@@ -497,9 +517,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             canEncode = NO;
         } else {
             // Can encode to HEIC
+            CFRelease(imageDestination);
             canEncode = YES;
         }
-        CFRelease(imageDestination);
     });
     return canEncode;
 }
