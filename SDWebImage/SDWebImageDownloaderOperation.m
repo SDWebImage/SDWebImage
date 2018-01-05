@@ -10,11 +10,21 @@
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
+#import "SDWebImageInternal.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
 NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
+
+dispatch_semaphore_t _Nonnull const SDWebImageDownloadSharedCacheLock(void) {
+    static dispatch_once_t onceToken;
+    static dispatch_semaphore_t sharedCacheLock;
+    dispatch_once(&onceToken, ^{
+        sharedCacheLock = dispatch_semaphore_create(1);
+    });
+    return sharedCacheLock;
+}
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
@@ -137,7 +147,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 #endif
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
             // Grab the cached data for later check
-            NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request];
+            NSCachedURLResponse *cachedResponse;
+            dispatch_semaphore_wait(SDWebImageDownloadSharedCacheLock(), DISPATCH_TIME_FOREVER);
+            cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request];
+            dispatch_semaphore_signal(SDWebImageDownloadSharedCacheLock());
             if (cachedResponse) {
                 self.cachedData = cachedResponse.data;
             }

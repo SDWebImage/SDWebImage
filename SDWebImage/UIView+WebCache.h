@@ -13,10 +13,6 @@
 #import "SDWebImageManager.h"
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
-/**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
  */
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;

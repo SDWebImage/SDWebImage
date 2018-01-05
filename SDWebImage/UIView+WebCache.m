@@ -7,6 +7,7 @@
  */
 
 #import "UIView+WebCache.h"
+#import "SDWebImageInternal.h"
 
 #if SD_UIKIT || SD_MAC
 
