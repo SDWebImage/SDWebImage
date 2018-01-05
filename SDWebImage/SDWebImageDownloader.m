@@ -63,7 +63,10 @@
 }
 
 - (nonnull instancetype)init {
-    return [self initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    // Each downloader cache is separated because of NSURLCache's thread-safe issue
+    configuration.URLCache = [[NSURLCache alloc] init];
+    return [self initWithSessionConfiguration:configuration];
 }
 
 - (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration {
