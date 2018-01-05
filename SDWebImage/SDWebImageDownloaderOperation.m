@@ -27,6 +27,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
+@property (strong, nonatomic, nullable) NSProgress *downloadProgress;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 @property (copy, nonatomic, nullable) NSData *cachedData;
 
@@ -67,6 +68,16 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _callbackBlocks = [NSMutableArray new];
         _executing = NO;
         _finished = NO;
+
+        __weak __typeof__ (self) wself = self;
+        _downloadProgress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
+        _downloadProgress.totalUnitCount = NSURLSessionTransferSizeUnknown;
+        _downloadProgress.cancellable = YES;
+        _downloadProgress.cancellationHandler = ^ {
+            [wself cancel];
+        };
+        _downloadProgress.pausable = NO;
+
         _expectedSize = 0;
         _unownedSession = session;
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
@@ -167,7 +178,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
+            progressBlock(self.downloadProgress, self.request.URL);
         }
         __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -277,7 +288,8 @@ didReceiveResponse:(NSURLResponse *)response
         expected = expected > 0 ? expected : 0;
         self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(0, expected, self.request.URL);
+            [self.downloadProgress setTotalUnitCount:expected];
+            progressBlock(self.downloadProgress, self.request.URL);
         }
         
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -346,7 +358,10 @@ didReceiveResponse:(NSURLResponse *)response
     }
 
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.imageData.length, self.expectedSize, self.request.URL);
+        if (![self.downloadProgress isCancelled]) {
+            [self.downloadProgress setCompletedUnitCount:self.imageData.length];
+        }
+        progressBlock(self.downloadProgress, self.request.URL);
     }
 }
 
