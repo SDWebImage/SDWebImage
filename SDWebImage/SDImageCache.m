@@ -11,6 +11,8 @@
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 
+static void * SDImageCacheContext = &SDImageCacheContext;
+
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
     return image.size.height * image.size.width;
@@ -69,6 +71,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
         
         _config = [[SDImageCacheConfig alloc] init];
+        // KVO config property which need to be passed
+        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDImageCacheContext];
+        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDImageCacheContext];
         
         // Init the memory cache
         _memCache = [[NSCache alloc] init];
@@ -109,6 +114,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)dealloc {
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDImageCacheContext];
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDImageCacheContext];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -255,12 +262,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // NSFileManager's `createFileAtPath:` is used just for old code compatibility and will not trigger any delegate methods, so it's useless for custom NSFileManager at all.
     // And also, NSFileManager's `createFileAtPath:` can only grab underlying POSIX errno, but NSData can grab errors defined in NSCocoaErrorDomain, which is better for user to check.
-    if (![imageData writeToFile:cachePathForKey options:self.config.diskCacheWritingOptions error:error]) {
+    if (![imageData writeToURL:fileURL options:self.config.diskCacheWritingOptions error:error]) {
         return NO;
     }
     
     // disable iCloud backup
     if (self.config.shouldDisableiCloud) {
+        // ignore iCloud backup resource value error
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
     }
     
@@ -271,13 +279,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
     dispatch_async(_ioQueue, ^{
-        BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
-
-        // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-        // checking the key with and without the extension
-        if (!exists) {
-            exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
-        }
+        BOOL exists = [self diskImageDataExistsWithKey:key];
 
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -285,6 +287,21 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             });
         }
     });
+}
+
+- (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key {
+    if (!key) {
+        return NO;
+    }
+    BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
+    
+    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
+    // checking the key with and without the extension
+    if (!exists) {
+        exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
+    }
+    
+    return exists;
 }
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
@@ -460,22 +477,18 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
 }
 
-# pragma mark - Mem Cache settings
+#pragma mark - KVO
 
-- (void)setMaxMemoryCost:(NSUInteger)maxMemoryCost {
-    self.memCache.totalCostLimit = maxMemoryCost;
-}
-
-- (NSUInteger)maxMemoryCost {
-    return self.memCache.totalCostLimit;
-}
-
-- (NSUInteger)maxMemoryCountLimit {
-    return self.memCache.countLimit;
-}
-
-- (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
-    self.memCache.countLimit = maxCountLimit;
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if (context == SDImageCacheContext) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
+            self.memCache.totalCostLimit = self.config.maxMemoryCost;
+        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
+            self.memCache.countLimit = self.config.maxMemoryCount;
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark - Cache clean Ops

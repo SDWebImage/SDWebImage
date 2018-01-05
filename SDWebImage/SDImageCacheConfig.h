@@ -12,18 +12,20 @@
 @interface SDImageCacheConfig : NSObject
 
 /**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
+ * Decompressing images means pre-decoding the image that are downloaded and cached on background queue. This can avoid image view decode it on main queue when rendering. This can improve performance but can consume more memory.
  * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
  */
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
- * disable iCloud backup [defaults to YES]
+ * Whether or not to disable iCloud backup
+ * Defaults to YES.
  */
 @property (assign, nonatomic) BOOL shouldDisableiCloud;
 
 /**
- * use memory cache [defaults to YES]
+ * Whether or not to use memory cache
+ * Defaults to YES.
  */
 @property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
 
@@ -41,12 +43,26 @@
 
 /**
  * The maximum length of time to keep an image in the cache, in seconds.
+ * Defaults to 1 weak.
  */
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
 /**
  * The maximum size of the cache, in bytes.
+ * Defaults to 0. Which means there is no cache size limit.
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;
+
+/**
+ * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
+ * Defaults to 0. Which means there is no memory cost limit.
+ */
+@property (assign, nonatomic) NSUInteger maxMemoryCost;
+
+/**
+ * The maximum number of objects the cache should hold.
+ * Defaults to 0. Which means there is no memory count limit.
+ */
+@property (assign, nonatomic) NSUInteger maxMemoryCount;
 
 @end
