@@ -419,6 +419,7 @@ didReceiveResponse:(NSURLResponse *)response
                             image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
                         }
                     }
+                    CGSize imageSize = image.size;
                     if (imageSize.width == 0 || imageSize.height == 0) {
                         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                     } else {
