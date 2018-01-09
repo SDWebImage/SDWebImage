@@ -72,12 +72,14 @@
             [frames addObject:frame];
         }
         
-        NSUInteger loopCount = 0;
+        NSUInteger loopCount = 1;
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
         NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
         if (gifProperties) {
             NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount];
-            loopCount = gifLoopCount?gifLoopCount.unsignedIntegerValue:1;
+            if (gifLoopCount != nil) {
+                loopCount = gifLoopCount.unsignedIntegerValue;
+            }
         }
         
         animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
