@@ -41,6 +41,10 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nullable NSURLCredential *)credential;
 - (void)setCredential:(nullable NSURLCredential *)value;
 
+- (NSInteger)expectedSize;
+
+- (nullable NSURLResponse *)response;
+
 - (BOOL)cancel:(nullable id)token;
 
 @end
@@ -87,7 +91,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (assign, nonatomic, readonly) NSInteger expectedSize;
 
 /**
- * The response returned by the operation's connection.
+ * The response returned by the operation's task.
  */
 @property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
 
