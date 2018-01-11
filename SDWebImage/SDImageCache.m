@@ -11,31 +11,6 @@
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 
-// See https://github.com/rs/SDWebImage/pull/1141 for discussion
-@interface AutoPurgeCache : NSCache
-@end
-
-@implementation AutoPurgeCache
-
-- (nonnull instancetype)init {
-    self = [super init];
-    if (self) {
-#if SD_UIKIT
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeAllObjects) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
-    }
-    return self;
-}
-
-- (void)dealloc {
-#if SD_UIKIT
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
-}
-
-@end
-
-
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
     return image.size.height * image.size.width;
@@ -90,7 +65,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _config = [[SDImageCacheConfig alloc] init];
         
         // Init the memory cache
-        _memCache = [[AutoPurgeCache alloc] init];
+        _memCache = [[NSCache alloc] init];
         _memCache.name = fullNamespace;
 
         // Init the disk cache
