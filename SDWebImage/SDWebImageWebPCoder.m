@@ -12,16 +12,18 @@
 #import "SDWebImageCoderHelper.h"
 #import "NSImage+WebCache.h"
 #import "UIImage+MultiFormat.h"
-#if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
+#if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>) && __has_include(<libwebp/utils.h>)
 #import <webp/decode.h>
 #import <webp/encode.h>
 #import <webp/demux.h>
 #import <webp/mux.h>
+#import <libwebp/utils.h>
 #else
 #import "webp/decode.h"
 #import "webp/encode.h"
 #import "webp/demux.h"
 #import "webp/mux.h"
+#import "libwebp/utils.h"
 #endif
 
 @implementation SDWebImageWebPCoder {
@@ -408,7 +410,7 @@
         webpData = [NSData dataWithBytes:data length:size];
     }
     if (data) {
-        WebPFree(data);
+        WebPSafeFree(data);
     }
     
     return webpData;
