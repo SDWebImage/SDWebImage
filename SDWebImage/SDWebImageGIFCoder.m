@@ -72,7 +72,7 @@
             [frames addObject:frame];
         }
         
-        NSUInteger loopCount = 0;
+        NSUInteger loopCount = 1;
         NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
         NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
         if (gifProperties) {

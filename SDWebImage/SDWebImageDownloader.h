@@ -250,6 +250,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * Invalidates the managed session, optionally canceling pending operations.
  * @note If you use custom downloader instead of the shared downloader, you need call this method when you do not use it to avoid memory leak
  * @param cancelPendingOperations Whether or not to cancel pending operations.
+ * @note Calling this method on the shared downloader has no effect.
  */
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations;
 
