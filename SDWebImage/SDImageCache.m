@@ -348,6 +348,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
+    return [self diskImageForKey:key data:data];
+}
+
+- (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data {
     if (data) {
         UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
         image = [self scaledImageForKey:key image:image];
@@ -364,50 +368,64 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return SDScaledImageForKey(key, image);
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock {
+- (NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDCacheQueryCompletedBlock)doneBlock {
+    return [self queryCacheOperationForKey:key options:0 done:doneBlock];
+}
+
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock {
     if (!key) {
         if (doneBlock) {
             doneBlock(nil, nil, SDImageCacheTypeNone);
         }
         return nil;
     }
-
+    
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image) {
-        NSData *diskData = nil;
-        if (image.images) {
-            diskData = [self diskImageDataBySearchingAllPathsForKey:key];
-        }
+    if (image && !(options & SDImageCacheQueryDiskDataWhenInMemory)) {
         if (doneBlock) {
-            doneBlock(image, diskData, SDImageCacheTypeMemory);
+            doneBlock(image, nil, SDImageCacheTypeMemory);
         }
         return nil;
     }
-
+    
     NSOperation *operation = [NSOperation new];
-    dispatch_async(self.ioQueue, ^{
+    void(^queryDiskBlock)(void) =  ^{
         if (operation.isCancelled) {
             // do not call the completion if cancelled
             return;
         }
-
+        
         @autoreleasepool {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
-            UIImage *diskImage = [self diskImageForKey:key];
-            if (diskImage && self.config.shouldCacheImagesInMemory) {
-                NSUInteger cost = SDCacheCostForImage(diskImage);
-                [self.memCache setObject:diskImage forKey:key cost:cost];
+            UIImage *diskImage = image;
+            if (!diskImage && diskData) {
+                // decode image data only if in-memory cache missed
+                diskImage = [self diskImageForKey:key data:diskData];
+                if (diskImage && self.config.shouldCacheImagesInMemory) {
+                    NSUInteger cost = SDCacheCostForImage(diskImage);
+                    [self.memCache setObject:diskImage forKey:key cost:cost];
+                }
             }
-
+            
             if (doneBlock) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                if (options & SDImageCacheQueryDiskDataSync) {
                     doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
-                });
+                } else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
+                    });
+                }
             }
         }
-    });
-
+    };
+    
+    if (options & SDImageCacheQueryDiskDataSync) {
+        queryDiskBlock();
+    } else {
+        dispatch_async(self.ioQueue, queryDiskBlock);
+    }
+    
     return operation;
 }
 

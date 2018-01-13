@@ -25,6 +25,17 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeMemory
 };
 
+typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
+    /**
+     * By default, we do not query disk cache when the image is cached in memory. This mask can force query disk data at the same time.
+     */
+    SDImageCacheQueryDiskDataWhenInMemory = 1 << 0,
+    /**
+     * By default, we query the memory cache synchonized, disk cache asynchronized. This mask can force to query disk cache synchonized.
+     */
+    SDImageCacheQueryDiskDataSync = 1 << 1
+};
+
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
 
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
@@ -179,6 +190,17 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  * @return a NSOperation instance containing the cache op
  */
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+
+/**
+ * Operation that queries the cache asynchronously and call the completion when done.
+ *
+ * @param key       The unique key used to store the wanted image
+ * @param options   A mask to specify options to use for this cache query
+ * @param doneBlock The completion block. Will not get called if the operation is cancelled
+ *
+ * @return a NSOperation instance containing the cache op
+ */
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock;
 
 /**
  * Query the memory cache synchronously.
