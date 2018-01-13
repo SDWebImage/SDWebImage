@@ -13,8 +13,7 @@
 #import <SDWebImage/MKAnnotationView+WebCache.h>
 #import <SDWebImage/UIButton+WebCache.h>
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
-
-@import FLAnimatedImage;
+#import <SDWebImage/UIView+WebCache.h>
 
 @interface SDCategoriesTests : SDTestCase
 
@@ -137,6 +136,38 @@
                             [expectation fulfill];
                                 }];
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)testUIViewImageProgressWorkWithKVO {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
+    UIView *view = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    
+    [view.sd_imageProgress addObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted)) options:NSKeyValueObservingOptionNew context:_cmd];
+    
+    // Clear the disk cache to force download from network
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
+        [view sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 operationKey:nil setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+            expect(view.sd_imageProgress.fractionCompleted).equal(1.0);
+            [expectation fulfill];
+        }];
+    }];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:^(NSError * _Nullable error) {
+        [view.sd_imageProgress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted)) context:_cmd];
+    }];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == @selector(testUIViewImageProgressWorkWithKVO)) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(fractionCompleted))]) {
+            NSProgress *progress = object;
+            NSNumber *completedValue = change[NSKeyValueChangeNewKey];
+            expect(progress.fractionCompleted).equal(completedValue.doubleValue);
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 @end
