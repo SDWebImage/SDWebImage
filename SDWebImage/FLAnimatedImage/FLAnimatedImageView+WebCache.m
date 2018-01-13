@@ -7,6 +7,7 @@
  */
 
 #import "FLAnimatedImageView+WebCache.h"
+#import "SDWebImageInternal.h"
 
 #if SD_UIKIT
 #import "objc/runtime.h"

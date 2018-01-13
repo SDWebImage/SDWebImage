@@ -29,6 +29,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
     core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageWebPCoder.{h,m}'
+    core.private_header_files = 'SDWebImage/SDWebImageInternal.h'
     core.tvos.exclude_files = 'SDWebImage/MKAnnotationView+WebCache.*'
   end
 
