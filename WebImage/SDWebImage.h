@@ -53,7 +53,7 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/NSData+ImageContentType.h>
 
 #if SD_MAC
-    #import <SDWebImage/NSImage+WebCache.h>
+    #import <SDWebImage/NSImage+Additions.h>
 #endif
 
 #if SD_UIKIT

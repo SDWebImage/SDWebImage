@@ -7,7 +7,7 @@
  */
 
 #import "SDWebImageManager.h"
-#import "NSImage+WebCache.h"
+#import "NSImage+Additions.h"
 #import <objc/message.h>
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>

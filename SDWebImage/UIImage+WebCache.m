@@ -7,11 +7,39 @@
  */
 
 #import "UIImage+WebCache.h"
+
+#if SD_UIKIT
+
 #import "objc/runtime.h"
 
 @implementation UIImage (WebCache)
 
+- (NSUInteger)sd_imageLoopCount {
+    NSUInteger imageLoopCount = 0;
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageLoopCount));
+    if ([value isKindOfClass:[NSNumber class]]) {
+        imageLoopCount = value.unsignedIntegerValue;
+    }
+    return imageLoopCount;
+}
+
+- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
+    NSNumber *value = @(sd_imageLoopCount);
+    objc_setAssociatedObject(self, @selector(sd_imageLoopCount), value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)sd_isAnimated {
+    return (self.images != nil);
+}
+
+@end
+
+#endif
+
 #if SD_MAC
+
+@implementation NSImage (WebCache)
+
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;
     for (NSImageRep *rep in self.representations) {
@@ -47,25 +75,6 @@
     return isGIF;
 }
 
-#else
-
-- (NSUInteger)sd_imageLoopCount {
-    NSUInteger imageLoopCount = 0;
-    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageLoopCount));
-    if ([value isKindOfClass:[NSNumber class]]) {
-        imageLoopCount = value.unsignedIntegerValue;
-    }
-    return imageLoopCount;
-}
-
-- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    NSNumber *value = @(sd_imageLoopCount);
-    objc_setAssociatedObject(self, @selector(sd_imageLoopCount), value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (BOOL)sd_isAnimated {
-    return (self.images != nil);
-}
-#endif
-
 @end
+
+#endif
