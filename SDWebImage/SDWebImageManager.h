@@ -234,7 +234,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                               options:(SDWebImageOptions)options
                                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                            completed:(nullable SDInternalCompletionBlock)completedBlock;
+                                            completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

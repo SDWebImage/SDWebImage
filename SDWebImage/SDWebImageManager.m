@@ -109,7 +109,7 @@
 - (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                      options:(SDWebImageOptions)options
                                     progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                   completed:(nullable SDInternalCompletionBlock)completedBlock {
+                                   completed:(nonnull SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
