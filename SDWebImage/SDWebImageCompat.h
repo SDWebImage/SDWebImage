@@ -82,8 +82,6 @@
 
 FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
 
-typedef void(^SDWebImageNoParamsBlock)(void);
-
 FOUNDATION_EXPORT NSString *const _Nonnull SDWebImageErrorDomain;
 
 #ifndef dispatch_queue_async_safe

@@ -10,16 +10,9 @@
 
 #if SD_UIKIT || SD_MAC
 
+#import "SDWebImageDefine.h"
 #import "SDWebImageManager.h"
 
-/**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
-/**
- A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 /**
  The value specify that the image progress unit count cannot be determined because the progressBlock is not been called.
  */
@@ -88,7 +81,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
  *                       indicating if the image was retrieved from the local cache or from the network.
  *                       The fourth parameter is the original image url.
- * @param context        A context with extra information to perform specify changes or processes.
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  */
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
@@ -97,7 +90,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable NSDictionary *)context;
+                           context:(nullable SDWebImageContext *)context;
 
 /**
  * Cancel the current image load
