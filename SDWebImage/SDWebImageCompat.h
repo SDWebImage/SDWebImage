@@ -81,11 +81,11 @@
 #define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
-FOUNDATION_EXPORT UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
+FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
 
 typedef void(^SDWebImageNoParamsBlock)(void);
 
-FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
+FOUNDATION_EXPORT NSString *const _Nonnull SDWebImageErrorDomain;
 
 #ifndef dispatch_queue_async_safe
 #define dispatch_queue_async_safe(queue, block)\
