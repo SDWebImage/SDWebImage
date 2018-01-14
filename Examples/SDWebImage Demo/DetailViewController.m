@@ -50,14 +50,16 @@
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
                                options:SDWebImageProgressiveDownload
-                              progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *targetURL) {
+                              progress:^(NSProgress * progress, NSURL *targetURL) {
                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                      float progress = 0;
-                                      if (expectedSize != 0) {
-                                          progress = (float)receivedSize / (float)expectedSize;
+                                      if (progress != nil)
+                                      {
+                                          if (weakSelf.progressView.observedProgress == nil)
+                                          {
+                                              weakSelf.progressView.observedProgress = progress;
+                                          }
+                                          weakSelf.progressView.hidden = NO;
                                       }
-                                      weakSelf.progressView.hidden = NO;
-                                      [weakSelf.progressView setProgress:progress animated:YES];
                                   });
                               }
                              completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
