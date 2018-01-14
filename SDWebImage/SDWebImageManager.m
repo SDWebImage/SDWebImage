@@ -145,6 +145,7 @@
     NSString *key = [self cacheKeyForURL:url];
     
     SDImageCacheOptions cacheOptions = 0;
+    if (options & SDWebImageCacheMemoryOnly) cacheOptions |= SDImageCacheQueryMemoryOnly;
     if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
 
