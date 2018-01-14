@@ -27,13 +27,13 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
-     * By default, we do not query disk cache when the image is cached in memory. This mask can force query disk data at the same time.
+     * By default, we do not query disk data when the image is cached in memory. This mask can force to query disk data at the same time.
      */
-    SDImageCacheQueryDiskDataWhenInMemory = 1 << 0,
+    SDImageCacheQueryDataWhenInMemory = 1 << 0,
     /**
-     * By default, we query the memory cache synchonized, disk cache asynchronized. This mask can force to query disk cache synchonized.
+     * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously.
      */
-    SDImageCacheQueryDiskDataSync = 1 << 1
+    SDImageCacheQueryDiskSync = 1 << 1
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);

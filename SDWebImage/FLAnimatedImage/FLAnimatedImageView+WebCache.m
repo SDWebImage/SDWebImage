@@ -46,8 +46,8 @@
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    options |= SDWebImageQueryDiskDataWhenInMemory;
-    options |= SDWebImageQueryDiskDataSync;
+    options |= SDWebImageQueryDataWhenInMemory;
+    options |= SDWebImageQueryDiskSync;
     dispatch_group_t group = dispatch_group_create();
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
