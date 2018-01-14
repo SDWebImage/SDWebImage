@@ -57,16 +57,6 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  */
 @property (nonatomic, nonnull, readonly) SDImageCacheConfig *config;
 
-/**
- * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
- */
-@property (assign, nonatomic) NSUInteger maxMemoryCost;
-
-/**
- * The maximum number of objects the cache should hold.
- */
-@property (assign, nonatomic) NSUInteger maxMemoryCountLimit;
-
 #pragma mark - Singleton and initialization
 
 /**
@@ -133,7 +123,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  *
  * @param image           The image to store
  * @param key             The unique image cache key, usually it's image absolute URL
- * @param toDisk          Store the image to disk cache if YES
+ * @param toDisk          Store the image to disk cache if YES. If NO, the completion block is called synchronously
  * @param completionBlock A block executed after the operation is finished
  */
 - (void)storeImage:(nullable UIImage *)image
@@ -149,7 +139,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  *                        instead of converting the given image object into a storable/compressed image format in order
  *                        to save quality and CPU
  * @param key             The unique image cache key, usually it's image absolute URL
- * @param toDisk          Store the image to disk cache if YES
+ * @param toDisk          Store the image to disk cache if YES. If NO, the completion block is called synchronously
  * @param completionBlock A block executed after the operation is finished
  */
 - (void)storeImage:(nullable UIImage *)image
@@ -173,7 +163,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 #pragma mark - Query and Retrieve Ops
 
 /**
- *  Async check if image exists in disk cache already (does not load the image)
+ *  Asynchronously check if image exists in disk cache already (does not load the image)
  *
  *  @param key             the key describing the url
  *  @param completionBlock the block to be executed when the check is done.
@@ -182,7 +172,14 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 /**
- * Operation that queries the cache asynchronously and call the completion when done.
+ *  Synchronously check if image data exists in disk cache already (does not load the image)
+ *
+ *  @param key             the key describing the url
+ */
+- (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key;
+
+/**
+ * Asynchronously queries the cache with operation and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
@@ -192,7 +189,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
 
 /**
- * Operation that queries the cache asynchronously and call the completion when done.
+ * Asynchronously queries the cache with operation and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
  * @param options   A mask to specify options to use for this cache query
@@ -203,21 +200,21 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock;
 
 /**
- * Query the memory cache synchronously.
+ * Synchronously query the memory cache.
  *
  * @param key The unique key used to store the image
  */
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key;
 
 /**
- * Query the disk cache synchronously.
+ * Synchronously query the disk cache.
  *
  * @param key The unique key used to store the image
  */
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key;
 
 /**
- * Query the cache (memory and or disk) synchronously after checking the memory cache.
+ * Synchronously query the cache (memory and or disk) after checking the memory cache.
  *
  * @param key The unique key used to store the image
  */
@@ -226,7 +223,7 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 #pragma mark - Remove Ops
 
 /**
- * Remove the image from memory and disk cache asynchronously
+ * Asynchronously remove the image from memory and disk cache
  *
  * @param key             The unique image cache key
  * @param completion      A block that should be executed after the image has been removed (optional)
@@ -234,10 +231,10 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 - (void)removeImageForKey:(nullable NSString *)key withCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
 /**
- * Remove the image from memory and optionally disk cache asynchronously
+ * Asynchronously remove the image from memory and optionally disk cache
  *
  * @param key             The unique image cache key
- * @param fromDisk        Also remove cache entry from disk if YES
+ * @param fromDisk        Also remove cache entry from disk if YES. If NO, the completion block is called synchronously
  * @param completion      A block that should be executed after the image has been removed (optional)
  */
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion;
@@ -245,18 +242,18 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 #pragma mark - Cache clean Ops
 
 /**
- * Clear all memory cached images
+ * Synchronously Clear all memory cached images
  */
 - (void)clearMemory;
 
 /**
- * Async clear all disk cached images. Non-blocking method - returns immediately.
+ * Asynchronously clear all disk cached images. Non-blocking method - returns immediately.
  * @param completion    A block that should be executed after cache expiration completes (optional)
  */
 - (void)clearDiskOnCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
 /**
- * Async remove all expired cached image from disk. Non-blocking method - returns immediately.
+ * Asynchronously remove all expired cached image from disk. Non-blocking method - returns immediately.
  * @param completionBlock A block that should be executed after cache expiration completes (optional)
  */
 - (void)deleteOldFilesWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock;
