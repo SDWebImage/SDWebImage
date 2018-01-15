@@ -32,6 +32,10 @@ static char TAG_ACTIVITY_SHOW;
     return objc_getAssociatedObject(self, &imageURLKey);
 }
 
+- (void)setSd_imageURL:(NSURL * _Nullable)sd_imageURL {
+    objc_setAssociatedObject(self, &imageURLKey, sd_imageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (NSProgress *)sd_imageProgress {
     NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
     if (!progress) {
@@ -65,7 +69,7 @@ static char TAG_ACTIVITY_SHOW;
                            context:(nullable NSDictionary *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
-    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    self.sd_imageURL = url;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
