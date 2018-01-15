@@ -13,8 +13,9 @@
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
-@property (copy, nonatomic, nullable) SDWebImageNoParamsBlock cancelBlock;
+@property (strong, nonatomic, nullable) SDWebImageDownloadToken *downloadToken;
 @property (strong, nonatomic, nullable) NSOperation *cacheOperation;
+@property (weak, nonatomic, nullable) SDWebImageManager *manager;
 
 @end
 
@@ -125,6 +126,7 @@
     }
 
     __block SDWebImageCombinedOperation *operation = [SDWebImageCombinedOperation new];
+    operation.manager = self;
     __weak SDWebImageCombinedOperation *weakOperation = operation;
 
     BOOL isFailedUrl = NO;
@@ -150,8 +152,9 @@
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
 
     operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
-        if (operation.isCancelled) {
-            [self safelyRemoveOperationFromRunning:operation];
+        __strong __typeof(weakOperation) strongOperation = weakOperation;
+        if (!strongOperation || strongOperation.isCancelled) {
+            [self safelyRemoveOperationFromRunning:strongOperation];
             return;
         }
 
@@ -159,7 +162,7 @@
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
                 // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
-                [self callCompletionBlockForOperation:weakOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
+                [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
             }
 
             // download if no image or requested to refresh anyway, and download allowed by delegate
@@ -180,14 +183,16 @@
                 downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
             }
             
-            SDWebImageDownloadToken *subOperationToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
-                __strong __typeof(weakOperation) strongOperation = weakOperation;
-                if (!strongOperation || strongOperation.isCancelled) {
+            // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block bellow, so we need weak-strong again to avoid retain cycle
+            __weak typeof(strongOperation) weakSubOperation = strongOperation;
+            strongOperation.downloadToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+                __strong typeof(weakSubOperation) strongSubOperation = weakSubOperation;
+                if (!strongSubOperation || strongSubOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
                     // See #699 for more details
                     // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
                 } else if (error) {
-                    [self callCompletionBlockForOperation:strongOperation completion:completedBlock error:error url:url];
+                    [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock error:error url:url];
 
                     if (   error.code != NSURLErrorNotConnectedToInternet
                         && error.code != NSURLErrorCancelled
@@ -228,37 +233,27 @@
                                 [self.imageCache storeImage:transformedImage imageData:(imageWasTransformed ? nil : downloadedData) forKey:key toDisk:cacheOnDisk completion:nil];
                             }
                             
-                            [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
+                            [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         });
                     } else {
                         if (downloadedImage && finished) {
                             [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
                         }
-                        [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
+                        [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                     }
                 }
 
                 if (finished) {
-                    [self safelyRemoveOperationFromRunning:strongOperation];
+                    [self safelyRemoveOperationFromRunning:strongSubOperation];
                 }
             }];
-            @synchronized(operation) {
-                // Need same lock to ensure cancelBlock called because cancel method can be called in different queue
-                operation.cancelBlock = ^{
-                    [self.imageDownloader cancel:subOperationToken];
-                    __strong __typeof(weakOperation) strongOperation = weakOperation;
-                    [self safelyRemoveOperationFromRunning:strongOperation];
-                };
-            }
         } else if (cachedImage) {
-            __strong __typeof(weakOperation) strongOperation = weakOperation;
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
-            [self safelyRemoveOperationFromRunning:operation];
+            [self safelyRemoveOperationFromRunning:strongOperation];
         } else {
             // Image not in cache and download disallowed by delegate
-            __strong __typeof(weakOperation) strongOperation = weakOperation;
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:nil data:nil error:nil cacheType:SDImageCacheTypeNone finished:YES url:url];
-            [self safelyRemoveOperationFromRunning:operation];
+            [self safelyRemoveOperationFromRunning:strongOperation];
         }
     }];
 
@@ -323,18 +318,6 @@
 
 @implementation SDWebImageCombinedOperation
 
-- (void)setCancelBlock:(nullable SDWebImageNoParamsBlock)cancelBlock {
-    // check if the operation is already cancelled, then we just call the cancelBlock
-    if (self.isCancelled) {
-        if (cancelBlock) {
-            cancelBlock();
-        }
-        _cancelBlock = nil; // don't forget to nil the cancelBlock, otherwise we will get crashes
-    } else {
-        _cancelBlock = [cancelBlock copy];
-    }
-}
-
 - (void)cancel {
     @synchronized(self) {
         self.cancelled = YES;
@@ -342,10 +325,10 @@
             [self.cacheOperation cancel];
             self.cacheOperation = nil;
         }
-        if (self.cancelBlock) {
-            self.cancelBlock();
-            self.cancelBlock = nil;
+        if (self.downloadToken) {
+            [self.manager.imageDownloader cancel:self.downloadToken];
         }
+        [self.manager safelyRemoveOperationFromRunning:self];
     }
 }
 
