@@ -35,7 +35,7 @@ static char TAG_ACTIVITY_SHOW;
 - (NSProgress *)sd_imageProgress {
     NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
     if (!progress) {
-        progress = [[NSProgress alloc] init];
+        progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
         self.sd_imageProgress = progress;
     }
     return progress;
@@ -84,6 +84,7 @@ static char TAG_ACTIVITY_SHOW;
         }
         
         // reset the progress
+        self.sd_imageProgress.totalUnitCount = 0;
         self.sd_imageProgress.completedUnitCount = 0;
         
         SDWebImageManager *manager;
@@ -106,7 +107,8 @@ static char TAG_ACTIVITY_SHOW;
             if (!sself) { return; }
             [sself sd_removeActivityIndicator];
             // if the progress not been updated, mark it to complete state
-            if (finished && !error && sself.sd_imageProgress.completedUnitCount == 0) {
+            if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
+                sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
                 sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);

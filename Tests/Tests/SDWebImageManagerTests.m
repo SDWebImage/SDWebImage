@@ -100,7 +100,7 @@
     [[SDWebImageManager sharedManager] cancelAll];
     
     // doesn't cancel immediately - since it uses dispatch async
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
         expect([[SDWebImageManager sharedManager] isRunning]).to.equal(NO);
         [expectation fulfill];
     });
