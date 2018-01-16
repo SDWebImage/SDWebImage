@@ -14,6 +14,7 @@
 #import <Expecta/Expecta.h>
 
 FOUNDATION_EXPORT const int64_t kAsyncTestTimeout;
+FOUNDATION_EXPORT const int64_t kMinDelayNanosecond;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestJpegURL;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestPNGURL;
 
