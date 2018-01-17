@@ -11,6 +11,7 @@
 #if SD_UIKIT || SD_MAC
 
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
@@ -97,12 +98,20 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable NSDictionary *)context;
+                           context:(nullable NSDictionary<NSString *, id> *)context;
 
 /**
  * Cancel the current image load
  */
 - (void)sd_cancelCurrentImageLoad;
+
+#pragma mark - Image Transition
+
+/**
+ The image transition when image load finished. See `SDWebImageTransition`.
+ If you specify nil, do not do transition. Defautls to nil.
+ */
+@property (nonatomic, strong, nullable) SDWebImageTransition *sd_imageTransition;
 
 #if SD_UIKIT
 

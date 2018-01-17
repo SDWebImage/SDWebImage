@@ -111,7 +111,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when the cache missed, the image is download from the network. This flag can prevent network to load from cache only.
      */
-    SDWebImageFromCacheOnly = 1 << 15
+    SDWebImageFromCacheOnly = 1 << 15,
+    /**
+     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
+     */
+    SDWebImageForceTransition = 1 << 16
 };
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
