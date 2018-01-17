@@ -135,14 +135,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             }];
         }
 #endif
-        if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
-            // Grab the cached data for later check
-            NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request];
-            if (cachedResponse) {
-                self.cachedData = cachedResponse.data;
-            }
-        }
-        
         NSURLSession *session = self.unownedSession;
         if (!self.unownedSession) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -157,6 +149,22 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                                                               delegate:self
                                                          delegateQueue:nil];
             session = self.ownedSession;
+        }
+        
+        if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
+            // Grab the cached data for later check
+            NSURLCache *URLCache = session.configuration.URLCache;
+            if (!URLCache) {
+                URLCache = [NSURLCache sharedURLCache];
+            }
+            NSCachedURLResponse *cachedResponse;
+            // NSURLCache's `cachedResponseForRequest:` is not thread-safe, see https://developer.apple.com/documentation/foundation/nsurlcache#2317483
+            @synchronized (URLCache) {
+                cachedResponse = [URLCache cachedResponseForRequest:self.request];
+            }
+            if (cachedResponse) {
+                self.cachedData = cachedResponse.data;
+            }
         }
         
         self.dataTask = [session dataTaskWithRequest:self.request];
