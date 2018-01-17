@@ -399,7 +399,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
-    if (image && !(options & SDImageCacheQueryDiskDataWhenInMemory)) {
+    BOOL shouldQueryMemoryOnly = (options & SDImageCacheQueryMemoryOnly) || (image && !(options & SDImageCacheQueryDataWhenInMemory));
+    if (shouldQueryMemoryOnly) {
         if (doneBlock) {
             doneBlock(image, nil, SDImageCacheTypeMemory);
         }
@@ -426,7 +427,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
             
             if (doneBlock) {
-                if (options & SDImageCacheQueryDiskDataSync) {
+                if (options & SDImageCacheQueryDiskSync) {
                     doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -437,7 +438,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
     };
     
-    if (options & SDImageCacheQueryDiskDataSync) {
+    if (options & SDImageCacheQueryDiskSync) {
         queryDiskBlock();
     } else {
         dispatch_async(self.ioQueue, queryDiskBlock);

@@ -16,6 +16,8 @@
 NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
 NSString * const SDWebImageExternalCustomManagerKey = @"externalCustomManager";
 
+const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
+
 static char imageURLKey;
 
 #if SD_UIKIT
@@ -28,6 +30,19 @@ static char TAG_ACTIVITY_SHOW;
 
 - (nullable NSURL *)sd_imageURL {
     return objc_getAssociatedObject(self, &imageURLKey);
+}
+
+- (NSProgress *)sd_imageProgress {
+    NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+    if (!progress) {
+        progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
+        self.sd_imageProgress = progress;
+    }
+    return progress;
+}
+
+- (void)setSd_imageProgress:(NSProgress *)sd_imageProgress {
+    objc_setAssociatedObject(self, @selector(sd_imageProgress), sd_imageProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
@@ -68,6 +83,10 @@ static char TAG_ACTIVITY_SHOW;
             [self sd_addActivityIndicator];
         }
         
+        // reset the progress
+        self.sd_imageProgress.totalUnitCount = 0;
+        self.sd_imageProgress.completedUnitCount = 0;
+        
         SDWebImageManager *manager;
         if ([context valueForKey:SDWebImageExternalCustomManagerKey]) {
             manager = (SDWebImageManager *)[context valueForKey:SDWebImageExternalCustomManagerKey];
@@ -76,10 +95,22 @@ static char TAG_ACTIVITY_SHOW;
         }
         
         __weak __typeof(self)wself = self;
-        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+            wself.sd_imageProgress.totalUnitCount = expectedSize;
+            wself.sd_imageProgress.completedUnitCount = receivedSize;
+            if (progressBlock) {
+                progressBlock(receivedSize, expectedSize, targetURL);
+            }
+        };
+        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
-            [sself sd_removeActivityIndicator];
             if (!sself) { return; }
+            [sself sd_removeActivityIndicator];
+            // if the progress not been updated, mark it to complete state
+            if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
+                sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
+                sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
+            }
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));

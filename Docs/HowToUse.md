@@ -115,14 +115,16 @@ SDImageCache *imageCache = [[SDImageCache alloc] initWithNamespace:@"myNamespace
 By default SDImageCache will lookup the disk cache if an image can't be found in the memory cache.
 You can prevent this from happening by calling the alternative method `imageFromMemoryCacheForKey:`.
 
-To store an image into the cache, you use the storeImage:forKey: method:
+To store an image into the cache, you use the storeImage:forKey:completion: method:
 
 ```objective-c
-[[SDImageCache sharedImageCache] storeImage:myImage forKey:myCacheKey];
+[[SDImageCache sharedImageCache] storeImage:myImage forKey:myCacheKey completion:^{
+    // image stored
+}];
 ```
 
 By default, the image will be stored in memory cache as well as on disk cache (asynchronously). If
-you want only the memory cache, use the alternative method storeImage:forKey:toDisk: with a negative
+you want only the memory cache, use the alternative method storeImage:forKey:toDisk:completion: with a negative
 third argument.
 
 ### Using cache key filter
