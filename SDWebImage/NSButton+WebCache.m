@@ -10,6 +10,7 @@
 
 #if SD_MAC
 
+#import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
 
 @implementation NSButton (WebCache)
@@ -45,11 +46,14 @@
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
+    __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
-                        operationKey:nil
-                       setImageBlock:nil
+                        operationKey:@"NSButtonImageOperation"
+                       setImageBlock:^(NSImage * _Nullable image, NSData * _Nullable imageData) {
+                           weakSelf.image = image;
+                       }
                             progress:progressBlock
                            completed:completedBlock];
 }
@@ -89,12 +93,22 @@
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
-                        operationKey:nil
+                        operationKey:@"NSButtonAlternateImageOperation"
                        setImageBlock:^(NSImage * _Nullable image, NSData * _Nullable imageData) {
                            weakSelf.alternateImage = image;
                        }
                             progress:progressBlock
                            completed:completedBlock];
+}
+
+#pragma mark - Cancel
+
+- (void)sd_cancelCurrentImageLoad {
+    [self sd_cancelImageLoadOperationWithKey:@"NSButtonImageOperation"];
+}
+
+- (void)sd_cancelCurrentAlternateImageLoad {
+    [self sd_cancelImageLoadOperationWithKey:@"NSButtonAlternateImageOperation"];
 }
 
 @end

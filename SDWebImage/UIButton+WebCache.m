@@ -87,7 +87,7 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
                            completed:completedBlock];
 }
 
-#pragma mark - Background image
+#pragma mark - Background Image
 
 - (nullable NSURL *)sd_currentBackgroundImageURL {
     NSURL *url = self.imageURLStorage[backgroundImageURLKeyForState(self.state)];
@@ -145,6 +145,8 @@ static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
                             progress:nil
                            completed:completedBlock];
 }
+
+#pragma mark - Cancel
 
 - (void)sd_cancelImageLoadForState:(UIControlState)state {
     [self sd_cancelImageLoadOperationWithKey:[NSString stringWithFormat:@"UIButtonImageOperation%@", @(state)]];

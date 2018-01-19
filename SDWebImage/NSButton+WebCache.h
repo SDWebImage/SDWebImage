@@ -232,6 +232,18 @@
                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                           completed:(nullable SDExternalCompletionBlock)completedBlock;
 
+#pragma mark - Cancel
+
+/**
+ * Cancel the current image download
+ */
+- (void)sd_cancelCurrentImageLoad;
+
+/**
+ * Cancel the current alternateImage download
+ */
+- (void)sd_cancelCurrentAlternateImageLoad;
+
 @end
 
 #endif
