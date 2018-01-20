@@ -9,7 +9,23 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 
+@interface SDWebImageDownloadToken ()
+
+@property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperationInterface> *downloadOperation;
+
+@end
+
 @implementation SDWebImageDownloadToken
+
+- (void)cancel {
+    if (self.downloadOperation) {
+        SDWebImageDownloadToken *cancelToken = self.downloadOperationCancelToken;
+        if (cancelToken) {
+            [self.downloadOperation cancel:cancelToken];
+        }
+    }
+}
+
 @end
 
 
@@ -258,6 +274,7 @@
         id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
 
         token = [SDWebImageDownloadToken new];
+        token.downloadOperation = operation;
         token.url = url;
         token.downloadOperationCancelToken = downloadOperationCancelToken;
     });

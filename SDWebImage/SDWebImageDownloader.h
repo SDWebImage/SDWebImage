@@ -82,9 +82,16 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 /**
  *  A token associated with each download. Can be used to cancel a download
  */
-@interface SDWebImageDownloadToken : NSObject
+@interface SDWebImageDownloadToken : NSObject <SDWebImageOperation>
 
+/**
+ The download's URL. This should be readonly and you should not modify
+ */
 @property (nonatomic, strong, nullable) NSURL *url;
+/**
+ The cancel token taken from `addHandlersForProgress:completed`. This should be readonly and you should not modify
+ @note use `-[SDWebImageDownloadToken cancel]` to cancel the token
+ */
 @property (nonatomic, strong, nullable) id downloadOperationCancelToken;
 
 @end
