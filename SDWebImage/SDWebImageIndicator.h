@@ -1,0 +1,107 @@
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+#import "SDWebImageCompat.h"
+
+#if SD_UIKIT || SD_MAC
+
+// A protocol to custom the indicator during the image loading
+// All of these methods are called from main queue
+@protocol SDWebImageIndicator <NSObject>
+
+@required
+/**
+ The view associate to the indicator.
+
+ @return The indicator view
+ */
+- (nonnull UIView *)indicatorView;
+/**
+ Start the animating for indicator.
+ */
+- (void)startAnimatingIndicator;
+/**
+ Stop the animating for indicator.
+ */
+- (void)stopAnimatingIndicator;
+
+@end
+
+// A protocol to custom the indicator which need update when loading progress changed
+// All of these methods are called from main queue
+@protocol SDWebImageProgressIndicator <SDWebImageIndicator>
+
+@required
+/**
+ Update the progress (0-1.0) for progress indicator.
+
+ @param progress The progress, value between 0 and 1.0
+ */
+- (void)updateProgress:(double)progress;
+
+@end
+
+#pragma mark - Activity Indicator
+
+// Activity indicator class
+// for UIKit(macOS), it use a `UIActivityIndicatorView`
+// for AppKit(macOS), it use a `NSProgressIndicator` with the spinning style
+@interface SDWebImageActivityIndicator : NSObject <SDWebImageIndicator>
+
+#if SD_UIKIT
+@property (nonatomic, strong, readonly, nonnull) UIActivityIndicatorView *indicatorView;
+#else
+@property (nonatomic, strong, readonly, nonnull) NSProgressIndicator *indicatorView;
+#endif
+
+@end
+
+// Convenience way to use activity indicator.
+@interface SDWebImageActivityIndicator (Conveniences)
+
+/// gray-style activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator __TVOS_UNAVAILABLE;
+/// large gray-style activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayLargeIndicator NS_AVAILABLE_MAC(10_2);
+/// white-style activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteIndicator;
+/// large white-style activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteLargeIndicator;
+
+@end
+
+#pragma mark - Progress Indicator
+
+// Progress indicator class
+// for UIKit(macOS), it use a `UIProgressView`
+// for AppKit(macOS), it use a `NSProgressIndicator` with the bar style
+@interface SDWebImageProgressIndicator : NSObject <SDWebImageProgressIndicator>
+
+#if SD_UIKIT
+@property (nonatomic, strong, readonly, nonnull) UIProgressView *indicatorView;
+#else
+@property (nonatomic, strong, readonly, nonnull) NSProgressIndicator *indicatorView;
+#endif
+/**
+ The preferred width for progress indicator. The getter and setter just pass to the indicatorView's frame. The default value is `UIProgressView`'s natural width.
+ */
+@property (nonatomic, assign) CGFloat indicatorWidth;
+
+@end
+
+// Convenience way to use progress indicator. Remember to set the indicatorWidth
+@interface SDWebImageProgressIndicator (Conveniences)
+
+/// default-style progress indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageProgressIndicator *defaultIndicator;
+/// bar-style progress indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageProgressIndicator *barIndicator NS_AVAILABLE_IOS(2_0) __TVOS_UNAVAILABLE;
+
+@end
+
+#endif

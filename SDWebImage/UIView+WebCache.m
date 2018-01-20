@@ -17,12 +17,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 static char imageURLKey;
 
-#if SD_UIKIT
-static char TAG_ACTIVITY_INDICATOR;
-static char TAG_ACTIVITY_STYLE;
-#endif
-static char TAG_ACTIVITY_SHOW;
-
 @implementation UIView (WebCache)
 
 - (nullable NSURL *)sd_imageURL {
@@ -79,10 +73,8 @@ static char TAG_ACTIVITY_SHOW;
     }
     
     if (url) {
-        // check if activityView is enabled or not
-        if ([self sd_showActivityIndicatorView]) {
-            [self sd_addActivityIndicator];
-        }
+        // check and start image indicator
+        [self sd_startImageIndicator];
         
         // reset the progress
         self.sd_imageProgress.totalUnitCount = 0;
@@ -95,6 +87,8 @@ static char TAG_ACTIVITY_SHOW;
             manager = [SDWebImageManager sharedManager];
         }
         
+        id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
+        
         __weak __typeof(self)wself = self;
         SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
             wself.sd_imageProgress.totalUnitCount = expectedSize;
@@ -102,11 +96,20 @@ static char TAG_ACTIVITY_SHOW;
             if (progressBlock) {
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
+            if ([imageIndicator conformsToProtocol:@protocol(SDWebImageProgressIndicator)]) {
+                double progress = wself.sd_imageProgress.fractionCompleted;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [((id<SDWebImageProgressIndicator>)imageIndicator) updateProgress:progress];
+                });
+            }
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
-            [sself sd_removeActivityIndicator];
+            // check and stop image indicator
+            if (finished) {
+                [self sd_stopImageIndicator];
+            }
             // if the progress not been updated, mark it to complete state
             if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
                 sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
@@ -170,8 +173,8 @@ static char TAG_ACTIVITY_SHOW;
         } context:context];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
+        [self sd_stopImageIndicator];
         dispatch_main_async_safe(^{
-            [self sd_removeActivityIndicator];
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
@@ -277,75 +280,54 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, @selector(sd_imageTransition), sd_imageTransition, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-#pragma mark - Activity indicator
-
-#pragma mark -
-#if SD_UIKIT
-- (UIActivityIndicatorView *)activityIndicator {
-    return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
+#pragma mark - Indicator
+- (id<SDWebImageIndicator>)sd_imageIndicator {
+    return objc_getAssociatedObject(self, @selector(sd_imageIndicator));
 }
 
-- (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
-}
+- (void)setSd_imageIndicator:(id<SDWebImageIndicator>)sd_imageIndicator {
+    id<SDWebImageIndicator> previousIndicator = self.sd_imageIndicator;
+    if (previousIndicator == sd_imageIndicator) {
+        [previousIndicator.indicatorView removeFromSuperview];
+    }
+    
+    // Add the new indicator view
+    UIView *view = sd_imageIndicator.indicatorView;
+    if (CGRectEqualToRect(view.frame, CGRectZero)) {
+        view.frame = self.frame;
+    }
+    // Center the indicator view
+#if SD_MAC
+    CGPoint center = CGPointMake(NSMidX(self.bounds), NSMidY(self.bounds));
+    NSRect frame = view.frame;
+    view.frame = NSMakeRect(center.x - NSMidX(frame), center.y - NSMidY(frame), NSWidth(frame), NSHeight(frame));
+#else
+    view.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
 #endif
-
-- (void)sd_setShowActivityIndicatorView:(BOOL)show {
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
+    view.hidden = NO;
+    [self addSubview:view];
+    
+    objc_setAssociatedObject(self, @selector(sd_imageIndicator), sd_imageIndicator, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (BOOL)sd_showActivityIndicatorView {
-    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
-}
-
-#if SD_UIKIT
-- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
-    objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
-}
-
-- (int)sd_getIndicatorStyle{
-    return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
-}
-#endif
-
-- (void)sd_addActivityIndicator {
-#if SD_UIKIT
+- (void)sd_startImageIndicator {
+    id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
+    if (!imageIndicator) {
+        return;
+    }
     dispatch_main_async_safe(^{
-        if (!self.activityIndicator) {
-            self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
-            self.activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
-        
-            [self addSubview:self.activityIndicator];
-            
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterX
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterX
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-            [self addConstraint:[NSLayoutConstraint constraintWithItem:self.activityIndicator
-                                                             attribute:NSLayoutAttributeCenterY
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self
-                                                             attribute:NSLayoutAttributeCenterY
-                                                            multiplier:1.0
-                                                              constant:0.0]];
-        }
-        [self.activityIndicator startAnimating];
+        [imageIndicator startAnimatingIndicator];
     });
-#endif
 }
 
-- (void)sd_removeActivityIndicator {
-#if SD_UIKIT
+- (void)sd_stopImageIndicator {
+    id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
+    if (!imageIndicator) {
+        return;
+    }
     dispatch_main_async_safe(^{
-        if (self.activityIndicator) {
-            [self.activityIndicator removeFromSuperview];
-            self.activityIndicator = nil;
-        }
+        [imageIndicator stopAnimatingIndicator];
     });
-#endif
 }
 
 @end
