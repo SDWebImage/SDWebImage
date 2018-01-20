@@ -9,10 +9,6 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 
-#define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
-__VA_ARGS__; \
-dispatch_semaphore_signal(self->_lock);
-
 @interface SDWebImageDownloadToken ()
 
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperationInterface> *downloadOperation;
@@ -40,7 +36,6 @@ dispatch_semaphore_signal(self->_lock);
 @property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
-@property (strong, nonatomic, nonnull) dispatch_semaphore_t lock; // a lock to keep the access to `URLOperations` thread-safe
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -99,7 +94,6 @@ dispatch_semaphore_signal(self->_lock);
 #else
         _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
 #endif
-        _lock = dispatch_semaphore_create(1);
         _downloadTimeout = 15.0;
 
         [self createNewSessionWithConfiguration:sessionConfiguration];
@@ -293,9 +287,9 @@ dispatch_semaphore_signal(self->_lock);
         return nil;
     }
     SDWebImageDownloaderOperation *operation;
-    LOCK({
+    @synchronized (self.URLOperations) {
         operation = [self.URLOperations objectForKey:url];
-    });
+    }
     return operation;
 }
 
@@ -303,18 +297,18 @@ dispatch_semaphore_signal(self->_lock);
     if (!operation || !url) {
         return;
     }
-    LOCK({
-       [self.URLOperations setObject:operation forKey:url];
-    });
+    @synchronized (self.URLOperations) {
+        [self.URLOperations setObject:operation forKey:url];
+    }
 }
 
 - (void)removeOperationForURL:(NSURL *)url {
     if (!url) {
         return;
     }
-    LOCK({
+    @synchronized (self.URLOperations) {
         [self.URLOperations removeObjectForKey:url];
-    });
+    }
 }
 
 - (SDWebImageDownloaderOperation *)operationWithTask:(NSURLSessionTask *)task {
