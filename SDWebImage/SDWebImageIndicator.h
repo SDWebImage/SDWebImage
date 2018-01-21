@@ -65,9 +65,9 @@
 @interface SDWebImageActivityIndicator (Conveniences)
 
 /// gray-style activity indicator
-@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator __TVOS_UNAVAILABLE;
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator API_UNAVAILABLE(tvos);
 /// large gray-style activity indicator
-@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayLargeIndicator NS_AVAILABLE_MAC(10_2);
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayLargeIndicator API_UNAVAILABLE(ios, tvos);
 /// white-style activity indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteIndicator;
 /// large white-style activity indicator
@@ -100,7 +100,7 @@
 /// default-style progress indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageProgressIndicator *defaultIndicator;
 /// bar-style progress indicator
-@property (nonatomic, class, nonnull, readonly) SDWebImageProgressIndicator *barIndicator NS_AVAILABLE_IOS(2_0) __TVOS_UNAVAILABLE;
+@property (nonatomic, class, nonnull, readonly) SDWebImageProgressIndicator *barIndicator API_UNAVAILABLE(macos, tvos);
 
 @end
 
