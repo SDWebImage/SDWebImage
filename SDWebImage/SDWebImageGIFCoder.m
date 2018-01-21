@@ -65,7 +65,7 @@
             CGFloat scale = 1;
             scale = [UIScreen mainScreen].scale;
 #endif
-            UIImage *image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];

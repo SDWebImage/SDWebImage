@@ -254,7 +254,7 @@
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
     
 #if SD_UIKIT || SD_WATCH
-    image = [UIImage imageWithCGImage:newImageRef];
+    image = [[UIImage alloc] initWithCGImage:newImageRef];
 #elif SD_MAC
     image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
 #endif
