@@ -48,6 +48,10 @@
     return nil;
 }
 
+- (BOOL)cancel:(id)token {
+    return YES;
+}
+
 @end
 
 
