@@ -23,9 +23,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         return nil;
     }
     
-#if SD_MAC
-    return image;
-#elif SD_UIKIT || SD_WATCH
+#if SD_UIKIT || SD_WATCH
     if ((image.images).count > 0) {
         NSMutableArray<UIImage *> *scaledImages = [NSMutableArray array];
 
@@ -39,10 +37,13 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
         }
         return animatedImage;
     } else {
+#endif
 #if SD_WATCH
         if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
 #elif SD_UIKIT
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+#elif SD_MAC
+        if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
 #endif
             CGFloat scale = 1;
             if (key.length >= 8) {
@@ -56,11 +57,17 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
                     scale = 3.0;
                 }
             }
-
-            UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-            image = scaledImage;
+            if (scale > 1) {
+#if SD_UIKIT || SD_WATCH
+                UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+#else
+                UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale];
+#endif
+                image = scaledImage;
+            }
         }
         return image;
+#if SD_UIKIT || SD_WATCH
     }
 #endif
 }
