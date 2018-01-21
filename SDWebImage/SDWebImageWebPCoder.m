@@ -394,6 +394,9 @@
     
     size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
     CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
+    if (!dataProvider) {
+        return nil;
+    }
     CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
     uint8_t *rgba = (uint8_t *)CFDataGetBytePtr(dataRef);
     
