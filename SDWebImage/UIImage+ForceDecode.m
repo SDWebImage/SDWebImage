@@ -11,7 +11,7 @@
 
 @implementation UIImage (ForceDecode)
 
-+ (UIImage *)decodedImageWithImage:(UIImage *)image {
++ (UIImage *)sd_decodedImageWithImage:(UIImage *)image {
     if (!image) {
         return nil;
     }
@@ -19,7 +19,7 @@
     return [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&tempData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
 }
 
-+ (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image {
++ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image {
     if (!image) {
         return nil;
     }

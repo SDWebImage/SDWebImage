@@ -21,13 +21,13 @@
 @implementation SDWebImageDecoderTests
 
 - (void)test01ThatDecodedImageWithNilImageReturnsNil {
-    expect([UIImage decodedImageWithImage:nil]).to.beNil();
+    expect([UIImage sd_decodedImageWithImage:nil]).to.beNil();
 }
 
 - (void)test02ThatDecodedImageWithImageWorksWithARegularJPGImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);
@@ -38,7 +38,7 @@
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
     UIImage *animatedImage = [UIImage animatedImageWithImages:@[image] duration:0];
-    UIImage *decodedImage = [UIImage decodedImageWithImage:animatedImage];
+    UIImage *decodedImage = [UIImage sd_decodedImageWithImage:animatedImage];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).to.equal(animatedImage);
 }
@@ -46,7 +46,7 @@
 - (void)test04ThatDecodedImageWithImageDoesNotDecodeImagesWithAlpha {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).to.equal(image);
 }
@@ -54,7 +54,7 @@
 - (void)test05ThatDecodedImageWithImageWorksEvenWithMonochromeImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"MonochromeTestImage" ofType:@"jpg"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);
@@ -64,7 +64,7 @@
 - (void)test06ThatDecodeAndScaleDownImageWorks {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage decodedAndScaledDownImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).toNot.equal(image.size.width);
@@ -75,7 +75,7 @@
 - (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage decodedAndScaledDownImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);

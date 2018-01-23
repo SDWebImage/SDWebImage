@@ -8,7 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageManager.h"
-#import "NSImage+WebCache.h"
+#import "NSImage+Additions.h"
 #import "SDWebImageCodersManager.h"
 
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";

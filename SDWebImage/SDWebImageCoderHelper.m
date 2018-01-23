@@ -8,8 +8,8 @@
 
 #import "SDWebImageCoderHelper.h"
 #import "SDWebImageFrame.h"
-#import "UIImage+MultiFormat.h"
-#import "NSImage+WebCache.h"
+#import "NSImage+Additions.h"
+#import "NSData+ImageContentType.h"
 #import <ImageIO/ImageIO.h>
 
 @implementation SDWebImageCoderHelper

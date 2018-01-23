@@ -8,7 +8,7 @@
 
 #import "SDImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
-#import "NSImage+WebCache.h"
+#import "NSImage+Additions.h"
 #import "SDWebImageCodersManager.h"
 
 static void * SDImageCacheContext = &SDImageCacheContext;

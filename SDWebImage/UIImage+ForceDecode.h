@@ -10,8 +10,20 @@
 
 @interface UIImage (ForceDecode)
 
-+ (nullable UIImage *)decodedImageWithImage:(nullable UIImage *)image;
+/**
+ Decompress (force decode before rendering) the provided image
 
-+ (nullable UIImage *)decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
+ @param image The image to be decompressed
+ @return The decompressed image
+ */
++ (nullable UIImage *)sd_decodedImageWithImage:(nullable UIImage *)image;
+
+/**
+ Decompress and scale down the provided image
+
+ @param image The image to be decompressed
+ @return The decompressed and scaled down image
+ */
++ (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
 
 @end

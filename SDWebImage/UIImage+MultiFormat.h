@@ -12,19 +12,26 @@
 @interface UIImage (MultiFormat)
 
 /**
- * UIKit:
- * For static image format, this value is always 0.
- * For animated image format, 0 means infinite looping.
- * Note that because of the limitations of categories this property can get out of sync if you create another instance with CGImage or other methods.
- * AppKit:
- * NSImage currently only support animated via GIF imageRep unlike UIImage.
- * The getter of this property will get the loop count from GIF imageRep
- * The setter of this property will set the loop count from GIF imageRep
- */
-@property (nonatomic, assign) NSUInteger sd_imageLoopCount;
+ Create and decode a image with the specify image data
 
+ @param data The image data
+ @return The created image
+ */
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
+
+/**
+ Encode the current image to the data, the image format is unspecified
+
+ @return The encoded data. If can't encode, return nil
+ */
 - (nullable NSData *)sd_imageData;
+
+/**
+ Encode the current image to data with the specify image format
+
+ @param imageFormat The specify image format
+ @return The encoded data. If can't encode, return nil
+ */
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat;
 
 @end

@@ -10,13 +10,8 @@
 
 #import "UIImage+WebP.h"
 #import "SDWebImageWebPCoder.h"
-#import "UIImage+MultiFormat.h"
 
 @implementation UIImage (WebP)
-
-- (NSInteger)sd_webpLoopCount {
-    return self.sd_imageLoopCount;
-}
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data {
     if (!data) {

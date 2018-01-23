@@ -34,7 +34,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  *
  * @note Note that because of the limitations of categories this property can get out of sync if you use setImage: directly.
  */
-- (nullable NSURL *)sd_imageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_imageURL;
 
 /**
  * The current image loading progress associated to the view. The unit count is the received size and excepted size of download.

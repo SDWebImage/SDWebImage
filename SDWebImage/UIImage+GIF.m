@@ -9,7 +9,6 @@
 
 #import "UIImage+GIF.h"
 #import "SDWebImageGIFCoder.h"
-#import "NSImage+WebCache.h"
 
 @implementation UIImage (GIF)
 
@@ -18,10 +17,6 @@
         return nil;
     }
     return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data];
-}
-
-- (BOOL)isGIF {
-    return (self.images != nil);
 }
 
 @end
