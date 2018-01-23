@@ -36,8 +36,6 @@
 @property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
-// This queue is used to serialize the handling of the network responses of all the download operation in a single queue
-@property (strong, nonatomic, nullable) dispatch_queue_t barrierQueue;
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -96,7 +94,6 @@
 #else
         _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
 #endif
-        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
         _downloadTimeout = 15.0;
 
         [self createNewSessionWithConfiguration:sessionConfiguration];
@@ -231,13 +228,15 @@
 }
 
 - (void)cancel:(nullable SDWebImageDownloadToken *)token {
-    dispatch_barrier_async(self.barrierQueue, ^{
-        SDWebImageDownloaderOperation *operation = self.URLOperations[token.url];
-        BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
-        if (canceled) {
-            [self.URLOperations removeObjectForKey:token.url];
-        }
-    });
+    NSURL *url = token.url;
+    if (!url) {
+        return;
+    }
+    SDWebImageDownloaderOperation *operation = [self operationForURL:url];
+    BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
+    if (canceled) {
+        [self removeOperationForURL:url];
+    }
 }
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
@@ -251,33 +250,24 @@
         }
         return nil;
     }
-
-    __block SDWebImageDownloadToken *token = nil;
-
-    dispatch_barrier_sync(self.barrierQueue, ^{
-        SDWebImageDownloaderOperation *operation = self.URLOperations[url];
-        if (!operation) {
-            operation = createCallback();
-            self.URLOperations[url] = operation;
-
-            __weak SDWebImageDownloaderOperation *woperation = operation;
-            operation.completionBlock = ^{
-				dispatch_barrier_sync(self.barrierQueue, ^{
-					SDWebImageDownloaderOperation *soperation = woperation;
-					if (!soperation) return;
-					if (self.URLOperations[url] == soperation) {
-						[self.URLOperations removeObjectForKey:url];
-					};
-				});
-            };
-        }
-        id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
-
-        token = [SDWebImageDownloadToken new];
-        token.downloadOperation = operation;
-        token.url = url;
-        token.downloadOperationCancelToken = downloadOperationCancelToken;
-    });
+    
+    SDWebImageDownloaderOperation *operation = [self operationForURL:url];
+    if (!operation) {
+        operation = createCallback();
+        [self setOperation:operation forURL:url];
+        
+        __weak typeof(self) wself = self;
+        operation.completionBlock = ^{
+            __strong typeof(wself) sself = wself;
+            [sself removeOperationForURL:url];
+        };
+    }
+    id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+    
+    SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
+    token.downloadOperation = operation;
+    token.url = url;
+    token.downloadOperationCancelToken = downloadOperationCancelToken;
 
     return token;
 }
@@ -291,6 +281,35 @@
 }
 
 #pragma mark Helper methods
+
+- (SDWebImageDownloaderOperation *)operationForURL:(NSURL *)url {
+    if (!url) {
+        return nil;
+    }
+    SDWebImageDownloaderOperation *operation;
+    @synchronized (self.URLOperations) {
+        operation = [self.URLOperations objectForKey:url];
+    }
+    return operation;
+}
+
+- (void)setOperation:(SDWebImageDownloaderOperation *)operation forURL:(NSURL *)url {
+    if (!operation || !url) {
+        return;
+    }
+    @synchronized (self.URLOperations) {
+        [self.URLOperations setObject:operation forKey:url];
+    }
+}
+
+- (void)removeOperationForURL:(NSURL *)url {
+    if (!url) {
+        return;
+    }
+    @synchronized (self.URLOperations) {
+        [self.URLOperations removeObjectForKey:url];
+    }
+}
 
 - (SDWebImageDownloaderOperation *)operationWithTask:(NSURLSessionTask *)task {
     SDWebImageDownloaderOperation *returnOperation = nil;

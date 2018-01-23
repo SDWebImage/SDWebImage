@@ -58,14 +58,7 @@
             }
             
             float duration = [self sd_frameDurationAtIndex:i source:source];
-#if SD_WATCH
-            CGFloat scale = 1;
-            scale = [WKInterfaceDevice currentDevice].screenScale;
-#elif SD_UIKIT
-            CGFloat scale = 1;
-            scale = [UIScreen mainScreen].scale;
-#endif
-            UIImage *image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
             CGImageRelease(imageRef);
             
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
@@ -95,6 +88,9 @@
 - (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
     float frameDuration = 0.1f;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
+    if (!cfFrameProperties) {
+        return frameDuration;
+    }
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
     NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary];
     
