@@ -228,6 +228,28 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
+ * Creates a SDWebImageDownloader async downloader instance with a given URL
+ *
+ * The delegate will be informed when the image is finish downloaded or an error has happen.
+ *
+ * @see SDWebImageDownloaderDelegate
+ *
+ * @param url            The URL to the image to download
+ * @param options        The options to be used for this download
+ * @param progressBlock  A block called repeatedly while the image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called once the download is completed.
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ *
+ * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
+ */
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
+                                                   context:(nullable SDWebImageContext *)context;
+
+/**
  * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
  *
  * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.

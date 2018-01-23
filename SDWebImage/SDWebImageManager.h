@@ -242,6 +242,24 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                                             completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url            The URL to the image
+ * @param options        A mask to specify options to use for this request
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed.
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ *
+ * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
+ */
+- (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
+                                              options:(SDWebImageOptions)options
+                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                            completed:(nonnull SDInternalCompletionBlock)completedBlock
+                                              context:(nullable SDWebImageContext *)context;
+
+/**
  * Saves image to cache for given URL
  *
  * @param image The image to cache

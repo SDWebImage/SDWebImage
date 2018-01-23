@@ -107,10 +107,15 @@
     }];
 }
 
-- (id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                     options:(SDWebImageOptions)options
-                                    progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                   completed:(nonnull SDInternalCompletionBlock)completedBlock {
+- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
+    return [self loadImageWithURL:url options:options progress:progressBlock completed:completedBlock context:nil];
+}
+
+- (id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
+                                    options:(SDWebImageOptions)options
+                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                  completed:(nonnull SDInternalCompletionBlock)completedBlock
+                                    context:(nullable SDWebImageContext *)context {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -250,7 +255,7 @@
                 if (finished) {
                     [self safelyRemoveOperationFromRunning:strongSubOperation];
                 }
-            }];
+            } context:context];
         } else if (cachedImage) {
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
             [self safelyRemoveOperationFromRunning:strongOperation];
@@ -259,7 +264,7 @@
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:nil data:nil error:nil cacheType:SDImageCacheTypeNone finished:YES url:url];
             [self safelyRemoveOperationFromRunning:strongOperation];
         }
-    }];
+    } context:context];
 
     return operation;
 }
