@@ -161,7 +161,7 @@ static char TAG_ACTIVITY_SHOW;
                     callCompletedBlockClojure();
                 });
             }
-        }];
+        } context:context];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
         dispatch_main_async_safe(^{

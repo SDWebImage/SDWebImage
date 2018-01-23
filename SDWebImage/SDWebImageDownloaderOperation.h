@@ -36,6 +36,9 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nullable NSURLCredential *)credential;
 - (void)setCredential:(nullable NSURLCredential *)value;
 
+- (nullable SDWebImageContext *)context;
+- (void)setContext:(nullable SDWebImageContext *)context;
+
 - (BOOL)cancel:(nullable id)token;
 
 @end
@@ -67,19 +70,24 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
 
 /**
- * The SDWebImageDownloaderOptions for the receiver.
+ * The options for the receiver.
  */
 @property (assign, nonatomic, readonly) SDWebImageDownloaderOptions options;
 
 /**
+ * The context for the receiver.
+ */
+@property (copy, nonatomic, nullable) SDWebImageContext *context;
+
+/**
  * The expected size of data.
  */
-@property (assign, nonatomic) NSInteger expectedSize;
+@property (assign, nonatomic, readonly) NSInteger expectedSize;
 
 /**
  * The response returned by the operation's connection.
  */
-@property (strong, nonatomic, nullable) NSURLResponse *response;
+@property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
 
 /**
  *  Initializes a `SDWebImageDownloaderOperation` object

@@ -174,10 +174,14 @@
     }
 }
 
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+    return [self downloadImageWithURL:url options:options progress:progressBlock completed:completedBlock context:nil];
+}
+
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock context:(nullable SDWebImageContext *)context {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
@@ -203,6 +207,7 @@
         }
         SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
         operation.shouldDecompressImages = sself.shouldDecompressImages;
+        operation.context = context;
         
         if (sself.urlCredential) {
             operation.credential = sself.urlCredential;

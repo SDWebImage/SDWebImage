@@ -205,6 +205,18 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock;
 
 /**
+ * Asynchronously queries the cache with operation and call the completion when done.
+ *
+ * @param key       The unique key used to store the wanted image
+ * @param options   A mask to specify options to use for this cache query
+ * @param doneBlock The completion block. Will not get called if the operation is cancelled
+ * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ *
+ * @return a NSOperation instance containing the cache op
+ */
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock context:(nullable SDWebImageContext *)context;
+
+/**
  * Synchronously query the memory cache.
  *
  * @param key The unique key used to store the image
