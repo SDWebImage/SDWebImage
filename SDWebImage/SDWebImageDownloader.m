@@ -181,7 +181,8 @@
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock context:(nullable SDWebImageContext *)context {
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
+                                                   context:(nullable SDWebImageContext *)context {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
