@@ -19,9 +19,9 @@ typedef NSDictionary<SDWebImageCoderOption, id> SDWebImageCoderOptions;
  */
 FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeFirstFrameOnly;
 /**
- A double value between 0.0-1.0 indicating the encode quality to produce the image data. If not provide, use 1.0. (NSNumber)
+ A double value between 0.0-1.0 indicating the encode compression quality to produce the image data. If not provide, use 1.0. (NSNumber)
  */
-FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeQuality;
+FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeCompressionQuality;
 
 /**
  This is the image coder protocol to provide custom image decoding/encoding.
@@ -44,7 +44,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeQual
  Decode the image data to image.
 
  @param data The image data to be decoded
- @param optionsDict A dictionary containing any decoding options. Pass {SDWebImageCoderDecodeFirstFrameOnlyKey: @(YES)} to decode the first frame only.
+ @param options A dictionary containing any decoding options. Pass @{SDWebImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
  @return The decoded image from data
  */
 - (nullable UIImage *)decodedImageWithData:(nullable NSData *)data
@@ -65,6 +65,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeQual
 
  @param image The image to be encoded
  @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible
+ @param options A dictionary containing any encoding options. Pass @{SDWebImageCoderEncodeCompressionQuality: @(1)} to specify compression quality.
  @return The encoded image data
  */
 - (nullable NSData *)encodedDataWithImage:(nullable UIImage *)image
@@ -120,13 +121,5 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeQual
  @return A new instance to do animated decoding for specify image data
  */
 - (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data;
-
-/**
- Return the current animated image data. This is used for image instance archive or image information retrieval
- You can return back the desired data(may be not the same instance provide for init method, but have the equal data)
-
- @return The animated image data
- */
-- (nullable NSData *)animatedImageData;
 
 @end

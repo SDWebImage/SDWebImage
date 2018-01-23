@@ -12,7 +12,15 @@
 @implementation UIImage (MultiFormat)
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
-    return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:nil];
+    return [self sd_imageWithData:data firstFrameOnly:NO];
+}
+
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly {
+    if (!data) {
+        return nil;
+    }
+    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
 - (nullable NSData *)sd_imageData {
@@ -20,12 +28,12 @@
 }
 
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat {
-    NSData *imageData = nil;
-    if (self) {
-        imageData = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:nil];
-    }
-    return imageData;
+    return [self sd_imageDataAsFormat:imageFormat compressionQuality:1];
 }
 
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality {
+    SDWebImageCoderOptions *options = @{SDWebImageCoderEncodeCompressionQuality : @(compressionQuality)};
+    return [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
+}
 
 @end

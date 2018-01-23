@@ -11,6 +11,7 @@
 #if SD_UIKIT || SD_MAC
 
 #import "UIView+WebCache.h"
+#import "SDAnimatedImage.h"
 
 @implementation SDAnimatedImageView (WebCache)
 
@@ -43,13 +44,16 @@
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
+    Class animatedImageClass = [SDAnimatedImage class];
+    SDWebImageContext *context = @{SDWebImageContextAnimatedImageClass : animatedImageClass};
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
                        setImageBlock:nil
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:completedBlock
+                             context:context];
 }
 
 @end

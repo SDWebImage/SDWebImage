@@ -14,10 +14,15 @@
 @implementation UIImage (WebP)
 
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data {
+    return [self sd_imageWithWebPData:data firstFrameOnly:NO];
+}
+
++ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly {
     if (!data) {
         return nil;
     }
-    return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data options:nil];
+    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data options:options];
 }
 
 @end

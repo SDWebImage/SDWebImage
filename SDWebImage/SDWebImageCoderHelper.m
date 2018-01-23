@@ -23,7 +23,7 @@ static const size_t kBitsPerComponent = 8;
  * Suggested value for iPad2 and iPhone 4: 120.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 30.
  */
-static const CGFloat kDestImageSizeMB = 120.f;
+static const CGFloat kDestImageSizeMB = 60.f;
 
 /*
  * Defines the maximum size in MB of a tile used to decode image when the flag `SDWebImageScaleDownLargeImages` is set
@@ -31,7 +31,7 @@ static const CGFloat kDestImageSizeMB = 120.f;
  * Suggested value for iPad2 and iPhone 4: 40.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 10.
  */
-static const CGFloat kSourceImageTileSizeMB = 40.f;
+static const CGFloat kSourceImageTileSizeMB = 20.f;
 
 static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
 static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;

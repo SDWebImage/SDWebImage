@@ -18,6 +18,34 @@
     #error SDWebImage need ARC for dispatch object
 #endif
 
+inline CGFloat SDImageScaleForKey(NSString * _Nullable key) {
+    CGFloat scale = 1;
+    if (!key) {
+        return scale;
+    }
+#if SD_WATCH
+    if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)])
+#elif SD_UIKIT
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+#elif SD_MAC
+    if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)])
+#endif
+    {
+        if (key.length >= 8) {
+            NSRange range = [key rangeOfString:@"@2x."];
+            if (range.location != NSNotFound) {
+                scale = 2.0;
+            }
+            
+            range = [key rangeOfString:@"@3x."];
+            if (range.location != NSNotFound) {
+                scale = 3.0;
+            }
+        }
+    }
+    return scale;
+}
+
 inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image) {
     if (!image) {
         return nil;
@@ -36,40 +64,18 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
             animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
         }
         return animatedImage;
-    } else {
-#endif
-#if SD_WATCH
-        if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)]) {
-#elif SD_UIKIT
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-#elif SD_MAC
-        if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
-#endif
-            CGFloat scale = 1;
-            if (key.length >= 8) {
-                NSRange range = [key rangeOfString:@"@2x."];
-                if (range.location != NSNotFound) {
-                    scale = 2.0;
-                }
-                
-                range = [key rangeOfString:@"@3x."];
-                if (range.location != NSNotFound) {
-                    scale = 3.0;
-                }
-            }
-            if (scale > 1) {
-#if SD_UIKIT || SD_WATCH
-                UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-#else
-                UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale];
-#endif
-                image = scaledImage;
-            }
-        }
-        return image;
-#if SD_UIKIT || SD_WATCH
     }
 #endif
+    CGFloat scale = SDImageScaleForKey(key);
+    if (scale > 1) {
+#if SD_UIKIT || SD_WATCH
+        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+#else
+        UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale];
+#endif
+        image = scaledImage;
+    }
+    return image;
 }
 
 NSString *const SDWebImageErrorDomain = @"SDWebImageErrorDomain";

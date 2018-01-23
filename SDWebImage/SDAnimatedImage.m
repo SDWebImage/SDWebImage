@@ -11,6 +11,7 @@
 #import "UIImage+WebCache.h"
 #import "SDWebImageCoder.h"
 #import "SDWebImageCodersManager.h"
+#import "SDWebImageFrame.h"
 
 static CGFloat SDImageScaleFromPath(NSString *string) {
     if (string.length == 0 || [string hasSuffix:@"/"]) return 1;
@@ -32,8 +33,11 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 @property (nonatomic, strong) id<SDWebImageAnimatedCoder> coder;
 @property (nonatomic, assign, readwrite) NSUInteger animatedImageLoopCount;
 @property (nonatomic, assign, readwrite) NSUInteger animatedImageFrameCount;
+@property (nonatomic, copy, readwrite) NSData *animatedImageData;
 @property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
-@property (nonatomic, assign) BOOL animatedImageLoopCountCheck;
+@property (atomic, copy) NSArray<SDWebImageFrame *> *preloadAnimatedImageFrames;
+@property (nonatomic, assign) BOOL animatedImageFramesPreloaded;
+@property (nonatomic, assign) BOOL animatedImageLoopCountChecked;
 @property (nonatomic, assign) BOOL animatedImageFrameCountChecked;
 
 #if SD_MAC
@@ -43,6 +47,21 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 @end
 
 @implementation SDAnimatedImage
+
+#pragma mark - Dealloc & Memory warning
+
+- (void)dealloc {
+#if SD_UIKIT
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+}
+
+- (void)didReceiveMemoryWarning:(NSNotification *)notification {
+    if (self.animatedImageFramesPreloaded) {
+        self.preloadAnimatedImageFrames = nil;
+        self.animatedImageFramesPreloaded = NO;
+    }
+}
 
 #pragma mark - UIImage override method
 + (instancetype)imageWithContentsOfFile:(NSString *)path {
@@ -70,14 +89,8 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     if (!data || data.length == 0) {
         return nil;
     }
-    if (scale <= 0) {
-#if SD_WATCH
-        scale = [WKInterfaceDevice currentDevice].screenScale;
-#elif SD_UIKIT
-        scale = [UIScreen mainScreen].scale;
-#endif
-    }
-    for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedInstance].coders) {
+    data = [data copy]; // avoid mutable data
+    for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
         if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
             if ([coder canDecodeFromData:data]) {
                 id<SDWebImageAnimatedCoder> animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data];
@@ -98,17 +111,42 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     if (!image) {
         return nil;
     }
+    if (scale <= 0) {
+        scale = 1;
+    }
 #if SD_MAC
-    self = [super initWithCGImage:image.CGImage size:NSZeroSize];
+    self = [super initWithCGImage:image.CGImage scale:scale];
 #else
     self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #endif
-    if (!self) {
-        return nil;
+    if (self) {
+#if SD_MAC
+        _scale = scale;
+#endif
+        _animatedImageData = data;
+        SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+        _animatedImageFormat = format;
     }
-    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
-    self.animatedImageFormat = format;
     return self;
+}
+
+#pragma mark - Preload
+- (void)preloadAllFrames {
+    if (!self.animatedImageFramesPreloaded) {
+        NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray arrayWithCapacity:self.animatedImageFrameCount];
+        for (size_t i = 0; i < self.animatedImageFrameCount; i++) {
+            UIImage *image = [self animatedImageFrameAtIndex:i];
+            NSTimeInterval duration = [self animatedImageDurationAtIndex:i];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration]; // through the image should be nonnull, used as nullable for `animatedImageFrameAtIndex:`
+            [frames addObject:frame];
+        }
+        self.preloadAnimatedImageFrames = frames;
+        self.animatedImageFramesPreloaded = YES;
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+    }
 }
 
 #pragma mark - NSSecureCoding
@@ -137,8 +175,8 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 
 #pragma mark - SDAnimatedImage
 - (NSUInteger)animatedImageLoopCount {
-    if (!self.animatedImageLoopCountCheck) {
-        self.animatedImageLoopCountCheck = YES;
+    if (!self.animatedImageLoopCountChecked) {
+        self.animatedImageLoopCountChecked = YES;
         _animatedImageLoopCount = [self.coder animatedImageLoopCount];
     }
     return _animatedImageLoopCount;
@@ -153,15 +191,25 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 }
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
+    if (index >= self.animatedImageFrameCount) {
+        return nil;
+    }
+    if (self.animatedImageFramesPreloaded) {
+        SDWebImageFrame *frame = [self.preloadAnimatedImageFrames objectAtIndex:index];
+        return frame.image;
+    }
     return [self.coder animatedImageFrameAtIndex:index];
 }
 
-- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index { 
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
+    if (index >= self.animatedImageFrameCount) {
+        return 0;
+    }
+    if (self.animatedImageFramesPreloaded) {
+        SDWebImageFrame *frame = [self.preloadAnimatedImageFrames objectAtIndex:index];
+        return frame.duration;
+    }
     return [self.coder animatedImageDurationAtIndex:index];
-}
-
-- (NSData *)animatedImageData {
-    return self.coder.animatedImageData;
 }
 
 @end

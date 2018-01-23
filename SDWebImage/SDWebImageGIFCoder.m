@@ -70,7 +70,7 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable NSDictionary<SDWebImageCoderOption,id> *)optionsDict {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -90,7 +90,7 @@
     
     UIImage *animatedImage;
     
-    BOOL decodeFirstFrame = [optionsDict[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data];
     } else {
@@ -191,14 +191,21 @@
         // Handle failure.
         return nil;
     }
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    double compressionQuality = 1;
+    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    }
+    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
     if (frames.count == 0) {
         // for static single GIF images
-        CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
+        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated GIF images
         NSUInteger loopCount = image.sd_imageLoopCount;
-        NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary: @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)}};
-        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)gifProperties);
+        NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)};
+        [properties setValue:gifProperties forKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
+        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *frame = frames[i];
@@ -266,11 +273,6 @@
     _frames = [frames copy];
     
     return YES;
-}
-
-- (NSData *)animatedImageData
-{
-    return _imageData;
 }
 
 - (NSUInteger)animatedImageLoopCount

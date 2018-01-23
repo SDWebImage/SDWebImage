@@ -40,6 +40,14 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
      * Use this flag to transform them anyway.
      */
     SDImageCacheTransformAnimatedImage = 1 << 2,
+    /**
+     * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
+     */
+    SDImageCacheDecodeFirstFrameOnly = 1 << 3,
+    /**
+     * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from disk cache
+     */
+    SDImageCachePreloadAllFrames = 1 << 4
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);

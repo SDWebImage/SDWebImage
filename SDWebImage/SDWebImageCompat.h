@@ -83,6 +83,7 @@
 #define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
+FOUNDATION_EXPORT CGFloat SDImageScaleForKey(NSString * _Nullable key);
 FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
 
 FOUNDATION_EXPORT NSString *const _Nonnull SDWebImageErrorDomain;

@@ -19,7 +19,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *
 #endif
 
 static NSUInteger SDDeviceTotalMemory() {
-    return [[NSProcessInfo processInfo] physicalMemory];
+    return (NSUInteger)[[NSProcessInfo processInfo] physicalMemory];
 }
 
 static NSUInteger SDDeviceFreeMemory() {
@@ -226,6 +226,7 @@ dispatch_semaphore_signal(self->_lock);
         self.bufferMiss = NO;
         self.shouldAnimate = NO;
         self.maxBufferCount = 0;
+        self.layer.contentsScale = 1;
         [_frameBuffer removeAllObjects];
         _frameBuffer = nil;
         [_fetchQueue cancelAllOperations];
@@ -276,6 +277,7 @@ dispatch_semaphore_signal(self->_lock);
             [self startAnimating];
         }
         
+        self.layer.contentsScale = image.scale;
         [self.layer setNeedsDisplay];
     }
 }

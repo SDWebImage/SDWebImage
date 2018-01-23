@@ -27,7 +27,7 @@
 - (NSUInteger)animatedImageLoopCount;
 /**
  Returns the frame image from a specified index.
- This method may be called on background thread. And the index maybe randomly if one image was set to different imageViews, keep it re-entrant.
+ @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's not recommend to store the images into array because it's memory consuming)
 
  @param index Frame index (zero based).
  @return Frame's image
@@ -35,11 +35,21 @@
 - (nullable UIImage *)animatedImageFrameAtIndex:(NSUInteger)index;
 /**
  Returns the frames's duration from a specified index.
+ @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's recommend to store the durations into array because it's not memory-consuming)
 
  @param index Frame index (zero based).
  @return Frame's duration
  */
 - (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index;
+
+@optional
+/**
+ Preload all frame image to memory. Then directly return the frame for index without decoding.
+ This method may be called on background thread.
+ 
+ @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access.
+ */
+- (void)preloadAllFrames;
 
 @end
 
@@ -62,5 +72,14 @@
  Current animated image data, you can use this instead of CGImage to create another instance
  */
 @property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
+
+/**
+ Preload all frame image to memory. Then directly return the frame for index without decoding.
+ The preloaded animated image frames will be removed when receiving memory warning.
+ 
+ @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access.
+ @note Once preload the frames into memory, there is no huge differenec on performance between UIImage's `animatedImageWithImages:duration:` for UIKit. But UIImage's animation have some issue such like blanking or frame resetting. It's recommend to use only if need.
+ */
+- (void)preloadAllFrames;
 
 @end

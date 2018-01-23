@@ -9,8 +9,10 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageManager.h"
 #import "NSImage+Additions.h"
+#import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageCoderHelper.h"
+#import "SDAnimatedImage.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -428,13 +430,33 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:nil];
+                        BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
                         NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                        image = [self scaledImageForKey:key image:image];
+                        UIImage *image;
+                        if (!decodeFirstFrame) {
+                            // check whether we should use `SDAnimatedImage`
+                            if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
+                                Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
+                                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                                    CGFloat scale = SDImageScaleForKey(key);
+                                    image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
+                                    if (self.options & SDWebImageDownloaderPreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
+                                        [((id<SDAnimatedImage>)image) preloadAllFrames];
+                                    }
+                                }
+                            }
+                        }
+                        if (!image) {
+                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame)}];
+                            image = [self scaledImageForKey:key image:image];
+                        }
                         
                         BOOL shouldDecode = YES;
-                        // Do not force decoding animated GIFs and WebPs
-                        if (image.images) {
+                        if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                            // `SDAnimatedImage` do not decode
+                            shouldDecode = NO;
+                        } else if (image.sd_isAnimated) {
+                            // animated image do not decode
                             shouldDecode = NO;
                         }
                         if (shouldDecode) {

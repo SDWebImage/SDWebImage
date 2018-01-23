@@ -61,6 +61,16 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * Scale down the image
      */
     SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
+    
+    /**
+     * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
+     */
+    SDWebImageDownloaderDecodeFirstFrameOnly = 1 << 9,
+    
+    /**
+     * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from network
+     */
+    SDWebImageDownloaderPreloadAllFrames = 1 << 10
 };
 
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {

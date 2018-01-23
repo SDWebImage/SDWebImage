@@ -157,7 +157,7 @@
     expect([coder canEncodeToFormat:inputImageFormat]).to.beTruthy();
     
     // 4 - encode from UIImage to NSData using the inputImageFormat and check it
-    NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat];
+    NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat options:nil];
     expect(outputImageData).toNot.beNil();
     UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
     expect(outputImage.size).to.equal(inputImage.size);

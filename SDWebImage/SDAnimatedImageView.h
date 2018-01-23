@@ -31,7 +31,7 @@
  */
 @property (nonatomic, assign, readonly) NSUInteger currentLoopCount;
 /**
- YES to choose `animationRepeatCount` property instead of image's loop count for animtion loop count. Default is NO.
+ YES to choose `animationRepeatCount` property instead of image's loop count for animation loop count. Default is NO.
  */
 @property (nonatomic, assign) BOOL shouldCustomLoopCount;
 /**
@@ -40,6 +40,11 @@
  This class override UIImageView's `animationRepeatCount` property on iOS, use this property as well.
  */
 @property (nonatomic, assign) NSInteger animationRepeatCount;
+/**
+ Returns a Boolean value indicating whether the animation is running.
+ This class override UIImageView's `animating` property on iOS, use this property as well.
+ */
+@property (nonatomic, readonly, getter=isAnimating) BOOL animating;
 /**
  Provide a max buffer size by bytes. This is used to adjust frame buffer count and can be useful when the decoding cost is expensive (such as Animated WebP software decoding). Default is 0.
  `0` means automatically adjust by calculating current memory usage.

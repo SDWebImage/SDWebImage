@@ -96,7 +96,7 @@ dispatch_semaphore_signal(self->_lock);
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable NSDictionary<NSString *,id> *)optionsDict {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -112,7 +112,7 @@ dispatch_semaphore_signal(self->_lock);
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
-    BOOL decodeFirstFrame = [[optionsDict valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
     if (!hasAnimation) {
         // for static single webp image
         UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
@@ -391,10 +391,14 @@ dispatch_semaphore_signal(self->_lock);
     
     NSData *data;
     
+    double compressionQuality = 1;
+    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    }
     NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
     if (frames.count == 0) {
         // for static single webp image
-        data = [self sd_encodedWebpDataWithImage:image];
+        data = [self sd_encodedWebpDataWithImage:image quality:compressionQuality];
     } else {
         // for animated webp image
         WebPMux *mux = WebPMuxNew();
@@ -403,7 +407,7 @@ dispatch_semaphore_signal(self->_lock);
         }
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *currentFrame = frames[i];
-            NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image];
+            NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image quality:compressionQuality];
             int duration = currentFrame.duration * 1000;
             WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
                 .bitstream.size = webpData.length,
@@ -440,7 +444,7 @@ dispatch_semaphore_signal(self->_lock);
     return data;
 }
 
-- (nullable NSData *)sd_encodedWebpDataWithImage:(nullable UIImage *)image {
+- (nullable NSData *)sd_encodedWebpDataWithImage:(nullable UIImage *)image quality:(double)quality {
     if (!image) {
         return nil;
     }
@@ -466,8 +470,8 @@ dispatch_semaphore_signal(self->_lock);
     uint8_t *rgba = (uint8_t *)CFDataGetBytePtr(dataRef);
     
     uint8_t *data = NULL;
-    float quality = 100.0;
-    size_t size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, quality, &data);
+    float qualityFactor = quality * 100; // WebP quality is 0-100
+    size_t size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, qualityFactor, &data);
     CFRelease(dataRef);
     rgba = NULL;
     
@@ -580,11 +584,6 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     _loopCount = loopCount;
     
     return YES;
-}
-
-- (NSData *)animatedImageData
-{
-    return _imageData;
 }
 
 - (NSUInteger)animatedImageLoopCount {
