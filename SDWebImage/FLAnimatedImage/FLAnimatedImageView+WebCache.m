@@ -107,7 +107,7 @@
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:group ? @{SDWebImageInternalSetImageGroupKey : group} : nil];
+                             context:group ? @{SDWebImageContextSetImageGroup : group} : nil];
 }
 
 @end

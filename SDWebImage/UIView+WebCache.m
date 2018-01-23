@@ -13,9 +13,6 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
-NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
-NSString * const SDWebImageExternalCustomManagerKey = @"externalCustomManager";
-
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 static char imageURLKey;
@@ -66,14 +63,14 @@ static char TAG_ACTIVITY_SHOW;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable NSDictionary *)context {
+                           context:(nullable SDWebImageContext *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     self.sd_imageURL = url;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
-        if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
-            dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+        if ([context valueForKey:SDWebImageContextSetImageGroup]) {
+            dispatch_group_t group = [context valueForKey:SDWebImageContextSetImageGroup];
             dispatch_group_enter(group);
         }
         dispatch_main_async_safe(^{
@@ -92,8 +89,8 @@ static char TAG_ACTIVITY_SHOW;
         self.sd_imageProgress.completedUnitCount = 0;
         
         SDWebImageManager *manager;
-        if ([context valueForKey:SDWebImageExternalCustomManagerKey]) {
-            manager = (SDWebImageManager *)[context valueForKey:SDWebImageExternalCustomManagerKey];
+        if ([context valueForKey:SDWebImageContextCustomManager]) {
+            manager = (SDWebImageManager *)[context valueForKey:SDWebImageContextCustomManager];
         } else {
             manager = [SDWebImageManager sharedManager];
         }
@@ -148,8 +145,8 @@ static char TAG_ACTIVITY_SHOW;
                 targetData = nil;
             }
             
-            if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
-                dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+            if ([context valueForKey:SDWebImageContextSetImageGroup]) {
+                dispatch_group_t group = [context valueForKey:SDWebImageContextSetImageGroup];
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
