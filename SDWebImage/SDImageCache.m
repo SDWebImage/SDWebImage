@@ -106,14 +106,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)checkIfQueueIsIOQueue {
-    const char *currentQueueLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    const char *ioQueueLabel = dispatch_queue_get_label(self.ioQueue);
-    if (strcmp(currentQueueLabel, ioQueueLabel) != 0) {
-        NSLog(@"This method should be called from the ioQueue");
-    }
-}
-
 #pragma mark - Cache paths
 
 - (void)addReadOnlyCachePath:(nonnull NSString *)path {
@@ -201,7 +193,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     }
                     data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:format];
                 }
-                [self storeImageDataToDisk:data forKey:key];
+                [self _storeImageDataToDisk:data forKey:key];
             }
             
             if (completionBlock) {
@@ -221,8 +213,16 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!imageData || !key) {
         return;
     }
-    
-    [self checkIfQueueIsIOQueue];
+    dispatch_sync(self.ioQueue, ^{
+        [self _storeImageDataToDisk:imageData forKey:key];
+    });
+}
+
+// Make sure to call form io queue by caller
+- (void)_storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
+    if (!imageData || !key) {
+        return;
+    }
     
     if (![_fileManager fileExistsAtPath:_diskCachePath]) {
         [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
@@ -233,7 +233,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    [_fileManager createFileAtPath:cachePathForKey contents:imageData attributes:nil];
+    [imageData writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil];
     
     // disable iCloud backup
     if (self.config.shouldDisableiCloud) {
@@ -244,21 +244,42 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #pragma mark - Query and Retrieve Ops
 
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
-    dispatch_async(_ioQueue, ^{
-        BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
-
-        // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-        // checking the key with and without the extension
-        if (!exists) {
-            exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
-        }
-
+    dispatch_async(self.ioQueue, ^{
+        BOOL exists = [self _diskImageDataExistsWithKey:key];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock(exists);
             });
         }
     });
+}
+
+- (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key {
+    if (!key) {
+        return NO;
+    }
+    __block BOOL exists = NO;
+    dispatch_sync(self.ioQueue, ^{
+        exists = [self _diskImageDataExistsWithKey:key];
+    });
+    
+    return exists;
+}
+
+// Make sure to call form io queue by caller
+- (BOOL)_diskImageDataExistsWithKey:(nullable NSString *)key {
+    if (!key) {
+        return NO;
+    }
+    BOOL exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
+    
+    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
+    // checking the key with and without the extension
+    if (!exists) {
+        exists = [_fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
+    }
+    
+    return exists;
 }
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
