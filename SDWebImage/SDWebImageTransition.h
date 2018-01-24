@@ -60,7 +60,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 
 @end
 
-// Convenience way to use transition. Remember to specify the duration
+// Convenience way to create transition. Remember to specify the duration
 // for UIKit, these transition just use the correspond `animationOptions`
 // for AppKit, these transition use Core Animation in `animations`. So your view must be layer-backed. Set `wantsLayer = YES` before you apply it.
 

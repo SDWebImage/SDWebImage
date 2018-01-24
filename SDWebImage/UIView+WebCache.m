@@ -195,16 +195,16 @@ static char TAG_ACTIVITY_SHOW;
 #if SD_UIKIT || SD_MAC
     else if ([view isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)view;
-        finalSetImageBlock = ^(UIImage *tempImage, NSData *tempData) {
-            imageView.image = image;
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData) {
+            imageView.image = setImage;
         };
     }
 #endif
 #if SD_UIKIT
     else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
-        finalSetImageBlock = ^(UIImage *tempImage, NSData *tempData){
-            [button setImage:image forState:UIControlStateNormal];
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
+            [button setImage:setImage forState:UIControlStateNormal];
         };
     }
 #endif
