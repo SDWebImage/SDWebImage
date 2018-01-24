@@ -62,7 +62,7 @@ static char TAG_ACTIVITY_SHOW;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable NSDictionary *)context {
+                           context:(nullable NSDictionary<NSString *, id> *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -144,11 +144,16 @@ static char TAG_ACTIVITY_SHOW;
                 targetData = nil;
             }
             
+            // check whether we should use the image transition
+            SDWebImageTransition *transition = nil;
+            if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
+                transition = sself.sd_imageTransition;
+            }
             if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
                 dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
                 });
                 // ensure completion block is called after custom setImage process finish
                 dispatch_group_notify(group, dispatch_get_main_queue(), ^{
@@ -156,7 +161,7 @@ static char TAG_ACTIVITY_SHOW;
                 });
             } else {
                 dispatch_main_async_safe(^{
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
                     callCompletedBlockClojure();
                 });
             }
@@ -178,24 +183,79 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
+    [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:0 imageURL:nil];
+}
+
+- (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock transition:(SDWebImageTransition *)transition cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
+    UIView *view = self;
+    SDSetImageBlock finalSetImageBlock;
     if (setImageBlock) {
-        setImageBlock(image, imageData);
-        return;
+        finalSetImageBlock = setImageBlock;
     }
-    
 #if SD_UIKIT || SD_MAC
-    if ([self isKindOfClass:[UIImageView class]]) {
-        UIImageView *imageView = (UIImageView *)self;
-        imageView.image = image;
+    else if ([view isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)view;
+        finalSetImageBlock = ^(UIImage *tempImage, NSData *tempData) {
+            imageView.image = image;
+        };
+    }
+#endif
+#if SD_UIKIT
+    else if ([view isKindOfClass:[UIButton class]]) {
+        UIButton *button = (UIButton *)view;
+        finalSetImageBlock = ^(UIImage *tempImage, NSData *tempData){
+            [button setImage:image forState:UIControlStateNormal];
+        };
     }
 #endif
     
+    if (transition) {
 #if SD_UIKIT
-    if ([self isKindOfClass:[UIButton class]]) {
-        UIButton *button = (UIButton *)self;
-        [button setImage:image forState:UIControlStateNormal];
-    }
+        [UIView transitionWithView:view duration:0 options:0 animations:^{
+            // 0 duration to let UIKit render placeholder and prepares block
+            if (transition.prepares) {
+                transition.prepares(view, image, imageData, cacheType, imageURL);
+            }
+        } completion:^(BOOL finished) {
+            [UIView transitionWithView:view duration:transition.duration options:transition.animationOptions animations:^{
+                if (finalSetImageBlock && !transition.avoidAutoSetImage) {
+                    finalSetImageBlock(image, imageData);
+                }
+                if (transition.animations) {
+                    transition.animations(view, image);
+                }
+            } completion:transition.completion];
+        }];
+#elif SD_MAC
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull prepareContext) {
+            // 0 duration to let AppKit render placeholder and prepares block
+            prepareContext.duration = 0;
+            if (transition.prepares) {
+                transition.prepares(view, image, imageData, cacheType, imageURL);
+            }
+        } completionHandler:^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+                context.duration = transition.duration;
+                context.timingFunction = transition.timingFunction;
+                context.allowsImplicitAnimation = (transition.animationOptions & SDWebImageAnimationOptionAllowsImplicitAnimation);
+                if (finalSetImageBlock && !transition.avoidAutoSetImage) {
+                    finalSetImageBlock(image, imageData);
+                }
+                if (transition.animations) {
+                    transition.animations(view, image);
+                }
+            } completionHandler:^{
+                if (transition.completion) {
+                    transition.completion(YES);
+                }
+            }];
+        }];
 #endif
+    } else {
+        if (finalSetImageBlock) {
+            finalSetImageBlock(image, imageData);
+        }
+    }
 }
 
 - (void)sd_setNeedsLayout {
@@ -204,6 +264,15 @@ static char TAG_ACTIVITY_SHOW;
 #elif SD_MAC
     [self setNeedsLayout:YES];
 #endif
+}
+
+#pragma mark - Image Transition
+- (SDWebImageTransition *)sd_imageTransition {
+    return objc_getAssociatedObject(self, @selector(sd_imageTransition));
+}
+
+- (void)setSd_imageTransition:(SDWebImageTransition *)sd_imageTransition {
+    objc_setAssociatedObject(self, @selector(sd_imageTransition), sd_imageTransition, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 #pragma mark - Activity indicator

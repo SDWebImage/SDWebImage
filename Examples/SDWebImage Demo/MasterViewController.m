@@ -117,6 +117,7 @@
     MyCustomTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[MyCustomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell.customImageView.sd_imageTransition = SDWebImageTransition.fadeTransition;
     }
 
     [cell.customImageView sd_setShowActivityIndicatorView:YES];
