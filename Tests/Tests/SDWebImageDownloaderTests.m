@@ -33,6 +33,7 @@
 
 @property (nonatomic, assign) BOOL shouldDecompressImages;
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
+@property (nonatomic, assign) SDWebImageContext *context;
 
 @end
 
