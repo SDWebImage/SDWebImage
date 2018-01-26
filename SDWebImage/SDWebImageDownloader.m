@@ -9,6 +9,9 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
 
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
+
 @interface SDWebImageDownloadToken ()
 
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperationInterface> *downloadOperation;
@@ -36,6 +39,7 @@
 @property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -94,6 +98,7 @@
 #else
         _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
 #endif
+        _operationsLock = dispatch_semaphore_create(1);
         _downloadTimeout = 15.0;
 
         [self createNewSessionWithConfiguration:sessionConfiguration];
@@ -232,11 +237,15 @@
     if (!url) {
         return;
     }
-    SDWebImageDownloaderOperation *operation = [self operationForURL:url];
-    BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
-    if (canceled) {
-        [self removeOperationForURL:url];
+    LOCK(self.operationsLock);
+    SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
+    if (operation) {
+        BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
+        if (canceled) {
+            [self.URLOperations removeObjectForKey:url];
+        }
     }
+    UNLOCK(self.operationsLock);
 }
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
@@ -251,17 +260,24 @@
         return nil;
     }
     
-    SDWebImageDownloaderOperation *operation = [self operationForURL:url];
+    LOCK(self.operationsLock);
+    SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
     if (!operation) {
         operation = createCallback();
-        [self setOperation:operation forURL:url];
-        
         __weak typeof(self) wself = self;
         operation.completionBlock = ^{
             __strong typeof(wself) sself = wself;
-            [sself removeOperationForURL:url];
+            if (!sself) {
+                return;
+            }
+            LOCK(sself.operationsLock);
+            [sself.URLOperations removeObjectForKey:url];
+            UNLOCK(sself.operationsLock);
         };
+        [self.URLOperations setObject:operation forKey:url];
     }
+    UNLOCK(self.operationsLock);
+
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
     SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
@@ -281,35 +297,6 @@
 }
 
 #pragma mark Helper methods
-
-- (SDWebImageDownloaderOperation *)operationForURL:(NSURL *)url {
-    if (!url) {
-        return nil;
-    }
-    SDWebImageDownloaderOperation *operation;
-    @synchronized (self.URLOperations) {
-        operation = [self.URLOperations objectForKey:url];
-    }
-    return operation;
-}
-
-- (void)setOperation:(SDWebImageDownloaderOperation *)operation forURL:(NSURL *)url {
-    if (!operation || !url) {
-        return;
-    }
-    @synchronized (self.URLOperations) {
-        [self.URLOperations setObject:operation forKey:url];
-    }
-}
-
-- (void)removeOperationForURL:(NSURL *)url {
-    if (!url) {
-        return;
-    }
-    @synchronized (self.URLOperations) {
-        [self.URLOperations removeObjectForKey:url];
-    }
-}
 
 - (SDWebImageDownloaderOperation *)operationWithTask:(NSURLSessionTask *)task {
     SDWebImageDownloaderOperation *returnOperation = nil;
