@@ -415,7 +415,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
-    BOOL shouldQueryMemoryOnly = (options & SDImageCacheQueryMemoryOnly) || (image && !(options & SDImageCacheQueryDataWhenInMemory));
+    BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryDataWhenInMemory));
     if (shouldQueryMemoryOnly) {
         if (doneBlock) {
             doneBlock(image, nil, SDImageCacheTypeMemory);
