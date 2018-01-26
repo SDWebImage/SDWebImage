@@ -207,7 +207,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     }
                     data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:format];
                 }
-                [self safeStoreImageDataToDisk:data forKey:key error:&writeError];
+                [self _storeImageDataToDisk:data forKey:key error:&writeError];
             }
             
             if (completionBlock) {
@@ -236,16 +236,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     __block BOOL success = YES;
     void(^storeImageDataBlock)(void) =  ^{
-        success = [self safeStoreImageDataToDisk:imageData forKey:key error:error];
+        success = [self _storeImageDataToDisk:imageData forKey:key error:error];
     };
     dispatch_sync(self.ioQueue, storeImageDataBlock);
     
     return success;
 }
 
-- (BOOL)safeStoreImageDataToDisk:(nullable NSData *)imageData
-                          forKey:(nullable NSString *)key
-                           error:(NSError * _Nullable __autoreleasing * _Nonnull)error {
+// Make sure to call form io queue by caller
+- (BOOL)_storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key error:(NSError * _Nullable __autoreleasing * _Nonnull)error {
     if (!imageData || !key) {
         return NO;
     }
@@ -278,9 +277,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #pragma mark - Query and Retrieve Ops
 
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
-    dispatch_async(_ioQueue, ^{
-        BOOL exists = [self diskImageDataExistsWithKey:key];
-
+    dispatch_async(self.ioQueue, ^{
+        BOOL exists = [self _diskImageDataExistsWithKey:key];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock(exists);
@@ -290,6 +288,20 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key {
+    if (!key) {
+        return NO;
+    }
+    
+    __block BOOL exists = NO;
+    dispatch_sync(self.ioQueue, ^{
+        exists = [self _diskImageDataExistsWithKey:key];
+    });
+    
+    return exists;
+}
+
+// Make sure to call form io queue by caller
+- (BOOL)_diskImageDataExistsWithKey:(nullable NSString *)key {
     if (!key) {
         return NO;
     }

@@ -12,6 +12,7 @@
 
 #import "SDWebImageDefine.h"
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  The value specify that the image progress unit count cannot be determined because the progressBlock is not been called.
@@ -96,6 +97,14 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  * Cancel the current image load
  */
 - (void)sd_cancelCurrentImageLoad;
+
+#pragma mark - Image Transition
+
+/**
+ The image transition when image load finished. See `SDWebImageTransition`.
+ If you specify nil, do not do transition. Defautls to nil.
+ */
+@property (nonatomic, strong, nullable) SDWebImageTransition *sd_imageTransition;
 
 #if SD_UIKIT
 
