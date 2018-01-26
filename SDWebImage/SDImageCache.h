@@ -172,6 +172,13 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
 
 /**
+ *  Sync check if image data exists in disk cache already (does not load the image)
+ *
+ *  @param key             the key describing the url
+ */
+- (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key;
+
+/**
  * Operation that queries the cache asynchronously and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
