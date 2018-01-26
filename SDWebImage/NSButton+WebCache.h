@@ -17,6 +17,11 @@
 #pragma mark - Image
 
 /**
+ * Get the current image URL.
+ */
+- (nullable NSURL *)sd_currentImageURL;
+
+/**
  * Set the button `image` with an `url`.
  *
  * The download is asynchronous and cached.
@@ -124,6 +129,11 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #pragma mark - Alternate Image
+
+/**
+ * Get the current alternateImage URL.
+ */
+- (nullable NSURL *)sd_currentAlternateImageURL;
 
 /**
  * Set the button `alternateImage` with an `url`.
