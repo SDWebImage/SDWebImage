@@ -37,6 +37,8 @@
 		00733A711BC4880E00A5A117 /* UIImageView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D95148C56230056699D /* UIImageView+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		00733A721BC4880E00A5A117 /* UIView+WebCacheOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		00733A731BC4880E00A5A117 /* SDWebImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2CAE031AB4BB5400B6BC39 /* SDWebImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321DB3612011D4D70015D2CB /* NSButton+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321DB3622011D4D70015D2CB /* NSButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 321DB3602011D4D60015D2CB /* NSButton+WebCache.m */; };
 		321E60861F38E8C800405457 /* SDWebImageCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 321E60841F38E8C800405457 /* SDWebImageCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321E60871F38E8C800405457 /* SDWebImageCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 321E60841F38E8C800405457 /* SDWebImageCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321E60881F38E8C800405457 /* SDWebImageCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 321E60841F38E8C800405457 /* SDWebImageCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1285,6 +1287,8 @@
 
 /* Begin PBXFileReference section */
 		00733A4C1BC487C000A5A117 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSButton+WebCache.h"; path = "SDWebImage/NSButton+WebCache.h"; sourceTree = "<group>"; };
+		321DB3602011D4D60015D2CB /* NSButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSButton+WebCache.m"; path = "SDWebImage/NSButton+WebCache.m"; sourceTree = "<group>"; };
 		321E60841F38E8C800405457 /* SDWebImageCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageCoder.h; sourceTree = "<group>"; };
 		321E60851F38E8C800405457 /* SDWebImageCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageCoder.m; sourceTree = "<group>"; };
 		321E60921F38E8ED00405457 /* SDWebImageImageIOCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageImageIOCoder.h; sourceTree = "<group>"; };
@@ -1640,6 +1644,8 @@
 			children = (
 				4397D2F41D0DE2DF00BB2784 /* NSImage+WebCache.h */,
 				4397D2F51D0DE2DF00BB2784 /* NSImage+WebCache.m */,
+				321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */,
+				321DB3602011D4D60015D2CB /* NSButton+WebCache.m */,
 				535699B415113E7300A4C397 /* MKAnnotationView+WebCache.h */,
 				535699B515113E7300A4C397 /* MKAnnotationView+WebCache.m */,
 				53922D93148C56230056699D /* UIButton+WebCache.h */,
@@ -2295,6 +2301,7 @@
 				321E60B51F38E90100405457 /* SDWebImageWebPCoder.h in Headers */,
 				4397D2EB1D0DDD8C00BB2784 /* NSData+ImageContentType.h in Headers */,
 				80377C851F2F666400F89830 /* huffman_encode_utils.h in Headers */,
+				321DB3612011D4D70015D2CB /* NSButton+WebCache.h in Headers */,
 				807A122D1F89636300EC2A9B /* SDWebImageCodersManager.h in Headers */,
 				4397D2ED1D0DDD8C00BB2784 /* mux_types.h in Headers */,
 				80377C831F2F666400F89830 /* filters_utils.h in Headers */,
@@ -3198,6 +3205,7 @@
 				80377C8C1F2F666400F89830 /* random_utils.c in Sources */,
 				323F8BAD1F38EF770092B609 /* picture_psnr_enc.c in Sources */,
 				323F8BC51F38EF770092B609 /* quant_enc.c in Sources */,
+				321DB3622011D4D70015D2CB /* NSButton+WebCache.m in Sources */,
 				80377C7F1F2F666400F89830 /* color_cache_utils.c in Sources */,
 				80377E331F2F66A800F89830 /* alpha_processing_neon.c in Sources */,
 				80377E401F2F66A800F89830 /* dec_clip_tables.c in Sources */,
