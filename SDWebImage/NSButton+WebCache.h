@@ -19,7 +19,7 @@
 /**
  * Get the current image URL.
  */
-- (nullable NSURL *)sd_currentImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
 
 /**
  * Set the button `image` with an `url`.
@@ -133,7 +133,7 @@
 /**
  * Get the current alternateImage URL.
  */
-- (nullable NSURL *)sd_currentAlternateImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentAlternateImageURL;
 
 /**
  * Set the button `alternateImage` with an `url`.
