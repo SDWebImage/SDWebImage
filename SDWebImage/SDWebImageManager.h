@@ -25,7 +25,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageLowPriority = 1 << 1,
 
     /**
-     * This flag disables on-disk caching, including cache query and cache storing
+     * This flag disables on-disk caching after the download finished, only cache in memory
      */
     SDWebImageCacheMemoryOnly = 1 << 2,
 
