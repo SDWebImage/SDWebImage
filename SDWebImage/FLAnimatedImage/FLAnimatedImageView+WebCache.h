@@ -18,6 +18,18 @@
 
 #import "SDWebImageManager.h"
 
+/**
+ *  FLAnimatedImage is not a subclass of UIImage, so it's not possible to store it into the memory cache currently. However, for performance issue and cell reuse on FLAnimatedImageView, we use associate object to bind a FLAnimatedImage into UIImage when an animated GIF image load. For most cases, you don't need to touch this.
+ */
+@interface UIImage (FLAnimatedImage)
+
+/**
+ *  The FLAnimatedImage associated to the UIImage instance when an animated GIF image load.
+ */
+@property (nonatomic, strong, readonly, nullable) FLAnimatedImage *sd_FLAnimatedImage;
+
+@end
+
 
 /**
  *  A category for the FLAnimatedImage imageView class that hooks it to the SDWebImage system.
