@@ -11,8 +11,9 @@
 #if SD_UIKIT || SD_MAC
 #import "SDImageCache.h"
 
-// for UIKit(iOS & tvOS), we use `+[UIView transitionWithView:duration:options:animations:completion]` for transition animations.
-// for AppKit(macOS), we use `+[NSAnimationContext runAnimationGroup:completionHandler:]` for transition animations. You can call `+[NSAnimationContext currentContext]` to grab the context during animations block.
+// This class is used to provide a transition animation after the view category load image finished. Use this on `sd_imageTransition` in UIView+WebCache.h
+// for UIKit(iOS & tvOS), we use `+[UIView transitionWithView:duration:options:animations:completion]` for transition animation.
+// for AppKit(macOS), we use `+[NSAnimationContext runAnimationGroup:completionHandler:]` for transition animation. You can call `+[NSAnimationContext currentContext]` to grab the context during animations block.
 // These transition are provided for basic usage. If you need complicated animation, consider to directly use Core Animation or use `SDWebImageAvoidAutoSetImage` and implement your own after image load finished.
 
 #if SD_UIKIT
@@ -60,7 +61,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 
 @end
 
-// Convenience way to create transition. Remember to specify the duration
+// Convenience way to create transition. Remember to specify the duration if needed.
 // for UIKit, these transition just use the correspond `animationOptions`
 // for AppKit, these transition use Core Animation in `animations`. So your view must be layer-backed. Set `wantsLayer = YES` before you apply it.
 
