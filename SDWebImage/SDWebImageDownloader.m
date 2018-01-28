@@ -318,16 +318,22 @@ didReceiveResponse:(NSURLResponse *)response
 
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
-
-    [dataOperation URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+    if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)]) {
+        [dataOperation URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+    } else {
+        if (completionHandler) {
+            completionHandler(NSURLSessionResponseAllow);
+        }
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
 
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
-
-    [dataOperation URLSession:session dataTask:dataTask didReceiveData:data];
+    if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
+        [dataOperation URLSession:session dataTask:dataTask didReceiveData:data];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -337,8 +343,13 @@ didReceiveResponse:(NSURLResponse *)response
 
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
-
-    [dataOperation URLSession:session dataTask:dataTask willCacheResponse:proposedResponse completionHandler:completionHandler];
+    if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:willCacheResponse:completionHandler:)]) {
+        [dataOperation URLSession:session dataTask:dataTask willCacheResponse:proposedResponse completionHandler:completionHandler];
+    } else {
+        if (completionHandler) {
+            completionHandler(proposedResponse);
+        }
+    }
 }
 
 #pragma mark NSURLSessionTaskDelegate
@@ -347,19 +358,21 @@ didReceiveResponse:(NSURLResponse *)response
     
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
-
-    [dataOperation URLSession:session task:task didCompleteWithError:error];
+    if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
+        [dataOperation URLSession:session task:task didCompleteWithError:error];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
-    
     if ([dataOperation respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
         [dataOperation URLSession:session task:task willPerformHTTPRedirection:response newRequest:request completionHandler:completionHandler];
     } else {
-        completionHandler(request);
+        if (completionHandler) {
+            completionHandler(request);
+        }
     }
 }
 
@@ -367,8 +380,13 @@ didReceiveResponse:(NSURLResponse *)response
 
     // Identify the operation that runs this task and pass it the delegate method
     SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
-
-    [dataOperation URLSession:session task:task didReceiveChallenge:challenge completionHandler:completionHandler];
+    if ([dataOperation respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
+        [dataOperation URLSession:session task:task didReceiveChallenge:challenge completionHandler:completionHandler];
+    } else {
+        if (completionHandler) {
+            completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        }
+    }
 }
 
 @end
