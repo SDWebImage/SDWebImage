@@ -80,7 +80,8 @@
              ];
         }
         if (self.prefetchURLs.count > self.requestedCount) {
-            dispatch_queue_async_safe(self.prefetcherQueue, ^{
+            dispatch_async(self.prefetcherQueue, ^{
+                // we need dispatch to avoid function recursion call. This can prevent stack overflow even for huge urls list
                 [self startPrefetchingAtIndex:self.requestedCount];
             });
         } else if (self.finishedCount == self.requestedCount) {
