@@ -38,7 +38,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, readwrite, nullable) NSURLSessionTask *dataTask;
 
-@property (strong, nonatomic, nullable) dispatch_queue_t barrierQueue;
+@property (strong, nonatomic, nonnull) dispatch_queue_t barrierQueue;
+
+@property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue;
 
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -70,6 +72,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _expectedSize = 0;
         _unownedSession = session;
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
+        _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -316,7 +319,7 @@ didReceiveResponse:(NSURLResponse *)response
 
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
         // Get the image data
-        NSData *imageData = [self.imageData copy];
+        __block NSData *imageData = [self.imageData copy];
         // Get the total bytes downloaded
         const NSInteger totalSize = imageData.length;
         // Get the finish status
@@ -333,16 +336,18 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
         
-        UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
-        if (image) {
-            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-            image = [self scaledImageForKey:key image:image];
-            if (self.shouldDecompressImages) {
-                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+        dispatch_async(self.coderQueue, ^{
+            UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
+            if (image) {
+                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                image = [self scaledImageForKey:key image:image];
+                if (self.shouldDecompressImages) {
+                    image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+                }
+                
+                [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
             }
-            
-            [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
-        }
+        });
     }
 
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
@@ -380,14 +385,16 @@ didReceiveResponse:(NSURLResponse *)response
         });
     }
     
+    // make sure to call `[self done]` to mark operation as finished
     if (error) {
         [self callCompletionBlocksWithError:error];
+        [self done];
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
              *  If you specified to use `NSURLCache`, then the response you get here is what you need.
              */
-            NSData *imageData = [self.imageData copy];
+            __block NSData *imageData = [self.imageData copy];
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data
@@ -395,43 +402,49 @@ didReceiveResponse:(NSURLResponse *)response
                 if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
                     // call completion block with nil
                     [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+                    [self done];
                 } else {
-                    UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
-                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                    image = [self scaledImageForKey:key image:image];
-                    
-                    BOOL shouldDecode = YES;
-                    // Do not force decoding animated GIFs and WebPs
-                    if (image.images) {
-                        shouldDecode = NO;
-                    } else {
-#ifdef SD_WEBP
-                        SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                        if (imageFormat == SDImageFormatWebP) {
+                    dispatch_async(self.coderQueue, ^{
+                        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
+                        NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                        image = [self scaledImageForKey:key image:image];
+                        
+                        BOOL shouldDecode = YES;
+                        // Do not force decoding animated GIFs and WebPs
+                        if (image.images) {
                             shouldDecode = NO;
-                        }
+                        } else {
+#ifdef SD_WEBP
+                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                            if (imageFormat == SDImageFormatWebP) {
+                                shouldDecode = NO;
+                            }
 #endif
-                    }
-                    
-                    if (shouldDecode) {
-                        if (self.shouldDecompressImages) {
-                            BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
-                            image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
                         }
-                    }
-                    CGSize imageSize = image.size;
-                    if (imageSize.width == 0 || imageSize.height == 0) {
-                        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                    } else {
-                        [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
-                    }
+                        
+                        if (shouldDecode) {
+                            if (self.shouldDecompressImages) {
+                                BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
+                                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
+                            }
+                        }
+                        CGSize imageSize = image.size;
+                        if (imageSize.width == 0 || imageSize.height == 0) {
+                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                        } else {
+                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                        }
+                        [self done];
+                    });
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
+                [self done];
             }
+        } else {
+            [self done];
         }
     }
-    [self done];
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
