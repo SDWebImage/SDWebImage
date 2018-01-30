@@ -353,7 +353,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     NSCachedURLResponse *cachedResponse = proposedResponse;
 
-    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
+    if (!(self.options & SDWebImageDownloaderUseNSURLCache)) {
         // Prevents caching of responses
         cachedResponse = nil;
     }
