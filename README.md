@@ -49,10 +49,10 @@ This library provides an async image downloader with cache support. For convenie
 - Read this Readme doc
 - Read the [How to use section](https://github.com/rs/SDWebImage#how-to-use)
 - Read the [documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
-- Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
 - Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
+- Read the [wiki page](https://github.com/rs/SDWebImage/wiki) to get more information, such as [advanced usage](https://github.com/rs/SDWebImage/wiki/Advanced-Usage)
 
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
@@ -91,7 +91,7 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 - Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
 - If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
 - To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
-- **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
+- **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image by default. However, you can enable the full GIF support by using the built-in GIF coder. See [GIF coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#gif-coder)
 - **Important**: FLAnimatedImage only works on the iOS platform. For OS X, use `NSImageView` with `animates` set to `YES` to show the entire animated images and `NO` to only show the 1st frame. For all the other platforms (tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
 
 ## Common Problems
