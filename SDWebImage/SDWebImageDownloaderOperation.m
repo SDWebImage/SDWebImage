@@ -237,19 +237,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     });
     self.dataTask = nil;
     
-    NSOperationQueue *delegateQueue;
-    if (self.unownedSession) {
-        delegateQueue = self.unownedSession.delegateQueue;
-    } else {
-        delegateQueue = self.ownedSession.delegateQueue;
-    }
-    if (delegateQueue) {
-        NSAssert(delegateQueue.maxConcurrentOperationCount == 1, @"NSURLSession delegate queue should be a serial queue");
-        [delegateQueue addOperationWithBlock:^{
-            weakSelf.imageData = nil;
-        }];
-    }
-    
     if (self.ownedSession) {
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
