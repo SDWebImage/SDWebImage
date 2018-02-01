@@ -283,9 +283,15 @@ didReceiveResponse:(NSURLResponse *)response
     expected = expected > 0 ? expected : 0;
     self.expectedSize = expected;
     self.response = response;
+    NSInteger statusCode = [response respondsToSelector:@selector(statusCode)] ? ((NSHTTPURLResponse *)response).statusCode : 200;
+    BOOL valid = statusCode < 400;
+    //'304 Not Modified' is an exceptional one. It should be treated as cancelled if no cache data
+    //URLSession current behavior will return 200 status code when the server respond 304 and URLCache hit. But this is not a standard behavior and we just add a check
+    if (statusCode == 304 && !self.cachedData) {
+        valid = NO;
+    }
     
-    //'304 Not Modified' is an exceptional one. It should be treated as cancelled.
-    if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
+    if (valid) {
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
         }
