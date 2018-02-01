@@ -29,7 +29,7 @@ See [all tickets marked for the 4.3.0 release](https://github.com/rs/SDWebImage/
 	- Fix that 0 pixels error should be used when width OR height is zero but not AND #2160
 	- Use the synchronized to access NSURLCache and try fix the potential thread-safe problem #2174
 - Prefetcher
-	- Fix the issue that prefetcher will cause stack overflow is the input urls list is huge because of recursion function call #2196
+	- Fix the issue that prefetcher will cause stack overflow when the input urls list is huge because of recursion function call #2196
 
 #### Performance
 - View Category
