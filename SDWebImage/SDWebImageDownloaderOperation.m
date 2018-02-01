@@ -136,7 +136,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         }
 #endif
         NSURLSession *session = self.unownedSession;
-        if (!self.unownedSession) {
+        if (!session) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
             sessionConfig.timeoutIntervalForRequest = 15;
             
@@ -145,10 +145,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
              *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
              *  method calls and completion handler calls.
              */
-            self.ownedSession = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                              delegate:self
-                                                         delegateQueue:nil];
-            session = self.ownedSession;
+            session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                    delegate:self
+                                               delegateQueue:nil];
+            self.ownedSession = session;
         }
         
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
@@ -170,10 +170,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         self.dataTask = [session dataTaskWithRequest:self.request];
         self.executing = YES;
     }
-    
-    [self.dataTask resume];
 
     if (self.dataTask) {
+        [self.dataTask resume];
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
