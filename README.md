@@ -36,7 +36,7 @@ This library provides an async image downloader with cache support. For convenie
 - iOS 7.0 or later
 - tvOS 9.0 or later
 - watchOS 2.0 or later
-- OS X 10.8 or later
+- macOS 10.9 or later
 - Xcode 7.3 or later
 
 #### Backwards compatibility
@@ -93,7 +93,7 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 - If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
 - To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
 - **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image by default. However, you can enable the full GIF support by using the built-in GIF coder. See [GIF coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#gif-coder)
-- **Important**: FLAnimatedImage only works on the iOS platform. For OS X, use `NSImageView` with `animates` set to `YES` to show the entire animated images and `NO` to only show the 1st frame. For all the other platforms (tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
+- **Important**: FLAnimatedImage only works on the iOS platform. For macOS, use `NSImageView` with `animates` set to `YES` to show the entire animated images and `NO` to only show the 1st frame. For all the other platforms (tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
 
 ## Installation
 
