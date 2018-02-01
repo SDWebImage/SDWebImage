@@ -182,7 +182,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
         });
     } else {
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
+        [self done];
+        return;
     }
 
 #if SD_UIKIT
