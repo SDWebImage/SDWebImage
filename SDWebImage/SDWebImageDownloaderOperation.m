@@ -11,6 +11,9 @@
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
+
 NSString *const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSString *const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
 NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
@@ -28,7 +31,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
-@property (copy, nonatomic, nullable) NSData *cachedData;
+@property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -38,10 +41,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, readwrite, nullable) NSURLSessionTask *dataTask;
 
-@property (strong, nonatomic, nonnull) dispatch_queue_t barrierQueue;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t callbacksLock; // a lock to keep the access to `callbackBlocks` thread-safe
 
-@property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue;
-
+@property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue; // the queue to do image decoding
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -71,7 +73,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _finished = NO;
         _expectedSize = 0;
         _unownedSession = session;
-        _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
+        _callbacksLock = dispatch_semaphore_create(1);
         _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
     }
     return self;
@@ -82,30 +84,29 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
-    dispatch_barrier_async(self.barrierQueue, ^{
-        [self.callbackBlocks addObject:callbacks];
-    });
+    LOCK(self.callbacksLock);
+    [self.callbackBlocks addObject:callbacks];
+    UNLOCK(self.callbacksLock);
     return callbacks;
 }
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
-    __block NSMutableArray<id> *callbacks = nil;
-    dispatch_sync(self.barrierQueue, ^{
-        // We need to remove [NSNull null] because there might not always be a progress block for each callback
-        callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
-        [callbacks removeObjectIdenticalTo:[NSNull null]];
-    });
-    return [callbacks copy];    // strip mutability here
+    LOCK(self.callbacksLock);
+    NSMutableArray<id> *callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
+    UNLOCK(self.callbacksLock);
+    // We need to remove [NSNull null] because there might not always be a progress block for each callback
+    [callbacks removeObjectIdenticalTo:[NSNull null]];
+    return [callbacks copy]; // strip mutability here
 }
 
 - (BOOL)cancel:(nullable id)token {
-    __block BOOL shouldCancel = NO;
-    dispatch_barrier_sync(self.barrierQueue, ^{
-        [self.callbackBlocks removeObjectIdenticalTo:token];
-        if (self.callbackBlocks.count == 0) {
-            shouldCancel = YES;
-        }
-    });
+    BOOL shouldCancel = NO;
+    LOCK(self.callbacksLock);
+    [self.callbackBlocks removeObjectIdenticalTo:token];
+    if (self.callbackBlocks.count == 0) {
+        shouldCancel = YES;
+    }
+    UNLOCK(self.callbacksLock);
     if (shouldCancel) {
         [self cancel];
     }
@@ -245,10 +246,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (void)reset {
-    __weak typeof(self) weakSelf = self;
-    dispatch_barrier_async(self.barrierQueue, ^{
-        [weakSelf.callbackBlocks removeAllObjects];
-    });
+    LOCK(self.callbacksLock);
+    [self.callbackBlocks removeAllObjects];
+    UNLOCK(self.callbacksLock);
     self.dataTask = nil;
     
     if (self.ownedSession) {
@@ -336,6 +336,7 @@ didReceiveResponse:(NSURLResponse *)response
             }
         }
         
+        // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
             UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
             if (image) {
@@ -344,6 +345,8 @@ didReceiveResponse:(NSURLResponse *)response
                 if (self.shouldDecompressImages) {
                     image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
                 }
+                
+                // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
                 [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
             }
@@ -404,6 +407,7 @@ didReceiveResponse:(NSURLResponse *)response
                     [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
                     [self done];
                 } else {
+                    // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
                         UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
                         NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
