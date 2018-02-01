@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
   s.name = 'SDWebImage'
   s.version = '4.3.0'
 
-  s.osx.deployment_target = '10.8'
+  s.osx.deployment_target = '10.9'
   s.ios.deployment_target = '7.0'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.8'
+    mk.osx.deployment_target = '10.9'
     mk.ios.deployment_target = '7.0'
     mk.tvos.deployment_target = '9.0'
     mk.source_files = 'SDWebImage/MKAnnotationView+WebCache.*'
