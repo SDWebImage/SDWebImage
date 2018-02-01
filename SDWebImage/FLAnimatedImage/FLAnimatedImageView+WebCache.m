@@ -15,12 +15,6 @@
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
 
-@interface UIImage (FLAnimatedImage)
-
-@property (nonatomic, strong) FLAnimatedImage *sd_FLAnimatedImage;
-
-@end
-
 @implementation UIImage (FLAnimatedImage)
 
 - (FLAnimatedImage *)sd_FLAnimatedImage {
@@ -71,37 +65,36 @@
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
-                           SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                            // We could not directlly create the animated image on bacakground queue because it's time consuming, by the time we set it back, the current runloop has passed and the placeholder has been rendered and then replaced with animated image, this cause a flashing.
-                           // Previously we use a trick to firstly set the static poster image, then set animated image back to avoid flashing, but this trick fail when using with UIView transition because it's based on the Core Animation. Core Animation will capture the current layer state to do rendering, so even we later set it back, the transition will not update. (it's recommended to use `SDWebImageTransition` instead)
+                           // Previously we use a trick to firstly set the static poster image, then set animated image back to avoid flashing, but this trick fail when using with custom UIView transition. Core Animation will use the current layer state to do rendering, so even we later set it back, the transition will not update. (it's recommended to use `SDWebImageTransition` instead)
                            // So we have no choice to force store the FLAnimatedImage into memory cache using a associated object binding to UIImage instance. This consumed memory is adoptable and much smaller than `_UIAnimatedImage` for big GIF
                            FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
-                           if (associatedAnimatedImage || imageFormat == SDImageFormatGIF) {
-                               if (associatedAnimatedImage) {
-                                   weakSelf.animatedImage = associatedAnimatedImage;
-                                   weakSelf.image = nil;
-                                   if (group) {
-                                       dispatch_group_leave(group);
-                                   }
-                               } else {
-                                   // Firstly set the static poster image to avoid flashing
-                                   UIImage *posterImage = image.images ? image.images.firstObject : image;
-                                   weakSelf.image = posterImage;
-                                   weakSelf.animatedImage = nil;
-                                   // The imageData should not be nil, create FLAnimatedImage in global queue because it's time consuming, then set it back
-                                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                       FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
-                                       dispatch_async(dispatch_get_main_queue(), ^{
-                                           image.sd_FLAnimatedImage = animatedImage;
-                                           weakSelf.animatedImage = animatedImage;
-                                           weakSelf.image = nil;
-                                           if (group) {
-                                               dispatch_group_leave(group);
-                                           }
-                                       });
-                                   });
+                           if (associatedAnimatedImage) {
+                               // Asscociated animated image exist
+                               weakSelf.animatedImage = associatedAnimatedImage;
+                               weakSelf.image = nil;
+                               if (group) {
+                                   dispatch_group_leave(group);
                                }
+                           } else if ([NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF) {
+                               // Firstly set the static poster image to avoid flashing
+                               UIImage *posterImage = image.images ? image.images.firstObject : image;
+                               weakSelf.image = posterImage;
+                               weakSelf.animatedImage = nil;
+                               // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
+                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                       image.sd_FLAnimatedImage = animatedImage;
+                                       weakSelf.animatedImage = animatedImage;
+                                       weakSelf.image = nil;
+                                       if (group) {
+                                           dispatch_group_leave(group);
+                                       }
+                                   });
+                               });
                            } else {
+                               // Not animated image
                                weakSelf.image = image;
                                weakSelf.animatedImage = nil;
                                if (group) {

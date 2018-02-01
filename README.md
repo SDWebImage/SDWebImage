@@ -48,11 +48,12 @@ This library provides an async image downloader with cache support. For convenie
 
 - Read this Readme doc
 - Read the [How to use section](https://github.com/rs/SDWebImage#how-to-use)
-- Read the [documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
-- Read [How is SDWebImage better than X?](https://github.com/rs/SDWebImage/wiki/How-is-SDWebImage-better-than-X%3F)
+- Read the [Documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
-- Get to the [installation steps](https://github.com/rs/SDWebImage#installation)
+- Read the [Installation Guide](https://github.com/rs/SDWebImage/wiki/Installation-Guide)
 - Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
+- Read the [Common Problems](https://github.com/rs/SDWebImage/wiki/Common-Problems) to find the solution for common problems 
+- Go to the [Wiki Page](https://github.com/rs/SDWebImage/wiki) for more information such as [Advanced Usage](https://github.com/rs/SDWebImage/wiki/Advanced-Usage)
 
 ## Who Uses It
 - Find out [who uses SDWebImage](https://github.com/rs/SDWebImage/wiki/Who-Uses-SDWebImage) and add your app to the list.
@@ -67,18 +68,18 @@ This library provides an async image downloader with cache support. For convenie
 
 ## How To Use
 
-```objective-c
-Objective-C:
+* Objective-C
 
+```objective-c
 #import <SDWebImage/UIImageView+WebCache.h>
 ...
 [imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
              placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
 ```
 
-```swift
-Swift:
+* Swift
 
+```swift
 import SDWebImage
 
 imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
@@ -91,45 +92,8 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 - Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
 - If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
 - To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
-- **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image.
+- **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image by default. However, you can enable the full GIF support by using the built-in GIF coder. See [GIF coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#gif-coder)
 - **Important**: FLAnimatedImage only works on the iOS platform. For OS X, use `NSImageView` with `animates` set to `YES` to show the entire animated images and `NO` to only show the 1st frame. For all the other platforms (tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
-
-## Common Problems
-
-### Using dynamic image size with UITableViewCell
-
-UITableView determines the size of the image by the first image set for a cell. If your remote images
-don't have the same size as your placeholder image, you may experience strange anamorphic scaling issue.
-The following article gives a way to workaround this issue:
-
-[http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/](http://www.wrichards.com/blog/2011/11/sdwebimage-fixed-width-cell-images/)
-
-
-### Handle image refresh
-
-SDWebImage does very aggressive caching by default. It ignores all kind of caching control header returned by the HTTP server and cache the returned images with no time restriction. It implies your images URLs are static URLs pointing to images that never change. If the pointed image happen to change, some parts of the URL should change accordingly.
-
-If you don't control the image server you're using, you may not be able to change the URL when its content is updated. This is the case for Facebook avatar URLs for instance. In such case, you may use the `SDWebImageRefreshCached` flag. This will slightly degrade the performance but will respect the HTTP caching control headers:
-
-``` objective-c
-[imageView sd_setImageWithURL:[NSURL URLWithString:@"https://graph.facebook.com/olivier.poitrey/picture"]
-             placeholderImage:[UIImage imageNamed:@"avatar-placeholder.png"]
-                      options:SDWebImageRefreshCached];
-```
-
-### Add a progress indicator
-
-Add these before you call ```sd_setImageWithURL```
-
-``` objective-c
-[imageView sd_setShowActivityIndicatorView:YES];
-[imageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
-```
-
-``` swift
-imageView.sd_setShowActivityIndicatorView(true)
-imageView.sd_setIndicatorStyle(.Gray)
-```
 
 ## Installation
 

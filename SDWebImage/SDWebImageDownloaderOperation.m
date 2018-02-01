@@ -184,7 +184,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
         });
     } else {
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}]];
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
     }
 
 #if SD_UIKIT
@@ -217,7 +217,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
         });
 
-        // As we cancelled the connection, its callback won't be called and thus won't
+        // As we cancelled the task, its callback won't be called and thus won't
         // maintain the isFinished and isExecuting flags.
         if (self.isExecuting) self.executing = NO;
         if (!self.isFinished) self.finished = YES;
@@ -280,48 +280,36 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
           dataTask:(NSURLSessionDataTask *)dataTask
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+    NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
+    NSInteger expected = (NSInteger)response.expectedContentLength;
+    expected = expected > 0 ? expected : 0;
+    self.expectedSize = expected;
+    self.response = response;
     
-    //'304 Not Modified' is an exceptional one
+    //'304 Not Modified' is an exceptional one. It should be treated as cancelled.
     if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
-        NSInteger expected = (NSInteger)response.expectedContentLength;
-        expected = expected > 0 ? expected : 0;
-        self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
         }
-        
-        self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
-        self.response = response;
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
-        });
     } else {
-        NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
-        
-        //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
-        //In case of 304 we need just cancel the operation and return cached image from the cache.
-        if (code == 304) {
-            [self cancelInternal];
-        } else {
-            [self.dataTask cancel];
-        }
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
-        });
-        
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
-
-        [self done];
+        // Status code invalid and marked as cancelled. Do not call `[self.dataTask cancel]` which may mass up URLSession life cycle
+        disposition = NSURLSessionResponseCancel;
     }
     
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
+    });
+    
     if (completionHandler) {
-        completionHandler(NSURLSessionResponseAllow);
+        completionHandler(disposition);
     }
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
+    if (!self.imageData) {
+        self.imageData = [[NSMutableData alloc] initWithCapacity:self.expectedSize];
+    }
     [self.imageData appendData:data];
 
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
@@ -367,7 +355,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     NSCachedURLResponse *cachedResponse = proposedResponse;
 
-    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
+    if (!(self.options & SDWebImageDownloaderUseNSURLCache)) {
         // Prevents caching of responses
         cachedResponse = nil;
     }
