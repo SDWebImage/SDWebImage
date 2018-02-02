@@ -19,6 +19,7 @@
 #endif
     CGImageSourceRef _imageSource;
     NSUInteger _frameCount;
+    BOOL _finished;
 }
 
 - (void)dealloc {
@@ -63,7 +64,7 @@
     }
 }
 
-- (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
         case SDImageFormatWebP:
             // Do not support WebP progressive decoding
@@ -100,7 +101,7 @@
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncrementally {
+- (instancetype)initIncremental {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
@@ -111,8 +112,11 @@
     return self;
 }
 
-- (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
-    UIImage *image;
+- (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
+    if (_finished) {
+        return;
+    }
+    _finished = finished;
     
     // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
     // Thanks to the author @Nyx0uf
@@ -142,6 +146,10 @@
 #endif
         }
     }
+}
+
+- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+    UIImage *image;
     
     if (_width + _height > 0) {
         // Create the image
@@ -173,13 +181,6 @@
             image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
 #endif
             CGImageRelease(partialImageRef);
-        }
-    }
-    
-    if (finished) {
-        if (_imageSource) {
-            CFRelease(_imageSource);
-            _imageSource = NULL;
         }
     }
     

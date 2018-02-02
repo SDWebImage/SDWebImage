@@ -6,11 +6,33 @@
  * file that was distributed with this source code.
  */
 
-#import <Foundation/Foundation.h>
+#import "SDWebImageCompat.h"
 
 typedef void(^SDWebImageNoParamsBlock)(void);
 typedef NSString * SDWebImageContextOption NS_STRING_ENUM;
 typedef NSDictionary<SDWebImageContextOption, id> SDWebImageContext;
+
+#pragma mark - Image scale
+
+/**
+ Return the image scale from the specify key, supports file name and url key
+
+ @param key The image cache key
+ @return The scale factor for image
+ */
+FOUNDATION_EXPORT CGFloat SDImageScaleForKey(NSString * _Nullable key);
+
+/**
+ Scale the image with the scale factor from the specify key. If no need to scale, return the original image
+ This only works for `UIImage`(UIKit) or `NSImage`(AppKit).
+
+ @param key The image cache key
+ @param image The image
+ @return The scaled image
+ */
+FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
+
+#pragma mark - Context option
 
 /**
  A Dispatch group to maintain setImageBlock and completionBlock. This is used for custom setImageBlock advanced usage, such like perform background task but need to guarantee the completion block is called after setImageBlock. (dispatch_group_t)

@@ -57,6 +57,7 @@ dispatch_semaphore_signal(self->_lock);
     CGContextRef _canvas;
     BOOL _hasAnimation;
     BOOL _hasAlpha;
+    BOOL _finished;
     CGFloat _canvasWidth;
     CGFloat _canvasHeight;
     dispatch_semaphore_t _lock;
@@ -92,7 +93,7 @@ dispatch_semaphore_signal(self->_lock);
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
@@ -176,7 +177,7 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncrementally {
+- (instancetype)initIncremental {
     self = [super init];
     if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
@@ -185,16 +186,24 @@ dispatch_semaphore_signal(self->_lock);
     return self;
 }
 
-- (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
-    if (!_idec) {
-        return nil;
+- (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
+    if (_finished) {
+        return;
     }
-    UIImage *image;
-    
+    _imageData = data;
+    _finished = finished;
     VP8StatusCode status = WebPIUpdate(_idec, data.bytes, data.length);
     if (status != VP8_STATUS_OK && status != VP8_STATUS_SUSPENDED) {
-        return nil;
+        return;
     }
+}
+
+- (BOOL)incrementalFinished {
+    return _finished;
+}
+
+- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+    UIImage *image;
     
     int width = 0;
     int height = 0;
@@ -248,13 +257,6 @@ dispatch_semaphore_signal(self->_lock);
 #endif
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
-    }
-    
-    if (finished) {
-        if (_idec) {
-            WebPIDelete(_idec);
-            _idec = NULL;
-        }
     }
     
     return image;
@@ -517,8 +519,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     return self;
 }
 
-- (BOOL)scanAndCheckFramesValidWithDemuxer:(WebPDemuxer *)demuxer
-{
+- (BOOL)scanAndCheckFramesValidWithDemuxer:(WebPDemuxer *)demuxer {
     if (!demuxer) {
         return NO;
     }
@@ -584,6 +585,10 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     _loopCount = loopCount;
     
     return YES;
+}
+
+- (NSData *)animatedImageData {
+    return _imageData;
 }
 
 - (NSUInteger)animatedImageLoopCount {

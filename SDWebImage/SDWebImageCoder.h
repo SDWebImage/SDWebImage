@@ -26,6 +26,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 /**
  This is the image coder protocol to provide custom image decoding/encoding.
  These methods are all required to implement.
+ You do not need to specify image scale during decoding because we may scale image later.
  @note Pay attention that these methods are not called from main queue.
  */
 @protocol SDWebImageCoder <NSObject>
@@ -89,7 +90,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  @param data The image data so we can look at it
  @return YES if this coder can decode the data, NO otherwise
  */
-- (BOOL)canIncrementallyDecodeFromData:(nullable NSData *)data;
+- (BOOL)canIncrementalDecodeFromData:(nullable NSData *)data;
 
 /**
  Because incremental decoding need to keep the decoded context, we will alloc a new instance with the same class for each download operation to avoid conflicts
@@ -97,25 +98,37 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
  @return A new instance to do incremental decoding for the specify image format
  */
-- (nonnull instancetype)initIncrementally;
+- (nonnull instancetype)initIncremental;
 
 /**
- Incremental decode the image data to image.
- 
+ Update the incremental decoding when new image data available
+
  @param data The image data has been downloaded so far
  @param finished Whether the download has finished
- @return The decoded image from data
  */
-- (nullable UIImage *)incrementallyDecodedImageWithData:(nullable NSData *)data finished:(BOOL)finished;
+- (void)updateIncrementalData:(nullable NSData *)data finished:(BOOL)finished;
+
+/**
+ Incremental decode the current image data to image.
+
+ @param options A dictionary containing any decoding options.
+ @return The decoded image from current data
+ */
+- (nullable UIImage *)incrementalDecodedImageWithOptions:(nullable SDWebImageCoderOptions *)options;
 
 @end
 
+
+/**
+ This is the animated image coder protocol for custom animated image class like  `SDAnimatedImage`. Through it inherit from `SDWebImageCoder`. We currentlly only use the method `canDecodeFromData:` to detect the proper coder for specify animated image format.
+ */
 @protocol SDWebImageAnimatedCoder <SDWebImageCoder, SDAnimatedImage>
 
 @required
 /**
  Because animated image coder should keep the original data, we will alloc a new instance with the same class for the specify animated image data
- The init method should return nil if it can't decode the specify animated image data
+ The init method should return nil if it can't decode the specify animated image data to produce any frame.
+ After the instance created, we may call methods in `SDAnimatedImage` to produce animated image frame.
 
  @param data The animated image data to be decode
  @return A new instance to do animated decoding for specify image data

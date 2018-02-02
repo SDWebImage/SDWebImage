@@ -131,9 +131,11 @@ dispatch_semaphore_signal(self->_lock);
 @property (nonatomic, assign) NSTimeInterval currentTime;
 @property (nonatomic, assign) BOOL bufferMiss;
 @property (nonatomic, assign) BOOL shouldAnimate;
+@property (nonatomic, assign) BOOL isProgressive;
 @property (nonatomic, assign) NSUInteger maxBufferCount;
 @property (nonatomic, strong) NSOperationQueue *fetchQueue;
 @property (nonatomic, strong) dispatch_semaphore_t lock;
+@property (nonatomic, assign) CGFloat animatedImageScale;
 #if SD_MAC
 @property (nonatomic, assign) CVDisplayLinkRef displayLink;
 #else
@@ -202,9 +204,11 @@ dispatch_semaphore_signal(self->_lock);
 {
 #if SD_MAC
     self.wantsLayer = YES;
+    // Default value from `NSImageView`
+    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
     self.imageScaling = NSImageScaleProportionallyDown;
+    self.imageAlignment = NSImageAlignCenter;
 #endif
-    self.maxBufferCount = 0;
     self.runLoopMode = [[self class] defaultRunLoopMode];
     self.lock = dispatch_semaphore_create(1);
 #if SD_UIKIT
@@ -213,25 +217,39 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 
-- (void)resetAnimated
+- (void)resetAnimatedImage
 {
+    self.animatedImage = nil;
+    self.totalFrameCount = 0;
+    self.totalLoopCount = 0;
+    self.currentFrame = nil;
+    self.currentFrameIndex = 0;
+    self.currentLoopCount = 0;
+    self.currentTime = 0;
+    self.bufferMiss = NO;
+    self.shouldAnimate = NO;
+    self.isProgressive = NO;
+    self.maxBufferCount = 0;
+    self.animatedImageScale = 1;
+    [_fetchQueue cancelAllOperations];
+    _fetchQueue = nil;
     LOCK({
-        self.animatedImage = nil;
-        self.totalFrameCount = 0;
-        self.totalLoopCount = 0;
-        self.currentFrame = 0;
-        self.currentFrameIndex = 0;
-        self.currentLoopCount = 0;
-        self.currentTime = 0;
-        self.bufferMiss = NO;
-        self.shouldAnimate = NO;
-        self.maxBufferCount = 0;
-        self.layer.contentsScale = 1;
         [_frameBuffer removeAllObjects];
         _frameBuffer = nil;
-        [_fetchQueue cancelAllOperations];
-        _fetchQueue = nil;
     });
+}
+
+- (void)resetProgressiveImage
+{
+    self.animatedImage = nil;
+    self.totalFrameCount = 0;
+    self.totalLoopCount = 0;
+    // preserve current state
+    self.shouldAnimate = NO;
+    self.isProgressive = YES;
+    self.maxBufferCount = 0;
+    self.animatedImageScale = 1;
+    // preserve buffer cache
 }
 
 #pragma mark - Accessors
@@ -242,33 +260,63 @@ dispatch_semaphore_signal(self->_lock);
     if (self.image == image) {
         return;
     }
-    [self stopAnimating];
-    // Reset all value
-    [self resetAnimated];
     
+    // Check Progressive coding
+    self.isProgressive = NO;
+    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental) {
+        NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
+        if (currentData) {
+            NSData *previousData;
+            if ([self.image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                previousData = [((UIImage<SDAnimatedImage> *)self.image) animatedImageData];
+            }
+            // Check whether to use progressive coding
+            if (!previousData) {
+                // If previous data is nil
+                self.isProgressive = YES;
+            } else if ([currentData isEqualToData:previousData]) {
+                // If current data is equal to previous data
+                self.isProgressive = YES;
+            }
+        }
+    }
+    
+    if (self.isProgressive) {
+        // Reset all value, but keep current state
+        [self resetProgressiveImage];
+    } else {
+        // Stop animating
+        [self stopAnimating];
+        // Reset all value
+        [self resetAnimatedImage];
+    }
+    
+    // We need call super method to keep function. This will impliedly call `setNeedsDisplay`. But we have no way to avoid this when using animated image. So we call `setNeedsDisplay` again at the end.
     super.image = image;
     if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
         NSUInteger animatedImageFrameCount = ((UIImage<SDAnimatedImage> *)image).animatedImageFrameCount;
+        // Check the frame count
         if (animatedImageFrameCount <= 1) {
             return;
         }
         self.animatedImage = (UIImage<SDAnimatedImage> *)image;
         self.totalFrameCount = animatedImageFrameCount;
+        // Get the current frame and loop count.
         self.totalLoopCount = self.animatedImage.animatedImageLoopCount;
+        // Get the scale
+        self.animatedImageScale = image.scale;
+        if (!self.isProgressive) {
+            self.currentFrame = image;
+            LOCK({
+                self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
+            });
+        }
+        
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
         super.highlighted = NO;
         // UIImageView seems to bypass some accessors when calculating its intrinsic content size, so this ensures its intrinsic content size comes from the animated image.
         [self invalidateIntrinsicContentSize];
-        // Get the first frame
-        self.currentFrame = [self.animatedImage animatedImageFrameAtIndex:0];
-        LOCK({
-            if (self.currentFrame) {
-                self.frameBuffer[@(0)] = self.currentFrame;
-                self.bufferMiss = NO;
-            } else {
-                self.bufferMiss = YES;
-            }
-        });
+        
         // Calculate max buffer size
         [self calculateMaxBufferCount];
         // Update should animate
@@ -277,7 +325,6 @@ dispatch_semaphore_signal(self->_lock);
             [self startAnimating];
         }
         
-        self.layer.contentsScale = image.scale;
         [self.layer setNeedsDisplay];
     }
 }
@@ -360,6 +407,7 @@ dispatch_semaphore_signal(self->_lock);
     }
 #else
     [_displayLink invalidate];
+    _displayLink = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
 }
@@ -546,9 +594,9 @@ dispatch_semaphore_signal(self->_lock);
 {
     if (self.animatedImage) {
 #if SD_MAC
-        CVDisplayLinkStop(self.displayLink);
+        CVDisplayLinkStop(_displayLink);
 #else
-        self.displayLink.paused = YES;
+        _displayLink.paused = YES;
 #endif
     } else {
 #if SD_UIKIT
@@ -627,8 +675,9 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT
     NSTimeInterval duration = displayLink.duration * displayLink.frameInterval;
 #endif
+    NSUInteger totalFrameCount = self.totalFrameCount;
     NSUInteger currentFrameIndex = self.currentFrameIndex;
-    NSUInteger nextFrameIndex = (currentFrameIndex + 1) % self.totalFrameCount;
+    NSUInteger nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
     
     // Check if we have the frame buffer firstly to improve performance
     if (!self.bufferMiss) {
@@ -652,11 +701,16 @@ dispatch_semaphore_signal(self->_lock);
     LOCK({
         currentFrame = self.frameBuffer[@(currentFrameIndex)];
     });
+    BOOL bufferFull = NO;
     if (currentFrame) {
         LOCK({
             // Remove the frame buffer if need
             if (self.frameBuffer.count > self.maxBufferCount) {
                 self.frameBuffer[@(currentFrameIndex)] = nil;
+            }
+            // Check whether we can stop fetch
+            if (self.frameBuffer.count == totalFrameCount) {
+                bufferFull = YES;
             }
         });
         self.currentFrame = currentFrame;
@@ -667,8 +721,19 @@ dispatch_semaphore_signal(self->_lock);
         self.bufferMiss = YES;
     }
     
-    // Update the loop count
-    if (nextFrameIndex == 0) {
+    // Update the loop count when last frame rendered
+    if (nextFrameIndex == 0 && !self.bufferMiss) {
+        // Progressive image reach the current last frame index. Keep the state and stop animating. Wait for later restart
+        if (self.isProgressive) {
+            // Recovery the current frame index and removed frame buffer (See above)
+            self.currentFrameIndex = currentFrameIndex;
+            LOCK({
+                self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
+            });
+            [self stopAnimating];
+            return;
+        }
+        // Update the loop count
         self.currentLoopCount++;
         // if reached the max loop count, stop animating, 0 means loop indefinitely
         NSUInteger maxLoopCount = self.shouldCustomLoopCount ? self.animationRepeatCount : self.totalLoopCount;
@@ -678,13 +743,22 @@ dispatch_semaphore_signal(self->_lock);
         }
     }
     
-    // Check if we should prefetch next frame
-    if (self.fetchQueue.operationCount == 0 && self.frameBuffer.count < self.totalFrameCount) {
+    // Check if we should prefetch next frame or current frame
+    NSUInteger fetchFrameIndex;
+    if (self.bufferMiss) {
+        // When buffer miss, means the decode speed is slower than render speed, we fetch current miss frame
+        fetchFrameIndex = currentFrameIndex;
+    } else {
+        // Or, most cases, the decode speed is faster than render speed, we fetch next frame
+        fetchFrameIndex = nextFrameIndex;
+    }
+    if (!bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
+        UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-            UIImage *nextFrame = [self.animatedImage animatedImageFrameAtIndex:nextFrameIndex];
+            UIImage *fetchFrame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
             LOCK({
-                self.frameBuffer[@(nextFrameIndex)] = nextFrame;
+                self.frameBuffer[@(fetchFrameIndex)] = fetchFrame;
             });
         }];
         [self.fetchQueue addOperation:operation];
@@ -701,12 +775,15 @@ dispatch_semaphore_signal(self->_lock);
 #pragma mark - CALayerDelegate (Informal)
 #pragma mark Providing the Layer's Content
 
+#if SD_UIKIT
 - (void)displayLayer:(CALayer *)layer
 {
     if (_currentFrame) {
+        layer.contentsScale = self.animatedImageScale;
         layer.contents = (__bridge id)_currentFrame.CGImage;
     }
 }
+#endif
 
 #if SD_MAC
 - (BOOL)wantsUpdateLayer
@@ -717,7 +794,10 @@ dispatch_semaphore_signal(self->_lock);
 - (void)updateLayer
 {
     if (_currentFrame) {
+        self.layer.contentsScale = self.animatedImageScale;
         self.layer.contents = (__bridge id)_currentFrame.CGImage;
+    } else {
+        [super updateLayer];
     }
 }
 #endif
@@ -732,13 +812,18 @@ dispatch_semaphore_signal(self->_lock);
     if (self.maxBufferSize > 0) {
         max = self.maxBufferSize;
     } else {
-        // calculate based on current memory, these factors are by experience
+        // Calculate based on current memory, these factors are by experience
         NSUInteger total = SDDeviceTotalMemory();
         NSUInteger free = SDDeviceFreeMemory();
         max = MIN(total * 0.2, free * 0.6);
     }
     
     NSUInteger maxBufferCount = (double)max / (double)bytes;
+    if (!maxBufferCount) {
+        // At least 1 frame
+        maxBufferCount = 1;
+    }
+    
     self.maxBufferCount = maxBufferCount;
 }
 

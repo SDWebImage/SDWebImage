@@ -29,4 +29,9 @@
  */
 @property (nonatomic, assign, readonly) BOOL sd_isAnimated;
 
+/**
+ Indicating whether the image is during incremental decoding and may not contains full pixels.
+ */
+@property (nonatomic, assign) BOOL sd_isIncremental;
+
 @end

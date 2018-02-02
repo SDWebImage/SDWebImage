@@ -26,14 +26,12 @@
 
 @implementation SDWebImageGIFCoder {
     size_t _width, _height;
-#if SD_UIKIT || SD_WATCH
-    UIImageOrientation _orientation;
-#endif
     CGImageSourceRef _imageSource;
     NSData *_imageData;
     NSUInteger _loopCount;
     NSUInteger _frameCount;
     NSArray<SDGIFCoderFrame *> *_frames;
+    BOOL _finished;
 }
 
 - (void)dealloc
@@ -167,6 +165,71 @@
     return frameDuration;
 }
 
+#pragma mark - Progressive Decode
+
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
+    return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
+}
+
+- (instancetype)initIncremental {
+    self = [super init];
+    if (self) {
+        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+    }
+    return self;
+}
+
+- (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
+    if (_finished) {
+        return;
+    }
+    _imageData = data;
+    _finished = finished;
+    
+    // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
+    // Thanks to the author @Nyx0uf
+    
+    // Update the data source, we must pass ALL the data, not just the new bytes
+    CGImageSourceUpdateData(_imageSource, (__bridge CFDataRef)data, finished);
+    
+    if (_width + _height == 0) {
+        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(_imageSource, 0, NULL);
+        if (properties) {
+            CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+            if (val) CFNumberGetValue(val, kCFNumberLongType, &_height);
+            val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+            if (val) CFNumberGetValue(val, kCFNumberLongType, &_width);
+            CFRelease(properties);
+        }
+    }
+    
+    // For animated image progressive decoding because the frame count and duration may be changed.
+    [self scanAndCheckFramesValidWithImageSource:_imageSource];
+}
+
+- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+    UIImage *image;
+    
+    if (_width + _height > 0) {
+        // Create the image
+        CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
+        
+        if (partialImageRef) {
+#if SD_UIKIT || SD_WATCH
+            image = [[UIImage alloc] initWithCGImage:partialImageRef];
+#elif SD_MAC
+            image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
+#endif
+            CGImageRelease(partialImageRef);
+        }
+    }
+    
+    return image;
+}
+
 #pragma mark - Encode
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     return (format == SDImageFormatGIF);
@@ -252,8 +315,7 @@
     return self;
 }
 
-- (BOOL)scanAndCheckFramesValidWithImageSource:(CGImageSourceRef)imageSource
-{
+- (BOOL)scanAndCheckFramesValidWithImageSource:(CGImageSourceRef)imageSource {
     if (!imageSource) {
         return NO;
     }
@@ -275,26 +337,26 @@
     return YES;
 }
 
-- (NSUInteger)animatedImageLoopCount
-{
+- (NSData *)animatedImageData {
+    return _imageData;
+}
+
+- (NSUInteger)animatedImageLoopCount {
     return _loopCount;
 }
 
-- (NSUInteger)animatedImageFrameCount
-{
+- (NSUInteger)animatedImageFrameCount {
     return _frameCount;
 }
 
-- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index
-{
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
     if (index >= _frameCount) {
         return 0;
     }
     return _frames[index].duration;
 }
 
-- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index
-{
+- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
     CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
     if (!imageRef) {
         return nil;
@@ -309,7 +371,7 @@
 #if SD_MAC
     UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
 #else
-    UIImage *image = [UIImage imageWithCGImage:newImageRef];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef];
 #endif
     CGImageRelease(newImageRef);
     return image;

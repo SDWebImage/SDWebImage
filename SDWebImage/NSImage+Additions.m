@@ -14,7 +14,7 @@
 
 - (CGImageRef)CGImage {
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
-    CGImageRef cgImage = [self CGImageForProposedRect:&imageRect context:NULL hints:nil];
+    CGImageRef cgImage = [self CGImageForProposedRect:&imageRect context:nil hints:nil];
     return cgImage;
 }
 
@@ -24,28 +24,22 @@
 
 - (CGFloat)scale {
     CGFloat scale = 1;
-    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
-    NSImageRep *rep = [self bestRepresentationForRect:imageRect context:NULL hints:nil];
-    NSInteger pixelsWide = rep.pixelsWide;
-    CGFloat width = rep.size.width;
+    CGFloat width = self.size.width;
     if (width > 0) {
-        scale = pixelsWide / width;
+        // Use CGImage to get pixel width, NSImageRep.pixelsWide always double on Retina screen
+        NSUInteger pixelWidth = CGImageGetWidth(self.CGImage);
+        scale = pixelWidth / width;
     }
     return scale;
 }
 
-- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale {
-    NSSize size;
-    if (cgImage && scale > 0) {
-        NSInteger pixelsWide = CGImageGetWidth(cgImage);
-        NSInteger pixelsHigh = CGImageGetHeight(cgImage);
-        CGFloat width = pixelsWide / scale;
-        CGFloat height = pixelsHigh / scale;
-        size = NSMakeSize(width, height);
-    } else {
-        size = NSZeroSize;
+- (NSBitmapImageRep *)bitmapImageRep {
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        return (NSBitmapImageRep *)imageRep;
     }
-    return [self initWithCGImage:cgImage size:size];
+    return nil;
 }
 
 @end

@@ -31,18 +31,9 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 @interface SDAnimatedImage ()
 
 @property (nonatomic, strong) id<SDWebImageAnimatedCoder> coder;
-@property (nonatomic, assign, readwrite) NSUInteger animatedImageLoopCount;
-@property (nonatomic, assign, readwrite) NSUInteger animatedImageFrameCount;
-@property (nonatomic, copy, readwrite) NSData *animatedImageData;
 @property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
 @property (atomic, copy) NSArray<SDWebImageFrame *> *preloadAnimatedImageFrames;
 @property (nonatomic, assign) BOOL animatedImageFramesPreloaded;
-@property (nonatomic, assign) BOOL animatedImageLoopCountChecked;
-@property (nonatomic, assign) BOOL animatedImageFrameCountChecked;
-
-#if SD_MAC
-@property (nonatomic, assign) CGFloat scale;
-#endif
 
 @end
 
@@ -89,41 +80,64 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     if (!data || data.length == 0) {
         return nil;
     }
+    if (scale <= 0) {
+        scale = 1;
+    }
     data = [data copy]; // avoid mutable data
+    id<SDWebImageAnimatedCoder> animatedCoder = nil;
     for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
         if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
             if ([coder canDecodeFromData:data]) {
-                id<SDWebImageAnimatedCoder> animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data];
-                if (!animatedCoder) {
-                    // check next coder
-                    continue;
-                } else {
-                    self.coder = animatedCoder;
-                    break;
-                }
+                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data];
+                break;
             }
         }
     }
-    if (!self.coder) {
+    if (!animatedCoder) {
         return nil;
     }
-    UIImage *image = [self.coder animatedImageFrameAtIndex:0];
+    UIImage *image = [animatedCoder animatedImageFrameAtIndex:0];
     if (!image) {
+        return nil;
+    }
+#if SD_MAC
+    self = [super initWithCGImage:image.CGImage size:NSZeroSize];
+#else
+    self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+#endif
+    if (self) {
+        _coder = animatedCoder;
+#if SD_MAC
+        _scale = scale;
+#endif
+        SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+        _animatedImageFormat = format;
+    }
+    return self;
+}
+
+- (instancetype)initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale {
+    if (!animatedCoder) {
         return nil;
     }
     if (scale <= 0) {
         scale = 1;
     }
+    UIImage *image = [animatedCoder animatedImageFrameAtIndex:0];
+    if (!image) {
+        return nil;
+    }
 #if SD_MAC
-    self = [super initWithCGImage:image.CGImage scale:scale];
+    self = [super initWithCGImage:image.CGImage size:NSZeroSize];
 #else
     self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #endif
     if (self) {
+        _coder = animatedCoder;
 #if SD_MAC
         _scale = scale;
 #endif
-        _animatedImageData = data;
+        NSData *data = [animatedCoder animatedImageData];
         SDImageFormat format = [NSData sd_imageFormatForImageData:data];
         _animatedImageFormat = format;
     }
@@ -174,20 +188,17 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 }
 
 #pragma mark - SDAnimatedImage
+
+- (NSData *)animatedImageData {
+    return [self.coder animatedImageData];
+}
+
 - (NSUInteger)animatedImageLoopCount {
-    if (!self.animatedImageLoopCountChecked) {
-        self.animatedImageLoopCountChecked = YES;
-        _animatedImageLoopCount = [self.coder animatedImageLoopCount];
-    }
-    return _animatedImageLoopCount;
+    return [self.coder animatedImageLoopCount];
 }
 
 - (NSUInteger)animatedImageFrameCount {
-    if (!self.animatedImageFrameCountChecked) {
-        self.animatedImageFrameCountChecked = YES;
-        _animatedImageFrameCount = [self.coder animatedImageFrameCount];
-    }
-    return _animatedImageFrameCount;
+    return [self.coder animatedImageFrameCount];
 }
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
