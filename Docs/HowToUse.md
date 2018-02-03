@@ -38,6 +38,11 @@ func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndex
     return cell
 ```
 
+In case some of your rows do not have an associated image URL to
+display, you still need to call `sd_setImageWithURL` with `nil` as the
+image URL to ensure that cell reuse works as expected
+([details](https://github.com/rs/SDWebImage/issues/2209#issuecomment-362628205)).
+
 ### Using blocks
 
 With blocks, you can be notified about the image download progress and whenever the image retrieval has completed with success or not:
