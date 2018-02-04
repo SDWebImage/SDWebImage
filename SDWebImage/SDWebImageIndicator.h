@@ -42,7 +42,7 @@
 
  @param progress The progress, value between 0 and 1.0
  */
-- (void)updateProgress:(double)progress;
+- (void)updateIndicatorProgress:(double)progress;
 
 @end
 

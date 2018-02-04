@@ -73,12 +73,12 @@ static char imageURLKey;
     }
     
     if (url) {
-        // check and start image indicator
-        [self sd_startImageIndicator];
-        
         // reset the progress
         self.sd_imageProgress.totalUnitCount = 0;
         self.sd_imageProgress.completedUnitCount = 0;
+        
+        // check and start image indicator
+        [self sd_startImageIndicator];
         
         SDWebImageManager *manager;
         if ([context valueForKey:SDWebImageContextCustomManager]) {
@@ -99,22 +99,24 @@ static char imageURLKey;
             if ([imageIndicator conformsToProtocol:@protocol(SDWebImageProgressIndicator)]) {
                 double progress = wself.sd_imageProgress.fractionCompleted;
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [((id<SDWebImageProgressIndicator>)imageIndicator) updateProgress:progress];
+                    [((id<SDWebImageProgressIndicator>)imageIndicator) updateIndicatorProgress:progress];
                 });
             }
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
-            // check and stop image indicator
-            if (finished) {
-                [self sd_stopImageIndicator];
-            }
             // if the progress not been updated, mark it to complete state
             if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
                 sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
                 sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
+            
+            // check and stop image indicator
+            if (finished) {
+                [self sd_stopImageIndicator];
+            }
+            
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));

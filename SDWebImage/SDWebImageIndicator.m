@@ -174,7 +174,11 @@
 - (void)startAnimatingIndicator {
     self.indicatorView.hidden = NO;
 #if SD_UIKIT
-    self.indicatorView.progress = 0;
+    if ([self.indicatorView respondsToSelector:@selector(observedProgress)] && self.indicatorView.observedProgress) {
+        // Ignore NSProgress
+    } else {
+        self.indicatorView.progress = 0;
+    }
 #else
     self.indicatorView.indeterminate = YES;
     self.indicatorView.doubleValue = 0;
@@ -185,7 +189,11 @@
 - (void)stopAnimatingIndicator {
     self.indicatorView.hidden = YES;
 #if SD_UIKIT
-    self.indicatorView.progress = 1;
+    if ([self.indicatorView respondsToSelector:@selector(observedProgress)] && self.indicatorView.observedProgress) {
+        // Ignore NSProgress
+    } else {
+        self.indicatorView.progress = 1;
+    }
 #else
     self.indicatorView.indeterminate = NO;
     self.indicatorView.doubleValue = 1;
@@ -193,9 +201,13 @@
 #endif
 }
 
-- (void)updateProgress:(double)progress {
+- (void)updateIndicatorProgress:(double)progress {
 #if SD_UIKIT
-    [self.indicatorView setProgress:progress animated:YES];
+    if ([self.indicatorView respondsToSelector:@selector(observedProgress)] && self.indicatorView.observedProgress) {
+        // Ignore NSProgress
+    } else {
+        [self.indicatorView setProgress:progress animated:YES];
+    }
 #else
     self.indicatorView.indeterminate = progress > 0 ? NO : YES;
     self.indicatorView.doubleValue = progress * 100;
