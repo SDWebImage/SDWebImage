@@ -161,16 +161,6 @@
 }
 #endif
 
-- (CGFloat)indicatorWidth {
-    return self.indicatorView.frame.size.width;
-}
-
-- (void)setIndicatorWidth:(CGFloat)indicatorWidth {
-    CGRect frame = self.indicatorView.frame;
-    frame.size.width = indicatorWidth;
-    self.indicatorView.frame = frame;
-}
-
 - (void)startAnimatingIndicator {
     self.indicatorView.hidden = NO;
 #if SD_UIKIT

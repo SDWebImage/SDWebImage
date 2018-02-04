@@ -87,14 +87,10 @@
 #else
 @property (nonatomic, strong, readonly, nonnull) NSProgressIndicator *indicatorView;
 #endif
-/**
- The preferred width for progress indicator. The getter and setter just pass to the indicatorView's frame. The default value is `UIProgressView`'s natural width.
- */
-@property (nonatomic, assign) CGFloat indicatorWidth;
 
 @end
 
-// Convenience way to use progress indicator. Remember to set the indicatorWidth
+// Convenience way to create progress indicator. Remember to specify the indicator width or use layout constraint if need.
 @interface SDWebImageProgressIndicator (Conveniences)
 
 /// default-style progress indicator
