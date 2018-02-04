@@ -59,9 +59,9 @@
 @interface SDWebImageActivityIndicator (Conveniences)
 
 /// gray-style activity indicator
-@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator API_UNAVAILABLE(tvos);
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator;
 /// large gray-style activity indicator
-@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayLargeIndicator API_UNAVAILABLE(ios, tvos);
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayLargeIndicator;
 /// white-style activity indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteIndicator;
 /// large white-style activity indicator

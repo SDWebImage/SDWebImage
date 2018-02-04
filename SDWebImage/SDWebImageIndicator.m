@@ -38,12 +38,7 @@
 
 #if SD_UIKIT
 - (void)commonInit {
-#if SD_TV
-    UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleWhite;
-#else
-    UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
-#endif
-    self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+    self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     self.indicatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 }
 #endif
@@ -80,21 +75,30 @@
 
 @implementation SDWebImageActivityIndicator (Conveniences)
 
-#if SD_MAC || SD_IOS
 + (SDWebImageActivityIndicator *)grayIndicator {
     SDWebImageActivityIndicator *indicator = [SDWebImageActivityIndicator new];
+#if SD_UIKIT
+#if SD_IOS
+    indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+#else
+    indicator.indicatorView.color = [UIColor colorWithWhite:0 alpha:0.45]; // Color from `UIActivityIndicatorViewStyleGray`
+#endif
+#endif
     return indicator;
 }
-#endif
 
-#if SD_MAC
 + (SDWebImageActivityIndicator *)grayLargeIndicator {
     SDWebImageActivityIndicator *indicator = SDWebImageActivityIndicator.grayIndicator;
+#if SD_UIKIT
+    UIColor *grayColor = indicator.indicatorView.color;
+    indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+    indicator.indicatorView.color = grayColor;
+#else
     indicator.indicatorView.controlSize = NSControlSizeRegular;
+#endif
     [indicator.indicatorView sizeToFit];
     return indicator;
 }
-#endif
 
 + (SDWebImageActivityIndicator *)whiteIndicator {
     SDWebImageActivityIndicator *indicator = [SDWebImageActivityIndicator new];
@@ -153,7 +157,7 @@
 
 #if SD_MAC
 - (void)commonInit {
-    self.indicatorView = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(0, 0, 160, 0)];
+    self.indicatorView = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(0, 0, 160, 0)]; // Width from `UIProgressView` default width
     self.indicatorView.style = NSProgressIndicatorStyleBar;
     self.indicatorView.controlSize = NSControlSizeSmall;
     [self.indicatorView sizeToFit];
