@@ -30,16 +30,10 @@
  */
 - (void)stopAnimatingIndicator;
 
-@end
-
-// A protocol to custom the indicator which need update when loading progress changed
-// All of these methods are called from main queue
-@protocol SDWebImageProgressIndicator <SDWebImageIndicator>
-
-@required
+@optional
 /**
- Update the progress (0-1.0) for progress indicator.
-
+ Update the loading progress (0-1.0) for indicator. Optional
+ 
  @param progress The progress, value between 0 and 1.0
  */
 - (void)updateIndicatorProgress:(double)progress;
@@ -80,7 +74,7 @@
 // Progress indicator class
 // for UIKit(macOS), it use a `UIProgressView`
 // for AppKit(macOS), it use a `NSProgressIndicator` with the bar style
-@interface SDWebImageProgressIndicator : NSObject <SDWebImageProgressIndicator>
+@interface SDWebImageProgressIndicator : NSObject <SDWebImageIndicator>
 
 #if SD_UIKIT
 @property (nonatomic, strong, readonly, nonnull) UIProgressView *indicatorView;

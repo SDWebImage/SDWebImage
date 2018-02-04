@@ -96,10 +96,10 @@ static char imageURLKey;
             if (progressBlock) {
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
-            if ([imageIndicator conformsToProtocol:@protocol(SDWebImageProgressIndicator)]) {
+            if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
                 double progress = wself.sd_imageProgress.fractionCompleted;
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [((id<SDWebImageProgressIndicator>)imageIndicator) updateIndicatorProgress:progress];
+                    [imageIndicator updateIndicatorProgress:progress];
                 });
             }
         };
