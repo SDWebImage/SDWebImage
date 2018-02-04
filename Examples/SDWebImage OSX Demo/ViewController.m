@@ -31,6 +31,7 @@
     // For animated GIF rendering, set `animates` to YES or will only show the first frame
     self.imageView1.animates = YES;
     self.imageView3.animates = YES;
+    self.imageView1.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
     [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"http://assets.sbnation.com/assets/2512203/dogflops.gif"]];
     [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"]];
     [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"]];

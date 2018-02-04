@@ -118,10 +118,8 @@
     if (cell == nil) {
         cell = [[MyCustomTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         cell.customImageView.sd_imageTransition = SDWebImageTransition.fadeTransition;
+        cell.customImageView.sd_imageIndicator = SDWebImageActivityIndicator.grayIndicator;
     }
-
-    [cell.customImageView sd_setShowActivityIndicatorView:YES];
-    [cell.customImageView sd_setIndicatorStyle:UIActivityIndicatorViewStyleGray];
     
     cell.customTextLabel.text = [NSString stringWithFormat:@"Image #%ld", (long)indexPath.row];
     [cell.customImageView sd_setImageWithURL:[NSURL URLWithString:self.objects[indexPath.row]]

@@ -13,6 +13,7 @@
 #import "SDWebImageDefine.h"
 #import "SDWebImageManager.h"
 #import "SDWebImageTransition.h"
+#import "SDWebImageIndicator.h"
 
 /**
  The value specify that the image progress unit count cannot be determined because the progressBlock is not been called.
@@ -106,27 +107,14 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  */
 @property (nonatomic, strong, nullable) SDWebImageTransition *sd_imageTransition;
 
-#if SD_UIKIT
-
-#pragma mark - Activity indicator
+#pragma mark - Image Indicator
 
 /**
- *  Show activity UIActivityIndicatorView
+ The image indicator during the image loading. If you do not need indicator, specify nil. Defaults to nil
+ The setter will remove the old indicator view and add new indicator view to current view's subview.
+ @note Because this is UI related, you should access only from the main queue.
  */
-- (void)sd_setShowActivityIndicatorView:(BOOL)show;
-
-/**
- *  set desired UIActivityIndicatorViewStyle
- *
- *  @param style The style of the UIActivityIndicatorView
- */
-- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
-
-- (BOOL)sd_showActivityIndicatorView;
-- (void)sd_addActivityIndicator;
-- (void)sd_removeActivityIndicator;
-
-#endif
+@property (nonatomic, strong, nullable) id<SDWebImageIndicator> sd_imageIndicator;
 
 @end
 
