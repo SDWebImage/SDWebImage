@@ -33,14 +33,20 @@
 
 @property (nonatomic, assign) BOOL shouldDecompressImages;
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
-@property (nonatomic, assign) SDWebImageContext *context;
 
 @end
 
 @implementation CustomDownloaderOperation
 
-- (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)req inSession:(nullable NSURLSession *)ses options:(SDWebImageDownloaderOptions)opt {
-    if ((self = [super init])) { }
+- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
+    return [self initWithRequest:request inSession:session options:options];
+}
+
+- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options context:(SDWebImageContext *)context {
+    self = [super init];
+    if (self) {
+        
+    }
     return self;
 }
 

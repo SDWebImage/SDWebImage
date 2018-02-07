@@ -25,6 +25,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, nonnull) NSMutableArray<SDCallbacksDictionary *> *callbackBlocks;
 
+@property (assign, nonatomic, readwrite) SDWebImageDownloaderOptions options;
+@property (copy, nonatomic, readwrite, nullable) SDWebImageContext *context;
+
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
@@ -59,13 +62,19 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     return [self initWithRequest:nil inSession:nil options:0];
 }
 
+- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
+    return [self initWithRequest:request inSession:session options:options];
+}
+
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
-                                options:(SDWebImageDownloaderOptions)options {
+                                options:(SDWebImageDownloaderOptions)options
+                                context:(nullable SDWebImageContext *)context {
     if ((self = [super init])) {
         _request = [request copy];
         _shouldDecompressImages = YES;
         _options = options;
+        _context = [context copy];
         _callbackBlocks = [NSMutableArray new];
         _executing = NO;
         _finished = NO;

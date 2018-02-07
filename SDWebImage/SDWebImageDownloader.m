@@ -225,9 +225,8 @@
         else {
             request.allHTTPHeaderFields = [sself allHTTPHeaderFields];
         }
-        SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options];
+        SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
         operation.shouldDecompressImages = sself.shouldDecompressImages;
-        operation.context = context;
         
         if (sself.urlCredential) {
             operation.credential = sself.urlCredential;
