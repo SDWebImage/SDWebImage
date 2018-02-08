@@ -136,7 +136,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         }
 #endif
         NSURLSession *session = self.unownedSession;
-        if (!self.unownedSession) {
+        if (!session) {
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
             sessionConfig.timeoutIntervalForRequest = 15;
             
@@ -145,10 +145,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
              *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
              *  method calls and completion handler calls.
              */
-            self.ownedSession = [NSURLSession sessionWithConfiguration:sessionConfig
-                                                              delegate:self
-                                                         delegateQueue:nil];
-            session = self.ownedSession;
+            session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                                    delegate:self
+                                               delegateQueue:nil];
+            self.ownedSession = session;
         }
         
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
@@ -170,10 +170,19 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         self.dataTask = [session dataTaskWithRequest:self.request];
         self.executing = YES;
     }
-    
-    [self.dataTask resume];
 
     if (self.dataTask) {
+        [self.dataTask resume];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+        if ([self.dataTask respondsToSelector:@selector(setPriority:)]) {
+            if (self.options & SDWebImageDownloaderHighPriority) {
+                self.dataTask.priority = NSURLSessionTaskPriorityHigh;
+            } else if (self.options & SDWebImageDownloaderLowPriority) {
+                self.dataTask.priority = NSURLSessionTaskPriorityLow;
+            }
+        }
+#pragma clang diagnostic pop
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
@@ -182,7 +191,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
         });
     } else {
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
+        [self done];
+        return;
     }
 
 #if SD_UIKIT
@@ -237,19 +248,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     });
     self.dataTask = nil;
     
-    NSOperationQueue *delegateQueue;
-    if (self.unownedSession) {
-        delegateQueue = self.unownedSession.delegateQueue;
-    } else {
-        delegateQueue = self.ownedSession.delegateQueue;
-    }
-    if (delegateQueue) {
-        NSAssert(delegateQueue.maxConcurrentOperationCount == 1, @"NSURLSession delegate queue should be a serial queue");
-        [delegateQueue addOperationWithBlock:^{
-            weakSelf.imageData = nil;
-        }];
-    }
-    
     if (self.ownedSession) {
         [self.ownedSession invalidateAndCancel];
         self.ownedSession = nil;
@@ -283,9 +281,15 @@ didReceiveResponse:(NSURLResponse *)response
     expected = expected > 0 ? expected : 0;
     self.expectedSize = expected;
     self.response = response;
+    NSInteger statusCode = [response respondsToSelector:@selector(statusCode)] ? ((NSHTTPURLResponse *)response).statusCode : 200;
+    BOOL valid = statusCode < 400;
+    //'304 Not Modified' is an exceptional one. It should be treated as cancelled if no cache data
+    //URLSession current behavior will return 200 status code when the server respond 304 and URLCache hit. But this is not a standard behavior and we just add a check
+    if (statusCode == 304 && !self.cachedData) {
+        valid = NO;
+    }
     
-    //'304 Not Modified' is an exceptional one. It should be treated as cancelled.
-    if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
+    if (valid) {
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
         }
