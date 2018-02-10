@@ -57,6 +57,8 @@ Note: neither your success nor failure block will be call if your image request 
 
 The `SDWebImageManager` is the class behind the `UIImageView(WebCache)` category. It ties the asynchronous downloader with the image cache store. You can use this class directly to benefit from web image downloading with caching in another context than a `UIView` (ie: with Cocoa).
 
+Note: When the image is from memory cache, it will not contains any `NSData` by default. However, if you need image data, you can pass `SDWebImageQueryDataWhenInMemory` in options arg.
+
 Here is a simple example of how to use `SDWebImageManager`:
 
 ```objective-c
