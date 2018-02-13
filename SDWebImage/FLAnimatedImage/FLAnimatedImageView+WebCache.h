@@ -25,8 +25,9 @@
 
 /**
  *  The FLAnimatedImage associated to the UIImage instance when an animated GIF image load.
+ *  For most cases this is read-only and you should avoid manually setting this value. Util some cases like using placeholder with a `FLAnimatedImage`.
  */
-@property (nonatomic, strong, readonly, nullable) FLAnimatedImage *sd_FLAnimatedImage;
+@property (nonatomic, strong, nullable) FLAnimatedImage *sd_FLAnimatedImage;
 
 @end
 
