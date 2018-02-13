@@ -39,7 +39,7 @@
 @implementation CustomDownloaderOperation
 
 - (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
-    return [self initWithRequest:request inSession:session options:options];
+    return [self initWithRequest:request inSession:session options:options context:nil];
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options context:(SDWebImageContext *)context {
