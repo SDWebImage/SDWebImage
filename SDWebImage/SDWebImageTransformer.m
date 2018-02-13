@@ -50,6 +50,8 @@
 
 @end
 
+NSString * const SDWebImageTransformerKeySeparator = @"-";
+
 @interface SDWebImagePipelineTransformer ()
 
 @property (nonatomic, copy, readwrite, nonnull) NSArray<id<SDWebImageTransformer>> *transformers;
@@ -78,7 +80,7 @@
         [cacheKeys addObject:cacheKey];
     }];
     
-    return [cacheKeys componentsJoinedByString:@"@"];
+    return [cacheKeys componentsJoinedByString:SDWebImageTransformerKeySeparator];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {

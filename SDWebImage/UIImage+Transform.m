@@ -149,13 +149,13 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
 }
 
 #if SD_MAC
-@interface NSBezierPath (Compatibility)
+@interface NSBezierPath (Additions)
 
 + (instancetype)bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
 
 @end
 
-@implementation NSBezierPath (Compatibility)
+@implementation NSBezierPath (Additions)
 
 + (instancetype)bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius {
     NSBezierPath *path = [NSBezierPath bezierPath];

@@ -39,7 +39,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
  The image content will be changed with the scale mode.
  
  @param size        The new size to be scaled, values should be positive.
- @param contentMode The scale mode for image content.
+ @param scaleMode   The scale mode for image content.
  @return The new image with the given size.
  */
 - (nullable UIImage *)sd_resizedImageWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode;
@@ -47,7 +47,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 /**
  Returns a new image which is cropped from this image.
  
- @param cropRect Image's inner rect.
+ @param rect     Image's inner rect.
  @return         The new image with the cropping rect.
  */
 - (nullable UIImage *)sd_croppedImageWithRect:(CGRect)rect;
@@ -75,7 +75,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 /**
  Returns a new rotated image (relative to the center).
  
- @param radians   Rotated radians in counterclockwise.⟲
+ @param angle     Rotated radians in counterclockwise.⟲
  @param fitSize   YES: new image's size is extend to fit all content.
                   NO: image's size will not change, content may be clipped.
  @return The new image with the rotation.

@@ -39,6 +39,9 @@
 
 #pragma mark - Pipeline
 
+// Separator for different transformerKey, for example, `image.png` |> flip(YES,NO) |> rotate(pi/4,YES) => 'image-SDWebImageFlippingTransformer(1,0)-SDWebImageRotationTransformer(0.78539816339,1).png'
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageTransformerKeySeparator;
+
 // Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one and generate the final image.
 @interface SDWebImagePipelineTransformer : NSObject <SDWebImageTransformer>
 

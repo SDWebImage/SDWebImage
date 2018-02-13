@@ -37,6 +37,8 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDWebImageDownloader.h>
 #import <SDWebImage/SDWebImageTransition.h>
 #import <SDWebImage/SDWebImageIndicator.h>
+#import <SDWebImage/SDWebImageTransformer.h>
+#import <SDWebImage/UIImage+Transform.h>
 
 #if SD_MAC || SD_UIKIT
     #import <SDWebImage/MKAnnotationView+WebCache.h>

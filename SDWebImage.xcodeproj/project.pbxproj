@@ -406,12 +406,12 @@
 		32F7C0812030719600873181 /* UIImage+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F7C07C2030719600873181 /* UIImage+Transform.m */; };
 		32F7C0822030719600873181 /* UIImage+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F7C07C2030719600873181 /* UIImage+Transform.m */; };
 		32F7C0832030719600873181 /* UIImage+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F7C07C2030719600873181 /* UIImage+Transform.m */; };
-		32F7C0842030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
-		32F7C0852030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
-		32F7C0862030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
-		32F7C0872030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
-		32F7C0882030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
-		32F7C0892030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; };
+		32F7C0842030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F7C0852030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F7C0862030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F7C0872030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F7C0882030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32F7C0892030719600873181 /* UIImage+Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F7C07D2030719600873181 /* UIImage+Transform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4314D1231D0E0E3B004B36C9 /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 53922D86148C56230056699D /* SDImageCache.m */; };
 		4314D1311D0E0E3B004B36C9 /* SDWebImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53922D8C148C56230056699D /* SDWebImageDownloader.m */; };
 		4314D1341D0E0E3B004B36C9 /* UIImage+WebP.m in Sources */ = {isa = PBXBuildFile; fileRef = 53EDFB921762547C00698166 /* UIImage+WebP.m */; };
