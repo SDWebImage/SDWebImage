@@ -387,9 +387,8 @@ didReceiveResponse:(NSURLResponse *)response
                 if (shouldDecode) {
                     image = [SDWebImageCoderHelper decodedImageWithImage:image];
                 }
-                if (!finished) {
-                    image.sd_isIncremental = YES;
-                }
+                // mark the image as progressive (completionBlock one are not mark as progressive)
+                image.sd_isIncremental = YES;
                 
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 

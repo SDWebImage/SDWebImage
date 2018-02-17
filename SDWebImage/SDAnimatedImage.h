@@ -54,10 +54,10 @@
 // These methods are for SDAnimatedImage class only but not for SDWebImageAnimatedCoder.
 @optional
 /**
- Preload all frame image to memory. Then directly return the frame for index without decoding.
+ Preload all frame image to memory. Then later request can directly return the frame for index without decoding.
  This method may be called on background thread.
  
- @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access.
+ @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access. But this will cause more memory usage.
  */
 - (void)preloadAllFrames;
 
@@ -102,11 +102,11 @@
 #endif
 
 /**
- Preload all frame image to memory. Then directly return the frame for index without decoding.
+ Preload all frame image to memory. Then later request can directly return the frame for index without decoding.
  The preloaded animated image frames will be removed when receiving memory warning.
  
- @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access.
- @note Once preload the frames into memory, there is no huge differenec on performance between UIImage's `animatedImageWithImages:duration:` for UIKit. But UIImage's animation have some issue such like blanking or frame resetting. It's recommend to use only if need.
+ @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access. But this will cause more memory usage.
+ @note Once preload the frames into memory, there is no huge difference on performance between this and UIImage's `animatedImageWithImages:duration:`. But UIImage's animation have some issue such like blanking or frame restarting working with `UIImageView`. It's recommend to use only if need.
  */
 - (void)preloadAllFrames;
 

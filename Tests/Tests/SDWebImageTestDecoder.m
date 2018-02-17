@@ -25,7 +25,7 @@
     return image;
 }
 
-- (instancetype)initIncrementally
+- (instancetype)initIncremental
 {
     self = [super init];
     if (self) {
@@ -33,13 +33,17 @@
     return self;
 }
 
-- (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
+- (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
+    return;
+}
+
+- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
 }
 
-- (BOOL)canIncrementallyDecodeFromData:(nullable NSData *)data {
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
     return YES;
 }
 
