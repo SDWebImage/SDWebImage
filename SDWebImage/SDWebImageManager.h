@@ -10,6 +10,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
+#import "SDWebImageTransformer.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
@@ -182,6 +183,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 @property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
+
+/**
+ The image transformer for manager. It's used for image transform after the image load finished and store the transformed image to cache, see `SDWebImageTransformer`.
+ Defaults to nil, which means no transform is applied.
+ @note This will affect all the load requests for this manager if you provide. However, you can pass `SDWebImageContextCustomTransformer` in context arg to explicitly use that transformer instead.
+ */
+@property (strong, nonatomic, nullable) id<SDWebImageTransformer> transformer;
 
 /**
  * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can

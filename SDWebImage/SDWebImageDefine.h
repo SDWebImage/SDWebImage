@@ -22,6 +22,6 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetIma
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager;
 
 /**
- A id<SDWebImageTransformer> instance which conforms SDWebImageTransformer protocol. It's used for image transform after the image load finished and store the transformed image to cache. (id<SDWebImageTransformer>)
+ A id<SDWebImageTransformer> instance which conforms SDWebImageTransformer protocol. It's used for image transform after the image load finished and store the transformed image to cache. If you provide one, it will ignore the `transformer` in manager and use provided one instead. (id<SDWebImageTransformer>)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomTransformer;

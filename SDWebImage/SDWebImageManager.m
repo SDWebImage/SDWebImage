@@ -8,8 +8,6 @@
 
 #import "SDWebImageManager.h"
 #import "NSImage+Additions.h"
-#import <objc/message.h>
-#import "SDWebImageTransformer.h"
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
@@ -156,6 +154,18 @@
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
     if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
     
+    // Image transformer
+    id<SDWebImageTransformer> transformer;
+    if ([context valueForKey:SDWebImageContextCustomTransformer]) {
+        transformer = [context valueForKey:SDWebImageContextCustomTransformer];
+    } else if (self.transformer) {
+        // Transformer from manager
+        transformer = self.transformer;
+        NSMutableDictionary<SDWebImageContextOption, id> *mutableContext = [NSMutableDictionary dictionaryWithDictionary:context];
+        [mutableContext setValue:transformer forKey:SDWebImageContextCustomTransformer];
+        context = [mutableContext copy];
+    }
+    
     __weak SDWebImageCombinedOperation *weakOperation = operation;
     operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
         __strong __typeof(weakOperation) strongOperation = weakOperation;
@@ -240,9 +250,8 @@
 
                     if (options & SDWebImageRefreshCached && cachedImage && !downloadedImage) {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
-                    } else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [context valueForKey:SDWebImageContextCustomTransformer]) {
+                    } else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                            id<SDWebImageTransformer> transformer = [context valueForKey:SDWebImageContextCustomTransformer];
                             UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
                             if (transformedImage && finished) {
                                 NSString *transformerKey = [transformer transformerKey];

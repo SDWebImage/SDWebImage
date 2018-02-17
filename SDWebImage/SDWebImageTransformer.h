@@ -11,8 +11,7 @@
 
 /**
  A transformer protocol to transform the image load from cache or from download.
- For cache, it store the transformed image to memory cache if the memory cache missed (Default).
- For download, it store the transformed image to disk cache and memory cache if the download finished (Default).
+ You can provide transformer to cache and manager (Through the `transformer` property or context option `SDWebImageContextCustomTransformer`).
  
  @note The transform process is called from a global queue in order to not to block the main queue.
  */
@@ -42,7 +41,7 @@
 // Separator for different transformerKey, for example, `image.png` |> flip(YES,NO) |> rotate(pi/4,YES) => 'image-SDWebImageFlippingTransformer(1,0)-SDWebImageRotationTransformer(0.78539816339,1).png'
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageTransformerKeySeparator;
 
-// Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one and generate the final image.
+// Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
 @interface SDWebImagePipelineTransformer : NSObject <SDWebImageTransformer>
 
 @property (nonatomic, copy, readonly, nonnull) NSArray<id<SDWebImageTransformer>> *transformers;
