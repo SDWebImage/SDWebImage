@@ -11,7 +11,7 @@
 
 @interface SDWebImageFrame : NSObject
 
-// This class is used for creating animated images via `animatedImageWithFrames` in `SDWebImageCoderHelper`. Attension if you need animated images loop count, use `sd_imageLoopCount` property in `UIImage+MultiFormat`
+// This class is used for creating animated images via `animatedImageWithFrames` in `SDWebImageCoderHelper`. Attention if you need to specify animated images loop count, use `sd_imageLoopCount` property in `UIImage+MultiFormat`.
 
 /**
  The image of current frame. You should not set an animated image.
