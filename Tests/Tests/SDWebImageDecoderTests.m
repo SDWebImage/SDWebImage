@@ -13,6 +13,8 @@
 #import <SDWebImage/UIImage+ForceDecode.h>
 #import <SDWebImage/SDWebImageGIFCoder.h>
 #import <SDWebImage/NSData+ImageContentType.h>
+#import <SDWebImage/NSImage+Additions.h>
+#import <SDWebImage/UIImage+WebCache.h>
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -24,9 +26,10 @@
     expect([UIImage sd_decodedImageWithImage:nil]).to.beNil();
 }
 
+#if SD_UIKIT
 - (void)test02ThatDecodedImageWithImageWorksWithARegularJPGImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
@@ -36,7 +39,7 @@
 
 - (void)test03ThatDecodedImageWithImageDoesNotDecodeAnimatedImages {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *animatedImage = [UIImage animatedImageWithImages:@[image] duration:0];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:animatedImage];
     expect(decodedImage).toNot.beNil();
@@ -45,7 +48,7 @@
 
 - (void)test04ThatDecodedImageWithImageDoesNotDecodeImagesWithAlpha {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).to.equal(image);
@@ -53,7 +56,7 @@
 
 - (void)test05ThatDecodedImageWithImageWorksEvenWithMonochromeImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"MonochromeTestImage" ofType:@"jpg"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
@@ -63,7 +66,7 @@
 
 - (void)test06ThatDecodeAndScaleDownImageWorks {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
@@ -74,7 +77,7 @@
 
 - (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
@@ -95,6 +98,7 @@
 #pragma clang diagnostic pop
     expect(orientation).to.equal(UIImageOrientationUp);
 }
+#endif
 
 - (void)test09ThatStaticWebPCoderWorks {
     NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
@@ -134,15 +138,17 @@
     
     if (isAnimated) {
         // 2a - check images count > 0 (only for animated images)
-        expect(inputImage.images.count).to.beGreaterThan(0);
+        expect(inputImage.sd_isAnimated).to.beTruthy();
         
         // 2b - check image size and scale for each frameImage (only for animated images)
+#if SD_UIKIT
         CGSize imageSize = inputImage.size;
         CGFloat imageScale = inputImage.scale;
         [inputImage.images enumerateObjectsUsingBlock:^(UIImage * frameImage, NSUInteger idx, BOOL * stop) {
             expect(imageSize).to.equal(frameImage.size);
             expect(imageScale).to.equal(frameImage.scale);
         }];
+#endif
     }
     
     // 3 - check if we can encode to the original format

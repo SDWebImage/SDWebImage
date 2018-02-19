@@ -9,7 +9,9 @@
 
 #import "SDTestCase.h"
 #import <SDWebImage/NSData+ImageContentType.h>
+#if SD_UIKIT
 #import <MobileCoreServices/MobileCoreServices.h>
+#endif
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/UIImage+GIF.h>
 #import <SDWebImage/UIImage+WebP.h>
@@ -36,7 +38,7 @@
     UIImage *image = [UIImage sd_imageWithData:nil];
     expect(image).to.beNil();
     // Test image encode
-    image = [UIImage imageWithContentsOfFile:[self testJPEGPath]];
+    image = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     NSData *data = [image sd_imageData];
     expect(data).notTo.beNil();
     // Test image encode PNG

@@ -231,10 +231,11 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     expect([cachePath pathExtension]).to.equal(@"");
 }
 
+#if SD_UIKIT
 - (void)test40InsertionOfImageData {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Insertion of image data works"];
     
-    UIImage *image = [UIImage imageWithContentsOfFile:[self testImagePath]];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:[self testImagePath]];
     NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
     [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kImageTestKey error:nil];
     
@@ -242,7 +243,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     expect(storedImageFromMemory).to.equal(nil);
     
     NSString *cachePath = [[SDImageCache sharedImageCache] defaultCachePathForKey:kImageTestKey];
-    UIImage *cachedImage = [UIImage imageWithContentsOfFile:cachePath];
+    UIImage *cachedImage = [[UIImage alloc] initWithContentsOfFile:cachePath];
     NSData *storedImageData = UIImageJPEGRepresentation(cachedImage, 1.0);
     expect(storedImageData.length).to.beGreaterThan(0);
     expect(cachedImage.size).to.equal(image.size);
@@ -265,7 +266,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     SDWebImageTestDecoder *testDecoder = [[SDWebImageTestDecoder alloc] init];
     [[SDWebImageCodersManager sharedInstance] addCoder:testDecoder];
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     NSString *key = @"TestPNGImageEncodedToDataAndRetrieveToJPEG";
     
     [cache storeImage:image imageData:nil forKey:key toDisk:YES completion:^(NSError * _Nullable error) {
@@ -288,7 +289,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
         
         // Decoded result is JPEG
         NSString * decodedImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
-        UIImage *testJPEGImage = [UIImage imageWithContentsOfFile:decodedImagePath];
+        UIImage *testJPEGImage = [[UIImage alloc] initWithContentsOfFile:decodedImagePath];
         
         NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
         NSData *data2 = UIImagePNGRepresentation(diskCacheImage);
@@ -306,6 +307,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     
     [self waitForExpectationsWithCommonTimeout];
 }
+#endif
 
 - (void)test41StoreImageDataToDiskWithError {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
@@ -343,7 +345,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 - (UIImage *)imageForTesting{
     static UIImage *reusableImage = nil;
     if (!reusableImage) {
-        reusableImage = [UIImage imageWithContentsOfFile:[self testImagePath]];
+        reusableImage = [[UIImage alloc] initWithContentsOfFile:[self testImagePath]];
     }
     return reusableImage;
 }

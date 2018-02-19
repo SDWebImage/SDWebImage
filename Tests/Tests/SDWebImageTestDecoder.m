@@ -21,13 +21,13 @@
 
 - (UIImage *)decodedImageWithData:(NSData *)data {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
-    UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
 }
 

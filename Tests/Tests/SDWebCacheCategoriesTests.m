@@ -12,7 +12,9 @@
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
 #import <SDWebImage/MKAnnotationView+WebCache.h>
 #import <SDWebImage/UIButton+WebCache.h>
+#if SD_UIKIT
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#endif
 #import <SDWebImage/UIView+WebCache.h>
 #import <KVOController/KVOController.h>
 
@@ -38,6 +40,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+#if SD_UIKIT
 - (void)testUIImageViewSetHighlightedImageWithURL {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIImageView setHighlightedImageWithURL"];
     
@@ -53,6 +56,7 @@
                                    }];
     [self waitForExpectationsWithCommonTimeout];
 }
+#endif
 
 - (void)testMKAnnotationViewSetImageWithURL {
     XCTestExpectation *expectation = [self expectationWithDescription:@"MKAnnotationView setImageWithURL"];
@@ -70,6 +74,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+#if SD_UIKIT
 - (void)testUIButtonSetImageWithURLNormalState {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIButton setImageWithURL normalState"];
     
@@ -138,6 +143,7 @@
                                 }];
     [self waitForExpectationsWithCommonTimeout];
 }
+#endif
 
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];

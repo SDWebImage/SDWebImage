@@ -362,6 +362,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+#if SD_UIKIT
 - (void)test22ThatCustomDecoderWorksForImageDownload {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom decoder for SDWebImageDownloader not works"];
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
@@ -371,7 +372,7 @@
     
     // Decoded result is JPEG
     NSString *testJPEGImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
-    UIImage *testJPEGImage = [UIImage imageWithContentsOfFile:testJPEGImagePath];
+    UIImage *testJPEGImage = [[UIImage alloc] initWithContentsOfFile:testJPEGImagePath];
     
     [downloader downloadImageWithURL:testImageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
@@ -391,5 +392,6 @@
     [self waitForExpectationsWithCommonTimeout];
     [downloader invalidateSessionAndCancel:YES];
 }
+#endif
 
 @end
