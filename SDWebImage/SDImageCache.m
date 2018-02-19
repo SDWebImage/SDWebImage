@@ -538,7 +538,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     // grab the transformed disk image if transformer provided
                     id<SDWebImageTransformer> transformer = [context valueForKey:SDWebImageContextCustomTransformer];
                     NSString *transformerKey = [transformer transformerKey];
-                    cacheKey = [[key stringByAppendingString:SDWebImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+                    cacheKey = SDTransformedKeyForKey(key, transformerKey);
                 }
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:cacheKey data:diskData];

@@ -11,6 +11,16 @@
 #import <CoreImage/CoreImage.h>
 #endif
 
+// Separator for different transformerKey, for example, `image.png` |> flip(YES,NO) |> rotate(pi/4,YES) => 'image-SDWebImageFlippingTransformer(1,0)-SDWebImageRotationTransformer(0.78539816339,1).png'
+static NSString * const SDWebImageTransformerKeySeparator = @"-";
+
+NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString * _Nonnull transformerKey) {
+    if (!key || !transformerKey) {
+        return nil;
+    }
+    return [[key stringByAppendingString:SDWebImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+}
+
 @interface UIColor (Additions)
 
 @property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
@@ -49,8 +59,6 @@
 }
 
 @end
-
-NSString * const SDWebImageTransformerKeySeparator = @"-";
 
 @interface SDWebImagePipelineTransformer ()
 

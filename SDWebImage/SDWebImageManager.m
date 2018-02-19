@@ -255,7 +255,7 @@
                             UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
                             if (transformedImage && finished) {
                                 NSString *transformerKey = [transformer transformerKey];
-                                NSString *cacheKey = [[key stringByAppendingString:SDWebImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+                                NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 NSData *cacheData;
                                 // pass nil if the image was transformed, so we can recalculate the data from the image
