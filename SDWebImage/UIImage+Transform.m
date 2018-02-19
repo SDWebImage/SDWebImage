@@ -35,9 +35,6 @@ static CGContextRef SDCGContextCreateARGBBitmapContext(CGSize size, BOOL opaque,
 static void SDGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGFloat scale) {
 #if SD_UIKIT || SD_WATCH
     UIGraphicsBeginImageContextWithOptions(size, opaque, scale);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(context, 0, -size.height);
-    CGContextScaleCTM(context, scale, -scale);
 #else
     CGContextRef context = SDCGContextCreateARGBBitmapContext(size, opaque, scale);
     if (!context) {
@@ -148,12 +145,40 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
     return rect;
 }
 
-#if SD_MAC
-@interface NSBezierPath (Additions)
+@implementation UIColor (Additions)
 
-+ (instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
+- (NSString *)sd_hexString {
+    CGFloat red, green, blue, alpha;
+#if SD_UIKIT
+    if (![self getRed:&red green:&green blue:&blue alpha:&alpha]) {
+        [self getWhite:&red alpha:&alpha];
+        green = red;
+        blue = red;
+    }
+#else
+    @try {
+        [self getRed:&red green:&green blue:&blue alpha:&alpha];
+    }
+    @catch (NSException *exception) {
+        [self getWhite:&red alpha:&alpha];
+        green = red;
+        blue = red;
+    }
+#endif
+    
+    red = roundf(red * 255.f);
+    green = roundf(green * 255.f);
+    blue = roundf(blue * 255.f);
+    alpha = roundf(alpha * 255.f);
+    
+    uint hex = ((uint)alpha << 24) | ((uint)red << 16) | ((uint)green << 8) | ((uint)blue);
+    
+    return [NSString stringWithFormat:@"0x%08x", hex];
+}
 
 @end
+
+#if SD_MAC
 
 @implementation NSBezierPath (Additions)
 
@@ -383,8 +408,146 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
     return image;
 }
 
+- (UIColor *)sd_colorAtPoint:(CGPoint)point {
+    if (!self) {
+        return nil;
+    }
+    CGImageRef imageRef = self.CGImage;
+    if (!imageRef) {
+        return nil;
+    }
+    
+    // Check point
+    CGFloat width = CGImageGetWidth(imageRef);
+    CGFloat height = CGImageGetHeight(imageRef);
+    if (point.x < 0 || point.y < 0 || point.x > width || point.y > height) {
+        return nil;
+    }
+    
+    // Get pixels
+    CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
+    if (!provider) {
+        return nil;
+    }
+    CFDataRef data = CGDataProviderCopyData(provider);
+    if (!data) {
+        return nil;
+    }
+    
+    // Get pixel at point
+    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef); // Actually should be ARGB8888, equal to width * 4(alpha) or 3(non-alpha)
+    size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
+    
+    CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, 4);
+    if (CFDataGetLength(data) < range.location + range.length) {
+        return nil;
+    }
+    UInt8 pixel[4] = {0};
+    CFDataGetBytes(data, range, pixel);
+    
+    // Convert to color
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    CGFloat r = 0, g = 0, b = 0, a = 0;
+    
+    BOOL byteOrderNormal = NO;
+    switch (bitmapInfo & kCGBitmapByteOrderMask) {
+        case kCGBitmapByteOrderDefault: {
+            byteOrderNormal = YES;
+        } break;
+        case kCGBitmapByteOrder32Little: {
+        } break;
+        case kCGBitmapByteOrder32Big: {
+            byteOrderNormal = YES;
+        } break;
+        default: break;
+    }
+    switch (alphaInfo) {
+        case kCGImageAlphaPremultipliedFirst: {
+            if (byteOrderNormal) {
+                // ARGB8888
+                a = pixel[0] / 255.0;
+                r = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                b = pixel[3] / 255.0;
+            } else {
+                // BGRA8888
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaPremultipliedLast: {
+            if (byteOrderNormal) {
+                // RGBA8888
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+            } else {
+                // ABGR8888
+                a = pixel[0] / 255.0;
+                b = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                r = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNone: {
+            if (byteOrderNormal) {
+                // RGB
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+            } else {
+                // BGR
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNoneSkipLast: {
+            if (byteOrderNormal) {
+                // RGBX
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+            } else {
+                // XBGR
+                b = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                r = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNoneSkipFirst: {
+            if (byteOrderNormal) {
+                // XRGB
+                r = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                b = pixel[3] / 255.0;
+            } else {
+                // BGRX
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+            }
+        }
+            break;
+            // iOS does not supports non-premultiplied alpha, so no these cases :)
+        default:
+            break;
+    }
+    
+    return [UIColor colorWithRed:r green:g blue:b alpha:a];
+}
+
 #pragma mark - Image Effect
 
+// We use vImage to do box convolve for performance. However, you can just use `CIFilter.CIBoxBlur`. For other blur effect, use any filter in `CICategoryBlur`
 - (UIImage *)sd_blurredImageWithRadius:(CGFloat)blurRadius {
     if (self.size.width < 1 || self.size.height < 1) {
         return nil;

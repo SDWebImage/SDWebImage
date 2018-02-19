@@ -26,6 +26,28 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 };
 #endif
 
+#pragma mark - Useful category
+
+@interface UIColor (Additions)
+
+/**
+ Convenience way to get hex string from color. The output should always be 32-bit hex string like `0x00000000`
+ */
+@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
+
+@end
+
+#if SD_MAC
+@interface NSBezierPath (Additions)
+
+/**
+ Convenience way to create a bezier path with the specify rouunding corners on macOS. Same as the one on `UIBezierPath`.
+ */
++ (instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
+
+@end
+#endif
+
 /**
  Provide some commen method for `UIImage`.
  Image process is based on Core Graphics and vImage.
@@ -100,6 +122,14 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
  @return The new image with the tint color.
  */
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor;
+
+/**
+ Return the color at specify pixel. The postion is from the top-left to the bottom-right. And the color is always be RGBA format.
+
+ @param point The position of pixel
+ @return The color for specify pixel, or nil if any error occur
+ */
+- (nullable UIColor *)sd_colorAtPoint:(CGPoint)point;
 
 #pragma mark - Image Effect
 
