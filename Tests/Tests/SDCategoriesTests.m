@@ -81,7 +81,7 @@
     UIImage *croppedImage = [self.testImage sd_croppedImageWithRect:rect];
     expect(CGSizeEqualToSize(croppedImage.size, CGSizeMake(200, 200))).beTruthy();
     UIColor *startColor = [croppedImage sd_colorAtPoint:CGPointZero];
-    expect([startColor.sd_hexString isEqualToString:@"0x00000000"]).beTruthy();
+    expect([startColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]).beTruthy();
 }
 
 - (void)test07UIImageTransformRoundedCorner {
@@ -96,7 +96,7 @@
     UIImage *roundedCornerImage = [self.testImage sd_roundedCornerImageWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
     expect(CGSizeEqualToSize(roundedCornerImage.size, CGSizeMake(300, 300))).beTruthy();
     UIColor *startColor = [roundedCornerImage sd_colorAtPoint:CGPointZero];
-    expect([startColor.sd_hexString isEqualToString:@"0x00000000"]).beTruthy();
+    expect([startColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]).beTruthy();
     // Check the left center pixel, should be border :)
     UIColor *checkBorderColor = [roundedCornerImage sd_colorAtPoint:CGPointMake(1, 150)];
     expect([checkBorderColor.sd_hexString isEqualToString:borderCoder.sd_hexString]).beTruthy();
@@ -127,7 +127,7 @@
     expect(CGSizeEqualToSize(tintedImage.size, self.testImage.size)).beTruthy();
     // Check center color, should keep clear
     UIColor *centerColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 150)];
-    expect([centerColor.sd_hexString isEqualToString:@"0x00000000"]);
+    expect([centerColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]);
     // Check left color, should be tinted
     UIColor *leftColor = [tintedImage sd_colorAtPoint:CGPointMake(80, 150)];
     expect([leftColor.sd_hexString isEqualToString:tintColor.sd_hexString]);

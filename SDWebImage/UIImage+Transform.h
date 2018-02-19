@@ -31,7 +31,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 @interface UIColor (Additions)
 
 /**
- Convenience way to get hex string from color. The output should always be 32-bit hex string like `0x00000000`
+ Convenience way to get hex string from color. The output should always be 32-bit hex string like `#00000000`.
  */
 @property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
 

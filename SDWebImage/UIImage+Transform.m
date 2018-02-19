@@ -150,7 +150,7 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
     
     uint hex = ((uint)alpha << 24) | ((uint)red << 16) | ((uint)green << 8) | ((uint)blue);
     
-    return [NSString stringWithFormat:@"0x%08x", hex];
+    return [NSString stringWithFormat:@"#%08x", hex];
 }
 
 @end
