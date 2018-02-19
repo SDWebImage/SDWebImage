@@ -14,14 +14,13 @@
 #import <SDWebImage/UIButton+WebCache.h>
 #import <SDWebImage/FLAnimatedImageView+WebCache.h>
 #import <SDWebImage/UIView+WebCache.h>
+#import <KVOController/KVOController.h>
 
-static void * SDCategoriesTestsContext = &SDCategoriesTestsContext;
-
-@interface SDCategoriesTests : SDTestCase
+@interface SDWebCacheCategoriesTests : SDTestCase
 
 @end
 
-@implementation SDCategoriesTests
+@implementation SDWebCacheCategoriesTests
 
 - (void)testUIImageViewSetImageWithURL {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIImageView setImageWithURL"];
@@ -145,7 +144,13 @@ static void * SDCategoriesTestsContext = &SDCategoriesTestsContext;
     UIView *view = [[UIView alloc] init];
     NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
     
-    [view.sd_imageProgress addObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted)) options:NSKeyValueObservingOptionNew context:SDCategoriesTestsContext];
+    [self.KVOController observe:view.sd_imageProgress keyPath:NSStringFromSelector(@selector(fractionCompleted)) options:NSKeyValueObservingOptionNew block:^(id  _Nullable observer, id  _Nonnull object, NSDictionary<NSString *,id> * _Nonnull change) {
+        NSProgress *progress = object;
+        NSNumber *completedValue = change[NSKeyValueChangeNewKey];
+        expect(progress.fractionCompleted).equal(completedValue.doubleValue);
+        // mark that KVO is called
+        [progress setUserInfoObject:@(YES) forKey:NSStringFromSelector(@selector(testUIViewImageProgressKVOWork))];
+    }];
     
     // Clear the disk cache to force download from network
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
@@ -155,24 +160,7 @@ static void * SDCategoriesTestsContext = &SDCategoriesTestsContext;
             [expectation fulfill];
         }];
     }];
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:^(NSError * _Nullable error) {
-        [view.sd_imageProgress removeObserver:self forKeyPath:NSStringFromSelector(@selector(fractionCompleted)) context:SDCategoriesTestsContext];
-    }];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (context == SDCategoriesTestsContext) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(fractionCompleted))]) {
-            NSProgress *progress = object;
-            NSNumber *completedValue = change[NSKeyValueChangeNewKey];
-            expect(progress.fractionCompleted).equal(completedValue.doubleValue);
-            // mark that KVO is called
-            [progress setUserInfoObject:@(YES) forKey:NSStringFromSelector(@selector(testUIViewImageProgressKVOWork))];
-        }
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 @end

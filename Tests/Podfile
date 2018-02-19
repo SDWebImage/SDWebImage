@@ -8,6 +8,7 @@ workspace '../SDWebImage'
 target 'Tests' do
   platform :ios, '8.0'
   pod 'Expecta'
+  pod 'KVOController'
   pod 'SDWebImage/WebP', :path => '../'
   pod 'SDWebImage/MapKit', :path => '../'
   pod 'SDWebImage/GIF', :path => '../'
