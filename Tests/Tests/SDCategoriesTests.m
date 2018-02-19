@@ -15,7 +15,6 @@
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/UIImage+GIF.h>
 #import <SDWebImage/UIImage+WebP.h>
-#import <SDWebImage/UIImage+ForceDecode.h>
 
 @interface SDCategoriesTests : SDTestCase
 
