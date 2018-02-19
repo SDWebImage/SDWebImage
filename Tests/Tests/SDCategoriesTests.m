@@ -16,6 +16,7 @@
 #import <SDWebImage/UIImage+GIF.h>
 #import <SDWebImage/UIImage+WebP.h>
 #import <SDWebImage/UIImage+Transform.h>
+#import <CoreImage/CoreImage.h>
 
 @interface SDCategoriesTests : SDTestCase
 
@@ -85,7 +86,11 @@
 
 - (void)test07UIImageTransformRoundedCorner {
     CGFloat radius = 50;
-    UIRectCorner corners = UIRectCornerAllCorners;
+#if SD_UIKIT
+    SDRectCorner corners = UIRectCornerAllCorners;
+#else
+    SDRectCorner corners = SDRectCornerAllCorners;
+#endif
     CGFloat borderWidth = 1;
     UIColor *borderCoder = [UIColor blackColor];
     UIImage *roundedCornerImage = [self.testImage sd_roundedCornerImageWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
@@ -155,7 +160,7 @@
 
 - (UIImage *)testImage {
     if (!_testImage) {
-        _testImage = [UIImage imageWithContentsOfFile:[self testPNGPath]];
+        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPath]];
     }
     return _testImage;
 }

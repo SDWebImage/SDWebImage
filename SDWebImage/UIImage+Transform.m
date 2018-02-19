@@ -81,29 +81,6 @@ static UIImage * SDGraphicsGetImageFromCurrentImageContext(void) {
 #endif
 }
 
-static SDRectCorner SDRectCornerConvertCounterClockwise(SDRectCorner corners) {
-#if SD_UIKIT || SD_WATCH
-    if (corners != UIRectCornerAllCorners) {
-        UIRectCorner tmp = 0;
-        if (corners & UIRectCornerTopLeft) tmp |= UIRectCornerBottomLeft;
-        if (corners & UIRectCornerTopRight) tmp |= UIRectCornerBottomRight;
-        if (corners & UIRectCornerBottomLeft) tmp |= UIRectCornerTopLeft;
-        if (corners & UIRectCornerBottomRight) tmp |= UIRectCornerTopRight;
-        corners = tmp;
-    }
-#else
-    if (corners != SDRectCornerAllCorners) {
-        SDRectCorner tmp = 0;
-        if (corners & SDRectCornerTopLeft) tmp |= SDRectCornerBottomLeft;
-        if (corners & SDRectCornerTopRight) tmp |= SDRectCornerBottomRight;
-        if (corners & SDRectCornerBottomLeft) tmp |= SDRectCornerTopLeft;
-        if (corners & SDRectCornerBottomRight) tmp |= SDRectCornerTopRight;
-        corners = tmp;
-    }
-#endif
-    return corners;
-}
-
 static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMode scaleMode) {
     rect = CGRectStandardize(rect);
     size.width = size.width < 0 ? -size.width : size.width;
@@ -261,7 +238,6 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
 
 - (UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(UIColor *)borderColor {
     if (!self.CGImage) return nil;
-    corners = SDRectCornerConvertCounterClockwise(corners);
     SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
     CGContextRef context = SDGraphicsGetCurrentContext();
     CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
@@ -463,7 +439,8 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
         default: break;
     }
     switch (alphaInfo) {
-        case kCGImageAlphaPremultipliedFirst: {
+        case kCGImageAlphaPremultipliedFirst:
+        case kCGImageAlphaFirst: {
             if (byteOrderNormal) {
                 // ARGB8888
                 a = pixel[0] / 255.0;
@@ -479,7 +456,8 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
             }
         }
             break;
-        case kCGImageAlphaPremultipliedLast: {
+        case kCGImageAlphaPremultipliedLast:
+        case kCGImageAlphaLast: {
             if (byteOrderNormal) {
                 // RGBA8888
                 r = pixel[0] / 255.0;
@@ -537,7 +515,7 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
             }
         }
             break;
-            // iOS does not supports non-premultiplied alpha, so no these cases :)
+        case kCGImageAlphaOnly:
         default:
             break;
     }
