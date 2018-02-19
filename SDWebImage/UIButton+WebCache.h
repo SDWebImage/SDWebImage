@@ -22,7 +22,7 @@
 /**
  * Get the current image URL.
  */
-- (nullable NSURL *)sd_currentImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
 
 /**
  * Get the image URL for a control state.
@@ -133,7 +133,7 @@
 /**
  * Get the current background image URL.
  */
-- (nullable NSURL *)sd_currentBackgroundImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentBackgroundImageURL;
 
 /**
  * Get the background image URL for a control state.
