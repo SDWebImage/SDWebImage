@@ -409,6 +409,8 @@ didReceiveResponse:(NSURLResponse *)response
                         SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
                         if (imageFormat == SDImageFormatWebP) {
                             shouldDecode = NO;
+                            // Encode static WebP image data for disk cache
+                            imageData = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:SDImageFormatUndefined];
                         }
 #endif
                     }
