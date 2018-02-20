@@ -110,21 +110,29 @@
 
 - (void)test07ThatLoadImageWithSDWebImageRefreshCachedWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image download twice with SDWebImageRefresh failed"];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDImageCache sharedImageCache] clearDiskOnCompletion:nil];
-    
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://via.placeholder.com/10x10.png"];
+    __block BOOL firstCompletion = NO;
     [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).toNot.beNil();
         expect(error).to.beNil();
         // #1993, load image with SDWebImageRefreshCached twice should not fail if the first time success.
         
-        [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-            expect(image).toNot.beNil();
-            expect(error).to.beNil();
-            [expectation fulfill];
-        }];
+        // Because we call completion before remove the operation from queue, so need a dispatch to avoid get the same operation again. Attention this trap.
+        // One way to solve this is use another `NSURL instance` because we use `NSURL` as key but not `NSString`. However, this is implementation detail and no guarantee in the future.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSURL *newImageURL = [NSURL URLWithString:@"http://via.placeholder.com/10x10.png"];
+            [[SDWebImageManager sharedManager] loadImageWithURL:newImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
+                expect(image2).toNot.beNil();
+                expect(error2).to.beNil();
+                if (!firstCompletion) {
+                    firstCompletion = YES;
+                    [expectation fulfill];
+                }
+            }];
+        });
     }];
-    [self waitForExpectationsWithCommonTimeout];
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
 }
 
 @end
