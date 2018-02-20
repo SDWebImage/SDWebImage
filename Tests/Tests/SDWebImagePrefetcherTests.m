@@ -28,21 +28,23 @@
                            @"http://via.placeholder.com/30x30.jpg",
                            @"http://via.placeholder.com/40x40.jpg"];
     
-    __block int numberOfPrefetched = 0;
+    __block NSUInteger numberOfPrefetched = 0;
     
-    [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
-        numberOfPrefetched += 1;
-        expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
-        expect(noOfFinishedUrls).to.beLessThanOrEqualTo(noOfTotalUrls);
-        expect(noOfTotalUrls).to.equal(imageURLs.count);
-    } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-        expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
-        expect(noOfFinishedUrls).to.equal(imageURLs.count);
-        expect(noOfSkippedUrls).to.equal(0);
-        [expectation fulfill];
+    [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
+        [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+            numberOfPrefetched += 1;
+            expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
+            expect(noOfFinishedUrls).to.beLessThanOrEqualTo(noOfTotalUrls);
+            expect(noOfTotalUrls).to.equal(imageURLs.count);
+        } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+            expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
+            expect(noOfFinishedUrls).to.equal(imageURLs.count);
+            expect(noOfSkippedUrls).to.equal(0);
+            [expectation fulfill];
+        }];
     }];
     
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 3 handler:nil];
 }
 
 - (void)test03PrefetchWithEmptyArrayWillCallTheCompletionWithAllZeros {
