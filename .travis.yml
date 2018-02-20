@@ -7,6 +7,8 @@ env:
     - LC_CTYPE=en_US.UTF-8
     - LANG=en_US.UTF-8
 
+notifications:
+  email: false
 
 before_install:
     - env
