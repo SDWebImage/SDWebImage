@@ -31,7 +31,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 @interface UIColor (Additions)
 
 /**
- Convenience way to get hex string from color. The output should always be 32-bit hex string like `#00000000`.
+ Convenience way to get hex string from color. The output should always be 32-bit RGBA hex string like `#00000000`.
  */
 @property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
 
@@ -116,21 +116,32 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 #pragma mark - Image Blending
 
 /**
- Return a tinted image in alpha channel with the given color.
+ Return a tinted image with the given color. This actually use alpha blending of current image and the tint color.
  
- @param tintColor  The color.
+ @param tintColor  The tint color.
  @return The new image with the tint color.
  */
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor;
 
 /**
- Return the color at specify pixel. The point is from the top-left to the bottom-right and 0-based. The returned the color is always be RGBA format.
+ Return the pixel color at specify position. The point is from the top-left to the bottom-right and 0-based. The returned the color is always be RGBA format. The image must be CG-based.
  @note The point's x/y should not be smaller than 0, or greater than or equal to width/height.
+ @note The overhead of object creation means this method is best suited for infrequent color sampling. For heavy image processing, grab the raw bitmap data and process yourself.
 
  @param point The position of pixel
  @return The color for specify pixel, or nil if any error occur
  */
 - (nullable UIColor *)sd_colorAtPoint:(CGPoint)point;
+
+/**
+ Return the pixel color array with specify rectangle. The rect is from the top-left to the bottom-right and 0-based. The returned the color is always be RGBA format. The image must be CG-based.
+ @note The rect's width/height should not be smaller than or equal to 0. The minX/minY should not be smaller than 0. The maxX/maxY should not be greater than width/height. Attention this limit is different from point(point: (0,0) like rect: (0, 0, 1, 1))
+ @note The overhead of object creation means this method is best suited for infrequent color sampling. For heavy image processing, grab the raw bitmap data and process yourself.
+
+ @param rect The rectangle of pixels
+ @return The color array for specify pixels, or nil if any error occur
+ */
+- (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect;
 
 #pragma mark - Image Effect
 

@@ -81,7 +81,7 @@ static UIImage * SDGraphicsGetImageFromCurrentImageContext(void) {
 #endif
 }
 
-static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMode scaleMode) {
+static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMode scaleMode) {
     rect = CGRectStandardize(rect);
     size.width = size.width < 0 ? -size.width : size.width;
     size.height = size.height < 0 ? -size.height : size.height;
@@ -120,6 +120,109 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
         }
     }
     return rect;
+}
+
+static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitmapInfo) {
+    // Get alpha info, byteOrder info
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGImageByteOrderInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    CGFloat r = 0, g = 0, b = 0, a = 255.0;
+    
+    BOOL byteOrderNormal = NO;
+    switch (byteOrderInfo) {
+        case kCGBitmapByteOrderDefault: {
+            byteOrderNormal = YES;
+        } break;
+        case kCGBitmapByteOrder32Little: {
+        } break;
+        case kCGBitmapByteOrder32Big: {
+            byteOrderNormal = YES;
+        } break;
+        default: break;
+    }
+    switch (alphaInfo) {
+        case kCGImageAlphaPremultipliedFirst:
+        case kCGImageAlphaFirst: {
+            if (byteOrderNormal) {
+                // ARGB8888
+                a = pixel[0] / 255.0;
+                r = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                b = pixel[3] / 255.0;
+            } else {
+                // BGRA8888
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaPremultipliedLast:
+        case kCGImageAlphaLast: {
+            if (byteOrderNormal) {
+                // RGBA8888
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+            } else {
+                // ABGR8888
+                a = pixel[0] / 255.0;
+                b = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                r = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNone: {
+            if (byteOrderNormal) {
+                // RGB
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+            } else {
+                // BGR
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNoneSkipLast: {
+            if (byteOrderNormal) {
+                // RGBX
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+            } else {
+                // XBGR
+                b = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                r = pixel[3] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNoneSkipFirst: {
+            if (byteOrderNormal) {
+                // XRGB
+                r = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                b = pixel[3] / 255.0;
+            } else {
+                // BGRX
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaOnly:
+        default:
+            break;
+    }
+    
+    return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
 @implementation UIColor (Additions)
@@ -419,115 +522,79 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
         CFRelease(data);
         return nil;
     }
-    UInt8 pixel[4] = {0};
+    Pixel_8888 pixel = {0};
     CFDataGetBytes(data, range, pixel);
     CFRelease(data);
     
     // Convert to color
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
-    CGFloat r = 0, g = 0, b = 0, a = 0;
-    
-    BOOL byteOrderNormal = NO;
-    switch (bitmapInfo & kCGBitmapByteOrderMask) {
-        case kCGBitmapByteOrderDefault: {
-            byteOrderNormal = YES;
-        } break;
-        case kCGBitmapByteOrder32Little: {
-        } break;
-        case kCGBitmapByteOrder32Big: {
-            byteOrderNormal = YES;
-        } break;
-        default: break;
+    return SDGetColorFromPixel(pixel, bitmapInfo);
+}
+
+- (NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
+    if (!self) {
+        return nil;
     }
-    switch (alphaInfo) {
-        case kCGImageAlphaPremultipliedFirst:
-        case kCGImageAlphaFirst: {
-            if (byteOrderNormal) {
-                // ARGB8888
-                a = pixel[0] / 255.0;
-                r = pixel[1] / 255.0;
-                g = pixel[2] / 255.0;
-                b = pixel[3] / 255.0;
-            } else {
-                // BGRA8888
-                b = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                r = pixel[2] / 255.0;
-                a = pixel[3] / 255.0;
-            }
-        }
-            break;
-        case kCGImageAlphaPremultipliedLast:
-        case kCGImageAlphaLast: {
-            if (byteOrderNormal) {
-                // RGBA8888
-                r = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                b = pixel[2] / 255.0;
-                a = pixel[3] / 255.0;
-            } else {
-                // ABGR8888
-                a = pixel[0] / 255.0;
-                b = pixel[1] / 255.0;
-                g = pixel[2] / 255.0;
-                r = pixel[3] / 255.0;
-            }
-        }
-            break;
-        case kCGImageAlphaNone: {
-            if (byteOrderNormal) {
-                // RGB
-                r = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                b = pixel[2] / 255.0;
-            } else {
-                // BGR
-                b = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                r = pixel[2] / 255.0;
-            }
-        }
-            break;
-        case kCGImageAlphaNoneSkipLast: {
-            if (byteOrderNormal) {
-                // RGBX
-                r = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                b = pixel[2] / 255.0;
-            } else {
-                // XBGR
-                b = pixel[1] / 255.0;
-                g = pixel[2] / 255.0;
-                r = pixel[3] / 255.0;
-            }
-        }
-            break;
-        case kCGImageAlphaNoneSkipFirst: {
-            if (byteOrderNormal) {
-                // XRGB
-                r = pixel[1] / 255.0;
-                g = pixel[2] / 255.0;
-                b = pixel[3] / 255.0;
-            } else {
-                // BGRX
-                b = pixel[0] / 255.0;
-                g = pixel[1] / 255.0;
-                r = pixel[2] / 255.0;
-            }
-        }
-            break;
-        case kCGImageAlphaOnly:
-        default:
-            break;
+    CGImageRef imageRef = self.CGImage;
+    if (!imageRef) {
+        return nil;
     }
     
-    return [UIColor colorWithRed:r green:g blue:b alpha:a];
+    // Check rect
+    CGFloat width = CGImageGetWidth(imageRef);
+    CGFloat height = CGImageGetHeight(imageRef);
+    if (CGRectGetWidth(rect) <= 0 || CGRectGetHeight(rect) <= 0 || CGRectGetMinX(rect) < 0 || CGRectGetMinY(rect) < 0 || CGRectGetMaxX(rect) > width || CGRectGetMaxY(rect) > height) {
+        return nil;
+    }
+    
+    // Get pixels
+    CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
+    if (!provider) {
+        return nil;
+    }
+    CFDataRef data = CGDataProviderCopyData(provider);
+    if (!data) {
+        return nil;
+    }
+    
+    // Get pixels with rect
+    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
+    size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
+    
+    size_t start = bytesPerRow * CGRectGetMinY(rect) + components * CGRectGetMinX(rect);
+    size_t end = bytesPerRow * (CGRectGetMaxY(rect) - 1) + components * CGRectGetMaxX(rect);
+    if (CFDataGetLength(data) < (CFIndex)end) {
+        CFRelease(data);
+        return nil;
+    }
+    
+    const UInt8 *pixels = CFDataGetBytePtr(data);
+    size_t row = CGRectGetMinY(rect);
+    size_t col = CGRectGetMaxX(rect);
+    
+    // Convert to color
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    NSMutableArray<UIColor *> *colors = [NSMutableArray arrayWithCapacity:CGRectGetWidth(rect) * CGRectGetHeight(rect)];
+    for (size_t index = start; index < end; index += 4) {
+        if (index >= row * bytesPerRow + col * components) {
+            // Index beyond the end of current row, go next row
+            row++;
+            index = row * bytesPerRow + CGRectGetMinX(rect) * components;
+            index -= 4;
+            continue;
+        }
+        Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
+        UIColor *color = SDGetColorFromPixel(pixel, bitmapInfo);
+        [colors addObject:color];
+    }
+    CFRelease(data);
+    
+    return [colors copy];
 }
 
 #pragma mark - Image Effect
 
-// We use vImage to do box convolve for performance. However, you can just use `CIFilter.CIBoxBlur`. For other blur effect, use any filter in `CICategoryBlur`
+// We use vImage to do box convolve for performance and support for watchOS. However, you can just use `CIFilter.CIBoxBlur`. For other blur effect, use any filter in `CICategoryBlur`
 - (UIImage *)sd_blurredImageWithRadius:(CGFloat)blurRadius {
     if (self.size.width < 1 || self.size.height < 1) {
         return nil;

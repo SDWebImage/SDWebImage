@@ -119,6 +119,14 @@
     BOOL vertical = YES;
     UIImage *flippedImage = [self.testImage sd_flippedImageWithHorizontal:horizontal vertical:vertical];
     expect(CGSizeEqualToSize(flippedImage.size, self.testImage.size)).beTruthy();
+    // Test pixel colors method here
+    UIColor *checkColor = [flippedImage sd_colorAtPoint:CGPointMake(75, 75)];
+    expect(checkColor);
+    NSArray<UIColor *> *checkColors = [flippedImage sd_colorsWithRect:CGRectMake(75, 75, 10, 10)]; // Rect are all same color
+    expect(checkColors.count).to.equal(10 * 10);
+    for (UIColor *color in checkColors) {
+        expect([color isEqual:checkColor]).to.beTruthy();
+    }
 }
 
 - (void)test10UIImageTransformTint {
