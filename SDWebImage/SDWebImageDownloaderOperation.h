@@ -65,7 +65,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
- * The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
+ * The credential used for authentication challenges in `-URLSession:task:didReceiveChallenge:completionHandler:`.
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
@@ -87,7 +87,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (assign, nonatomic, readonly) NSInteger expectedSize;
 
 /**
- * The response returned by the operation's connection.
+ * The response returned by the operation's task.
  */
 @property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
 
