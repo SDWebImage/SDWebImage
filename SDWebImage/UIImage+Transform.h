@@ -124,7 +124,8 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor;
 
 /**
- Return the color at specify pixel. The postion is from the top-left to the bottom-right. And the color is always be RGBA format.
+ Return the color at specify pixel. The point is from the top-left to the bottom-right and 0-based. The returned the color is always be RGBA format.
+ @note The point's x/y should not be smaller than 0, or greater than or equal to width/height.
 
  @param point The position of pixel
  @return The color for specify pixel, or nil if any error occur

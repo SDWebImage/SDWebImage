@@ -396,7 +396,7 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
     // Check point
     CGFloat width = CGImageGetWidth(imageRef);
     CGFloat height = CGImageGetHeight(imageRef);
-    if (point.x < 0 || point.y < 0 || point.x > width || point.y > height) {
+    if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) {
         return nil;
     }
     
@@ -411,15 +411,17 @@ static CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMod
     }
     
     // Get pixel at point
-    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef); // Actually should be ARGB8888, equal to width * 4(alpha) or 3(non-alpha)
+    size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
     size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
     
     CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, 4);
     if (CFDataGetLength(data) < range.location + range.length) {
+        CFRelease(data);
         return nil;
     }
     UInt8 pixel[4] = {0};
     CFDataGetBytes(data, range, pixel);
+    CFRelease(data);
     
     // Convert to color
     CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
