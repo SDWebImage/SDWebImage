@@ -165,6 +165,8 @@
 }
 #endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)startAnimatingIndicator {
     self.indicatorView.hidden = NO;
 #if SD_UIKIT
@@ -207,6 +209,7 @@
     self.indicatorView.doubleValue = progress * 100;
 #endif
 }
+#pragma clang diagnostic pop
 
 @end
 
