@@ -50,7 +50,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustom
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomTransformer;
 
 /**
- A Class object which the instance is a `UIImage/NSImage` subclass and adopt `SDAnimatedImage` protocol. And call `initWithData:scale:` to create the instance. If the instance create failed, fallback to normal `UIImage/NSImage`.
+ A Class object which the instance is a `UIImage/NSImage` subclass and adopt `SDAnimatedImage` protocol. We will call `initWithData:scale:` to create the instance (or `initWithAnimatedCoder:sclae` when using progressive download) . If the instance create failed, fallback to normal `UIImage/NSImage`.
  This can be used to improve animated images rendering performance (especially memory usage on big animated images) with `SDAnimatedImageView` (Class).
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextAnimatedImageClass;

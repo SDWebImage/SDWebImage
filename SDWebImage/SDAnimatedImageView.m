@@ -7,10 +7,11 @@
  */
 
 #import "SDAnimatedImageView.h"
+
+#if SD_UIKIT || SD_MAC
+
 #import "UIImage+WebCache.h"
 #import "NSImage+Additions.h"
-#if SD_UIKIT || SD_MAC
-#import "SDAnimatedImage.h"
 #import <mach/mach.h>
 
 #if SD_MAC

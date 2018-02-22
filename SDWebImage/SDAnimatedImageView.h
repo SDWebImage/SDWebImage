@@ -10,6 +10,8 @@
 
 #if SD_UIKIT || SD_MAC
 
+#import "SDAnimatedImage.h"
+
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.
  Call `setImage:` with a `UIImage<SDAnimatedImage>` will start animated image rendering. Call with a UIImage(NSImage) will back to normal UIImageView(NSImageView) rendering

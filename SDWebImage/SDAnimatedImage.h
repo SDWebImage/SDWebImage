@@ -66,7 +66,7 @@
  @note Normally we use `initWithData:scale:` to create custom animated image class. So you can implement your custom class without our built-in coder.
 
  @param animatedCoder An animated coder which conform `SDWebImageAnimatedCoder` protocol
- @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property. (For `NSImage`, `scale` property can be calculated from `size`)
+ @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
  @return An initialized object
  */
 - (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale;
@@ -76,7 +76,11 @@
 @interface SDAnimatedImage : UIImage <SDAnimatedImage>
 
 // This class override these methods from UIImage(NSImage), and it supports NSSecureCoding.
-// You should use these methods to create a new animated image. Use other methods will just call super instead.
+// You should use these methods to create a new animated image. Use other methods just call super instead.
++ (nullable instancetype)imageNamed:(nonnull NSString *)name; // Cache in memory, no Asset Catalog support
+#if __has_include(<UIKit/UITraitCollection.h>)
++ (nullable instancetype)imageNamed:(nonnull NSString *)name inBundle:(nullable NSBundle *)bundle compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection; // Cache in memory, no Asset Catalog support
+#endif
 + (nullable instancetype)imageWithContentsOfFile:(nonnull NSString *)path;
 + (nullable instancetype)imageWithData:(nonnull NSData *)data;
 + (nullable instancetype)imageWithData:(nonnull NSData *)data scale:(CGFloat)scale;
@@ -94,12 +98,13 @@
  */
 @property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
 
-#if SD_MAC
 /**
- For AppKit, `NSImage` can contains multiple image representations with different scales. However, this class does not do that from the design. We processs the scale like UIKit and store it as a extra information for correctlly rendering in `SDAnimatedImageView`.
+ The scale factor of the image.
+ 
+ @note For UIKit, this just call super instead.
+ @note For AppKit, `NSImage` can contains multiple image representations with different scales. However, this class does not do that from the design. We processs the scale like UIKit and store it as a extra information for correctlly rendering in `SDAnimatedImageView`.
  */
 @property (nonatomic, readonly) CGFloat scale;
-#endif
 
 /**
  Preload all frame image to memory. Then later request can directly return the frame for index without decoding.
