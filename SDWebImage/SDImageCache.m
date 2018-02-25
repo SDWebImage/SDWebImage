@@ -11,6 +11,9 @@
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
+
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
     return image.size.height * image.size.width;
@@ -19,10 +22,106 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #endif
 }
 
+// A memory cache which auto purge the cache on memory warning and support weak cache.
+@interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType>
+
+@end
+
+// Private
+@interface SDMemoryCache <KeyType, ObjectType> ()
+
+@property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; // strong-weak cache
+@property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
+
+@end
+
+@implementation SDMemoryCache
+
+// Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
+// But in the future there may be more options and features for this subclass.
+#if SD_UIKIT
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        // Use a strong-weak maptable storing the secondary cache. Follow the doc that NSCache does not copy keys
+        // This is useful when the memory warning, the cache was purged. However, the image instance can be retained by other instance such as imageViews and alive.
+        // At this case, we can sync weak cache back and do not need to load from disk cache
+        self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
+        self.weakCacheLock = dispatch_semaphore_create(1);
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning:)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
+    }
+    return self;
+}
+
+- (void)didReceiveMemoryWarning:(NSNotification *)notification {
+    // Only remove cache, but keep weak cache
+    [super removeAllObjects];
+}
+
+// `setObject:forKey:` just call this with 0 cost. Override this is enough
+- (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
+    [super setObject:obj forKey:key cost:g];
+    if (key && obj) {
+        // Store weak cache
+        LOCK(self.weakCacheLock);
+        [self.weakCache setObject:obj forKey:key];
+        UNLOCK(self.weakCacheLock);
+    }
+}
+
+- (id)objectForKey:(id)key {
+    id obj = [super objectForKey:key];
+    if (key && !obj) {
+        // Check weak cache
+        LOCK(self.weakCacheLock);
+        obj = [self.weakCache objectForKey:key];
+        UNLOCK(self.weakCacheLock);
+        if (obj) {
+            // Sync cache
+            NSUInteger cost = 0;
+            if ([obj isKindOfClass:[UIImage class]]) {
+                cost = SDCacheCostForImage(obj);
+            }
+            [super setObject:obj forKey:key cost:cost];
+        }
+    }
+    return obj;
+}
+
+- (void)removeObjectForKey:(id)key {
+    [super removeObjectForKey:key];
+    if (key) {
+        // Remove weak cache
+        LOCK(self.weakCacheLock);
+        [self.weakCache removeObjectForKey:key];
+        UNLOCK(self.weakCacheLock);
+    }
+}
+
+- (void)removeAllObjects {
+    [super removeAllObjects];
+    // Manually remove should also remove weak cache
+    LOCK(self.weakCacheLock);
+    [self.weakCache removeAllObjects];
+    UNLOCK(self.weakCacheLock);
+}
+
+#endif
+
+@end
+
 @interface SDImageCache ()
 
 #pragma mark - Properties
-@property (strong, nonatomic, nonnull) NSCache *memCache;
+@property (strong, nonatomic, nonnull) SDMemoryCache *memCache;
 @property (strong, nonatomic, nonnull) NSString *diskCachePath;
 @property (strong, nonatomic, nullable) NSMutableArray<NSString *> *customPaths;
 @property (strong, nonatomic, nullable) dispatch_queue_t ioQueue;
@@ -64,7 +163,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         _config = [[SDImageCacheConfig alloc] init];
         
         // Init the memory cache
-        _memCache = [[NSCache alloc] init];
+        _memCache = [[SDMemoryCache alloc] init];
         _memCache.name = fullNamespace;
 
         // Init the disk cache
@@ -81,11 +180,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #if SD_UIKIT
         // Subscribe to app events
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(clearMemory)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification
-                                                   object:nil];
-
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(deleteOldFiles)
                                                      name:UIApplicationWillTerminateNotification
