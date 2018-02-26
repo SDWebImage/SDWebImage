@@ -1,3 +1,29 @@
+## [4.3.1 - 4.3.0 Patch](https://github.com/rs/SDWebImage/releases/tag/4.3.1)
+See [all tickets marked for the 4.3.1 release](https://github.com/rs/SDWebImage/milestone/22)
+
+#### Fixes
+- Cache
+	- Fix that SDImageCacheQueryDataWhenInMemory should response cacheType to memory cache when the in-memory cache hit #2218
+- Project
+	- Fix the macOS wrong minimum deployment target version to 10.9 #2206
+
+#### Performances
+- Download Operation
+	- Decode the image in the operation level's queue instead of URLSession delegate queue #2199
+
+#### Improvements
+- Coder
+	- Create a subclass of NSBitmapImageRep to fix the GIF frame duration issue on macOS #2223 
+- View Category
+	- Expose the read write to FLAnimatedImage associate to the UIImage to allow advanced feature like placeholder #2220
+- Cache
+	- Create a subclass of NSCache using a weak cache #2228
+- Download Operation
+	- Improvement download operation for priority and some protect #2208
+- Project
+	- Fix CLANG\_WARN\_OBJC\_IMPLICIT\_RETAIN\_SELF warning #2225 
+
+
 ## [4.3.0 - Image Progress & Transition, on Jan 31th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.0)
 See [all tickets marked for the 4.3.0 release](https://github.com/rs/SDWebImage/milestone/21)
 
@@ -20,7 +46,7 @@ See [all tickets marked for the 4.3.0 release](https://github.com/rs/SDWebImage/
 - Cache
 	- Fix the getSize method which use the default file manager instead of current file manager #2180
 - Manager
-	- Fix the leak of runningOperations in race condition #2177 (Manager)
+	- Fix the leak of runningOperations on race condition #2177
 - Downloader
 	- Ensure all the session delegate completionHandler called and fix the leak when response error code below iOS 10 #2197
 	- Fix dispatch_sync blocking the main queue on race condition #2184
@@ -31,9 +57,9 @@ See [all tickets marked for the 4.3.0 release](https://github.com/rs/SDWebImage/
 - Prefetcher
 	- Fix the issue that prefetcher will cause stack overflow when the input urls list is huge because of recursion function call #2196
 
-#### Performance
+#### Performances
 - View Category
-	- Use the associate object to store the FLAnimatedImage into memory cache, avoid blinking or UIView transaction #2181
+	- Use the associate object to store the FLAnimatedImage into memory cache, avoid blinking or UIView transition #2181
 
 #### Improvements
 - Cache
