@@ -12,7 +12,14 @@
 #import "SDWebImageOperation.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
+    /**
+     * Put the download in the low queue priority and task priority.
+     */
     SDWebImageDownloaderLowPriority = 1 << 0,
+    
+    /**
+     * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
+     */
     SDWebImageDownloaderProgressiveDownload = 1 << 1,
 
     /**
@@ -46,7 +53,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderAllowInvalidSSLCertificates = 1 << 6,
 
     /**
-     * Put the image in the high priority queue.
+     * Put the download in the high queue priority and task priority.
      */
     SDWebImageDownloaderHighPriority = 1 << 7,
     

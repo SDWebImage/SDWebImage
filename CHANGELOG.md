@@ -1,4 +1,15 @@
-## [4.3.1 - 4.3.0 Patch](https://github.com/rs/SDWebImage/releases/tag/4.3.1)
+## [4.3.2 - 4.3 Patch, on Feb 28th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.2)
+See [all tickets marked for the 4.3.2 release](https://github.com/rs/SDWebImage/milestone/23)
+
+#### Fixes
+- Download Operation
+	- Fix that iOS 8 NSURLSessionTaskPriorityHigh symbol not defined in Foundation framework and cause crash #2231 #2230
+
+#### Improvements
+- Downloader
+	- Follow Apple's doc, add NSOperation only after all configuration done #2232
+
+## [4.3.1 - 4.3 Patch, on Feb 25th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.1)
 See [all tickets marked for the 4.3.1 release](https://github.com/rs/SDWebImage/milestone/22)
 
 #### Fixes
