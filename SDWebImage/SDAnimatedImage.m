@@ -199,8 +199,8 @@ static NSArray *SDBundlePreferredScales() {
 
 @property (nonatomic, strong) id<SDWebImageAnimatedCoder> coder;
 @property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
-@property (atomic, copy) NSArray<SDWebImageFrame *> *preloadAnimatedImageFrames;
-@property (nonatomic, assign) BOOL animatedImageFramesPreloaded;
+@property (atomic, copy) NSArray<SDWebImageFrame *> *loadedAnimatedImageFrames; // Mark as atomic to keep thread-safe
+@property (nonatomic, assign, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
 @end
 
@@ -208,21 +208,6 @@ static NSArray *SDBundlePreferredScales() {
 #if SD_UIKIT || SD_WATCH
 @dynamic scale; // call super
 #endif
-
-#pragma mark - Dealloc & Memory warning
-
-- (void)dealloc {
-#if SD_UIKIT
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
-}
-
-- (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    if (self.animatedImageFramesPreloaded) {
-        self.preloadAnimatedImageFrames = nil;
-        self.animatedImageFramesPreloaded = NO;
-    }
-}
 
 #pragma mark - UIImage override method
 + (instancetype)imageNamed:(NSString *)name {
@@ -363,7 +348,7 @@ static NSArray *SDBundlePreferredScales() {
 
 #pragma mark - Preload
 - (void)preloadAllFrames {
-    if (!self.animatedImageFramesPreloaded) {
+    if (!self.isAllFramesLoaded) {
         NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray arrayWithCapacity:self.animatedImageFrameCount];
         for (size_t i = 0; i < self.animatedImageFrameCount; i++) {
             UIImage *image = [self animatedImageFrameAtIndex:i];
@@ -371,12 +356,15 @@ static NSArray *SDBundlePreferredScales() {
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration]; // through the image should be nonnull, used as nullable for `animatedImageFrameAtIndex:`
             [frames addObject:frame];
         }
-        self.preloadAnimatedImageFrames = frames;
-        self.animatedImageFramesPreloaded = YES;
-#if SD_UIKIT
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
+        self.loadedAnimatedImageFrames = frames;
+        self.allFramesLoaded = YES;
+    }
+}
+
+- (void)unloadAllFrames {
+    if (self.isAllFramesLoaded) {
+        self.loadedAnimatedImageFrames = nil;
+        self.allFramesLoaded = NO;
     }
 }
 
@@ -422,8 +410,8 @@ static NSArray *SDBundlePreferredScales() {
     if (index >= self.animatedImageFrameCount) {
         return nil;
     }
-    if (self.animatedImageFramesPreloaded) {
-        SDWebImageFrame *frame = [self.preloadAnimatedImageFrames objectAtIndex:index];
+    if (self.isAllFramesLoaded) {
+        SDWebImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
         return frame.image;
     }
     return [self.coder animatedImageFrameAtIndex:index];
@@ -433,8 +421,8 @@ static NSArray *SDBundlePreferredScales() {
     if (index >= self.animatedImageFrameCount) {
         return 0;
     }
-    if (self.animatedImageFramesPreloaded) {
-        SDWebImageFrame *frame = [self.preloadAnimatedImageFrames objectAtIndex:index];
+    if (self.isAllFramesLoaded) {
+        SDWebImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
         return frame.duration;
     }
     return [self.coder animatedImageDurationAtIndex:index];

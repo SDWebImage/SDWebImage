@@ -54,12 +54,22 @@
 // These methods are for SDAnimatedImage class only but not for SDWebImageAnimatedCoder.
 @optional
 /**
- Preload all frame image to memory. Then later request can directly return the frame for index without decoding.
+ Pre-load all animated image frame into memory. Then later frame image request can directly return the frame for index without decoding.
  This method may be called on background thread.
  
- @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access. But this will cause more memory usage.
+ @note If one image instance is shared by lots of imageViews, the CPU performance for large animated image will drop down because the request frame index will be random (not in order) and the decoder should take extra effort to keep it re-entrant. You can use this to reduce CPU usage if need. Attention this will consume more memory usage.
  */
 - (void)preloadAllFrames;
+
+/**
+ Unload all animated image frame from memory if are already pre-loaded. Then later frame image request need decoding. You can use this to free up the memory usage if need.
+ */
+- (void)unloadAllFrames;
+
+/**
+ Returns a Boolean value indicating whether all animated image frames are already pre-loaded into memory.
+ */
+- (BOOL)isAllFramesLoaded;
 
 /**
  Initializes the image with an animated coder. You can use the coder to decode the image frame later.
@@ -93,6 +103,7 @@
  Current animated image format.
  */
 @property (nonatomic, assign, readonly) SDImageFormat animatedImageFormat;
+
 /**
  Current animated image data, you can use this instead of CGImage to create another instance
  */
@@ -106,13 +117,10 @@
  */
 @property (nonatomic, readonly) CGFloat scale;
 
-/**
- Preload all frame image to memory. Then later request can directly return the frame for index without decoding.
- The preloaded animated image frames will be removed when receiving memory warning.
- 
- @note If the image is shared by lots of imageViews, preload all frames will reduce the CPU cost because the decoder may not need to keep re-entrant for randomly index access. But this will cause more memory usage.
- @note Once preload the frames into memory, there is no huge difference on performance between this and UIImage's `animatedImageWithImages:duration:`. But UIImage's animation have some issue such like blanking or frame restarting working with `UIImageView`. It's recommend to use only if need.
- */
+// By default, animated image frames are returned by decoding just in time without keeping into memory. But you can choose to preload them into memory as well, See the decsription in `SDAnimatedImage` protocol.
+// After preloaded, there is no huge difference on performance between this and UIImage's `animatedImageWithImages:duration:`. But UIImage's animation have some issues such like blanking and pausing during segue when using in `UIImageView`. It's recommend to use only if need.
 - (void)preloadAllFrames;
+- (void)unloadAllFrames;
+@property (nonatomic, assign, readonly, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
 @end
