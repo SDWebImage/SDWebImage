@@ -232,15 +232,28 @@
 
                             if (transformedImage && finished) {
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                                NSData *cacheData;
                                 // pass nil if the image was transformed, so we can recalculate the data from the image
-                                [self.imageCache storeImage:transformedImage imageData:(imageWasTransformed ? nil : downloadedData) forKey:key toDisk:cacheOnDisk completion:nil];
+                                if (self.cacheSerializer) {
+                                    cacheData = self.cacheSerializer(transformedImage, (imageWasTransformed ? nil : downloadedData), url);
+                                } else {
+                                    cacheData = (imageWasTransformed ? nil : downloadedData);
+                                }
+                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
                             }
                             
                             [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         });
                     } else {
                         if (downloadedImage && finished) {
-                            [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
+                            if (self.cacheSerializer) {
+                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                    NSData *cacheData = self.cacheSerializer(downloadedImage, downloadedData, url);
+                                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                });
+                            } else {
+                                [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
+                            }
                         }
                         [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                     }
