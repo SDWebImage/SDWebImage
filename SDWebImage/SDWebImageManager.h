@@ -142,6 +142,16 @@ typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable 
 - (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldDownloadImageForURL:(nullable NSURL *)imageURL;
 
 /**
+ * Controls the complicated logic to mark as failed URLs when download error occur.
+ * If the delegate implement this method, we will not use the built-in way to mark URL as failed based on error code;
+ @param imageManager The current `SDWebImageManager`
+ @param imageURL The url of the image
+ @param error The download error for the url
+ @return Whether to block this url or not. Return YES to mark this URL as failed.
+ */
+- (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldBlockFailedURL:(nonnull NSURL *)imageURL withError:(nonnull NSError *)error;
+
+/**
  * Allows to transform the image immediately after it has been downloaded and just before to cache it on disk and memory.
  * NOTE: This method is called from a global queue in order to not to block the main thread.
  *
