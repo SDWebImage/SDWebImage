@@ -74,8 +74,8 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     // Preload all frames
     [image preloadAllFrames];
     
-    NSArray *preloadAnimatedImageFrames = [image valueForKey:@"preloadAnimatedImageFrames"];
-    expect(preloadAnimatedImageFrames.count).equal(kTestGIFFrameCount);
+    NSArray *loadedAnimatedImageFrames = [image valueForKey:@"loadedAnimatedImageFrames"]; // Access the internal property, only for test and may be changed in the future
+    expect(loadedAnimatedImageFrames.count).equal(kTestGIFFrameCount);
     
     // Test one frame
     UIImage *frame = [image animatedImageFrameAtIndex:0];
