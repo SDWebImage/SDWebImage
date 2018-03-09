@@ -112,7 +112,9 @@
     }
     for (id<SDWebImageCoder> coder in self.coders) {
         if ([coder canDecodeFromData:*data]) {
-            return [coder decompressedImageWithImage:image data:data options:optionsDict];
+            @synchronized(image) {
+                return [coder decompressedImageWithImage:image data:data options:optionsDict];
+            }
         }
     }
     return nil;
