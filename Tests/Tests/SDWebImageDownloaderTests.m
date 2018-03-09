@@ -17,7 +17,6 @@
  *  Category for SDWebImageDownloader so we can access the operationClass
  */
 @interface SDWebImageDownloader ()
-@property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock

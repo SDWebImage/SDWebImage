@@ -139,18 +139,25 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  */
 @property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
 
+/**
+ * Gets/Sets a subclass of `SDWebImageDownloaderOperation` as the default
+ * `NSOperation` to be used each time SDWebImage constructs a request
+ * operation to download an image.
+ *
+ * @param operationClass The subclass of `SDWebImageDownloaderOperation` to set
+ *        as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
+ */
+@property (assign, nonatomic, nullable) Class operationClass;
+
+/**
+ * Gets/Sets the download queue suspension state.
+ */
+@property (assign, nonatomic, getter=isSuspended) BOOL suspended;
 
 /**
  * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
  */
 @property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
-
-/**
- *  Singleton method, returns the shared instance
- *
- *  @return global shared instance of downloader class
- */
-+ (nonnull instancetype)sharedDownloader;
 
 /**
  *  Set the default URL credential to be set for request operations.
@@ -176,6 +183,13 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
 /**
+ *  Singleton method, returns the shared instance
+ *
+ *  @return global shared instance of downloader class
+ */
++ (nonnull instancetype)sharedDownloader;
+
+/**
  * Creates an instance of a downloader with specified session configuration.
  * @note `timeoutIntervalForRequest` is going to be overwritten.
  * @return new instance of downloader class
@@ -196,16 +210,6 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @return The value associated with the header field field, or `nil` if there is no corresponding header field.
  */
 - (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field;
-
-/**
- * Sets a subclass of `SDWebImageDownloaderOperation` as the default
- * `NSOperation` to be used each time SDWebImage constructs a request
- * operation to download an image.
- *
- * @param operationClass The subclass of `SDWebImageDownloaderOperation` to set 
- *        as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
- */
-- (void)setOperationClass:(nullable Class)operationClass;
 
 /**
  * Creates a SDWebImageDownloader async downloader instance with a given URL
@@ -262,11 +266,6 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
  */
 - (void)cancel:(nullable SDWebImageDownloadToken *)token;
-
-/**
- * Sets the download queue suspension state
- */
-- (void)setSuspended:(BOOL)suspended;
 
 /**
  * Cancels all download operations in the queue
