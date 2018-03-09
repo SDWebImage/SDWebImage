@@ -196,15 +196,22 @@
                     // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
                 } else if (error) {
                     [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock error:error url:url];
-
-                    if (   error.code != NSURLErrorNotConnectedToInternet
-                        && error.code != NSURLErrorCancelled
-                        && error.code != NSURLErrorTimedOut
-                        && error.code != NSURLErrorInternationalRoamingOff
-                        && error.code != NSURLErrorDataNotAllowed
-                        && error.code != NSURLErrorCannotFindHost
-                        && error.code != NSURLErrorCannotConnectToHost
-                        && error.code != NSURLErrorNetworkConnectionLost) {
+                    BOOL shouldBlockFailedURL;
+                    // Check whether we should block failed url
+                    if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
+                        shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
+                    } else {
+                        shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
+                                                && error.code != NSURLErrorCancelled
+                                                && error.code != NSURLErrorTimedOut
+                                                && error.code != NSURLErrorInternationalRoamingOff
+                                                && error.code != NSURLErrorDataNotAllowed
+                                                && error.code != NSURLErrorCannotFindHost
+                                                && error.code != NSURLErrorCannotConnectToHost
+                                                && error.code != NSURLErrorNetworkConnectionLost);
+                    }
+                    
+                    if (shouldBlockFailedURL) {
                         @synchronized (self.failedURLs) {
                             [self.failedURLs addObject:url];
                         }
