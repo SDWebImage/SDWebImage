@@ -10,7 +10,12 @@
 #import "SDTestCase.h"
 #import <SDWebImage/SDWebImagePrefetcher.h>
 
-@interface SDWebImagePrefetcherTests : SDTestCase
+@interface SDWebImagePrefetcherTests : SDTestCase <SDWebImagePrefetcherDelegate>
+
+@property (nonatomic, strong) SDWebImagePrefetcher *prefetcher;
+@property (nonatomic, assign) NSUInteger finishedCount;
+@property (nonatomic, assign) NSUInteger skippedCount;
+@property (nonatomic, assign) NSUInteger totalCount;
 
 @end
 
@@ -59,6 +64,82 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-// TODO: test the prefetcher delegate works
+- (void)test04PrefetchWithMultipleArrayDifferentQueueWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetch with multiple array at different queue failed"];
+    
+    NSArray *imageURLs1 = @[@"http://via.placeholder.com/20x20.jpg",
+                            @"http://via.placeholder.com/30x30.jpg"];
+    NSArray *imageURLs2 = @[@"http://via.placeholder.com/30x30.jpg",
+                           @"http://via.placeholder.com/40x40.jpg"];
+    dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue2 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    __block int numberOfPrefetched1 = 0;
+    __block int numberOfPrefetched2 = 0;
+    __block BOOL prefetchFinished1 = NO;
+    __block BOOL prefetchFinished2 = NO;
+    
+    // Clear the disk cache to make it more realistic for multi-thread environment
+    [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
+        dispatch_async(queue1, ^{
+            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs1 progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+                numberOfPrefetched1 += 1;
+            } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+                expect(numberOfPrefetched1).to.equal(noOfFinishedUrls);
+                prefetchFinished1 = YES;
+                // both completion called
+                if (prefetchFinished1 && prefetchFinished2) {
+                    [expectation fulfill];
+                }
+            }];
+        });
+        dispatch_async(queue2, ^{
+            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs2 progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+                numberOfPrefetched2 += 1;
+            } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+                expect(numberOfPrefetched2).to.equal(noOfFinishedUrls);
+                prefetchFinished2 = YES;
+                // both completion called
+                if (prefetchFinished1 && prefetchFinished2) {
+                    [expectation fulfill];
+                }
+            }];
+        });
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test05PrefecherDelegateWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetcher delegate failed"];
+    
+    NSArray *imageURLs = @[@"http://via.placeholder.com/20x20.jpg",
+                           @"http://via.placeholder.com/30x30.jpg",
+                           @"http://via.placeholder.com/40x40.jpg"];
+    self.prefetcher = [SDWebImagePrefetcher new];
+    self.prefetcher.delegate = self;
+    // Current implementation, the delegate method called before the progressBlock and completionBlock
+    [self.prefetcher prefetchURLs:imageURLs progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+        expect(self.finishedCount).to.equal(noOfFinishedUrls);
+        expect(self.totalCount).to.equal(noOfTotalUrls);
+    } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+        expect(self.finishedCount).to.equal(noOfFinishedUrls);
+        expect(self.skippedCount).to.equal(noOfSkippedUrls);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount {
+    expect(imagePrefetcher).to.equal(self.prefetcher);
+    self.skippedCount = skippedCount;
+    self.totalCount = totalCount;
+}
+
+- (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didPrefetchURL:(NSURL *)imageURL finishedCount:(NSUInteger)finishedCount totalCount:(NSUInteger)totalCount {
+    expect(imagePrefetcher).to.equal(self.prefetcher);
+    self.finishedCount = finishedCount;
+    self.totalCount = totalCount;
+}
 
 @end
