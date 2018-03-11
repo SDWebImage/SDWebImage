@@ -144,8 +144,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * `NSOperation` to be used each time SDWebImage constructs a request
  * operation to download an image.
  *
- * @param operationClass The subclass of `SDWebImageDownloaderOperation` to set
- *        as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
+ * @note Passing `NSOperation<SDWebImageDownloaderOperationInterface>` to set as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
  */
 @property (assign, nonatomic, nullable) Class operationClass;
 
