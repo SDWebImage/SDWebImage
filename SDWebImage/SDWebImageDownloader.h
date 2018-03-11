@@ -183,11 +183,9 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
 /**
- *  Singleton method, returns the shared instance
- *
- *  @return global shared instance of downloader class
+ *  Returns the global shared downloader instance
  */
-+ (nonnull instancetype)sharedDownloader;
+@property (nonatomic, class, readonly, nonnull) SDWebImageDownloader *sharedDownloader;
 
 /**
  * Creates an instance of a downloader with specified session configuration.

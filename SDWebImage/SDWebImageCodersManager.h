@@ -32,9 +32,9 @@
 @interface SDWebImageCodersManager : NSObject<SDWebImageCoder>
 
 /**
- Shared reusable instance
+ Returns the global shared coders manager instance.
  */
-+ (nonnull instancetype)sharedInstance;
+@property (nonatomic, class, readonly, nonnull) SDWebImageCodersManager *sharedManager;
 
 /**
  All coders in coders manager. The coders array is a priority queue, which means the later added coder will have the highest priority

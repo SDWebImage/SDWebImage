@@ -26,7 +26,7 @@
     [super viewDidLoad];
     
     //Add GIF coder for better animated image rendering
-    [[SDWebImageCodersManager sharedInstance] addCoder:[SDWebImageGIFCoder sharedCoder]];
+    [[SDWebImageCodersManager sharedManager] addCoder:[SDWebImageGIFCoder sharedCoder]];
     
     // NOTE: https links or authentication ones do not work (there is a crash)
     
