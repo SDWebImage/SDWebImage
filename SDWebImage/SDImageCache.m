@@ -298,7 +298,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     } else {
                         format = SDImageFormatJPEG;
                     }
-                    data = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:image format:format];
+                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format];
                 }
                 [self _storeImageDataToDisk:data forKey:key error:&writeError];
             }
@@ -475,10 +475,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data {
     if (data) {
-        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
+        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data];
         image = [self scaledImageForKey:key image:image];
         if (self.config.shouldDecompressImages) {
-            image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+            image = [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
         }
         return image;
     } else {

@@ -16,7 +16,7 @@
  */
 @interface SDWebImageWebPCoder : NSObject <SDWebImageProgressiveCoder>
 
-+ (nonnull instancetype)sharedCoder;
+@property (nonatomic, class, readonly, nonnull) SDWebImageWebPCoder *sharedCoder;
 
 @end
 

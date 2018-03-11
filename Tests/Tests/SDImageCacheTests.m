@@ -264,7 +264,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom decoder for SDImageCache not works"];
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"TestDecode"];
     SDWebImageTestDecoder *testDecoder = [[SDWebImageTestDecoder alloc] init];
-    [[SDWebImageCodersManager sharedInstance] addCoder:testDecoder];
+    [[SDWebImageCodersManager sharedManager] addCoder:testDecoder];
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     NSString *key = @"TestPNGImageEncodedToDataAndRetrieveToJPEG";
@@ -298,7 +298,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
             XCTFail(@"Custom decoder not work for SDImageCache, check -[SDWebImageTestDecoder decodedImageWithData:]");
         }
         
-        [[SDWebImageCodersManager sharedInstance] removeCoder:testDecoder];
+        [[SDWebImageCodersManager sharedManager] removeCoder:testDecoder];
         
         [[SDImageCache sharedImageCache] removeImageForKey:key withCompletion:^{
             [expectation fulfill];

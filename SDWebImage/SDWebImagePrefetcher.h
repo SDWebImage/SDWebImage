@@ -80,9 +80,9 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 @property (weak, nonatomic, nullable) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
- * Return the global image prefetcher instance.
+ * Returns the global shared image prefetcher instance.
  */
-+ (nonnull instancetype)sharedImagePrefetcher;
+@property (nonatomic, class, readonly, nonnull) SDWebImagePrefetcher *sharedImagePrefetcher;
 
 /**
  * Allows you to instantiate a prefetcher with any arbitrary image manager.

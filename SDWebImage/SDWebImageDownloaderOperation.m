@@ -345,7 +345,7 @@ didReceiveResponse:(NSURLResponse *)response
         
         if (!self.progressiveCoder) {
             // We need to create a new instance for progressive decoding to avoid conflicts
-            for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedInstance].coders) {
+            for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
                 if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
                     [((id<SDWebImageProgressiveCoder>)coder) canIncrementallyDecodeFromData:imageData]) {
                     self.progressiveCoder = [[[coder class] alloc] init];
@@ -361,7 +361,7 @@ didReceiveResponse:(NSURLResponse *)response
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
                 if (self.shouldDecompressImages) {
-                    image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+                    image = [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
                 }
                 
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
@@ -427,7 +427,7 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
+                        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData];
                         NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                         image = [self scaledImageForKey:key image:image];
                         
@@ -447,7 +447,7 @@ didReceiveResponse:(NSURLResponse *)response
                         if (shouldDecode) {
                             if (self.shouldDecompressImages) {
                                 BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
-                                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
+                                image = [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
                             }
                         }
                         CGSize imageSize = image.size;

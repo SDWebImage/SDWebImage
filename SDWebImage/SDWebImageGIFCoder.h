@@ -18,6 +18,6 @@
  */
 @interface SDWebImageGIFCoder : NSObject <SDWebImageCoder>
 
-+ (nonnull instancetype)sharedCoder;
+@property (nonatomic, class, readonly, nonnull) SDWebImageGIFCoder *sharedCoder;
 
 @end

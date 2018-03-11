@@ -213,11 +213,9 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 @property (nonatomic, copy, nullable) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
 
 /**
- * Returns global SDWebImageManager instance.
- *
- * @return SDWebImageManager shared instance
+ * Returns global shared manager instance.
  */
-+ (nonnull instancetype)sharedManager;
+@property (nonatomic, class, readonly, nonnull) SDWebImageManager *sharedManager;
 
 /**
  * Allows to specify instance of cache and image downloader used with image manager.

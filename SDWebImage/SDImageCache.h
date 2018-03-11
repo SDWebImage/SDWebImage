@@ -62,10 +62,8 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 
 /**
  * Returns global shared cache instance
- *
- * @return SDImageCache global instance
  */
-+ (nonnull instancetype)sharedImageCache;
+@property (nonatomic, class, readonly, nonnull) SDImageCache *sharedImageCache;
 
 /**
  * Init a new cache store with a specific namespace

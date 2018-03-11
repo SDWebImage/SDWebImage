@@ -36,7 +36,6 @@
 
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
-@property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
@@ -307,6 +306,10 @@
     token.downloadOperationCancelToken = downloadOperationCancelToken;
 
     return token;
+}
+
+- (BOOL)isSuspended {
+    return self.downloadQueue.isSuspended;
 }
 
 - (void)setSuspended:(BOOL)suspended {
