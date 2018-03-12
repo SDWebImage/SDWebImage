@@ -10,11 +10,11 @@
 #import "NSImage+Additions.h"
 #import <objc/message.h>
 
-@interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
+@interface SDWebImageCombinedOperation ()
 
-@property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
+@property (assign, nonatomic, getter = isCancelled, readwrite) BOOL cancelled;
 @property (strong, nonatomic, nullable) SDWebImageDownloadToken *downloadToken;
-@property (strong, nonatomic, nullable) NSOperation *cacheOperation;
+@property (strong, nonatomic, nullable, readwrite) NSOperation *cacheOperation;
 @property (weak, nonatomic, nullable) SDWebImageManager *manager;
 
 @end
@@ -107,15 +107,15 @@
     }];
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
+- (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
     return [self loadImageWithURL:url options:options progress:progressBlock completed:completedBlock context:nil];
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(nonnull SDInternalCompletionBlock)completedBlock
-                                    context:(nullable SDWebImageContext *)context {
+- (SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
+                                          options:(SDWebImageOptions)options
+                                         progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                        completed:(nonnull SDInternalCompletionBlock)completedBlock
+                                          context:(nullable SDWebImageContext *)context {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 

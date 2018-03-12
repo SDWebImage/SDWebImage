@@ -41,6 +41,10 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nullable NSURLCredential *)credential;
 - (void)setCredential:(nullable NSURLCredential *)value;
 
+- (NSInteger)expectedSize;
+
+- (nullable NSURLResponse *)response;
+
 - (BOOL)cancel:(nullable id)token;
 
 @end

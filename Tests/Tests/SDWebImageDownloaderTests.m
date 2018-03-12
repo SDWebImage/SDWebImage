@@ -32,6 +32,8 @@
 
 @property (nonatomic, assign) BOOL shouldDecompressImages;
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
+@property (nonatomic, assign) NSInteger expectedSize;
+@property (nonatomic, strong, nullable) NSURLResponse *response;
 
 @end
 

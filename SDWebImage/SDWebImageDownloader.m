@@ -8,17 +8,37 @@
 
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderOperation.h"
+#import "UIView+WebCache.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
 @interface SDWebImageDownloadToken ()
 
+@property (nonatomic, strong, nullable, readwrite) NSURL *url;
+@property (nonatomic, strong, nullable, readwrite) NSURLResponse *response;
+@property (nonatomic, strong, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperationInterface> *downloadOperation;
 
 @end
 
 @implementation SDWebImageDownloadToken
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:nil];
+    }
+    return self;
+}
+
+- (void)downloadReceiveResponse:(NSNotification *)notification {
+    self.response = self.downloadOperation.response;
+}
 
 - (void)cancel {
     if (self.downloadOperation) {
@@ -218,11 +238,15 @@
         
         request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         request.HTTPShouldUsePipelining = YES;
-        if (sself.headersFilter) {
-            request.allHTTPHeaderFields = sself.headersFilter(url, [sself allHTTPHeaderFields]);
+        NSMutableDictionary *allHTTPHeaderFields = [NSMutableDictionary dictionary];
+        [allHTTPHeaderFields addEntriesFromDictionary:[sself allHTTPHeaderFields]];
+        if ([context valueForKey:SDWebImageContextAddtionalHTTPHeaders]) {
+            [allHTTPHeaderFields addEntriesFromDictionary:[context valueForKey:SDWebImageContextAddtionalHTTPHeaders]];
         }
-        else {
-            request.allHTTPHeaderFields = [sself allHTTPHeaderFields];
+        if (sself.headersFilter) {
+            request.allHTTPHeaderFields = sself.headersFilter(url, [allHTTPHeaderFields copy]);
+        } else {
+            request.allHTTPHeaderFields = [allHTTPHeaderFields copy];
         }
         SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
         operation.shouldDecompressImages = sself.shouldDecompressImages;
