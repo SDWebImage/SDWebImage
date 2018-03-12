@@ -122,7 +122,9 @@ typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _N
 
 typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
-typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
+typedef NSString * _Nullable(^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
+
+typedef NSData * _Nullable(^SDWebImageCacheSerializerBlock)(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL);
 
 
 @class SDWebImageManager;
@@ -203,14 +205,34 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @code
 
-[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url) {
+SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
     url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
     return [url absoluteString];
-}];
+};
 
  * @endcode
  */
 @property (nonatomic, copy, nullable) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
+
+/**
+ * The cache serializer is a block used to convert the decoded image, the source downloaded data, to the actual data used for storing to the disk cache. If you return nil, means to generate the data from the image instance, see `SDImageCache`.
+ * For example, if you are using WebP images and facing the slow decoding time issue when later retriving from disk cache again. You can try to encode the decoded image to JPEG/PNG format to disk cache instead of source downloaded data.
+ * @note The `image` arg is nonnull, but when you also provide a image transformer and the image is transformed, the `data` arg may be nil, take attention to this case.
+ * @note This method is called from a global queue in order to not to block the main thread.
+ * @code
+ SDWebImageManager.sharedManager.cacheKeyFilter = ^NSData * _Nullable(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL) {
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    switch (format) {
+        case SDImageFormatWebP:
+            return image.images ? data : nil;
+        default:
+            return data;
+    }
+ };
+ * @endcode
+ * The default value is nil. Means we just store the source downloaded data to disk cache.
+ */
+@property (nonatomic, copy, nullable) SDWebImageCacheSerializerBlock cacheSerializer;
 
 /**
  * Returns global shared manager instance.
