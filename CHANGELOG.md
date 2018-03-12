@@ -1,3 +1,16 @@
+## [4.3.3 - Cache Serializer, on Mar 12th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.3)
+See [all tickets marked for the 4.3.3 release](https://github.com/rs/SDWebImage/milestone/24)
+
+#### Features
+- Manager
+	- Add cacheSerializer to allow user provide modified version of data when storing the disk cache in SDWebImageManager #2245
+	- Add a delegate method to control the custom logic when blocking the failed url #2246
+
+#### Improvements
+- Project
+	- Enable CLANG\_WARN\_OBJC\_IMPLICIT\_RETAIN\_SELF and fix warning #2242
+
+
 ## [4.3.2 - 4.3 Patch, on Feb 28th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.2)
 See [all tickets marked for the 4.3.2 release](https://github.com/rs/SDWebImage/milestone/23)
 
