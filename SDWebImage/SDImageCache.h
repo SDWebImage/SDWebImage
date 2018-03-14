@@ -31,9 +31,13 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
      */
     SDImageCacheQueryDataWhenInMemory = 1 << 0,
     /**
-     * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously.
+     * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously when the memory cache miss.
      */
-    SDImageCacheQueryDiskSync = 1 << 1
+    SDImageCacheQueryDiskSync = 1 << 1,
+    /**
+     * By combining `SDImageCacheQueryDataWhenInMemory`, this mask can force to query disk data synchronously when the memory cache hit.
+     */
+    SDImageCacheQueryDataSync = 1 << 2
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
