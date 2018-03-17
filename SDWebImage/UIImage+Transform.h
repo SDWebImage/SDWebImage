@@ -41,7 +41,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 @interface NSBezierPath (Additions)
 
 /**
- Convenience way to create a bezier path with the specify rouunding corners on macOS. Same as the one on `UIBezierPath`.
+ Convenience way to create a bezier path with the specify rounding corners on macOS. Same as the one on `UIBezierPath`.
  */
 + (nonnull instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
 
