@@ -26,28 +26,6 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 };
 #endif
 
-#pragma mark - Useful category
-
-@interface UIColor (Additions)
-
-/**
- Convenience way to get hex string from color. The output should always be 32-bit RGBA hex string like `#00000000`.
- */
-@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
-
-@end
-
-#if SD_MAC
-@interface NSBezierPath (Additions)
-
-/**
- Convenience way to create a bezier path with the specify rounding corners on macOS. Same as the one on `UIBezierPath`.
- */
-+ (nonnull instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
-
-@end
-#endif
-
 /**
  Provide some commen method for `UIImage`.
  Image process is based on Core Graphics and vImage.
@@ -135,7 +113,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 
 /**
  Return the pixel color array with specify rectangle. The rect is from the top-left to the bottom-right and 0-based. The returned the color is always be RGBA format. The image must be CG-based.
- @note The rect's width/height should not be smaller than or equal to 0. The minX/minY should not be smaller than 0. The maxX/maxY should not be greater than width/height. Attention this limit is different from point(point: (0,0) like rect: (0, 0, 1, 1))
+ @note The rect's width/height should not be smaller than or equal to 0. The minX/minY should not be smaller than 0. The maxX/maxY should not be greater than width/height. Attention this limit is different from `sd_colorAtPoint:` (point: (0, 0) like rect: (0, 0, 1, 1))
  @note The overhead of object creation means this method is best suited for infrequent color sampling. For heavy image processing, grab the raw bitmap data and process yourself.
 
  @param rect The rectangle of pixels

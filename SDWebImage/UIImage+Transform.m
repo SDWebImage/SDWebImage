@@ -13,10 +13,6 @@
 #import <CoreImage/CoreImage.h>
 #endif
 
-#ifndef SD_SWAP // swap two value
-#define SD_SWAP(_a_, _b_)  do { __typeof__(_a_) _tmp_ = (_a_); (_a_) = (_b_); (_b_) = _tmp_; } while (0)
-#endif
-
 #if SD_MAC
 static CGContextRef SDCGContextCreateARGBBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
     size_t width = ceil(size.width * scale);
@@ -225,42 +221,17 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
-@implementation UIColor (Additions)
+#if SD_MAC
+@interface NSBezierPath (RoundedCorners)
 
-- (NSString *)sd_hexString {
-    CGFloat red, green, blue, alpha;
-#if SD_UIKIT
-    if (![self getRed:&red green:&green blue:&blue alpha:&alpha]) {
-        [self getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#else
-    @try {
-        [self getRed:&red green:&green blue:&blue alpha:&alpha];
-    }
-    @catch (NSException *exception) {
-        [self getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#endif
-    
-    red = roundf(red * 255.f);
-    green = roundf(green * 255.f);
-    blue = roundf(blue * 255.f);
-    alpha = roundf(alpha * 255.f);
-    
-    uint hex = ((uint)alpha << 24) | ((uint)red << 16) | ((uint)green << 8) | ((uint)blue);
-    
-    return [NSString stringWithFormat:@"#%08x", hex];
-}
+/**
+ Convenience way to create a bezier path with the specify rounding corners on macOS. Same as the one on `UIBezierPath`.
+ */
++ (nonnull instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius;
 
 @end
 
-#if SD_MAC
-
-@implementation NSBezierPath (Additions)
+@implementation NSBezierPath (RoundedCorners)
 
 + (instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius {
     NSBezierPath *path = [NSBezierPath bezierPath];
@@ -288,7 +259,6 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 @end
-
 #endif
 
 @implementation UIImage (Transform)
@@ -664,7 +634,9 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         void *temp = malloc(tempSize);
         for (int i = 0; i < iterations; i++) {
             vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
-            SD_SWAP(input, output);
+            vImage_Buffer *tmp = input;
+            input = output;
+            output = tmp;
         }
         free(temp);
     }
