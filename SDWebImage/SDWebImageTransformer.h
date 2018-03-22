@@ -48,18 +48,18 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 #pragma mark - Pipeline
 
 // Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
+// Because transformers are lightweight, if you want to append or arrange transfomers, create another pipeline transformer instead. This class is considered as immutable.
 @interface SDWebImagePipelineTransformer : NSObject <SDWebImageTransformer>
 
 @property (nonatomic, copy, readonly, nonnull) NSArray<id<SDWebImageTransformer>> *transformers;
 
-- (nonnull instancetype)initWithTransformers:(nonnull NSArray<id<SDWebImageTransformer>> *)transformers;
-
-- (void)addTransformer:(nonnull id<SDWebImageTransformer>)transformer;
-- (void)removeTransformer:(nonnull id<SDWebImageTransformer>)transformer;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithTransformers:(nonnull NSArray<id<SDWebImageTransformer>> *)transformers;
 
 @end
 
-// There are some build-in transformer based on the `UIImage+Transformer` category to provide the common image geometry, image blending and image effect process. Those transform are useful for static image only but you can create your own to support animated image as well.
+// There are some built-in transformers based on the `UIImage+Transformer` category to provide the common image geometry, image blending and image effect process. Those transform are useful for static image only but you can create your own to support animated image as well.
+// Because transformers are lightweight, these class are considered as immutable.
 #pragma mark - Image Geometry
 
 // Image round corner transformer
@@ -70,7 +70,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) CGFloat borderWidth;
 @property (nonatomic, strong, readonly, nullable) UIColor *borderColor;
 
-- (nonnull instancetype)initWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor;
 
 @end
 
@@ -80,7 +81,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) CGSize size;
 @property (nonatomic, assign, readonly) SDImageScaleMode scaleMode;
 
-- (nonnull instancetype)initWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode;
 
 @end
 
@@ -89,7 +91,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @property (nonatomic, assign, readonly) CGRect rect;
 
-- (nonnull instancetype)initWithRect:(CGRect)rect;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithRect:(CGRect)rect;
 
 @end
 
@@ -99,7 +102,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) BOOL horizontal;
 @property (nonatomic, assign, readonly) BOOL vertical;
 
-- (nonnull instancetype)initWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical;
 
 @end
 
@@ -109,7 +113,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) CGFloat angle;
 @property (nonatomic, assign, readonly) BOOL fitSize;
 
-- (nonnull instancetype)initWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize;
 
 @end
 
@@ -120,7 +125,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @property (nonatomic, strong, readonly, nonnull) UIColor *tintColor;
 
-- (nonnull instancetype)initWithColor:(nonnull UIColor *)tintColor;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithColor:(nonnull UIColor *)tintColor;
 
 @end
 
@@ -131,7 +137,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @property (nonatomic, assign, readonly) CGFloat blurRadius;
 
-- (nonnull instancetype)initWithRadius:(CGFloat)blurRadius;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithRadius:(CGFloat)blurRadius;
 
 @end
 
@@ -141,7 +148,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @property (nonatomic, strong, readonly, nonnull) CIFilter *filter;
 
-- (nonnull instancetype)initWithFilter:(nonnull CIFilter *)filter;
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)transformerWithFilter:(nonnull CIFilter *)filter;
 
 @end
 #endif
