@@ -59,15 +59,15 @@
     });
 }
 
-- (NSArray<SDWebImageCoder> *)coders {
-    __block NSArray<SDWebImageCoder> *sortedCoders = nil;
+- (NSArray<id<SDWebImageCoder>> *)coders {
+    __block NSArray<id<SDWebImageCoder>> *sortedCoders = nil;
     dispatch_sync(self.mutableCodersAccessQueue, ^{
-        sortedCoders = (NSArray<SDWebImageCoder> *)[[[self.mutableCoders copy] reverseObjectEnumerator] allObjects];
+        sortedCoders = (NSArray<id<SDWebImageCoder>> *)[[[self.mutableCoders copy] reverseObjectEnumerator] allObjects];
     });
     return sortedCoders;
 }
 
-- (void)setCoders:(NSArray<SDWebImageCoder> *)coders {
+- (void)setCoders:(NSArray<id<SDWebImageCoder>> *)coders {
     dispatch_barrier_sync(self.mutableCodersAccessQueue, ^{
         self.mutableCoders = [coders mutableCopy];
     });
