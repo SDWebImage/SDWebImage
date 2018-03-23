@@ -10,6 +10,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloader.h"
 #import "SDImageCache.h"
+#import "SDWebImageTransformer.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
@@ -76,8 +77,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageDelayPlaceholder = 1 << 9,
 
     /**
-     * We usually don't call transformDownloadedImage delegate method on animated images,
-     * as most transformation code would mangle it.
+     * We usually don't apply transform on animated images as most transformers could not manage animated images.
      * Use this flag to transform them anyway.
      */
     SDWebImageTransformAnimatedImage = 1 << 10,
@@ -115,7 +115,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
      */
-    SDWebImageForceTransition = 1 << 16
+    SDWebImageForceTransition = 1 << 16,
 };
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
@@ -141,7 +141,7 @@ typedef NSData * _Nullable(^SDWebImageCacheSerializerBlock)(UIImage * _Nonnull i
  *
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
  */
-- (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldDownloadImageForURL:(nullable NSURL *)imageURL;
+- (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldDownloadImageForURL:(nonnull NSURL *)imageURL;
 
 /**
  * Controls the complicated logic to mark as failed URLs when download error occur.
@@ -152,18 +152,6 @@ typedef NSData * _Nullable(^SDWebImageCacheSerializerBlock)(UIImage * _Nonnull i
  @return Whether to block this url or not. Return YES to mark this URL as failed.
  */
 - (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldBlockFailedURL:(nonnull NSURL *)imageURL withError:(nonnull NSError *)error;
-
-/**
- * Allows to transform the image immediately after it has been downloaded and just before to cache it on disk and memory.
- * NOTE: This method is called from a global queue in order to not to block the main thread.
- *
- * @param imageManager The current `SDWebImageManager`
- * @param image        The image to transform
- * @param imageURL     The url of the image to transform
- *
- * @return The transformed image object.
- */
-- (nullable UIImage *)imageManager:(nonnull SDWebImageManager *)imageManager transformDownloadedImage:(nullable UIImage *)image withURL:(nullable NSURL *)imageURL;
 
 @end
 
@@ -195,6 +183,13 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 
 @property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
 @property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
+
+/**
+ The image transformer for manager. It's used for image transform after the image load finished and store the transformed image to cache, see `SDWebImageTransformer`.
+ Defaults to nil, which means no transform is applied.
+ @note This will affect all the load requests for this manager if you provide. However, you can pass `SDWebImageContextCustomTransformer` in context arg to explicitly use that transformer instead.
+ */
+@property (strong, nonatomic, nullable) id<SDWebImageTransformer> transformer;
 
 /**
  * The cache filter is a block used each time SDWebImageManager need to convert an URL into a cache key. This can

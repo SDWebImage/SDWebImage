@@ -10,6 +10,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "NSImage+Additions.h"
 #import "SDWebImageCodersManager.h"
+#import "SDWebImageTransformer.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -532,11 +533,18 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
+                NSString *cacheKey = key;
+                if ([context valueForKey:SDWebImageContextCustomTransformer]) {
+                    // grab the transformed disk image if transformer provided
+                    id<SDWebImageTransformer> transformer = [context valueForKey:SDWebImageContextCustomTransformer];
+                    NSString *transformerKey = [transformer transformerKey];
+                    cacheKey = SDTransformedKeyForKey(key, transformerKey);
+                }
                 // decode image data only if in-memory cache missed
-                diskImage = [self diskImageForKey:key data:diskData];
+                diskImage = [self diskImageForKey:cacheKey data:diskData];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
                     NSUInteger cost = SDCacheCostForImage(diskImage);
-                    [self.memCache setObject:diskImage forKey:key cost:cost];
+                    [self.memCache setObject:diskImage forKey:cacheKey cost:cost];
                 }
             }
             

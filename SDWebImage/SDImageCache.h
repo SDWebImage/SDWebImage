@@ -34,7 +34,12 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
      * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously.
      */
-    SDImageCacheQueryDiskSync = 1 << 1
+    SDImageCacheQueryDiskSync = 1 << 1,
+    /**
+     * We usually don't apply transform on animated images as most transformers could not manage animated images.
+     * Use this flag to transform them anyway.
+     */
+    SDImageCacheTransformAnimatedImage = 1 << 2,
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);

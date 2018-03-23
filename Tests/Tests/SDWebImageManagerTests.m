@@ -8,6 +8,7 @@
 
 #import "SDTestCase.h"
 #import <SDWebImage/SDWebImageManager.h>
+#import "SDWebImageTestTransformer.h"
 
 @interface SDWebImageManagerTests : SDTestCase
 
@@ -133,6 +134,25 @@
     }];
     
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
+}
+
+- (void)test08ThatImageTransformerWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
+    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testImagePath = [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] downloader:[SDWebImageDownloader sharedDownloader]];
+    manager.transformer = transformer;
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
+        [manager loadImageWithURL:imageURL options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(image).equal(transformer.testImage);
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 @end

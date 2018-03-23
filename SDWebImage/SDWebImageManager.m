@@ -8,7 +8,6 @@
 
 #import "SDWebImageManager.h"
 #import "NSImage+Additions.h"
-#import <objc/message.h>
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
@@ -153,6 +152,19 @@
     SDImageCacheOptions cacheOptions = 0;
     if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
+    if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
+    
+    // Image transformer
+    id<SDWebImageTransformer> transformer;
+    if ([context valueForKey:SDWebImageContextCustomTransformer]) {
+        transformer = [context valueForKey:SDWebImageContextCustomTransformer];
+    } else if (self.transformer) {
+        // Transformer from manager
+        transformer = self.transformer;
+        NSMutableDictionary<SDWebImageContextOption, id> *mutableContext = [NSMutableDictionary dictionaryWithDictionary:context];
+        [mutableContext setValue:transformer forKey:SDWebImageContextCustomTransformer];
+        context = [mutableContext copy];
+    }
     
     __weak SDWebImageCombinedOperation *weakOperation = operation;
     operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
@@ -238,11 +250,12 @@
 
                     if (options & SDWebImageRefreshCached && cachedImage && !downloadedImage) {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
-                    } else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
+                    } else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
-
+                            UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
                             if (transformedImage && finished) {
+                                NSString *transformerKey = [transformer transformerKey];
+                                NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 NSData *cacheData;
                                 // pass nil if the image was transformed, so we can recalculate the data from the image
@@ -251,7 +264,7 @@
                                 } else {
                                     cacheData = (imageWasTransformed ? nil : downloadedData);
                                 }
-                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey toDisk:cacheOnDisk completion:nil];
                             }
                             
                             [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
