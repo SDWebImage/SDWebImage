@@ -18,6 +18,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @interface SDWebImageDownloadToken ()
 
 @property (nonatomic, strong, nullable, readwrite) NSURL *url;
+@property (nonatomic, strong, nullable, readwrite) NSURLResponse *response;
 @property (nonatomic, strong, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
 @property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
@@ -25,15 +26,13 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
 @end
 
-
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, NSOperation<SDWebImageDownloaderOperation> *> *URLOperations;
-@property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
+@property (copy, atomic, nullable) NSDictionary<NSString *, NSString *> *HTTPHeaders; // Since modify this value is rare, use immutable object can enhance performance. But should mark as atomic to keep thread-safe
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
-@property (strong, nonatomic, nonnull) dispatch_semaphore_t headersLock; // a lock to keep the access to `HTTPHeaders` thread-safe
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -91,12 +90,11 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
         _URLOperations = [NSMutableDictionary new];
 #ifdef SD_WEBP
-        _HTTPHeaders = [@{@"Accept": @"image/webp,image/*;q=0.8"} mutableCopy];
+        _HTTPHeaders = @{@"Accept": @"image/webp,image/*;q=0.8"};
 #else
-        _HTTPHeaders = [@{@"Accept": @"image/*;q=0.8"} mutableCopy];
+        _HTTPHeaders = @{@"Accept": @"image/*;q=0.8"};
 #endif
         _operationsLock = dispatch_semaphore_create(1);
-        _headersLock = dispatch_semaphore_create(1);
         NSURLSessionConfiguration *sessionConfiguration = _config.sessionConfiguration;
         if (!sessionConfiguration) {
             sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -133,27 +131,20 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 }
 
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
-    LOCK(self.headersLock);
+    NSMutableDictionary *mutableHTTPHeaders = [self.HTTPHeaders mutableCopy];
     if (value) {
-        self.HTTPHeaders[field] = value;
+        [mutableHTTPHeaders setObject:value forKey:field];
     } else {
-        [self.HTTPHeaders removeObjectForKey:field];
+        [mutableHTTPHeaders removeObjectForKey:field];
     }
-    UNLOCK(self.headersLock);
+    self.HTTPHeaders = [mutableHTTPHeaders copy];
 }
 
 - (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field {
     if (!field) {
         return nil;
     }
-    return [[self allHTTPHeaderFields] objectForKey:field];
-}
-
-- (nonnull SDHTTPHeadersDictionary *)allHTTPHeaderFields {
-    LOCK(self.headersLock);
-    SDHTTPHeadersDictionary *allHTTPHeaderFields = [self.HTTPHeaders copy];
-    UNLOCK(self.headersLock);
-    return allHTTPHeaderFields;
+    return [self.HTTPHeaders objectForKey:field];
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
@@ -176,17 +167,28 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
         // In order to prevent from potential duplicate caching (NSURLCache + SDImageCache) we disable the cache for image requests if told otherwise
         NSURLRequestCachePolicy cachePolicy = options & SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData;
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
-                                                                    cachePolicy:cachePolicy
-                                                                timeoutInterval:timeoutInterval];
-        
-        request.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
-        request.HTTPShouldUsePipelining = YES;
-        if (sself.headersFilter) {
-            request.allHTTPHeaderFields = sself.headersFilter(url, [sself allHTTPHeaderFields]);
+        NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:cachePolicy timeoutInterval:timeoutInterval];
+        mutableRequest.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
+        mutableRequest.HTTPShouldUsePipelining = YES;
+        mutableRequest.allHTTPHeaderFields = sself.HTTPHeaders;
+        SDWebImageDownloaderRequestModifierBlock requestModifier;
+        if ([context valueForKey:SDWebImageContextDownloadRequestModifier]) {
+            requestModifier = [context valueForKey:SDWebImageContextDownloadRequestModifier];
+        } else {
+            requestModifier = self.requestModifier;
         }
-        else {
-            request.allHTTPHeaderFields = [sself allHTTPHeaderFields];
+        
+        NSURLRequest *request;
+        if (requestModifier) {
+            NSURLRequest *modifiedRequest = requestModifier([mutableRequest copy]);
+            // If modified request is nil, early return
+            if (!modifiedRequest) {
+                return nil;
+            } else {
+                request = [modifiedRequest copy];
+            }
+        } else {
+            request = [mutableRequest copy];
         }
         Class operationClass = sself.config.operationClass;
         if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperation)]) {
@@ -241,8 +243,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
                                            createCallback:(NSOperation<SDWebImageDownloaderOperation> *(^)(void))createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
-        if (completedBlock != nil) {
-            completedBlock(nil, nil, nil, NO);
+        if (completedBlock) {
+            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to download a nil url"}];
+            completedBlock(nil, nil, error, YES);
         }
         return nil;
     }
@@ -251,6 +254,14 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     if (!operation) {
         operation = createCallback();
+        if (!operation) {
+            UNLOCK(self.operationsLock);
+            if (completedBlock) {
+                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Downloader operation is nil"}];
+                completedBlock(nil, nil, error, YES);
+            }
+            return nil;
+        }
         __weak typeof(self) wself = self;
         operation.completionBlock = ^{
             __strong typeof(wself) sself = wself;
@@ -411,6 +422,25 @@ didReceiveResponse:(NSURLResponse *)response
 @end
 
 @implementation SDWebImageDownloadToken
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:nil];
+    }
+    return self;
+}
+
+- (void)downloadReceiveResponse:(NSNotification *)notification {
+    NSOperation<SDWebImageDownloaderOperation> *downloadOperation = notification.object;
+    if (downloadOperation && downloadOperation == self.downloadOperation) {
+        self.response = downloadOperation.response;
+    }
+}
 
 - (void)cancel {
     @synchronized (self) {

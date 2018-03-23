@@ -11,11 +11,11 @@
 #import "UIImage+WebCache.h"
 #import "SDAnimatedImage.h"
 
-@interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
+@interface SDWebImageCombinedOperation ()
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
-@property (strong, nonatomic, nullable) SDWebImageDownloadToken *downloadToken;
-@property (strong, nonatomic, nullable) NSOperation *cacheOperation;
+@property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> downloadOperation;
+@property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> cacheOperation;
 @property (weak, nonatomic, nullable) SDWebImageManager *manager;
 
 @end
@@ -108,15 +108,15 @@
     }];
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
+- (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
     return [self loadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                    options:(SDWebImageOptions)options
-                                    context:(nullable SDWebImageContext *)context
-                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(nonnull SDInternalCompletionBlock)completedBlock {
+- (SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
+                                          options:(SDWebImageOptions)options
+                                          context:(nullable SDWebImageContext *)context
+                                         progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                        completed:(nonnull SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -216,7 +216,7 @@
             
             // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
             __weak typeof(strongOperation) weakSubOperation = strongOperation;
-            strongOperation.downloadToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+            strongOperation.downloadOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong typeof(weakSubOperation) strongSubOperation = weakSubOperation;
                 if (!strongSubOperation || strongSubOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
@@ -372,13 +372,17 @@
 
 - (void)cancel {
     @synchronized(self) {
+        if (self.isCancelled) {
+            return;
+        }
         self.cancelled = YES;
         if (self.cacheOperation) {
             [self.cacheOperation cancel];
             self.cacheOperation = nil;
         }
-        if (self.downloadToken) {
-            [self.manager.imageDownloader cancel:self.downloadToken];
+        if (self.downloadOperation) {
+            [self.downloadOperation cancel];
+            self.downloadOperation = nil;
         }
         [self.manager safelyRemoveOperationFromRunning:self];
     }

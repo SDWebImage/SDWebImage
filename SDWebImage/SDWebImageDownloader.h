@@ -81,10 +81,7 @@ typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteg
 
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
-typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
-typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
-
-typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterBlock)(NSURL * _Nullable url, SDHTTPHeadersDictionary * _Nullable headers);
+typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSURLRequest * _Nonnull request);
 
 /**
  *  A token associated with each download. Can be used to cancel a download
@@ -100,6 +97,10 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  The download's URL.
  */
 @property (nonatomic, strong, nullable, readonly) NSURL *url;
+/**
+ The doenload's response.
+ */
+@property (nonatomic, strong, nullable, readonly) NSURLResponse *response;
 
 @end
 
@@ -116,12 +117,11 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, copy, readonly, nonnull) SDWebImageDownloaderConfig *config;
 
 /**
- * Set filter to pick headers for downloading image HTTP request.
- *
- * This block will be invoked for each downloading image request, returned
- * NSDictionary will be used as headers in corresponding HTTP request.
+ * Set the request modifier to modify the original download request before image load.
+ * This block will be invoked for each downloading image request if provided. Return the original request means no modication. Return nil will cancel the download request.
+ * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
-@property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
+@property (nonatomic, copy, nullable) SDWebImageDownloaderRequestModifierBlock requestModifier;
 
 /**
  * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.
@@ -216,13 +216,6 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
                                                    context:(nullable SDWebImageContext *)context
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
-
-/**
- * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
- *
- * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
- */
-- (void)cancel:(nullable SDWebImageDownloadToken *)token;
 
 /**
  * Cancels all download operations in the queue

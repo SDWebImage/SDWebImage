@@ -20,6 +20,26 @@ typedef NSString * _Nullable(^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable u
 
 typedef NSData * _Nullable(^SDWebImageCacheSerializerBlock)(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL);
 
+// A combined operation representing the cache and download operation. You can it to cancel the load process.
+@interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
+
+/**
+ Cancel the current operation, including cache and download process
+ */
+- (void)cancel;
+
+/**
+ The cache operation used for image cache query
+ */
+@property (strong, nonatomic, nullable, readonly) id<SDWebImageOperation> cacheOperation;
+
+/**
+ The download operation if the image is download from the network
+ */
+@property (strong, nonatomic, nullable, readonly) id<SDWebImageOperation> downloadOperation;
+
+@end
+
 
 @class SDWebImageManager;
 
@@ -173,12 +193,12 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  *
  *   The last parameter is the original image URL
  *
- * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
+ * @return Returns an instance of SDWebImageCombinedOperation, which you can cancel the loading process.
  */
-- (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                              options:(SDWebImageOptions)options
-                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                            completed:(nonnull SDInternalCompletionBlock)completedBlock;
+- (nullable SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageOptions)options
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -190,13 +210,13 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called when operation has been completed.
  *
- * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
+ * @return Returns an instance of SDWebImageCombinedOperation, which you can cancel the loading process.
  */
-- (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                              options:(SDWebImageOptions)options
-                                              context:(nullable SDWebImageContext *)context
-                                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                            completed:(nonnull SDInternalCompletionBlock)completedBlock;
+- (nullable SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageOptions)options
+                                                   context:(nullable SDWebImageContext *)context
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

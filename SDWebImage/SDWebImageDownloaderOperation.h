@@ -94,11 +94,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (copy, nonatomic, readonly, nullable) SDWebImageContext *context;
 
 /**
- * The expected size of data.
- */
-@property (assign, nonatomic, readonly) NSInteger expectedSize;
-
-/**
  *  Initializes a `SDWebImageDownloaderOperation` object
  *
  *  @see SDWebImageDownloaderOperation

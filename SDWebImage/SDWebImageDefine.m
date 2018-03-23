@@ -104,3 +104,4 @@ SDWebImageContextOption const SDWebImageContextSetImageGroup = @"setImageGroup";
 SDWebImageContextOption const SDWebImageContextCustomManager = @"customManager";
 SDWebImageContextOption const SDWebImageContextCustomTransformer = @"customTransformer";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";
+SDWebImageContextOption const SDWebImageContextDownloadRequestModifier = @"downloadRequestModifier";

@@ -109,10 +109,10 @@
 - (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with nils"];
     [[SDWebImageDownloader sharedDownloader] addProgressCallback:nil completedBlock:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        if (!image && !data && !error) {
+        if (!image && !data && error) {
             [expectation fulfill];
         } else {
-            XCTFail(@"All params should be nil");
+            XCTFail(@"All params except error should be nil");
         }
     } forURL:nil createCallback:nil];
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
@@ -174,7 +174,7 @@
                                       }];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     
-    [[SDWebImageDownloader sharedDownloader] cancel:token];
+    [token cancel];
     
     // doesn't cancel immediately - since it uses dispatch async
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
@@ -298,7 +298,7 @@
                                        }];
     expect(token2).toNot.beNil();
 
-    [[SDWebImageDownloader sharedDownloader] cancel:token1];
+    [token1 cancel];
 
     [self waitForExpectationsWithCommonTimeout];
 }
@@ -323,7 +323,7 @@
                                        }];
     expect(token1).toNot.beNil();
     
-    [[SDWebImageDownloader sharedDownloader] cancel:token1];
+    [token1 cancel];
     
     SDWebImageDownloadToken *token2 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
@@ -368,5 +368,50 @@
     [downloader invalidateSessionAndCancel:YES];
 }
 #endif
+
+- (void)test23ThatDownloadRequestModifierWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Download request modifier not works"];
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    SDWebImageDownloaderRequestModifierBlock requestModifier = ^NSURLRequest *(NSURLRequest * request) {
+        if ([request.URL.absoluteString isEqualToString:kTestPNGURL]) {
+            // Test that return a modified request
+            NSMutableURLRequest *mutableRequest = [request mutableCopy];
+            [mutableRequest setValue:@"Bar" forHTTPHeaderField:@"Foo"];
+            NSURLComponents *components = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
+            components.query = @"text=Hello+World";
+            mutableRequest.URL = components.URL;
+            return mutableRequest;
+        } else if ([request.URL.absoluteString isEqualToString:kTestJpegURL]) {
+            // Test that return nil request will treat as error
+            return nil;
+        } else {
+            return request;
+        }
+    };
+    downloader.requestModifier = requestModifier;
+    
+    __block BOOL firstCheck = NO;
+    __block BOOL secondCheck = NO;
+    
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJpegURL] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        // Except error
+        expect(error).notTo.beNil();
+        firstCheck = YES;
+        if (firstCheck && secondCheck) {
+            [expectation fulfill];
+        }
+    }];
+    
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestPNGURL] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        // Expect not error
+        expect(error).to.beNil();
+        secondCheck = YES;
+        if (firstCheck && secondCheck) {
+            [expectation fulfill];
+        }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
 
 @end
