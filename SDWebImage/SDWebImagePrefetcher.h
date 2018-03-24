@@ -13,6 +13,14 @@
 
 @interface SDWebImagePrefetchToken : NSObject <SDWebImageOperation>
 
+/**
+ * Cancel the current prefeching.
+ */
+- (void)cancel;
+
+/**
+ list of URLs of current prefetching.
+ */
 @property (nonatomic, copy, readonly, nullable) NSArray<NSURL *> *urls;
 
 @end
