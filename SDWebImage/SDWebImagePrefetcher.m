@@ -17,7 +17,7 @@
 
 @property (nonatomic, copy, readwrite) NSArray<NSURL *> *urls;
 @property (nonatomic, assign) int64_t totalCount;
-@property (nonatomic, strong) NSMutableArray<id<SDWebImageOperation>> *operations;
+@property (nonatomic, strong) NSPointerArray *operations;
 @property (nonatomic, weak) SDWebImagePrefetcher *prefetcher;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherProgressBlock progressBlock;
@@ -85,11 +85,12 @@
     token->_finishedCount = 0;
     token.urls = urls;
     token.totalCount = urls.count;
-    token.operations = [NSMutableArray arrayWithCapacity:urls.count];
+    token.operations = [NSPointerArray weakObjectsPointerArray];
     token.progressBlock = progressBlock;
     token.completionBlock = completionBlock;
     [self addRunningToken:token];
     
+    NSPointerArray *operations = token.operations;
     for (NSURL *url in urls) {
         __weak typeof(self) wself = self;
         id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -115,7 +116,9 @@
                 [sself removeRunningToken:token];
             }
         } context:self.context];
-        [token.operations addObject:operation];
+        @synchronized (token) {
+            [operations addPointer:(__bridge void *)operation];
+        }
     }
     
     return token;
@@ -223,10 +226,15 @@
 
 - (void)cancel {
     @synchronized (self) {
-        for (id<SDWebImageOperation> operation in self.operations) {
-            [operation cancel];
+        for (id operation in self.operations) {
+            if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
+                [operation cancel];
+            }
         }
+        self.operations.count = 0;
     }
+    self.completionBlock = nil;
+    self.progressBlock = nil;
     [self.prefetcher removeRunningToken:self];
 }
 
