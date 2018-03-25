@@ -37,7 +37,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
      * By combining `SDImageCacheQueryDataWhenInMemory`, this mask can force to query disk data synchronously when the memory cache hit.
      */
-    SDImageCacheQueryDataSync = 1 << 2
+    SDImageCacheQueryDataSyncWhenInMemory = 1 << 2
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);

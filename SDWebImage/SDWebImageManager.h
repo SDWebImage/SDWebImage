@@ -122,7 +122,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By combining `SDWebImageQueryDataWhenInMemory`, this mask can force to query disk data synchronously when the memory cache hit.
      * This flag can avoid flashing during cell reuse if you need image data to render or in some other cases.
      */
-    SDWebImageQueryDataSync = 1 << 17
+    SDWebImageQueryDataSyncWhenInMemory = 1 << 17
 };
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);

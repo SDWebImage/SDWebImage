@@ -482,7 +482,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     NSOperation *operation = [NSOperation new];
     // 1. in-memory cache hit & DataSync
     // 2. in-memory cache miss & DiskSync
-    BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryDataSync) ||
+    BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryDataSyncWhenInMemory) ||
                                 (!image && options & SDImageCacheQueryDiskSync));
     void(^queryDiskBlock)(void) = ^{
         if (operation.isCancelled) {
