@@ -535,58 +535,6 @@ dispatch_semaphore_signal(self->_lock);
     return intrinsicContentSize;
 }
 
-#if SD_MAC
-#pragma mark - NSImageView Method Overrides
-- (void)setImageScaling:(NSImageScaling)imageScaling {
-    [super setImageScaling:imageScaling];
-    [self updateLayerContentsPlacement];
-}
-
-- (void)setImageAlignment:(NSImageAlignment)imageAlignment {
-    [super setImageAlignment:imageAlignment];
-    [self updateLayerContentsPlacement];
-}
-
-- (void)updateLayerContentsPlacement {
-    NSImageScaling scale = self.imageScaling;
-    NSViewLayerContentsPlacement contentsPlacement = NSViewLayerContentsPlacementScaleAxesIndependently;
-    switch (scale) {
-        case NSImageScaleProportionallyDown:
-            contentsPlacement = NSViewLayerContentsPlacementScaleProportionallyToFit; break;
-        case NSImageScaleAxesIndependently:
-            contentsPlacement = NSViewLayerContentsPlacementScaleAxesIndependently; break;
-        case NSImageScaleProportionallyUpOrDown:
-            contentsPlacement = NSViewLayerContentsPlacementScaleProportionallyToFill; break;
-        case NSImageScaleNone: {
-            NSImageAlignment alignment = self.imageAlignment;
-            switch (alignment) {
-                case NSImageAlignCenter:
-                    contentsPlacement = NSViewLayerContentsPlacementCenter; break;
-                case NSImageAlignTop:
-                    contentsPlacement = NSViewLayerContentsPlacementTop; break;
-                case NSImageAlignTopLeft:
-                    contentsPlacement = NSViewLayerContentsPlacementTopLeft; break;
-                case NSImageAlignTopRight:
-                    contentsPlacement = NSViewLayerContentsPlacementTopRight; break;
-                case NSImageAlignLeft:
-                    contentsPlacement = NSViewLayerContentsPlacementLeft; break;
-                case NSImageAlignBottom:
-                    contentsPlacement = NSViewLayerContentsPlacementBottom; break;
-                case NSImageAlignBottomLeft:
-                    contentsPlacement = NSViewLayerContentsPlacementBottomLeft; break;
-                case NSImageAlignBottomRight:
-                    contentsPlacement = NSViewLayerContentsPlacementBottomRight; break;
-                case NSImageAlignRight:
-                    contentsPlacement = NSViewLayerContentsPlacementRight; break;
-            }
-            break;
-        }
-    }
-    self.layerContentsPlacement = contentsPlacement;
-}
-#endif
-
-
 #pragma mark - UIImageView Method Overrides
 #pragma mark Image Data
 
