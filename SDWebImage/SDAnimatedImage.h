@@ -7,51 +7,25 @@
  */
 
 #import "SDWebImageCompat.h"
-#import "NSData+ImageContentType.h"
+#import "SDWebImageCoder.h"
 
-@protocol SDWebImageAnimatedCoder;
-@protocol SDAnimatedImage <NSObject>
+
+/**
+ This is the protocol for SDAnimatedImage class only but not for SDWebImageAnimatedCoder. If you want to provide a custom animated image class with full advanced function, you can conform to this instead of the base protocol.
+ */
+@protocol SDAnimatedImage <SDAnimatedImageProvider>
 
 @required
 /**
- The original animated image data for current image. If current image is not an animated format, return nil.
- We may use this method to grab back the original image data if need, such as NSCoding or compare.
+ Initializes the image with an animated coder. You can use the coder to decode the image frame later.
+ @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this instead.
  
- @return The animated image data
+ @param animatedCoder An animated coder which conform `SDWebImageAnimatedCoder` protocol
+ @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
+ @return An initialized object
  */
-- (nullable NSData *)animatedImageData;
+- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale;
 
-/**
- Total animated frame count.
- It the frame count is less than 1, then the methods below will be ignored.
-
- @return Total animated frame count.
- */
-- (NSUInteger)animatedImageFrameCount;
-/**
- Animation loop count, 0 means infinite looping.
-
- @return Animation loop count
- */
-- (NSUInteger)animatedImageLoopCount;
-/**
- Returns the frame image from a specified index.
- @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's not recommend to store the images into array because it's memory consuming)
-
- @param index Frame index (zero based).
- @return Frame's image
- */
-- (nullable UIImage *)animatedImageFrameAtIndex:(NSUInteger)index;
-/**
- Returns the frames's duration from a specified index.
- @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's recommend to store the durations into array because it's not memory-consuming)
-
- @param index Frame index (zero based).
- @return Frame's duration
- */
-- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index;
-
-// These methods are for SDAnimatedImage class only but not for SDWebImageAnimatedCoder.
 @optional
 /**
  Pre-load all animated image frame into memory. Then later frame image request can directly return the frame for index without decoding.
@@ -70,16 +44,6 @@
  Returns a Boolean value indicating whether all animated image frames are already pre-loaded into memory.
  */
 - (BOOL)isAllFramesLoaded;
-
-/**
- Initializes the image with an animated coder. You can use the coder to decode the image frame later.
- @note Normally we use `initWithData:scale:` to create custom animated image class. So you can implement your custom class without our built-in coder.
-
- @param animatedCoder An animated coder which conform `SDWebImageAnimatedCoder` protocol
- @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
- @return An initialized object
- */
-- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale;
 
 @end
 

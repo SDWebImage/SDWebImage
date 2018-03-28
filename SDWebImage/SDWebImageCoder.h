@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
-#import "SDAnimatedImage.h"
 
 typedef NSString * SDWebImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDWebImageCoderOption, id> SDWebImageCoderOptions;
@@ -118,11 +117,56 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 @end
 
+/**
+ This is the animated image protocol to provide the basic function for animated image rendering. It's adopted by `SDAnimatedImage` and `SDWebImageAnimatedCoder`
+ */
+@protocol SDAnimatedImageProvider <NSObject>
+
+@required
+/**
+ The original animated image data for current image. If current image is not an animated format, return nil.
+ We may use this method to grab back the original image data if need, such as NSCoding or compare.
+ 
+ @return The animated image data
+ */
+- (nullable NSData *)animatedImageData;
+
+/**
+ Total animated frame count.
+ It the frame count is less than 1, then the methods below will be ignored.
+ 
+ @return Total animated frame count.
+ */
+- (NSUInteger)animatedImageFrameCount;
+/**
+ Animation loop count, 0 means infinite looping.
+ 
+ @return Animation loop count
+ */
+- (NSUInteger)animatedImageLoopCount;
+/**
+ Returns the frame image from a specified index.
+ @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's not recommend to store the images into array because it's memory consuming)
+ 
+ @param index Frame index (zero based).
+ @return Frame's image
+ */
+- (nullable UIImage *)animatedImageFrameAtIndex:(NSUInteger)index;
+/**
+ Returns the frames's duration from a specified index.
+ @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's recommend to store the durations into array because it's not memory-consuming)
+ 
+ @param index Frame index (zero based).
+ @return Frame's duration
+ */
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index;
+
+@end
 
 /**
  This is the animated image coder protocol for custom animated image class like  `SDAnimatedImage`. Through it inherit from `SDWebImageCoder`. We currentlly only use the method `canDecodeFromData:` to detect the proper coder for specify animated image format.
  */
-@protocol SDWebImageAnimatedCoder <SDWebImageCoder, SDAnimatedImage>
+@protocol SDWebImageAnimatedCoder <SDWebImageCoder, SDAnimatedImageProvider>
 
 @required
 /**

@@ -365,7 +365,7 @@ didReceiveResponse:(NSURLResponse *)response
             UIImage *image;
             if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
                 Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
-                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [animatedImageClass instancesRespondToSelector:@selector(initWithAnimatedCoder:scale:)] && [self.progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
+                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [self.progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
                     CGFloat scale = SDImageScaleForKey(self.cacheKey);
                     image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)self.progressiveCoder scale:scale];
                 }

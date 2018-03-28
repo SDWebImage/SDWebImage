@@ -282,9 +282,6 @@ static NSArray *SDBundlePreferredScales() {
     if (!data || data.length == 0) {
         return nil;
     }
-    if (scale <= 0) {
-        scale = 1;
-    }
     data = [data copy]; // avoid mutable data
     id<SDWebImageAnimatedCoder> animatedCoder = nil;
     for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
@@ -298,24 +295,7 @@ static NSArray *SDBundlePreferredScales() {
     if (!animatedCoder) {
         return nil;
     }
-    UIImage *image = [animatedCoder animatedImageFrameAtIndex:0];
-    if (!image) {
-        return nil;
-    }
-#if SD_MAC
-    self = [super initWithCGImage:image.CGImage size:NSZeroSize];
-#else
-    self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-#endif
-    if (self) {
-        _coder = animatedCoder;
-#if SD_MAC
-        _scale = scale;
-#endif
-        SDImageFormat format = [NSData sd_imageFormatForImageData:data];
-        _animatedImageFormat = format;
-    }
-    return self;
+    return [self initWithAnimatedCoder:animatedCoder scale:scale];
 }
 
 - (instancetype)initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale {
