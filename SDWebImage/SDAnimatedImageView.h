@@ -14,7 +14,7 @@
 
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.
- Call `setImage:` with a `UIImage<SDAnimatedImage>` will start animated image rendering. Call with a UIImage(NSImage) will back to normal UIImageView(NSImageView) rendering
+ Call `setImage:` with `UIImage(NSImage)` which conform to `SDAnimatedImage` protocol will start animated image rendering. Call with normal UIImage(NSImage) will back to normal UIImageView(NSImageView) rendering
  For UIKit: use `-startAnimating`, `-stopAnimating` to control animating
  For AppKit: use `-setAnimates:` to control animating. This view is layer-backed.
  */
