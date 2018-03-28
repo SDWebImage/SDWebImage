@@ -13,6 +13,7 @@
 #import "UIImage+WebCache.h"
 #import "NSImage+Additions.h"
 #import <mach/mach.h>
+#import <objc/runtime.h>
 
 #if SD_MAC
 #import <CoreVideo/CoreVideo.h>
@@ -142,12 +143,18 @@ dispatch_semaphore_signal(self->_lock);
 #else
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #endif
+// Layer-backed NSImageView use a subview of `NSImageViewContainerView` to do actual layer rendering. We use this layer instead of `self.layer` during animated image rendering.
+#if SD_MAC
+@property (nonatomic, strong, readonly) CALayer *imageViewLayer;
+#endif
 
 @end
 
 @implementation SDAnimatedImageView
 #if SD_UIKIT
 @dynamic animationRepeatCount;
+#else
+@dynamic imageViewLayer;
 #endif
 
 #pragma mark - Initializers
@@ -393,6 +400,13 @@ dispatch_semaphore_signal(self->_lock);
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
     }
     return _displayLink;
+}
+#endif
+
+#if SD_MAC
+- (CALayer *)imageViewLayer {
+    NSView *imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
+    return imageView.layer;
 }
 #endif
 
@@ -776,7 +790,6 @@ dispatch_semaphore_signal(self->_lock);
 #pragma mark - CALayerDelegate (Informal)
 #pragma mark Providing the Layer's Content
 
-#if SD_UIKIT
 - (void)displayLayer:(CALayer *)layer
 {
     if (_currentFrame) {
@@ -784,19 +797,12 @@ dispatch_semaphore_signal(self->_lock);
         layer.contents = (__bridge id)_currentFrame.CGImage;
     }
 }
-#endif
 
 #if SD_MAC
-- (BOOL)wantsUpdateLayer
-{
-    return YES;
-}
-
 - (void)updateLayer
 {
     if (_currentFrame) {
-        self.layer.contentsScale = self.animatedImageScale;
-        self.layer.contents = (__bridge id)_currentFrame.CGImage;
+        [self displayLayer:self.imageViewLayer];
     } else {
         [super updateLayer];
     }
