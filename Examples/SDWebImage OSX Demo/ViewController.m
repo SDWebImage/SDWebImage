@@ -28,11 +28,12 @@
     [super viewDidLoad];
     
     // For animated GIF rendering, set `animates` to YES or will only show the first frame
+    self.imageView2.animates = YES; // `SDAnimatedImageRep` be can used for built-in `NSImageView` to support better GIF & APNG rendering
     self.imageView3.animates = YES;
     self.imageView4.animates = YES;
     self.imageView1.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
     [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"]];
-    [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"]];
+    [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"https:raw.githubusercontent.com/onevcat/APNGKit/master/TestImages/APNG-cube.apng"]];
     [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif"]];
     self.imageView4.wantsLayer = YES;
     self.imageView4.sd_imageTransition = SDWebImageTransition.fadeTransition;

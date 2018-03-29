@@ -49,6 +49,7 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDAnimatedImageView+WebCache.h>
 #import <SDWebImage/SDWebImageCodersManager.h>
 #import <SDWebImage/SDWebImageCoder.h>
+#import <SDWebImage/SDWebImageAPNGCoder.h>
 #import <SDWebImage/SDWebImageWebPCoder.h>
 #import <SDWebImage/SDWebImageGIFCoder.h>
 #import <SDWebImage/SDWebImageImageIOCoder.h>

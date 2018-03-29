@@ -9,6 +9,7 @@
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageImageIOCoder.h"
 #import "SDWebImageGIFCoder.h"
+#import "SDWebImageAPNGCoder.h"
 #ifdef SD_WEBP
 #import "SDWebImageWebPCoder.h"
 #endif
@@ -36,7 +37,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         // initialize with default coders
-        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder], [SDWebImageGIFCoder sharedCoder]] mutableCopy];
+        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder], [SDWebImageGIFCoder sharedCoder], [SDWebImageAPNGCoder sharedCoder]] mutableCopy];
 #ifdef SD_WEBP
         [_mutableCoders addObject:[SDWebImageWebPCoder sharedCoder]];
 #endif
