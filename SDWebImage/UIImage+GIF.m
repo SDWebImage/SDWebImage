@@ -12,11 +12,16 @@
 
 @implementation UIImage (GIF)
 
-+ (UIImage *)sd_animatedGIFWithData:(NSData *)data {
++ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data {
+    return [self sd_animatedGIFWithData:data firstFrameOnly:NO];
+}
+
++ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly {
     if (!data) {
         return nil;
     }
-    return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data];
+    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data options:options];
 }
 
 @end

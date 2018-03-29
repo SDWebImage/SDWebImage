@@ -8,6 +8,8 @@
 
 #import "SDWebImageManager.h"
 #import "NSImage+Additions.h"
+#import "UIImage+WebCache.h"
+#import "SDAnimatedImage.h"
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
@@ -153,6 +155,8 @@
     if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
     if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
+    if (options & SDWebImageDecodeFirstFrameOnly) cacheOptions |= SDImageCacheDecodeFirstFrameOnly;
+    if (options & SDWebImagePreloadAllFrames) cacheOptions |= SDImageCachePreloadAllFrames;
     
     // Image transformer
     id<SDWebImageTransformer> transformer;
@@ -195,6 +199,8 @@
             if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
             if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
             if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
+            if (options & SDWebImageDecodeFirstFrameOnly) downloaderOptions |= SDWebImageDownloaderDecodeFirstFrameOnly;
+            if (options & SDWebImagePreloadAllFrames) downloaderOptions |= SDWebImageDownloaderPreloadAllFrames;
             
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // force progressive off if image already cached but forced refreshing
@@ -244,7 +250,7 @@
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
                     
                     // We've done the scale process in SDWebImageDownloader with the shared manager, this is used for custom manager and avoid extra scale.
-                    if (self != [SDWebImageManager sharedManager] && self.cacheKeyFilter && downloadedImage) {
+                    if (self != [SDWebImageManager sharedManager] && self.cacheKeyFilter && downloadedImage && ![downloadedImage conformsToProtocol:@protocol(SDAnimatedImage)]) {
                         downloadedImage = [self scaledImageForKey:key image:downloadedImage];
                     }
 

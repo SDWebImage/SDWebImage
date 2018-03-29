@@ -112,10 +112,22 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, when the cache missed, the image is download from the network. This flag can prevent network to load from cache only.
      */
     SDWebImageFromCacheOnly = 1 << 15,
+    
     /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
      */
     SDWebImageForceTransition = 1 << 16,
+    
+    /**
+     * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
+     */
+    SDWebImageDecodeFirstFrameOnly = 1 << 17,
+    
+    /**
+     * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
+     * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
+     */
+    SDWebImagePreloadAllFrames = 1 << 18
 };
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);

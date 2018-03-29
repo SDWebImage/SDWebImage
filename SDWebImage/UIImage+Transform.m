@@ -303,7 +303,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *image = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:self.scale];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
 #endif
     CGImageRelease(imageRef);
     return image;
@@ -381,7 +381,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale];
+    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef size:NSZeroSize];
 #endif
     CGImageRelease(imgRef);
     CGContextRelease(context);
@@ -417,7 +417,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale];
+    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef size:NSZeroSize];
 #endif
     CGImageRelease(imgRef);
     return img;
@@ -434,7 +434,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
         return [UIImage imageWithCGImage:self.CGImage scale:self.scale orientation:self.imageOrientation];
 #else
-        return [[UIImage alloc] initWithCGImage:self.CGImage scale:self.scale];
+        return [[UIImage alloc] initWithCGImage:self.CGImage size:NSZeroSize];
 #endif
     }
     
@@ -651,7 +651,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *outputImage = [UIImage imageWithCGImage:effectCGImage scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *outputImage = [[UIImage alloc] initWithCGImage:effectCGImage scale:self.scale];
+    UIImage *outputImage = [[UIImage alloc] initWithCGImage:effectCGImage size:NSZeroSize];
 #endif
     CGImageRelease(effectCGImage);
     
@@ -676,7 +676,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT
     UIImage *image = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:self.scale];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
 #endif
     CGImageRelease(imageRef);
     

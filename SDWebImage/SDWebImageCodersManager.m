@@ -12,6 +12,8 @@
 #ifdef SD_WEBP
 #import "SDWebImageWebPCoder.h"
 #endif
+#import "NSImage+Additions.h"
+#import "UIImage+WebCache.h"
 
 @interface SDWebImageCodersManager ()
 
@@ -34,7 +36,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         // initialize with default coders
-        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder]] mutableCopy];
+        _mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder], [SDWebImageGIFCoder sharedCoder]] mutableCopy];
 #ifdef SD_WEBP
         [_mutableCoders addObject:[SDWebImageWebPCoder sharedCoder]];
 #endif
@@ -92,39 +94,32 @@
     return NO;
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
+    BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    UIImage *image;
     for (id<SDWebImageCoder> coder in self.coders) {
         if ([coder canDecodeFromData:data]) {
-            return [coder decodedImageWithData:data];
+            image = [coder decodedImageWithData:data options:options];
+            break;
         }
     }
-    return nil;
+    if (decodeFirstFrame && image.images.count > 0) {
+        image = image.images.firstObject;
+    }
+    
+    return image;
 }
 
-- (UIImage *)decompressedImageWithImage:(UIImage *)image
-                                   data:(NSData *__autoreleasing  _Nullable *)data
-                                options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    if (!image) {
-        return nil;
-    }
-    for (id<SDWebImageCoder> coder in self.coders) {
-        if ([coder canDecodeFromData:*data]) {
-            return [coder decompressedImageWithImage:image data:data options:optionsDict];
-        }
-    }
-    return nil;
-}
-
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
     for (id<SDWebImageCoder> coder in self.coders) {
         if ([coder canEncodeToFormat:format]) {
-            return [coder encodedDataWithImage:image format:format];
+            return [coder encodedDataWithImage:image format:format options:nil];
         }
     }
     return nil;

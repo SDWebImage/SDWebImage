@@ -9,8 +9,11 @@
 #import "SDImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "NSImage+Additions.h"
+#import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageTransformer.h"
+#import "SDWebImageCoderHelper.h"
+#import "SDAnimatedImage.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -294,12 +297,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 if (!data && image) {
                     // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
                     SDImageFormat format;
-                    if (SDCGImageRefContainsAlpha(image.CGImage)) {
+                    if ([SDWebImageCoderHelper imageRefContainsAlpha:image.CGImage]) {
                         format = SDImageFormatPNG;
                     } else {
                         format = SDImageFormatJPEG;
                     }
-                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format];
+                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
                 [self _storeImageDataToDisk:data forKey:key error:&writeError];
             }
@@ -475,11 +478,42 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data {
+    return [self diskImageForKey:key data:data options:0 context:nil];
+}
+
+- (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data options:(SDImageCacheOptions)options context:(SDWebImageContext *)context {
     if (data) {
-        UIImage *image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data];
-        image = [self scaledImageForKey:key image:image];
-        if (self.config.shouldDecompressImages) {
-            image = [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&data options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+        UIImage *image;
+        BOOL decodeFirstFrame = options & SDImageCacheDecodeFirstFrameOnly;
+        if (!decodeFirstFrame) {
+            // check whether we should use `SDAnimatedImage`
+            if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
+                Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
+                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                    CGFloat scale = SDImageScaleForKey(key);
+                    image = [[animatedImageClass alloc] initWithData:data scale:scale];
+                    if (options & SDImageCachePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
+                        [((id<SDAnimatedImage>)image) preloadAllFrames];
+                    }
+                }
+            }
+        }
+        if (!image) {
+            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame)}];
+            image = [self scaledImageForKey:key image:image];
+        }
+        BOOL shouldDecode = YES;
+        if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+            // `SDAnimatedImage` do not decode
+            shouldDecode = NO;
+        } else if (image.sd_isAnimated) {
+            // animated image do not decode
+            shouldDecode = NO;
+        }
+        if (shouldDecode) {
+            if (self.config.shouldDecompressImages) {
+                image = [SDWebImageCoderHelper decodedImageWithImage:image];
+            }
         }
         return image;
     } else {
@@ -541,7 +575,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     cacheKey = SDTransformedKeyForKey(key, transformerKey);
                 }
                 // decode image data only if in-memory cache missed
-                diskImage = [self diskImageForKey:cacheKey data:diskData];
+                diskImage = [self diskImageForKey:cacheKey data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
                     NSUInteger cost = SDCacheCostForImage(diskImage);
                     [self.memCache setObject:diskImage forKey:cacheKey cost:cost];

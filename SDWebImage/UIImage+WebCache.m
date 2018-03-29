@@ -7,10 +7,10 @@
  */
 
 #import "UIImage+WebCache.h"
+#import "NSImage+Additions.h"
+#import "objc/runtime.h"
 
 #if SD_UIKIT
-
-#import "objc/runtime.h"
 
 @implementation UIImage (WebCache)
 
@@ -32,6 +32,15 @@
     return (self.images != nil);
 }
 
+- (void)setSd_isIncremental:(BOOL)sd_isIncremental {
+    objc_setAssociatedObject(self, @selector(sd_isIncremental), @(sd_isIncremental), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)sd_isIncremental {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isIncremental));
+    return value.boolValue;
+}
+
 @end
 
 #endif
@@ -42,37 +51,37 @@
 
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            imageLoopCount = [[bitmapRep valueForProperty:NSImageLoopCount] unsignedIntegerValue];
-            break;
-        }
+    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    if (bitmapImageRep) {
+        imageLoopCount = [[bitmapImageRep valueForProperty:NSImageLoopCount] unsignedIntegerValue];
     }
     return imageLoopCount;
 }
 
 - (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            [bitmapRep setProperty:NSImageLoopCount withValue:@(sd_imageLoopCount)];
-            break;
-        }
+    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    if (bitmapImageRep) {
+        [bitmapImageRep setProperty:NSImageLoopCount withValue:@(sd_imageLoopCount)];
     }
 }
 
 - (BOOL)sd_isAnimated {
     BOOL isGIF = NO;
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            NSUInteger frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
-            isGIF = frameCount > 1 ? YES : NO;
-            break;
-        }
+    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    if (bitmapImageRep) {
+        NSUInteger frameCount = [[bitmapImageRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
+        isGIF = frameCount > 1 ? YES : NO;
     }
     return isGIF;
+}
+
+- (void)setSd_isIncremental:(BOOL)sd_isIncremental {
+    objc_setAssociatedObject(self, @selector(sd_isIncremental), @(sd_isIncremental), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)sd_isIncremental {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isIncremental));
+    return value.boolValue;
 }
 
 @end

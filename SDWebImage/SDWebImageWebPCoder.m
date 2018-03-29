@@ -24,14 +24,58 @@
 #import "webp/mux.h"
 #endif
 
+#define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
+__VA_ARGS__; \
+dispatch_semaphore_signal(self->_lock);
+
+@interface SDWebPCoderFrame : NSObject
+
+@property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
+@property (nonatomic, assign) NSTimeInterval duration; // Frame duration in seconds
+@property (nonatomic, assign) NSUInteger width; // Frame width
+@property (nonatomic, assign) NSUInteger height; // Frame height
+@property (nonatomic, assign) NSUInteger offsetX; // Frame origin.x in canvas (left-bottom based)
+@property (nonatomic, assign) NSUInteger offsetY; // Frame origin.y in canvas (left-bottom based)
+@property (nonatomic, assign) BOOL hasAlpha; // Whether frame contains alpha
+@property (nonatomic, assign) BOOL isFullSize; // Whether frame size is equal to canvas size
+@property (nonatomic, assign) WebPMuxAnimBlend blend; // Frame dispose method
+@property (nonatomic, assign) WebPMuxAnimDispose dispose; // Frame blend operation
+@property (nonatomic, assign) NSUInteger blendFromIndex; // The nearest previous frame index which blend mode is WEBP_MUX_BLEND
+
+@end
+
+@implementation SDWebPCoderFrame
+@end
+
 @implementation SDWebImageWebPCoder {
     WebPIDecoder *_idec;
+    WebPDemuxer *_demux;
+    NSData *_imageData;
+    NSUInteger _loopCount;
+    NSUInteger _frameCount;
+    NSArray<SDWebPCoderFrame *> *_frames;
+    CGContextRef _canvas;
+    BOOL _hasAnimation;
+    BOOL _hasAlpha;
+    BOOL _finished;
+    CGFloat _canvasWidth;
+    CGFloat _canvasHeight;
+    dispatch_semaphore_t _lock;
+    NSUInteger _currentBlendIndex;
 }
 
 - (void)dealloc {
     if (_idec) {
         WebPIDelete(_idec);
         _idec = NULL;
+    }
+    if (_demux) {
+        WebPDemuxDelete(_demux);
+        _demux = NULL;
+    }
+    if (_canvas) {
+        CGContextRelease(_canvas);
+        _canvas = NULL;
     }
 }
 
@@ -49,11 +93,11 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -68,49 +112,41 @@
     }
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
-    int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
-    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
-    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
-    CGBitmapInfo bitmapInfo;
-    if (!(flags & ALPHA_FLAG)) {
-        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
-    } else {
-        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
-    }
-    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
-    if (!canvas) {
-        WebPDemuxDelete(demuxer);
-        return nil;
-    }
-    
-    if (!(flags & ANIMATION_FLAG)) {
+    BOOL hasAnimation = flags & ANIMATION_FLAG;
+    BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    if (!hasAnimation) {
         // for static single webp image
         UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
-        if (staticImage) {
-            // draw on CGBitmapContext can reduce memory usage
-            CGImageRef imageRef = staticImage.CGImage;
-            size_t width = CGImageGetWidth(imageRef);
-            size_t height = CGImageGetHeight(imageRef);
-            CGContextDrawImage(canvas, CGRectMake(0, 0, width, height), imageRef);
-            CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
-#if SD_UIKIT || SD_WATCH
-            staticImage = [[UIImage alloc] initWithCGImage:newImageRef];
-#else
-            staticImage = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-            CGImageRelease(newImageRef);
-        }
         WebPDemuxDelete(demuxer);
-        CGContextRelease(canvas);
         return staticImage;
     }
     
     // for animated webp image
     WebPIterator iter;
+    // libwebp's index start with 1
     if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
         WebPDemuxReleaseIterator(&iter);
         WebPDemuxDelete(demuxer);
-        CGContextRelease(canvas);
+        return nil;
+    }
+    
+    if (decodeFirstFrame) {
+        // first frame for animated webp image
+        UIImage *firstFrameImage = [self sd_rawWebpImageWithData:iter.fragment];
+        WebPDemuxReleaseIterator(&iter);
+        WebPDemuxDelete(demuxer);
+        return firstFrameImage;
+    }
+    
+    int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    BOOL hasAlpha = flags & ALPHA_FLAG;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
+    if (!canvas) {
+        WebPDemuxDelete(demuxer);
         return nil;
     }
     
@@ -123,13 +159,8 @@
                 continue;
             }
             
-            int duration = iter.duration;
-            if (duration <= 10) {
-                // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
-                // Some animated WebP images also created without duration, we should keep compatibility
-                duration = 100;
-            }
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration / 1000.f];
+            NSTimeInterval duration = [self sd_frameDurationWithIterator:iter];
+            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
@@ -145,21 +176,34 @@
     return animatedImage;
 }
 
-- (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
-    if (!_idec) {
+#pragma mark - Progressive Decode
+- (instancetype)initIncremental {
+    self = [super init];
+    if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
-        _idec = WebPINewRGB(MODE_rgbA, NULL, 0, 0);
-        if (!_idec) {
-            return nil;
-        }
+        _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
     }
-    
-    UIImage *image;
-    
+    return self;
+}
+
+- (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
+    if (_finished) {
+        return;
+    }
+    _imageData = data;
+    _finished = finished;
     VP8StatusCode status = WebPIUpdate(_idec, data.bytes, data.length);
     if (status != VP8_STATUS_OK && status != VP8_STATUS_SUSPENDED) {
-        return nil;
+        return;
     }
+}
+
+- (BOOL)incrementalFinished {
+    return _finished;
+}
+
+- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+    UIImage *image;
     
     int width = 0;
     int height = 0;
@@ -172,9 +216,9 @@
         size_t rgbaSize = last_y * stride;
         CGDataProviderRef provider =
         CGDataProviderCreateWithData(NULL, rgba, rgbaSize, NULL);
-        CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
+        CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper colorSpaceGetDeviceRGB];
         
-        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
         size_t components = 4;
         CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
         // Why to use last_y for image height is because of libwebp's bug (https://bugs.chromium.org/p/webp/issues/detail?id=362)
@@ -191,7 +235,7 @@
             return nil;
         }
         
-        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
+        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
         if (!canvas) {
             CGImageRelease(imageRef);
             return nil;
@@ -215,21 +259,29 @@
         CGContextRelease(canvas);
     }
     
-    if (finished) {
-        if (_idec) {
-            WebPIDelete(_idec);
-            _idec = NULL;
-        }
-    }
-    
     return image;
 }
 
-- (UIImage *)decompressedImageWithImage:(UIImage *)image
-                                   data:(NSData *__autoreleasing  _Nullable *)data
-                                options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    // WebP do not decompress
-    return image;
+- (void)sd_blendWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
+    size_t canvasHeight = CGBitmapContextGetHeight(canvas);
+    CGFloat tmpX = iter.x_offset;
+    CGFloat tmpY = canvasHeight - iter.height - iter.y_offset;
+    CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
+    
+    if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
+        CGContextClearRect(canvas, imageRect);
+    } else {
+        UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
+        if (!image) {
+            return;
+        }
+        BOOL shouldBlend = iter.blend_method == WEBP_MUX_BLEND;
+        // If not blend, cover the target image rect. (firstly clear then draw)
+        if (!shouldBlend) {
+            CGContextClearRect(canvas, imageRect);
+        }
+        CGContextDrawImage(canvas, imageRect, image.CGImage);
+    }
 }
 
 - (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
@@ -238,11 +290,9 @@
         return nil;
     }
     
-    size_t canvasWidth = CGBitmapContextGetWidth(canvas);
     size_t canvasHeight = CGBitmapContextGetHeight(canvas);
-    CGSize size = CGSizeMake(canvasWidth, canvasHeight);
     CGFloat tmpX = iter.x_offset;
-    CGFloat tmpY = size.height - iter.height - iter.y_offset;
+    CGFloat tmpY = canvasHeight - iter.height - iter.y_offset;
     CGRect imageRect = CGRectMake(tmpX, tmpY, iter.width, iter.height);
     BOOL shouldBlend = iter.blend_method == WEBP_MUX_BLEND;
     
@@ -278,8 +328,14 @@
         return nil;
     }
     
-    config.output.colorspace = config.input.has_alpha ? MODE_rgbA : MODE_RGB;
+    BOOL hasAlpha = config.input.has_alpha;
+    // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
+    // use this bitmapInfo, combined with right colorspace, even without decode, can still avoid extra CA::Render::copy_image(which marked `Color Copied Images` from Instruments)
+    WEBP_CSP_MODE colorspace = MODE_bgrA;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
     config.options.use_threads = 1;
+    config.output.colorspace = colorspace;
     
     // Decode the WebP image data into a RGBA value array
     if (WebPDecode(webpData.bytes, webpData.size, &config) != VP8_STATUS_OK) {
@@ -296,11 +352,12 @@
     // Construct a UIImage from the decoded RGBA value array
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
-    CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
-    CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
-    size_t components = config.input.has_alpha ? 4 : 3;
+    size_t bitsPerComponent = 8;
+    size_t bitsPerPixel = 32;
+    size_t bytesPerRow = config.output.u.RGBA.stride;
+    CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper colorSpaceGetDeviceRGB];
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
-    CGImageRef imageRef = CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
+    CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
     
     CGDataProviderRelease(provider);
     
@@ -314,22 +371,36 @@
     return image;
 }
 
+- (NSTimeInterval)sd_frameDurationWithIterator:(WebPIterator)iter {
+    int duration = iter.duration;
+    if (duration <= 10) {
+        // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
+        // Some animated WebP images also created without duration, we should keep compatibility
+        duration = 100;
+    }
+    return duration / 1000.0;
+}
+
 #pragma mark - Encode
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     return (format == SDImageFormatWebP);
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
     
     NSData *data;
     
+    double compressionQuality = 1;
+    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    }
     NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
     if (frames.count == 0) {
         // for static single webp image
-        data = [self sd_encodedWebpDataWithImage:image];
+        data = [self sd_encodedWebpDataWithImage:image quality:compressionQuality];
     } else {
         // for animated webp image
         WebPMux *mux = WebPMuxNew();
@@ -338,7 +409,7 @@
         }
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *currentFrame = frames[i];
-            NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image];
+            NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image quality:compressionQuality];
             int duration = currentFrame.duration * 1000;
             WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
                 .bitstream.size = webpData.length,
@@ -375,7 +446,7 @@
     return data;
 }
 
-- (nullable NSData *)sd_encodedWebpDataWithImage:(nullable UIImage *)image {
+- (nullable NSData *)sd_encodedWebpDataWithImage:(nullable UIImage *)image quality:(double)quality {
     if (!image) {
         return nil;
     }
@@ -401,8 +472,8 @@
     uint8_t *rgba = (uint8_t *)CFDataGetBytePtr(dataRef);
     
     uint8_t *data = NULL;
-    float quality = 100.0;
-    size_t size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, quality, &data);
+    float qualityFactor = quality * 100; // WebP quality is 0-100
+    size_t size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, qualityFactor, &data);
     CFRelease(dataRef);
     rgba = NULL;
     
@@ -421,6 +492,185 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
+#pragma mark - SDWebImageAnimatedCoder
+- (instancetype)initWithAnimatedImageData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+    if (self) {
+        WebPData webpData;
+        WebPDataInit(&webpData);
+        webpData.bytes = data.bytes;
+        webpData.size = data.length;
+        WebPDemuxer *demuxer = WebPDemux(&webpData);
+        if (!demuxer) {
+            return nil;
+        }
+        BOOL framesValid = [self scanAndCheckFramesValidWithDemuxer:demuxer];
+        if (!framesValid) {
+            WebPDemuxDelete(demuxer);
+            return nil;
+        }
+        _demux = demuxer;
+        _imageData = data;
+        _currentBlendIndex = NSNotFound;
+        _lock = dispatch_semaphore_create(1);
+    }
+    return self;
+}
+
+- (BOOL)scanAndCheckFramesValidWithDemuxer:(WebPDemuxer *)demuxer {
+    if (!demuxer) {
+        return NO;
+    }
+    WebPIterator iter;
+    if (!WebPDemuxGetFrame(demuxer, 1, &iter)) {
+        WebPDemuxReleaseIterator(&iter);
+        return NO;
+    }
+    
+    uint32_t iterIndex = 0;
+    uint32_t lastBlendIndex = 0;
+    uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
+    BOOL hasAnimation = flags & ANIMATION_FLAG;
+    BOOL hasAlpha = flags & ALPHA_FLAG;
+    int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
+    int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
+    uint32_t frameCount = WebPDemuxGetI(demuxer, WEBP_FF_FRAME_COUNT);
+    uint32_t loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
+    NSMutableArray<SDWebPCoderFrame *> *frames = [NSMutableArray array];
+    
+    // We should loop all the frames and scan each frames' blendFromIndex for later decoding, this can also ensure all frames is valid
+    do {
+        SDWebPCoderFrame *frame = [[SDWebPCoderFrame alloc] init];
+        frame.index = iterIndex;
+        frame.duration = [self sd_frameDurationWithIterator:iter];
+        frame.width = iter.width;
+        frame.height = iter.height;
+        frame.hasAlpha = iter.has_alpha;
+        frame.dispose = iter.dispose_method;
+        frame.blend = iter.blend_method;
+        frame.offsetX = iter.x_offset;
+        frame.offsetY = canvasHeight - iter.y_offset - iter.height;
+
+        BOOL sizeEqualsToCanvas = (iter.width == canvasWidth && iter.height == canvasHeight);
+        BOOL offsetIsZero = (iter.x_offset == 0 && iter.y_offset == 0);
+        frame.isFullSize = (sizeEqualsToCanvas && offsetIsZero);
+        
+        if ((!frame.blend || !frame.hasAlpha) && frame.isFullSize) {
+            lastBlendIndex = iterIndex;
+            frame.blendFromIndex = iterIndex;
+        } else {
+            if (frame.dispose && frame.isFullSize) {
+                frame.blendFromIndex = lastBlendIndex;
+                lastBlendIndex = iterIndex + 1;
+            } else {
+                frame.blendFromIndex = lastBlendIndex;
+            }
+        }
+        iterIndex++;
+        [frames addObject:frame];
+    } while (WebPDemuxNextFrame(&iter));
+    WebPDemuxReleaseIterator(&iter);
+    
+    if (frames.count != frameCount) {
+        return NO;
+    }
+    _frames = [frames copy];
+    _hasAnimation = hasAnimation;
+    _hasAlpha = hasAlpha;
+    _canvasWidth = canvasWidth;
+    _canvasHeight = canvasHeight;
+    _frameCount = frameCount;
+    _loopCount = loopCount;
+    
+    return YES;
+}
+
+- (NSData *)animatedImageData {
+    return _imageData;
+}
+
+- (NSUInteger)animatedImageLoopCount {
+    return _loopCount;
+}
+
+- (NSUInteger)animatedImageFrameCount {
+    return _frameCount;
+}
+
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
+    if (index >= _frameCount) {
+        return 0;
+    }
+    return _frames[index].duration;
+}
+
+- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
+    UIImage *image;
+    if (index >= _frameCount) {
+        return nil;
+    }
+    LOCK({
+        image = [self safeAnimatedImageFrameAtIndex:index];
+    });
+    return image;
+}
+
+- (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
+    if (!_canvas) {
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+        bitmapInfo |= _hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+        CGContextRef canvas = CGBitmapContextCreate(NULL, _canvasWidth, _canvasHeight, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
+        if (!canvas) {
+            return nil;
+        }
+        _canvas = canvas;
+    }
+    
+    SDWebPCoderFrame *frame = _frames[index];
+    UIImage *image;
+    WebPIterator iter;
+    if (_currentBlendIndex + 1 == index) {
+        // If current blend index is equal to request index, normal serial process
+        _currentBlendIndex = index;
+        // libwebp's index start with 1
+        if (!WebPDemuxGetFrame(_demux, (int)(index + 1), &iter)) {
+            WebPDemuxReleaseIterator(&iter);
+            return nil;
+        }
+        image = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+    } else {
+        // Else, this can happen when one image set to different imageViews or one loop end. So we should clear the shared cavans.
+        if (_currentBlendIndex != NSNotFound) {
+            CGContextClearRect(_canvas, CGRectMake(0, 0, _canvasWidth, _canvasHeight));
+        }
+        _currentBlendIndex = index;
+        
+        // Then, loop from the blend from index, draw each of previous frames on the canvas.
+        // We use do while loop to call `WebPDemuxNextFrame`(fast), only (startIndex == endIndex) need to create image instance
+        size_t startIndex = frame.blendFromIndex;
+        size_t endIndex = frame.index;
+        if (!WebPDemuxGetFrame(_demux, (int)(startIndex + 1), &iter)) {
+            WebPDemuxReleaseIterator(&iter);
+            return nil;
+        }
+        do {
+            @autoreleasepool {
+                if ((size_t)iter.frame_num == endIndex) {
+                    [self sd_blendWebpImageWithCanvas:_canvas iterator:iter];
+                } else {
+                    image = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+                }
+            }
+        } while ((size_t)iter.frame_num < (endIndex + 1) && WebPDemuxNextFrame(&iter));
+    }
+    
+    WebPDemuxReleaseIterator(&iter);
+    return image;
+}
+
 @end
 
 #endif
+

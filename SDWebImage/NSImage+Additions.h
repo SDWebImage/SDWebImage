@@ -17,8 +17,7 @@
 @property (nonatomic, readonly, nullable) CGImageRef CGImage;
 @property (nonatomic, readonly, nullable) NSArray<NSImage *> *images;
 @property (nonatomic, readonly) CGFloat scale;
-
-- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale;
+@property (nonatomic, readonly, nullable) NSBitmapImageRep *bitmapImageRep;
 
 @end
 

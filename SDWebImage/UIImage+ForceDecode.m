@@ -7,7 +7,7 @@
  */
 
 #import "UIImage+ForceDecode.h"
-#import "SDWebImageCodersManager.h"
+#import "SDWebImageCoderHelper.h"
 
 @implementation UIImage (ForceDecode)
 
@@ -15,16 +15,14 @@
     if (!image) {
         return nil;
     }
-    NSData *tempData;
-    return [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&tempData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+    return [SDWebImageCoderHelper decodedImageWithImage:image];
 }
 
 + (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image {
     if (!image) {
         return nil;
     }
-    NSData *tempData;
-    return [[SDWebImageCodersManager sharedManager] decompressedImageWithImage:image data:&tempData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(YES)}];
+    return [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
 }
 
 @end

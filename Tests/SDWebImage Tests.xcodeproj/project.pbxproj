@@ -34,6 +34,7 @@
 		32B99EAC203B36650017FD66 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		32B99EAD203B36690017FD66 /* SDWebImagePrefetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */; };
 		32B99EAE203B366C0017FD66 /* SDWebCacheCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */; };
+		32A571562037DB2D002EDAAE /* SDAnimatedImageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */; };
 		32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */; };
 		37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D122871EC48B5E00D98CEB /* SDMockFileManager.m */; };
 		433BBBB51D7EF5C00086B6E9 /* SDWebImageDecoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */; };
@@ -66,6 +67,7 @@
 		32B99E8A203AF8690017FD66 /* SDCategoriesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDCategoriesTests.m; sourceTree = "<group>"; };
 		32B99E92203B2DF90017FD66 /* Tests Mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests Mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32B99E96203B2DF90017FD66 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDAnimatedImageTest.m; sourceTree = "<group>"; };
 		32E6F0301F3A1B4700A945E6 /* SDWebImageTestDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDecoder.h; sourceTree = "<group>"; };
 		32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDecoder.m; sourceTree = "<group>"; };
 		37D122861EC48B5E00D98CEB /* SDMockFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMockFileManager.h; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */,
 				4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */,
 				32B99E8A203AF8690017FD66 /* SDCategoriesTests.m */,
+				32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */,
 				37D122861EC48B5E00D98CEB /* SDMockFileManager.h */,
 				37D122871EC48B5E00D98CEB /* SDMockFileManager.m */,
 				2D7AF05E1F329763000083C2 /* SDTestCase.h */,
@@ -469,6 +472,7 @@
 			files = (
 				32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */,
 				3254C32020641077008D1022 /* SDWebImageTransformerTests.m in Sources */,
+				32A571562037DB2D002EDAAE /* SDAnimatedImageTest.m in Sources */,
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
 				37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */,
 				4369C2741D9804B1007E863A /* SDWebCacheCategoriesTests.m in Sources */,
