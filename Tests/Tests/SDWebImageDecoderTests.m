@@ -10,6 +10,7 @@
 #import "SDTestCase.h"
 #import <SDWebImage/SDWebImageImageIOCoder.h>
 #import <SDWebImage/SDWebImageWebPCoder.h>
+#import <SDWebImage/SDWebImageAPNGCoder.h>
 #import <SDWebImage/UIImage+ForceDecode.h>
 #import <SDWebImage/SDWebImageGIFCoder.h>
 #import <SDWebImage/NSData+ImageContentType.h>
@@ -112,6 +113,13 @@
 - (void)test10ThatAnimatedWebPCoderWorks {
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
     [self verifyCoder:[SDWebImageWebPCoder sharedCoder]
+    withLocalImageURL:animatedWebPURL
+      isAnimatedImage:YES];
+}
+
+- (void)test11ThatAPNGPCoderWorks {
+    NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
+    [self verifyCoder:[SDWebImageAPNGCoder sharedCoder]
     withLocalImageURL:animatedWebPURL
       isAnimatedImage:YES];
 }
