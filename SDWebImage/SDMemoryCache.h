@@ -8,19 +8,34 @@
 
 #import "SDWebImageCompat.h"
 
-NS_ASSUME_NONNULL_BEGIN
+/**
+ Return the memory cache cost for specify image
 
+ @param image The image to store in cache
+ @return The memory cost for the image
+ */
+FOUNDATION_EXPORT NSUInteger SDMemoryCacheCostForImage(UIImage * _Nullable image);
+
+@class SDImageCacheConfig;
 // A protocol to allow custom memory cache used in SDImageCache.
 @protocol SDMemoryCache <NSObject>
 
 @required
+/**
+ Create a new memory cache instance with the specify cache config. You can check `maxMemoryCost` and `maxMemoryCount` used for memory cache.
+
+ @param config The cache config to be used to create the cache.
+ @return The new memory cache instance.
+ */
+- (nonnull instancetype)initWithConfig:(nonnull SDImageCacheConfig *)config;
+
 /**
  Returns the value associated with a given key.
  
  @param key An object identifying the value. If nil, just return nil.
  @return The value associated with key, or nil if no value is associated with key.
  */
-- (nullable id)objectForKey:(id)key;
+- (nullable id)objectForKey:(nonnull id)key;
 
 /**
  Sets the value of the specified key in the cache (0 cost).
@@ -30,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion Unlike an NSMutableDictionary object, a cache does not copy the key
  objects that are put into it.
  */
-- (void)setObject:(nullable id)object forKey:(id)key;
+- (void)setObject:(nullable id)object forKey:(nonnull id)key;
 
 /**
  Sets the value of the specified key in the cache, and associates the key-value
@@ -42,45 +57,25 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion Unlike an NSMutableDictionary object, a cache does not copy the key
  objects that are put into it.
  */
-- (void)setObject:(nullable id)object forKey:(id)key cost:(NSUInteger)cost;
+- (void)setObject:(nullable id)object forKey:(nonnull id)key cost:(NSUInteger)cost;
 
 /**
  Removes the value of the specified key in the cache.
  
  @param key The key identifying the value to be removed. If nil, this method has no effect.
  */
-- (void)removeObjectForKey:(id)key;
+- (void)removeObjectForKey:(nonnull id)key;
 
 /**
  Empties the cache immediately.
  */
 - (void)removeAllObjects;
 
-/**
- The maximum number of objects the cache should hold.
- 
- @discussion The default value is NSUIntegerMax, which means no limit.
- This is not a strict limit—if the cache goes over the limit, some objects in the
- cache could be evicted later in backgound thread.
- */
-- (NSUInteger)countLimit;
-- (void)setCountLimit:(NSUInteger)countLimit;
-
-/**
- The maximum total cost that the cache can hold before it starts evicting objects.
- 
- @discussion The default value is NSUIntegerMax, which means no limit.
- This is not a strict limit—if the cache goes over the limit, some objects in the
- cache could be evicted later in backgound thread.
- */
-- (NSUInteger)costLimit;
-- (void)setCostLimit:(NSUInteger)costLimit;
-
 @end
 
+// A memory cache which auto purge the cache on memory warning and support weak cache.
+@interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType> <SDMemoryCache>
 
-@interface SDMemoryCache : NSCache <SDMemoryCache>
+@property (nonatomic, strong, nonnull, readonly) SDImageCacheConfig *config;
 
 @end
-
-NS_ASSUME_NONNULL_END

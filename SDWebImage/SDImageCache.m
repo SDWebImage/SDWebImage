@@ -16,115 +16,7 @@
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
-static void * SDImageCacheContext = &SDImageCacheContext;
 static SDImageCacheConfig * _defaultCacheConfig;
-
-FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
-#if SD_MAC
-    return image.size.height * image.size.width;
-#elif SD_UIKIT || SD_WATCH
-    return image.size.height * image.size.width * image.scale * image.scale;
-#endif
-}
-
-// A memory cache which auto purge the cache on memory warning and support weak cache.
-@interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType>
-
-@end
-
-// Private
-@interface SDMemoryCache <KeyType, ObjectType> ()
-
-@property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; // strong-weak cache
-@property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
-
-@end
-
-@implementation SDMemoryCache
-
-// Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
-// But in the future there may be more options and features for this subclass.
-#if SD_UIKIT
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-}
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        // Use a strong-weak maptable storing the secondary cache. Follow the doc that NSCache does not copy keys
-        // This is useful when the memory warning, the cache was purged. However, the image instance can be retained by other instance such as imageViews and alive.
-        // At this case, we can sync weak cache back and do not need to load from disk cache
-        self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-        self.weakCacheLock = dispatch_semaphore_create(1);
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveMemoryWarning:)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    // Only remove cache, but keep weak cache
-    [super removeAllObjects];
-}
-
-// `setObject:forKey:` just call this with 0 cost. Override this is enough
-- (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
-    [super setObject:obj forKey:key cost:g];
-    if (key && obj) {
-        // Store weak cache
-        LOCK(self.weakCacheLock);
-        [self.weakCache setObject:obj forKey:key];
-        UNLOCK(self.weakCacheLock);
-    }
-}
-
-- (id)objectForKey:(id)key {
-    id obj = [super objectForKey:key];
-    if (key && !obj) {
-        // Check weak cache
-        LOCK(self.weakCacheLock);
-        obj = [self.weakCache objectForKey:key];
-        UNLOCK(self.weakCacheLock);
-        if (obj) {
-            // Sync cache
-            NSUInteger cost = 0;
-            if ([obj isKindOfClass:[UIImage class]]) {
-                cost = SDCacheCostForImage(obj);
-            }
-            [super setObject:obj forKey:key cost:cost];
-        }
-    }
-    return obj;
-}
-
-- (void)removeObjectForKey:(id)key {
-    [super removeObjectForKey:key];
-    if (key) {
-        // Remove weak cache
-        LOCK(self.weakCacheLock);
-        [self.weakCache removeObjectForKey:key];
-        UNLOCK(self.weakCacheLock);
-    }
-}
-
-- (void)removeAllObjects {
-    [super removeAllObjects];
-    // Manually remove should also remove weak cache
-    LOCK(self.weakCacheLock);
-    [self.weakCache removeAllObjects];
-    UNLOCK(self.weakCacheLock);
-}
-
-#endif
-
-@end
 
 @interface SDImageCache ()
 
@@ -136,7 +28,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 @property (nonatomic, strong, nullable) dispatch_queue_t ioQueue;
 
 @end
-
 
 @implementation SDImageCache
 
@@ -190,14 +81,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             config = _defaultCacheConfig;
         }
         _config = [config copy];
-        // KVO config property which need to be passed
-        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDImageCacheContext];
-        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDImageCacheContext];
         
         // Init the memory cache
         NSAssert([config.memoryCacheClass conformsToProtocol:@protocol(SDMemoryCache)], @"Custom memory cache class must conform to `SDMemoryCache` protocol");
-        _memCache = [[config.memoryCacheClass alloc] init];
-        _memCache.name = fullNamespace;
+        _memCache = [[config.memoryCacheClass alloc] initWithConfig:_config];
         
         // Init the disk cache
         if (directory != nil) {
@@ -208,11 +95,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
         
         NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
-        _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath];
-        
-        if (config.fileManager && [_diskCache respondsToSelector:@selector(setFileManager:)]) {
-            [_diskCache setFileManager:config.fileManager];
-        }
+        _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath config:_config];
 
 #if SD_UIKIT
         // Subscribe to app events
@@ -232,8 +115,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)dealloc {
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDImageCacheContext];
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDImageCacheContext];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -279,7 +160,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
     // if memory cache is enabled
     if (self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(image);
+        NSUInteger cost = SDMemoryCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
     
@@ -386,7 +267,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(diskImage);
+        NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -527,7 +408,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:cacheKey data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = SDCacheCostForImage(diskImage);
+                    NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
                     [self.memCache setObject:diskImage forKey:cacheKey cost:cost];
                 }
             }
@@ -607,20 +488,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
     
     [self.diskCache removeDataForKey:key];
-}
-
-#pragma mark - KVO
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context == SDImageCacheContext) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
-            self.memCache.costLimit = self.config.maxMemoryCost;
-        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
-            self.memCache.countLimit = self.config.maxMemoryCount;
-        }
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
 }
 
 #pragma mark - Cache clean Ops

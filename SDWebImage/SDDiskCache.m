@@ -7,28 +7,17 @@
  */
 
 #import "SDDiskCache.h"
+#import "SDImageCacheConfig.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @interface SDDiskCache ()
 
 @property (nonatomic, copy) NSString *diskCachePath;
 @property (nonatomic, strong, nonnull) NSFileManager *fileManager;
-@property (nonatomic, assign) NSTimeInterval ageLimit;
-@property (nonatomic, assign) NSUInteger countLimit;
-@property (nonatomic, assign) NSUInteger sizeLimit;
-@property (nonatomic, assign) NSDataReadingOptions diskCacheReadingOptions;
-@property (nonatomic, assign) NSDataWritingOptions diskCacheWritingOptions;
 
 @end
 
 @implementation SDDiskCache
-
-- (NSFileManager *)fileManager {
-    if (!_fileManager) {
-        _fileManager = [NSFileManager new];
-    }
-    return _fileManager;
-}
 
 - (instancetype)init {
     NSAssert(NO, @"Use `initWithCachePath:` with the disk cache path");
@@ -36,11 +25,21 @@
 }
 
 #pragma mark - SDcachePathForKeyDiskCache Protocol
-- (instancetype)initWithCachePath:(NSString *)cachePath {
+- (instancetype)initWithCachePath:(NSString *)cachePath config:(nonnull SDImageCacheConfig *)config {
     if (self = [super init]) {
         _diskCachePath = cachePath;
+        _config = config;
+        [self commonInit];
     }
     return self;
+}
+
+- (void)commonInit {
+    if (self.config.fileManager) {
+        self.fileManager = self.config.fileManager;
+    } else {
+        self.fileManager = [NSFileManager new];
+    }
 }
 
 - (BOOL)containsDataForKey:(NSString *)key {
@@ -60,14 +59,14 @@
 - (NSData *)dataForKey:(NSString *)key {
     NSParameterAssert(key);
     NSString *filePath = [self cachePathForKey:key];
-    NSData *data = [NSData dataWithContentsOfFile:filePath options:self.diskCacheReadingOptions error:nil];
+    NSData *data = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
         return data;
     }
     
     // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
-    data = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension options:self.diskCacheReadingOptions error:nil];
+    data = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
         return data;
     }
@@ -87,7 +86,7 @@
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
-    [data writeToURL:fileURL options:self.diskCacheWritingOptions error:nil];
+    [data writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil];
 }
 
 - (void)removeDataForKey:(NSString *)key {
@@ -114,7 +113,7 @@
                                                                   options:NSDirectoryEnumerationSkipsHiddenFiles
                                                              errorHandler:NULL];
     
-    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.ageLimit];
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
     NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
     NSUInteger currentCacheSize = 0;
     
@@ -151,9 +150,10 @@
     
     // If our remaining disk cache exceeds a configured maximum size, perform a second
     // size-based cleanup pass.  We delete the oldest files first.
-    if (self.sizeLimit > 0 && currentCacheSize > self.sizeLimit) {
+    NSUInteger maxCacheSize = self.config.maxCacheSize;
+    if (maxCacheSize > 0 && currentCacheSize > maxCacheSize) {
         // Target half of our maximum cache size for this cleanup pass.
-        const NSUInteger desiredCacheSize = self.sizeLimit / 2;
+        const NSUInteger desiredCacheSize = maxCacheSize / 2;
         
         // Sort the remaining cache files by their last modification time (oldest first).
         NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
