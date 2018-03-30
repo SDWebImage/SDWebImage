@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImageDownloader.h"
+#import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderOperation.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
@@ -14,7 +15,7 @@
 
 @interface SDWebImageDownloadToken ()
 
-@property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperationInterface> *downloadOperation;
+@property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
 
 @end
 
@@ -81,14 +82,16 @@
 }
 
 - (nonnull instancetype)init {
-    return [self initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    return [self initWithConfig:SDWebImageDownloaderConfig.defaultDownloaderConfig];
 }
 
-- (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration {
-    if ((self = [super init])) {
-        _operationClass = [SDWebImageDownloaderOperation class];
-        _shouldDecompressImages = YES;
-        _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
+- (instancetype)initWithConfig:(SDWebImageDownloaderConfig *)config {
+    self = [super init];
+    if (self) {
+        if (!config) {
+            config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
+        }
+        _config = [config copy];
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = 6;
         _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
@@ -100,30 +103,21 @@
 #endif
         _operationsLock = dispatch_semaphore_create(1);
         _headersLock = dispatch_semaphore_create(1);
-        _downloadTimeout = 15.0;
-
-        [self createNewSessionWithConfiguration:sessionConfiguration];
-    }
-    return self;
-}
-
-- (void)createNewSessionWithConfiguration:(NSURLSessionConfiguration *)sessionConfiguration {
-    [self cancelAllDownloads];
-
-    if (self.session) {
-        [self.session invalidateAndCancel];
-    }
-
-    sessionConfiguration.timeoutIntervalForRequest = self.downloadTimeout;
-
-    /**
-     *  Create the session for this task
-     *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
-     *  method calls and completion handler calls.
-     */
-    self.session = [NSURLSession sessionWithConfiguration:sessionConfiguration
+        NSURLSessionConfiguration *sessionConfiguration = _config.sessionConfiguration;
+        if (!sessionConfiguration) {
+            sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        }
+        sessionConfiguration.timeoutIntervalForRequest = _config.downloadTimeout;
+        /**
+         *  Create the session for this task
+         *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
+         *  method calls and completion handler calls.
+         */
+        _session = [NSURLSession sessionWithConfiguration:sessionConfiguration
                                                  delegate:self
                                             delegateQueue:nil];
+    }
+    return self;
 }
 
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations {
@@ -142,6 +136,10 @@
     self.session = nil;
 
     [self.downloadQueue cancelAllOperations];
+}
+
+- (NSURLSessionConfiguration *)sessionConfiguration {
+    return self.session.configuration;
 }
 
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
@@ -168,30 +166,6 @@
     return allHTTPHeaderFields;
 }
 
-- (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads {
-    _downloadQueue.maxConcurrentOperationCount = maxConcurrentDownloads;
-}
-
-- (NSUInteger)currentDownloadCount {
-    return _downloadQueue.operationCount;
-}
-
-- (NSInteger)maxConcurrentDownloads {
-    return _downloadQueue.maxConcurrentOperationCount;
-}
-
-- (NSURLSessionConfiguration *)sessionConfiguration {
-    return self.session.configuration;
-}
-
-- (void)setOperationClass:(nullable Class)operationClass {
-    if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperationInterface)]) {
-        _operationClass = operationClass;
-    } else {
-        _operationClass = [SDWebImageDownloaderOperation class];
-    }
-}
-
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     return [self downloadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
@@ -205,7 +179,7 @@
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
         __strong __typeof (wself) sself = wself;
-        NSTimeInterval timeoutInterval = sself.downloadTimeout;
+        NSTimeInterval timeoutInterval = sself.config.downloadTimeout;
         if (timeoutInterval == 0.0) {
             timeoutInterval = 15.0;
         }
@@ -224,13 +198,19 @@
         else {
             request.allHTTPHeaderFields = [sself allHTTPHeaderFields];
         }
-        SDWebImageDownloaderOperation *operation = [[sself.operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
-        operation.shouldDecompressImages = sself.shouldDecompressImages;
+        Class operationClass = sself.config.operationClass;
+        if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperation)]) {
+            // Custom operation class
+        } else {
+            operationClass = [SDWebImageDownloaderOperation class];
+        }
+        SDWebImageDownloaderOperation *operation = [[operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
+        operation.shouldDecompressImages = sself.config.shouldDecompressImages;
         
-        if (sself.urlCredential) {
-            operation.credential = sself.urlCredential;
-        } else if (sself.username && sself.password) {
-            operation.credential = [NSURLCredential credentialWithUser:sself.username password:sself.password persistence:NSURLCredentialPersistenceForSession];
+        if (sself.config.urlCredential) {
+            operation.credential = sself.config.urlCredential;
+        } else if (sself.config.username && sself.config.password) {
+            operation.credential = [NSURLCredential credentialWithUser:sself.config.username password:sself.config.password persistence:NSURLCredentialPersistenceForSession];
         }
         
         if (options & SDWebImageDownloaderHighPriority) {
@@ -239,7 +219,7 @@
             operation.queuePriority = NSOperationQueuePriorityLow;
         }
         
-        if (sself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
+        if (sself.config.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
             // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
             [sself.lastAddedOperation addDependency:operation];
             sself.lastAddedOperation = operation;
@@ -314,6 +294,10 @@
 
 - (void)setSuspended:(BOOL)suspended {
     self.downloadQueue.suspended = suspended;
+}
+
+- (NSUInteger)currentDownloadCount {
+    return self.downloadQueue.operationCount;
 }
 
 - (void)cancelAllDownloads {

@@ -21,7 +21,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  Describes a downloader operation. If one wants to use a custom downloader op, it needs to inherit from `NSOperation` and conform to this protocol
  For the description about these methods, see `SDWebImageDownloaderOperation`
  */
-@protocol SDWebImageDownloaderOperationInterface<NSObject>
+@protocol SDWebImageDownloaderOperation <NSObject>
 
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
@@ -46,7 +46,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @end
 
 
-@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperationInterface, SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 /**
  * The request used by the operation's task.

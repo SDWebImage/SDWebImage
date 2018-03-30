@@ -28,7 +28,7 @@
 /**
  *  A class that fits the NSOperation+SDWebImageDownloaderOperationInterface requirement so we can test
  */
-@interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperationInterface>
+@interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperation>
 
 @property (nonatomic, assign) BOOL shouldDecompressImages;
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
@@ -103,26 +103,26 @@
 }
 
 - (void)test05ThatSetAndGetMaxConcurrentDownloadsWorks {
-    NSInteger initialValue = [SDWebImageDownloader sharedDownloader].maxConcurrentDownloads;
+    NSInteger initialValue = SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads;
     
-    [[SDWebImageDownloader sharedDownloader] setMaxConcurrentDownloads:3];
-    expect([SDWebImageDownloader sharedDownloader].maxConcurrentDownloads).to.equal(3);
+    SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads = 3;
+    expect(SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads).to.equal(3);
     
-    [[SDWebImageDownloader sharedDownloader] setMaxConcurrentDownloads:initialValue];
+    SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads = initialValue;
 }
 
 - (void)test06ThatUsingACustomDownloaderOperationWorks {
     // we try to set a usual NSOperation as operation class. Should not work
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:[NSOperation class]];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    SDWebImageDownloader.sharedDownloader.config.operationClass = [NSOperation class];
+    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([SDWebImageDownloaderOperation class]);
     
     // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperationInterface - should work
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:[CustomDownloaderOperation class]];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([CustomDownloaderOperation class]);
+    SDWebImageDownloader.sharedDownloader.config.operationClass = [CustomDownloaderOperation class];
+    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([CustomDownloaderOperation class]);
     
     // back to the original value
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:nil];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    SDWebImageDownloader.sharedDownloader.config.operationClass = nil;
+    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([SDWebImageDownloaderOperation class]);
 }
 
 - (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
@@ -139,8 +139,8 @@
 
 - (void)test08ThatAHTTPAuthDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"HTTP Auth download"];
-    [SDWebImageDownloader sharedDownloader].username = @"httpwatch";
-    [SDWebImageDownloader sharedDownloader].password = @"httpwatch01";
+    SDWebImageDownloader.sharedDownloader.config.username = @"httpwatch";
+    SDWebImageDownloader.sharedDownloader.config.password = @"httpwatch01";
     NSURL *imageURL = [NSURL URLWithString:@"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633"];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
@@ -150,8 +150,8 @@
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
-    [SDWebImageDownloader sharedDownloader].username = nil;
-    [SDWebImageDownloader sharedDownloader].password = nil;
+    SDWebImageDownloader.sharedDownloader.config.username = nil;
+    SDWebImageDownloader.sharedDownloader.config.password = nil;
 }
 
 - (void)test09ThatProgressiveJPEGWorks {
