@@ -16,8 +16,6 @@
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 
-static SDImageCacheConfig * _defaultCacheConfig;
-
 @interface SDImageCache ()
 
 #pragma mark - Properties
@@ -32,18 +30,6 @@ static SDImageCacheConfig * _defaultCacheConfig;
 @implementation SDImageCache
 
 #pragma mark - Singleton, init, dealloc
-
-+ (void)initialize {
-    if (self == [SDImageCache class]) {
-        [self setDefaultCacheConfig:[SDImageCacheConfig new]];
-    }
-}
-
-+ (void)setDefaultCacheConfig:(SDImageCacheConfig *)config {
-    if (config) {
-        _defaultCacheConfig = config;
-    }
-}
 
 + (nonnull instancetype)sharedImageCache {
     static dispatch_once_t once;
@@ -65,7 +51,7 @@ static SDImageCacheConfig * _defaultCacheConfig;
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory {
-    return [self initWithNamespace:ns diskCacheDirectory:directory config:_defaultCacheConfig];
+    return [self initWithNamespace:ns diskCacheDirectory:directory config:SDImageCacheConfig.defaultCacheConfig];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
@@ -78,7 +64,7 @@ static SDImageCacheConfig * _defaultCacheConfig;
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
         
         if (!config) {
-            config = _defaultCacheConfig;
+            config = SDImageCacheConfig.defaultCacheConfig;
         }
         _config = [config copy];
         
@@ -100,13 +86,19 @@ static SDImageCacheConfig * _defaultCacheConfig;
 #if SD_UIKIT
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(deleteOldFiles)
+                                                 selector:@selector(applicationWillTerminate:)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(backgroundDeleteOldFiles)
+                                                 selector:@selector(applicationDidEnterBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
+#endif
+#if SD_MAC
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillTerminate:)
+                                                     name:NSApplicationWillTerminateNotification
                                                    object:nil];
 #endif
     }
@@ -212,17 +204,6 @@ static SDImageCacheConfig * _defaultCacheConfig;
     }
     
     [self.diskCache setData:imageData forKey:key];
-    
-    
-    // disable iCloud backup
-    if (self.config.shouldDisableiCloud) {
-        NSString *filePath = [self.diskCache cachePathForKey:key];
-        if (filePath) {
-            NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-            // ignore iCloud backup resource value error
-            [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
-        }
-    }
 }
 
 #pragma mark - Query and Retrieve Ops
@@ -507,10 +488,6 @@ static SDImageCacheConfig * _defaultCacheConfig;
     });
 }
 
-- (void)deleteOldFiles {
-    [self deleteOldFilesWithCompletionBlock:nil];
-}
-
 - (void)deleteOldFilesWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         [self.diskCache removeExpiredData];
@@ -522,8 +499,21 @@ static SDImageCacheConfig * _defaultCacheConfig;
     });
 }
 
+#pragma mark - UIApplicationWillTerminateNotification
+
+#if SD_UIKIT || SD_MAC
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    [self deleteOldFilesWithCompletionBlock:nil];
+}
+#endif
+
+#pragma mark - UIApplicationDidEnterBackgroundNotification
+
 #if SD_UIKIT
-- (void)backgroundDeleteOldFiles {
+- (void)applicationDidEnterBackground:(NSNotification *)notification {
+    if (!self.config.shouldRemoveExpiredDataWhenEnterBackground) {
+        return;
+    }
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;

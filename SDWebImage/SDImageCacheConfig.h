@@ -13,6 +13,12 @@
 @interface SDImageCacheConfig : NSObject <NSCopying>
 
 /**
+ Gets/Sets the default cache config used for shared instance or initialization when it does not provide any cache config. Such as `SDImageCache.sharedImageCache`.
+ @note You should not pass nil to this value.
+ */
+@property (nonatomic, class, nonnull) SDImageCacheConfig *defaultCacheConfig;
+
+/**
  * Decompressing images means pre-decoding the image that are downloaded and cached on background queue. This can avoid image view decode it on main queue when rendering. This can improve performance but can consume more memory.
  * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
  */
@@ -29,6 +35,12 @@
  * Defaults to YES.
  */
 @property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+
+/**
+ * Whether or not to remove the expired disk data when application entering the background. (Not works for macOS)
+ * Defatuls to YES.
+ */
+@property (assign, nonatomic) BOOL shouldRemoveExpiredDataWhenEnterBackground;
 
 /**
  * The reading options while reading cache from disk.

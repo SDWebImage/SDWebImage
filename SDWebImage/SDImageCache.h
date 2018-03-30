@@ -87,13 +87,6 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 #pragma mark - Singleton and initialization
 
 /**
- Set the default cache config used for shared instance or initialization which does not provide any cache config
-
- @param config The default cache config to use. You should not pass nil.
- */
-+ (void)setDefaultCacheConfig:(nonnull SDImageCacheConfig *)config;
-
-/**
  * Returns global shared cache instance
  */
 @property (nonatomic, class, readonly, nonnull) SDImageCache *sharedImageCache;

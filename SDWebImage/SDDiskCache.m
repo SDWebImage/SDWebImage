@@ -77,8 +77,8 @@
 - (void)setData:(NSData *)data forKey:(NSString *)key {
     NSParameterAssert(data);
     NSParameterAssert(key);
-    if (![self.fileManager fileExistsAtPath:_diskCachePath]) {
-        [self.fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+    if (![self.fileManager fileExistsAtPath:self.diskCachePath]) {
+        [self.fileManager createDirectoryAtPath:self.diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
     }
     
     // get cache Path for image key
@@ -87,6 +87,12 @@
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
     [data writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil];
+    
+    // disable iCloud backup
+    if (self.config.shouldDisableiCloud) {
+        // ignore iCloud backup resource value error
+        [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
+    }
 }
 
 - (void)removeDataForKey:(NSString *)key {

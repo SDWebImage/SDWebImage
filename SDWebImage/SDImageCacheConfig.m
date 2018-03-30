@@ -10,15 +10,31 @@
 #import "SDMemoryCache.h"
 #import "SDDiskCache.h"
 
+static SDImageCacheConfig * _defaultCacheConfig;
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @implementation SDImageCacheConfig
+
++ (SDImageCacheConfig *)defaultCacheConfig {
+    if (!_defaultCacheConfig) {
+        _defaultCacheConfig = [SDImageCacheConfig new];
+    }
+    return _defaultCacheConfig;
+}
+
++ (void)setDefaultCacheConfig:(SDImageCacheConfig *)config {
+    if (!config) {
+        return;
+    }
+    _defaultCacheConfig = config;
+}
 
 - (instancetype)init {
     if (self = [super init]) {
         _shouldDecompressImages = YES;
         _shouldDisableiCloud = YES;
         _shouldCacheImagesInMemory = YES;
+        _shouldRemoveExpiredDataWhenEnterBackground = YES;
         _diskCacheReadingOptions = 0;
         _diskCacheWritingOptions = NSDataWritingAtomic;
         _maxCacheAge = kDefaultCacheMaxCacheAge;
@@ -34,6 +50,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     config.shouldDecompressImages = self.shouldDecompressImages;
     config.shouldDisableiCloud = self.shouldDisableiCloud;
     config.shouldCacheImagesInMemory = self.shouldCacheImagesInMemory;
+    config.shouldRemoveExpiredDataWhenEnterBackground = self.shouldRemoveExpiredDataWhenEnterBackground;
     config.diskCacheReadingOptions = self.diskCacheReadingOptions;
     config.diskCacheWritingOptions = self.diskCacheWritingOptions;
     config.maxCacheAge = self.maxCacheAge;
