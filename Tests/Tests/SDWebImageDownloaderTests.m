@@ -16,6 +16,10 @@
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
  */
+@interface SDWebImageDownloadToken ()
+@property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
+@end
+
 @interface SDWebImageDownloader ()
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
@@ -26,7 +30,7 @@
 @end
 
 /**
- *  A class that fits the NSOperation+SDWebImageDownloaderOperationInterface requirement so we can test
+ *  A class that fits the NSOperation+SDWebImageDownloaderOperation requirement so we can test
  */
 @interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperation>
 
@@ -112,17 +116,29 @@
 }
 
 - (void)test06ThatUsingACustomDownloaderOperationWorks {
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:nil];
+    NSURL *imageURL1 = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL2 = [NSURL URLWithString:kTestPNGURL];
+    NSURL *imageURL3 = [NSURL URLWithString:kTestGIFURL];
     // we try to set a usual NSOperation as operation class. Should not work
-    SDWebImageDownloader.sharedDownloader.config.operationClass = [NSOperation class];
-    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    downloader.config.operationClass = [NSOperation class];
+    SDWebImageDownloadToken *token = [downloader downloadImageWithURL:imageURL1 options:0 progress:nil completed:nil];
+    NSOperation<SDWebImageDownloaderOperation> *operation = token.downloadOperation;
+    expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);
     
-    // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperationInterface - should work
-    SDWebImageDownloader.sharedDownloader.config.operationClass = [CustomDownloaderOperation class];
-    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([CustomDownloaderOperation class]);
+    // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperation - should work
+    downloader.config.operationClass = [CustomDownloaderOperation class];
+    token = [downloader downloadImageWithURL:imageURL2 options:0 progress:nil completed:nil];
+    operation = token.downloadOperation;
+    expect([operation class]).to.equal([CustomDownloaderOperation class]);
     
     // back to the original value
-    SDWebImageDownloader.sharedDownloader.config.operationClass = nil;
-    expect(SDWebImageDownloader.sharedDownloader.config.operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    downloader.config.operationClass = nil;
+    token = [downloader downloadImageWithURL:imageURL3 options:0 progress:nil completed:nil];
+    operation = token.downloadOperation;
+    expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);
+    
+    [downloader invalidateSessionAndCancel:YES];
 }
 
 - (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
