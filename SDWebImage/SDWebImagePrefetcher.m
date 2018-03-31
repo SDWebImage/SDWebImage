@@ -7,16 +7,17 @@
  */
 
 #import "SDWebImagePrefetcher.h"
-#import <libkern/OSAtomic.h>
+#import <stdatomic.h>
 
 @interface SDWebImagePrefetchToken () {
     @public
-    int64_t _skippedCount;
-    int64_t _finishedCount;
+    // These value are just used as incrementing counter, keep thread-safe using memory_order_relaxed for performance.
+    atomic_ulong _skippedCount;
+    atomic_ulong _finishedCount;
+    atomic_ulong _totalCount;
 }
 
 @property (nonatomic, copy, readwrite) NSArray<NSURL *> *urls;
-@property (nonatomic, assign) int64_t totalCount;
 @property (nonatomic, strong) NSPointerArray *operations;
 @property (nonatomic, weak) SDWebImagePrefetcher *prefetcher;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
@@ -72,10 +73,10 @@
     }
     SDWebImagePrefetchToken *token = [SDWebImagePrefetchToken new];
     token.prefetcher = self;
+    token.urls = urls;
     token->_skippedCount = 0;
     token->_finishedCount = 0;
-    token.urls = urls;
-    token.totalCount = urls.count;
+    token->_totalCount = token.urls.count;
     token.operations = [NSPointerArray weakObjectsPointerArray];
     token.progressBlock = progressBlock;
     token.completionBlock = completionBlock;
@@ -92,16 +93,16 @@
             if (!finished) {
                 return;
             }
-            OSAtomicIncrement64(&(token->_finishedCount));
+            atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
             if (error) {
                 // Add last failed
-                OSAtomicIncrement64(&(token->_skippedCount));
+                atomic_fetch_add_explicit(&(token->_skippedCount), 1, memory_order_relaxed);
             }
             
             // Current operation finished
             [sself callProgressBlockForToken:token imageURL:imageURL];
             
-            if (token->_finishedCount + token->_skippedCount == token.totalCount) {
+            if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) + atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed) >= atomic_load_explicit(&(token->_totalCount), memory_order_relaxed)) {
                 // All finished
                 [sself callCompletionBlockForToken:token];
                 [sself removeRunningToken:token];
@@ -129,14 +130,16 @@
         return;
     }
     BOOL shouldCallDelegate = [self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)];
-    NSUInteger finishedCount = [self tokenFinishedCount];
-    NSUInteger totalCount = [self tokenTotalCount];
+    NSUInteger tokenFinishedCount = [self tokenFinishedCount];
+    NSUInteger tokenTotalCount = [self tokenTotalCount];
+    NSUInteger finishedCount = atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
+    NSUInteger totalCount = atomic_load_explicit(&(token->_totalCount), memory_order_relaxed);
     dispatch_async(self.delegateQueue, ^{
         if (shouldCallDelegate) {
-            [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:finishedCount totalCount:totalCount];
+            [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:tokenFinishedCount totalCount:tokenTotalCount];
         }
         if (token.progressBlock) {
-            token.progressBlock((NSUInteger)token->_finishedCount, (NSUInteger)token.totalCount);
+            token.progressBlock(finishedCount, totalCount);
         }
     });
 }
@@ -146,14 +149,16 @@
         return;
     }
     BOOL shoulCallDelegate = [self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)] && ([self countOfRunningTokens] == 1); // last one
-    NSUInteger totalCount = [self tokenTotalCount];
-    NSUInteger skippedCount = [self tokenSkippedCount];
+    NSUInteger tokenTotalCount = [self tokenTotalCount];
+    NSUInteger tokenSkippedCount = [self tokenSkippedCount];
+    NSUInteger finishedCount = atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
+    NSUInteger skippedCount = atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed);
     dispatch_async(self.delegateQueue, ^{
         if (shoulCallDelegate) {
-            [self.delegate imagePrefetcher:self didFinishWithTotalCount:totalCount skippedCount:skippedCount];
+            [self.delegate imagePrefetcher:self didFinishWithTotalCount:tokenTotalCount skippedCount:tokenSkippedCount];
         }
         if (token.completionBlock) {
-            token.completionBlock((NSUInteger)token->_finishedCount, (NSUInteger)token->_skippedCount);
+            token.completionBlock(finishedCount, skippedCount);
         }
     });
 }
@@ -163,7 +168,7 @@
     NSUInteger tokenTotalCount = 0;
     @synchronized (self.runningTokens) {
         for (SDWebImagePrefetchToken *token in self.runningTokens) {
-            tokenTotalCount += token.totalCount;
+            tokenTotalCount += atomic_load_explicit(&(token->_totalCount), memory_order_relaxed);
         }
     }
     return tokenTotalCount;
@@ -173,7 +178,7 @@
     NSUInteger tokenSkippedCount = 0;
     @synchronized (self.runningTokens) {
         for (SDWebImagePrefetchToken *token in self.runningTokens) {
-            tokenSkippedCount += token->_skippedCount;
+            tokenSkippedCount += atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed);
         }
     }
     return tokenSkippedCount;
@@ -183,7 +188,7 @@
     NSUInteger tokenFinishedCount = 0;
     @synchronized (self.runningTokens) {
         for (SDWebImagePrefetchToken *token in self.runningTokens) {
-            tokenFinishedCount += token->_finishedCount;
+            tokenFinishedCount += atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
         }
     }
     return tokenFinishedCount;

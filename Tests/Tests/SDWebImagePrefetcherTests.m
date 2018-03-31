@@ -13,9 +13,9 @@
 @interface SDWebImagePrefetcherTests : SDTestCase <SDWebImagePrefetcherDelegate>
 
 @property (nonatomic, strong) SDWebImagePrefetcher *prefetcher;
-@property (nonatomic, assign) NSUInteger finishedCount;
-@property (nonatomic, assign) NSUInteger skippedCount;
-@property (nonatomic, assign) NSUInteger totalCount;
+@property (atomic, assign) NSUInteger finishedCount;
+@property (atomic, assign) NSUInteger skippedCount;
+@property (atomic, assign) NSUInteger totalCount;
 
 @end
 
@@ -112,22 +112,27 @@
 - (void)test05PrefecherDelegateWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetcher delegate failed"];
     
-    NSArray *imageURLs = @[@"http://via.placeholder.com/20x20.jpg",
-                           @"http://via.placeholder.com/30x30.jpg",
-                           @"http://via.placeholder.com/40x40.jpg"];
+    // This test also test large URLs and thread-safe problem. You can tested with 2000 urls and get the correct result locally. However, due to the limit of CI, 20 is enough.
+    NSMutableArray<NSURL *> *imageURLs = [NSMutableArray arrayWithCapacity:20];
+    for (size_t i = 1; i <= 20; i++) {
+        NSString *url = [NSString stringWithFormat:@"http://via.placeholder.com/%zux%zu.jpg", i, i];
+        [imageURLs addObject:[NSURL URLWithString:url]];
+    }
     self.prefetcher = [SDWebImagePrefetcher new];
     self.prefetcher.delegate = self;
     // Current implementation, the delegate method called before the progressBlock and completionBlock
-    [self.prefetcher prefetchURLs:imageURLs progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
-        expect(self.finishedCount).to.equal(noOfFinishedUrls);
-        expect(self.totalCount).to.equal(noOfTotalUrls);
-    } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-        expect(self.finishedCount).to.equal(noOfFinishedUrls);
-        expect(self.skippedCount).to.equal(noOfSkippedUrls);
-        [expectation fulfill];
+    [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
+        [self.prefetcher prefetchURLs:[imageURLs copy] progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+            expect(self.finishedCount).to.equal(noOfFinishedUrls);
+            expect(self.totalCount).to.equal(noOfTotalUrls);
+        } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+            expect(self.finishedCount).to.equal(noOfFinishedUrls);
+            expect(self.skippedCount).to.equal(noOfSkippedUrls);
+            [expectation fulfill];
+        }];
     }];
     
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 20 handler:nil];
 }
 
 - (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount {
