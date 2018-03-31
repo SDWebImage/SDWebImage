@@ -109,8 +109,8 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test05PrefecherDelegateWorks {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetcher delegate failed"];
+- (void)test05PrefetchLargeURLsAndDelegateWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetch large URLs and delegate failed"];
     
     // This test also test large URLs and thread-safe problem. You can tested with 2000 urls and get the correct result locally. However, due to the limit of CI, 20 is enough.
     NSMutableArray<NSURL *> *imageURLs = [NSMutableArray arrayWithCapacity:20];
