@@ -29,7 +29,7 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     self = [super init];
     if (self) {
         _shouldDecompressImages = YES;
-        _maxConcurrentDownloads = 3;
+        _maxConcurrentDownloads = 6;
         _downloadTimeout = 15.0;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
     }

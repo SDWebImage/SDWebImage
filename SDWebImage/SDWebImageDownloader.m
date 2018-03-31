@@ -15,20 +15,10 @@
 
 @interface SDWebImageDownloadToken ()
 
+@property (nonatomic, strong, nullable, readwrite) NSURL *url;
+@property (nonatomic, strong, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
-
-@end
-
-@implementation SDWebImageDownloadToken
-
-- (void)cancel {
-    if (self.downloadOperation) {
-        SDWebImageDownloadToken *cancelToken = self.downloadOperationCancelToken;
-        if (cancelToken) {
-            [self.downloadOperation cancel:cancelToken];
-        }
-    }
-}
+@property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
 
 @end
 
@@ -284,6 +274,7 @@
     token.downloadOperation = operation;
     token.url = url;
     token.downloadOperationCancelToken = downloadOperationCancelToken;
+    token.downloader = self;
 
     return token;
 }
@@ -394,6 +385,26 @@ didReceiveResponse:(NSURLResponse *)response
         if (completionHandler) {
             completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
         }
+    }
+}
+
+@end
+
+@implementation SDWebImageDownloadToken
+
+- (void)cancel {
+    @synchronized (self) {
+        if (!self.downloadOperationCancelToken) {
+            return;
+        }
+        if (self.downloader) {
+            // Downloader is alive, cancel token
+            [self.downloader cancel:self];
+        } else {
+            // Downloader is dealloced, only cancel download operation
+            [self.downloadOperation cancel:self.downloadOperationCancelToken];
+        }
+        self.downloadOperationCancelToken = nil;
     }
 }
 

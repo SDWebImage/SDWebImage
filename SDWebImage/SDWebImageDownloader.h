@@ -92,14 +92,14 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloadToken : NSObject <SDWebImageOperation>
 
 /**
- The download's URL. This should be readonly and you should not modify
+ Cancel the current download.
  */
-@property (nonatomic, strong, nullable) NSURL *url;
+- (void)cancel;
+
 /**
- The cancel token taken from `addHandlersForProgress:completed`. This should be readonly and you should not modify
- @note use `-[SDWebImageDownloadToken cancel]` to cancel the token
+ The download's URL.
  */
-@property (nonatomic, strong, nullable) id downloadOperationCancelToken;
+@property (nonatomic, strong, nullable, readonly) NSURL *url;
 
 @end
 
@@ -139,7 +139,7 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, assign, readonly) NSUInteger currentDownloadCount;
 
 /**
- *  Returns the global shared downloader instance. Which use the `SDWebImageDownloaderConfig.defaultDownloaderConfiguration` config.
+ *  Returns the global shared downloader instance. Which use the `SDWebImageDownloaderConfig.defaultDownloaderConfig` config.
  */
 @property (nonatomic, class, readonly, nonnull) SDWebImageDownloader *sharedDownloader;
 
