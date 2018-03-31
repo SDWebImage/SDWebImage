@@ -110,7 +110,8 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloader : NSObject
 
 /**
- Downloader Config object - storing all kind of settings
+ * Downloader Config object - storing all kind of settings.
+ * Most config properties support dynamic changes during download, except something like `sessionConfiguration`, see `SDWebImageDownloaderConfig` for more detail.
  */
 @property (nonatomic, copy, readonly, nonnull) SDWebImageDownloaderConfig *config;
 

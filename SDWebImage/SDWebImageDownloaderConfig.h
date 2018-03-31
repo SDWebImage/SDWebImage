@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 @property (nonatomic, assign) NSInteger maxConcurrentDownloads;
 
 /**
- * The timeout value (in seconds) for the download operation.
+ * The timeout value (in seconds) for each download operation.
  * Defaults to 15.0.
  */
 @property (nonatomic, assign) NSTimeInterval downloadTimeout;
@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 /**
  * The custom session configuration in use by NSURLSession. If you don't provide one, we will use `defaultSessionConfiguration` instead.
  * Defatuls to nil.
- * @note The `timeoutIntervalForRequest` will be override by `downloadTimeout` config.
+ * @note This property does not support dynamic changes, means it's immutable after the downloader instance initialized.
  */
 @property (nonatomic, strong, nullable) NSURLSessionConfiguration *sessionConfiguration;
 

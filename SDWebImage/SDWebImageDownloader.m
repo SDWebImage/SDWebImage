@@ -10,6 +10,8 @@
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderOperation.h"
 
+static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
+
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
@@ -82,8 +84,9 @@
             config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
         }
         _config = [config copy];
+        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxConcurrentDownloads)) options:0 context:SDWebImageDownloaderContext];
         _downloadQueue = [NSOperationQueue new];
-        _downloadQueue.maxConcurrentOperationCount = 6;
+        _downloadQueue.maxConcurrentOperationCount = _config.maxConcurrentDownloads;
         _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
         _URLOperations = [NSMutableDictionary new];
 #ifdef SD_WEBP
@@ -97,7 +100,6 @@
         if (!sessionConfiguration) {
             sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
         }
-        sessionConfiguration.timeoutIntervalForRequest = _config.downloadTimeout;
         /**
          *  Create the session for this task
          *  We send nil as delegate queue so that the session creates a serial operation queue for performing all delegate
@@ -110,6 +112,14 @@
     return self;
 }
 
+- (void)dealloc {
+    [self.session invalidateAndCancel];
+    self.session = nil;
+    
+    [self.downloadQueue cancelAllOperations];
+    [self.config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxConcurrentDownloads)) context:SDWebImageDownloaderContext];
+}
+
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations {
     if (self == [SDWebImageDownloader sharedDownloader]) {
         return;
@@ -119,17 +129,6 @@
     } else {
         [self.session finishTasksAndInvalidate];
     }
-}
-
-- (void)dealloc {
-    [self.session invalidateAndCancel];
-    self.session = nil;
-
-    [self.downloadQueue cancelAllOperations];
-}
-
-- (NSURLSessionConfiguration *)sessionConfiguration {
-    return self.session.configuration;
 }
 
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
@@ -279,6 +278,12 @@
     return token;
 }
 
+- (void)cancelAllDownloads {
+    [self.downloadQueue cancelAllOperations];
+}
+
+#pragma mark - Properties
+
 - (BOOL)isSuspended {
     return self.downloadQueue.isSuspended;
 }
@@ -291,8 +296,20 @@
     return self.downloadQueue.operationCount;
 }
 
-- (void)cancelAllDownloads {
-    [self.downloadQueue cancelAllOperations];
+- (NSURLSessionConfiguration *)sessionConfiguration {
+    return self.session.configuration;
+}
+
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if (context == SDWebImageDownloaderContext) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxConcurrentDownloads))]) {
+            self.downloadQueue.maxConcurrentOperationCount = self.config.maxConcurrentDownloads;
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark Helper methods
