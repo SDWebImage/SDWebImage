@@ -11,6 +11,7 @@
 
 @interface SDWebImagePrefetchToken () {
     @public
+    // Though current implementation, `SDWebImageManager` completion block is always on main queue. But however, there is no guarantee in docs. And we may introduce config to specify custom queue in the future.
     // These value are just used as incrementing counter, keep thread-safe using memory_order_relaxed for performance.
     atomic_ulong _skippedCount;
     atomic_ulong _finishedCount;
