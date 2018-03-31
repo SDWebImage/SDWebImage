@@ -51,18 +51,9 @@
         _manager = manager;
         _runningTokens = [NSMutableSet set];
         _options = SDWebImageLowPriority;
-        _prefetcherQueue = dispatch_get_main_queue();
-        self.maxConcurrentDownloads = 3;
+        _delegateQueue = dispatch_get_main_queue();
     }
     return self;
-}
-
-- (void)setMaxConcurrentDownloads:(NSUInteger)maxConcurrentDownloads {
-    self.manager.imageDownloader.maxConcurrentDownloads = maxConcurrentDownloads;
-}
-
-- (NSUInteger)maxConcurrentDownloads {
-    return self.manager.imageDownloader.maxConcurrentDownloads;
 }
 
 #pragma mark - Prefetch
@@ -138,9 +129,11 @@
         return;
     }
     BOOL shouldCallDelegate = [self.delegate respondsToSelector:@selector(imagePrefetcher:didPrefetchURL:finishedCount:totalCount:)];
-    dispatch_queue_async_safe(self.prefetcherQueue, ^{
+    NSUInteger finishedCount = [self tokenFinishedCount];
+    NSUInteger totalCount = [self tokenTotalCount];
+    dispatch_async(self.delegateQueue, ^{
         if (shouldCallDelegate) {
-            [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:[self tokenFinishedCount] totalCount:[self tokenTotalCount]];
+            [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:finishedCount totalCount:totalCount];
         }
         if (token.progressBlock) {
             token.progressBlock((NSUInteger)token->_finishedCount, (NSUInteger)token.totalCount);
@@ -153,9 +146,11 @@
         return;
     }
     BOOL shoulCallDelegate = [self.delegate respondsToSelector:@selector(imagePrefetcher:didFinishWithTotalCount:skippedCount:)] && ([self countOfRunningTokens] == 1); // last one
-    dispatch_queue_async_safe(self.prefetcherQueue, ^{
+    NSUInteger totalCount = [self tokenTotalCount];
+    NSUInteger skippedCount = [self tokenSkippedCount];
+    dispatch_async(self.delegateQueue, ^{
         if (shoulCallDelegate) {
-            [self.delegate imagePrefetcher:self didFinishWithTotalCount:[self tokenTotalCount] skippedCount:[self tokenSkippedCount]];
+            [self.delegate imagePrefetcher:self didFinishWithTotalCount:totalCount skippedCount:skippedCount];
         }
         if (token.completionBlock) {
             token.completionBlock((NSUInteger)token->_finishedCount, (NSUInteger)token->_skippedCount);

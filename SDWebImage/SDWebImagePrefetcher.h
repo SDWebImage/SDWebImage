@@ -58,14 +58,10 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 @interface SDWebImagePrefetcher : NSObject
 
 /**
- *  The web image manager
+ * The web image manager used by prefetcher to prefetch images.
+ * @note You can specify a standalone manager and downloader with custom configuration suitable for image prefetching. Such as `currentDownloadCount` or `downloadTimeout`.
  */
 @property (strong, nonatomic, readonly, nonnull) SDWebImageManager *manager;
-
-/**
- * Maximum number of URLs to prefetch at the same time. Defaults to 3.
- */
-@property (nonatomic, assign) NSUInteger maxConcurrentDownloads;
 
 /**
  * The options for prefetcher. Defaults to SDWebImageLowPriority.
@@ -79,16 +75,18 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 
 /**
  * Queue options for prefetcher when call the progressBlock, completionBlock and delegate methods. Defaults to Main Queue.
+ * @note The call is asynchronously to avoid blocking target queue.
+ * @note The delegate queue should be set before any prefetching start and may not be changed during prefetching to avoid thread-safe problem.
  */
-@property (strong, nonatomic, nonnull) dispatch_queue_t prefetcherQueue;
+@property (strong, nonatomic, nonnull) dispatch_queue_t delegateQueue;
 
 /**
- * The delegate for the prefetcher.
+ * The delegate for the prefetcher. Defatuls to nil.
  */
 @property (weak, nonatomic, nullable) id <SDWebImagePrefetcherDelegate> delegate;
 
 /**
- * Returns the global shared image prefetcher instance.
+ * Returns the global shared image prefetcher instance. It use a standalone manager which is different from shared manager.
  */
 @property (nonatomic, class, readonly, nonnull) SDWebImagePrefetcher *sharedImagePrefetcher;
 
