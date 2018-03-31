@@ -191,10 +191,21 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 @interface SDWebImageManager : NSObject
 
+/**
+ * The delegate for manager. Defatuls to nil.
+ */
 @property (weak, nonatomic, nullable) id <SDWebImageManagerDelegate> delegate;
 
-@property (strong, nonatomic, readonly, nullable) SDImageCache *imageCache;
-@property (strong, nonatomic, readonly, nullable) SDWebImageDownloader *imageDownloader;
+/**
+ * The image cache used by manager to query image cache.
+ */
+@property (strong, nonatomic, readonly, nonnull) SDImageCache *imageCache;
+
+/**
+ * The image downloader used by manager to download image.
+ * @note If you specify a non-shared downloader, don't forget to call `invalidateSessionAndCancel:` at proper time to avoid memory leak.
+ */
+@property (strong, nonatomic, readonly, nonnull) SDWebImageDownloader *imageDownloader;
 
 /**
  The image transformer for manager. It's used for image transform after the image load finished and store the transformed image to cache, see `SDWebImageTransformer`.
