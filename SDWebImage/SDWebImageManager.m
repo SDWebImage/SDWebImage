@@ -72,42 +72,6 @@
     return SDScaledImageForKey(key, image);
 }
 
-- (void)cachedImageExistsForURL:(nullable NSURL *)url
-                     completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
-    NSString *key = [self cacheKeyForURL:url];
-    
-    BOOL isInMemoryCache = ([self.imageCache imageFromMemoryCacheForKey:key] != nil);
-    
-    if (isInMemoryCache) {
-        // making sure we call the completion block on the main queue
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (completionBlock) {
-                completionBlock(YES);
-            }
-        });
-        return;
-    }
-    
-    [self.imageCache diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
-        // the completion block of checkDiskCacheForImageWithKey:completion: is always called on the main queue, no need to further dispatch
-        if (completionBlock) {
-            completionBlock(isInDiskCache);
-        }
-    }];
-}
-
-- (void)diskImageExistsForURL:(nullable NSURL *)url
-                   completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
-    NSString *key = [self cacheKeyForURL:url];
-    
-    [self.imageCache diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
-        // the completion block of checkDiskCacheForImageWithKey:completion: is always called on the main queue, no need to further dispatch
-        if (completionBlock) {
-            completionBlock(isInDiskCache);
-        }
-    }];
-}
-
 - (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
     return [self loadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
@@ -151,13 +115,6 @@
     }
     NSString *key = [self cacheKeyForURL:url];
     
-    SDImageCacheOptions cacheOptions = 0;
-    if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
-    if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
-    if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
-    if (options & SDWebImageDecodeFirstFrameOnly) cacheOptions |= SDImageCacheDecodeFirstFrameOnly;
-    if (options & SDWebImagePreloadAllFrames) cacheOptions |= SDImageCachePreloadAllFrames;
-    
     // Image transformer
     id<SDWebImageTransformer> transformer;
     if ([context valueForKey:SDWebImageContextCustomTransformer]) {
@@ -176,7 +133,7 @@
     }
     
     __weak SDWebImageCombinedOperation *weakOperation = operation;
-    operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions context:context done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
+    operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
         __strong __typeof(weakOperation) strongOperation = weakOperation;
         if (!strongOperation || strongOperation.isCancelled) {
             [self safelyRemoveOperationFromRunning:strongOperation];
@@ -252,7 +209,10 @@
                         }
                     }
                     
-                    BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
+                    SDImageCacheType storeCacheType = SDImageCacheTypeBoth;
+                    if (options & SDWebImageCacheMemoryOnly) {
+                        storeCacheType = SDImageCacheTypeMemory;
+                    }
                     
                     // We've done the scale process in SDWebImageDownloader with the shared manager, this is used for custom manager and avoid extra scale.
                     if (self != [SDWebImageManager sharedManager] && self.cacheKeyFilter && downloadedImage && ![downloadedImage conformsToProtocol:@protocol(SDAnimatedImage)]) {
@@ -275,7 +235,7 @@
                                 } else {
                                     cacheData = (imageWasTransformed ? nil : downloadedData);
                                 }
-                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey toDisk:cacheOnDisk completion:nil];
+                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
                             }
                             
                             [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
@@ -285,10 +245,10 @@
                             if (self.cacheSerializer) {
                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                                     NSData *cacheData = self.cacheSerializer(downloadedImage, downloadedData, url);
-                                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key cacheType:storeCacheType completion:nil];
                                 });
                             } else {
-                                [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];
+                                [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key cacheType:storeCacheType completion:nil];
                             }
                         }
                         [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
@@ -310,13 +270,6 @@
     }];
 
     return operation;
-}
-
-- (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url {
-    if (image && url) {
-        NSString *key = [self cacheKeyForURL:url];
-        [self.imageCache storeImage:image forKey:key toDisk:YES completion:nil];
-    }
 }
 
 - (void)cancelAll {

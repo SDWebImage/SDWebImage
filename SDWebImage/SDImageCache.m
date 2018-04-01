@@ -144,6 +144,15 @@
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    return [self storeImage:image imageData:imageData forKey:key toMemory:YES toDisk:toDisk completion:completionBlock];
+}
+
+- (void)storeImage:(nullable UIImage *)image
+         imageData:(nullable NSData *)imageData
+            forKey:(nullable NSString *)key
+          toMemory:(BOOL)toMemory
+            toDisk:(BOOL)toDisk
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
     if (!image || !key) {
         if (completionBlock) {
             completionBlock();
@@ -151,7 +160,7 @@
         return;
     }
     // if memory cache is enabled
-    if (self.config.shouldCacheImagesInMemory) {
+    if (toMemory && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = SDMemoryCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
@@ -422,11 +431,15 @@
 }
 
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion {
+    [self removeImageForKey:key fromMemory:YES fromDisk:fromDisk withCompletion:completion];
+}
+
+- (void)removeImageForKey:(nullable NSString *)key fromMemory:(BOOL)fromMemory fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion {
     if (key == nil) {
         return;
     }
 
-    if (self.config.shouldCacheImagesInMemory) {
+    if (fromMemory && self.config.shouldCacheImagesInMemory) {
         [self.memCache removeObjectForKey:key];
     }
 
@@ -440,8 +453,10 @@
                 });
             }
         });
-    } else if (completion){
-        completion();
+    } else {
+        if (completion) {
+            completion();
+        }
     }
 }
 
@@ -497,6 +512,103 @@
             });
         }
     });
+}
+
+#pragma mark - SDWebImageCache
+
+- (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletedBlock)completionBlock {
+    SDImageCacheOptions cacheOptions = 0;
+    if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
+    if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
+    if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
+    if (options & SDWebImageDecodeFirstFrameOnly) cacheOptions |= SDImageCacheDecodeFirstFrameOnly;
+    if (options & SDWebImagePreloadAllFrames) cacheOptions |= SDImageCachePreloadAllFrames;
+    return [self queryCacheOperationForKey:key options:cacheOptions context:context done:completionBlock];
+}
+
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(nullable NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone: {
+            [self storeImage:image imageData:imageData forKey:key toMemory:NO toDisk:NO completion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeMemory: {
+            [self storeImage:image imageData:imageData forKey:key toMemory:YES toDisk:NO completion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeDisk: {
+            [self storeImage:image imageData:imageData forKey:key toMemory:NO toDisk:YES completion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeBoth: {
+            [self storeImage:image imageData:imageData forKey:key toMemory:YES toDisk:YES completion:completionBlock];
+        }
+            break;
+        default: {
+            if (completionBlock) {
+                completionBlock();
+            }
+        }
+            break;
+    }
+}
+
+- (void)removeImageForKey:(NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone: {
+            [self removeImageForKey:key fromMemory:NO fromDisk:NO withCompletion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeMemory: {
+            [self removeImageForKey:key fromMemory:YES fromDisk:NO withCompletion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeDisk: {
+            [self removeImageForKey:key fromMemory:NO fromDisk:YES withCompletion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeBoth: {
+            [self removeImageForKey:key fromMemory:YES fromDisk:YES withCompletion:completionBlock];
+        }
+            break;
+        default: {
+            if (completionBlock) {
+                completionBlock();
+            }
+        }
+            break;
+    }
+}
+
+- (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone: {
+            return;
+        }
+            break;
+        case SDImageCacheTypeMemory: {
+            [self clearMemory];
+            if (completionBlock) {
+                completionBlock();
+            }
+        }
+            break;
+        case SDImageCacheTypeDisk: {
+            [self clearDiskOnCompletion:completionBlock];
+        }
+            break;
+        case SDImageCacheTypeBoth: {
+            [self clearMemory];
+            [self clearDiskOnCompletion:completionBlock];
+        }
+            break;
+        default: {
+            if (completionBlock) {
+                completionBlock();
+            }
+        }
+            break;
+    }
 }
 
 #pragma mark - UIApplicationWillTerminateNotification

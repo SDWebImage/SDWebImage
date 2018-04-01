@@ -101,7 +101,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * The image cache used by manager to query image cache.
  */
-@property (strong, nonatomic, readonly, nonnull) SDImageCache *imageCache;
+@property (strong, nonatomic, readonly, nonnull) id<SDWebImageCache> imageCache;
 
 /**
  * The image downloader used by manager to download image.
@@ -168,7 +168,7 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  * Allows to specify instance of cache and image downloader used with image manager.
  * @return new instance of `SDWebImageManager` with specified cache and downloader.
  */
-- (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache downloader:(nonnull SDWebImageDownloader *)downloader NS_DESIGNATED_INITIALIZER;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -219,42 +219,9 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
                                                  completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
- * Saves image to cache for given URL
- *
- * @param image The image to cache
- * @param url   The URL to the image
- *
- */
-
-- (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url;
-
-/**
  * Cancel all current operations
  */
 - (void)cancelAll;
-
-/**
- *  Async check if image has already been cached
- *
- *  @param url              image url
- *  @param completionBlock  the block to be executed when the check is finished
- *  
- *  @note the completion block is always executed on the main queue
- */
-- (void)cachedImageExistsForURL:(nullable NSURL *)url
-                     completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
-
-/**
- *  Async check if image has already been cached on disk only
- *
- *  @param url              image url
- *  @param completionBlock  the block to be executed when the check is finished
- *
- *  @note the completion block is always executed on the main queue
- */
-- (void)diskImageExistsForURL:(nullable NSURL *)url
-                   completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
-
 
 /**
  *Return the cache key for a given URL

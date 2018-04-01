@@ -10,21 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDImageCacheConfig.h"
-
-typedef NS_ENUM(NSInteger, SDImageCacheType) {
-    /**
-     * The image wasn't available the SDWebImage caches, but was downloaded from the web.
-     */
-    SDImageCacheTypeNone,
-    /**
-     * The image was obtained from the disk cache.
-     */
-    SDImageCacheTypeDisk,
-    /**
-     * The image was obtained from the memory cache.
-     */
-    SDImageCacheTypeMemory
-};
+#import "SDWebImageCache.h"
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
@@ -50,8 +36,6 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCachePreloadAllFrames = 1 << 4
 };
 
-typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
-
 typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
@@ -62,7 +46,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
-@interface SDImageCache : NSObject
+@interface SDImageCache : NSObject <SDWebImageCache>
 
 #pragma mark - Properties
 
@@ -286,7 +270,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  */
 - (void)removeImageFromDiskForKey:(nullable NSString *)key;
 
-#pragma mark - Cache clean Ops
+#pragma mark - Cache clear Ops
 
 /**
  * Synchronously Clear all memory cached images
