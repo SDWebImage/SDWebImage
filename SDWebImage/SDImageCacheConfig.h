@@ -13,10 +13,10 @@
 @interface SDImageCacheConfig : NSObject <NSCopying>
 
 /**
- Gets/Sets the default cache config used for shared instance or initialization when it does not provide any cache config. Such as `SDImageCache.sharedImageCache`.
- @note You should not pass nil to this value.
+ Gets the default cache config used for shared instance or initialization when it does not provide any cache config. Such as `SDImageCache.sharedImageCache`.
+ @note You can modify the property on default cache config, which can be used for later created cache instance. The already created cache instance does not get affected.
  */
-@property (nonatomic, class, nonnull) SDImageCacheConfig *defaultCacheConfig;
+@property (nonatomic, class, nonnull, readonly) SDImageCacheConfig *defaultCacheConfig;
 
 /**
  * Decompressing images means pre-decoding the image that are downloaded and cached on background queue. This can avoid image view decode it on main queue when rendering. This can improve performance but can consume more memory.
@@ -81,18 +81,22 @@
 /**
  * The custom file manager for disk cache. Pass nil to let disk cache choose the proper file manager.
  * Defaults to nil.
+ * @note This value does not support dynamic changes. Which means further modification on this value after cache initlized has no effect.
+ * @note Since `NSFileManager` does not support `NSCopying`. We just pass this by reference during copying. So it's not recommend to set this value on `defaultCacheConfig`.
  */
 @property (strong, nonatomic, nullable) NSFileManager *fileManager;
 
 /**
  * The custom memory cache class. Provided class instance must conform to `SDMemoryCache` protocol to allow usage.
  * Defaults to built-in `SDMemoryCache` class.
+ * @note This value does not support dynamic changes. Which means further modification on this value after cache initlized has no effect.
  */
 @property (assign, nonatomic, nonnull) Class memoryCacheClass;
 
 /**
  * The custom disk cache class. Provided class instance must conform to `SDDiskCache` protocol to allow usage.
  * Defaults to built-in `SDDiskCache` class.
+ * @note This value does not support dynamic changes. Which means further modification on this value after cache initlized has no effect.
  */
 @property (assign ,nonatomic, nonnull) Class diskCacheClass;
 

@@ -10,23 +10,17 @@
 #import "SDMemoryCache.h"
 #import "SDDiskCache.h"
 
-static SDImageCacheConfig * _defaultCacheConfig;
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @implementation SDImageCacheConfig
 
 + (SDImageCacheConfig *)defaultCacheConfig {
-    if (!_defaultCacheConfig) {
-        _defaultCacheConfig = [SDImageCacheConfig new];
-    }
-    return _defaultCacheConfig;
-}
-
-+ (void)setDefaultCacheConfig:(SDImageCacheConfig *)config {
-    if (!config) {
-        return;
-    }
-    _defaultCacheConfig = config;
+    static dispatch_once_t onceToken;
+    static SDImageCacheConfig *defaultCacheConfig;
+    dispatch_once(&onceToken, ^{
+        defaultCacheConfig = [SDImageCacheConfig new];
+    });
+    return defaultCacheConfig;
 }
 
 - (instancetype)init {
