@@ -180,18 +180,18 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  *
  * @param url            The URL to the image
  * @param options        A mask to specify options to use for this request
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  * @param progressBlock  A block called while image is downloading
  *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called when operation has been completed.
- * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  *
  * @return Returns an NSObject conforming to SDWebImageOperation. Should be an instance of SDWebImageDownloaderOperation
  */
 - (nullable id <SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                               options:(SDWebImageOptions)options
+                                              context:(nullable SDWebImageContext *)context
                                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                            completed:(nonnull SDInternalCompletionBlock)completedBlock
-                                              context:(nullable SDWebImageContext *)context;
+                                            completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
  * Saves image to cache for given URL

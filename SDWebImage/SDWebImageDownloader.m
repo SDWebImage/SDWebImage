@@ -193,14 +193,14 @@
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
-    return [self downloadImageWithURL:url options:options progress:progressBlock completed:completedBlock context:nil];
+    return [self downloadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
+                                                   context:(nullable SDWebImageContext *)context
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
-                                                   context:(nullable SDWebImageContext *)context {
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{

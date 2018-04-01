@@ -11,6 +11,7 @@
 typedef void(^SDWebImageNoParamsBlock)(void);
 typedef NSString * SDWebImageContextOption NS_STRING_ENUM;
 typedef NSDictionary<SDWebImageContextOption, id> SDWebImageContext;
+typedef NSMutableDictionary<SDWebImageContextOption, id> SDWebImageMutableContext;
 
 #pragma mark - Image scale
 
@@ -156,12 +157,17 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 #pragma mark - Context Options
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This is used for custom setImageBlock advanced usage, such like perform background task but need to guarantee the completion block is called after setImageBlock. (dispatch_group_t)
+ A String to be used as the operation key for view category to store the image load operation. This is used for view instance which supports different image loading process. If nil, will use the class name as operation key. (NSString *)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetImageOperationKey;
+
+/**
+ A Dispatch group to maintain setImageBlock and completionBlock for view category. This is used for custom setImageBlock advanced usage, such like perform background task but need to guarantee the completion block is called after setImageBlock. (dispatch_group_t)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetImageGroup;
 
 /**
- A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
+ A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager *)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager;
 

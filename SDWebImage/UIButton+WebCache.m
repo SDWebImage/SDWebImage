@@ -72,10 +72,20 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+}
+
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options context:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
+                   context:(nullable SDWebImageContext *)context
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.sd_imageURLStorage removeObjectForKey:imageURLKeyForState(state)];
@@ -83,16 +93,27 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
         self.sd_imageURLStorage[imageURLKeyForState(state)] = url;
     }
     
+    SDWebImageMutableContext *mutableContext;
+    if (context) {
+        mutableContext = [context mutableCopy];
+    } else {
+        mutableContext = [NSMutableDictionary dictionary];
+    }
+    mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
-                        operationKey:imageOperationKeyForState(state)
+                             context:mutableContext
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            [weakSelf setImage:image forState:state];
                        }
-                            progress:nil
-                           completed:completedBlock];
+                            progress:progressBlock
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                               if (completedBlock) {
+                                   completedBlock(image, error, cacheType, imageURL);
+                               }
+                           }];
 }
 
 #pragma mark - Background Image
@@ -131,10 +152,20 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+}
+
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 context:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
+                             context:(nullable SDWebImageContext *)context
+                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.sd_imageURLStorage removeObjectForKey:backgroundImageURLKeyForState(state)];
@@ -142,16 +173,27 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
         self.sd_imageURLStorage[backgroundImageURLKeyForState(state)] = url;
     }
     
+    SDWebImageMutableContext *mutableContext;
+    if (context) {
+        mutableContext = [context mutableCopy];
+    } else {
+        mutableContext = [NSMutableDictionary dictionary];
+    }
+    mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
-                        operationKey:backgroundImageOperationKeyForState(state)
+                             context:mutableContext
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            [weakSelf setBackgroundImage:image forState:state];
                        }
-                            progress:nil
-                           completed:completedBlock];
+                            progress:progressBlock
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                               if (completedBlock) {
+                                   completedBlock(image, error, cacheType, imageURL);
+                               }
+                           }];
 }
 
 #pragma mark - Cancel

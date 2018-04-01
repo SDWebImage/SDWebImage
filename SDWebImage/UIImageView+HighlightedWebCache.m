@@ -13,6 +13,8 @@
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
 
+static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOperationHighlighted";
+
 @implementation UIImageView (HighlightedWebCache)
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url {
@@ -31,20 +33,36 @@
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
 }
 
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
+    [self sd_setHighlightedImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
+                              context:(nullable SDWebImageContext *)context
                              progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
+    SDWebImageMutableContext *mutableContext;
+    if (context) {
+        mutableContext = [context mutableCopy];
+    } else {
+        mutableContext = [NSMutableDictionary dictionary];
+    }
+    mutableContext[SDWebImageContextSetImageOperationKey] = SDHighlightedImageOperationKey;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:nil
                              options:options
-                        operationKey:@"UIImageViewImageOperationHighlighted"
+                             context:mutableContext
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            weakSelf.highlightedImage = image;
                        }
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                               if (completedBlock) {
+                                   completedBlock(image, error, cacheType, imageURL);
+                               }
+                           }];
 }
 
 @end

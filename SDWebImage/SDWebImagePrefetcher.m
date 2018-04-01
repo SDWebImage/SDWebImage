@@ -86,7 +86,7 @@
     NSPointerArray *operations = token.operations;
     for (NSURL *url in urls) {
         __weak typeof(self) wself = self;
-        id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             __strong typeof(wself) sself = wself;
             if (!sself) {
                 return;
@@ -108,7 +108,7 @@
                 [sself callCompletionBlockForToken:token];
                 [sself removeRunningToken:token];
             }
-        } context:self.context];
+        }];
         @synchronized (token) {
             [operations addPointer:(__bridge void *)operation];
         }
