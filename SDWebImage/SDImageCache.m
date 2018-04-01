@@ -530,10 +530,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDCacheQueryCompletedBlock)doneBlock {
-    return [self queryCacheOperationForKey:key options:options done:doneBlock context:nil];
+    return [self queryCacheOperationForKey:key options:options context:nil done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock context:(nullable SDWebImageContext *)context {
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDCacheQueryCompletedBlock)doneBlock {
     if (!key) {
         if (doneBlock) {
             doneBlock(nil, nil, SDImageCacheTypeNone);

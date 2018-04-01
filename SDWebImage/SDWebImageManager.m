@@ -109,14 +109,14 @@
 }
 
 - (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
-    return [self loadImageWithURL:url options:options progress:progressBlock completed:completedBlock context:nil];
+    return [self loadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
 - (id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                     options:(SDWebImageOptions)options
+                                    context:(nullable SDWebImageContext *)context
                                    progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(nonnull SDInternalCompletionBlock)completedBlock
-                                    context:(nullable SDWebImageContext *)context {
+                                  completed:(nonnull SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
 
@@ -165,13 +165,18 @@
     } else if (self.transformer) {
         // Transformer from manager
         transformer = self.transformer;
-        NSMutableDictionary<SDWebImageContextOption, id> *mutableContext = [NSMutableDictionary dictionaryWithDictionary:context];
+        SDWebImageMutableContext *mutableContext;
+        if (context) {
+            mutableContext = [context mutableCopy];
+        } else {
+            mutableContext = [NSMutableDictionary dictionary];
+        }
         [mutableContext setValue:transformer forKey:SDWebImageContextCustomTransformer];
         context = [mutableContext copy];
     }
     
     __weak SDWebImageCombinedOperation *weakOperation = operation;
-    operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
+    operation.cacheOperation = [self.imageCache queryCacheOperationForKey:key options:cacheOptions context:context done:^(UIImage *cachedImage, NSData *cachedData, SDImageCacheType cacheType) {
         __strong __typeof(weakOperation) strongOperation = weakOperation;
         if (!strongOperation || strongOperation.isCancelled) {
             [self safelyRemoveOperationFromRunning:strongOperation];
@@ -211,7 +216,7 @@
             
             // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
             __weak typeof(strongOperation) weakSubOperation = strongOperation;
-            strongOperation.downloadToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+            strongOperation.downloadToken = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong typeof(weakSubOperation) strongSubOperation = weakSubOperation;
                 if (!strongSubOperation || strongSubOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
@@ -293,7 +298,7 @@
                 if (finished) {
                     [self safelyRemoveOperationFromRunning:strongSubOperation];
                 }
-            } context:context];
+            }];
         } else if (cachedImage) {
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
             [self safelyRemoveOperationFromRunning:strongOperation];
@@ -302,7 +307,7 @@
             [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:nil data:nil error:nil cacheType:SDImageCacheTypeNone finished:YES url:url];
             [self safelyRemoveOperationFromRunning:strongOperation];
         }
-    } context:context];
+    }];
 
     return operation;
 }

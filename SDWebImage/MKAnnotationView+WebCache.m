@@ -36,20 +36,34 @@
     [self sd_setImageWithURL:url placeholderImage:placeholder options:0 completed:completedBlock];
 }
 
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+}
+
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options context:nil progress:progressBlock completed:completedBlock];
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
+                   context:(nullable SDWebImageContext *)context
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
-                        operationKey:nil
+                             context:context
                        setImageBlock:^(UIImage *image, NSData *imageData) {
                            weakSelf.image = image;
                        }
-                            progress:nil
-                           completed:completedBlock];
+                            progress:progressBlock
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                               if (completedBlock) {
+                                   completedBlock(image, error, cacheType, imageURL);
+                               }
+                           }];
 }
 
 @end

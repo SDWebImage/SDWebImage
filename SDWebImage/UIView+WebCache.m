@@ -15,16 +15,14 @@
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
-static char imageURLKey;
-
 @implementation UIView (WebCache)
 
 - (nullable NSURL *)sd_imageURL {
-    return objc_getAssociatedObject(self, &imageURLKey);
+    return objc_getAssociatedObject(self, @selector(sd_imageURL));
 }
 
 - (void)setSd_imageURL:(NSURL * _Nullable)sd_imageURL {
-    objc_setAssociatedObject(self, &imageURLKey, sd_imageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(sd_imageURL), sd_imageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSProgress *)sd_imageProgress {
@@ -43,28 +41,31 @@ static char imageURLKey;
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
-                      operationKey:(nullable NSString *)operationKey
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                         completed:(nullable SDExternalCompletionBlock)completedBlock {
-    return [self sd_internalSetImageWithURL:url placeholderImage:placeholder options:options operationKey:operationKey setImageBlock:setImageBlock progress:progressBlock completed:completedBlock context:nil];
-}
-
-- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
-                  placeholderImage:(nullable UIImage *)placeholder
-                           options:(SDWebImageOptions)options
-                      operationKey:(nullable NSString *)operationKey
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                         completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable SDWebImageContext *)context {
-    NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
+                           context:(nullable SDWebImageContext *)context
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDInternalCompletionBlock)completedBlock {
+    context = [context copy]; // copy to avoid mutable object
+    NSString *validOperationKey = nil;
+    if ([context valueForKey:SDWebImageContextSetImageOperationKey]) {
+        validOperationKey = [context valueForKey:SDWebImageContextSetImageOperationKey];
+    } else {
+        validOperationKey = NSStringFromClass([self class]);
+    }
+    dispatch_group_t group = nil;
+    if ([context valueForKey:SDWebImageContextSetImageGroup]) {
+        group = [context valueForKey:SDWebImageContextSetImageGroup];
+    }
+    if (context && group) {
+        // Remove the context option for View Category only and pass others for manager
+        // Operation key may be useful for some advanced feature, keep it
+        SDWebImageMutableContext *mutableContext = [context mutableCopy];
+        [mutableContext removeObjectForKey:SDWebImageContextSetImageGroup];
+        context = [mutableContext copy];
+    }
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     self.sd_imageURL = url;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
-        if ([context valueForKey:SDWebImageContextSetImageGroup]) {
-            dispatch_group_t group = [context valueForKey:SDWebImageContextSetImageGroup];
+        if (group) {
             dispatch_group_enter(group);
         }
         dispatch_main_async_safe(^{
@@ -103,7 +104,7 @@ static char imageURLKey;
                 });
             }
         };
-        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
             // if the progress not been updated, mark it to complete state
@@ -126,7 +127,7 @@ static char imageURLKey;
                     [sself sd_setNeedsLayout];
                 }
                 if (completedBlock && shouldCallCompletedBlock) {
-                    completedBlock(image, error, cacheType, url);
+                    completedBlock(image, data, error, cacheType, finished, url);
                 }
             };
             
@@ -156,8 +157,7 @@ static char imageURLKey;
                 transition = sself.sd_imageTransition;
             }
             
-            if ([context valueForKey:SDWebImageContextSetImageGroup]) {
-                dispatch_group_t group = [context valueForKey:SDWebImageContextSetImageGroup];
+            if (group) {
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
@@ -172,14 +172,14 @@ static char imageURLKey;
                     callCompletedBlockClojure();
                 });
             }
-        } context:context];
+        }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
         [self sd_stopImageIndicator];
         dispatch_main_async_safe(^{
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
-                completedBlock(nil, error, SDImageCacheTypeNone, url);
+                completedBlock(nil, nil, error, YES, SDImageCacheTypeNone, url);
             }
         });
     }
@@ -212,6 +212,14 @@ static char imageURLKey;
         UIButton *button = (UIButton *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
             [button setImage:setImage forState:UIControlStateNormal];
+        };
+    }
+#endif
+#if SD_MAC
+    else if ([view isKindOfClass:[NSButton class]]) {
+        NSButton *button = (NSButton *)view;
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
+            button.image = setImage;
         };
     }
 #endif

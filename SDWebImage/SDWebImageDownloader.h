@@ -254,18 +254,18 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  *
  * @param url            The URL to the image to download
  * @param options        The options to be used for this download
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  * @param progressBlock  A block called repeatedly while the image is downloading
  *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called once the download is completed.
- * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  *
  * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
+                                                   context:(nullable SDWebImageContext *)context
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
-                                                   context:(nullable SDWebImageContext *)context;
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
  * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
