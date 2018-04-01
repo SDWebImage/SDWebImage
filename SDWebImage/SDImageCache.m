@@ -468,7 +468,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return nil;
     }
     
-    // First check the in-memory cache...
+    // First check the in-memory cache
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryDataWhenInMemory));
     if (shouldQueryMemoryOnly) {
@@ -478,8 +478,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return nil;
     }
     
+    // Second check the disk cache
     NSOperation *operation = [NSOperation new];
-    void(^queryDiskBlock)(void) =  ^{
+    // 1. in-memory cache hit & DataSync
+    // 2. in-memory cache miss & DiskSync
+    BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryDataSyncWhenInMemory) ||
+                                (!image && options & SDImageCacheQueryDiskSync));
+    void(^queryDiskBlock)(void) = ^{
         if (operation.isCancelled) {
             // do not call the completion if cancelled
             return;
@@ -490,7 +495,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             UIImage *diskImage;
             SDImageCacheType cacheType = SDImageCacheTypeDisk;
             if (image) {
-                // the image is from in-memory cache
+                // the image is from in-memory cache, but need image data
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
@@ -503,7 +508,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
             
             if (doneBlock) {
-                if (options & SDImageCacheQueryDiskSync) {
+                if (shouldQueryDiskSync) {
                     doneBlock(diskImage, diskData, cacheType);
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -514,7 +519,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
     };
     
-    if (options & SDImageCacheQueryDiskSync) {
+    if (shouldQueryDiskSync) {
         queryDiskBlock();
     } else {
         dispatch_async(self.ioQueue, queryDiskBlock);
