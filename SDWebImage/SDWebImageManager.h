@@ -8,8 +8,8 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
+#import "SDWebImageCache.h"
 #import "SDWebImageDownloader.h"
-#import "SDImageCache.h"
 #import "SDWebImageTransformer.h"
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
@@ -158,6 +158,16 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  * Check one or more operations running
  */
 @property (nonatomic, assign, readonly, getter=isRunning) BOOL running;
+
+/**
+ The default image cache when the manager which is created with no arguments. Such as shared manager.
+ */
+@property (nonatomic, class, nonnull) id<SDWebImageCache> defaultImageCache;
+
+/**
+ The default image downloader for manager which is created with no arguments. Such as shared manager.
+ */
+@property (nonatomic, class, nonnull) SDWebImageDownloader *defaultImageDownloader;
 
 /**
  * Returns global shared manager instance.

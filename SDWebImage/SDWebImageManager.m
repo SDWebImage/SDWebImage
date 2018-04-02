@@ -7,9 +7,14 @@
  */
 
 #import "SDWebImageManager.h"
+#import "SDImageCache.h"
+#import "SDWebImageCachesManager.h"
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
 #import "SDAnimatedImage.h"
+
+static id<SDWebImageCache> _defaultImageCache;
+static SDWebImageDownloader *_defaultImageDownloader;
 
 @interface SDWebImageCombinedOperation ()
 
@@ -22,7 +27,7 @@
 
 @interface SDWebImageManager ()
 
-@property (strong, nonatomic, readwrite, nonnull) SDImageCache *imageCache;
+@property (strong, nonatomic, readwrite, nonnull) id<SDWebImageCache> imageCache;
 @property (strong, nonatomic, readwrite, nonnull) SDWebImageDownloader *imageDownloader;
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
 @property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
@@ -30,6 +35,34 @@
 @end
 
 @implementation SDWebImageManager
+
++ (nonnull id<SDWebImageCache>)defaultImageCache {
+    if (!_defaultImageCache) {
+        _defaultImageCache = [SDImageCache sharedImageCache];
+    }
+    return _defaultImageCache;
+}
+
++ (void)setDefaultImageCache:(id<SDWebImageCache>)defaultImageCache {
+    if (![defaultImageCache conformsToProtocol:@protocol(SDWebImageCache)]) {
+        return;
+    }
+    _defaultImageCache = defaultImageCache;
+}
+
++ (SDWebImageDownloader *)defaultImageDownloader {
+    if (!_defaultImageDownloader) {
+        _defaultImageDownloader = [SDWebImageDownloader sharedDownloader];
+    }
+    return _defaultImageDownloader;
+}
+
++ (void)setDefaultImageDownloader:(SDWebImageDownloader *)defaultImageDownloader {
+    if (!defaultImageDownloader) {
+        return;
+    }
+    _defaultImageDownloader = defaultImageDownloader;
+}
 
 + (nonnull instancetype)sharedManager {
     static dispatch_once_t once;
@@ -41,8 +74,8 @@
 }
 
 - (nonnull instancetype)init {
-    SDImageCache *cache = [SDImageCache sharedImageCache];
-    SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+    id<SDWebImageCache> cache = [[self class] defaultImageCache];
+    SDWebImageDownloader *downloader = [[self class] defaultImageDownloader];
     return [self initWithCache:cache downloader:downloader];
 }
 
