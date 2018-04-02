@@ -160,7 +160,7 @@
     
     // Clear the disk cache to force download from network
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
-        [view sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [view sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             expect(view.sd_imageProgress.fractionCompleted).equal(1.0);
             expect([view.sd_imageProgress.userInfo[NSStringFromSelector(_cmd)] boolValue]).equal(YES);
             [expectation fulfill];
