@@ -135,6 +135,11 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
 @property (nonatomic, copy, nullable) SDWebImageCacheSerializerBlock cacheSerializer;
 
 /**
+ * Check one or more operations running
+ */
+@property (nonatomic, assign, readonly, getter=isRunning) BOOL running;
+
+/**
  * Returns global shared manager instance.
  */
 @property (nonatomic, class, readonly, nonnull) SDWebImageManager *sharedManager;
@@ -207,11 +212,6 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
  * Cancel all current operations
  */
 - (void)cancelAll;
-
-/**
- * Check one or more operations running
- */
-- (BOOL)isRunning;
 
 /**
  *  Async check if image has already been cached
