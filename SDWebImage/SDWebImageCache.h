@@ -38,9 +38,9 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
 
 
 /**
- This is the image cache protocol to provide custom image cache for web cache manager.
+ This is the image cache protocol to provide custom image cache for `SDWebImageManager`.
  Though the best practice to custom image cache, is to write your own class which conform `SDMemoryCache` or `SDDiskCache` protocol for `SDImageCache` class (See more on `SDImageCacheConfig.memoryCacheClass & SDImageCacheConfig.diskCacheClass`).
- However, if your own cache implementation contains more advanced feature beyond this, you can consider to provide this instead. For example, you can even use a cache manager like `SDWebImageCachesManager` to register multiple caches.
+ However, if your own cache implementation contains more advanced feature beyond `SDImageCache` itself, you can consider to provide this instead. For example, you can even use a cache manager like `SDWebImageCachesManager` to register multiple caches.
  */
 @protocol SDWebImageCache <NSObject>
 
@@ -79,7 +79,7 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
 
  @param key The image cache key
  @param cacheType The image remove op cache type
- @param completion A block executed after the operation is finished
+ @param completionBlock A block executed after the operation is finished
  */
 - (void)removeImageForKey:(nullable NSString *)key
                 cacheType:(SDImageCacheType)cacheType
@@ -90,7 +90,7 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
  Clear all the cached images for image cache. If cache type is memory only, completion is called synchronously, else aynchronously.
 
  @param cacheType The image clear op cache type
- @param completion A block executed after the operation is finished
+ @param completionBlock A block executed after the operation is finished
  */
 - (void)clearWithCacheType:(SDImageCacheType)cacheType
                 completion:(nullable SDWebImageNoParamsBlock)completionBlock;

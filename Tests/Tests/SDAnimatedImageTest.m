@@ -8,6 +8,7 @@
  */
 
 #import "SDTestCase.h"
+#import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDAnimatedImage.h>
 #import <SDWebImage/SDAnimatedImageView.h>
 #import <SDWebImage/SDWebImageGIFCoder.h>
