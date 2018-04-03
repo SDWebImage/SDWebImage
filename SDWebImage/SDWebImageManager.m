@@ -36,29 +36,23 @@ static SDWebImageDownloader *_defaultImageDownloader;
 
 @implementation SDWebImageManager
 
-+ (nonnull id<SDWebImageCache>)defaultImageCache {
-    if (!_defaultImageCache) {
-        _defaultImageCache = [SDImageCache sharedImageCache];
-    }
++ (id<SDWebImageCache>)defaultImageCache {
     return _defaultImageCache;
 }
 
 + (void)setDefaultImageCache:(id<SDWebImageCache>)defaultImageCache {
-    if (![defaultImageCache conformsToProtocol:@protocol(SDWebImageCache)]) {
+    if (defaultImageCache && ![defaultImageCache conformsToProtocol:@protocol(SDWebImageCache)]) {
         return;
     }
     _defaultImageCache = defaultImageCache;
 }
 
 + (SDWebImageDownloader *)defaultImageDownloader {
-    if (!_defaultImageDownloader) {
-        _defaultImageDownloader = [SDWebImageDownloader sharedDownloader];
-    }
     return _defaultImageDownloader;
 }
 
 + (void)setDefaultImageDownloader:(SDWebImageDownloader *)defaultImageDownloader {
-    if (!defaultImageDownloader) {
+    if (defaultImageDownloader && ![defaultImageDownloader isKindOfClass:[SDWebImageDownloader class]]) {
         return;
     }
     _defaultImageDownloader = defaultImageDownloader;
@@ -75,7 +69,13 @@ static SDWebImageDownloader *_defaultImageDownloader;
 
 - (nonnull instancetype)init {
     id<SDWebImageCache> cache = [[self class] defaultImageCache];
+    if (!cache) {
+        cache = [SDImageCache sharedImageCache];
+    }
     SDWebImageDownloader *downloader = [[self class] defaultImageDownloader];
+    if (!downloader) {
+        downloader = [SDWebImageDownloader sharedDownloader];
+    }
     return [self initWithCache:cache downloader:downloader];
 }
 

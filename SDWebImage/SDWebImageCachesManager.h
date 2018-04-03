@@ -10,9 +10,10 @@
 #import "SDWebImageCache.h"
 
 typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
-    SDWebImageCachesManagerOperationPolicyAll, // process all caches
-    SDWebImageCachesManagerOperationPolicyHighest, // process the highest priority cache only
-    SDWebImageCachesManagerOperationPolicyLowest // process the lowest priority cache only
+    SDWebImageCachesManagerOperationPolicySerial, // process all caches serially (from the highest priority to the lowest priority cache by order)
+    SDWebImageCachesManagerOperationPolicyConcurrent, // process all caches concurrently
+    SDWebImageCachesManagerOperationPolicyHighestOnly, // process the highest priority cache only
+    SDWebImageCachesManagerOperationPolicyLowestOnly // process the lowest priority cache only
 };
 
 @interface SDWebImageCachesManager : NSObject <SDWebImageCache>
@@ -25,26 +26,26 @@ typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
 // These are op policy for cache manager.
 
 /**
- Operation policy for query op. `All` means query all caches serially (one completion called then next begin) until one cache query success.
- Defaults to `All`
+ Operation policy for query op.
+ Defaults to `Serial`, means query all caches serially (one completion called then next begin) until one cache query success.
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy queryOperationPolicy;
 
 /**
- Operation policy for store op. `All` means store all caches concurrently.
- Defaults to `Highest`
+ Operation policy for store op.
+ Defaults to `HighestOnly`, means store to the highest priority cache only.
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy storeOperationPolicy;
 
 /**
- Operation policy for remove op. `All` means remove all caches concurrently.
- Defaults to `All`
+ Operation policy for remove op.
+ Defaults to `Concurrent`, means remove all caches concurrently.
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy removeOperationPolicy;
 
 /**
- Operation policy for clear op. `All` means clear all caches concurrently.
- Defaults to `All`
+ Operation policy for clear op.
+ Defaults to `Concurrent`, means clear all caches concurrently.
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy clearOperationPolicy;
 

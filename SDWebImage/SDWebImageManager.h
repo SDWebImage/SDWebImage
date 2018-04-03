@@ -160,14 +160,16 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
 @property (nonatomic, assign, readonly, getter=isRunning) BOOL running;
 
 /**
- The default image cache when the manager which is created with no arguments. Such as shared manager.
+ The default image cache when the manager which is created with no arguments. Such as shared manager or init.
+ Defaults to nil. Means using `SDImageCache.sharedImageCache`
  */
-@property (nonatomic, class, nonnull) id<SDWebImageCache> defaultImageCache;
+@property (nonatomic, class, nullable) id<SDWebImageCache> defaultImageCache;
 
 /**
- The default image downloader for manager which is created with no arguments. Such as shared manager.
+ The default image downloader for manager which is created with no arguments. Such as shared manager or init.
+ Defaults to nil. Means using `SDWebImageDownloader.sharedDownloader`
  */
-@property (nonatomic, class, nonnull) SDWebImageDownloader *defaultImageDownloader;
+@property (nonatomic, class, nullable) SDWebImageDownloader *defaultImageDownloader;
 
 /**
  * Returns global shared manager instance.
