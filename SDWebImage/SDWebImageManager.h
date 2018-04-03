@@ -236,7 +236,7 @@ SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
 - (void)cancelAll;
 
 /**
- *Return the cache key for a given URL
+ * Return the cache key for a given URL
  */
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 

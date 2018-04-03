@@ -484,12 +484,12 @@
 		32CF1C101FA496B000004BD1 /* SDWebImageCoderHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CF1C061FA496B000004BD1 /* SDWebImageCoderHelper.m */; };
 		32CF1C111FA496B000004BD1 /* SDWebImageCoderHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CF1C061FA496B000004BD1 /* SDWebImageCoderHelper.m */; };
 		32CF1C121FA496B000004BD1 /* SDWebImageCoderHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CF1C061FA496B000004BD1 /* SDWebImageCoderHelper.m */; };
-		32D6FE28207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
-		32D6FE29207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
-		32D6FE2A207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
-		32D6FE2B207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
-		32D6FE2C207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
-		32D6FE2D207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; };
+		32D6FE28207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D6FE29207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D6FE2A207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D6FE2B207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D6FE2C207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D6FE2D207183E20033DBC5 /* SDWebImageCachesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D6FE26207183E20033DBC5 /* SDWebImageCachesManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32D6FE2E207183E20033DBC5 /* SDWebImageCachesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D6FE27207183E20033DBC5 /* SDWebImageCachesManager.m */; };
 		32D6FE2F207183E20033DBC5 /* SDWebImageCachesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D6FE27207183E20033DBC5 /* SDWebImageCachesManager.m */; };
 		32D6FE30207183E20033DBC5 /* SDWebImageCachesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D6FE27207183E20033DBC5 /* SDWebImageCachesManager.m */; };

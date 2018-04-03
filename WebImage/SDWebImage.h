@@ -26,6 +26,8 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDMemoryCache.h>
 #import <SDWebImage/SDDiskCache.h>
+#import <SDWebImage/SDWebImageCache.h>
+#import <SDWebImage/SDWebImageCachesManager.h>
 #import <SDWebImage/UIView+WebCache.h>
 #import <SDWebImage/UIImageView+WebCache.h>
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
@@ -64,7 +66,6 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/UIImage+ForceDecode.h>
 #import <SDWebImage/NSData+ImageContentType.h>
 #import <SDWebImage/SDWebImageDefine.h>
-#import <SDWebImage/SDWebImageCache.h>
 
 #if SD_MAC
     #import <SDWebImage/NSImage+Additions.h>

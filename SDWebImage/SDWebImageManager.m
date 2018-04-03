@@ -8,7 +8,6 @@
 
 #import "SDWebImageManager.h"
 #import "SDImageCache.h"
-#import "SDWebImageCachesManager.h"
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
 #import "SDAnimatedImage.h"
