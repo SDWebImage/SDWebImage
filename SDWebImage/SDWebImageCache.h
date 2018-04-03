@@ -13,29 +13,30 @@
 
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
-     * For query op, means the image wasn't available the SDWebImage caches, but was downloaded from the web.
-     * For store, remove and clear op, this have no effect.
+     * For query and contains op in response, means the image isn't available in the image cache
+     * For op in request, this have no effect.
      */
     SDImageCacheTypeNone,
     /**
-     * For query op, means the image was obtained from the disk cache.
-     * For store, remove and clear op, means only disk cache.
+     * For query and contains op in response, means the image was obtained from the disk cache.
+     * For op in request, means process only disk cache.
      */
     SDImageCacheTypeDisk,
     /**
-     * For query op, means the image was obtained from the memory cache.
-     * For store, remove and clear op, means only memory cache.
+     * For query and contains op in response, means the image was obtained from the memory cache.
+     * For op in request, means process only memory cache.
      */
     SDImageCacheTypeMemory,
     /**
-     * For query op, means the image was obtained from memory cache, but image data is from disk cache.
-     * For store, remove and clear op, means both memory cache and disk cache.
+     * For query op in response, means the image was obtained from memory cache, but image data is from disk cache.
+     * For contains op in response, means the image is available in both memory cache and disk cache.
+     * For op in request, means process both memory cache and disk cache.
      */
     SDImageCacheTypeBoth
 };
 
-typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
-
+typedef void(^SDImageCacheQueryCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCacheType);
 
 /**
  This is the image cache protocol to provide custom image cache for `SDWebImageManager`.
@@ -44,6 +45,7 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
  */
 @protocol SDWebImageCache <NSObject>
 
+@required
 /**
  Query the cached image from image cache for given key. The operation can be used to cancel the query.
  The completion is called synchronously or aynchronously depends on the options arg (See `SDWebImageQueryDiskSync`)
@@ -57,7 +59,7 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
 - (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key
                                              options:(SDWebImageOptions)options
                                              context:(nullable SDWebImageContext *)context
-                                          completion:(nullable SDImageCacheQueryCompletedBlock)completionBlock;
+                                          completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock;
 
 /**
  Store the image into image cache for the given key. If cache type is memory only, completion is called synchronously, else aynchronously.
@@ -85,6 +87,16 @@ typedef void(^SDImageCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData
                 cacheType:(SDImageCacheType)cacheType
                completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
+/**
+ Check if image cache contains the image for the given key (does not load the image). If cache type is memory only, completion is called synchronously, else aynchronously.
+
+ @param key The image cache key
+ @param cacheType The image contains op cache type
+ @param completionBlock A block executed after the operation is finished.
+ */
+- (void)containsImageForKey:(nullable NSString *)key
+                  cacheType:(SDImageCacheType)cacheType
+                 completion:(nullable SDImageCacheContainsCompletionBlock)completionBlock;
 
 /**
  Clear all the cached images for image cache. If cache type is memory only, completion is called synchronously, else aynchronously.

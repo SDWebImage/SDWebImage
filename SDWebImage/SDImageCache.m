@@ -217,7 +217,7 @@
 
 #pragma mark - Query and Retrieve Ops
 
-- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
+- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDImageCacheCheckCompletionBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         BOOL exists = [self _diskImageDataExistsWithKey:key];
         if (completionBlock) {
@@ -346,15 +346,15 @@
     }
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDImageCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:0 done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDImageCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:options context:nil done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
     if (!key) {
         if (doneBlock) {
             doneBlock(nil, nil, SDImageCacheTypeNone);
@@ -516,7 +516,7 @@
 
 #pragma mark - SDWebImageCache
 
-- (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletedBlock)completionBlock {
+- (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
     SDImageCacheOptions cacheOptions = 0;
     if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
     if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
@@ -576,6 +576,58 @@
                 completionBlock();
             }
         }
+            break;
+    }
+}
+
+- (void)containsImageForKey:(NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDImageCacheContainsCompletionBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone: {
+            if (completionBlock) {
+                completionBlock(SDImageCacheTypeNone);
+            }
+        }
+            break;
+        case SDImageCacheTypeMemory: {
+            BOOL isInMemoryCache = ([self imageFromMemoryCacheForKey:key] != nil);
+            if (completionBlock) {
+                completionBlock(isInMemoryCache ? SDImageCacheTypeMemory : SDImageCacheTypeNone);
+            }
+        }
+            break;
+        case SDImageCacheTypeDisk: {
+            [self diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
+                if (completionBlock) {
+                    completionBlock(isInDiskCache ? SDImageCacheTypeDisk : SDImageCacheTypeNone);
+                }
+            }];
+        }
+            break;
+        case SDImageCacheTypeBoth: {
+            BOOL isInMemoryCache = ([self imageFromMemoryCacheForKey:key] != nil);
+            [self diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
+                SDImageCacheType containsCacheType;
+                if (isInMemoryCache || isInDiskCache) {
+                    if (isInMemoryCache && isInDiskCache) {
+                        containsCacheType = SDImageCacheTypeBoth;
+                    } else if (isInMemoryCache) {
+                        containsCacheType = SDImageCacheTypeMemory;
+                    } else {
+                        containsCacheType = SDImageCacheTypeDisk;
+                    }
+                } else {
+                    containsCacheType = SDImageCacheTypeNone;
+                }
+                if (completionBlock) {
+                    completionBlock(containsCacheType);
+                }
+            }];
+        }
+            break;
+        default:
+            if (completionBlock) {
+                completionBlock(SDImageCacheTypeNone);
+            }
             break;
     }
 }
@@ -664,7 +716,7 @@
     return count;
 }
 
-- (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock {
+- (void)calculateSizeWithCompletionBlock:(nullable SDImageCacheCalculateSizeBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSUInteger fileCount = [self.diskCache totalCount];
         NSUInteger totalSize = [self.diskCache totalSize];

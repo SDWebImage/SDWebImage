@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
 
 /**
  Operation policy for query op.
- Defaults to `Serial`, means query all caches serially (one completion called then next begin) until one cache query success.
+ Defaults to `Serial`, means query all caches serially (one completion called then next begin) until one cache query success (`image` != nil).
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy queryOperationPolicy;
 
@@ -42,6 +42,12 @@ typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
  Defaults to `Concurrent`, means remove all caches concurrently.
  */
 @property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy removeOperationPolicy;
+
+/**
+ Operation policy for contains op.
+ Defaults to `Serial`, means check all caches serially (one completion called then next begin) until one cache check success (`containsCacheType` != None).
+ */
+@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy containsOperationPolicy;
 
 /**
  Operation policy for clear op.
