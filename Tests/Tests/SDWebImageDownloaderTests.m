@@ -16,6 +16,10 @@
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
  */
+@interface SDWebImageDownloadToken ()
+@property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
+@end
+
 @interface SDWebImageDownloader ()
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
@@ -26,9 +30,9 @@
 @end
 
 /**
- *  A class that fits the NSOperation+SDWebImageDownloaderOperationInterface requirement so we can test
+ *  A class that fits the NSOperation+SDWebImageDownloaderOperation requirement so we can test
  */
-@interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperationInterface>
+@interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperation>
 
 @property (nonatomic, assign) BOOL shouldDecompressImages;
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
@@ -103,26 +107,38 @@
 }
 
 - (void)test05ThatSetAndGetMaxConcurrentDownloadsWorks {
-    NSInteger initialValue = [SDWebImageDownloader sharedDownloader].maxConcurrentDownloads;
+    NSInteger initialValue = SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads;
     
-    [[SDWebImageDownloader sharedDownloader] setMaxConcurrentDownloads:3];
-    expect([SDWebImageDownloader sharedDownloader].maxConcurrentDownloads).to.equal(3);
+    SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads = 3;
+    expect(SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads).to.equal(3);
     
-    [[SDWebImageDownloader sharedDownloader] setMaxConcurrentDownloads:initialValue];
+    SDWebImageDownloader.sharedDownloader.config.maxConcurrentDownloads = initialValue;
 }
 
 - (void)test06ThatUsingACustomDownloaderOperationWorks {
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:nil];
+    NSURL *imageURL1 = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL2 = [NSURL URLWithString:kTestPNGURL];
+    NSURL *imageURL3 = [NSURL URLWithString:kTestGIFURL];
     // we try to set a usual NSOperation as operation class. Should not work
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:[NSOperation class]];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    downloader.config.operationClass = [NSOperation class];
+    SDWebImageDownloadToken *token = [downloader downloadImageWithURL:imageURL1 options:0 progress:nil completed:nil];
+    NSOperation<SDWebImageDownloaderOperation> *operation = token.downloadOperation;
+    expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);
     
-    // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperationInterface - should work
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:[CustomDownloaderOperation class]];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([CustomDownloaderOperation class]);
+    // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperation - should work
+    downloader.config.operationClass = [CustomDownloaderOperation class];
+    token = [downloader downloadImageWithURL:imageURL2 options:0 progress:nil completed:nil];
+    operation = token.downloadOperation;
+    expect([operation class]).to.equal([CustomDownloaderOperation class]);
     
     // back to the original value
-    [[SDWebImageDownloader sharedDownloader] setOperationClass:nil];
-    expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([SDWebImageDownloaderOperation class]);
+    downloader.config.operationClass = nil;
+    token = [downloader downloadImageWithURL:imageURL3 options:0 progress:nil completed:nil];
+    operation = token.downloadOperation;
+    expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);
+    
+    [downloader invalidateSessionAndCancel:YES];
 }
 
 - (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
@@ -139,8 +155,8 @@
 
 - (void)test08ThatAHTTPAuthDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"HTTP Auth download"];
-    [SDWebImageDownloader sharedDownloader].username = @"httpwatch";
-    [SDWebImageDownloader sharedDownloader].password = @"httpwatch01";
+    SDWebImageDownloader.sharedDownloader.config.username = @"httpwatch";
+    SDWebImageDownloader.sharedDownloader.config.password = @"httpwatch01";
     NSURL *imageURL = [NSURL URLWithString:@"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633"];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
@@ -150,8 +166,8 @@
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
-    [SDWebImageDownloader sharedDownloader].username = nil;
-    [SDWebImageDownloader sharedDownloader].password = nil;
+    SDWebImageDownloader.sharedDownloader.config.username = nil;
+    SDWebImageDownloader.sharedDownloader.config.password = nil;
 }
 
 - (void)test09ThatProgressiveJPEGWorks {

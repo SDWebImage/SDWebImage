@@ -10,6 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
+#import "SDWebImageDownloaderConfig.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
@@ -73,18 +74,6 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderPreloadAllFrames = 1 << 10
 };
 
-typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
-    /**
-     * Default value. All download operations will execute in queue style (first-in-first-out).
-     */
-    SDWebImageDownloaderFIFOExecutionOrder,
-
-    /**
-     * All download operations will execute in stack style (last-in-first-out).
-     */
-    SDWebImageDownloaderLIFOExecutionOrder
-};
-
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
@@ -103,14 +92,14 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloadToken : NSObject <SDWebImageOperation>
 
 /**
- The download's URL. This should be readonly and you should not modify
+ Cancel the current download.
  */
-@property (nonatomic, strong, nullable) NSURL *url;
+- (void)cancel;
+
 /**
- The cancel token taken from `addHandlersForProgress:completed`. This should be readonly and you should not modify
- @note use `-[SDWebImageDownloadToken cancel]` to cancel the token
+ The download's URL.
  */
-@property (nonatomic, strong, nullable) id downloadOperationCancelToken;
+@property (nonatomic, strong, nullable, readonly) NSURL *url;
 
 @end
 
@@ -121,67 +110,10 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloader : NSObject
 
 /**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
+ * Downloader Config object - storing all kind of settings.
+ * Most config properties support dynamic changes during download, except something like `sessionConfiguration`, see `SDWebImageDownloaderConfig` for more detail.
  */
-@property (assign, nonatomic) BOOL shouldDecompressImages;
-
-/**
- *  The maximum number of concurrent downloads
- */
-@property (assign, nonatomic) NSInteger maxConcurrentDownloads;
-
-/**
- * Shows the current amount of downloads that still need to be downloaded
- */
-@property (readonly, nonatomic) NSUInteger currentDownloadCount;
-
-/**
- *  The timeout value (in seconds) for the download operation. Default: 15.0.
- */
-@property (assign, nonatomic) NSTimeInterval downloadTimeout;
-
-/**
- * The configuration in use by the internal NSURLSession.
- * Mutating this object directly has no effect.
- *
- * @see createNewSessionWithConfiguration:
- */
-@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
-
-/**
- * Gets/Sets a subclass of `SDWebImageDownloaderOperation` as the default
- * `NSOperation` to be used each time SDWebImage constructs a request
- * operation to download an image.
- *
- * @note Passing `NSOperation<SDWebImageDownloaderOperationInterface>` to set as default. Passing `nil` will revert to `SDWebImageDownloaderOperation`.
- */
-@property (assign, nonatomic, nullable) Class operationClass;
-
-/**
- * Gets/Sets the download queue suspension state.
- */
-@property (assign, nonatomic, getter=isSuspended) BOOL suspended;
-
-/**
- * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
- */
-@property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
-
-/**
- *  Set the default URL credential to be set for request operations.
- */
-@property (strong, nonatomic, nullable) NSURLCredential *urlCredential;
-
-/**
- * Set username
- */
-@property (strong, nonatomic, nullable) NSString *username;
-
-/**
- * Set password
- */
-@property (strong, nonatomic, nullable) NSString *password;
+@property (nonatomic, copy, readonly, nonnull) SDWebImageDownloaderConfig *config;
 
 /**
  * Set filter to pick headers for downloading image HTTP request.
@@ -192,16 +124,34 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
 
 /**
- *  Returns the global shared downloader instance
+ * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.
+ @note This is immutable according to NSURLSession's documentation. Mutating this object directly has no effect.
+ */
+@property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *sessionConfiguration;
+
+/**
+ * Gets/Sets the download queue suspension state.
+ */
+@property (nonatomic, assign, getter=isSuspended) BOOL suspended;
+
+/**
+ * Shows the current amount of downloads that still need to be downloaded
+ */
+@property (nonatomic, assign, readonly) NSUInteger currentDownloadCount;
+
+/**
+ *  Returns the global shared downloader instance. Which use the `SDWebImageDownloaderConfig.defaultDownloaderConfig` config.
  */
 @property (nonatomic, class, readonly, nonnull) SDWebImageDownloader *sharedDownloader;
 
 /**
- * Creates an instance of a downloader with specified session configuration.
- * @note `timeoutIntervalForRequest` is going to be overwritten.
- * @return new instance of downloader class
+ Creates an instance of a downloader with specified downloader config.
+ You can specify session configuration, timeout or operation class through downloader config.
+
+ @param config The downloader config. If you specify nil, the `defaultDownloaderConfig` will be used.
+ @return new instance of downloader class
  */
-- (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithConfig:(nullable SDWebImageDownloaderConfig *)config NS_DESIGNATED_INITIALIZER;
 
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.
@@ -278,16 +228,6 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * Cancels all download operations in the queue
  */
 - (void)cancelAllDownloads;
-
-/**
- * Forces SDWebImageDownloader to create and use a new NSURLSession that is
- * initialized with the given configuration.
- * @note All existing download operations in the queue will be cancelled.
- * @note `timeoutIntervalForRequest` is going to be overwritten.
- *
- * @param sessionConfiguration The configuration to use for the new NSURLSession
- */
-- (void)createNewSessionWithConfiguration:(nonnull NSURLSessionConfiguration *)sessionConfiguration;
 
 /**
  * Invalidates the managed session, optionally canceling pending operations.
