@@ -11,6 +11,7 @@
 #import <SDWebImage/SDWebImageDownloader.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
 #import <SDWebImage/SDWebImageCodersManager.h>
+#import "SDWebImageTestDownloadOperation.h"
 #import "SDWebImageTestDecoder.h"
 
 /**
@@ -28,42 +29,6 @@
                                                    forURL:(nullable NSURL *)url
                                            createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback;
 @end
-
-/**
- *  A class that fits the NSOperation+SDWebImageDownloaderOperation requirement so we can test
- */
-@interface CustomDownloaderOperation : NSOperation<SDWebImageDownloaderOperation>
-
-@property (nonatomic, assign) BOOL shouldDecompressImages;
-@property (nonatomic, strong, nullable) NSURLCredential *credential;
-
-@end
-
-@implementation CustomDownloaderOperation
-
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
-    return [self initWithRequest:request inSession:session options:options context:nil];
-}
-
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options context:(SDWebImageContext *)context {
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
-}
-
-- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
-    return nil;
-}
-
-- (BOOL)cancel:(id)token {
-    return YES;
-}
-
-@end
-
 
 
 @interface SDWebImageDownloaderTests : SDTestCase
@@ -127,10 +92,10 @@
     expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);
     
     // setting an NSOperation subclass that conforms to SDWebImageDownloaderOperation - should work
-    downloader.config.operationClass = [CustomDownloaderOperation class];
+    downloader.config.operationClass = [SDWebImageTestDownloadOperation class];
     token = [downloader downloadImageWithURL:imageURL2 options:0 progress:nil completed:nil];
     operation = token.downloadOperation;
-    expect([operation class]).to.equal([CustomDownloaderOperation class]);
+    expect([operation class]).to.equal([SDWebImageTestDownloadOperation class]);
     
     // back to the original value
     downloader.config.operationClass = nil;
