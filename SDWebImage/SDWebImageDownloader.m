@@ -21,6 +21,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @property (nonatomic, strong, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
 @property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
+@property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
 
 @end
 
@@ -29,7 +30,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
-@property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
+@property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, NSOperation<SDWebImageDownloaderOperation> *> *URLOperations;
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t headersLock; // a lock to keep the access to `HTTPHeaders` thread-safe
@@ -166,7 +167,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
     __weak SDWebImageDownloader *wself = self;
 
-    return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
+    return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^NSOperation<SDWebImageDownloaderOperation> *{
         __strong __typeof (wself) sself = wself;
         NSTimeInterval timeoutInterval = sself.config.downloadTimeout;
         if (timeoutInterval == 0.0) {
@@ -193,7 +194,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         } else {
             operationClass = [SDWebImageDownloaderOperation class];
         }
-        SDWebImageDownloaderOperation *operation = [[operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
+        NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
         operation.shouldDecompressImages = sself.config.shouldDecompressImages;
         
         if (sself.config.urlCredential) {
@@ -224,7 +225,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         return;
     }
     LOCK(self.operationsLock);
-    SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
+    NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     if (operation) {
         BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
         if (canceled) {
@@ -237,7 +238,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
                                            completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
-                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback {
+                                           createCallback:(NSOperation<SDWebImageDownloaderOperation> *(^)(void))createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
@@ -247,7 +248,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     }
     
     LOCK(self.operationsLock);
-    SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
+    NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     if (!operation) {
         operation = createCallback();
         __weak typeof(self) wself = self;
@@ -314,12 +315,14 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
 #pragma mark Helper methods
 
-- (SDWebImageDownloaderOperation *)operationWithTask:(NSURLSessionTask *)task {
-    SDWebImageDownloaderOperation *returnOperation = nil;
-    for (SDWebImageDownloaderOperation *operation in self.downloadQueue.operations) {
-        if (operation.dataTask.taskIdentifier == task.taskIdentifier) {
-            returnOperation = operation;
-            break;
+- (NSOperation<SDWebImageDownloaderOperation> *)operationWithTask:(NSURLSessionTask *)task {
+    NSOperation<SDWebImageDownloaderOperation> *returnOperation = nil;
+    for (NSOperation<SDWebImageDownloaderOperation> *operation in self.downloadQueue.operations) {
+        if ([operation respondsToSelector:@selector(dataTask)]) {
+            if (operation.dataTask.taskIdentifier == task.taskIdentifier) {
+                returnOperation = operation;
+                break;
+            }
         }
     }
     return returnOperation;
@@ -333,7 +336,7 @@ didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
 
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:dataTask];
     if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)]) {
         [dataOperation URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
     } else {
@@ -346,7 +349,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
 
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:dataTask];
     if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
         [dataOperation URLSession:session dataTask:dataTask didReceiveData:data];
     }
@@ -358,7 +361,7 @@ didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
 
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:dataTask];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:dataTask];
     if ([dataOperation respondsToSelector:@selector(URLSession:dataTask:willCacheResponse:completionHandler:)]) {
         [dataOperation URLSession:session dataTask:dataTask willCacheResponse:proposedResponse completionHandler:completionHandler];
     } else {
@@ -373,7 +376,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
         [dataOperation URLSession:session task:task didCompleteWithError:error];
     }
@@ -382,7 +385,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest * _Nullable))completionHandler {
     
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
     if ([dataOperation respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
         [dataOperation URLSession:session task:task willPerformHTTPRedirection:response newRequest:request completionHandler:completionHandler];
     } else {
@@ -395,7 +398,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
 
     // Identify the operation that runs this task and pass it the delegate method
-    SDWebImageDownloaderOperation *dataOperation = [self operationWithTask:task];
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didReceiveChallenge:completionHandler:)]) {
         [dataOperation URLSession:session task:task didReceiveChallenge:challenge completionHandler:completionHandler];
     } else {
@@ -411,9 +414,10 @@ didReceiveResponse:(NSURLResponse *)response
 
 - (void)cancel {
     @synchronized (self) {
-        if (!self.downloadOperationCancelToken) {
+        if (self.isCancelled) {
             return;
         }
+        self.cancelled = YES;
         if (self.downloader) {
             // Downloader is alive, cancel token
             [self.downloader cancel:self];

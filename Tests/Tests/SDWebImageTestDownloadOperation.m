@@ -9,6 +9,12 @@
 
 #import "SDWebImageTestDownloadOperation.h"
 
+@interface SDWebImageTestDownloadOperation ()
+
+@property (nonatomic, strong) NSMutableArray<SDWebImageDownloaderCompletedBlock> *completedBlocks;
+
+@end
+
 @implementation SDWebImageTestDownloadOperation
 
 @synthesize executing = _executing;
@@ -23,6 +29,11 @@
 - (void)cancel {
     if (self.isFinished) return;
     [super cancel];
+    
+    NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    for (SDWebImageDownloaderCompletedBlock completedBlock in self.completedBlocks) {
+        completedBlock(nil, nil, error, YES);
+    }
 }
 
 - (BOOL)isConcurrent {
@@ -49,12 +60,16 @@
     self = [super init];
     if (self) {
         self.request = request;
+        self.completedBlocks = [NSMutableArray array];
     }
     return self;
 }
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+    if (completedBlock) {
+        [self.completedBlocks addObject:completedBlock];
+    }
     return NSStringFromClass([self class]);
 }
 

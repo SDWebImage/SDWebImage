@@ -20,9 +20,10 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 /**
  Describes a downloader operation. If one wants to use a custom downloader op, it needs to inherit from `NSOperation` and conform to this protocol
  For the description about these methods, see `SDWebImageDownloaderOperation`
+ @note If your custom operation class does not use `NSURLSession` at all, do not implement the optional methods and session delegate methods.
  */
-@protocol SDWebImageDownloaderOperation <NSObject>
-
+@protocol SDWebImageDownloaderOperation <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@required
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options;
@@ -43,15 +44,26 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 
 - (BOOL)cancel:(nullable id)token;
 
+- (nullable NSURLRequest *)request;
+- (nullable NSURLResponse *)response;
+
+@optional
+- (nullable NSURLSessionTask *)dataTask;
+
 @end
 
 
-@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation>
 
 /**
  * The request used by the operation's task.
  */
 @property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
+
+/**
+ * The response returned by the operation's task.
+ */
+@property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
 
 /**
  * The operation's task
@@ -85,11 +97,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  * The expected size of data.
  */
 @property (assign, nonatomic, readonly) NSInteger expectedSize;
-
-/**
- * The response returned by the operation's task.
- */
-@property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
 
 /**
  *  Initializes a `SDWebImageDownloaderOperation` object
