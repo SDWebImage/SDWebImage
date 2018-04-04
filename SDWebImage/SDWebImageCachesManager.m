@@ -553,7 +553,7 @@
             // Success
             [operation done];
             if (completionBlock) {
-                completionBlock(cacheType);
+                completionBlock(containsCacheType);
             }
             return;
         }

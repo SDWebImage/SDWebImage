@@ -605,21 +605,15 @@
             break;
         case SDImageCacheTypeBoth: {
             BOOL isInMemoryCache = ([self imageFromMemoryCacheForKey:key] != nil);
-            [self diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
-                SDImageCacheType containsCacheType;
-                if (isInMemoryCache || isInDiskCache) {
-                    if (isInMemoryCache && isInDiskCache) {
-                        containsCacheType = SDImageCacheTypeBoth;
-                    } else if (isInMemoryCache) {
-                        containsCacheType = SDImageCacheTypeMemory;
-                    } else {
-                        containsCacheType = SDImageCacheTypeDisk;
-                    }
-                } else {
-                    containsCacheType = SDImageCacheTypeNone;
-                }
+            if (isInMemoryCache) {
                 if (completionBlock) {
-                    completionBlock(containsCacheType);
+                    completionBlock(SDImageCacheTypeMemory);
+                }
+                return;
+            }
+            [self diskImageExistsWithKey:key completion:^(BOOL isInDiskCache) {
+                if (completionBlock) {
+                    completionBlock(isInDiskCache ? SDImageCacheTypeDisk : SDImageCacheTypeNone);
                 }
             }];
         }

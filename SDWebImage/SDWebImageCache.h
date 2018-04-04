@@ -14,7 +14,7 @@
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * For query and contains op in response, means the image isn't available in the image cache
-     * For op in request, this have no effect.
+     * For op in request, this type is not available and take no effect.
      */
     SDImageCacheTypeNone,
     /**
@@ -28,8 +28,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
      */
     SDImageCacheTypeMemory,
     /**
-     * For query op in response, means the image was obtained from memory cache, but image data is from disk cache.
-     * For contains op in response, means the image is available in both memory cache and disk cache.
+     * For query and contains op in response, this type is not available and take no effect.
      * For op in request, means process both memory cache and disk cache.
      */
     SDImageCacheTypeBoth
@@ -48,7 +47,7 @@ typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCach
 @required
 /**
  Query the cached image from image cache for given key. The operation can be used to cancel the query.
- The completion is called synchronously or aynchronously depends on the options arg (See `SDWebImageQueryDiskSync`)
+ If image is cached in memory, completion is called synchronously, else aynchronously and depends on the options arg (See `SDWebImageQueryDiskSync`)
 
  @param key The image cache key
  @param options A mask to specify options to use for this query
@@ -88,7 +87,7 @@ typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCach
                completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
- Check if image cache contains the image for the given key (does not load the image). If cache type is memory only, completion is called synchronously, else aynchronously.
+ Check if image cache contains the image for the given key (does not load the image). If image is cached in memory, completion is called synchronously, else aynchronously.
 
  @param key The image cache key
  @param cacheType The image contains op cache type
