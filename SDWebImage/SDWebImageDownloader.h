@@ -97,10 +97,16 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  The download's URL.
  */
 @property (nonatomic, strong, nullable, readonly) NSURL *url;
+
 /**
- The doenload's response.
+ The download's request.
  */
-@property (nonatomic, strong, nullable, readonly) NSURLResponse *response;
+@property (nonatomic, copy, nullable, readonly) NSURLRequest *request;
+
+/**
+ The download's response.
+ */
+@property (nonatomic, copy, nullable, readonly) NSURLResponse *response;
 
 @end
 
@@ -188,7 +194,7 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.
  *
- * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
+ * @return A token (SDWebImageDownloadToken) that can be used to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
@@ -209,7 +215,7 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  *                       @note the progress block is executed on a background queue
  * @param completedBlock A block called once the download is completed.
  *
- * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
+ * @return A token (SDWebImageDownloadToken) that can be used to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options

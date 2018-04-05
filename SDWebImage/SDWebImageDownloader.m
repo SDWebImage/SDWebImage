@@ -18,7 +18,8 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @interface SDWebImageDownloadToken ()
 
 @property (nonatomic, strong, nullable, readwrite) NSURL *url;
-@property (nonatomic, strong, nullable, readwrite) NSURLResponse *response;
+@property (nonatomic, copy, nullable, readwrite) NSURLRequest *request;
+@property (nonatomic, copy, nullable, readwrite) NSURLResponse *response;
 @property (nonatomic, strong, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
 @property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
@@ -284,6 +285,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
     token.downloadOperation = operation;
     token.url = url;
+    token.request = operation.request;
     token.downloadOperationCancelToken = downloadOperationCancelToken;
     token.downloader = self;
 
