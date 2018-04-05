@@ -27,7 +27,7 @@
 - (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
                                            completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
                                                    forURL:(nullable NSURL *)url
-                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback;
+                                           createCallback:(NSOperation<SDWebImageDownloaderOperation> *(^)(void))createCallback;
 @end
 
 
