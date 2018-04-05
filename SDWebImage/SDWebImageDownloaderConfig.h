@@ -25,6 +25,7 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 
 /**
  Gets/Sets the default downloader config used for shared instance or initialization when it does not provide any downloader config. Such as `SDWebImageDownloader.sharedDownloader`.
+ @note You can modify the property on default downloader config, which can be used for later created downloader instance. The already created downloader instance does not get affected.
  @note You should not pass nil to this value.
  */
 @property (nonatomic, class, nonnull) SDWebImageDownloaderConfig *defaultDownloaderConfig;

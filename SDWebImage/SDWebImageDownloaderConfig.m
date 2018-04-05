@@ -13,9 +13,10 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
 @implementation SDWebImageDownloaderConfig
 
 + (SDWebImageDownloaderConfig *)defaultDownloaderConfig {
-    if (!_defaultDownloaderConfig) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         _defaultDownloaderConfig = [SDWebImageDownloaderConfig new];
-    }
+    });
     return _defaultDownloaderConfig;
 }
 
