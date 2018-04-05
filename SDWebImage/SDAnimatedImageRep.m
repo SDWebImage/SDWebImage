@@ -87,10 +87,11 @@
         }
         NSUInteger index = [value unsignedIntegerValue];
         float frameDuration = 0;
-        // Through we currently process GIF only, in the 5.x we support APNG so we keep the extensibility
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
+            // GIF
             frameDuration = [[SDWebImageGIFCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
         } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
+            // APNG
             frameDuration = [[SDWebImageAPNGCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
