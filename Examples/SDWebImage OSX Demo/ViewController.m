@@ -28,7 +28,7 @@
     [super viewDidLoad];
     
     // For animated GIF rendering, set `animates` to YES or will only show the first frame
-    self.imageView2.animates = YES; // `SDAnimatedImageRep` be can used for built-in `NSImageView` to support better GIF & APNG rendering
+    self.imageView2.animates = YES; // `SDAnimatedImageRep` can be used for built-in `NSImageView` to support better GIF & APNG rendering as well. No need `SDAnimatedImageView`
     self.imageView3.animates = YES;
     self.imageView4.animates = YES;
     self.imageView1.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;

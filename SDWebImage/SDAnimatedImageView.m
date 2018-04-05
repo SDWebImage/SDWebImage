@@ -210,6 +210,9 @@ dispatch_semaphore_signal(self->_lock);
 
 - (void)commonInit
 {
+    self.shouldCustomLoopCount = NO;
+    self.shouldIncrementalLoad = YES;
+    self.lock = dispatch_semaphore_create(1);
 #if SD_MAC
     self.wantsLayer = YES;
     // Default value from `NSImageView`
@@ -217,13 +220,11 @@ dispatch_semaphore_signal(self->_lock);
     self.imageScaling = NSImageScaleProportionallyDown;
     self.imageAlignment = NSImageAlignCenter;
 #endif
-    self.runLoopMode = [[self class] defaultRunLoopMode];
-    self.lock = dispatch_semaphore_create(1);
 #if SD_UIKIT
+    self.runLoopMode = [[self class] defaultRunLoopMode];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
 }
-
 
 - (void)resetAnimatedImage
 {
@@ -269,25 +270,8 @@ dispatch_semaphore_signal(self->_lock);
         return;
     }
     
-    // Check Progressive coding
-    self.isProgressive = NO;
-    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental) {
-        NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
-        if (currentData) {
-            NSData *previousData;
-            if ([self.image conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                previousData = [((UIImage<SDAnimatedImage> *)self.image) animatedImageData];
-            }
-            // Check whether to use progressive coding
-            if (!previousData) {
-                // If previous data is nil
-                self.isProgressive = YES;
-            } else if ([currentData isEqualToData:previousData]) {
-                // If current data is equal to previous data
-                self.isProgressive = YES;
-            }
-        }
-    }
+    // Check Progressive rendering
+    [self updateIsProgressiveWithImage:image];
     
     if (self.isProgressive) {
         // Reset all value, but keep current state
@@ -305,6 +289,10 @@ dispatch_semaphore_signal(self->_lock);
         NSUInteger animatedImageFrameCount = ((UIImage<SDAnimatedImage> *)image).animatedImageFrameCount;
         // Check the frame count
         if (animatedImageFrameCount <= 1) {
+            return;
+        }
+        // If progressive rendering is disabled but animated image is incremental. Only show poster image
+        if (!self.isProgressive && image.sd_isIncremental) {
             return;
         }
         self.animatedImage = (UIImage<SDAnimatedImage> *)image;
@@ -346,6 +334,7 @@ dispatch_semaphore_signal(self->_lock);
 #endif
 }
 
+#if SD_UIKIT
 - (void)setRunLoopMode:(NSString *)runLoopMode
 {
     if (![@[NSDefaultRunLoopMode, NSRunLoopCommonModes] containsObject:runLoopMode]) {
@@ -355,6 +344,7 @@ dispatch_semaphore_signal(self->_lock);
         _runLoopMode = runLoopMode;
     }
 }
+#endif
 
 #pragma mark - Private
 - (NSOperationQueue *)fetchQueue
@@ -623,6 +613,33 @@ dispatch_semaphore_signal(self->_lock);
     self.shouldAnimate = self.animatedImage && self.totalFrameCount > 1 && isVisible;
 }
 
+// Update progressive status only after `setImage:` call.
+- (void)updateIsProgressiveWithImage:(UIImage *)image
+{
+    self.isProgressive = NO;
+    if (!self.shouldIncrementalLoad) {
+        // Early return
+        return;
+    }
+    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental) {
+        NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
+        if (currentData) {
+            NSData *previousData;
+            if ([self.image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                previousData = [((UIImage<SDAnimatedImage> *)self.image) animatedImageData];
+            }
+            // Check whether to use progressive coding
+            if (!previousData) {
+                // If previous data is nil
+                self.isProgressive = YES;
+            } else if ([currentData isEqualToData:previousData]) {
+                // If current data is equal to previous data
+                self.isProgressive = YES;
+            }
+        }
+    }
+}
+
 #if SD_MAC
 - (void)displayDidRefresh:(CVDisplayLinkRef)displayLink duration:(NSTimeInterval)duration
 #else
@@ -735,8 +752,8 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 
-#pragma mark - CALayerDelegate (Informal)
 #pragma mark Providing the Layer's Content
+#pragma mark - CALayerDelegate
 
 - (void)displayLayer:(CALayer *)layer
 {

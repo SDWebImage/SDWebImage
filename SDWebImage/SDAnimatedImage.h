@@ -18,7 +18,7 @@
 @required
 /**
  Initializes the image with an animated coder. You can use the coder to decode the image frame later.
- @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this instead.
+ @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this with animated coder which conforms to `SDWebImageProgressiveCoder` as well instead.
  
  @param animatedCoder An animated coder which conform `SDWebImageAnimatedCoder` protocol
  @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
