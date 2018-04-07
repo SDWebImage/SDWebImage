@@ -115,10 +115,12 @@ dispatch_semaphore_signal(self->_lock);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
     BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
 #if SD_UIKIT || SD_WATCH
-    CGFloat scale = 1.0;
+    CGFloat scale = 1;
     if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
         scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
-        scale = MAX(1.0, scale);
+        if (scale < 1) {
+            scale = 1;
+        }
     }
 #endif
     if (!hasAnimation) {

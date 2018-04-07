@@ -485,12 +485,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (data) {
         UIImage *image;
         BOOL decodeFirstFrame = options & SDImageCacheDecodeFirstFrameOnly;
+        CGFloat scale = [context valueForKey:SDWebImageContextImageScaleFactor] ? [[context valueForKey:SDWebImageContextImageScaleFactor] doubleValue] : SDImageScaleForKey(key);
         if (!decodeFirstFrame) {
             // check whether we should use `SDAnimatedImage`
             if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
                 Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
                 if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                    CGFloat scale = SDImageScaleForKey(key);
                     image = [[animatedImageClass alloc] initWithData:data scale:scale];
                     if (options & SDImageCachePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
                         [((id<SDAnimatedImage>)image) preloadAllFrames];
@@ -499,8 +499,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
         }
         if (!image) {
-            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame)}];
-            image = [self scaledImageForKey:key image:image];
+            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageContextImageScaleFactor : @(scale)}];
         }
         BOOL shouldDecode = YES;
         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
@@ -519,10 +518,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     } else {
         return nil;
     }
-}
-
-- (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
-    return SDScaledImageForKey(key, image);
 }
 
 - (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDCacheQueryCompletedBlock)doneBlock {

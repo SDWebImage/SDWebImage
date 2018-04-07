@@ -177,6 +177,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustom
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomTransformer;
 
 /**
+ A CGFloat value which specify the image scale factor. The number should be greater than or equal to 1.0. If not provide or the number is invalid, we will use the cache key to specify the scale factor. (NSNumber)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageScaleFactor;
+
+/**
  A Class object which the instance is a `UIImage/NSImage` subclass and adopt `SDAnimatedImage` protocol. We will call `initWithData:scale:` to create the instance (or `initWithAnimatedCoder:scale` when using progressive download) . If the instance create failed, fallback to normal `UIImage/NSImage`.
  This can be used to improve animated images rendering performance (especially memory usage on big animated images) with `SDAnimatedImageView` (Class).
  */

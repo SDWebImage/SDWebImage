@@ -95,10 +95,12 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     size_t count = CGImageSourceGetCount(source);
-    CGFloat scale = 1.0;
+    CGFloat scale = 1;
     if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
         scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
-        scale = MAX(1.0, scale);
+        if (scale < 1) {
+            scale = 1;
+        }
     }
     UIImage *animatedImage;
     

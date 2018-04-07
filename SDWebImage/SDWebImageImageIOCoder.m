@@ -86,10 +86,12 @@
     UIImage *image = [[UIImage alloc] initWithData:data];
     return image;
 #else
-    CGFloat scale = 1.0;
+    CGFloat scale = 1;
     if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
         scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
-        scale = MAX(1.0, scale);
+        if (scale < 1) {
+            scale = 1;
+        }
     }
     UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
     if (!image) {
