@@ -18,6 +18,10 @@ typedef NSDictionary<SDWebImageCoderOption, id> SDWebImageCoderOptions;
  */
 FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeFirstFrameOnly;
 /**
+ A CGFloat value which is greater than or equal to 1.0. This value specify the image scale factor for decoding. If not provide, use 1.0. (NSNumber)
+ */
+FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeScaleFactor;
+/**
  A double value between 0.0-1.0 indicating the encode compression quality to produce the image data. If not provide, use 1.0. (NSNumber)
  */
 FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeCompressionQuality;

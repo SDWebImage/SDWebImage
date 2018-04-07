@@ -95,11 +95,15 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     size_t count = CGImageSourceGetCount(source);
-    
+    CGFloat scale = 1.0;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        scale = MAX(1.0, scale);
+    }
     UIImage *animatedImage;
     
     if (count <= 1) {
-        animatedImage = [[UIImage alloc] initWithData:data];
+        animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
         NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
         
@@ -110,7 +114,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             }
             
             float duration = [self sd_frameDurationAtIndex:i source:source];
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];

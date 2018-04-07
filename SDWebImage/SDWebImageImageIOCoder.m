@@ -82,11 +82,16 @@
         return nil;
     }
     
-    UIImage *image = [[UIImage alloc] initWithData:data];
-    
 #if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithData:data];
     return image;
 #else
+    CGFloat scale = 1.0;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        scale = MAX(1.0, scale);
+    }
+    UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
     if (!image) {
         return nil;
     }

@@ -85,7 +85,11 @@
         return nil;
     }
     size_t count = CGImageSourceGetCount(source);
-    
+    CGFloat scale = 1.0;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        scale = MAX(1.0, scale);
+    }
     UIImage *animatedImage;
     
     BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
@@ -101,7 +105,7 @@
             }
             
             float duration = [self sd_frameDurationAtIndex:i source:source];
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
