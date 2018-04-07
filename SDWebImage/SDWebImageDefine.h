@@ -16,22 +16,35 @@ typedef NSMutableDictionary<SDWebImageContextOption, id> SDWebImageMutableContex
 #pragma mark - Image scale
 
 /**
- Return the image scale from the specify key, supports file name and url key
+ Return the image scale factor for the specify key, supports file name and url key.
+ This is the built-in way to check the scale factor when we have no context about it. Because scale factor is not stored in image data (It's typically from filename).
+ However, you can also provide custom scale factor as well, see `SDWebImageContextImageScaleFactor`.
 
  @param key The image cache key
  @return The scale factor for image
  */
-FOUNDATION_EXPORT CGFloat SDImageScaleForKey(NSString * _Nullable key);
+FOUNDATION_EXPORT CGFloat SDImageScaleFactorForKey(NSString * _Nullable key);
 
 /**
- Scale the image with the scale factor from the specify key. If no need to scale, return the original image
- This only works for `UIImage`(UIKit) or `NSImage`(AppKit).
+ Scale the image with the scale factor for the specify key. If no need to scale, return the original image.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ @note This is actually a convenience function, which firstlly call `SDImageScaleFactorForKey` and then call `SDScaledImageForScaleFactor`, kept for backward compatibility.
 
  @param key The image cache key
  @param image The image
  @return The scaled image
  */
 FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
+
+/**
+ Scale the image with the scale factor. If no need to scale, return the original image.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ 
+ @param scale The image scale factor
+ @param image The image
+ @return The scaled image
+ */
+FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * _Nullable image);
 
 #pragma mark - WebCache Options
 

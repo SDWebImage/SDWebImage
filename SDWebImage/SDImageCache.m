@@ -485,7 +485,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (data) {
         UIImage *image;
         BOOL decodeFirstFrame = options & SDImageCacheDecodeFirstFrameOnly;
-        CGFloat scale = [context valueForKey:SDWebImageContextImageScaleFactor] ? [[context valueForKey:SDWebImageContextImageScaleFactor] doubleValue] : SDImageScaleForKey(key);
+        NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
+        CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(key);
         if (!decodeFirstFrame) {
             // check whether we should use `SDAnimatedImage`
             if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
@@ -499,7 +500,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             }
         }
         if (!image) {
-            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageContextImageScaleFactor : @(scale)}];
+            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
         }
         BOOL shouldDecode = YES;
         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {

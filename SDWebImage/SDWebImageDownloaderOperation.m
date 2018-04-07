@@ -364,7 +364,8 @@ didReceiveResponse:(NSURLResponse *)response
             // check whether we should use `SDAnimatedImage`
             UIImage *image;
             BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
-            CGFloat scale = [self.context valueForKey:SDWebImageContextImageScaleFactor] ? [[self.context valueForKey:SDWebImageContextImageScaleFactor] doubleValue] : SDImageScaleForKey(self.cacheKey);
+            NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
+            CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
             if (!decodeFirstFrame) {
                 // check whether we should use `SDAnimatedImage`
                 if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
@@ -375,7 +376,7 @@ didReceiveResponse:(NSURLResponse *)response
                 }
             }
             if (!image) {
-                image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageContextImageScaleFactor : @(scale)}];
+                image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
             }
             if (image) {
                 BOOL shouldDecode = self.shouldDecompressImages;
@@ -456,7 +457,8 @@ didReceiveResponse:(NSURLResponse *)response
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
                         BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
-                        CGFloat scale = [self.context valueForKey:SDWebImageContextImageScaleFactor] ? [[self.context valueForKey:SDWebImageContextImageScaleFactor] doubleValue] : SDImageScaleForKey(self.cacheKey);
+                        NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
+                        CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
                         if (scale < 1) {
                             scale = 1;
                         }
@@ -474,7 +476,7 @@ didReceiveResponse:(NSURLResponse *)response
                             }
                         }
                         if (!image) {
-                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageContextImageScaleFactor : @(scale)}];
+                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
                         }
                         
                         BOOL shouldDecode = self.shouldDecompressImages;

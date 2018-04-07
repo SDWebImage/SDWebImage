@@ -16,7 +16,7 @@ static inline NSArray<NSNumber *> * _Nonnull SDImageScaleFactors() {
     return @[@2, @3];
 }
 
-inline CGFloat SDImageScaleForKey(NSString * _Nullable key) {
+inline CGFloat SDImageScaleFactorForKey(NSString * _Nullable key) {
     CGFloat scale = 1;
     if (!key) {
         return scale;
@@ -55,46 +55,56 @@ inline CGFloat SDImageScaleForKey(NSString * _Nullable key) {
     return scale;
 }
 
-inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image) {
+inline UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image) {
     if (!image) {
         return nil;
     }
-    
-    CGFloat scale = SDImageScaleForKey(key);
-    if (scale > 1) {
-        UIImage *scaledImage;
-        if (image.sd_isAnimated) {
-            UIImage *animatedImage;
+    CGFloat scale = SDImageScaleFactorForKey(key);
+    return SDScaledImageForScaleFactor(scale, image);
+}
+
+inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * _Nullable image) {
+    if (!image) {
+        return nil;
+    }
+    if (scale <= 1) {
+        return image;
+    }
+    if (scale == image.scale) {
+        return image;
+    }
+    UIImage *scaledImage;
+    if (image.sd_isAnimated) {
+        UIImage *animatedImage;
 #if SD_UIKIT || SD_WATCH
-            // `UIAnimatedImage` images share the same size and scale.
-            NSMutableArray<UIImage *> *scaledImages = [NSMutableArray array];
-            
-            for (UIImage *tempImage in image.images) {
-                UIImage *tempScaledImage = [[UIImage alloc] initWithCGImage:tempImage.CGImage scale:scale orientation:tempImage.imageOrientation];
-                [scaledImages addObject:tempScaledImage];
-            }
-            
-            animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
-            animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
-#else
-            // Animated GIF for `NSImage` need to grab `NSBitmapImageRep`
-            NSSize size = NSMakeSize(image.size.width / scale, image.size.height / scale);
-            animatedImage = [[NSImage alloc] initWithSize:size];
-            NSBitmapImageRep *bitmapImageRep = image.bitmapImageRep;
-            [animatedImage addRepresentation:bitmapImageRep];
-#endif
-            scaledImage = animatedImage;
-        } else {
-#if SD_UIKIT || SD_WATCH
-            scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-#else
-            scaledImage = [[NSImage alloc] initWithCGImage:image.CGImage size:NSZeroSize];
-#endif
+        // `UIAnimatedImage` images share the same size and scale.
+        NSMutableArray<UIImage *> *scaledImages = [NSMutableArray array];
+        
+        for (UIImage *tempImage in image.images) {
+            UIImage *tempScaledImage = [[UIImage alloc] initWithCGImage:tempImage.CGImage scale:scale orientation:tempImage.imageOrientation];
+            [scaledImages addObject:tempScaledImage];
         }
         
-        return scaledImage;
+        animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
+        animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
+#else
+        // Animated GIF for `NSImage` need to grab `NSBitmapImageRep`
+        NSSize size = NSMakeSize(image.size.width / scale, image.size.height / scale);
+        animatedImage = [[NSImage alloc] initWithSize:size];
+        NSBitmapImageRep *bitmapImageRep = image.bitmapImageRep;
+        [animatedImage addRepresentation:bitmapImageRep];
+#endif
+        scaledImage = animatedImage;
+    } else {
+#if SD_UIKIT || SD_WATCH
+        scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+#else
+        scaledImage = [[NSImage alloc] initWithCGImage:image.CGImage size:NSZeroSize];
+#endif
     }
-    return image;
+    scaledImage.sd_isIncremental = image.sd_isIncremental;
+    
+    return scaledImage;
 }
 
 #pragma mark - Context option

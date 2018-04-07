@@ -25,7 +25,7 @@
  * UIKit:
  * Check the `images` array property
  * AppKit:
- * NSImage currently only support animated via GIF imageRep unlike UIImage. It will check all the imageRef
+ * NSImage currently only support animated via GIF imageRep unlike UIImage. It will check the imageRep's frame count.
  */
 @property (nonatomic, assign, readonly) BOOL sd_isAnimated;
 

@@ -15,6 +15,7 @@
 #endif
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
+#import "SDWebImageDefine.h"
 
 @interface SDWebImageCodersManager ()
 
@@ -100,6 +101,13 @@
         return nil;
     }
     BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    CGFloat scale = 1;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if (scale < 1) {
+            scale = 1;
+        }
+    }
     UIImage *image;
     for (id<SDWebImageCoder> coder in self.coders) {
         if ([coder canDecodeFromData:data]) {
@@ -107,8 +115,15 @@
             break;
         }
     }
-    if (decodeFirstFrame && image.images.count > 0) {
-        image = image.images.firstObject;
+    if (image) {
+        // Check static image
+        if (decodeFirstFrame && image.images.count > 0) {
+            image = image.images.firstObject;
+        }
+        // Check image scale
+        if (scale > 1 && scale != image.scale) {
+            image = SDScaledImageForScaleFactor(scale, image);
+        }
     }
     
     return image;
