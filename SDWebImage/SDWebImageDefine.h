@@ -183,6 +183,6 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustom
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextAnimatedImageClass;
 
 /**
- A SDWebImageDownloaderRequestModifierBlock instance(dispatch_block_t) to modify the image download request. It's used for downloader to modify the original request from URL and options. If you provide one, it will ignore the `requestModifier` in downloader and use provided one instead. (SDWebImageDownloaderRequestModifierBlock)
+ A id<SDWebImageDownloaderRequestModifier> instance to modify the image download request. It's used for downloader to modify the original request from URL and options. If you provide one, it will ignore the `requestModifier` in downloader and use provided one instead. (id<SDWebImageDownloaderRequestModifier>)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextDownloadRequestModifier;

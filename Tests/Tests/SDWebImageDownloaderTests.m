@@ -372,7 +372,7 @@
 - (void)test23ThatDownloadRequestModifierWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Download request modifier not works"];
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
-    SDWebImageDownloaderRequestModifierBlock requestModifier = ^NSURLRequest *(NSURLRequest * request) {
+    SDWebImageDownloaderRequestModifier *requestModifier = [SDWebImageDownloaderRequestModifier requestModifierWithBlock:^NSURLRequest * _Nullable(NSURLRequest * _Nonnull request) {
         if ([request.URL.absoluteString isEqualToString:kTestPNGURL]) {
             // Test that return a modified request
             NSMutableURLRequest *mutableRequest = [request mutableCopy];
@@ -387,7 +387,7 @@
         } else {
             return request;
         }
-    };
+    }];
     downloader.requestModifier = requestModifier;
     
     __block BOOL firstCheck = NO;

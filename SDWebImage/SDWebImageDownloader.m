@@ -172,7 +172,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         mutableRequest.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         mutableRequest.HTTPShouldUsePipelining = YES;
         mutableRequest.allHTTPHeaderFields = sself.HTTPHeaders;
-        SDWebImageDownloaderRequestModifierBlock requestModifier;
+        id<SDWebImageDownloaderRequestModifier> requestModifier;
         if ([context valueForKey:SDWebImageContextDownloadRequestModifier]) {
             requestModifier = [context valueForKey:SDWebImageContextDownloadRequestModifier];
         } else {
@@ -181,7 +181,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         
         NSURLRequest *request;
         if (requestModifier) {
-            NSURLRequest *modifiedRequest = requestModifier([mutableRequest copy]);
+            NSURLRequest *modifiedRequest = [requestModifier modifiedRequestWithRequest:[mutableRequest copy]];
             // If modified request is nil, early return
             if (!modifiedRequest) {
                 return nil;

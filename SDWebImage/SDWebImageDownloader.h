@@ -11,6 +11,7 @@
 #import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloaderConfig.h"
+#import "SDWebImageDownloaderRequestModifier.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
@@ -81,8 +82,6 @@ typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteg
 
 typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
-typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSURLRequest * _Nonnull request);
-
 /**
  *  A token associated with each download. Can be used to cancel a download
  */
@@ -124,10 +123,11 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
 
 /**
  * Set the request modifier to modify the original download request before image load.
- * This block will be invoked for each downloading image request if provided. Return the original request means no modication. Return nil will cancel the download request.
+ * This request modifier method will be called for each downloading image request. Return the original request means no modication. Return nil will cancel the download request.
+ * Defaults to nil, means does not modify the original download request.
  * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
-@property (nonatomic, copy, nullable) SDWebImageDownloaderRequestModifierBlock requestModifier;
+@property (nonatomic, strong, nullable) id<SDWebImageDownloaderRequestModifier> requestModifier;
 
 /**
  * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.
