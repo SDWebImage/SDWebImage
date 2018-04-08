@@ -81,9 +81,15 @@
     if (!data) {
         return nil;
     }
+    CGFloat scale = 1;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if (scale < 1) {
+            scale = 1;
+        }
+    }
     
-    UIImage *image = [[UIImage alloc] initWithData:data];
-    
+    UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
 #if SD_MAC
     return image;
 #else
@@ -175,10 +181,17 @@
 #endif
         
         if (partialImageRef) {
+            CGFloat scale = 1;
+            if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+                scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+                if (scale < 1) {
+                    scale = 1;
+                }
+            }
 #if SD_UIKIT || SD_WATCH
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:1 orientation:_orientation];
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
 #elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
 #endif
             CGImageRelease(partialImageRef);
         }

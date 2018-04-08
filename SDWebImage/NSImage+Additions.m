@@ -18,28 +18,72 @@
     return cgImage;
 }
 
-- (NSArray<NSImage *> *)images {
-    return nil;
-}
-
 - (CGFloat)scale {
     CGFloat scale = 1;
     CGFloat width = self.size.width;
     if (width > 0) {
-        // Use CGImage to get pixel width, NSImageRep.pixelsWide always double on Retina screen
+        // Use CGImage to get pixel width, NSImageRep.pixelsWide may be double on Retina screen
         NSUInteger pixelWidth = CGImageGetWidth(self.CGImage);
         scale = pixelWidth / width;
     }
     return scale;
 }
 
-- (NSBitmapImageRep *)bitmapImageRep {
-    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
-    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
-    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
-        return (NSBitmapImageRep *)imageRep;
+- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale {
+    if (scale < 1) {
+        scale = 1;
     }
-    return nil;
+    NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage scale:scale];
+    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    self = [self initWithSize:size];
+    if (self) {
+        [self addRepresentation:imageRep];
+    }
+    return self;
+}
+
+- (instancetype)initWithData:(NSData *)data scale:(CGFloat)scale {
+    if (scale < 1) {
+        scale = 1;
+    }
+    NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithData:data scale:scale];
+    if (!imageRep) {
+        return nil;
+    }
+    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    self = [self initWithSize:size];
+    if (self) {
+        [self addRepresentation:imageRep];
+    }
+    return self;
+}
+
+@end
+
+@implementation NSBitmapImageRep (Additions)
+
+- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale {
+    self = [self initWithCGImage:cgImage];
+    if (self) {
+        if (scale < 1) {
+            scale = 1;
+        }
+        NSSize size = NSMakeSize(self.pixelsWide / scale, self.pixelsHigh / scale);
+        self.size = size;
+    }
+    return self;
+}
+
+- (instancetype)initWithData:(NSData *)data scale:(CGFloat)scale {
+    self = [self initWithData:data];
+    if (self) {
+        if (scale < 1) {
+            scale = 1;
+        }
+        NSSize size = NSMakeSize(self.pixelsWide / scale, self.pixelsHigh / scale);
+        self.size = size;
+    }
+    return self;
 }
 
 @end

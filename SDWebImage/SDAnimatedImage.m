@@ -310,7 +310,7 @@ static NSArray *SDBundlePreferredScales() {
         return nil;
     }
 #if SD_MAC
-    self = [super initWithCGImage:image.CGImage size:NSZeroSize];
+    self = [super initWithCGImage:image.CGImage scale:scale];
 #else
     self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #endif
@@ -353,7 +353,10 @@ static NSArray *SDBundlePreferredScales() {
     NSNumber *scale = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(scale))];
     NSData *animatedImageData = [aDecoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(animatedImageData))];
     if (animatedImageData) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
         return [self initWithData:animatedImageData scale:scale.doubleValue];
+#pragma clang diagnostic pop
     } else {
         return [super initWithCoder:aDecoder];
     }

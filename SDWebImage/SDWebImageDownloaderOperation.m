@@ -363,17 +363,20 @@ didReceiveResponse:(NSURLResponse *)response
         dispatch_async(self.coderQueue, ^{
             // check whether we should use `SDAnimatedImage`
             UIImage *image;
-            if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
-                Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
-                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [self.progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
-                    CGFloat scale = SDImageScaleForKey(self.cacheKey);
-                    image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)self.progressiveCoder scale:scale];
+            BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
+            NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
+            CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
+            if (!decodeFirstFrame) {
+                // check whether we should use `SDAnimatedImage`
+                if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
+                    Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
+                    if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [self.progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
+                        image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)self.progressiveCoder scale:scale];
+                    }
                 }
             }
             if (!image) {
-                BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
-                image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame)}];
-                image = [self scaledImageForKey:self.cacheKey image:image];
+                image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
             }
             if (image) {
                 BOOL shouldDecode = self.shouldDecompressImages;
@@ -454,13 +457,17 @@ didReceiveResponse:(NSURLResponse *)response
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
                         BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
+                        NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
+                        CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
+                        if (scale < 1) {
+                            scale = 1;
+                        }
                         UIImage *image;
                         if (!decodeFirstFrame) {
                             // check whether we should use `SDAnimatedImage`
                             if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
                                 Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
                                 if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                                    CGFloat scale = SDImageScaleForKey(self.cacheKey);
                                     image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
                                     if (self.options & SDWebImageDownloaderPreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
                                         [((id<SDAnimatedImage>)image) preloadAllFrames];
@@ -469,8 +476,7 @@ didReceiveResponse:(NSURLResponse *)response
                             }
                         }
                         if (!image) {
-                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame)}];
-                            image = [self scaledImageForKey:self.cacheKey image:image];
+                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
                         }
                         
                         BOOL shouldDecode = self.shouldDecompressImages;
@@ -545,10 +551,6 @@ didReceiveResponse:(NSURLResponse *)response
         _cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
     }
     return _cacheKey;
-}
-
-- (nullable UIImage *)scaledImageForKey:(nullable NSString *)key image:(nullable UIImage *)image {
-    return SDScaledImageForKey(key, image);
 }
 
 - (BOOL)shouldContinueWhenAppEntersBackground {

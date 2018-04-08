@@ -16,22 +16,35 @@ typedef NSMutableDictionary<SDWebImageContextOption, id> SDWebImageMutableContex
 #pragma mark - Image scale
 
 /**
- Return the image scale from the specify key, supports file name and url key
+ Return the image scale factor for the specify key, supports file name and url key.
+ This is the built-in way to check the scale factor when we have no context about it. Because scale factor is not stored in image data (It's typically from filename).
+ However, you can also provide custom scale factor as well, see `SDWebImageContextImageScaleFactor`.
 
  @param key The image cache key
  @return The scale factor for image
  */
-FOUNDATION_EXPORT CGFloat SDImageScaleForKey(NSString * _Nullable key);
+FOUNDATION_EXPORT CGFloat SDImageScaleFactorForKey(NSString * _Nullable key);
 
 /**
- Scale the image with the scale factor from the specify key. If no need to scale, return the original image
- This only works for `UIImage`(UIKit) or `NSImage`(AppKit).
+ Scale the image with the scale factor for the specify key. If no need to scale, return the original image.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ @note This is actually a convenience function, which firstlly call `SDImageScaleFactorForKey` and then call `SDScaledImageForScaleFactor`, kept for backward compatibility.
 
  @param key The image cache key
  @param image The image
  @return The scaled image
  */
 FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullable image);
+
+/**
+ Scale the image with the scale factor. If no need to scale, return the original image.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ 
+ @param scale The image scale factor
+ @param image The image
+ @return The scaled image
+ */
+FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * _Nullable image);
 
 #pragma mark - WebCache Options
 
@@ -175,6 +188,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustom
  A id<SDWebImageTransformer> instance which conforms SDWebImageTransformer protocol. It's used for image transform after the image load finished and store the transformed image to cache. If you provide one, it will ignore the `transformer` in manager and use provided one instead. (id<SDWebImageTransformer>)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomTransformer;
+
+/**
+ A CGFloat value which specify the image scale factor. The number should be greater than or equal to 1.0. If not provide or the number is invalid, we will use the cache key to specify the scale factor. (NSNumber)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageScaleFactor;
 
 /**
  A Class object which the instance is a `UIImage/NSImage` subclass and adopt `SDAnimatedImage` protocol. We will call `initWithData:scale:` to create the instance (or `initWithAnimatedCoder:scale` when using progressive download) . If the instance create failed, fallback to normal `UIImage/NSImage`.

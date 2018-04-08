@@ -114,9 +114,25 @@ dispatch_semaphore_signal(self->_lock);
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
     BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    CGFloat scale = 1;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if (scale < 1) {
+            scale = 1;
+        }
+    }
     if (!hasAnimation) {
         // for static single webp image
-        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
+        CGImageRef imageRef = [self sd_createWebpImageWithData:webpData];
+        if (!imageRef) {
+            return nil;
+        }
+#if SD_UIKIT || SD_WATCH
+        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+#else
+        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+#endif
+        CGImageRelease(imageRef);
         WebPDemuxDelete(demuxer);
         return staticImage;
     }
@@ -132,7 +148,13 @@ dispatch_semaphore_signal(self->_lock);
     
     if (decodeFirstFrame) {
         // first frame for animated webp image
-        UIImage *firstFrameImage = [self sd_rawWebpImageWithData:iter.fragment];
+        CGImageRef imageRef = [self sd_createWebpImageWithData:iter.fragment];
+#if SD_UIKIT || SD_WATCH
+        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+#else
+        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+#endif
+        CGImageRelease(imageRef);
         WebPDemuxReleaseIterator(&iter);
         WebPDemuxDelete(demuxer);
         return firstFrameImage;
@@ -154,10 +176,16 @@ dispatch_semaphore_signal(self->_lock);
     
     do {
         @autoreleasepool {
-            UIImage *image = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter];
-            if (!image) {
+            CGImageRef imageRef = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter];
+            if (!imageRef) {
                 continue;
             }
+#if SD_UIKIT || SD_WATCH
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+#else
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+#endif
+            CGImageRelease(imageRef);
             
             NSTimeInterval duration = [self sd_frameDurationWithIterator:iter];
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
@@ -249,11 +277,18 @@ dispatch_semaphore_signal(self->_lock);
             CGContextRelease(canvas);
             return nil;
         }
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
         
 #if SD_UIKIT || SD_WATCH
-        image = [[UIImage alloc] initWithCGImage:newImageRef];
+        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale];
 #endif
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
@@ -271,8 +306,8 @@ dispatch_semaphore_signal(self->_lock);
     if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
         CGContextClearRect(canvas, imageRect);
     } else {
-        UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
-        if (!image) {
+        CGImageRef imageRef = [self sd_createWebpImageWithData:iter.fragment];
+        if (!imageRef) {
             return;
         }
         BOOL shouldBlend = iter.blend_method == WEBP_MUX_BLEND;
@@ -280,13 +315,14 @@ dispatch_semaphore_signal(self->_lock);
         if (!shouldBlend) {
             CGContextClearRect(canvas, imageRect);
         }
-        CGContextDrawImage(canvas, imageRect, image.CGImage);
+        CGContextDrawImage(canvas, imageRect, imageRef);
+        CGImageRelease(imageRef);
     }
 }
 
-- (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
-    if (!image) {
+- (nullable CGImageRef)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter CF_RETURNS_RETAINED {
+    CGImageRef imageRef = [self sd_createWebpImageWithData:iter.fragment];
+    if (!imageRef) {
         return nil;
     }
     
@@ -300,25 +336,19 @@ dispatch_semaphore_signal(self->_lock);
     if (!shouldBlend) {
         CGContextClearRect(canvas, imageRect);
     }
-    CGContextDrawImage(canvas, imageRect, image.CGImage);
+    CGContextDrawImage(canvas, imageRect, imageRef);
     CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
     
-#if SD_UIKIT || SD_WATCH
-    image = [[UIImage alloc] initWithCGImage:newImageRef];
-#elif SD_MAC
-    image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-    
-    CGImageRelease(newImageRef);
+    CGImageRelease(imageRef);
     
     if (iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND) {
         CGContextClearRect(canvas, imageRect);
     }
     
-    return image;
+    return newImageRef;
 }
 
-- (nullable UIImage *)sd_rawWebpImageWithData:(WebPData)webpData {
+- (nullable CGImageRef)sd_createWebpImageWithData:(WebPData)webpData CF_RETURNS_RETAINED {
     WebPDecoderConfig config;
     if (!WebPInitDecoderConfig(&config)) {
         return nil;
@@ -361,14 +391,7 @@ dispatch_semaphore_signal(self->_lock);
     
     CGDataProviderRelease(provider);
     
-#if SD_UIKIT || SD_WATCH
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
-#else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
-#endif
-    CGImageRelease(imageRef);
-    
-    return image;
+    return imageRef;
 }
 
 - (NSTimeInterval)sd_frameDurationWithIterator:(WebPIterator)iter {
@@ -639,7 +662,16 @@ static void FreeImageData(void *info, const void *data, size_t size) {
             WebPDemuxReleaseIterator(&iter);
             return nil;
         }
-        image = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+        CGImageRef imageRef = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+        if (!imageRef) {
+            return nil;
+        }
+#if SD_UIKIT || SD_WATCH
+        image = [[UIImage alloc] initWithCGImage:imageRef];
+#else
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
+#endif
+        CGImageRelease(imageRef);
     } else {
         // Else, this can happen when one image set to different imageViews or one loop end. So we should clear the shared cavans.
         if (_currentBlendIndex != NSNotFound) {
@@ -660,7 +692,16 @@ static void FreeImageData(void *info, const void *data, size_t size) {
                 if ((size_t)iter.frame_num == endIndex) {
                     [self sd_blendWebpImageWithCanvas:_canvas iterator:iter];
                 } else {
-                    image = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+                    CGImageRef imageRef = [self sd_drawnWebpImageWithCanvas:_canvas iterator:iter];
+                    if (!imageRef) {
+                        return nil;
+                    }
+#if SD_UIKIT || SD_WATCH
+                    image = [[UIImage alloc] initWithCGImage:imageRef];
+#else
+                    image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
+#endif
+                    CGImageRelease(imageRef);
                 }
             }
         } while ((size_t)iter.frame_num < (endIndex + 1) && WebPDemuxNextFrame(&iter));

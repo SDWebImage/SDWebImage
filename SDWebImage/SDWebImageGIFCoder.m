@@ -72,10 +72,19 @@
     if (!data) {
         return nil;
     }
+    CGFloat scale = 1;
+    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if (scale < 1) {
+            scale = 1;
+        }
+    }
     
 #if SD_MAC
     SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
-    NSImage *animatedImage = [[NSImage alloc] initWithSize:imageRep.size];
+    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    imageRep.size = size;
+    NSImage *animatedImage = [[NSImage alloc] initWithSize:size];
     [animatedImage addRepresentation:imageRep];
     return animatedImage;
 #else
@@ -85,7 +94,6 @@
         return nil;
     }
     size_t count = CGImageSourceGetCount(source);
-    
     UIImage *animatedImage;
     
     BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
@@ -101,7 +109,7 @@
             }
             
             float duration = [self sd_frameDurationAtIndex:i source:source];
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
@@ -218,10 +226,17 @@
         CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
         
         if (partialImageRef) {
+            CGFloat scale = 1;
+            if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+                scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+                if (scale < 1) {
+                    scale = 1;
+                }
+            }
 #if SD_UIKIT || SD_WATCH
-            image = [[UIImage alloc] initWithCGImage:partialImageRef];
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:UIImageOrientationUp];
 #elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
 #endif
             CGImageRelease(partialImageRef);
         }
@@ -369,7 +384,7 @@
         CGImageRelease(imageRef);
     }
 #if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:1];
 #else
     UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef];
 #endif

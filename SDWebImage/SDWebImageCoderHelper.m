@@ -103,8 +103,14 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return nil;
     }
     CFRelease(imageDestination);
+    CGFloat scale = frames.firstObject.image.scale;
+    if (scale < 1) {
+        scale = 1;
+    }
     SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:imageData];
-    animatedImage = [[NSImage alloc] initWithSize:imageRep.size];
+    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    imageRep.size = size;
+    animatedImage = [[NSImage alloc] initWithSize:size];
     [animatedImage addRepresentation:imageRep];
 #endif
     
@@ -157,27 +163,27 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
 #else
     
-    NSBitmapImageRep *bitmapRep;
-    for (NSImageRep *imageRep in animatedImage.representations) {
-        if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
-            bitmapRep = (NSBitmapImageRep *)imageRep;
-            break;
-        }
+    NSRect imageRect = NSMakeRect(0, 0, animatedImage.size.width, animatedImage.size.height);
+    NSImageRep *imageRep = [animatedImage bestRepresentationForRect:imageRect context:nil hints:nil];
+    NSBitmapImageRep *bitmapImageRep;
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        bitmapImageRep = (NSBitmapImageRep *)imageRep;
     }
-    if (bitmapRep) {
-        frameCount = [[bitmapRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
+    if (!bitmapImageRep) {
+        return nil;
     }
-    
+    frameCount = [[bitmapImageRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
     if (frameCount == 0) {
         return nil;
     }
+    CGFloat scale = animatedImage.scale;
     
     for (size_t i = 0; i < frameCount; i++) {
         @autoreleasepool {
             // NSBitmapImageRep need to manually change frame. "Good taste" API
-            [bitmapRep setProperty:NSImageCurrentFrame withValue:@(i)];
-            float frameDuration = [[bitmapRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
-            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapRep.CGImage size:NSZeroSize];
+            [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
+            float frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
+            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale];
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration];
             [frames addObject:frame];
         }

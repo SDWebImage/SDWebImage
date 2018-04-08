@@ -15,6 +15,7 @@
 #endif
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
+#import "SDWebImageDefine.h"
 
 @interface SDWebImageCodersManager ()
 
@@ -99,16 +100,12 @@
     if (!data) {
         return nil;
     }
-    BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
     UIImage *image;
     for (id<SDWebImageCoder> coder in self.coders) {
         if ([coder canDecodeFromData:data]) {
             image = [coder decodedImageWithData:data options:options];
             break;
         }
-    }
-    if (decodeFirstFrame && image.images.count > 0) {
-        image = image.images.firstObject;
     }
     
     return image;

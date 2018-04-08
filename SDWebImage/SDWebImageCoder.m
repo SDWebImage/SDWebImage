@@ -9,4 +9,5 @@
 #import "SDWebImageCoder.h"
 
 SDWebImageCoderOption const SDWebImageCoderDecodeFirstFrameOnly = @"decodeFirstFrameOnly";
+SDWebImageCoderOption const SDWebImageCoderDecodeScaleFactor = @"decodeScaleFactor";
 SDWebImageCoderOption const SDWebImageCoderEncodeCompressionQuality = @"encodeCompressionQuality";
