@@ -24,6 +24,15 @@ static CGContextRef SDCGContextCreateARGBBitmapContext(CGSize size, BOOL opaque,
     CGImageAlphaInfo alphaInfo = (opaque ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaPremultipliedFirst);
     CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, kCGBitmapByteOrderDefault | alphaInfo);
     CGColorSpaceRelease(space);
+    if (!context) {
+        return NULL;
+    }
+    if (scale == 0) {
+        // Match `UIGraphicsBeginImageContextWithOptions`, reset to the scale factor of the device’s main screen if scale is 0.
+        scale = [NSScreen mainScreen].backingScaleFactor;
+    }
+    CGContextScaleCTM(context, scale, scale);
+    
     return context;
 }
 #endif
@@ -71,7 +80,17 @@ static UIImage * SDGraphicsGetImageFromCurrentImageContext(void) {
     if (!imageRef) {
         return nil;
     }
-    NSImage *image = [[NSImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+    CGAffineTransform transform = CGContextGetCTM(context);
+    CGFloat xs = transform.a;
+    CGFloat ys = transform.d;
+    CGFloat scale;
+    if (xs == ys && xs > 0) {
+        scale = xs;
+    } else {
+        // Protect if x/y axis scale factor not equal
+        scale = [NSScreen mainScreen].backingScaleFactor;
+    }
+    NSImage *image = [[NSImage alloc] initWithCGImage:imageRef scale:scale];
     CGImageRelease(imageRef);
     return image;
 #endif
@@ -303,7 +322,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *image = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:self.scale];
 #endif
     CGImageRelease(imageRef);
     return image;
@@ -381,7 +400,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef size:NSZeroSize];
+    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale];
 #endif
     CGImageRelease(imgRef);
     CGContextRelease(context);
@@ -417,7 +436,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef size:NSZeroSize];
+    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale];
 #endif
     CGImageRelease(imgRef);
     return img;
@@ -434,7 +453,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
         return [UIImage imageWithCGImage:self.CGImage scale:self.scale orientation:self.imageOrientation];
 #else
-        return [[UIImage alloc] initWithCGImage:self.CGImage size:NSZeroSize];
+        return [[UIImage alloc] initWithCGImage:self.CGImage scale:self.scale];
 #endif
     }
     
@@ -651,7 +670,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_WATCH
     UIImage *outputImage = [UIImage imageWithCGImage:effectCGImage scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *outputImage = [[UIImage alloc] initWithCGImage:effectCGImage size:NSZeroSize];
+    UIImage *outputImage = [[UIImage alloc] initWithCGImage:effectCGImage scale:self.scale];
 #endif
     CGImageRelease(effectCGImage);
     
@@ -676,7 +695,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT
     UIImage *image = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:self.scale];
 #endif
     CGImageRelease(imageRef);
     

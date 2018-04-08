@@ -170,7 +170,9 @@
     UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
     expect(outputImage.size).to.equal(inputImage.size);
     expect(outputImage.scale).to.equal(inputImage.scale);
+#if SD_UIKIT
     expect(outputImage.images.count).to.equal(inputImage.images.count);
+#endif
 }
 
 @end

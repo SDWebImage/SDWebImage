@@ -51,7 +51,12 @@
 
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;
-    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    NSBitmapImageRep *bitmapImageRep;
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        bitmapImageRep = (NSBitmapImageRep *)imageRep;
+    }
     if (bitmapImageRep) {
         imageLoopCount = [[bitmapImageRep valueForProperty:NSImageLoopCount] unsignedIntegerValue];
     }
@@ -59,7 +64,12 @@
 }
 
 - (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    NSBitmapImageRep *bitmapImageRep;
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        bitmapImageRep = (NSBitmapImageRep *)imageRep;
+    }
     if (bitmapImageRep) {
         [bitmapImageRep setProperty:NSImageLoopCount withValue:@(sd_imageLoopCount)];
     }
@@ -67,7 +77,12 @@
 
 - (BOOL)sd_isAnimated {
     BOOL isGIF = NO;
-    NSBitmapImageRep *bitmapImageRep = self.bitmapImageRep;
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    NSBitmapImageRep *bitmapImageRep;
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        bitmapImageRep = (NSBitmapImageRep *)imageRep;
+    }
     if (bitmapImageRep) {
         NSUInteger frameCount = [[bitmapImageRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
         isGIF = frameCount > 1 ? YES : NO;

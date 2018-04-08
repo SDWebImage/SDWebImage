@@ -88,18 +88,25 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
         animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
 #else
-        // Animated GIF for `NSImage` need to grab `NSBitmapImageRep`
-        NSSize size = NSMakeSize(image.size.width / scale, image.size.height / scale);
-        animatedImage = [[NSImage alloc] initWithSize:size];
-        NSBitmapImageRep *bitmapImageRep = image.bitmapImageRep;
-        [animatedImage addRepresentation:bitmapImageRep];
+        // Animated GIF for `NSImage` need to grab `NSBitmapImageRep`;
+        NSRect imageRect = NSMakeRect(0, 0, image.size.width, image.size.height);
+        NSImageRep *imageRep = [image bestRepresentationForRect:imageRect context:nil hints:nil];
+        NSBitmapImageRep *bitmapImageRep;
+        if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+            bitmapImageRep = (NSBitmapImageRep *)imageRep;
+        }
+        if (bitmapImageRep) {
+            NSSize size = NSMakeSize(image.size.width / scale, image.size.height / scale);
+            animatedImage = [[NSImage alloc] initWithSize:size];
+            [animatedImage addRepresentation:bitmapImageRep];
+        }
 #endif
         scaledImage = animatedImage;
     } else {
 #if SD_UIKIT || SD_WATCH
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #else
-        scaledImage = [[NSImage alloc] initWithCGImage:image.CGImage size:NSZeroSize];
+        scaledImage = [[NSImage alloc] initWithCGImage:image.CGImage scale:scale];
 #endif
     }
     scaledImage.sd_isIncremental = image.sd_isIncremental;

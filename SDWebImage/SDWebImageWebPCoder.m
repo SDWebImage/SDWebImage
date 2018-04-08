@@ -114,7 +114,6 @@ dispatch_semaphore_signal(self->_lock);
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
     BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
-#if SD_UIKIT || SD_WATCH
     CGFloat scale = 1;
     if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
         scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
@@ -122,7 +121,6 @@ dispatch_semaphore_signal(self->_lock);
             scale = 1;
         }
     }
-#endif
     if (!hasAnimation) {
         // for static single webp image
         CGImageRef imageRef = [self sd_createWebpImageWithData:webpData];
@@ -132,7 +130,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
         UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
 #endif
         CGImageRelease(imageRef);
         WebPDemuxDelete(demuxer);
@@ -154,7 +152,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
         UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
 #endif
         CGImageRelease(imageRef);
         WebPDemuxReleaseIterator(&iter);
@@ -185,7 +183,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
             UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
 #endif
             CGImageRelease(imageRef);
             
@@ -279,11 +277,18 @@ dispatch_semaphore_signal(self->_lock);
             CGContextRelease(canvas);
             return nil;
         }
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
         
 #if SD_UIKIT || SD_WATCH
-        image = [[UIImage alloc] initWithCGImage:newImageRef];
+        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
+        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale];
 #endif
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
@@ -664,7 +669,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #if SD_UIKIT || SD_WATCH
         image = [[UIImage alloc] initWithCGImage:imageRef];
 #else
-        image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
 #endif
         CGImageRelease(imageRef);
     } else {
@@ -694,7 +699,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #if SD_UIKIT || SD_WATCH
                     image = [[UIImage alloc] initWithCGImage:imageRef];
 #else
-                    image = [[UIImage alloc] initWithCGImage:imageRef size:NSZeroSize];
+                    image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
 #endif
                     CGImageRelease(imageRef);
                 }
