@@ -287,7 +287,7 @@ static NSArray *SDBundlePreferredScales() {
     for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
         if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
             if ([coder canDecodeFromData:data]) {
-                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data];
+                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
                 break;
             }
         }

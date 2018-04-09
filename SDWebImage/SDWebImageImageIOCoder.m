@@ -107,7 +107,7 @@
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncremental {
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);

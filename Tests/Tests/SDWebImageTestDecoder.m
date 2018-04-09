@@ -25,7 +25,7 @@
     return image;
 }
 
-- (instancetype)initIncremental
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options
 {
     self = [super init];
     if (self) {
