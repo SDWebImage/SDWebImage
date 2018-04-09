@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import <Foundation/Foundation.h>
+#import <ImageIO/ImageIO.h>
 #import "SDWebImageCompat.h"
 #import "SDWebImageFrame.h"
 
@@ -90,7 +90,7 @@
  @param exifOrientation EXIF orientation
  @return iOS orientation
  */
-+ (UIImageOrientation)imageOrientationFromEXIFOrientation:(NSInteger)exifOrientation NS_SWIFT_NAME(imageOrientation(from:));
++ (UIImageOrientation)imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation NS_SWIFT_NAME(imageOrientation(from:));
 
 /**
  Convert an iOS orientation to an EXIF image orientation.
@@ -98,7 +98,7 @@
  @param imageOrientation iOS orientation
  @return EXIF orientation
  */
-+ (NSInteger)exifOrientationFromImageOrientation:(UIImageOrientation)imageOrientation;
++ (CGImagePropertyOrientation)exifOrientationFromImageOrientation:(UIImageOrientation)imageOrientation;
 #endif
 
 @end
