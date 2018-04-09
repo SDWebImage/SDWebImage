@@ -38,6 +38,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 #endif
     CGImageSourceRef _imageSource;
     NSData *_imageData;
+    CGFloat _scale;
     NSUInteger _loopCount;
     NSUInteger _frameCount;
     NSArray<SDAPNGCoderFrame *> *_frames;
@@ -106,7 +107,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     size_t count = CGImageSourceGetCount(source);
     UIImage *animatedImage;
     
-    if (count <= 1) {
+    BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
         NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
@@ -198,14 +200,23 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         // Handle failure.
         return nil;
     }
-    if (frames.count == 0) {
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    double compressionQuality = 1;
+    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    }
+    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
+    
+    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    if (encodeFirstFrame || frames.count == 0) {
         // for static single PNG images
-        CGImageDestinationAddImage(imageDestination, image.CGImage, nil);
+        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated APNG images
         NSUInteger loopCount = image.sd_imageLoopCount;
-        NSDictionary *pngProperties = @{(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary: @{(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)}};
-        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)pngProperties);
+        NSDictionary *pngProperties = @{(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)};
+        [properties setValue:pngProperties forKey:(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary];
+        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {
             SDWebImageFrame *frame = frames[i];
@@ -232,7 +243,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatPNG);
 }
 
-- (instancetype)initIncremental {
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
@@ -299,7 +310,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 }
 
 #pragma mark - SDWebImageAnimatedCoder
-- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data {
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -315,6 +326,14 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             CFRelease(imageSource);
             return nil;
         }
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -384,9 +403,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGImageRelease(imageRef);
     }
 #if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:1];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale];
 #else
-    UIImage *image = [UIImage imageWithCGImage:newImageRef];
+    UIImage *image = [UIImage imageWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
 #endif
     CGImageRelease(newImageRef);
     return image;

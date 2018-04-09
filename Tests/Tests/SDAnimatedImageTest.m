@@ -17,6 +17,13 @@
 
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
 
+// Internal header
+@interface SDAnimatedImageView ()
+
+@property (nonatomic, assign) BOOL isProgressive;
+
+@end
+
 @interface SDAnimatedImageTest : SDTestCase
 
 @property (nonatomic, strong) UIWindow *window;
@@ -55,7 +62,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test03AnimatedImageInitWithAnimatedCoder {
     NSData *validData = [self testGIFData];
-    SDWebImageGIFCoder *coder = [[SDWebImageGIFCoder alloc] initWithAnimatedImageData:validData];
+    SDWebImageGIFCoder *coder = [[SDWebImageGIFCoder alloc] initWithAnimatedImageData:validData options:nil];
     SDAnimatedImage *image = [[SDAnimatedImage alloc] initWithAnimatedCoder:coder scale:1];
     expect(image).notTo.beNil();
     // enough, other can be test with InitWithData
@@ -134,7 +141,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test09AnimatedImageViewSetProgressiveAnimatedImage {
     NSData *gifData = [self testGIFData];
-    SDWebImageGIFCoder *progressiveCoder = [[SDWebImageGIFCoder alloc] initIncremental];
+    SDWebImageGIFCoder *progressiveCoder = [[SDWebImageGIFCoder alloc] initIncrementalWithOptions:nil];
     // simulate progressive decode, pass partial data
     NSData *partialData = [gifData subdataWithRange:NSMakeRange(0, gifData.length - 1)];
     [progressiveCoder updateIncrementalData:partialData finished:NO];
@@ -145,7 +152,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
     imageView.image = partialImage;
     
-    BOOL isProgressive = [[imageView valueForKey:@"isProgressive"] boolValue];
+    BOOL isProgressive = imageView.isProgressive;
     expect(isProgressive).equal(YES);
     
     // pass full data
@@ -155,7 +162,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     imageView.image = fullImage;
     
-    isProgressive = [[imageView valueForKey:@"isProgressive"] boolValue];
+    isProgressive = imageView.isProgressive;
     expect(isProgressive).equal(NO);
 }
 
@@ -182,7 +189,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
             // Progressive image may be nil when download data is not enough
             if (image) {
                 expect(image.sd_isIncremental).beTruthy();
-                BOOL isProgressive = [[imageView valueForKey:@"isProgressive"] boolValue];
+                BOOL isProgressive = imageView.isProgressive;
                 expect(isProgressive).equal(YES);
             }
         });

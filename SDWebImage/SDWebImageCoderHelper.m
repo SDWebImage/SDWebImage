@@ -10,8 +10,8 @@
 #import "SDWebImageFrame.h"
 #import "NSImage+Additions.h"
 #import "NSData+ImageContentType.h"
-#import <ImageIO/ImageIO.h>
 #import "SDAnimatedImageRep.h"
+#import "UIImage+ForceDecode.h"
 
 #if SD_UIKIT || SD_WATCH
 static const size_t kBytesPerPixel = 4;
@@ -286,6 +286,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
     CGImageRelease(imageRef);
+    decodedImage.sd_isDecoded = YES;
     return decodedImage;
 #endif
 }
@@ -414,6 +415,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImage == nil) {
             return image;
         }
+        destImage.sd_isDecoded = YES;
         return destImage;
     }
 #endif
@@ -421,32 +423,31 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 
 #if SD_UIKIT || SD_WATCH
 // Convert an EXIF image orientation to an iOS one.
-+ (UIImageOrientation)imageOrientationFromEXIFOrientation:(NSInteger)exifOrientation {
-    // CGImagePropertyOrientation is available on iOS 8 above. Currently kept for compatibility
++ (UIImageOrientation)imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation {
     UIImageOrientation imageOrientation = UIImageOrientationUp;
     switch (exifOrientation) {
-        case 1:
+        case kCGImagePropertyOrientationUp:
             imageOrientation = UIImageOrientationUp;
             break;
-        case 3:
+        case kCGImagePropertyOrientationDown:
             imageOrientation = UIImageOrientationDown;
             break;
-        case 8:
+        case kCGImagePropertyOrientationLeft:
             imageOrientation = UIImageOrientationLeft;
             break;
-        case 6:
+        case kCGImagePropertyOrientationRight:
             imageOrientation = UIImageOrientationRight;
             break;
-        case 2:
+        case kCGImagePropertyOrientationUpMirrored:
             imageOrientation = UIImageOrientationUpMirrored;
             break;
-        case 4:
+        case kCGImagePropertyOrientationDownMirrored:
             imageOrientation = UIImageOrientationDownMirrored;
             break;
-        case 5:
+        case kCGImagePropertyOrientationLeftMirrored:
             imageOrientation = UIImageOrientationLeftMirrored;
             break;
-        case 7:
+        case kCGImagePropertyOrientationRightMirrored:
             imageOrientation = UIImageOrientationRightMirrored;
             break;
         default:
@@ -456,33 +457,32 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 // Convert an iOS orientation to an EXIF image orientation.
-+ (NSInteger)exifOrientationFromImageOrientation:(UIImageOrientation)imageOrientation {
-    // CGImagePropertyOrientation is available on iOS 8 above. Currently kept for compatibility
-    NSInteger exifOrientation = 1;
++ (CGImagePropertyOrientation)exifOrientationFromImageOrientation:(UIImageOrientation)imageOrientation {
+    CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
     switch (imageOrientation) {
         case UIImageOrientationUp:
-            exifOrientation = 1;
+            exifOrientation = kCGImagePropertyOrientationUp;
             break;
         case UIImageOrientationDown:
-            exifOrientation = 3;
+            exifOrientation = kCGImagePropertyOrientationDown;
             break;
         case UIImageOrientationLeft:
-            exifOrientation = 8;
+            exifOrientation = kCGImagePropertyOrientationLeft;
             break;
         case UIImageOrientationRight:
-            exifOrientation = 6;
+            exifOrientation = kCGImagePropertyOrientationRight;
             break;
         case UIImageOrientationUpMirrored:
-            exifOrientation = 2;
+            exifOrientation = kCGImagePropertyOrientationUpMirrored;
             break;
         case UIImageOrientationDownMirrored:
-            exifOrientation = 4;
+            exifOrientation = kCGImagePropertyOrientationDownMirrored;
             break;
         case UIImageOrientationLeftMirrored:
-            exifOrientation = 5;
+            exifOrientation = kCGImagePropertyOrientationLeftMirrored;
             break;
         case UIImageOrientationRightMirrored:
-            exifOrientation = 7;
+            exifOrientation = kCGImagePropertyOrientationRightMirrored;
             break;
         default:
             break;
@@ -494,6 +494,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #pragma mark - Helper Fuction
 #if SD_UIKIT || SD_WATCH
 + (BOOL)shouldDecodeImage:(nullable UIImage *)image {
+    // Avoid extra decode
+    if (image.sd_isDecoded) {
+        return NO;
+    }
     // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
     if (image == nil) {
         return NO;

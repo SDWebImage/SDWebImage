@@ -107,7 +107,7 @@
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncremental {
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
@@ -148,7 +148,7 @@
             // oriented incorrectly sometimes. (Unlike the image born of initWithData
             // in didCompleteWithError.) So save it here and pass it on later.
 #if SD_UIKIT || SD_WATCH
-            _orientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:orientationValue];
+            _orientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)orientationValue];
 #endif
         }
     }
@@ -327,7 +327,7 @@
             val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
             if (val) {
                 CFNumberGetValue(val, kCFNumberNSIntegerType, &exifOrientation);
-                result = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:exifOrientation];
+                result = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation];
             } // else - if it's not set it remains at up
             CFRelease((CFTypeRef) properties);
         }

@@ -28,6 +28,7 @@
     size_t _width, _height;
     CGImageSourceRef _imageSource;
     NSData *_imageData;
+    CGFloat _scale;
     NSUInteger _loopCount;
     NSUInteger _frameCount;
     NSArray<SDGIFCoderFrame *> *_frames;
@@ -179,7 +180,7 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
-- (instancetype)initIncremental {
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
@@ -275,7 +276,9 @@
         compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
-    if (frames.count == 0) {
+    
+    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    if (encodeFirstFrame || frames.count == 0) {
         // for static single GIF images
         CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
     } else {
@@ -305,7 +308,7 @@
 }
 
 #pragma mark - SDWebImageAnimatedCoder
-- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data {
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -321,6 +324,14 @@
             CFRelease(imageSource);
             return nil;
         }
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -384,9 +395,9 @@
         CGImageRelease(imageRef);
     }
 #if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:1];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
 #endif
     CGImageRelease(newImageRef);
     return image;

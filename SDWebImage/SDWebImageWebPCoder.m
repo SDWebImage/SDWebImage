@@ -51,6 +51,7 @@ dispatch_semaphore_signal(self->_lock);
     WebPIDecoder *_idec;
     WebPDemuxer *_demux;
     NSData *_imageData;
+    CGFloat _scale;
     NSUInteger _loopCount;
     NSUInteger _frameCount;
     NSArray<SDWebPCoderFrame *> *_frames;
@@ -205,7 +206,7 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncremental {
+- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
@@ -421,7 +422,9 @@ dispatch_semaphore_signal(self->_lock);
         compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
     }
     NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
-    if (frames.count == 0) {
+    
+    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    if (encodeFirstFrame || frames.count == 0) {
         // for static single webp image
         data = [self sd_encodedWebpDataWithImage:image quality:compressionQuality];
     } else {
@@ -516,7 +519,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 }
 
 #pragma mark - SDWebImageAnimatedCoder
-- (instancetype)initWithAnimatedImageData:(NSData *)data {
+- (instancetype)initWithAnimatedImageData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -534,6 +537,14 @@ static void FreeImageData(void *info, const void *data, size_t size) {
             WebPDemuxDelete(demuxer);
             return nil;
         }
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
         _demux = demuxer;
         _imageData = data;
         _currentBlendIndex = NSNotFound;
@@ -667,9 +678,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
             return nil;
         }
 #if SD_UIKIT || SD_WATCH
-        image = [[UIImage alloc] initWithCGImage:imageRef];
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale];
 #endif
         CGImageRelease(imageRef);
     } else {
@@ -697,9 +708,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
                         return nil;
                     }
 #if SD_UIKIT || SD_WATCH
-                    image = [[UIImage alloc] initWithCGImage:imageRef];
+                    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
 #else
-                    image = [[UIImage alloc] initWithCGImage:imageRef scale:1];
+                    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale];
 #endif
                     CGImageRelease(imageRef);
                 }
