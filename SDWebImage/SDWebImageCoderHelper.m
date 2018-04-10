@@ -248,13 +248,16 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (CGImageRef)imageRefCreateDecoded:(CGImageRef)imageRef {
+    return [self imageRefCreateDecoded:imageRef orientation:kCGImagePropertyOrientationUp];
+}
+
++ (CGImageRef)imageRefCreateDecoded:(CGImageRef)imageRef orientation:(CGImagePropertyOrientation)orientation {
     if (!imageRef) {
         return NULL;
     }
     size_t width = CGImageGetWidth(imageRef);
     size_t height = CGImageGetHeight(imageRef);
     if (width == 0 || height == 0) return NULL;
-    CGRect rect = CGRectMake(0, 0, width, height);
     BOOL hasAlpha = [self imageRefContainsAlpha:imageRef];
     // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
     // Through you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
@@ -265,6 +268,25 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!context) {
         return NULL;
     }
+    
+    // Apply transform
+    CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(width, height));
+    CGRect rect;
+    switch (orientation) {
+        case kCGImagePropertyOrientationLeft:
+        case kCGImagePropertyOrientationLeftMirrored:
+        case kCGImagePropertyOrientationRight:
+        case kCGImagePropertyOrientationRightMirrored: {
+            // These orientation should swap width & height
+            rect = CGRectMake(0, 0, height, width);
+        }
+            break;
+        default: {
+            rect = CGRectMake(0, 0, width, height);
+        }
+            break;
+    }
+    CGContextConcatCTM(context, transform);
     CGContextDrawImage(context, rect, imageRef);
     CGImageRef newImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
@@ -546,7 +568,60 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     return shouldScaleDown;
 }
+#endif
 
+static CGAffineTransform SDCGContextTransformFromOrientation(CGImagePropertyOrientation orientation, CGSize size) {
+    // Inspiration from @libfeihu
+    // We need to calculate the proper transformation to make the image upright.
+    // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    
+    switch (orientation) {
+        case kCGImagePropertyOrientationDown:
+        case kCGImagePropertyOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, size.width, size.height);
+            transform = CGAffineTransformRotate(transform, M_PI);
+            break;
+            
+        case kCGImagePropertyOrientationLeft:
+        case kCGImagePropertyOrientationLeftMirrored:
+            transform = CGAffineTransformTranslate(transform, size.width, 0);
+            transform = CGAffineTransformRotate(transform, M_PI_2);
+            break;
+            
+        case kCGImagePropertyOrientationRight:
+        case kCGImagePropertyOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform, 0, size.height);
+            transform = CGAffineTransformRotate(transform, -M_PI_2);
+            break;
+        case kCGImagePropertyOrientationUp:
+        case kCGImagePropertyOrientationUpMirrored:
+            break;
+    }
+    
+    switch (orientation) {
+        case kCGImagePropertyOrientationUpMirrored:
+        case kCGImagePropertyOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, size.width, 0);
+            transform = CGAffineTransformScale(transform, -1, 1);
+            break;
+            
+        case kCGImagePropertyOrientationLeftMirrored:
+        case kCGImagePropertyOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform, size.height, 0);
+            transform = CGAffineTransformScale(transform, -1, 1);
+            break;
+        case kCGImagePropertyOrientationUp:
+        case kCGImagePropertyOrientationDown:
+        case kCGImagePropertyOrientationLeft:
+        case kCGImagePropertyOrientationRight:
+            break;
+    }
+    
+    return transform;
+}
+
+#if SD_UIKIT || SD_WATCH
 static NSUInteger gcd(NSUInteger a, NSUInteger b) {
     NSUInteger c;
     while (a != 0) {
