@@ -33,15 +33,17 @@ This library provides an async image downloader with cache support. For convenie
 
 ## Requirements
 
-- iOS 7.0 or later
+- iOS 8.0 or later
 - tvOS 9.0 or later
 - watchOS 2.0 or later
-- macOS 10.9 or later
+- macOS 10.10 or later
 - Xcode 7.3 or later
 
 #### Backwards compatibility
 
-- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/rs/SDWebImage/tree/3.7.6)
+- For iOS 7 and macOS 10.9, use [any 4.x version up to 4.3.3](https://github.com/rs/SDWebImage/releases/tag/4.3.3)
+- For macOS 10.8, use [any 4.x version up to 4.3.0](https://github.com/rs/SDWebImage/releases/tag/4.3.0)
+- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/rs/SDWebImage/tag/3.7.6)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
 
 ## Getting Started
