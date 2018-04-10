@@ -299,8 +299,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             }
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:UIImageOrientationUp];
-#elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
+#else
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
             CGImageRelease(partialImageRef);
         }
@@ -403,7 +403,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGImageRelease(imageRef);
     }
 #if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
 #else
     UIImage *image = [UIImage imageWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
 #endif

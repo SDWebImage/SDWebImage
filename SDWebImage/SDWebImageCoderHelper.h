@@ -59,7 +59,7 @@
 + (BOOL)imageRefContainsAlpha:(_Nonnull CGImageRef)imageRef;
 
 /**
- Create a decoded image by the provided image. This follows The Create Rule and you are response to call release after usage.
+ Create a decoded CGImage by the provided CGImage. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
  @note This actually call `imageRefCreateDecoded:orientation` with the Up orientation.
 
@@ -69,7 +69,7 @@
 + (CGImageRef _Nullable)imageRefCreateDecoded:(_Nonnull CGImageRef)imageRef CF_RETURNS_RETAINED;
 
 /**
- Create a decoded image by the provided image. This follows The Create Rule and you are response to call release after usage.
+ Create a decoded CGImage by the provided CGImage and orientation. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
  
  @param imageRef The CGImage

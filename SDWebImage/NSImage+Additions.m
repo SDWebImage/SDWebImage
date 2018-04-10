@@ -10,6 +10,9 @@
 
 #if SD_MAC
 
+#import "SDWebImageCoderHelper.h"
+#import "objc/runtime.h"
+
 @implementation NSImage (Additions)
 
 - (CGImageRef)CGImage {
@@ -20,21 +23,29 @@
 
 - (CGFloat)scale {
     CGFloat scale = 1;
-    CGFloat width = self.size.width;
-    if (width > 0) {
-        // Use CGImage to get pixel width, NSImageRep.pixelsWide may be double on Retina screen
-        NSUInteger pixelWidth = CGImageGetWidth(self.CGImage);
-        scale = pixelWidth / width;
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    NSBitmapImageRep *bitmapImageRep;
+    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+        bitmapImageRep = (NSBitmapImageRep *)imageRep;
     }
+    if (bitmapImageRep) {
+        return bitmapImageRep.scale;
+    }
+    
     return scale;
 }
 
 - (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale {
+    return [self initWithCGImage:cgImage scale:scale orientation:kCGImagePropertyOrientationUp];
+}
+
+- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
     if (scale < 1) {
         scale = 1;
     }
-    NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage scale:scale];
-    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage scale:scale orientation:orientation];
+    NSSize size = imageRep.size;
     self = [self initWithSize:size];
     if (self) {
         [self addRepresentation:imageRep];
@@ -50,7 +61,7 @@
     if (!imageRep) {
         return nil;
     }
-    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+    NSSize size = imageRep.size;
     self = [self initWithSize:size];
     if (self) {
         [self addRepresentation:imageRep];
@@ -60,10 +71,47 @@
 
 @end
 
+@interface NSBitmapImageRep ()
+
+@property (nonatomic, assign, readonly, nullable) CGImageSourceRef imageSource;
+
+@end
+
 @implementation NSBitmapImageRep (Additions)
 
-- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale {
-    self = [self initWithCGImage:cgImage];
+- (CGImageSourceRef)imageSource {
+    if (_tiffData) {
+        return (__bridge CGImageSourceRef)(_tiffData);
+    }
+    return NULL;
+}
+
+- (CGFloat)scale {
+    CGFloat scale = 1;
+    CGFloat width = self.size.width;
+    CGFloat height = self.size.height;
+    NSUInteger pixelWidth = self.pixelsWide;
+    NSUInteger pixelHeight = self.pixelsHigh;
+    if (width > 0 && height > 0) {
+        CGFloat widthScale = pixelWidth / width;
+        CGFloat heightScale = pixelHeight / height;
+        if (widthScale == heightScale && widthScale >= 1) {
+            // Protect for image object which custom the size.
+            scale = widthScale;
+        }
+    }
+    return scale;
+}
+
+- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
+    if (orientation != kCGImagePropertyOrientationUp) {
+        // This should be nonnull, until the memory is exhausted cause `CGBitmapContextCreate` failed.
+        cgImage = [SDWebImageCoderHelper imageRefCreateDecoded:cgImage orientation:orientation];
+        self = [self initWithCGImage:cgImage];
+        CGImageRelease(cgImage);
+    } else {
+        self = [self initWithCGImage:cgImage];
+    }
     if (self) {
         if (scale < 1) {
             scale = 1;

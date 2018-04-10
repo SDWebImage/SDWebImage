@@ -106,7 +106,7 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
 #if SD_UIKIT || SD_WATCH
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #else
-        scaledImage = [[NSImage alloc] initWithCGImage:image.CGImage scale:scale];
+        scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
     }
     scaledImage.sd_isIncremental = image.sd_isIncremental;

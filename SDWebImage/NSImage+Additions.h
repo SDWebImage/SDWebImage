@@ -19,21 +19,23 @@ The underlying Core Graphics image object. This will actually `CGImageForPropose
  */
 @property (nonatomic, readonly, nullable) CGImageRef CGImage;
 /**
- The scale factor of the image. This wil actually use image size, and its `CGImage`'s pixel size to calculate the scale factor. Should be greater than or equal to 1.0.
+ The scale factor of the image. This wil actually use bitmap representation's size and pixel size to calculate the scale factor. If failed, use the default value 1.0. Should be greater than or equal to 1.0.
  */
 @property (nonatomic, readonly) CGFloat scale;
 
 // These are convenience methods to make AppKit's `NSImage` match UIKit's `UIImage` behavior. The scale factor should be greater than or equal to 1.0.
 
 /**
- Returns an image object with the scale factor. The representation is created from the Core Graphics image object.
+ Returns an image object with the scale factor and orientation. The representation is created from the Core Graphics image object.
  @note The difference between this and `initWithCGImage:size` is that `initWithCGImage:size` will create a `NSCGImageSnapshotRep` but not `NSBitmapImageRep` instance. And it will always `backingScaleFactor` as scale factor.
+ @note If the provided image orientation is not equal to Up orientation. This method will firstly rotate the CGImage to the correct orientation to work compatible with `NSImageView`.
 
  @param cgImage A Core Graphics image object
  @param scale The image scale factor
+ @param orientation The orientation of the image data
  @return The image object
  */
-- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale;
+- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation;
 
 /**
  Returns an image object with the scale factor. The representation is created from the image data.
@@ -49,8 +51,11 @@ The underlying Core Graphics image object. This will actually `CGImageForPropose
 
 @interface NSBitmapImageRep (Additions)
 
-// These method's function is the same as `NSImage`'s function. For `NSBitmapImageRep`.
-- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale;
+// These methods' function is the same as `NSImage`'s function. For `NSBitmapImageRep`.
+
+@property (nonatomic, readonly) CGFloat scale;
+
+- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation;
 - (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale;
 
 @end

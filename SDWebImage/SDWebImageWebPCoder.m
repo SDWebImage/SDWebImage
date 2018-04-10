@@ -131,7 +131,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
         UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+        UIImage *staticImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
         CGImageRelease(imageRef);
         WebPDemuxDelete(demuxer);
@@ -153,7 +153,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
         UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+        UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
         CGImageRelease(imageRef);
         WebPDemuxReleaseIterator(&iter);
@@ -184,7 +184,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
             UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 #else
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale];
+            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
             CGImageRelease(imageRef);
             
@@ -289,7 +289,7 @@ dispatch_semaphore_signal(self->_lock);
 #if SD_UIKIT || SD_WATCH
         image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale];
+        image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
@@ -680,7 +680,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #if SD_UIKIT || SD_WATCH
         image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale];
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
 #endif
         CGImageRelease(imageRef);
     } else {
@@ -710,7 +710,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 #if SD_UIKIT || SD_WATCH
                     image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
 #else
-                    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale];
+                    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
 #endif
                     CGImageRelease(imageRef);
                 }

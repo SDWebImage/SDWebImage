@@ -183,7 +183,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             // NSBitmapImageRep need to manually change frame. "Good taste" API
             [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
             float frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
-            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale];
+            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
             SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration];
             [frames addObject:frame];
         }

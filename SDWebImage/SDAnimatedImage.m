@@ -310,7 +310,7 @@ static NSArray *SDBundlePreferredScales() {
         return nil;
     }
 #if SD_MAC
-    self = [super initWithCGImage:image.CGImage scale:scale];
+    self = [super initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #else
     self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
 #endif

@@ -16,6 +16,8 @@
     size_t _width, _height;
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation _orientation;
+#else
+    CGImagePropertyOrientation _orientation;
 #endif
     CGImageSourceRef _imageSource;
     NSUInteger _frameCount;
@@ -136,6 +138,8 @@
             // in didCompleteWithError.) So save it here and pass it on later.
 #if SD_UIKIT || SD_WATCH
             _orientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)orientationValue];
+#else
+            _orientation = (CGImagePropertyOrientation)orientationValue;
 #endif
         }
     }
@@ -177,8 +181,8 @@
             }
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
-#elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
+#else
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
 #endif
             CGImageRelease(partialImageRef);
         }
@@ -227,9 +231,11 @@
     
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
 #if SD_UIKIT || SD_WATCH
-    NSInteger exifOrientation = [SDWebImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
-    [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
+    CGImagePropertyOrientation exifOrientation = [SDWebImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
+#else
+    CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
+    [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
     double compressionQuality = 1;
     if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
         compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
