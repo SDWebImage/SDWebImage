@@ -90,20 +90,7 @@
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
-#if SD_MAC
     return image;
-#else
-    if (!image) {
-        return nil;
-    }
-    
-    UIImageOrientation orientation = [[self class] sd_imageOrientationFromImageData:data];
-    if (orientation != UIImageOrientationUp) {
-        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:orientation];
-    }
-    
-    return image;
-#endif
 }
 
 #pragma mark - Progressive Decode
@@ -313,28 +300,5 @@
     });
     return canEncode;
 }
-
-#if SD_UIKIT || SD_WATCH
-#pragma mark EXIF orientation tag converter
-+ (UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
-    UIImageOrientation result = UIImageOrientationUp;
-    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
-    if (imageSource) {
-        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-        if (properties) {
-            CFTypeRef val;
-            NSInteger exifOrientation;
-            val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
-            if (val) {
-                CFNumberGetValue(val, kCFNumberNSIntegerType, &exifOrientation);
-                result = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation];
-            } // else - if it's not set it remains at up
-            CFRelease((CFTypeRef) properties);
-        }
-        CFRelease(imageSource);
-    }
-    return result;
-}
-#endif
 
 @end
