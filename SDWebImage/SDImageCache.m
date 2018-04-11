@@ -297,7 +297,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 if (!data && image) {
                     // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
                     SDImageFormat format;
-                    if ([SDWebImageCoderHelper imageRefContainsAlpha:image.CGImage]) {
+                    if ([SDWebImageCoderHelper CGImageContainsAlpha:image.CGImage]) {
                         format = SDImageFormatPNG;
                     } else {
                         format = SDImageFormatJPEG;

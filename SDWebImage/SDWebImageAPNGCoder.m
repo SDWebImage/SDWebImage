@@ -299,8 +299,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             }
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:UIImageOrientationUp];
-#elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
+#else
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
             CGImageRelease(partialImageRef);
         }
@@ -396,14 +396,14 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     // Image/IO create CGImage does not decompressed, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef newImageRef = [SDWebImageCoderHelper imageRefCreateDecoded:imageRef];
+    CGImageRef newImageRef = [SDWebImageCoderHelper CGImageCreateDecoded:imageRef];
     if (!newImageRef) {
         newImageRef = imageRef;
     } else {
         CGImageRelease(imageRef);
     }
 #if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
 #else
     UIImage *image = [UIImage imageWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
 #endif

@@ -15,42 +15,36 @@
 @interface NSImage (Additions)
 
 /**
-The underlying Core Graphics image object. This will actually `CGImageForProposedRect` with the image size.
+The underlying Core Graphics image object. This will actually use `CGImageForProposedRect` with the image size.
  */
 @property (nonatomic, readonly, nullable) CGImageRef CGImage;
 /**
- The scale factor of the image. This wil actually use image size, and its `CGImage`'s pixel size to calculate the scale factor. Should be greater than or equal to 1.0.
+ The scale factor of the image. This wil actually use `bestRepresentationForRect` with image size and pixel size to calculate the scale factor. If failed, use the default value 1.0. Should be greater than or equal to 1.0.
  */
 @property (nonatomic, readonly) CGFloat scale;
 
 // These are convenience methods to make AppKit's `NSImage` match UIKit's `UIImage` behavior. The scale factor should be greater than or equal to 1.0.
 
 /**
- Returns an image object with the scale factor. The representation is created from the Core Graphics image object.
- @note The difference between this and `initWithCGImage:size` is that `initWithCGImage:size` will create a `NSCGImageSnapshotRep` but not `NSBitmapImageRep` instance. And it will always `backingScaleFactor` as scale factor.
+ Returns an image object with the scale factor and orientation. The representation is created from the Core Graphics image object.
+ @note The difference between this and `initWithCGImage:size` is that `initWithCGImage:size` will use `backingScaleFactor` as scale factor if you specify `NSZeroSize` and does not support orientation.
+ @note The difference between this and UIKit's `UIImage` equivalent method is the way to process orientation. If the provided image orientation is not equal to Up orientation, this method will firstly rotate the CGImage to the correct orientation to work compatible with `NSImageView`. However, UIKit will not actually rotate CGImage and just store it as `imageOrientation` property.
 
  @param cgImage A Core Graphics image object
  @param scale The image scale factor
+ @param orientation The orientation of the image data
  @return The image object
  */
-- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale;
+- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation;
 
 /**
  Returns an image object with the scale factor. The representation is created from the image data.
- @note The difference between these this and `initWithData:` is that `initWithData:` will always `backingScaleFactor` as scale factor.
+ @note The difference between these this and `initWithData:` is that `initWithData:` will always use `backingScaleFactor` as scale factor.
 
  @param data The image data
  @param scale The image scale factor
  @return The image object
  */
-- (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale;
-
-@end
-
-@interface NSBitmapImageRep (Additions)
-
-// These method's function is the same as `NSImage`'s function. For `NSBitmapImageRep`.
-- (nonnull instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale;
 - (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale;
 
 @end

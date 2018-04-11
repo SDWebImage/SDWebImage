@@ -16,6 +16,8 @@
     size_t _width, _height;
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation _orientation;
+#else
+    CGImagePropertyOrientation _orientation;
 #endif
     CGImageSourceRef _imageSource;
     NSUInteger _frameCount;
@@ -90,20 +92,7 @@
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
-#if SD_MAC
     return image;
-#else
-    if (!image) {
-        return nil;
-    }
-    
-    UIImageOrientation orientation = [[self class] sd_imageOrientationFromImageData:data];
-    if (orientation != UIImageOrientationUp) {
-        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:orientation];
-    }
-    
-    return image;
-#endif
 }
 
 #pragma mark - Progressive Decode
@@ -149,6 +138,8 @@
             // in didCompleteWithError.) So save it here and pass it on later.
 #if SD_UIKIT || SD_WATCH
             _orientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)orientationValue];
+#else
+            _orientation = (CGImagePropertyOrientation)orientationValue;
 #endif
         }
     }
@@ -190,8 +181,8 @@
             }
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
-#elif SD_MAC
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale];
+#else
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
 #endif
             CGImageRelease(partialImageRef);
         }
@@ -220,7 +211,7 @@
     }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDWebImageCoderHelper imageRefContainsAlpha:image.CGImage];
+        BOOL hasAlpha = [SDWebImageCoderHelper CGImageContainsAlpha:image.CGImage];
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {
@@ -240,9 +231,11 @@
     
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
 #if SD_UIKIT || SD_WATCH
-    NSInteger exifOrientation = [SDWebImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
-    [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
+    CGImagePropertyOrientation exifOrientation = [SDWebImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
+#else
+    CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
+    [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
     double compressionQuality = 1;
     if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
         compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
@@ -313,28 +306,5 @@
     });
     return canEncode;
 }
-
-#if SD_UIKIT || SD_WATCH
-#pragma mark EXIF orientation tag converter
-+ (UIImageOrientation)sd_imageOrientationFromImageData:(nonnull NSData *)imageData {
-    UIImageOrientation result = UIImageOrientationUp;
-    CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
-    if (imageSource) {
-        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-        if (properties) {
-            CFTypeRef val;
-            NSInteger exifOrientation;
-            val = CFDictionaryGetValue(properties, kCGImagePropertyOrientation);
-            if (val) {
-                CFNumberGetValue(val, kCFNumberNSIntegerType, &exifOrientation);
-                result = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation];
-            } // else - if it's not set it remains at up
-            CFRelease((CFTypeRef) properties);
-        }
-        CFRelease(imageSource);
-    }
-    return result;
-}
-#endif
 
 @end

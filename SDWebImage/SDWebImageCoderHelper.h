@@ -33,7 +33,7 @@
 + (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
 
 /**
- Return the shared device-dependent RGB color space.
+ Return the shared device-dependent RGB color space. This follows The Get Rule.
  On iOS, it's created with deviceRGB (if available, use sRGB).
  On macOS, it's from the screen colorspace (if failed, use deviceRGB)
  Because it's shared, you should not retain or release this object.
@@ -43,32 +43,35 @@
 + (CGColorSpaceRef _Nonnull)colorSpaceGetDeviceRGB CF_RETURNS_NOT_RETAINED;
 
 /**
- Retuen the color space of the CGImage
-
- @param imageRef The CGImage
- @return The color space of CGImage, or if not supported, return the device-dependent RGB color space
- */
-+ (CGColorSpaceRef _Nonnull)imageRefGetColorSpace:(_Nonnull CGImageRef)imageRef CF_RETURNS_NOT_RETAINED;
-
-/**
  Check whether CGImage contains alpha channel.
  
- @param imageRef The CGImage
+ @param cgImage The CGImage
  @return Return YES if CGImage contains alpha channel, otherwise return NO
  */
-+ (BOOL)imageRefContainsAlpha:(_Nonnull CGImageRef)imageRef;
++ (BOOL)CGImageContainsAlpha:(_Nonnull CGImageRef)cgImage;
 
 /**
- Create a decoded image by the provided image. This follows The Create Rule and you are response to call release after usage.
+ Create a decoded CGImage by the provided CGImage. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
+ @note This actually call `CGImageCreateDecoded:orientation:` with the Up orientation.
 
- @param imageRef The CGImage
+ @param cgImage The CGImage
  @return A new created decoded image
  */
-+ (CGImageRef _Nullable)imageRefCreateDecoded:(_Nonnull CGImageRef)imageRef CF_RETURNS_RETAINED;
++ (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage CF_RETURNS_RETAINED;
 
 /**
- Return the decoded image by the provided image. This one unlike `imageRefCreateDecoded:`, will not decode the image which contains alpha channel or animated image
+ Create a decoded CGImage by the provided CGImage and orientation. This follows The Create Rule and you are response to call release after usage.
+ It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
+ 
+ @param cgImage The CGImage
+ @param orientation The EXIF image orientation.
+ @return A new created decoded image
+ */
++ (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation CF_RETURNS_RETAINED;
+
+/**
+ Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image
  @param image The image to be decoded
  @return The decoded image
  */
