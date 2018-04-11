@@ -43,12 +43,12 @@
     expect(decodedImage).to.equal(animatedImage);
 }
 
-- (void)test04ThatDecodedImageWithImageDoesNotDecodeImagesWithAlpha {
+- (void)test04ThatDecodedImageWithImageWorksWithAlphaImages {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [UIImage imageWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
-    expect(decodedImage).to.equal(image);
+    expect(decodedImage).toNot.equal(image);
 }
 
 - (void)test05ThatDecodedImageWithImageWorksEvenWithMonochromeImage {
