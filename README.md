@@ -41,7 +41,7 @@ This library provides an async image downloader with cache support. For convenie
 
 #### Backwards compatibility
 
-- For iOS 7 and macOS 10.9, use [any 4.x version up to 4.3.3](https://github.com/rs/SDWebImage/releases/tag/4.3.3)
+- For iOS 7, macOS 10.9 or Xcode < 8, use [any 4.x version up to 4.3.3](https://github.com/rs/SDWebImage/releases/tag/4.3.3)
 - For macOS 10.8, use [any 4.x version up to 4.3.0](https://github.com/rs/SDWebImage/releases/tag/4.3.0)
 - For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/rs/SDWebImage/tag/3.7.6)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/rs/SDWebImage/tree/2.0-compat).
@@ -53,6 +53,7 @@ This library provides an async image downloader with cache support. For convenie
 - Read the [Documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Read the [Installation Guide](https://github.com/rs/SDWebImage/wiki/Installation-Guide)
+- Read the [SDWebImage 5.0 Migration Guide](Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
 - Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 - Read the [Common Problems](https://github.com/rs/SDWebImage/wiki/Common-Problems) to find the solution for common problems 
 - Go to the [Wiki Page](https://github.com/rs/SDWebImage/wiki) for more information such as [Advanced Usage](https://github.com/rs/SDWebImage/wiki/Advanced-Usage)
