@@ -46,7 +46,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
 @property (copy, nonatomic, nullable) NSString *cacheKey;
-@property (assign, nonatomic, readwrite) NSInteger expectedSize;
+@property (assign, nonatomic, readwrite) long long expectedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
