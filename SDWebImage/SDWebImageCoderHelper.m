@@ -221,21 +221,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return colorSpace;
 }
 
-+ (CGColorSpaceRef)imageRefGetColorSpace:(CGImageRef)imageRef {
-    // current
-    CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
-    CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
-    
-    BOOL unsupportedColorSpace = (imageColorSpaceModel == kCGColorSpaceModelUnknown ||
-                                  imageColorSpaceModel == kCGColorSpaceModelMonochrome ||
-                                  imageColorSpaceModel == kCGColorSpaceModelCMYK ||
-                                  imageColorSpaceModel == kCGColorSpaceModelIndexed);
-    if (unsupportedColorSpace) {
-        colorspaceRef = [self colorSpaceGetDeviceRGB];
-    }
-    return colorspaceRef;
-}
-
 + (BOOL)CGImageContainsAlpha:(CGImageRef)cgImage {
     if (!cgImage) {
         return NO;
@@ -353,8 +338,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         destResolution.width = (int)(sourceResolution.width*imageScale);
         destResolution.height = (int)(sourceResolution.height*imageScale);
         
-        // current color space
-        CGColorSpaceRef colorspaceRef = [self imageRefGetColorSpace:sourceImageRef];
+        // device color space
+        CGColorSpaceRef colorspaceRef = [self colorSpaceGetDeviceRGB];
+        BOOL hasAlpha = [self CGImageContainsAlpha:sourceImageRef];
+        // iOS display alpha info (BGRA8888/BGRX8888)
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+        bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipFirst
@@ -365,7 +354,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             kBitsPerComponent,
                                             0,
                                             colorspaceRef,
-                                            kCGBitmapByteOrder32Host|kCGImageAlphaNoneSkipFirst);
+                                            bitmapInfo);
         
         if (destContext == NULL) {
             return image;
@@ -526,12 +515,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     // do not decode animated images
     if (image.images != nil) {
-        return NO;
-    }
-    CGImageRef imageRef = image.CGImage;
-    BOOL hasAlpha = [self CGImageContainsAlpha:imageRef];
-    // do not decode images with alpha
-    if (hasAlpha) {
         return NO;
     }
     
