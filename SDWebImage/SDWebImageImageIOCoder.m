@@ -211,7 +211,7 @@
     }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDWebImageCoderHelper imageRefContainsAlpha:image.CGImage];
+        BOOL hasAlpha = [SDWebImageCoderHelper CGImageContainsAlpha:image.CGImage];
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {

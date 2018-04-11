@@ -396,7 +396,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     // Image/IO create CGImage does not decompressed, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef newImageRef = [SDWebImageCoderHelper imageRefCreateDecoded:imageRef];
+    CGImageRef newImageRef = [SDWebImageCoderHelper CGImageCreateDecoded:imageRef];
     if (!newImageRef) {
         newImageRef = imageRef;
     } else {

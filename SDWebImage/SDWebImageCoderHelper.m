@@ -236,29 +236,29 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return colorspaceRef;
 }
 
-+ (BOOL)imageRefContainsAlpha:(CGImageRef)imageRef {
-    if (!imageRef) {
++ (BOOL)CGImageContainsAlpha:(CGImageRef)cgImage {
+    if (!cgImage) {
         return NO;
     }
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(cgImage);
     BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
                       alphaInfo == kCGImageAlphaNoneSkipFirst ||
                       alphaInfo == kCGImageAlphaNoneSkipLast);
     return hasAlpha;
 }
 
-+ (CGImageRef)imageRefCreateDecoded:(CGImageRef)imageRef {
-    return [self imageRefCreateDecoded:imageRef orientation:kCGImagePropertyOrientationUp];
++ (CGImageRef)CGImageCreateDecoded:(CGImageRef)cgImage {
+    return [self CGImageCreateDecoded:cgImage orientation:kCGImagePropertyOrientationUp];
 }
 
-+ (CGImageRef)imageRefCreateDecoded:(CGImageRef)imageRef orientation:(CGImagePropertyOrientation)orientation {
-    if (!imageRef) {
++ (CGImageRef)CGImageCreateDecoded:(CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation {
+    if (!cgImage) {
         return NULL;
     }
-    size_t width = CGImageGetWidth(imageRef);
-    size_t height = CGImageGetHeight(imageRef);
+    size_t width = CGImageGetWidth(cgImage);
+    size_t height = CGImageGetHeight(cgImage);
     if (width == 0 || height == 0) return NULL;
-    BOOL hasAlpha = [self imageRefContainsAlpha:imageRef];
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
     // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
     // Through you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
     // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
@@ -287,7 +287,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             break;
     }
     CGContextConcatCTM(context, transform);
-    CGContextDrawImage(context, rect, imageRef);
+    CGContextDrawImage(context, rect, cgImage);
     CGImageRef newImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     
@@ -302,7 +302,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return image;
     }
     
-    CGImageRef imageRef = [self imageRefCreateDecoded:image.CGImage];
+    CGImageRef imageRef = [self CGImageCreateDecoded:image.CGImage];
     if (!imageRef) {
         return image;
     }
@@ -529,7 +529,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     CGImageRef imageRef = image.CGImage;
-    BOOL hasAlpha = [self imageRefContainsAlpha:imageRef];
+    BOOL hasAlpha = [self CGImageContainsAlpha:imageRef];
     // do not decode images with alpha
     if (hasAlpha) {
         return NO;
@@ -570,7 +570,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 #endif
 
-static CGAffineTransform SDCGContextTransformFromOrientation(CGImagePropertyOrientation orientation, CGSize size) {
+static inline CGAffineTransform SDCGContextTransformFromOrientation(CGImagePropertyOrientation orientation, CGSize size) {
     // Inspiration from @libfeihu
     // We need to calculate the proper transformation to make the image upright.
     // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.

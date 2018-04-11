@@ -33,7 +33,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeScal
  */
 FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeFirstFrameOnly;
 /**
- A double value between 0.0-1.0 indicating the encode compression quality to produce the image data. If not provide, use 1.0. (NSNumber)
+ A double value between 0.0-1.0 indicating the encode compression quality to produce the image data. 1.0 resulting in no compression and 0.0 resulting in the maximum compression possible. If not provide, use 1.0. (NSNumber)
  @note works for `SDWebImageCoder`
  */
 FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeCompressionQuality;

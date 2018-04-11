@@ -25,12 +25,17 @@
     CGFloat scale = 1;
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
     NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
-    NSBitmapImageRep *bitmapImageRep;
-    if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
-        bitmapImageRep = (NSBitmapImageRep *)imageRep;
-    }
-    if (bitmapImageRep) {
-        return bitmapImageRep.scale;
+    CGFloat width = imageRep.size.width;
+    CGFloat height = imageRep.size.height;
+    NSUInteger pixelWidth = imageRep.pixelsWide;
+    NSUInteger pixelHeight = imageRep.pixelsHigh;
+    if (width > 0 && height > 0) {
+        CGFloat widthScale = pixelWidth / width;
+        CGFloat heightScale = pixelHeight / height;
+        if (widthScale == heightScale && widthScale >= 1) {
+            // Protect for image object which custom the size.
+            scale = widthScale;
+        }
     }
     
     return scale;
@@ -71,42 +76,13 @@
 
 @end
 
-@interface NSBitmapImageRep ()
-
-@property (nonatomic, assign, readonly, nullable) CGImageSourceRef imageSource;
-
-@end
-
 @implementation NSBitmapImageRep (Additions)
-
-- (CGImageSourceRef)imageSource {
-    if (_tiffData) {
-        return (__bridge CGImageSourceRef)(_tiffData);
-    }
-    return NULL;
-}
-
-- (CGFloat)scale {
-    CGFloat scale = 1;
-    CGFloat width = self.size.width;
-    CGFloat height = self.size.height;
-    NSUInteger pixelWidth = self.pixelsWide;
-    NSUInteger pixelHeight = self.pixelsHigh;
-    if (width > 0 && height > 0) {
-        CGFloat widthScale = pixelWidth / width;
-        CGFloat heightScale = pixelHeight / height;
-        if (widthScale == heightScale && widthScale >= 1) {
-            // Protect for image object which custom the size.
-            scale = widthScale;
-        }
-    }
-    return scale;
-}
 
 - (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
     if (orientation != kCGImagePropertyOrientationUp) {
+        // AppKit design is different from UIKit. Where CGImage based image rep does not respect to any orientation. Only data based image rep which contains the EXIF metadata can automatically detect orientation.
         // This should be nonnull, until the memory is exhausted cause `CGBitmapContextCreate` failed.
-        cgImage = [SDWebImageCoderHelper imageRefCreateDecoded:cgImage orientation:orientation];
+        cgImage = [SDWebImageCoderHelper CGImageCreateDecoded:cgImage orientation:orientation];
         self = [self initWithCGImage:cgImage];
         CGImageRelease(cgImage);
     } else {
