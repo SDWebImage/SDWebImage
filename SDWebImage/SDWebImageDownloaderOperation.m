@@ -46,7 +46,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
 @property (copy, nonatomic, nullable) NSString *cacheKey;
-@property (assign, nonatomic, readwrite) long long expectedSize;
+@property (assign, nonatomic, readwrite) NSUInteger expectedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
@@ -343,7 +343,7 @@ didReceiveResponse:(NSURLResponse *)response
         // Get the image data
         __block NSData *imageData = [self.imageData copy];
         // Get the total bytes downloaded
-        const NSInteger totalSize = imageData.length;
+        const NSUInteger totalSize = imageData.length;
         // Get the finish status
         BOOL finished = (totalSize >= self.expectedSize);
         
