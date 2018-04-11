@@ -236,7 +236,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     @autoreleasepool{
         
         CGImageRef imageRef = image.CGImage;
-        CGColorSpaceRef colorspaceRef = [[self class] colorSpaceForImageRef:imageRef];
+        // device color space
+        CGColorSpaceRef colorspaceRef = SDCGColorSpaceGetDeviceRGB();
+        BOOL hasAlpha = SDCGImageRefContainsAlpha(imageRef);
+        // iOS display alpha info (BRGA8888/BGRX8888)
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+        bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
         
         size_t width = CGImageGetWidth(imageRef);
         size_t height = CGImageGetHeight(imageRef);
@@ -250,7 +255,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                                      kBitsPerComponent,
                                                      0,
                                                      colorspaceRef,
-                                                     kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
+                                                     bitmapInfo);
         if (context == NULL) {
             return image;
         }
@@ -294,8 +299,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         destResolution.width = (int)(sourceResolution.width*imageScale);
         destResolution.height = (int)(sourceResolution.height*imageScale);
         
-        // current color space
-        CGColorSpaceRef colorspaceRef = [[self class] colorSpaceForImageRef:sourceImageRef];
+        // device color space
+        CGColorSpaceRef colorspaceRef = SDCGColorSpaceGetDeviceRGB();
+        BOOL hasAlpha = SDCGImageRefContainsAlpha(sourceImageRef);
+        // iOS display alpha info (BGRA8888/BGRX8888)
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+        bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipLast
@@ -306,7 +315,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
                                             kBitsPerComponent,
                                             0,
                                             colorspaceRef,
-                                            kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast);
+                                            bitmapInfo);
         
         if (destContext == NULL) {
             return image;
@@ -453,14 +462,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     
-    CGImageRef imageRef = image.CGImage;
-    
-    BOOL hasAlpha = SDCGImageRefContainsAlpha(imageRef);
-    // do not decode images with alpha
-    if (hasAlpha) {
-        return NO;
-    }
-    
     return YES;
 }
 
@@ -557,21 +558,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     return shouldScaleDown;
-}
-
-+ (CGColorSpaceRef)colorSpaceForImageRef:(CGImageRef)imageRef {
-    // current
-    CGColorSpaceModel imageColorSpaceModel = CGColorSpaceGetModel(CGImageGetColorSpace(imageRef));
-    CGColorSpaceRef colorspaceRef = CGImageGetColorSpace(imageRef);
-    
-    BOOL unsupportedColorSpace = (imageColorSpaceModel == kCGColorSpaceModelUnknown ||
-                                  imageColorSpaceModel == kCGColorSpaceModelMonochrome ||
-                                  imageColorSpaceModel == kCGColorSpaceModelCMYK ||
-                                  imageColorSpaceModel == kCGColorSpaceModelIndexed);
-    if (unsupportedColorSpace) {
-        colorspaceRef = SDCGColorSpaceGetDeviceRGB();
-    }
-    return colorspaceRef;
 }
 #endif
 
