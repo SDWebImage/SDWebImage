@@ -232,7 +232,11 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
             }
         }
             break;
-        case kCGImageAlphaOnly:
+        case kCGImageAlphaOnly: {
+            // A
+            a = pixel[0];
+        }
+            break;
         default:
             break;
     }
