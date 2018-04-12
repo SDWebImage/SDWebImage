@@ -296,15 +296,16 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 }
 
 - (void)setSd_imageIndicator:(id<SDWebImageIndicator>)sd_imageIndicator {
+    // Remove the old indicator view
     id<SDWebImageIndicator> previousIndicator = self.sd_imageIndicator;
-    if (previousIndicator == sd_imageIndicator) {
-        [previousIndicator.indicatorView removeFromSuperview];
-    }
+    [previousIndicator.indicatorView removeFromSuperview];
+    
+    objc_setAssociatedObject(self, @selector(sd_imageIndicator), sd_imageIndicator, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     // Add the new indicator view
     UIView *view = sd_imageIndicator.indicatorView;
     if (CGRectEqualToRect(view.frame, CGRectZero)) {
-        view.frame = self.frame;
+        view.frame = self.bounds;
     }
     // Center the indicator view
 #if SD_MAC
@@ -316,8 +317,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #endif
     view.hidden = NO;
     [self addSubview:view];
-    
-    objc_setAssociatedObject(self, @selector(sd_imageIndicator), sd_imageIndicator, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)sd_startImageIndicator {
