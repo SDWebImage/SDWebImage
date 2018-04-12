@@ -12,14 +12,17 @@
 @implementation UIImage (MultiFormat)
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
-    return [self sd_imageWithData:data firstFrameOnly:NO];
+    return [self sd_imageWithData:data scale:1];
 }
 
-+ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly {
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale {
     if (!data) {
         return nil;
     }
-    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    if (scale < 1) {
+        scale = 1;
+    }
+    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeScaleFactor : @(scale)};
     return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 

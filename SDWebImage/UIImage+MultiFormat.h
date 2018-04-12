@@ -13,7 +13,6 @@
 #pragma mark - Decode
 /**
  Create and decode a image with the specify image data
- If the image data is animated image format, create an animated image if possible
 
  @param data The image data
  @return The created image
@@ -21,13 +20,13 @@
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
 
 /**
- Create and decode a image with the specify image data
+ Create and decode a image with the specify image data and scale
  
  @param data The image data
- @param firstFrameOnly Even if the image data is animated image format, decode the first frame only
+ @param scale The image scale factor. Should be greater than or equal to 1.0.
  @return The created image
  */
-+ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly;
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale;
 
 #pragma mark - Encode
 /**
@@ -46,7 +45,7 @@
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat;
 
 /**
- Encode the current image to data with the specify image format
+ Encode the current image to data with the specify image format and compression quality
 
  @param imageFormat The specify image format
  @param compressionQuality The quality of the resulting image data. Value between 0.0-1.0. Some coders may not support compression quality.
