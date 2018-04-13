@@ -196,6 +196,14 @@
     }
 }
 
+- (void)storeImageToMemory:(UIImage *)image forKey:(NSString *)key {
+    if (!image || !key) {
+        return;
+    }
+    NSUInteger cost = SDMemoryCacheCostForImage(image);
+    [self.memCache setObject:image forKey:key cost:cost];
+}
+
 - (void)storeImageDataToDisk:(nullable NSData *)imageData
                       forKey:(nullable NSString *)key {
     if (!imageData || !key) {
@@ -460,6 +468,32 @@
     } else if (completion) {
         completion();
     }
+}
+
+- (void)removeImageFromMemoryForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    
+    [self.memCache removeObjectForKey:key];
+}
+
+- (void)removeImageFromDiskForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    dispatch_sync(self.ioQueue, ^{
+        [self _removeImageFromDiskForKey:key];
+    });
+}
+
+// Make sure to call form io queue by caller
+- (void)_removeImageFromDiskForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    
+    [self.diskCache removeDataForKey:key];
 }
 
 #pragma mark - Cache clean Ops

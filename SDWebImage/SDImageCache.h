@@ -168,6 +168,15 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
+ * Synchronously store image into memory cache at the given key.
+ *
+ * @param image  The image to store
+ * @param key    The unique image cache key, usually it's image absolute URL
+ */
+- (void)storeImageToMemory:(nullable UIImage*)image
+                    forKey:(nullable NSString *)key;
+
+/**
  * Synchronously store image NSData into disk cache at the given key.
  *
  * @param imageData  The image data to store
@@ -177,7 +186,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
                       forKey:(nullable NSString *)key;
 
 
-#pragma mark - Query and Retrieve Ops
+#pragma mark - Contains and Check Ops
 
 /**
  *  Asynchronously check if image exists in disk cache already (does not load the image)
@@ -194,6 +203,8 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *  @param key             the key describing the url
  */
 - (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key;
+
+#pragma mark - Query and Retrieve Ops
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -267,6 +278,20 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  * @param completion      A block that should be executed after the image has been removed (optional)
  */
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion;
+
+/**
+ Synchronously remove the image from memory cache.
+ 
+ @param key The unique image cache key
+ */
+- (void)removeImageFromMemoryForKey:(nullable NSString *)key;
+
+/**
+ Synchronously remove the image from disk cache.
+ 
+ @param key The unique image cache key
+ */
+- (void)removeImageFromDiskForKey:(nullable NSString *)key;
 
 #pragma mark - Cache clean Ops
 
