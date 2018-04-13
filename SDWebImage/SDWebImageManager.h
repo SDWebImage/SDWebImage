@@ -8,8 +8,8 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
+#import "SDWebImageCache.h"
 #import "SDWebImageDownloader.h"
-#import "SDImageCache.h"
 #import "SDWebImageTransformer.h"
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCacheSerializer.h"
@@ -99,7 +99,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * The image cache used by manager to query image cache.
  */
-@property (strong, nonatomic, readonly, nonnull) SDImageCache *imageCache;
+@property (strong, nonatomic, readonly, nonnull) id<SDWebImageCache> imageCache;
 
 /**
  * The image downloader used by manager to download image.
@@ -155,6 +155,18 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 @property (nonatomic, assign, readonly, getter=isRunning) BOOL running;
 
 /**
+ The default image cache when the manager which is created with no arguments. Such as shared manager or init.
+ Defaults to nil. Means using `SDImageCache.sharedImageCache`
+ */
+@property (nonatomic, class, nullable) id<SDWebImageCache> defaultImageCache;
+
+/**
+ The default image downloader for manager which is created with no arguments. Such as shared manager or init.
+ Defaults to nil. Means using `SDWebImageDownloader.sharedDownloader`
+ */
+@property (nonatomic, class, nullable) SDWebImageDownloader *defaultImageDownloader;
+
+/**
  * Returns global shared manager instance.
  */
 @property (nonatomic, class, readonly, nonnull) SDWebImageManager *sharedManager;
@@ -163,7 +175,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Allows to specify instance of cache and image downloader used with image manager.
  * @return new instance of `SDWebImageManager` with specified cache and downloader.
  */
-- (nonnull instancetype)initWithCache:(nonnull SDImageCache *)cache downloader:(nonnull SDWebImageDownloader *)downloader NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache downloader:(nonnull SDWebImageDownloader *)downloader NS_DESIGNATED_INITIALIZER;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
@@ -214,45 +226,12 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
                                                  completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
- * Saves image to cache for given URL
- *
- * @param image The image to cache
- * @param url   The URL to the image
- *
- */
-
-- (void)saveImageToCache:(nullable UIImage *)image forURL:(nullable NSURL *)url;
-
-/**
  * Cancel all current operations
  */
 - (void)cancelAll;
 
 /**
- *  Async check if image has already been cached
- *
- *  @param url              image url
- *  @param completionBlock  the block to be executed when the check is finished
- *  
- *  @note the completion block is always executed on the main queue
- */
-- (void)cachedImageExistsForURL:(nullable NSURL *)url
-                     completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
-
-/**
- *  Async check if image has already been cached on disk only
- *
- *  @param url              image url
- *  @param completionBlock  the block to be executed when the check is finished
- *
- *  @note the completion block is always executed on the main queue
- */
-- (void)diskImageExistsForURL:(nullable NSURL *)url
-                   completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
-
-
-/**
- *Return the cache key for a given URL
+ * Return the cache key for a given URL
  */
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 

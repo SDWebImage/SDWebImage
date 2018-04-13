@@ -10,21 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDImageCacheConfig.h"
-
-typedef NS_ENUM(NSInteger, SDImageCacheType) {
-    /**
-     * The image wasn't available the SDWebImage caches, but was downloaded from the web.
-     */
-    SDImageCacheTypeNone,
-    /**
-     * The image was obtained from the disk cache.
-     */
-    SDImageCacheTypeDisk,
-    /**
-     * The image was obtained from the memory cache.
-     */
-    SDImageCacheTypeMemory
-};
+#import "SDWebImageCache.h"
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
@@ -317,5 +303,12 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  * Asynchronously calculate the disk cache's size.
  */
 - (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock;
+
+@end
+
+/**
+ * SDImageCache is the built-in image cache implementation for web image manager. It adopts `SDWebImageCache` protocol to provide the function for web image manager to use for image loading process.
+ */
+@interface SDImageCache (SDWebImageCache) <SDWebImageCache>
 
 @end
