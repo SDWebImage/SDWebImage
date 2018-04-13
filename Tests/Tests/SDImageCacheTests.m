@@ -57,8 +57,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 - (void)test05ClearMemoryCache{
     XCTestExpectation *expectation = [self expectationWithDescription:@"Clear memory cache"];
     
-    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^(NSError * _Nullable error) {
-        expect(error).to.beNil();
+    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^{
         [[SDImageCache sharedImageCache] clearMemory];
         expect([[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kImageTestKey]).to.beNil;
         [[SDImageCache sharedImageCache] diskImageExistsWithKey:kImageTestKey completion:^(BOOL isInCache) {
@@ -185,8 +184,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 
 - (void)test21InitialDiskCount{
     XCTestExpectation *expectation = [self expectationWithDescription:@"getDiskCount"];
-    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^(NSError * _Nullable error) {
-        expect(error).to.beNil();
+    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^{
         expect([[SDImageCache sharedImageCache] getDiskCount]).to.equal(1);
         [[SDImageCache sharedImageCache] removeImageForKey:kImageTestKey withCompletion:^{
             [expectation fulfill];
@@ -207,8 +205,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 
 - (void)test33CachePathForExistingKey{
     XCTestExpectation *expectation = [self expectationWithDescription:@"cachePathForKey inPath"];
-    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^(NSError * _Nullable error) {
-        expect(error).to.beNil();
+    [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^{
         NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey];
         expect(path).notTo.beNil;
         [[SDImageCache sharedImageCache] removeImageForKey:kImageTestKey withCompletion:^{
@@ -237,7 +234,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:[self testImagePath]];
     NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
-    [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kImageTestKey error:nil];
+    [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kImageTestKey];
     
     UIImage *storedImageFromMemory = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kImageTestKey];
     expect(storedImageFromMemory).to.equal(nil);
@@ -269,7 +266,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     NSString *key = @"TestPNGImageEncodedToDataAndRetrieveToJPEG";
     
-    [cache storeImage:image imageData:nil forKey:key toDisk:YES completion:^(NSError * _Nullable error) {
+    [cache storeImage:image imageData:nil forKey:key toDisk:YES completion:^{
         [cache clearMemory];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -309,35 +306,19 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 }
 #endif
 
-- (void)test41StoreImageDataToDiskWithError {
+- (void)test41StoreImageDataToDiskWithCustomFileManager {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
     NSError *targetError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteNoPermissionError userInfo:nil];
-    NSError *error = nil;
+    
     SDMockFileManager *fileManager = [[SDMockFileManager alloc] init];
     fileManager.mockSelectors = @{NSStringFromSelector(@selector(createDirectoryAtPath:withIntermediateDirectories:attributes:error:)) : targetError};
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
-                                               diskCacheDirectory:@"/"
-                                                      fileManager:fileManager];
-    [cache storeImageDataToDisk:imageData
-                         forKey:kImageTestKey
-                          error:&error];
+    expect(fileManager.lastError).to.beNil();
     
-    XCTAssertEqual(error.code, NSFileWriteNoPermissionError);
-}
-
-- (void)test42StoreImageDataToDiskWithoutError {
-    NSData *imageData = [NSData dataWithContentsOfFile:[self testImagePath]];
-    NSError *error = nil;
-    SDMockFileManager *fileManager = [[SDMockFileManager alloc] init];
-    fileManager.mockSelectors = @{NSStringFromSelector(@selector(createDirectoryAtPath:withIntermediateDirectories:attributes:error:)) : [NSNull null]};
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test"
-                                               diskCacheDirectory:@"/"
-                                                      fileManager:fileManager];
+    // This disk cache path creation will be mocked with error.
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test" diskCacheDirectory:@"/" fileManager:fileManager];
     [cache storeImageDataToDisk:imageData
-                         forKey:kImageTestKey
-                          error:&error];
-
-    XCTAssertNil(error);
+                         forKey:kImageTestKey];
+    expect(fileManager.lastError).equal(targetError);
 }
 
 #pragma mark Helper methods

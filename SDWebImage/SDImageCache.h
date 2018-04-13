@@ -56,8 +56,6 @@ typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
 
 typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
-typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable error);
-
 typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 
 /**
@@ -140,7 +138,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -153,7 +151,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -170,18 +168,16 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock;
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Synchronously store image NSData into disk cache at the given key.
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
- * @param error      NSError pointer, for possible file I/O errors, See FoundationErrors.h
  */
-- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key
-                       error:(NSError * _Nullable * _Nullable)error;
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key;
 
 
 #pragma mark - Query and Retrieve Ops
