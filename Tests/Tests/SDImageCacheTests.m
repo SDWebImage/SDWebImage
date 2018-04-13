@@ -195,13 +195,13 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test31DefaultCachePathForAnyKey{
-    NSString *path = [[SDImageCache sharedImageCache] defaultCachePathForKey:kImageTestKey];
+- (void)test31CachePathForAnyKey{
+    NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey];
     expect(path).toNot.beNil;
 }
 
-- (void)test32CachePathForNonExistingKey{
-    NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey inPath:[[SDImageCache sharedImageCache] defaultCachePathForKey:kImageTestKey]];
+- (void)test32CachePathForNilKey{
+    NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:nil];
     expect(path).to.beNil;
 }
 
@@ -209,7 +209,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     XCTestExpectation *expectation = [self expectationWithDescription:@"cachePathForKey inPath"];
     [[SDImageCache sharedImageCache] storeImage:[self imageForTesting] forKey:kImageTestKey completion:^(NSError * _Nullable error) {
         expect(error).to.beNil();
-        NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey inPath:[[SDImageCache sharedImageCache] defaultCachePathForKey:kImageTestKey]];
+        NSString *path = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey];
         expect(path).notTo.beNil;
         [[SDImageCache sharedImageCache] removeImageForKey:kImageTestKey withCompletion:^{
             [expectation fulfill];
@@ -219,14 +219,14 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
 }
 
 - (void)test34CachePathForSimpleKeyWithExtension {
-    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestJpegURL inPath:@""];
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestJpegURL];
     expect(cachePath).toNot.beNil();
     expect([cachePath pathExtension]).to.equal(@"jpg");
 }
 
 - (void)test35CachePathForKeyWithDotButNoExtension {
     NSString *urlString = @"https://maps.googleapis.com/maps/api/staticmap?center=48.8566,2.3522&format=png&maptype=roadmap&scale=2&size=375x200&zoom=15";
-    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:urlString inPath:@""];
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:urlString];
     expect(cachePath).toNot.beNil();
     expect([cachePath pathExtension]).to.equal(@"");
 }
@@ -242,7 +242,7 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     UIImage *storedImageFromMemory = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kImageTestKey];
     expect(storedImageFromMemory).to.equal(nil);
     
-    NSString *cachePath = [[SDImageCache sharedImageCache] defaultCachePathForKey:kImageTestKey];
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kImageTestKey];
     UIImage *cachedImage = [[UIImage alloc] initWithContentsOfFile:cachePath];
     NSData *storedImageData = UIImageJPEGRepresentation(cachedImage, 1.0);
     expect(storedImageData.length).to.beGreaterThan(0);

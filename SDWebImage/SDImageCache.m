@@ -128,8 +128,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark - Properties
 @property (strong, nonatomic, nonnull) SDMemoryCache *memCache;
-@property (strong, nonatomic, nonnull) NSString *diskCachePath;
-@property (strong, nonatomic, nullable) NSMutableArray<NSString *> *customPaths;
 @property (strong, nonatomic, nullable) dispatch_queue_t ioQueue;
 @property (strong, nonatomic, nonnull) NSFileManager *fileManager;
 
@@ -218,23 +216,16 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 #pragma mark - Cache paths
 
-- (void)addReadOnlyCachePath:(nonnull NSString *)path {
-    if (!self.customPaths) {
-        self.customPaths = [NSMutableArray new];
+- (nullable NSString *)cachePathForKey:(nullable NSString *)key {
+    if (!key) {
+        return nil;
     }
-
-    if (![self.customPaths containsObject:path]) {
-        [self.customPaths addObject:path];
-    }
+    return [self cachePathForKey:key inPath:self.diskCachePath];
 }
 
 - (nullable NSString *)cachePathForKey:(nullable NSString *)key inPath:(nonnull NSString *)path {
     NSString *filename = [self cachedFileNameForKey:key];
     return [path stringByAppendingPathComponent:filename];
-}
-
-- (nullable NSString *)defaultCachePathForKey:(nullable NSString *)key {
-    return [self cachePathForKey:key inPath:self.diskCachePath];
 }
 
 - (nullable NSString *)cachedFileNameForKey:(nullable NSString *)key {
@@ -352,7 +343,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
     
     // get cache Path for image key
-    NSString *cachePathForKey = [self defaultCachePathForKey:key];
+    NSString *cachePathForKey = [self cachePathForKey:key];
     // transform to NSUrl
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
     
@@ -402,12 +393,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!key) {
         return NO;
     }
-    BOOL exists = [self.fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
+    BOOL exists = [self.fileManager fileExistsAtPath:[self cachePathForKey:key]];
     
     // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
     if (!exists) {
-        exists = [self.fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
+        exists = [self.fileManager fileExistsAtPath:[self cachePathForKey:key].stringByDeletingPathExtension];
     }
     
     return exists;
@@ -440,7 +431,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable NSData *)diskImageDataBySearchingAllPathsForKey:(nullable NSString *)key {
-    NSString *defaultPath = [self defaultCachePathForKey:key];
+    NSString *defaultPath = [self cachePathForKey:key];
     NSData *data = [NSData dataWithContentsOfFile:defaultPath options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
         return data;
@@ -452,20 +443,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (data) {
         return data;
     }
-
-    NSArray<NSString *> *customPaths = [self.customPaths copy];
-    for (NSString *path in customPaths) {
-        NSString *filePath = [self cachePathForKey:key inPath:path];
-        NSData *imageData = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
-        if (imageData) {
-            return imageData;
-        }
-
-        // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-        // checking the key with and without the extension
-        imageData = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
-        if (imageData) {
-            return imageData;
+    
+    // Addtional cache path for custom pre-load cache
+    if (self.additionalCachePathBlock) {
+        NSString *filePath = self.additionalCachePathBlock(key);
+        if (filePath) {
+            data = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
         }
     }
 
@@ -616,7 +599,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
     if (fromDisk) {
         dispatch_async(self.ioQueue, ^{
-            [self.fileManager removeItemAtPath:[self defaultCachePathForKey:key] error:nil];
+            [self.fileManager removeItemAtPath:[self cachePathForKey:key] error:nil];
             
             if (completion) {
                 dispatch_async(dispatch_get_main_queue(), ^{
