@@ -58,6 +58,8 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 
 typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable error);
 
+typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
+
 /**
  * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -70,6 +72,18 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  *  Cache Config object - storing all kind of settings
  */
 @property (nonatomic, nonnull, readonly) SDImageCacheConfig *config;
+
+/**
+ *  The disk cache's root path
+ */
+@property (nonatomic, copy, nonnull, readonly) NSString *diskCachePath;
+
+/**
+ *  The additional disk cache path to check if the query from disk cache not exist;
+ *  The `key` param is the image cache key. The returned file path will be used to load the disk cache. If return nil, ignore it.
+ *  Useful if you want to bundle pre-loaded images with your app
+ */
+@property (nonatomic, copy, nullable) SDImageCacheAdditionalCachePathBlock additionalCachePathBlock;
 
 #pragma mark - Singleton and initialization
 
@@ -107,15 +121,13 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
 
 #pragma mark - Cache paths
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace;
-
 /**
- * Add a read-only cache path to search for images pre-cached by SDImageCache
- * Useful if you want to bundle pre-loaded images with your app
- *
- * @param path The path to use for this read-only cache path
+ Get the cache path for a certain key
+ 
+ @param key The unique image cache key
+ @return The cache path. You can check `lastPathComponent` to grab the file name.
  */
-- (void)addReadOnlyCachePath:(nonnull NSString *)path;
+- (nullable NSString *)cachePathForKey:(nullable NSString *)key;
 
 #pragma mark - Store Ops
 
@@ -298,26 +310,5 @@ typedef void(^SDWebImageCompletionWithPossibleErrorBlock)(NSError * _Nullable er
  * Asynchronously calculate the disk cache's size.
  */
 - (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock;
-
-#pragma mark - Cache Paths
-
-/**
- *  Get the cache path for a certain key (needs the cache path root folder)
- *
- *  @param key  the key (can be obtained from url using cacheKeyForURL)
- *  @param path the cache path root folder
- *
- *  @return the cache path
- */
-- (nullable NSString *)cachePathForKey:(nullable NSString *)key inPath:(nonnull NSString *)path;
-
-/**
- *  Get the default cache path for a certain key
- *
- *  @param key the key (can be obtained from url using cacheKeyForURL)
- *
- *  @return the default cache path
- */
-- (nullable NSString *)defaultCachePathForKey:(nullable NSString *)key;
 
 @end
