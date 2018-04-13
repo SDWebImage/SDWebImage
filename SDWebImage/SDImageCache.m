@@ -252,14 +252,14 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:YES completion:completionBlock];
 }
 
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
 }
 
@@ -267,10 +267,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageCompletionWithPossibleErrorBlock)completionBlock {
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock {
     if (!image || !key) {
         if (completionBlock) {
-            completionBlock(nil);
+            completionBlock();
         }
         return;
     }
@@ -282,7 +282,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     if (toDisk) {
         dispatch_async(self.ioQueue, ^{
-            NSError * writeError = nil;
             @autoreleasepool {
                 NSData *data = imageData;
                 if (!data && image) {
@@ -295,50 +294,41 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                     }
                     data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
-                [self _storeImageDataToDisk:data forKey:key error:&writeError];
+                [self _storeImageDataToDisk:data forKey:key];
             }
             
             if (completionBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completionBlock(writeError);
+                    completionBlock();
                 });
             }
         });
     } else {
         if (completionBlock) {
-            completionBlock(nil);
+            completionBlock();
         }
     }
 }
 
-- (BOOL)storeImageDataToDisk:(nullable NSData *)imageData
-                      forKey:(nullable NSString *)key
-                       error:(NSError * _Nullable __autoreleasing * _Nullable)error {
+- (void)storeImageDataToDisk:(nullable NSData *)imageData
+                      forKey:(nullable NSString *)key {
     if (!imageData || !key) {
-        return NO;
-    }
-    __autoreleasing NSError *fileError;
-    if (!error) {
-        error = &fileError;
+        return;
     }
     
-    __block BOOL success = YES;
-    void(^storeImageDataBlock)(void) =  ^{
-        success = [self _storeImageDataToDisk:imageData forKey:key error:error];
-    };
-    dispatch_sync(self.ioQueue, storeImageDataBlock);
-    
-    return success;
+    dispatch_sync(self.ioQueue, ^{
+        [self _storeImageDataToDisk:imageData forKey:key];
+    });
 }
 
 // Make sure to call form io queue by caller
-- (BOOL)_storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key error:(NSError * _Nullable __autoreleasing * _Nonnull)error {
+- (void)_storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
     if (!imageData || !key) {
-        return NO;
+        return;
     }
     if (![self.fileManager fileExistsAtPath:_diskCachePath]) {
-        if (![self.fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:error]) {
-            return NO;
+        if (![self.fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:nil]) {
+            return;
         }
     }
     
@@ -349,8 +339,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     // NSFileManager's `createFileAtPath:` is used just for old code compatibility and will not trigger any delegate methods, so it's useless for custom NSFileManager at all.
     // And also, NSFileManager's `createFileAtPath:` can only grab underlying POSIX errno, but NSData can grab errors defined in NSCocoaErrorDomain, which is better for user to check.
-    if (![imageData writeToURL:fileURL options:self.config.diskCacheWritingOptions error:error]) {
-        return NO;
+    if (![imageData writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil]) {
+        return;
     }
     
     // disable iCloud backup
@@ -358,8 +348,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         // ignore iCloud backup resource value error
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
     }
-    
-    return YES;
 }
 
 #pragma mark - Query and Retrieve Ops
@@ -452,7 +440,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         }
     }
 
-    return nil;
+    return data;
 }
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
