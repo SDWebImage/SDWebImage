@@ -179,7 +179,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         dispatch_main_async_safe(^{
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
-                completedBlock(nil, nil, error, YES, SDImageCacheTypeNone, url);
+                completedBlock(nil, nil, error, SDImageCacheTypeNone, YES, url);
             }
         });
     }
