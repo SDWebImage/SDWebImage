@@ -11,8 +11,16 @@
 #import <SDWebImage/SDWebImageCodersManager.h>
 #import "SDWebImageTestDecoder.h"
 #import "SDMockFileManager.h"
+#import "SDWebImageTestCache.h"
 
 NSString *kImageTestKey = @"TestImageKey.jpg";
+
+@interface SDImageCache ()
+
+@property (nonatomic, strong, nonnull) id<SDMemoryCache> memCache;
+@property (nonatomic, strong, nonnull) id<SDDiskCache> diskCache;
+
+@end
 
 @interface SDImageCacheTests : SDTestCase
 @end
@@ -323,6 +331,27 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     expect(fileManager.lastError).equal(targetError);
 }
 
+#pragma mark - SDMemoryCache & SDDiskCache
+- (void)test42CustomMemoryCache {
+    SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
+    config.memoryCacheClass = [SDWebImageTestMemoryCache class];
+    NSString *nameSpace = @"SDWebImageTestMemoryCache";
+    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDWebImageTestMemoryCache *memCache = cache.memCache;
+    expect([memCache isKindOfClass:[SDWebImageTestMemoryCache class]]).to.beTruthy();
+}
+
+- (void)test43CustomDiskCache {
+    SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
+    config.diskCacheClass = [SDWebImageTestDiskCache class];
+    NSString *nameSpace = @"SDWebImageTestDiskCache";
+    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDWebImageTestDiskCache *diskCache = cache.diskCache;
+    expect([diskCache isKindOfClass:[SDWebImageTestDiskCache class]]).to.beTruthy();
+}
+
 #pragma mark Helper methods
 
 - (UIImage *)imageForTesting{
@@ -337,6 +366,11 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
+}
+
+- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
+    NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
 @end
