@@ -7,7 +7,8 @@
  */
 
 #import "SDImageCache.h"
-#import <CommonCrypto/CommonDigest.h>
+#import "SDMemoryCache.h"
+#import "SDDiskCache.h"
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
@@ -15,121 +16,14 @@
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
-static void * SDImageCacheContext = &SDImageCacheContext;
-
-FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
-#if SD_MAC
-    return image.size.height * image.size.width;
-#elif SD_UIKIT || SD_WATCH
-    return image.size.height * image.size.width * image.scale * image.scale;
-#endif
-}
-
-// A memory cache which auto purge the cache on memory warning and support weak cache.
-@interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType>
-
-@end
-
-// Private
-@interface SDMemoryCache <KeyType, ObjectType> ()
-
-@property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; // strong-weak cache
-@property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
-
-@end
-
-@implementation SDMemoryCache
-
-// Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
-// But in the future there may be more options and features for this subclass.
-#if SD_UIKIT
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-}
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        // Use a strong-weak maptable storing the secondary cache. Follow the doc that NSCache does not copy keys
-        // This is useful when the memory warning, the cache was purged. However, the image instance can be retained by other instance such as imageViews and alive.
-        // At this case, we can sync weak cache back and do not need to load from disk cache
-        self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-        self.weakCacheLock = dispatch_semaphore_create(1);
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveMemoryWarning:)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification
-                                                   object:nil];
-    }
-    return self;
-}
-
-- (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    // Only remove cache, but keep weak cache
-    [super removeAllObjects];
-}
-
-// `setObject:forKey:` just call this with 0 cost. Override this is enough
-- (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
-    [super setObject:obj forKey:key cost:g];
-    if (key && obj) {
-        // Store weak cache
-        LOCK(self.weakCacheLock);
-        [self.weakCache setObject:obj forKey:key];
-        UNLOCK(self.weakCacheLock);
-    }
-}
-
-- (id)objectForKey:(id)key {
-    id obj = [super objectForKey:key];
-    if (key && !obj) {
-        // Check weak cache
-        LOCK(self.weakCacheLock);
-        obj = [self.weakCache objectForKey:key];
-        UNLOCK(self.weakCacheLock);
-        if (obj) {
-            // Sync cache
-            NSUInteger cost = 0;
-            if ([obj isKindOfClass:[UIImage class]]) {
-                cost = SDCacheCostForImage(obj);
-            }
-            [super setObject:obj forKey:key cost:cost];
-        }
-    }
-    return obj;
-}
-
-- (void)removeObjectForKey:(id)key {
-    [super removeObjectForKey:key];
-    if (key) {
-        // Remove weak cache
-        LOCK(self.weakCacheLock);
-        [self.weakCache removeObjectForKey:key];
-        UNLOCK(self.weakCacheLock);
-    }
-}
-
-- (void)removeAllObjects {
-    [super removeAllObjects];
-    // Manually remove should also remove weak cache
-    LOCK(self.weakCacheLock);
-    [self.weakCache removeAllObjects];
-    UNLOCK(self.weakCacheLock);
-}
-
-#endif
-
-@end
-
 @interface SDImageCache ()
 
 #pragma mark - Properties
-@property (strong, nonatomic, nonnull) SDMemoryCache *memCache;
-@property (strong, nonatomic, nullable) dispatch_queue_t ioQueue;
-@property (strong, nonatomic, nonnull) NSFileManager *fileManager;
+@property (nonatomic, strong, nonnull) id<SDMemoryCache> memCache;
+@property (nonatomic, strong, nonnull) id<SDDiskCache> diskCache;
+@property (nonatomic, copy, readwrite, nonnull) SDImageCacheConfig *config;
+@property (nonatomic, copy, readwrite, nonnull) NSString *diskCachePath;
+@property (nonatomic, strong, nullable) dispatch_queue_t ioQueue;
 
 @end
 
@@ -158,27 +52,27 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory {
-    return [self initWithNamespace:ns diskCacheDirectory:directory fileManager: nil];
+    return [self initWithNamespace:ns diskCacheDirectory:directory config:SDImageCacheConfig.defaultCacheConfig];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory
-                              fileManager:(nullable NSFileManager *)fileManager {
+                                   config:(nullable SDImageCacheConfig *)config {
     if ((self = [super init])) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
         
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
         
-        _config = [[SDImageCacheConfig alloc] init];
-        // KVO config property which need to be passed
-        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDImageCacheContext];
-        [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDImageCacheContext];
+        if (!config) {
+            config = SDImageCacheConfig.defaultCacheConfig;
+        }
+        _config = [config copy];
         
         // Init the memory cache
-        _memCache = [[SDMemoryCache alloc] init];
-        _memCache.name = fullNamespace;
-
+        NSAssert([config.memoryCacheClass conformsToProtocol:@protocol(SDMemoryCache)], @"Custom memory cache class must conform to `SDMemoryCache` protocol");
+        _memCache = [[config.memoryCacheClass alloc] initWithConfig:_config];
+        
         // Init the disk cache
         if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
@@ -186,21 +80,26 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             NSString *path = [self makeDiskCachePath:ns];
             _diskCachePath = path;
         }
-
-        dispatch_sync(_ioQueue, ^{
-            self.fileManager = fileManager ? fileManager : [NSFileManager new];
-        });
+        
+        NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
+        _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath config:_config];
 
 #if SD_UIKIT
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(deleteOldFiles)
+                                                 selector:@selector(applicationWillTerminate:)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(backgroundDeleteOldFiles)
+                                                 selector:@selector(applicationDidEnterBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
+#endif
+#if SD_MAC
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillTerminate:)
+                                                     name:NSApplicationWillTerminateNotification
                                                    object:nil];
 #endif
     }
@@ -209,8 +108,6 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (void)dealloc {
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDImageCacheContext];
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDImageCacheContext];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -220,27 +117,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!key) {
         return nil;
     }
-    return [self cachePathForKey:key inPath:self.diskCachePath];
-}
-
-- (nullable NSString *)cachePathForKey:(nullable NSString *)key inPath:(nonnull NSString *)path {
-    NSString *filename = [self cachedFileNameForKey:key];
-    return [path stringByAppendingPathComponent:filename];
-}
-
-- (nullable NSString *)cachedFileNameForKey:(nullable NSString *)key {
-    const char *str = key.UTF8String;
-    if (str == NULL) {
-        str = "";
-    }
-    unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, (CC_LONG)strlen(str), r);
-    NSURL *keyURL = [NSURL URLWithString:key];
-    NSString *ext = keyURL ? keyURL.pathExtension : key.pathExtension;
-    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
-                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
-                          r[11], r[12], r[13], r[14], r[15], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
-    return filename;
+    return [self.diskCache cachePathForKey:key];
 }
 
 - (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
@@ -276,7 +153,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
     // if memory cache is enabled
     if (self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(image);
+        NSUInteger cost = SDMemoryCacheCostForImage(image);
         [self.memCache setObject:image forKey:key cost:cost];
     }
     
@@ -326,28 +203,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!imageData || !key) {
         return;
     }
-    if (![self.fileManager fileExistsAtPath:_diskCachePath]) {
-        if (![self.fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:nil]) {
-            return;
-        }
-    }
     
-    // get cache Path for image key
-    NSString *cachePathForKey = [self cachePathForKey:key];
-    // transform to NSUrl
-    NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
-    
-    // NSFileManager's `createFileAtPath:` is used just for old code compatibility and will not trigger any delegate methods, so it's useless for custom NSFileManager at all.
-    // And also, NSFileManager's `createFileAtPath:` can only grab underlying POSIX errno, but NSData can grab errors defined in NSCocoaErrorDomain, which is better for user to check.
-    if (![imageData writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil]) {
-        return;
-    }
-    
-    // disable iCloud backup
-    if (self.config.shouldDisableiCloud) {
-        // ignore iCloud backup resource value error
-        [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
-    }
+    [self.diskCache setData:imageData forKey:key];
 }
 
 #pragma mark - Query and Retrieve Ops
@@ -381,15 +238,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (!key) {
         return NO;
     }
-    BOOL exists = [self.fileManager fileExistsAtPath:[self cachePathForKey:key]];
     
-    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-    // checking the key with and without the extension
-    if (!exists) {
-        exists = [self.fileManager fileExistsAtPath:[self cachePathForKey:key].stringByDeletingPathExtension];
-    }
-    
-    return exists;
+    return [self.diskCache containsDataForKey:key];
 }
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
@@ -399,7 +249,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDCacheCostForImage(diskImage);
+        NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -419,15 +269,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable NSData *)diskImageDataBySearchingAllPathsForKey:(nullable NSString *)key {
-    NSString *defaultPath = [self cachePathForKey:key];
-    NSData *data = [NSData dataWithContentsOfFile:defaultPath options:self.config.diskCacheReadingOptions error:nil];
-    if (data) {
-        return data;
+    if (!key) {
+        return nil;
     }
-
-    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
-    // checking the key with and without the extension
-    data = [NSData dataWithContentsOfFile:defaultPath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
+    
+    NSData *data = [self.diskCache dataForKey:key];
     if (data) {
         return data;
     }
@@ -542,7 +388,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:cacheKey data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = SDCacheCostForImage(diskImage);
+                    NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
                     [self.memCache setObject:diskImage forKey:cacheKey cost:cost];
                 }
             }
@@ -585,7 +431,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
     if (fromDisk) {
         dispatch_async(self.ioQueue, ^{
-            [self.fileManager removeItemAtPath:[self cachePathForKey:key] error:nil];
+            [self.diskCache removeDataForKey:key];
             
             if (completion) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -593,23 +439,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                 });
             }
         });
-    } else if (completion){
+    } else if (completion) {
         completion();
-    }
-    
-}
-
-#pragma mark - KVO
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context == SDImageCacheContext) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
-            self.memCache.totalCostLimit = self.config.maxMemoryCost;
-        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
-            self.memCache.countLimit = self.config.maxMemoryCount;
-        }
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 
@@ -621,12 +452,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)clearDiskOnCompletion:(nullable SDWebImageNoParamsBlock)completion {
     dispatch_async(self.ioQueue, ^{
-        [self.fileManager removeItemAtPath:self.diskCachePath error:nil];
-        [self.fileManager createDirectoryAtPath:self.diskCachePath
-                withIntermediateDirectories:YES
-                                 attributes:nil
-                                      error:NULL];
-
+        [self.diskCache removeAllData];
         if (completion) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion();
@@ -635,81 +461,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
-- (void)deleteOldFiles {
-    [self deleteOldFilesWithCompletionBlock:nil];
-}
-
 - (void)deleteOldFilesWithCompletionBlock:(nullable SDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
-        NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
-        NSArray<NSString *> *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];
-
-        // This enumerator prefetches useful properties for our cache files.
-        NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtURL:diskCacheURL
-                                                   includingPropertiesForKeys:resourceKeys
-                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                 errorHandler:NULL];
-
-        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
-        NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
-        NSUInteger currentCacheSize = 0;
-
-        // Enumerate all of the files in the cache directory.  This loop has two purposes:
-        //
-        //  1. Removing files that are older than the expiration date.
-        //  2. Storing file attributes for the size-based cleanup pass.
-        NSMutableArray<NSURL *> *urlsToDelete = [[NSMutableArray alloc] init];
-        for (NSURL *fileURL in fileEnumerator) {
-            NSError *error;
-            NSDictionary<NSString *, id> *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:&error];
-
-            // Skip directories and errors.
-            if (error || !resourceValues || [resourceValues[NSURLIsDirectoryKey] boolValue]) {
-                continue;
-            }
-
-            // Remove files that are older than the expiration date;
-            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];
-            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-                [urlsToDelete addObject:fileURL];
-                continue;
-            }
-
-            // Store a reference to this file and account for its total size.
-            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-            currentCacheSize += totalAllocatedSize.unsignedIntegerValue;
-            cacheFiles[fileURL] = resourceValues;
-        }
-        
-        for (NSURL *fileURL in urlsToDelete) {
-            [self.fileManager removeItemAtURL:fileURL error:nil];
-        }
-
-        // If our remaining disk cache exceeds a configured maximum size, perform a second
-        // size-based cleanup pass.  We delete the oldest files first.
-        if (self.config.maxCacheSize > 0 && currentCacheSize > self.config.maxCacheSize) {
-            // Target half of our maximum cache size for this cleanup pass.
-            const NSUInteger desiredCacheSize = self.config.maxCacheSize / 2;
-
-            // Sort the remaining cache files by their last modification time (oldest first).
-            NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
-                                                                     usingComparator:^NSComparisonResult(id obj1, id obj2) {
-                                                                         return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];
-                                                                     }];
-
-            // Delete files until we fall below our desired cache size.
-            for (NSURL *fileURL in sortedFiles) {
-                if ([self.fileManager removeItemAtURL:fileURL error:nil]) {
-                    NSDictionary<NSString *, id> *resourceValues = cacheFiles[fileURL];
-                    NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-                    currentCacheSize -= totalAllocatedSize.unsignedIntegerValue;
-
-                    if (currentCacheSize < desiredCacheSize) {
-                        break;
-                    }
-                }
-            }
-        }
+        [self.diskCache removeExpiredData];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock();
@@ -718,8 +472,21 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     });
 }
 
+#pragma mark - UIApplicationWillTerminateNotification
+
+#if SD_UIKIT || SD_MAC
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    [self deleteOldFilesWithCompletionBlock:nil];
+}
+#endif
+
+#pragma mark - UIApplicationDidEnterBackgroundNotification
+
 #if SD_UIKIT
-- (void)backgroundDeleteOldFiles {
+- (void)applicationDidEnterBackground:(NSNotification *)notification {
+    if (!self.config.shouldRemoveExpiredDataWhenEnterBackground) {
+        return;
+    }
     Class UIApplicationClass = NSClassFromString(@"UIApplication");
     if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
         return;
@@ -745,12 +512,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (NSUInteger)getSize {
     __block NSUInteger size = 0;
     dispatch_sync(self.ioQueue, ^{
-        NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtPath:self.diskCachePath];
-        for (NSString *fileName in fileEnumerator) {
-            NSString *filePath = [self.diskCachePath stringByAppendingPathComponent:fileName];
-            NSDictionary<NSString *, id> *attrs = [self.fileManager attributesOfItemAtPath:filePath error:nil];
-            size += [attrs fileSize];
-        }
+        size = [self.diskCache totalSize];
     });
     return size;
 }
@@ -758,31 +520,15 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 - (NSUInteger)getDiskCount {
     __block NSUInteger count = 0;
     dispatch_sync(self.ioQueue, ^{
-        NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtPath:self.diskCachePath];
-        count = fileEnumerator.allObjects.count;
+        count = [self.diskCache totalCount];
     });
     return count;
 }
 
 - (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock {
-    NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
-
     dispatch_async(self.ioQueue, ^{
-        NSUInteger fileCount = 0;
-        NSUInteger totalSize = 0;
-
-        NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtURL:diskCacheURL
-                                                   includingPropertiesForKeys:@[NSFileSize]
-                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                 errorHandler:NULL];
-
-        for (NSURL *fileURL in fileEnumerator) {
-            NSNumber *fileSize;
-            [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:NULL];
-            totalSize += fileSize.unsignedIntegerValue;
-            fileCount += 1;
-        }
-
+        NSUInteger fileCount = [self.diskCache totalCount];
+        NSUInteger totalSize = [self.diskCache totalSize];
         if (completionBlock) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock(fileCount, totalSize);

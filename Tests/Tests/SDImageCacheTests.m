@@ -314,8 +314,10 @@ NSString *kImageTestKey = @"TestImageKey.jpg";
     fileManager.mockSelectors = @{NSStringFromSelector(@selector(createDirectoryAtPath:withIntermediateDirectories:attributes:error:)) : targetError};
     expect(fileManager.lastError).to.beNil();
     
+    SDImageCacheConfig *config = [SDImageCacheConfig new];
+    config.fileManager = fileManager;
     // This disk cache path creation will be mocked with error.
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test" diskCacheDirectory:@"/" fileManager:fileManager];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"test" diskCacheDirectory:@"/" config:config];
     [cache storeImageDataToDisk:imageData
                          forKey:kImageTestKey];
     expect(fileManager.lastError).equal(targetError);
