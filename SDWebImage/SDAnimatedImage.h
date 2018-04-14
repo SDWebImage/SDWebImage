@@ -69,7 +69,8 @@
 @property (nonatomic, assign, readonly) SDImageFormat animatedImageFormat;
 
 /**
- Current animated image data, you can use this instead of CGImage to create another instance
+ Current animated image data, you can use this instead of CGImage to create another instance.
+ If the current image is not animated image, this value is nil.
  */
 @property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
 
