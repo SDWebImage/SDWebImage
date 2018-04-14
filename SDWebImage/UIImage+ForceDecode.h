@@ -31,4 +31,13 @@
  */
 + (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image;
 
+/**
+ Decompress and scale down the provided image and limit bytes
+ 
+ @param image The image to be decompressed
+ @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @return The decompressed and scaled down image
+ */
++ (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image limitBytes:(NSUInteger)bytes;
+
 @end

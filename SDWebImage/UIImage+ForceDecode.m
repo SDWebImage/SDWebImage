@@ -29,10 +29,14 @@
 }
 
 + (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image {
+    return [self sd_decodedAndScaledDownImageWithImage:image limitBytes:0];
+}
+
++ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
     if (!image) {
         return nil;
     }
-    return [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
+    return [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:bytes];
 }
 
 @end
