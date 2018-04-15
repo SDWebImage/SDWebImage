@@ -473,7 +473,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         if (!image) {
             image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
         }
-        BOOL shouldDecode = YES;
+        BOOL shouldDecode = (options & SDImageCacheAvoidDecodeImage) == 0;
         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
@@ -482,9 +482,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             shouldDecode = NO;
         }
         if (shouldDecode) {
-            if (self.config.shouldDecompressImages) {
-                image = [SDWebImageCoderHelper decodedImageWithImage:image];
-            }
+            image = [SDWebImageCoderHelper decodedImageWithImage:image];
         }
         return image;
     } else {

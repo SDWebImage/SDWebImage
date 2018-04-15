@@ -198,7 +198,6 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             operationClass = [SDWebImageDownloaderOperation class];
         }
         NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:sself.session options:options context:context];
-        operation.shouldDecompressImages = sself.config.shouldDecompressImages;
         
         if (sself.config.urlCredential) {
             operation.credential = sself.config.urlCredential;

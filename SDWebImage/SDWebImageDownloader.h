@@ -60,19 +60,27 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderHighPriority = 1 << 7,
     
     /**
-     * Scale down the image
+     * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
+     * images to a size compatible with the constrained memory of devices.
+     * This flag take no effect if `SDWebImageDownloaderAvoidDecodeImage` is set. And it will be ignored if `SDWebImageDownloaderProgressiveDownload` is set.
      */
     SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
     
     /**
+     * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
+     * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
+     */
+    SDWebImageDownloaderAvoidDecodeImage = 1 << 9,
+    
+    /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDWebImageDownloaderDecodeFirstFrameOnly = 1 << 9,
+    SDWebImageDownloaderDecodeFirstFrameOnly = 1 << 10,
     
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from network
      */
-    SDWebImageDownloaderPreloadAllFrames = 1 << 10
+    SDWebImageDownloaderPreloadAllFrames = 1 << 11
 };
 
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;

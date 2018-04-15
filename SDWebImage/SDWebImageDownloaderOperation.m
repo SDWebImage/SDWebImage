@@ -87,7 +87,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                                 context:(nullable SDWebImageContext *)context {
     if ((self = [super init])) {
         _request = [request copy];
-        _shouldDecompressImages = YES;
         _options = options;
         _context = [context copy];
         _callbackBlocks = [NSMutableArray new];
@@ -379,7 +378,7 @@ didReceiveResponse:(NSURLResponse *)response
                 image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
             }
             if (image) {
-                BOOL shouldDecode = self.shouldDecompressImages;
+                BOOL shouldDecode = (self.options & SDWebImageDownloaderAvoidDecodeImage) == 0;
                 if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
                     // `SDAnimatedImage` do not decode
                     shouldDecode = NO;
@@ -479,7 +478,7 @@ didReceiveResponse:(NSURLResponse *)response
                             image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
                         }
                         
-                        BOOL shouldDecode = self.shouldDecompressImages;
+                        BOOL shouldDecode = (self.options & SDWebImageDownloaderAvoidDecodeImage) == 0;
                         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
                             // `SDAnimatedImage` do not decode
                             shouldDecode = NO;
