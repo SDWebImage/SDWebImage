@@ -489,7 +489,11 @@ didReceiveResponse:(NSURLResponse *)response
     return YES;
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderCompletedBlock)completedBlock context:(SDWebImageContext *)context {
+- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderCompletedBlock)completedBlock {
+    UIImage *cachedImage;
+    if ([context valueForKey:SDWebImageContextLoaderCachedImage]) {
+        cachedImage = [context valueForKey:SDWebImageContextLoaderCachedImage];
+    }
     SDWebImageDownloaderOptions downloaderOptions = 0;
     if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
     if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
@@ -500,7 +504,7 @@ didReceiveResponse:(NSURLResponse *)response
     if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
     if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
     
-    if (options & SDWebImageRefreshCached) {
+    if (cachedImage && options & SDWebImageRefreshCached) {
         // force progressive off if image already cached but forced refreshing
         downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
         // ignore image read from NSURLCache if image if cached but force refreshing

@@ -196,15 +196,25 @@ static SDWebImageDownloader *_defaultImageDownloader;
             && (!cachedImage || options & SDWebImageRefreshCached)
             && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
         if (shouldDownload) {
+            SDWebImageContext *downloadContext = context;
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
                 // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
                 [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
+                // Pass the cached image to the image loader. The image loader should check whether the remote image is equal to the cached image.
+                SDWebImageMutableContext *mutableContext;
+                if (downloadContext) {
+                    mutableContext = [downloadContext mutableCopy];
+                } else {
+                    mutableContext = [NSMutableDictionary dictionary];
+                }
+                [mutableContext setValue:cachedImage forKey:SDWebImageContextLoaderCachedImage];
+                downloadContext = [mutableContext copy];
             }
             
             // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
             __weak typeof(strongOperation) weakSubOperation = strongOperation;
-            strongOperation.downloadOperation = [self.imageDownloader loadImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+            strongOperation.downloadOperation = [self.imageDownloader loadImageWithURL:url options:options context:downloadContext progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong typeof(weakSubOperation) strongSubOperation = weakSubOperation;
                 if (!strongSubOperation || strongSubOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
