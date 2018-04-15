@@ -99,7 +99,7 @@
     
     BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
-        animatedImage = [[UIImage alloc] initWithData:data];
+        animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
         NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
         

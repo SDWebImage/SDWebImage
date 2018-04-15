@@ -205,9 +205,7 @@ static NSArray *SDBundlePreferredScales() {
 @end
 
 @implementation SDAnimatedImage
-#if SD_UIKIT || SD_WATCH
 @dynamic scale; // call super
-#endif
 
 #pragma mark - UIImage override method
 + (instancetype)imageNamed:(NSString *)name {
@@ -316,9 +314,6 @@ static NSArray *SDBundlePreferredScales() {
 #endif
     if (self) {
         _coder = animatedCoder;
-#if SD_MAC
-        _scale = scale;
-#endif
         NSData *data = [animatedCoder animatedImageData];
         SDImageFormat format = [NSData sd_imageFormatForImageData:data];
         _animatedImageFormat = format;
@@ -350,24 +345,37 @@ static NSArray *SDBundlePreferredScales() {
 
 #pragma mark - NSSecureCoding
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
-    NSNumber *scale = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(scale))];
-    NSData *animatedImageData = [aDecoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(animatedImageData))];
-    if (animatedImageData) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-designated-initializers"
-        return [self initWithData:animatedImageData scale:scale.doubleValue];
-#pragma clang diagnostic pop
-    } else {
-        return [super initWithCoder:aDecoder];
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        NSData *animatedImageData = [aDecoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(animatedImageData))];
+        CGFloat scale = self.scale;
+        if (!animatedImageData) {
+            return self;
+        }
+        id<SDWebImageAnimatedCoder> animatedCoder = nil;
+        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
+            if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
+                if ([coder canDecodeFromData:animatedImageData]) {
+                    animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:animatedImageData options:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
+                    break;
+                }
+            }
+        }
+        if (!animatedCoder) {
+            return self;
+        }
+        _coder = animatedCoder;
+        SDImageFormat format = [NSData sd_imageFormatForImageData:animatedImageData];
+        _animatedImageFormat = format;
     }
+    return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
-    if (self.animatedImageData) {
-        [aCoder encodeObject:self.animatedImageData forKey:NSStringFromSelector(@selector(animatedImageData))];
-        [aCoder encodeObject:@(self.scale) forKey:NSStringFromSelector(@selector(scale))];
-    } else {
-        [super encodeWithCoder:aCoder];
+    [super encodeWithCoder:aCoder];
+    NSData *animatedImageData = self.animatedImageData;
+    if (animatedImageData) {
+        [aCoder encodeObject:animatedImageData forKey:NSStringFromSelector(@selector(animatedImageData))];
     }
 }
 
