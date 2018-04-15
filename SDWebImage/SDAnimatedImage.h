@@ -78,7 +78,7 @@
  The scale factor of the image.
  
  @note For UIKit, this just call super instead.
- @note For AppKit, `NSImage` can contains multiple image representations with different scales. However, this class does not do that from the design. We processs the scale like UIKit and store it as a extra information for correctlly rendering in `SDAnimatedImageView`.
+ @note For AppKit, `NSImage` can contains multiple image representations with different scales. However, this class does not do that from the design. We processs the scale like UIKit. This wil actually be calculated from image size and pixel size.
  */
 @property (nonatomic, readonly) CGFloat scale;
 

@@ -205,9 +205,7 @@ static NSArray *SDBundlePreferredScales() {
 @end
 
 @implementation SDAnimatedImage
-#if SD_UIKIT || SD_WATCH
 @dynamic scale; // call super
-#endif
 
 #pragma mark - UIImage override method
 + (instancetype)imageNamed:(NSString *)name {
@@ -316,9 +314,6 @@ static NSArray *SDBundlePreferredScales() {
 #endif
     if (self) {
         _coder = animatedCoder;
-#if SD_MAC
-        _scale = scale;
-#endif
         NSData *data = [animatedCoder animatedImageData];
         SDImageFormat format = [NSData sd_imageFormatForImageData:data];
         _animatedImageFormat = format;
@@ -353,17 +348,7 @@ static NSArray *SDBundlePreferredScales() {
     self = [super initWithCoder:aDecoder];
     if (self) {
         NSData *animatedImageData = [aDecoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(animatedImageData))];
-        CGFloat scale;
-#if SD_MAC
-        NSNumber *scaleValue = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(scale))];
-        scale = scaleValue.doubleValue;
-        if (scale < 1) {
-            scale = 1;
-        }
-        _scale = scale;
-#else
-        scale = self.scale;
-#endif
+        CGFloat scale = self.scale;
         if (!animatedImageData) {
             return self;
         }
@@ -388,9 +373,6 @@ static NSArray *SDBundlePreferredScales() {
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];
-#if SD_MAC
-    [aCoder encodeObject:@(self.scale) forKey:NSStringFromSelector(@selector(scale))];
-#endif
     NSData *animatedImageData = self.animatedImageData;
     if (animatedImageData) {
         [aCoder encodeObject:animatedImageData forKey:NSStringFromSelector(@selector(animatedImageData))];
