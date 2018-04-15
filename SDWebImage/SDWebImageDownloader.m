@@ -462,3 +462,52 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 @end
+
+@implementation SDWebImageDownloader (SDWebImageLoader)
+
+- (BOOL)canLoadWithURL:(NSURL *)url {
+    if (!url) {
+        return NO;
+    }
+    Class operationClass = self.config.operationClass;
+    if (!operationClass || [operationClass isSubclassOfClass:[SDWebImageDownloaderOperation class]]) {
+        // Built-in download operation class, checking all supported NSURLProtocol
+        NSURLRequest *request = [NSURLRequest requestWithURL:url];
+        NSArray<Class> *protocolClasses = self.sessionConfiguration.protocolClasses;
+        for (Class protocolClass in protocolClasses) {
+            if ([protocolClass isSubclassOfClass:[NSURLProtocol class]]) {
+                BOOL canLoad = [protocolClass canInitWithRequest:request];
+                if (canLoad) {
+                    return YES;
+                }
+                continue;
+            }
+        }
+        return NO;
+    }
+    // Custom download operation class may not dependent on NSURLSession, always pass YES.
+    return YES;
+}
+
+- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderCompletedBlock)completedBlock context:(SDWebImageContext *)context {
+    SDWebImageDownloaderOptions downloaderOptions = 0;
+    if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
+    if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
+    if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
+    if (options & SDWebImageContinueInBackground) downloaderOptions |= SDWebImageDownloaderContinueInBackground;
+    if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
+    if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
+    if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
+    if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
+    
+    if (options & SDWebImageRefreshCached) {
+        // force progressive off if image already cached but forced refreshing
+        downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
+        // ignore image read from NSURLCache if image if cached but force refreshing
+        downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
+    }
+    
+    return [self downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:completedBlock];
+}
+
+@end
