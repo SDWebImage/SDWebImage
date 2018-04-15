@@ -41,20 +41,26 @@
 }
 
 - (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
-    if (scale < 1) {
-        scale = 1;
-    }
-    CGFloat pixelWidth = CGImageGetWidth(cgImage);
-    CGFloat pixelHeight = CGImageGetHeight(cgImage);
-    NSSize size = NSMakeSize(pixelWidth / scale, pixelHeight / scale);
+    NSBitmapImageRep *imageRep;
     if (orientation != kCGImagePropertyOrientationUp) {
         // AppKit design is different from UIKit. Where CGImage based image rep does not respect to any orientation. Only data based image rep which contains the EXIF metadata can automatically detect orientation.
         // This should be nonnull, until the memory is exhausted cause `CGBitmapContextCreate` failed.
-        cgImage = [SDWebImageCoderHelper CGImageCreateDecoded:cgImage orientation:orientation];
-        self = [self initWithCGImage:cgImage size:size];
-        CGImageRelease(cgImage);
+        CGImageRef rotatedCGImage = [SDWebImageCoderHelper CGImageCreateDecoded:cgImage orientation:orientation];
+        imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+        CGImageRelease(rotatedCGImage);
     } else {
-        self = [self initWithCGImage:cgImage size:size];
+        imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+    }
+    if (scale < 1) {
+        scale = 1;
+    }
+    CGFloat pixelWidth = imageRep.pixelsWide;
+    CGFloat pixelHeight = imageRep.pixelsHigh;
+    NSSize size = NSMakeSize(pixelWidth / scale, pixelHeight / scale);
+    self = [self initWithSize:size];
+    if (self) {
+        imageRep.size = size;
+        [self addRepresentation:imageRep];
     }
     return self;
 }

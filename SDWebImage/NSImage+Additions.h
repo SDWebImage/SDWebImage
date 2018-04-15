@@ -27,7 +27,7 @@ The underlying Core Graphics image object. This will actually use `CGImageForPro
 
 /**
  Returns an image object with the scale factor and orientation. The representation is created from the Core Graphics image object.
- @note The difference between this and `initWithCGImage:size` is that `initWithCGImage:size` will use `backingScaleFactor` as scale factor if you specify `NSZeroSize` and does not support orientation.
+ @note The difference between this and `initWithCGImage:size` is that `initWithCGImage:size` will actually create a `NSCGImageSnapshotRep` representation and always use `backingScaleFactor` as scale factor. So we should avoid it and use `NSBitmapImageRep` with `initWithCGImage:` instead.
  @note The difference between this and UIKit's `UIImage` equivalent method is the way to process orientation. If the provided image orientation is not equal to Up orientation, this method will firstly rotate the CGImage to the correct orientation to work compatible with `NSImageView`. However, UIKit will not actually rotate CGImage and just store it as `imageOrientation` property.
 
  @param cgImage A Core Graphics image object
