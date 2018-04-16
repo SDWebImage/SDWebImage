@@ -29,7 +29,6 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _shouldDecompressImages = YES;
         _maxConcurrentDownloads = 6;
         _downloadTimeout = 15.0;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
@@ -39,7 +38,6 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
 
 - (id)copyWithZone:(NSZone *)zone {
     SDWebImageDownloaderConfig *config = [[[self class] allocWithZone:zone] init];
-    config.shouldDecompressImages = self.shouldDecompressImages;
     config.maxConcurrentDownloads = self.maxConcurrentDownloads;
     config.downloadTimeout = self.downloadTimeout;
     config.sessionConfiguration = [self.sessionConfiguration copyWithZone:zone];

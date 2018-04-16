@@ -12,12 +12,6 @@
 @interface SDImageCacheConfig : NSObject
 
 /**
- * Decompressing images means pre-decoding the image that are downloaded and cached on background queue. This can avoid image view decode it on main queue when rendering. This can improve performance but can consume more memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
- */
-@property (assign, nonatomic) BOOL shouldDecompressImages;
-
-/**
  * Whether or not to disable iCloud backup
  * Defaults to YES.
  */

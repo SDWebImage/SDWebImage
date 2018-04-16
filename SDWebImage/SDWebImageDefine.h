@@ -128,7 +128,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
      * images to a size compatible with the constrained memory of devices.
-     * If `SDWebImageProgressiveDownload` flag is set the scale down is deactivated.
+     * This flag take no effect if `SDWebImageAvoidDecodeImage` is set. And it will be ignored if `SDWebImageProgressiveDownload` is set.
      */
     SDWebImageScaleDownLargeImages = 1 << 12,
     
@@ -153,6 +153,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
      */
     SDWebImageForceTransition = 1 << 16,
+    
+    /**
+     * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
+     * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
+     */
+    SDWebImageAvoidDecodeImage = 1 << 17,
     
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.

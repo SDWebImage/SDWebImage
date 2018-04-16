@@ -36,9 +36,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
-- (BOOL)shouldDecompressImages;
-- (void)setShouldDecompressImages:(BOOL)value;
-
 - (nullable NSURLCredential *)credential;
 - (void)setCredential:(nullable NSURLCredential *)value;
 
@@ -69,12 +66,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  * The operation's task
  */
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
-
-/**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
- */
-@property (assign, nonatomic) BOOL shouldDecompressImages;
 
 /**
  * The credential used for authentication challenges in `-URLSession:task:didReceiveChallenge:completionHandler:`.

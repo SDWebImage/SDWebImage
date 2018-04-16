@@ -41,13 +41,18 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
      */
     SDImageCacheTransformAnimatedImage = 1 << 2,
     /**
+     * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
+     * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
+     */
+    SDImageCacheAvoidDecodeImage = 1 << 3,
+    /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDImageCacheDecodeFirstFrameOnly = 1 << 3,
+    SDImageCacheDecodeFirstFrameOnly = 1 << 4,
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from disk cache
      */
-    SDImageCachePreloadAllFrames = 1 << 4
+    SDImageCachePreloadAllFrames = 1 << 5
 };
 
 typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);

@@ -31,12 +31,6 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 @property (nonatomic, class, nonnull) SDWebImageDownloaderConfig *defaultDownloaderConfig;
 
 /**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
- */
-@property (nonatomic, assign) BOOL shouldDecompressImages;
-
-/**
  * The maximum number of concurrent downloads.
  * Defaults to 6.
  */
