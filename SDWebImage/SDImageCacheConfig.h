@@ -53,7 +53,7 @@
  * The maximum length of time to keep an image in the cache, in seconds.
  * Defaults to 1 weak.
  */
-@property (assign, nonatomic) NSInteger maxCacheAge;
+@property (assign, nonatomic) NSTimeInterval maxCacheAge;
 
 /**
  * The maximum size of the cache, in bytes.
