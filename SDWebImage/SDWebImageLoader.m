@@ -7,27 +7,30 @@
  */
 
 #import "SDWebImageLoader.h"
+#import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
 
-UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, id<SDWebImageCoder> _Nullable coder, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     NSCParameterAssert(imageData);
     NSCParameterAssert(imageURL);
     
     UIImage *image;
-    NSString *cacheKey = imageURL.absoluteString;
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+    NSString *cacheKey;
+    if (cacheKeyFilter) {
+        cacheKey = [cacheKeyFilter cacheKeyForURL:imageURL];
+    } else {
+        cacheKey = imageURL.absoluteString;
+    }
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
     NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     if (scale < 1) {
         scale = 1;
     }
-    if (!coder) {
-        coder = [SDWebImageCodersManager sharedManager];
-    }
-    
     if (!decodeFirstFrame) {
         // check whether we should use `SDAnimatedImage`
         if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
@@ -41,10 +44,10 @@ UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData,
         }
     }
     if (!image) {
-        image = [coder decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
+        image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
     }
     if (image) {
-        BOOL shouldDecode = YES;
+        BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
@@ -72,7 +75,13 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
     NSCParameterAssert(progressiveCoder);
     
     UIImage *image;
-    NSString *cacheKey = imageURL.absoluteString;
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+    NSString *cacheKey;
+    if (cacheKeyFilter) {
+        cacheKey = [cacheKeyFilter cacheKeyForURL:imageURL];
+    } else {
+        cacheKey = imageURL.absoluteString;
+    }
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
     NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
@@ -94,7 +103,7 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
         image = [progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
     }
     if (image) {
-        BOOL shouldDecode = YES;
+        BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
         if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;

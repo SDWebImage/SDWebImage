@@ -248,8 +248,9 @@ typedef SDWebImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 
 /**
- SDWebImageDownloader is the built-in image downloader conform to `SDWebImageLoader`. Which provide the HTTP/HTTPS/FTP download, or local file URL using NSURLSession.
- However, this downloader does also support customization for advanced users. You can specify `operationClass` in download config to custom download operation, See `SDWebImageDownloaderOperation`.
+ SDWebImageDownloader is the built-in image loader conform to `SDWebImageLoader`. Which provide the HTTP/HTTPS/FTP download, or local file URL using NSURLSession.
+ However, this downloader class itself also support customization for advanced users. You can specify `operationClass` in download config to custom download operation, See `SDWebImageDownloaderOperation`.
+ If you want to provide some image loader which beyond network or local file, consider to create your own custom class conform to `SDWebImageLoader`.
  */
 @interface SDWebImageDownloader (SDWebImageLoader) <SDWebImageLoader>
 

@@ -118,7 +118,7 @@
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     NSString *testImagePath = [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:testImagePath];
-    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] downloader:[SDWebImageDownloader sharedDownloader]];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.transformer = transformer;
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
         [manager loadImageWithURL:imageURL options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {

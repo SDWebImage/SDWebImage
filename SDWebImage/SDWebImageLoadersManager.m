@@ -95,18 +95,4 @@
     return nil;
 }
 
-- (id<SDWebImageOperation>)loadImageDataWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderDataCompletedBlock)completedBlock {
-    if (!url) {
-        return nil;
-    }
-    for (id<SDWebImageLoader> loader in self.loaders) {
-        if ([loader respondsToSelector:@selector(loadImageDataWithURL:options:context:progress:completed:)]) {
-            if ([loader canLoadWithURL:url]) {
-                return [loader loadImageDataWithURL:url options:options context:context progress:progressBlock completed:completedBlock];
-            }
-        }
-    }
-    return nil;
-}
-
 @end

@@ -350,11 +350,15 @@ didReceiveResponse:(NSURLResponse *)response
                     break;
                 }
             }
+            // If we can't find any progressive coder, disable progressive download
+            if (!self.progressiveCoder) {
+                self.options &= ~SDWebImageDownloaderProgressiveDownload;
+            }
         }
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self.progressiveCoder, [[self class] imageOptionsFromDownloaderOptions:self.options], [[self class] imageContextFromDownloadContext:self.context]);
+            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self.progressiveCoder, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
@@ -419,7 +423,7 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = SDWebImageLoaderDecodeImageData(imageData, self.request.URL, nil, [[self class] imageOptionsFromDownloaderOptions:self.options], [[self class] imageContextFromDownloadContext:self.context]);
+                        UIImage *image = SDWebImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
                             [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
@@ -475,17 +479,9 @@ didReceiveResponse:(NSURLResponse *)response
     if (downloadOptions & SDWebImageDownloaderScaleDownLargeImages) options |= SDWebImageScaleDownLargeImages;
     if (downloadOptions & SDWebImageDownloaderDecodeFirstFrameOnly) options |= SDWebImageDecodeFirstFrameOnly;
     if (downloadOptions & SDWebImageDownloaderPreloadAllFrames) options |= SDWebImagePreloadAllFrames;
+    if (downloadOptions & SDWebImageDownloaderAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
     
     return options;
-}
-
-+ (SDWebImageContext *)imageContextFromDownloadContext:(SDWebImageContext *)downloadContext {
-    SDWebImageContext *context = nil;
-    if (!downloadContext) {
-        return context;
-    }
-    
-    return context;
 }
 
 - (BOOL)shouldContinueWhenAppEntersBackground {
