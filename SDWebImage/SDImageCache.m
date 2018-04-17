@@ -317,41 +317,7 @@
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data options:(SDImageCacheOptions)options context:(SDWebImageContext *)context {
     if (data) {
-        UIImage *image;
-        BOOL decodeFirstFrame = options & SDImageCacheDecodeFirstFrameOnly;
-        NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
-        CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(key);
-        if (!decodeFirstFrame) {
-            // check whether we should use `SDAnimatedImage`
-            if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
-                Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
-                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                    image = [[animatedImageClass alloc] initWithData:data scale:scale];
-                    if (options & SDImageCachePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                        [((id<SDAnimatedImage>)image) preloadAllFrames];
-                    }
-                }
-            }
-        }
-        if (!image) {
-            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
-        }
-        BOOL shouldDecode = (options & SDImageCacheAvoidDecodeImage) == 0;
-        if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            // `SDAnimatedImage` do not decode
-            shouldDecode = NO;
-        } else if (image.sd_isAnimated) {
-            // animated image do not decode
-            shouldDecode = NO;
-        }
-        if (shouldDecode) {
-            BOOL shouldScaleDown = options & SDImageCacheScaleDownLargeImages;
-            if (shouldScaleDown) {
-                image = [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
-            } else {
-                image = [SDWebImageCoderHelper decodedImageWithImage:image];
-            }
-        }
+        UIImage *image = SDWebImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
         return image;
     } else {
         return nil;
@@ -587,6 +553,17 @@
             });
         }
     });
+}
+
+#pragma mark - Helper
++ (SDWebImageOptions)imageOptionsFromCacheOptions:(SDImageCacheOptions)cacheOptions {
+    SDWebImageOptions options = 0;
+    if (cacheOptions & SDImageCacheScaleDownLargeImages) options |= SDWebImageScaleDownLargeImages;
+    if (cacheOptions & SDImageCacheDecodeFirstFrameOnly) options |= SDWebImageDecodeFirstFrameOnly;
+    if (cacheOptions & SDImageCachePreloadAllFrames) options |= SDWebImagePreloadAllFrames;
+    if (cacheOptions & SDImageCacheAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
+    
+    return options;
 }
 
 @end
