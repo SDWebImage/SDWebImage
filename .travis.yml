@@ -29,18 +29,14 @@ script:
     - pod lib lint --allow-warnings
 
     - echo Build as static library
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS static' -sdk watchsimulator -configuration Debug | xcpretty -c
-
-    - echo Clean static library
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS static' -sdk watchsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS static' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Build as dynamic framework
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX' -sdk macosx -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Build the Demo apps
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
@@ -48,17 +44,8 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
 
-    - echo Clean the Demo apps
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
-
-    - echo Clean dynamic framework
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
+    - echo Clean all DerivedData
+    - rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
     - echo Run the tests
     - pod install --project-directory=Tests
