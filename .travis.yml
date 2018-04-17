@@ -48,17 +48,23 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
 
-    - echo Clean dynamic framework
+    - echo Clean the Demo apps
     - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
     - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
 
+    - echo Clean dynamic framework
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX' -sdk macosx -configuration Debug | xcpretty -c
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
+
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6s' -configuration Debug | xcpretty -c
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
+    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6s' -configuration Debug | xcpretty -c
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -J '^Tests$' -F 'iOS'
-    - bash <(curl -s https://codecov.io/bash) -J '^Tests Mac$' -F 'macOS'
+    - bash <(curl -s https://codecov.io/bash) -J '^SDWebImage$'
