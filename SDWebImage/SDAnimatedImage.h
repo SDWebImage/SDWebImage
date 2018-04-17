@@ -54,6 +54,8 @@
 + (nullable instancetype)imageNamed:(nonnull NSString *)name; // Cache in memory, no Asset Catalog support
 #if __has_include(<UIKit/UITraitCollection.h>)
 + (nullable instancetype)imageNamed:(nonnull NSString *)name inBundle:(nullable NSBundle *)bundle compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection; // Cache in memory, no Asset Catalog support
+#else
++ (nullable instancetype)imageNamed:(nonnull NSString *)name inBundle:(nullable NSBundle *)bundle; // Cache in memory, no Asset Catalog support
 #endif
 + (nullable instancetype)imageWithContentsOfFile:(nonnull NSString *)path;
 + (nullable instancetype)imageWithData:(nonnull NSData *)data;

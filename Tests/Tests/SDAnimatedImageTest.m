@@ -15,6 +15,11 @@
 #import <SDWebImage/SDAnimatedImageView+WebCache.h>
 #import <KVOController/KVOController.h>
 
+#if SD_MAC
+#define UIWindow NSWindow
+#define UIScreen NSScreen
+#endif
+
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
 
 // Internal header
@@ -69,7 +74,12 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 }
 
 - (void)test04AnimatedImageImageNamed {
-    SDAnimatedImage *image = [SDAnimatedImage imageNamed:@"TestImage.gif" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil];
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#if SD_UIKIT
+    SDAnimatedImage *image = [SDAnimatedImage imageNamed:@"TestImage.gif" inBundle:bundle compatibleWithTraitCollection:nil];
+#else
+    SDAnimatedImage *image = [SDAnimatedImage imageNamed:@"TestImage.gif" inBundle:bundle];
+#endif
     expect(image).notTo.beNil();
     expect([image.animatedImageData isEqualToData:[self testGIFData]]).beTruthy();
 }
@@ -91,7 +101,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test06AnimatedImageViewSetImage {
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    UIImage *image = [UIImage imageWithData:[self testJPEGData]];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
     expect(imageView.currentFrame).beNil(); // current frame
@@ -108,7 +118,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 - (void)test08AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
+#if SD_UIKIT
     [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
     
     NSMutableDictionary *frames = [NSMutableDictionary dictionaryWithCapacity:kTestGIFFrameCount];
     
@@ -128,7 +142,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
             loopFinished = YES;
         }
         if (framesRendered && loopFinished) {
+#if SD_UIKIT
             [imageView stopAnimating];
+#else
+            imageView.animates = NO;
+#endif
             [expectation fulfill];
         }
     }];
@@ -205,7 +223,12 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
-        _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        UIScreen *mainScreen = [UIScreen mainScreen];
+#if SD_UIKIT
+        _window = [[UIWindow alloc] initWithFrame:mainScreen.bounds];
+#else
+        _window = [[NSWindow alloc] initWithContentRect:mainScreen.frame styleMask:0 backing:NSBackingStoreBuffered defer:NO screen:mainScreen];
+#endif
     }
     return _window;
 }
