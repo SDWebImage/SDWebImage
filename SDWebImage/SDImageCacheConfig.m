@@ -23,12 +23,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     return _defaultCacheConfig;
 }
 
-+ (void)setDefaultCacheConfig:(SDImageCacheConfig *)defaultCacheConfig {
-    if (defaultCacheConfig) {
-        _defaultCacheConfig = defaultCacheConfig;
-    }
-}
-
 - (instancetype)init {
     if (self = [super init]) {
         _shouldDisableiCloud = YES;
