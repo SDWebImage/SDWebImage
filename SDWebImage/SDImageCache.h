@@ -72,9 +72,10 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 #pragma mark - Properties
 
 /**
- *  Cache Config object - storing all kind of settings
+ *  Cache Config object - storing all kind of settings.
+ *  The property is copy so change of currrent config will not accidentally affect other cache's config.
  */
-@property (nonatomic, nonnull, readonly) SDImageCacheConfig *config;
+@property (nonatomic, copy, nonnull, readonly) SDImageCacheConfig *config;
 
 /**
  *  The disk cache's root path
@@ -116,11 +117,11 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @param ns          The namespace to use for this cache store
  * @param directory   Directory to cache disk images in
- * @param fileManager The file manager for storing image, if nil then will be created new one
+ * @param config      The cache config to be used to create the cache. You can provide custom memory cache or disk cache class in the cache config
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
                        diskCacheDirectory:(nonnull NSString *)directory
-                              fileManager:(nullable NSFileManager *)fileManager NS_DESIGNATED_INITIALIZER;
+                                   config:(nullable SDImageCacheConfig *)config NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Cache paths
 
