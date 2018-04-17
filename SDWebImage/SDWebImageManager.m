@@ -57,12 +57,16 @@
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
+    return [self cacheKeyForURL:url cacheKeyFilter:self.cacheKeyFilter];
+}
+
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url cacheKeyFilter:(id<SDWebImageCacheKeyFilter>)cacheKeyFilter {
     if (!url) {
         return @"";
     }
 
-    if (self.cacheKeyFilter) {
-        return self.cacheKeyFilter(url);
+    if (cacheKeyFilter) {
+        return [cacheKeyFilter cacheKeyForURL:url];
     } else {
         return url.absoluteString;
     }
@@ -149,7 +153,6 @@
     @synchronized (self.runningOperations) {
         [self.runningOperations addObject:operation];
     }
-    NSString *key = [self cacheKeyForURL:url];
     
     SDImageCacheOptions cacheOptions = 0;
     if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
@@ -173,6 +176,21 @@
         }
         [mutableContext setValue:transformer forKey:SDWebImageContextCustomTransformer];
         context = [mutableContext copy];
+    }
+    // Cache key filter
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter;
+    if ([context valueForKey:SDWebImageContextCacheKeyFilter]) {
+        cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+    } else {
+        cacheKeyFilter = self.cacheKeyFilter;
+    }
+    NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
+    // Cache serializer
+    id<SDWebImageCacheSerializer> cacheSerializer;
+    if ([context valueForKey:SDWebImageContextCacheSerializer]) {
+        cacheSerializer = [context valueForKey:SDWebImageContextCacheSerializer];
+    } else {
+        cacheSerializer = self.cacheSerializer;
     }
     
     __weak SDWebImageCombinedOperation *weakOperation = operation;
@@ -255,7 +273,7 @@
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
                     
                     // We've done the scale process in SDWebImageDownloader with the shared manager, this is used for custom manager and avoid extra scale.
-                    if (self != [SDWebImageManager sharedManager] && self.cacheKeyFilter && downloadedImage && ![downloadedImage conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                    if (self != [SDWebImageManager sharedManager] && cacheKeyFilter && downloadedImage && ![downloadedImage conformsToProtocol:@protocol(SDAnimatedImage)]) {
                         downloadedImage = [self scaledImageForKey:key image:downloadedImage];
                     }
 
@@ -270,8 +288,8 @@
                                 BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
                                 NSData *cacheData;
                                 // pass nil if the image was transformed, so we can recalculate the data from the image
-                                if (self.cacheSerializer) {
-                                    cacheData = self.cacheSerializer(transformedImage, (imageWasTransformed ? nil : downloadedData), url);
+                                if (cacheSerializer) {
+                                    cacheData = [cacheSerializer cacheDataWithImage:transformedImage  originalData:(imageWasTransformed ? nil : downloadedData) imageURL:url];
                                 } else {
                                     cacheData = (imageWasTransformed ? nil : downloadedData);
                                 }
@@ -282,9 +300,9 @@
                         });
                     } else {
                         if (downloadedImage && finished) {
-                            if (self.cacheSerializer) {
+                            if (cacheSerializer) {
                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                    NSData *cacheData = self.cacheSerializer(downloadedImage, downloadedData, url);
+                                    NSData *cacheData = [cacheSerializer cacheDataWithImage:downloadedImage originalData:downloadedData imageURL:url];
                                     [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
                                 });
                             } else {

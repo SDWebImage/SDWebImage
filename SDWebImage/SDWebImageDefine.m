@@ -123,3 +123,5 @@ SDWebImageContextOption const SDWebImageContextCustomTransformer = @"customTrans
 SDWebImageContextOption const SDWebImageContextImageScaleFactor = @"imageScaleFactor";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";
 SDWebImageContextOption const SDWebImageContextDownloadRequestModifier = @"downloadRequestModifier";
+SDWebImageContextOption const SDWebImageContextCacheKeyFilter = @"cacheKeyFilter";
+SDWebImageContextOption const SDWebImageContextCacheSerializer = @"cacheSerializer";
