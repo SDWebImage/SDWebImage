@@ -54,4 +54,4 @@ script:
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash) -X xcode
