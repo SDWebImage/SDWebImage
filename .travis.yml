@@ -44,14 +44,17 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
 
-    - echo Clean all DerivedData
-    - rm -rf ~/Library/Developer/Xcode/DerivedData/*
+    - echo Clean DerivedData
+    - mkdir DerivedData
+    - rm -rf ~/Library/Developer/Xcode/DerivedData
 
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
-    - xcodebuild clean -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6s' -configuration Debug | xcpretty -c
+    - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
+    - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -J '^SDWebImage$'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -F 'iOS'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -F 'macOS'
