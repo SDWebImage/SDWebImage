@@ -46,7 +46,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 - (id)copyWithZone:(NSZone *)zone {
     SDImageCacheConfig *config = [[[self class] allocWithZone:zone] init];
-    config.shouldDecompressImages = self.shouldDecompressImages;
     config.shouldDisableiCloud = self.shouldDisableiCloud;
     config.shouldCacheImagesInMemory = self.shouldCacheImagesInMemory;
     config.shouldRemoveExpiredDataWhenEnterBackground = self.shouldRemoveExpiredDataWhenEnterBackground;
