@@ -46,11 +46,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCachePreloadAllFrames = 1 << 6
 };
 
-typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
 
-typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
-
-typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
+typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
 typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 
@@ -195,7 +193,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *  @param completionBlock the block to be executed when the check is done.
  *  @note the completion block will be always executed on the main queue
  */
-- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
+- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDImageCacheCheckCompletionBlock)completionBlock;
 
 /**
  *  Synchronously check if image data exists in disk cache already (does not load the image)
@@ -214,7 +212,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -225,7 +223,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -237,7 +235,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Synchronously query the memory cache.
@@ -327,7 +325,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 /**
  * Asynchronously calculate the disk cache's size.
  */
-- (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock;
+- (void)calculateSizeWithCompletionBlock:(nullable SDImageCacheCalculateSizeBlock)completionBlock;
 
 @end
 

@@ -226,7 +226,7 @@
 
 #pragma mark - Query and Retrieve Ops
 
-- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
+- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDImageCacheCheckCompletionBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         BOOL exists = [self _diskImageDataExistsWithKey:key];
         if (completionBlock) {
@@ -358,15 +358,15 @@
     }
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:0 done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:options context:nil done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDCacheQueryCompletedBlock)doneBlock {
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
     if (!key) {
         if (doneBlock) {
             doneBlock(nil, nil, SDImageCacheTypeNone);
@@ -577,7 +577,7 @@
     return count;
 }
 
-- (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock {
+- (void)calculateSizeWithCompletionBlock:(nullable SDImageCacheCalculateSizeBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSUInteger fileCount = [self.diskCache totalCount];
         NSUInteger totalSize = [self.diskCache totalSize];
