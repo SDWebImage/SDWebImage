@@ -10,6 +10,7 @@
 		0314594336AFF15E5BB7F0E6 /* Pods_Tests_Mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C140E5ED8501C2ABBFD97A24 /* Pods_Tests_Mac.framework */; };
 		1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D7AF05F1F329763000083C2 /* SDTestCase.m */; };
+		320630412085A37C006E0FA4 /* SDAnimatedImageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */; };
 		321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259EB1F39E3240096FE0E /* TestImageStatic.webp */; };
 		321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
 		3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
@@ -474,6 +475,7 @@
 				32B99EAB203B36620017FD66 /* SDWebImageManagerTests.m in Sources */,
 				32B99EA9203B34B60017FD66 /* SDWebImageDecoderTests.m in Sources */,
 				3264FF30205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */,
+				320630412085A37C006E0FA4 /* SDAnimatedImageTest.m in Sources */,
 				32B99E9B203B2EDD0017FD66 /* SDTestCase.m in Sources */,
 				3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */,
 			);

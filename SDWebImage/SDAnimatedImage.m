@@ -212,7 +212,7 @@ static NSArray *SDBundlePreferredScales() {
 #if __has_include(<UIKit/UITraitCollection.h>)
     return [self imageNamed:name inBundle:nil compatibleWithTraitCollection:nil];
 #else
-    return [self imageNamed:name inBundle:nil scale:0];
+    return [self imageNamed:name inBundle:nil];
 #endif
 }
 
@@ -223,6 +223,10 @@ static NSArray *SDBundlePreferredScales() {
     }
     CGFloat scale = traitCollection.displayScale;
     return [self imageNamed:name inBundle:bundle scale:scale];
+}
+#else
++ (instancetype)imageNamed:(NSString *)name inBundle:(NSBundle *)bundle {
+    return [self imageNamed:name inBundle:bundle scale:0];
 }
 #endif
 
