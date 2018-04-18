@@ -83,8 +83,6 @@
 #define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
 
-FOUNDATION_EXPORT NSString *const _Nonnull SDWebImageErrorDomain;
-
 #ifndef dispatch_queue_async_safe
 #define dispatch_queue_async_safe(queue, block)\
     if (strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(queue)) == 0) {\

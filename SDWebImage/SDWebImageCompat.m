@@ -15,5 +15,3 @@
 #if !OS_OBJECT_USE_OBJC
     #error SDWebImage need ARC for dispatch object
 #endif
-
-NSString *const SDWebImageErrorDomain = @"SDWebImageErrorDomain";

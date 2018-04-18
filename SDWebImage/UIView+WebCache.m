@@ -12,6 +12,7 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "SDWebImageError.h"
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
@@ -178,7 +179,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         [self sd_stopImageIndicator];
         dispatch_main_async_safe(^{
             if (completedBlock) {
-                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
+                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidURL userInfo:@{NSLocalizedDescriptionKey : @"Image url is nil"}];
                 completedBlock(nil, nil, error, SDImageCacheTypeNone, YES, url);
             }
         });

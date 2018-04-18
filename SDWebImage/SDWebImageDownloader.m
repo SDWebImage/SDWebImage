@@ -9,6 +9,7 @@
 #import "SDWebImageDownloader.h"
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderOperation.h"
+#import "SDWebImageError.h"
 
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
@@ -244,7 +245,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock) {
-            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to download a nil url"}];
+            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidURL userInfo:@{NSLocalizedDescriptionKey : @"Image url is nil"}];
             completedBlock(nil, nil, error, YES);
         }
         return nil;
@@ -257,7 +258,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         if (!operation) {
             UNLOCK(self.operationsLock);
             if (completedBlock) {
-                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Downloader operation is nil"}];
+                NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadOperation userInfo:@{NSLocalizedDescriptionKey : @"Downloader operation is nil"}];
                 completedBlock(nil, nil, error, YES);
             }
             return nil;

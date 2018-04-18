@@ -10,6 +10,7 @@
 #import "NSImage+Additions.h"
 #import "UIImage+WebCache.h"
 #import "SDAnimatedImage.h"
+#import "SDWebImageError.h"
 
 @interface SDWebImageCombinedOperation ()
 
@@ -146,7 +147,7 @@
     }
 
     if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
-        [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorFileDoesNotExist userInfo:nil] url:url];
+        [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidURL userInfo:@{NSLocalizedDescriptionKey : @"Image url is nil"}] url:url];
         return operation;
     }
 
