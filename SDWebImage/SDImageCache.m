@@ -328,7 +328,12 @@
             shouldDecode = NO;
         }
         if (shouldDecode) {
-            image = [SDWebImageCoderHelper decodedImageWithImage:image];
+            BOOL shouldScaleDown = options & SDImageCacheScaleDownLargeImages;
+            if (shouldScaleDown) {
+                image = [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
+            } else {
+                image = [SDWebImageCoderHelper decodedImageWithImage:image];
+            }
         }
         return image;
     } else {
