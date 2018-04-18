@@ -9,19 +9,19 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCache.h"
 
-typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
-    SDWebImageCachesManagerOperationPolicySerial, // process all caches serially (from the highest priority to the lowest priority cache by order)
-    SDWebImageCachesManagerOperationPolicyConcurrent, // process all caches concurrently
-    SDWebImageCachesManagerOperationPolicyHighestOnly, // process the highest priority cache only
-    SDWebImageCachesManagerOperationPolicyLowestOnly // process the lowest priority cache only
+typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
+    SDImageCachesManagerOperationPolicySerial, // process all caches serially (from the highest priority to the lowest priority cache by order)
+    SDImageCachesManagerOperationPolicyConcurrent, // process all caches concurrently
+    SDImageCachesManagerOperationPolicyHighestOnly, // process the highest priority cache only
+    SDImageCachesManagerOperationPolicyLowestOnly // process the lowest priority cache only
 };
 
-@interface SDWebImageCachesManager : NSObject <SDWebImageCache>
+@interface SDImageCachesManager : NSObject <SDWebImageCache>
 
 /**
  Returns the global shared caches manager instance.
  */
-@property (nonatomic, class, readonly, nonnull) SDWebImageCachesManager *sharedManager;
+@property (nonatomic, class, readonly, nonnull) SDImageCachesManager *sharedManager;
 
 // These are op policy for cache manager.
 
@@ -29,31 +29,31 @@ typedef NS_ENUM(NSUInteger, SDWebImageCachesManagerOperationPolicy) {
  Operation policy for query op.
  Defaults to `Serial`, means query all caches serially (one completion called then next begin) until one cache query success (`image` != nil).
  */
-@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy queryOperationPolicy;
+@property (nonatomic, assign) SDImageCachesManagerOperationPolicy queryOperationPolicy;
 
 /**
  Operation policy for store op.
  Defaults to `HighestOnly`, means store to the highest priority cache only.
  */
-@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy storeOperationPolicy;
+@property (nonatomic, assign) SDImageCachesManagerOperationPolicy storeOperationPolicy;
 
 /**
  Operation policy for remove op.
  Defaults to `Concurrent`, means remove all caches concurrently.
  */
-@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy removeOperationPolicy;
+@property (nonatomic, assign) SDImageCachesManagerOperationPolicy removeOperationPolicy;
 
 /**
  Operation policy for contains op.
  Defaults to `Serial`, means check all caches serially (one completion called then next begin) until one cache check success (`containsCacheType` != None).
  */
-@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy containsOperationPolicy;
+@property (nonatomic, assign) SDImageCachesManagerOperationPolicy containsOperationPolicy;
 
 /**
  Operation policy for clear op.
  Defaults to `Concurrent`, means clear all caches concurrently.
  */
-@property (nonatomic, assign) SDWebImageCachesManagerOperationPolicy clearOperationPolicy;
+@property (nonatomic, assign) SDImageCachesManagerOperationPolicy clearOperationPolicy;
 
 /**
  All caches in caches manager. The caches array is a priority queue, which means the later added cache will have the highest priority
