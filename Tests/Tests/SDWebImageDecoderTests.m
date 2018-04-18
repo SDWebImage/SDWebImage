@@ -15,7 +15,7 @@
 #import <SDWebImage/SDWebImageGIFCoder.h>
 #import <SDWebImage/NSData+ImageContentType.h>
 #if SD_MAC
-#import <SDWebImage/NSImage+Additions.h>
+#import <SDWebImage/NSImage+Compatibility.h>
 #endif
 #import <SDWebImage/UIImage+WebCache.h>
 

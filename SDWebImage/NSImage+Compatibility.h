@@ -12,7 +12,7 @@
 
 #if SD_MAC
 
-@interface NSImage (Additions)
+@interface NSImage (Compatibility)
 
 /**
 The underlying Core Graphics image object. This will actually use `CGImageForProposedRect` with the image size.

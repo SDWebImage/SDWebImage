@@ -8,7 +8,7 @@
 
 #import "SDWebImageDefine.h"
 #import "UIImage+WebCache.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 
 #pragma mark - Image scale
 

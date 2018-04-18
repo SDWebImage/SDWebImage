@@ -8,7 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageManager.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageCoderHelper.h"

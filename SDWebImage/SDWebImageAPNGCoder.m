@@ -10,7 +10,7 @@
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
 #import "UIImage+WebCache.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 

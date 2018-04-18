@@ -6,13 +6,13 @@
  * file that was distributed with this source code.
  */
 
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 
 #if SD_MAC
 
 #import "SDWebImageCoderHelper.h"
 
-@implementation NSImage (Additions)
+@implementation NSImage (Compatibility)
 
 - (CGImageRef)CGImage {
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);

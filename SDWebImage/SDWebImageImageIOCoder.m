@@ -8,7 +8,7 @@
 
 #import "SDWebImageImageIOCoder.h"
 #import "SDWebImageCoderHelper.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
 
