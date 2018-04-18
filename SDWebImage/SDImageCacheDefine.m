@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCache.h"
+#import "SDImageCacheDefine.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"

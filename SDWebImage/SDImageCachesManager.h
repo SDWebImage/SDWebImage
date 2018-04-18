@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCache.h"
+#import "SDImageCacheDefine.h"
 
 typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
     SDImageCachesManagerOperationPolicySerial, // process all caches serially (from the highest priority to the lowest priority cache by order)
@@ -16,7 +16,7 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
     SDImageCachesManagerOperationPolicyLowestOnly // process the lowest priority cache only
 };
 
-@interface SDImageCachesManager : NSObject <SDWebImageCache>
+@interface SDImageCachesManager : NSObject <SDImageCache>
 
 /**
  Returns the global shared caches manager instance.
@@ -58,20 +58,20 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
 /**
  All caches in caches manager. The caches array is a priority queue, which means the later added cache will have the highest priority
  */
-@property (atomic, copy, readwrite, nullable) NSArray<id<SDWebImageCache>> *caches;
+@property (atomic, copy, readwrite, nullable) NSArray<id<SDImageCache>> *caches;
 
 /**
  Add a new cache to the end of caches array. Which has the highest priority.
  
  @param cache cache
  */
-- (void)addCache:(nonnull id<SDWebImageCache>)cache;
+- (void)addCache:(nonnull id<SDImageCache>)cache;
 
 /**
  Remove a cache in the caches array.
  
  @param cache cache
  */
-- (void)removeCache:(nonnull id<SDWebImageCache>)cache;
+- (void)removeCache:(nonnull id<SDImageCache>)cache;
 
 @end

@@ -10,7 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDImageCacheConfig.h"
-#import "SDWebImageCache.h"
+#import "SDImageCacheDefine.h"
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
@@ -46,14 +46,8 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCachePreloadAllFrames = 1 << 6
 };
 
-typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
-
-typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
-
-typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
-
 /**
- * SDImageCache maintains a memory cache and an optional disk cache. Disk cache write operations are performed
+ * SDImageCache maintains a memory cache and a disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
 @interface SDImageCache : NSObject
@@ -332,6 +326,6 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 /**
  * SDImageCache is the built-in image cache implementation for web image manager. It adopts `SDWebImageCache` protocol to provide the function for web image manager to use for image loading process.
  */
-@interface SDImageCache (SDWebImageCache) <SDWebImageCache>
+@interface SDImageCache (SDWebImageCache) <SDImageCache>
 
 @end

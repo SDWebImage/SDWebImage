@@ -13,7 +13,7 @@
 #import "SDAnimatedImage.h"
 #import "SDWebImageError.h"
 
-static id<SDWebImageCache> _defaultImageCache;
+static id<SDImageCache> _defaultImageCache;
 static SDWebImageDownloader *_defaultImageDownloader;
 
 @interface SDWebImageCombinedOperation ()
@@ -36,12 +36,12 @@ static SDWebImageDownloader *_defaultImageDownloader;
 
 @implementation SDWebImageManager
 
-+ (id<SDWebImageCache>)defaultImageCache {
++ (id<SDImageCache>)defaultImageCache {
     return _defaultImageCache;
 }
 
-+ (void)setDefaultImageCache:(id<SDWebImageCache>)defaultImageCache {
-    if (defaultImageCache && ![defaultImageCache conformsToProtocol:@protocol(SDWebImageCache)]) {
++ (void)setDefaultImageCache:(id<SDImageCache>)defaultImageCache {
+    if (defaultImageCache && ![defaultImageCache conformsToProtocol:@protocol(SDImageCache)]) {
         return;
     }
     _defaultImageCache = defaultImageCache;
@@ -68,7 +68,7 @@ static SDWebImageDownloader *_defaultImageDownloader;
 }
 
 - (nonnull instancetype)init {
-    id<SDWebImageCache> cache = [[self class] defaultImageCache];
+    id<SDImageCache> cache = [[self class] defaultImageCache];
     if (!cache) {
         cache = [SDImageCache sharedImageCache];
     }
@@ -79,7 +79,7 @@ static SDWebImageDownloader *_defaultImageDownloader;
     return [self initWithCache:cache downloader:downloader];
 }
 
-- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache downloader:(nonnull SDWebImageDownloader *)downloader {
+- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache downloader:(nonnull SDWebImageDownloader *)downloader {
     if ((self = [super init])) {
         _imageCache = cache;
         _imageDownloader = downloader;
