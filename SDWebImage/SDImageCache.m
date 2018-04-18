@@ -59,10 +59,10 @@
                        diskCacheDirectory:(nonnull NSString *)directory
                                    config:(nullable SDImageCacheConfig *)config {
     if ((self = [super init])) {
-        NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
+        NSString *fullNamespace = [@"com.hackemist.SDImageCache." stringByAppendingString:ns];
         
         // Create IO serial queue
-        _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
+        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", DISPATCH_QUEUE_SERIAL);
         
         if (!config) {
             config = SDImageCacheConfig.defaultCacheConfig;
@@ -317,7 +317,7 @@
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data options:(SDImageCacheOptions)options context:(SDWebImageContext *)context {
     if (data) {
-        UIImage *image = SDWebImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
+        UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
         return image;
     } else {
         return nil;
@@ -568,9 +568,9 @@
 
 @end
 
-@implementation SDImageCache (SDWebImageCache)
+@implementation SDImageCache (SDImageCache)
 
-#pragma mark - SDWebImageCache
+#pragma mark - SDImageCache
 
 - (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
     SDImageCacheOptions cacheOptions = 0;

@@ -12,7 +12,7 @@
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
 
-UIImage * _Nullable SDWebImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     UIImage *image;
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
     NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];

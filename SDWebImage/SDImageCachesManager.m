@@ -116,7 +116,7 @@
     self.caches = [mutableCaches copy];
 }
 
-#pragma mark - SDWebImageCache
+#pragma mark - SDImageCache
 
 - (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(SDWebImageContext *)context completion:(SDImageCacheQueryCompletionBlock)completionBlock {
     if (!key) {

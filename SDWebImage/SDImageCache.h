@@ -324,8 +324,8 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 @end
 
 /**
- * SDImageCache is the built-in image cache implementation for web image manager. It adopts `SDWebImageCache` protocol to provide the function for web image manager to use for image loading process.
+ * SDImageCache is the built-in image cache implementation for web image manager. It adopts `SDImageCache` protocol to provide the function for web image manager to use for image loading process.
  */
-@interface SDImageCache (SDWebImageCache) <SDImageCache>
+@interface SDImageCache (SDImageCache) <SDImageCache>
 
 @end

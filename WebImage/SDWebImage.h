@@ -28,8 +28,8 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDImageCache.h>
 #import <SDWebImage/SDMemoryCache.h>
 #import <SDWebImage/SDDiskCache.h>
-#import <SDWebImage/SDWebImageCache.h>
-#import <SDWebImage/SDWebImageCachesManager.h>
+#import <SDWebImage/SDImageCacheDefine.h>
+#import <SDWebImage/SDImageCachesManager.h>
 #import <SDWebImage/UIView+WebCache.h>
 #import <SDWebImage/UIImageView+WebCache.h>
 #import <SDWebImage/UIImageView+HighlightedWebCache.h>
