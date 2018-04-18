@@ -20,12 +20,6 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     return _defaultDownloaderConfig;
 }
 
-+ (void)setDefaultDownloaderConfig:(SDWebImageDownloaderConfig *)defaultDownloaderConfig {
-    if (defaultDownloaderConfig) {
-        _defaultDownloaderConfig = defaultDownloaderConfig;
-    }
-}
-
 - (instancetype)init {
     self = [super init];
     if (self) {

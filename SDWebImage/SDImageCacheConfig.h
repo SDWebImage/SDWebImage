@@ -13,11 +13,10 @@
 @interface SDImageCacheConfig : NSObject <NSCopying>
 
 /**
- Gets/Sets the default cache config used for shared instance or initialization when it does not provide any cache config. Such as `SDImageCache.sharedImageCache`.
+ Gets the default cache config used for shared instance or initialization when it does not provide any cache config. Such as `SDImageCache.sharedImageCache`.
  @note You can modify the property on default cache config, which can be used for later created cache instance. The already created cache instance does not get affected.
- @note You should not pass nil to this value.
  */
-@property (nonatomic, class, nonnull) SDImageCacheConfig *defaultCacheConfig;
+@property (nonatomic, class, readonly, nonnull) SDImageCacheConfig *defaultCacheConfig;
 
 /**
  * Whether or not to disable iCloud backup
