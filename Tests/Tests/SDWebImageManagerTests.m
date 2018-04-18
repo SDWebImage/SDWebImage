@@ -8,6 +8,7 @@
 
 #import "SDTestCase.h"
 #import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImage/SDImageCache.h>
 #import "SDWebImageTestTransformer.h"
 
 @interface SDWebImageManagerTests : SDTestCase
@@ -59,32 +60,6 @@
         expectation = nil;
     }];
     
-    [self waitForExpectationsWithCommonTimeout];
-}
-
-- (void)test04CachedImageExistsForURL {
-    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image exists in cache"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageManager sharedManager] cachedImageExistsForURL:imageURL completion:^(BOOL isInCache) {
-        if (isInCache) {
-            [expectation fulfill];
-        } else {
-            XCTFail(@"Image should be in cache");
-        }
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-
-- (void)test05DiskImageExistsForURL {
-    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image exists in disk cache"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageManager sharedManager] diskImageExistsForURL:imageURL completion:^(BOOL isInCache) {
-        if (isInCache) {
-            [expectation fulfill];
-        } else {
-            XCTFail(@"Image should be in cache");
-        }
-    }];
     [self waitForExpectationsWithCommonTimeout];
 }
 

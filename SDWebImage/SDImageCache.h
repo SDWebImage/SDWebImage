@@ -10,21 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDImageCacheConfig.h"
-
-typedef NS_ENUM(NSInteger, SDImageCacheType) {
-    /**
-     * The image wasn't available the SDWebImage caches, but was downloaded from the web.
-     */
-    SDImageCacheTypeNone,
-    /**
-     * The image was obtained from the disk cache.
-     */
-    SDImageCacheTypeDisk,
-    /**
-     * The image was obtained from the memory cache.
-     */
-    SDImageCacheTypeMemory
-};
+#import "SDWebImageCache.h"
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
@@ -60,11 +46,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCachePreloadAllFrames = 1 << 6
 };
 
-typedef void(^SDCacheQueryCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
+typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
 
-typedef void(^SDWebImageCheckCacheCompletionBlock)(BOOL isInCache);
-
-typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
+typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 
 typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 
@@ -182,6 +166,15 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
+ * Synchronously store image into memory cache at the given key.
+ *
+ * @param image  The image to store
+ * @param key    The unique image cache key, usually it's image absolute URL
+ */
+- (void)storeImageToMemory:(nullable UIImage*)image
+                    forKey:(nullable NSString *)key;
+
+/**
  * Synchronously store image NSData into disk cache at the given key.
  *
  * @param imageData  The image data to store
@@ -191,7 +184,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
                       forKey:(nullable NSString *)key;
 
 
-#pragma mark - Query and Retrieve Ops
+#pragma mark - Contains and Check Ops
 
 /**
  *  Asynchronously check if image exists in disk cache already (does not load the image)
@@ -200,7 +193,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *  @param completionBlock the block to be executed when the check is done.
  *  @note the completion block will be always executed on the main queue
  */
-- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock;
+- (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDImageCacheCheckCompletionBlock)completionBlock;
 
 /**
  *  Synchronously check if image data exists in disk cache already (does not load the image)
@@ -208,6 +201,8 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *  @param key             the key describing the url
  */
 - (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key;
+
+#pragma mark - Query and Retrieve Ops
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -217,7 +212,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -228,7 +223,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -240,7 +235,7 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  *
  * @return a NSOperation instance containing the cache op
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDCacheQueryCompletedBlock)doneBlock;
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Synchronously query the memory cache.
@@ -282,6 +277,20 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
  */
 - (void)removeImageForKey:(nullable NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion;
 
+/**
+ Synchronously remove the image from memory cache.
+ 
+ @param key The unique image cache key
+ */
+- (void)removeImageFromMemoryForKey:(nullable NSString *)key;
+
+/**
+ Synchronously remove the image from disk cache.
+ 
+ @param key The unique image cache key
+ */
+- (void)removeImageFromDiskForKey:(nullable NSString *)key;
+
 #pragma mark - Cache clean Ops
 
 /**
@@ -316,6 +325,13 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 /**
  * Asynchronously calculate the disk cache's size.
  */
-- (void)calculateSizeWithCompletionBlock:(nullable SDWebImageCalculateSizeBlock)completionBlock;
+- (void)calculateSizeWithCompletionBlock:(nullable SDImageCacheCalculateSizeBlock)completionBlock;
+
+@end
+
+/**
+ * SDImageCache is the built-in image cache implementation for web image manager. It adopts `SDWebImageCache` protocol to provide the function for web image manager to use for image loading process.
+ */
+@interface SDImageCache (SDWebImageCache) <SDWebImageCache>
 
 @end
