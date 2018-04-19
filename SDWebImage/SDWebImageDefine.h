@@ -145,31 +145,36 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageQueryDiskSync = 1 << 14,
     
     /**
-     * By default, when the cache missed, the image is download from the network. This flag can prevent network to load from cache only.
+     * By default, when the cache missed, the image is load from the loader. This flag can prevent this to load from cache only.
      */
     SDWebImageFromCacheOnly = 1 << 15,
     
     /**
+     * By default, we query the cache before the image is load from the loader. This flag can prevent this to load from loader only.
+     */
+    SDWebImageFromLoaderOnly = 1 << 16,
+    
+    /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
      */
-    SDWebImageForceTransition = 1 << 16,
+    SDWebImageForceTransition = 1 << 17,
     
     /**
      * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
      * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
      */
-    SDWebImageAvoidDecodeImage = 1 << 17,
+    SDWebImageAvoidDecodeImage = 1 << 18,
     
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDWebImageDecodeFirstFrameOnly = 1 << 18,
+    SDWebImageDecodeFirstFrameOnly = 1 << 19,
     
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
      * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
      */
-    SDWebImagePreloadAllFrames = 1 << 19
+    SDWebImagePreloadAllFrames = 1 << 20
 };
 
 

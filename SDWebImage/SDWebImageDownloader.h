@@ -33,7 +33,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
 
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
-     * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
+     * And the error code is `SDWebImageErrorCacheNotModified`
+     * This flag should be combined with `SDWebImageDownloaderUseNSURLCache`.
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     

@@ -42,6 +42,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
 @property (assign, nonatomic, readwrite) NSUInteger expectedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
+@property (strong, nonatomic, nullable) NSError *responseError;
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -298,11 +299,15 @@ didReceiveResponse:(NSURLResponse *)response
     self.expectedSize = expected;
     self.response = response;
     NSInteger statusCode = [response respondsToSelector:@selector(statusCode)] ? ((NSHTTPURLResponse *)response).statusCode : 200;
-    BOOL valid = statusCode < 400;
-    //'304 Not Modified' is an exceptional one. It should be treated as cancelled if no cache data
+    BOOL valid = statusCode >= 200 && statusCode < 400;
+    if (!valid) {
+        self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadStatusCode userInfo:@{SDWebImageErrorDownloadStatusCodeKey : @(statusCode)}];
+    }
+    //'304 Not Modified' is an exceptional one
     //URLSession current behavior will return 200 status code when the server respond 304 and URLCache hit. But this is not a standard behavior and we just add a check
     if (statusCode == 304 && !self.cachedData) {
         valid = NO;
+        self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCacheNotModified userInfo:nil];
     }
     
     if (valid) {
@@ -386,6 +391,10 @@ didReceiveResponse:(NSURLResponse *)response
     
     // make sure to call `[self done]` to mark operation as finished
     if (error) {
+        // custom error instead of URLSession error
+        if (self.responseError) {
+            error = self.responseError;
+        }
         [self callCompletionBlocksWithError:error];
         [self done];
     } else {
@@ -396,8 +405,9 @@ didReceiveResponse:(NSURLResponse *)response
                  *  then we should check if the cached data is equal to image data
                  */
                 if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
-                    // call completion block with nil
-                    [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+                    self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCacheNotModified userInfo:nil];
+                    // call completion block with not modified error
+                    [self callCompletionBlocksWithError:self.responseError];
                     [self done];
                 } else {
                     // decode the image in coder queue
