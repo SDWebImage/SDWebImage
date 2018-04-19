@@ -49,44 +49,46 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDWebImageIndicator.h>
 #import <SDWebImage/SDWebImageTransformer.h>
 #import <SDWebImage/UIImage+Transform.h>
-
-#if SD_MAC || SD_UIKIT
-    #import <SDWebImage/MKAnnotationView+WebCache.h>
-#endif
-
 #import <SDWebImage/SDAnimatedImage.h>
 #import <SDWebImage/SDAnimatedImageView.h>
 #import <SDWebImage/SDAnimatedImageView+WebCache.h>
 #import <SDWebImage/SDWebImageCodersManager.h>
 #import <SDWebImage/SDWebImageCoder.h>
 #import <SDWebImage/SDWebImageAPNGCoder.h>
-#import <SDWebImage/SDWebImageWebPCoder.h>
 #import <SDWebImage/SDWebImageGIFCoder.h>
 #import <SDWebImage/SDWebImageImageIOCoder.h>
 #import <SDWebImage/SDWebImageFrame.h>
 #import <SDWebImage/SDWebImageCoderHelper.h>
-#import <SDWebImage/UIImage+WebP.h>
 #import <SDWebImage/UIImage+GIF.h>
 #import <SDWebImage/UIImage+ForceDecode.h>
 #import <SDWebImage/NSData+ImageContentType.h>
 #import <SDWebImage/SDWebImageDefine.h>
 #import <SDWebImage/SDWebImageError.h>
 
-#if SD_MAC
-    #import <SDWebImage/NSImage+Compatibility.h>
-    #import <SDWebImage/NSButton+WebCache.h>
-    #import <SDWebImage/SDAnimatedImageRep.h>
+// Mac
+#if __has_include(<SDWebImage/NSImage+Compatibility.h>)
+#import <SDWebImage/NSImage+Compatibility.h>
+#endif
+#if __has_include(<SDWebImage/NSButton+WebCache.h>)
+#import <SDWebImage/NSButton+WebCache.h>
+#endif
+#if __has_include(<SDWebImage/SDAnimatedImageRep.h>)
+#import <SDWebImage/SDAnimatedImageRep.h>
 #endif
 
-#if SD_UIKIT
-    #import <SDWebImage/FLAnimatedImageView+WebCache.h>
+// MapKit
+#if __has_include(<SDWebImage/MKAnnotationView+WebCache.h>)
+#import <SDWebImage/MKAnnotationView+WebCache.h>
+#endif
 
-    #if __has_include(<SDWebImage/FLAnimatedImage.h>)
-        #import <SDWebImage/FLAnimatedImage.h>
-    #endif
 
-    #if __has_include(<SDWebImage/FLAnimatedImageView.h>)
-        #import <SDWebImage/FLAnimatedImageView.h>
-    #endif
+// GIF
+#if __has_include(<SDWebImage/FLAnimatedImageView+WebCache.h>)
+#import <SDWebImage/FLAnimatedImageView+WebCache.h>
+#endif
 
+// WebP
+#if __has_include(<SDWebImage/UIImage+WebP.h>)
+#import <SDWebImage/UIImage+WebP.h>
+#import <SDWebImage/SDWebImageWebPCoder.h>
 #endif
