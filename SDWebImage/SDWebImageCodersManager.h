@@ -39,7 +39,7 @@
 /**
  All coders in coders manager. The coders array is a priority queue, which means the later added coder will have the highest priority
  */
-@property (nonatomic, strong, readwrite, nullable) NSArray<id<SDWebImageCoder>> *coders;
+@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDWebImageCoder>> *coders;
 
 /**
  Add a new coder to the end of coders array. Which has the highest priority.
