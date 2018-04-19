@@ -8,10 +8,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDWebImageDownloader.h>
-#import <SDWebImage/SDWebImageDownloaderOperation.h>
-#import <SDWebImage/SDWebImageCodersManager.h>
-#import <SDWebImage/SDWebImageLoadersManager.h>
 #import "SDWebImageTestDownloadOperation.h"
 #import "SDWebImageTestDecoder.h"
 #import "SDWebImageTestLoader.h"

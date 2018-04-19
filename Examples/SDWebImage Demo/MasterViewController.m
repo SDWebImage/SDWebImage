@@ -8,8 +8,7 @@
 
 #import "MasterViewController.h"
 #import "DetailViewController.h"
-#import <SDWebImage/SDAnimatedImageView+WebCache.h>
-#import <SDWebImage/UIView+WebCache.h>
+#import <SDWebImage/SDWebImage.h>
 
 @interface MyCustomTableViewCell : UITableViewCell
 

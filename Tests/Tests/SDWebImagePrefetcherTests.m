@@ -8,8 +8,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDImageCache.h>
-#import <SDWebImage/SDWebImagePrefetcher.h>
 
 @interface SDWebImagePrefetcherTests : SDTestCase <SDWebImagePrefetcherDelegate>
 

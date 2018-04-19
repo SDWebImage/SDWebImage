@@ -7,8 +7,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDWebImageManager.h>
-#import <SDWebImage/SDImageCache.h>
 #import "SDWebImageTestTransformer.h"
 
 @interface SDWebImageManagerTests : SDTestCase

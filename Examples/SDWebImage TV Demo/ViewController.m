@@ -7,8 +7,7 @@
  */
 
 #import "ViewController.h"
-#import <SDWebImage/UIImageView+WebCache.h>
-#import <SDWebImage/SDAnimatedImageView+WebCache.h>
+#import <SDWebImage/SDWebImage.h>
 
 @interface ViewController ()
 

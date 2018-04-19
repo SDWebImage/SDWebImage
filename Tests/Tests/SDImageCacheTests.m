@@ -7,9 +7,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDImageCache.h>
-#import <SDWebImage/SDWebImageCodersManager.h>
-#import <SDWebImage/SDImageCachesManager.h>
 #import "SDWebImageTestDecoder.h"
 #import "SDMockFileManager.h"
 #import "SDWebImageTestCache.h"
