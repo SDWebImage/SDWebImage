@@ -8,14 +8,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/UIImageView+WebCache.h>
-#import <SDWebImage/UIImageView+HighlightedWebCache.h>
-#import <SDWebImage/MKAnnotationView+WebCache.h>
-#import <SDWebImage/UIButton+WebCache.h>
-#if SD_UIKIT
-#import <SDWebImage/FLAnimatedImageView+WebCache.h>
-#endif
-#import <SDWebImage/UIView+WebCache.h>
 #import <KVOController/KVOController.h>
 
 @interface SDWebCacheCategoriesTests : SDTestCase

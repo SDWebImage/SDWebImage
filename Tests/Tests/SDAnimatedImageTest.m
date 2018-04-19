@@ -8,12 +8,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDImageCache.h>
-#import <SDWebImage/SDAnimatedImage.h>
-#import <SDWebImage/SDAnimatedImageView.h>
-#import <SDWebImage/SDWebImageGIFCoder.h>
-#import <SDWebImage/UIImage+WebCache.h>
-#import <SDWebImage/SDAnimatedImageView+WebCache.h>
 #import <KVOController/KVOController.h>
 
 #if SD_MAC

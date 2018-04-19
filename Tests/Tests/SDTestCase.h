@@ -12,6 +12,7 @@
 
 #import <XCTest/XCTest.h>
 #import <Expecta/Expecta.h>
+#import <SDWebImage/SDWebImage.h>
 
 FOUNDATION_EXPORT const int64_t kAsyncTestTimeout;
 FOUNDATION_EXPORT const int64_t kMinDelayNanosecond;

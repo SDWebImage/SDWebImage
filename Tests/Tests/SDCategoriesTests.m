@@ -8,13 +8,9 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/NSData+ImageContentType.h>
 #if SD_UIKIT
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
-#import <SDWebImage/UIImage+MultiFormat.h>
-#import <SDWebImage/UIImage+GIF.h>
-#import <SDWebImage/UIImage+WebP.h>
 
 @interface SDCategoriesTests : SDTestCase
 

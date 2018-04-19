@@ -8,9 +8,7 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/UIImage+Transform.h>
 #import <CoreImage/CoreImage.h>
-#import <SDWebImage/SDWebImageTransformer.h>
 
 // Internal header
 @interface UIColor (HexString)

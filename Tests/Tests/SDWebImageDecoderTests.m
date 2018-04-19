@@ -8,16 +8,6 @@
  */
 
 #import "SDTestCase.h"
-#import <SDWebImage/SDWebImageImageIOCoder.h>
-#import <SDWebImage/SDWebImageWebPCoder.h>
-#import <SDWebImage/SDWebImageAPNGCoder.h>
-#import <SDWebImage/UIImage+ForceDecode.h>
-#import <SDWebImage/SDWebImageGIFCoder.h>
-#import <SDWebImage/NSData+ImageContentType.h>
-#if SD_MAC
-#import <SDWebImage/NSImage+Compatibility.h>
-#endif
-#import <SDWebImage/UIImage+WebCache.h>
 
 @interface SDWebImageDecoderTests : SDTestCase
 
