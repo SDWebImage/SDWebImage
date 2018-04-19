@@ -8,7 +8,7 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
-#import "SDWebImageCache.h"
+#import "SDImageCacheDefine.h"
 #import "SDWebImageDownloader.h"
 #import "SDWebImageTransformer.h"
 #import "SDWebImageCacheKeyFilter.h"
@@ -100,7 +100,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * The image cache used by manager to query image cache.
  */
-@property (strong, nonatomic, readonly, nonnull) id<SDWebImageCache> imageCache;
+@property (strong, nonatomic, readonly, nonnull) id<SDImageCache> imageCache;
 
 /**
  * The image loader used by manager to load image.
@@ -158,7 +158,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  The default image cache when the manager which is created with no arguments. Such as shared manager or init.
  Defaults to nil. Means using `SDImageCache.sharedImageCache`
  */
-@property (nonatomic, class, nullable) id<SDWebImageCache> defaultImageCache;
+@property (nonatomic, class, nullable) id<SDImageCache> defaultImageCache;
 
 /**
  The default image loader for manager which is created with no arguments. Such as shared manager or init.
@@ -175,7 +175,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Allows to specify instance of cache and image loader used with image manager.
  * @return new instance of `SDWebImageManager` with specified cache and loader.
  */
-- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache loader:(nonnull id<SDWebImageLoader>)loader NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache loader:(nonnull id<SDWebImageLoader>)loader NS_DESIGNATED_INITIALIZER;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.

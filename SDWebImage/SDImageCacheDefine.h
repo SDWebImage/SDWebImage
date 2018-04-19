@@ -34,6 +34,9 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
     SDImageCacheTypeAll
 };
 
+typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
+typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
+typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 typedef void(^SDImageCacheQueryCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
 typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCacheType);
 
@@ -47,14 +50,14 @@ typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCach
  @param context The context arg from the input
  @return The decoded image for current image data query from cache
  */
-FOUNDATION_EXPORT UIImage * _Nullable SDWebImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+FOUNDATION_EXPORT UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context);
 
 /**
  This is the image cache protocol to provide custom image cache for `SDWebImageManager`.
  Though the best practice to custom image cache, is to write your own class which conform `SDMemoryCache` or `SDDiskCache` protocol for `SDImageCache` class (See more on `SDImageCacheConfig.memoryCacheClass & SDImageCacheConfig.diskCacheClass`).
- However, if your own cache implementation contains more advanced feature beyond `SDImageCache` itself, you can consider to provide this instead. For example, you can even use a cache manager like `SDWebImageCachesManager` to register multiple caches.
+ However, if your own cache implementation contains more advanced feature beyond `SDImageCache` itself, you can consider to provide this instead. For example, you can even use a cache manager like `SDImageCachesManager` to register multiple caches.
  */
-@protocol SDWebImageCache <NSObject>
+@protocol SDImageCache <NSObject>
 
 @required
 /**
