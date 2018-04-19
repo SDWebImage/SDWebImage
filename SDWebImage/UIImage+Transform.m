@@ -140,7 +140,7 @@ static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageS
 static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitmapInfo) {
     // Get alpha info, byteOrder info
     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
-    CGImageByteOrderInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
     CGFloat r = 0, g = 0, b = 0, a = 255.0;
     
     BOOL byteOrderNormal = NO;
