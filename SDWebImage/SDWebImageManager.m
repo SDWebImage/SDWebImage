@@ -14,7 +14,7 @@
 #import "SDWebImageError.h"
 
 static id<SDWebImageCache> _defaultImageCache;
-static SDWebImageDownloader *_defaultImageDownloader;
+static id<SDWebImageLoader> _defaultImageLoader;
 
 @interface SDWebImageCombinedOperation ()
 
@@ -28,7 +28,7 @@ static SDWebImageDownloader *_defaultImageDownloader;
 @interface SDWebImageManager ()
 
 @property (strong, nonatomic, readwrite, nonnull) SDImageCache *imageCache;
-@property (strong, nonatomic, readwrite, nonnull) SDWebImageDownloader *imageDownloader;
+@property (strong, nonatomic, readwrite, nonnull) id<SDWebImageLoader> imageLoader;
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
 @property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
 
@@ -47,15 +47,15 @@ static SDWebImageDownloader *_defaultImageDownloader;
     _defaultImageCache = defaultImageCache;
 }
 
-+ (SDWebImageDownloader *)defaultImageDownloader {
-    return _defaultImageDownloader;
++ (id<SDWebImageLoader>)defaultImageLoader {
+    return _defaultImageLoader;
 }
 
-+ (void)setDefaultImageDownloader:(SDWebImageDownloader *)defaultImageDownloader {
-    if (defaultImageDownloader && ![defaultImageDownloader isKindOfClass:[SDWebImageDownloader class]]) {
++ (void)setDefaultImageLoader:(id<SDWebImageLoader>)defaultImageLoader {
+    if (defaultImageLoader && ![defaultImageLoader conformsToProtocol:@protocol(SDWebImageLoader)]) {
         return;
     }
-    _defaultImageDownloader = defaultImageDownloader;
+    _defaultImageLoader = defaultImageLoader;
 }
 
 + (nonnull instancetype)sharedManager {
@@ -72,17 +72,17 @@ static SDWebImageDownloader *_defaultImageDownloader;
     if (!cache) {
         cache = [SDImageCache sharedImageCache];
     }
-    SDWebImageDownloader *downloader = [[self class] defaultImageDownloader];
-    if (!downloader) {
-        downloader = [SDWebImageDownloader sharedDownloader];
+    id<SDWebImageLoader> loader = [[self class] defaultImageLoader];
+    if (!loader) {
+        loader = [SDWebImageDownloader sharedDownloader];
     }
-    return [self initWithCache:cache downloader:downloader];
+    return [self initWithCache:cache loader:loader];
 }
 
-- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache downloader:(nonnull SDWebImageDownloader *)downloader {
+- (nonnull instancetype)initWithCache:(nonnull id<SDWebImageCache>)cache loader:(nonnull id<SDWebImageLoader>)loader {
     if ((self = [super init])) {
         _imageCache = cache;
-        _imageDownloader = downloader;
+        _imageLoader = loader;
         _failedURLs = [NSMutableSet new];
         _runningOperations = [NSMutableArray new];
     }
@@ -195,36 +195,39 @@ static SDWebImageDownloader *_defaultImageDownloader;
         BOOL shouldDownload = (!(options & SDWebImageFromCacheOnly))
             && (!cachedImage || options & SDWebImageRefreshCached)
             && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
+        // Check whether image downloader support target URL
+        shouldDownload &= [self.imageLoader canLoadWithURL:url];
         if (shouldDownload) {
+            SDWebImageContext *downloadContext = context;
+            if (cacheKeyFilter) {
+                // Pass the cache key filter to the image loader.
+                SDWebImageMutableContext *mutableContext;
+                if (downloadContext) {
+                    mutableContext = [downloadContext mutableCopy];
+                } else {
+                    mutableContext = [NSMutableDictionary dictionary];
+                }
+                [mutableContext setValue:cacheKeyFilter forKey:SDWebImageContextCacheKeyFilter];
+                downloadContext = [mutableContext copy];
+            }
             if (cachedImage && options & SDWebImageRefreshCached) {
                 // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
                 // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
                 [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
-            }
-
-            // download if no image or requested to refresh anyway, and download allowed by delegate
-            SDWebImageDownloaderOptions downloaderOptions = 0;
-            if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
-            if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
-            if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
-            if (options & SDWebImageContinueInBackground) downloaderOptions |= SDWebImageDownloaderContinueInBackground;
-            if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
-            if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
-            if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
-            if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
-            if (options & SDWebImageDecodeFirstFrameOnly) downloaderOptions |= SDWebImageDownloaderDecodeFirstFrameOnly;
-            if (options & SDWebImagePreloadAllFrames) downloaderOptions |= SDWebImageDownloaderPreloadAllFrames;
-            
-            if (cachedImage && options & SDWebImageRefreshCached) {
-                // force progressive off if image already cached but forced refreshing
-                downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
-                // ignore image read from NSURLCache if image if cached but force refreshing
-                downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
+                // Pass the cached image to the image loader. The image loader should check whether the remote image is equal to the cached image.
+                SDWebImageMutableContext *mutableContext;
+                if (downloadContext) {
+                    mutableContext = [downloadContext mutableCopy];
+                } else {
+                    mutableContext = [NSMutableDictionary dictionary];
+                }
+                [mutableContext setValue:cachedImage forKey:SDWebImageContextLoaderCachedImage];
+                downloadContext = [mutableContext copy];
             }
             
             // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
             __weak typeof(strongOperation) weakSubOperation = strongOperation;
-            strongOperation.downloadOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+            strongOperation.downloadOperation = [self.imageLoader loadImageWithURL:url options:options context:downloadContext progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
                 __strong typeof(weakSubOperation) strongSubOperation = weakSubOperation;
                 if (!strongSubOperation || strongSubOperation.isCancelled) {
                     // Do nothing if the operation was cancelled
@@ -264,12 +267,6 @@ static SDWebImageDownloader *_defaultImageDownloader;
                     if (options & SDWebImageCacheMemoryOnly) {
                         storeCacheType = SDImageCacheTypeMemory;
                     }
-                    
-                    // We've done the scale process in SDWebImageDownloader with the shared manager, this is used for custom manager and avoid extra scale.
-                    if (self != [SDWebImageManager sharedManager] && cacheKeyFilter && downloadedImage && ![downloadedImage conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                        downloadedImage = [self scaledImageForKey:key image:downloadedImage];
-                    }
-
                     if (options & SDWebImageRefreshCached && cachedImage && !downloadedImage) {
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     } else if (downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer) {

@@ -7,12 +7,7 @@
  */
 
 #import "SDWebImageDownloaderOperation.h"
-#import "SDWebImageManager.h"
-#import "NSImage+Additions.h"
-#import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
-#import "SDWebImageCoderHelper.h"
-#import "SDAnimatedImage.h"
 #import "SDWebImageError.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
@@ -46,7 +41,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
-@property (copy, nonatomic, nullable) NSString *cacheKey;
 @property (assign, nonatomic, readwrite) NSUInteger expectedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 
@@ -356,43 +350,16 @@ didReceiveResponse:(NSURLResponse *)response
                     break;
                 }
             }
+            // If we can't find any progressive coder, disable progressive download
+            if (!self.progressiveCoder) {
+                self.options &= ~SDWebImageDownloaderProgressiveDownload;
+            }
         }
-        [self.progressiveCoder updateIncrementalData:imageData finished:finished];
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            // check whether we should use `SDAnimatedImage`
-            UIImage *image;
-            BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
-            NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
-            CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
-            if (!decodeFirstFrame) {
-                // check whether we should use `SDAnimatedImage`
-                if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
-                    Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
-                    if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [self.progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
-                        image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)self.progressiveCoder scale:scale];
-                    }
-                }
-            }
-            if (!image) {
-                image = [self.progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
-            }
+            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self.progressiveCoder, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
-                BOOL shouldDecode = (self.options & SDWebImageDownloaderAvoidDecodeImage) == 0;
-                if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                    // `SDAnimatedImage` do not decode
-                    shouldDecode = NO;
-                } else if (image.sd_isAnimated) {
-                    // animated image do not decode
-                    shouldDecode = NO;
-                }
-                if (shouldDecode) {
-                    image = [SDWebImageCoderHelper decodedImageWithImage:image];
-                }
-                // mark the image as progressive (completionBlock one are not mark as progressive)
-                image.sd_isIncremental = YES;
-                
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
                 [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
@@ -456,46 +423,7 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        BOOL decodeFirstFrame = self.options & SDWebImageDownloaderDecodeFirstFrameOnly;
-                        NSNumber *scaleValue = [self.context valueForKey:SDWebImageContextImageScaleFactor];
-                        CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(self.cacheKey);
-                        if (scale < 1) {
-                            scale = 1;
-                        }
-                        UIImage *image;
-                        if (!decodeFirstFrame) {
-                            // check whether we should use `SDAnimatedImage`
-                            if ([self.context valueForKey:SDWebImageContextAnimatedImageClass]) {
-                                Class animatedImageClass = [self.context valueForKey:SDWebImageContextAnimatedImageClass];
-                                if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                                    image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
-                                    if (self.options & SDWebImageDownloaderPreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                                        [((id<SDAnimatedImage>)image) preloadAllFrames];
-                                    }
-                                }
-                            }
-                        }
-                        if (!image) {
-                            image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
-                        }
-                        
-                        BOOL shouldDecode = (self.options & SDWebImageDownloaderAvoidDecodeImage) == 0;
-                        if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                            // `SDAnimatedImage` do not decode
-                            shouldDecode = NO;
-                        } else if (image.sd_isAnimated) {
-                            // animated image do not decode
-                            shouldDecode = NO;
-                        }
-                        
-                        if (shouldDecode) {
-                            BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
-                            if (shouldScaleDown) {
-                                image = [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
-                            } else {
-                                image = [SDWebImageCoderHelper decodedImageWithImage:image];
-                            }
-                        }
+                        UIImage *image = SDWebImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
                             [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
@@ -546,11 +474,14 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 #pragma mark Helper methods
-- (NSString *)cacheKey {
-    if (!_cacheKey) {
-        _cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-    }
-    return _cacheKey;
++ (SDWebImageOptions)imageOptionsFromDownloaderOptions:(SDWebImageDownloaderOptions)downloadOptions {
+    SDWebImageOptions options = 0;
+    if (downloadOptions & SDWebImageDownloaderScaleDownLargeImages) options |= SDWebImageScaleDownLargeImages;
+    if (downloadOptions & SDWebImageDownloaderDecodeFirstFrameOnly) options |= SDWebImageDecodeFirstFrameOnly;
+    if (downloadOptions & SDWebImageDownloaderPreloadAllFrames) options |= SDWebImagePreloadAllFrames;
+    if (downloadOptions & SDWebImageDownloaderAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
+    
+    return options;
 }
 
 - (BOOL)shouldContinueWhenAppEntersBackground {

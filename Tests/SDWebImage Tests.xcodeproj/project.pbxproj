@@ -15,6 +15,8 @@
 		321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
 		3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
+		323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
+		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		3254C32020641077008D1022 /* SDWebImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */; };
 		3254C32120641077008D1022 /* SDWebImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */; };
 		3264FF2F205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
@@ -70,6 +72,8 @@
 		321259ED1F39E4110096FE0E /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3226ECB920754F7700FAFACF /* SDWebImageTestDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDownloadOperation.h; sourceTree = "<group>"; };
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
+		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
+		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTransformerTests.m; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
 		3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestTransformer.m; sourceTree = "<group>"; };
@@ -223,6 +227,8 @@
 				32E6F0311F3A1B4700A945E6 /* SDWebImageTestDecoder.m */,
 				3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */,
 				3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */,
+				323B8E1D20862322008952BE /* SDWebImageTestLoader.h */,
+				323B8E1E20862322008952BE /* SDWebImageTestLoader.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -470,6 +476,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */,
 				32B99EAC203B36650017FD66 /* SDWebImageDownloaderTests.m in Sources */,
 				3254C32120641077008D1022 /* SDWebImageTransformerTests.m in Sources */,
 				328BB6DE20825E9800760D6C /* SDWebImageTestCache.m in Sources */,
@@ -492,6 +499,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */,
 				32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */,
 				3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */,
 				3254C32020641077008D1022 /* SDWebImageTransformerTests.m in Sources */,

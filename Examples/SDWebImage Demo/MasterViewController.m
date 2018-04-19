@@ -56,8 +56,10 @@
         
         // HTTP NTLM auth example
         // Add your NTLM image url to the array below and replace the credentials
-        [SDWebImageManager sharedManager].imageDownloader.config.username = @"httpwatch";
-        [SDWebImageManager sharedManager].imageDownloader.config.password = @"httpwatch01";
+        [SDWebImageDownloader sharedDownloader].config.username = @"httpwatch";
+        [SDWebImageDownloader sharedDownloader].config.password = @"httpwatch01";
+        [[SDWebImageDownloader sharedDownloader] setValue:@"SDWebImage Demo" forHTTPHeaderField:@"AppName"];
+        [SDWebImageDownloader sharedDownloader].config.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
         
         self.objects = [NSMutableArray arrayWithObjects:
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
@@ -78,8 +80,6 @@
         }
 
     }
-    [SDWebImageManager.sharedManager.imageDownloader setValue:@"SDWebImage Demo" forHTTPHeaderField:@"AppName"];
-    SDWebImageManager.sharedManager.imageDownloader.config.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
     return self;
 }
 

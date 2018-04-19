@@ -11,8 +11,10 @@
 #import <SDWebImage/SDWebImageDownloader.h>
 #import <SDWebImage/SDWebImageDownloaderOperation.h>
 #import <SDWebImage/SDWebImageCodersManager.h>
+#import <SDWebImage/SDWebImageLoadersManager.h>
 #import "SDWebImageTestDownloadOperation.h"
 #import "SDWebImageTestDecoder.h"
+#import "SDWebImageTestLoader.h"
 
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
@@ -409,6 +411,36 @@
         if (firstCheck && secondCheck) {
             [expectation fulfill];
         }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+#pragma mark - SDWebImageLoader
+- (void)test30CustomImageLoaderWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
+    SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
+    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    [loader loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+        expect(targetURL).notTo.beNil();
+    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).to.beNil();
+        expect(image).notTo.beNil();
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test31ThatLoadersManagerWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
+    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    [[SDWebImageLoadersManager sharedManager] loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+        expect(targetURL).notTo.beNil();
+    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).to.beNil();
+        expect(image).notTo.beNil();
+        [expectation fulfill];
     }];
     
     [self waitForExpectationsWithCommonTimeout];
