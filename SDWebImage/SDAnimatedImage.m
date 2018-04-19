@@ -7,7 +7,7 @@
  */
 
 #import "SDAnimatedImage.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageCoder.h"
 #import "SDWebImageCodersManager.h"

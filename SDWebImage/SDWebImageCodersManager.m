@@ -13,7 +13,7 @@
 #ifdef SD_WEBP
 #import "SDWebImageWebPCoder.h"
 #endif
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageDefine.h"
 

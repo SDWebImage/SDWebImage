@@ -9,7 +9,7 @@
 #import "SDImageCache.h"
 #import "SDMemoryCache.h"
 #import "SDDiskCache.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageTransformer.h"

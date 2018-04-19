@@ -7,7 +7,7 @@
  */
 
 #import "SDWebImageGIFCoder.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"

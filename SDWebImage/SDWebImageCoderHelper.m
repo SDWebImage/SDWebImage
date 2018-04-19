@@ -8,7 +8,7 @@
 
 #import "SDWebImageCoderHelper.h"
 #import "SDWebImageFrame.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import "NSData+ImageContentType.h"
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"

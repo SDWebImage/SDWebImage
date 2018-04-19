@@ -7,7 +7,7 @@
  */
 
 #import "UIImage+Transform.h"
-#import "NSImage+Additions.h"
+#import "NSImage+Compatibility.h"
 #import <Accelerate/Accelerate.h>
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
