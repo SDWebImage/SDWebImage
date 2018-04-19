@@ -70,7 +70,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      * By default, the image is only displayed once completely downloaded.
      */
-    SDWebImageProgressiveDownload = 1 << 3,
+    SDWebImageProgressiveLoad = 1 << 3,
     
     /**
      * Even if the image is cached, respect the HTTP response cache control, and refresh the image from remote location if needed.
@@ -128,7 +128,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
      * images to a size compatible with the constrained memory of devices.
-     * This flag take no effect if `SDWebImageAvoidDecodeImage` is set. And it will be ignored if `SDWebImageProgressiveDownload` is set.
+     * This flag take no effect if `SDWebImageAvoidDecodeImage` is set. And it will be ignored if `SDWebImageProgressiveLoad` is set.
      */
     SDWebImageScaleDownLargeImages = 1 << 12,
     

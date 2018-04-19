@@ -38,7 +38,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextLoader
 FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context);
 
 /**
- This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveDownload` option is set. (It's not required when your loader does not support progressive image loading)
+ This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveLoad` option is set. (It's not required when your loader does not support progressive image loading)
  @note If you want to implement your custom loader with `loadImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
 
  @param imageData The image data from the network so far. Should not be nil

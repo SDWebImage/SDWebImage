@@ -194,7 +194,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *   The forth parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
  *   or from the memory cache or from the network.
  *
- *   The fith parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is
+ *   The fith parameter is set to NO when the SDWebImageProgressiveLoad option is used and the image is
  *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
  *

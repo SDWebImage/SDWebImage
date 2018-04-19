@@ -335,7 +335,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
     [self.imageData appendData:data];
 
-    if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
+    if ((self.options & SDWebImageDownloaderProgressiveLoad) && self.expectedSize > 0) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
         // Get the total bytes downloaded
