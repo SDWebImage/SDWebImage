@@ -408,10 +408,7 @@ didReceiveResponse:(NSURLResponse *)response
         [self done];
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
-            /**
-             *  If you specified to use `NSURLCache`, then the response you get here is what you need.
-             */
-            __block NSData *imageData = [self.imageData copy];
+            NSData *imageData = [self.imageData copy];
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data
@@ -426,7 +423,7 @@ didReceiveResponse:(NSURLResponse *)response
                         UIImage *image = SDWebImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
-                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                         } else {
                             [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
                         }
@@ -434,7 +431,7 @@ didReceiveResponse:(NSURLResponse *)response
                     });
                 }
             } else {
-                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
+                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];
                 [self done];
             }
         } else {
