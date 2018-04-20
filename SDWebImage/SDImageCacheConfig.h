@@ -73,6 +73,12 @@
 @property (assign, nonatomic) NSUInteger maxMemoryCount;
 
 /**
+ * The namespace prefix of cache. It's used to prefix the namespace you provide to the caches's initializer. You 'd better name it with reverse domain name notation and keep the final dot.
+ * Defautls to `com.hackemist.SDImageCache.`, which will prefix your namespace such as `default` to final `com.hackemist.SDImageCache.default`. If you specify nil, it will be treated equals to an empty string.
+ */
+@property (copy, nonatomic, nullable) NSString *namespacePrefix;
+
+/**
  * The custom file manager for disk cache. Pass nil to let disk cache choose the proper file manager.
  * Defaults to nil.
  * @note This value does not support dynamic changes. Which means further modification on this value after cache initlized has no effect.
