@@ -163,13 +163,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDWebImageDecodeFirstFrameOnly = 1 << 17,
+    SDWebImageDecodeFirstFrameOnly = 1 << 18,
     
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
      * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
      */
-    SDWebImagePreloadAllFrames = 1 << 18
+    SDWebImagePreloadAllFrames = 1 << 19
 };
 
 
