@@ -14,11 +14,12 @@
 typedef void(^SDWebImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 typedef void(^SDWebImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
-#pragma mark - Context
+#pragma mark - Context Options
 
 /**
  A `UIImage` instance from `SDWebImageManager` when you specify `SDWebImageRefreshCached` and image cache hit.
- This can be a hint for image loader to load the image from network and refresh the image from remote location if needed. If the cached image is equal to the remote location one. you should call the completion with all nil args. (UIImage)
+ This can be a hint for image loader to load the image from network and refresh the image from remote location if needed. If the image from remote location does not change, you should call the completion with `SDWebImageErrorCacheNotModified` error. (UIImage)
+ @note If you don't implement `SDWebImageRefreshCached` support, you do not need to care abot this context option.
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextLoaderCachedImage;
 
@@ -39,16 +40,15 @@ FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _
 /**
  This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveDownload` option is set. (It's not required when your loader does not support progressive image loading)
  @note If you want to implement your custom loader with `loadImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
-
  @param imageData The image data from the network so far. Should not be nil
  @param imageURL The image URL from the input. Should not be nil
  @param finished Pass NO to specify the download process has not finished. Pass YES when all image data has finished.
- @param progressiveCoder The image progressive coder. Should not be nil. You should bind the progressive coder for each of loading operation to avoid conflict. See `SDWebImageProgressiveCoder`.
+ @param operation The loader operation associated with current progressive download. Why to provide this is because progressive decoding need to store the partial decoded context for each operation to avoid conflict. You should provide the operation from `loadImageWithURL:` method return value.
  @param options The options arg from the input
  @param context The context arg from the input
  @return The decoded progressive image for current image data load from the network
  */
-FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished, id<SDWebImageProgressiveCoder> _Nonnull progressiveCoder, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished,  id<SDWebImageOperation> _Nonnull operation, SDWebImageOptions options, SDWebImageContext * _Nullable context);
 
 #pragma mark - SDWebImageLoader
 

@@ -341,24 +341,9 @@ didReceiveResponse:(NSURLResponse *)response
         // Get the finish status
         BOOL finished = (totalSize >= self.expectedSize);
         
-        if (!self.progressiveCoder) {
-            // We need to create a new instance for progressive decoding to avoid conflicts
-            for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
-                if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
-                    [((id<SDWebImageProgressiveCoder>)coder) canIncrementalDecodeFromData:imageData]) {
-                    self.progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:nil];
-                    break;
-                }
-            }
-            // If we can't find any progressive coder, disable progressive download
-            if (!self.progressiveCoder) {
-                self.options &= ~SDWebImageDownloaderProgressiveDownload;
-            }
-        }
-        
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self.progressiveCoder, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 

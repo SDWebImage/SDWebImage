@@ -12,6 +12,9 @@
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
+#import "objc/runtime.h"
+
+static void * SDWebImageLoaderProgressiveCoderKey = &SDWebImageLoaderProgressiveCoderKey;
 
 UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     NSCParameterAssert(imageData);
@@ -69,10 +72,27 @@ UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData,
     return image;
 }
 
-UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished, id<SDWebImageProgressiveCoder> _Nonnull progressiveCoder, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished,  id<SDWebImageOperation> _Nonnull operation, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     NSCParameterAssert(imageData);
     NSCParameterAssert(imageURL);
-    NSCParameterAssert(progressiveCoder);
+    NSCParameterAssert(operation);
+    
+    id<SDWebImageProgressiveCoder> progressiveCoder = objc_getAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey);
+    if (!progressiveCoder) {
+        // We need to create a new instance for progressive decoding to avoid conflicts
+        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
+            if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
+                [((id<SDWebImageProgressiveCoder>)coder) canIncrementalDecodeFromData:imageData]) {
+                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:nil];
+                break;
+            }
+        }
+        objc_setAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey, progressiveCoder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    // If we can't find any progressive coder, disable progressive download
+    if (!progressiveCoder) {
+        return nil;
+    }
     
     UIImage *image;
     id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
