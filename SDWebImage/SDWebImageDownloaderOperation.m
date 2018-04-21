@@ -7,7 +7,6 @@
  */
 
 #import "SDWebImageDownloaderOperation.h"
-#import "SDWebImageCodersManager.h"
 #import "SDWebImageError.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
@@ -58,8 +57,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
-
-@property (strong, nonatomic, nullable) id<SDWebImageProgressiveCoder> progressiveCoder;
 
 @end
 

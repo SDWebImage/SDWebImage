@@ -40,6 +40,7 @@ FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _
 /**
  This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveDownload` option is set. (It's not required when your loader does not support progressive image loading)
  @note If you want to implement your custom loader with `loadImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
+
  @param imageData The image data from the network so far. Should not be nil
  @param imageURL The image URL from the input. Should not be nil
  @param finished Pass NO to specify the download process has not finished. Pass YES when all image data has finished.
