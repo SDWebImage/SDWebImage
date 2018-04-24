@@ -154,7 +154,6 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 /**
  * Synchronously store image NSData into disk cache at the given key.
  *
- * @warning This method is synchronous, make sure not to call it from the ioQueue
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
