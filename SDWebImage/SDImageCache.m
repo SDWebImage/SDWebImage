@@ -59,7 +59,11 @@
                        diskCacheDirectory:(nonnull NSString *)directory
                                    config:(nullable SDImageCacheConfig *)config {
     if ((self = [super init])) {
-        NSString *fullNamespace = [@"com.hackemist.SDImageCache." stringByAppendingString:ns];
+        NSString *namespacePrefix = config.namespacePrefix;
+        if (!namespacePrefix) {
+            namespacePrefix = @"";
+        }
+        NSString *fullNamespace = [namespacePrefix stringByAppendingString:ns];
         
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", DISPATCH_QUEUE_SERIAL);
