@@ -10,3 +10,4 @@
 #import "SDWebImageError.h"
 
 NSErrorDomain const _Nonnull SDWebImageErrorDomain = @"SDWebImageErrorDomain";
+NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadStatusCodeKey = @"SDWebImageErrorDownloadStatusCodeKey";
