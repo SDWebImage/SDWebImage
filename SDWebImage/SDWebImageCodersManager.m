@@ -121,7 +121,9 @@
     UNLOCK(self.codersLock);
     for (id<SDWebImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canDecodeFromData:*data]) {
-            return [coder decompressedImageWithImage:image data:data options:optionsDict];
+            @synchronized(image) {
+                return [coder decompressedImageWithImage:image data:data options:optionsDict];
+            }
         }
     }
     return nil;
