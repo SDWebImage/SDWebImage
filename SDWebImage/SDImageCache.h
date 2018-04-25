@@ -169,7 +169,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
                     forKey:(nullable NSString *)key;
 
 /**
- * Synchronously store image NSData into disk cache at the given key.
+ * Synchronously store image data into disk cache at the given key.
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
