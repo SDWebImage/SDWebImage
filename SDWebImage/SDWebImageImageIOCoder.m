@@ -152,25 +152,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // Create the image
         CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
         
-#if SD_UIKIT || SD_WATCH
-        // Workaround for iOS anamorphic image
-        if (partialImageRef) {
-            const size_t partialHeight = CGImageGetHeight(partialImageRef);
-            CGColorSpaceRef colorSpace = SDCGColorSpaceGetDeviceRGB();
-            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, 0, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-            if (bmContext) {
-                CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
-                CGImageRelease(partialImageRef);
-                partialImageRef = CGBitmapContextCreateImage(bmContext);
-                CGContextRelease(bmContext);
-            }
-            else {
-                CGImageRelease(partialImageRef);
-                partialImageRef = nil;
-            }
-        }
-#endif
-        
         if (partialImageRef) {
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:1 orientation:_orientation];
