@@ -183,7 +183,16 @@
 - (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
-        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
+        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
+        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -227,7 +236,7 @@
         CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
         
         if (partialImageRef) {
-            CGFloat scale = 1;
+            CGFloat scale = _scale;
             if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
                 scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {

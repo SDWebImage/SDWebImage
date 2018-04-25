@@ -12,6 +12,7 @@
 #import "SDWebImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
+#import "UIImage+ForceDecode.h"
 #if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
 #import <webp/decode.h>
 #import <webp/encode.h>
@@ -211,6 +212,14 @@ dispatch_semaphore_signal(self->_lock);
     if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
         _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
     }
     return self;
 }
@@ -225,10 +234,7 @@ dispatch_semaphore_signal(self->_lock);
     if (status != VP8_STATUS_OK && status != VP8_STATUS_SUSPENDED) {
         return;
     }
-}
-
-- (BOOL)incrementalFinished {
-    return _finished;
+    // libwebp current does not support progressive decoding for animated image, so no need to scan and update the frame information
 }
 
 - (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
@@ -254,7 +260,7 @@ dispatch_semaphore_signal(self->_lock);
         // It will not keep memory barrier safe on x86 architechure (macOS & iPhone simulator) but on ARM architecture (iPhone & iPad & tv & watch) it works great
         // If different threads use WebPIDecGetRGB to grab rgba bitmap, it will contain the previous decoded bitmap data
         // So this will cause our drawed image looks strange(above is the current part but below is the previous part)
-        // We only grab the last_y height and draw the last_y heigh instead of total height image
+        // We only grab the last_y height and draw the last_y height instead of total height image
         // Besides fix, this can enhance performance since we do not need to create extra bitmap
         CGImageRef imageRef = CGImageCreate(width, last_y, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
         
@@ -278,7 +284,7 @@ dispatch_semaphore_signal(self->_lock);
             CGContextRelease(canvas);
             return nil;
         }
-        CGFloat scale = 1;
+        CGFloat scale = _scale;
         if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
             scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
@@ -291,6 +297,7 @@ dispatch_semaphore_signal(self->_lock);
 #else
         image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
+        image.sd_isDecoded = YES; // Already drawn on bitmap context above
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
     }

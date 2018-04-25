@@ -337,7 +337,7 @@ didReceiveResponse:(NSURLResponse *)response
 
     if ((self.options & SDWebImageDownloaderProgressiveDownload) && self.expectedSize > 0) {
         // Get the image data
-        __block NSData *imageData = [self.imageData copy];
+        NSData *imageData = [self.imageData copy];
         // Get the total bytes downloaded
         const NSUInteger totalSize = imageData.length;
         // Get the finish status
@@ -345,7 +345,7 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(data, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
