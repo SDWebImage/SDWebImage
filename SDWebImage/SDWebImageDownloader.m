@@ -469,23 +469,7 @@ didReceiveResponse:(NSURLResponse *)response
     if (!url) {
         return NO;
     }
-    Class operationClass = self.config.operationClass;
-    if (!operationClass || [operationClass isSubclassOfClass:[SDWebImageDownloaderOperation class]]) {
-        // Built-in download operation class, checking all supported NSURLProtocol
-        NSURLRequest *request = [NSURLRequest requestWithURL:url];
-        NSArray<Class> *protocolClasses = self.sessionConfiguration.protocolClasses;
-        for (Class protocolClass in protocolClasses) {
-            if ([protocolClass isSubclassOfClass:[NSURLProtocol class]]) {
-                BOOL canLoad = [protocolClass canInitWithRequest:request];
-                if (canLoad) {
-                    return YES;
-                }
-                continue;
-            }
-        }
-        return NO;
-    }
-    // Custom download operation class may not dependent on NSURLSession, always pass YES.
+    // Always pass YES to let URLSession or custom download operation to determine
     return YES;
 }
 
