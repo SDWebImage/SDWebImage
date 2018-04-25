@@ -150,25 +150,6 @@
         // Create the image
         CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
         
-#if SD_UIKIT || SD_WATCH
-        // Workaround for iOS anamorphic image
-        if (partialImageRef) {
-            const size_t partialHeight = CGImageGetHeight(partialImageRef);
-            CGColorSpaceRef colorSpace = [SDWebImageCoderHelper colorSpaceGetDeviceRGB];
-            CGContextRef bmContext = CGBitmapContextCreate(NULL, _width, _height, 8, 0, colorSpace, kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst);
-            if (bmContext) {
-                CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f, .origin.y = 0.0f, .size.width = _width, .size.height = partialHeight}, partialImageRef);
-                CGImageRelease(partialImageRef);
-                partialImageRef = CGBitmapContextCreateImage(bmContext);
-                CGContextRelease(bmContext);
-            }
-            else {
-                CGImageRelease(partialImageRef);
-                partialImageRef = nil;
-            }
-        }
-#endif
-        
         if (partialImageRef) {
             CGFloat scale = _scale;
             if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
