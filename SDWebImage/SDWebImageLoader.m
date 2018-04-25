@@ -77,23 +77,6 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
     NSCParameterAssert(imageURL);
     NSCParameterAssert(operation);
     
-    id<SDWebImageProgressiveCoder> progressiveCoder = objc_getAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey);
-    if (!progressiveCoder) {
-        // We need to create a new instance for progressive decoding to avoid conflicts
-        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
-            if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
-                [((id<SDWebImageProgressiveCoder>)coder) canIncrementalDecodeFromData:imageData]) {
-                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:nil];
-                break;
-            }
-        }
-        objc_setAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey, progressiveCoder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    // If we can't find any progressive coder, disable progressive download
-    if (!progressiveCoder) {
-        return nil;
-    }
-    
     UIImage *image;
     id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
     NSString *cacheKey;
@@ -107,6 +90,22 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     if (scale < 1) {
         scale = 1;
+    }
+    id<SDWebImageProgressiveCoder> progressiveCoder = objc_getAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey);
+    if (!progressiveCoder) {
+        // We need to create a new instance for progressive decoding to avoid conflicts
+        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders.reverseObjectEnumerator) {
+            if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
+                [((id<SDWebImageProgressiveCoder>)coder) canIncrementalDecodeFromData:imageData]) {
+                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
+                break;
+            }
+        }
+        objc_setAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey, progressiveCoder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    // If we can't find any progressive coder, disable progressive download
+    if (!progressiveCoder) {
+        return nil;
     }
     
     [progressiveCoder updateIncrementalData:imageData finished:finished];

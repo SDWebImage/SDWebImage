@@ -14,13 +14,9 @@
 
 @implementation SDWebImageImageIOCoder {
     size_t _width, _height;
-#if SD_UIKIT || SD_WATCH
-    UIImageOrientation _orientation;
-#else
     CGImagePropertyOrientation _orientation;
-#endif
     CGImageSourceRef _imageSource;
-    NSUInteger _frameCount;
+    CGFloat _scale;
     BOOL _finished;
 }
 
@@ -37,9 +33,7 @@
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
     if (_imageSource) {
-        for (size_t i = 0; i < _frameCount; i++) {
-            CGImageSourceRemoveCacheAtIndex(_imageSource, i);
-        }
+        CGImageSourceRemoveCacheAtIndex(_imageSource, 0);
     }
 }
 
@@ -66,19 +60,6 @@
     }
 }
 
-- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
-    switch ([NSData sd_imageFormatForImageData:data]) {
-        case SDImageFormatWebP:
-            // Do not support WebP progressive decoding
-            return NO;
-        case SDImageFormatHEIC:
-            // Check HEIC decoding compatibility
-            return [[self class] canDecodeFromHEICFormat];
-        default:
-            return YES;
-    }
-}
-
 - (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
     if (!data) {
         return nil;
@@ -96,10 +77,32 @@
 }
 
 #pragma mark - Progressive Decode
+
+- (BOOL)canIncrementalDecodeFromData:(NSData *)data {
+    switch ([NSData sd_imageFormatForImageData:data]) {
+        case SDImageFormatWebP:
+            // Do not support WebP progressive decoding
+            return NO;
+        case SDImageFormatHEIC:
+            // Check HEIC decoding compatibility
+            return [[self class] canDecodeFromHEICFormat];
+        default:
+            return YES;
+    }
+}
+
 - (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -118,7 +121,6 @@
     
     // Update the data source, we must pass ALL the data, not just the new bytes
     CGImageSourceUpdateData(_imageSource, (__bridge CFDataRef)data, finished);
-    _frameCount = CGImageSourceGetCount(_imageSource);
     
     if (_width + _height == 0) {
         CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(_imageSource, 0, NULL);
@@ -136,11 +138,7 @@
             // which means the image below born of initWithCGIImage will be
             // oriented incorrectly sometimes. (Unlike the image born of initWithData
             // in didCompleteWithError.) So save it here and pass it on later.
-#if SD_UIKIT || SD_WATCH
-            _orientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)orientationValue];
-#else
             _orientation = (CGImagePropertyOrientation)orientationValue;
-#endif
         }
     }
 }
@@ -172,7 +170,7 @@
 #endif
         
         if (partialImageRef) {
-            CGFloat scale = 1;
+            CGFloat scale = _scale;
             if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
                 scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {
@@ -180,7 +178,8 @@
                 }
             }
 #if SD_UIKIT || SD_WATCH
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
+            UIImageOrientation imageOrientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:_orientation];
+            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:imageOrientation];
 #else
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
 #endif

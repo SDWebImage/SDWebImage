@@ -211,6 +211,14 @@ dispatch_semaphore_signal(self->_lock);
     if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
         _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
     }
     return self;
 }
@@ -225,10 +233,7 @@ dispatch_semaphore_signal(self->_lock);
     if (status != VP8_STATUS_OK && status != VP8_STATUS_SUSPENDED) {
         return;
     }
-}
-
-- (BOOL)incrementalFinished {
-    return _finished;
+    // libwebp current does not support progressive decoding for animated image, so no need to scan and update the frame information
 }
 
 - (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
@@ -278,7 +283,7 @@ dispatch_semaphore_signal(self->_lock);
             CGContextRelease(canvas);
             return nil;
         }
-        CGFloat scale = 1;
+        CGFloat scale = _scale;
         if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
             scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {

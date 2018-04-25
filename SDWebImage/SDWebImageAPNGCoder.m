@@ -33,9 +33,6 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 
 @implementation SDWebImageAPNGCoder {
     size_t _width, _height;
-#if SD_UIKIT || SD_WATCH
-    UIImageOrientation _orientation;
-#endif
     CGImageSourceRef _imageSource;
     NSData *_imageData;
     CGFloat _scale;
@@ -246,7 +243,16 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 - (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
     self = [super init];
     if (self) {
-        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
+        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
+        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
+        CGFloat scale = 1;
+        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if (scale < 1) {
+                scale = 1;
+            }
+        }
+        _scale = scale;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -290,7 +296,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
         
         if (partialImageRef) {
-            CGFloat scale = 1;
+            CGFloat scale = _scale;
             if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
                 scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {

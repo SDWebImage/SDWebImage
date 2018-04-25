@@ -114,7 +114,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  Because incremental decoding need to keep the decoded context, we will alloc a new instance with the same class for each download operation to avoid conflicts
  This init method should not return nil
 
- @param options A dictionary containing any progressive decoding options (instance-level). Currentlly there is no options for this and always pass nil. Kept for extensibility.
+ @param options A dictionary containing any progressive decoding options (instance-level). Pass @{SDWebImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive animated image (each frames should use the same scale).
  @return A new instance to do incremental decoding for the specify image format
  */
 - (nonnull instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options;
@@ -129,7 +129,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 /**
  Incremental decode the current image data to image.
- @note Due to the performance issue for progressive decoding and the integration for image view. This method may only return the first frame image even if the image data is animated image. If you want progressive animated image decoding, also conform to `SDWebImageAnimatedCoder` and use `animatedImageFrameAtIndex` instead.
+ @note Due to the performance issue for progressive decoding and the integration for image view. This method may only return the first frame image even if the image data is animated image. If you want progressive animated image decoding, conform to `SDWebImageAnimatedCoder` protocol as well and use `animatedImageFrameAtIndex:` instead.
 
  @param options A dictionary containing any progressive decoding options. Pass @{SDWebImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive image
  @return The decoded image from current data
