@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-#import <SDWebImage/SDWebImageTransformer.h>
+#import <SDWebImage/SDImageTransformer.h>
 
-@interface SDWebImageTestTransformer : NSObject <SDWebImageTransformer>
+@interface SDWebImageTestTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, strong, nullable) UIImage *testImage;
 

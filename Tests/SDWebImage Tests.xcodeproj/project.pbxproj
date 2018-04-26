@@ -17,8 +17,8 @@
 		3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
-		3254C32020641077008D1022 /* SDWebImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */; };
-		3254C32120641077008D1022 /* SDWebImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */; };
+		3254C32020641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
+		3254C32120641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
 		3264FF2F205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		3264FF30205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		327054E2206CEFF3006EA328 /* TestImageAnimated.apng in Resources */ = {isa = PBXBuildFile; fileRef = 327054E1206CEFF3006EA328 /* TestImageAnimated.apng */; };
@@ -74,7 +74,7 @@
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
 		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
 		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
-		3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTransformerTests.m; sourceTree = "<group>"; };
+		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
 		3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestTransformer.m; sourceTree = "<group>"; };
 		327054E1206CEFF3006EA328 /* TestImageAnimated.apng */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.apng; sourceTree = "<group>"; };
@@ -211,7 +211,7 @@
 				1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */,
 				433BBBB41D7EF5C00086B6E9 /* SDWebImageDecoderTests.m */,
 				4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */,
-				3254C31F20641077008D1022 /* SDWebImageTransformerTests.m */,
+				3254C31F20641077008D1022 /* SDImageTransformerTests.m */,
 				4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */,
 				32B99E8A203AF8690017FD66 /* SDCategoriesTests.m */,
 				32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */,
@@ -478,7 +478,7 @@
 			files = (
 				323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */,
 				32B99EAC203B36650017FD66 /* SDWebImageDownloaderTests.m in Sources */,
-				3254C32120641077008D1022 /* SDWebImageTransformerTests.m in Sources */,
+				3254C32120641077008D1022 /* SDImageTransformerTests.m in Sources */,
 				328BB6DE20825E9800760D6C /* SDWebImageTestCache.m in Sources */,
 				32B99E9C203B2EE40017FD66 /* SDCategoriesTests.m in Sources */,
 				32B99EAA203B365F0017FD66 /* SDImageCacheTests.m in Sources */,
@@ -502,7 +502,7 @@
 				323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */,
 				32E6F0321F3A1B4700A945E6 /* SDWebImageTestDecoder.m in Sources */,
 				3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */,
-				3254C32020641077008D1022 /* SDWebImageTransformerTests.m in Sources */,
+				3254C32020641077008D1022 /* SDImageTransformerTests.m in Sources */,
 				32A571562037DB2D002EDAAE /* SDAnimatedImageTest.m in Sources */,
 				1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */,
 				37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */,

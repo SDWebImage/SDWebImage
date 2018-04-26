@@ -17,13 +17,13 @@
 
 @end
 
-@interface SDWebImageTransformerTests : SDTestCase
+@interface SDImageTransformerTests : SDTestCase
 
 @property (nonatomic, strong) UIImage *testImage;
 
 @end
 
-@implementation SDWebImageTransformerTests
+@implementation SDImageTransformerTests
 
 #pragma mark - UIImage+Transform
 
@@ -125,7 +125,7 @@
     expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]);
 }
 
-#pragma mark - SDWebImageTransformer
+#pragma mark - SDImageTransformer
 
 - (void)test09ImagePipelineTransformer {
     CGSize size = CGSizeMake(100, 100);
@@ -140,10 +140,10 @@
 #endif
     CGFloat borderWidth = 1;
     UIColor *borderCoder = [UIColor blackColor];
-    SDWebImageResizingTransformer *transformer1 = [SDWebImageResizingTransformer transformerWithSize:size scaleMode:scaleMode];
-    SDWebImageRotationTransformer *transformer2 = [SDWebImageRotationTransformer transformerWithAngle:angle fitSize:fitSize];
-    SDWebImageRoundCornerTransformer *transformer3 = [SDWebImageRoundCornerTransformer transformerWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
-    SDWebImagePipelineTransformer *pipelineTransformer = [SDWebImagePipelineTransformer transformerWithTransformers:@[transformer1, transformer2, transformer3]];
+    SDImageResizingTransformer *transformer1 = [SDImageResizingTransformer transformerWithSize:size scaleMode:scaleMode];
+    SDImageRotationTransformer *transformer2 = [SDImageRotationTransformer transformerWithAngle:angle fitSize:fitSize];
+    SDImageRoundCornerTransformer *transformer3 = [SDImageRoundCornerTransformer transformerWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
+    SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[transformer1, transformer2, transformer3]];
     
     UIImage *transformedImage = [pipelineTransformer transformedImageWithImage:self.testImage forKey:@"Test"];
     expect(CGSizeEqualToSize(transformedImage.size, size)).beTruthy();
