@@ -11,7 +11,7 @@
 #import "UIImage+WebCache.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 
 @interface SDGIFCoderFrame : NSObject
@@ -101,7 +101,7 @@
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
-        NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
+        NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
         
         for (size_t i = 0; i < count; i++) {
             CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, i, NULL);
@@ -113,13 +113,13 @@
             UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
         NSUInteger loopCount = [self sd_imageLoopCountWithSource:source];
         
-        animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+        animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
     }
     
@@ -271,7 +271,7 @@
     
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
-    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
+    NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. GIF does not support EXIF image orientation
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
@@ -298,7 +298,7 @@
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {
-            SDWebImageFrame *frame = frames[i];
+            SDImageFrame *frame = frames[i];
             float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
@@ -397,7 +397,7 @@
         return nil;
     }
     // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef newImageRef = [SDWebImageCoderHelper CGImageCreateDecoded:imageRef];
+    CGImageRef newImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
     if (!newImageRef) {
         newImageRef = imageRef;
     } else {

@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCoderHelper.h"
-#import "SDWebImageFrame.h"
+#import "SDImageCoderHelper.h"
+#import "SDImageFrame.h"
 #import "NSImage+Compatibility.h"
 #import "NSData+ImageContentType.h"
 #import "SDAnimatedImageRep.h"
@@ -41,9 +41,9 @@ static const CGFloat kTileTotalPixels = kSourceImageTileSizeMB * kPixelsPerMB;
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
 #endif
 
-@implementation SDWebImageCoderHelper
+@implementation SDImageCoderHelper
 
-+ (UIImage *)animatedImageWithFrames:(NSArray<SDWebImageFrame *> *)frames {
++ (UIImage *)animatedImageWithFrames:(NSArray<SDImageFrame *> *)frames {
     NSUInteger frameCount = frames.count;
     if (frameCount == 0) {
         return nil;
@@ -59,7 +59,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     NSUInteger const gcd = gcdArray(frameCount, durations);
     __block NSUInteger totalDuration = 0;
     NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:frameCount];
-    [frames enumerateObjectsUsingBlock:^(SDWebImageFrame * _Nonnull frame, NSUInteger idx, BOOL * _Nonnull stop) {
+    [frames enumerateObjectsUsingBlock:^(SDImageFrame * _Nonnull frame, NSUInteger idx, BOOL * _Nonnull stop) {
         UIImage *image = frame.image;
         NSUInteger duration = frame.duration * 1000;
         totalDuration += duration;
@@ -89,7 +89,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     for (size_t i = 0; i < frameCount; i++) {
         @autoreleasepool {
-            SDWebImageFrame *frame = frames[i];
+            SDImageFrame *frame = frames[i];
             float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
@@ -117,12 +117,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return animatedImage;
 }
 
-+ (NSArray<SDWebImageFrame *> *)framesFromAnimatedImage:(UIImage *)animatedImage {
++ (NSArray<SDImageFrame *> *)framesFromAnimatedImage:(UIImage *)animatedImage {
     if (!animatedImage) {
         return nil;
     }
     
-    NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
+    NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
     NSUInteger frameCount = 0;
     
 #if SD_UIKIT || SD_WATCH
@@ -148,7 +148,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if ([image isEqual:previousImage]) {
             repeatCount++;
         } else {
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
             [frames addObject:frame];
             repeatCount = 1;
             index++;
@@ -156,7 +156,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         previousImage = image;
         // last one
         if (idx == frameCount - 1) {
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
             [frames addObject:frame];
         }
     }];
@@ -184,7 +184,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
             float frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
             NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:frameImage duration:frameDuration];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
             [frames addObject:frame];
         }
     }

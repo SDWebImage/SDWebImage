@@ -6,19 +6,19 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageFrame.h"
+#import "SDImageFrame.h"
 
-@interface SDWebImageFrame ()
+@interface SDImageFrame ()
 
 @property (nonatomic, strong, readwrite, nonnull) UIImage *image;
 @property (nonatomic, readwrite, assign) NSTimeInterval duration;
 
 @end
 
-@implementation SDWebImageFrame
+@implementation SDImageFrame
 
 + (instancetype)frameWithImage:(UIImage *)image duration:(NSTimeInterval)duration {
-    SDWebImageFrame *frame = [[SDWebImageFrame alloc] init];
+    SDImageFrame *frame = [[SDImageFrame alloc] init];
     frame.image = image;
     frame.duration = duration;
     

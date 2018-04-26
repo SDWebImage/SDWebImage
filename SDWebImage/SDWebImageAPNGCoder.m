@@ -11,7 +11,7 @@
 #import "NSData+ImageContentType.h"
 #import "UIImage+WebCache.h"
 #import "NSImage+Compatibility.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 
 // iOS 8 Image/IO framework binary does not contains these APNG contants, so we define them. Thanks Apple :)
@@ -108,7 +108,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
-        NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
+        NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
         
         for (size_t i = 0; i < count; i++) {
             CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, i, NULL);
@@ -120,13 +120,13 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
             CGImageRelease(imageRef);
             
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
         NSUInteger loopCount = [self sd_imageLoopCountWithSource:source];
         
-        animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+        animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
     }
     
@@ -189,7 +189,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
-    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
+    NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. APNG does not support EXIF image orientation
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
@@ -216,7 +216,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {
-            SDWebImageFrame *frame = frames[i];
+            SDImageFrame *frame = frames[i];
             float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyAPNGDelayTime : @(frameDuration)}};
@@ -402,7 +402,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     // Image/IO create CGImage does not decompressed, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef newImageRef = [SDWebImageCoderHelper CGImageCreateDecoded:imageRef];
+    CGImageRef newImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
     if (!newImageRef) {
         newImageRef = imageRef;
     } else {

@@ -11,7 +11,7 @@
 #import "UIImage+WebCache.h"
 #import "SDWebImageCoder.h"
 #import "SDWebImageCodersManager.h"
-#import "SDWebImageFrame.h"
+#import "SDImageFrame.h"
 
 #define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
 __VA_ARGS__; \
@@ -199,7 +199,7 @@ static NSArray *SDBundlePreferredScales() {
 
 @property (nonatomic, strong) id<SDWebImageAnimatedCoder> coder;
 @property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
-@property (atomic, copy) NSArray<SDWebImageFrame *> *loadedAnimatedImageFrames; // Mark as atomic to keep thread-safe
+@property (atomic, copy) NSArray<SDImageFrame *> *loadedAnimatedImageFrames; // Mark as atomic to keep thread-safe
 @property (nonatomic, assign, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
 @end
@@ -328,11 +328,11 @@ static NSArray *SDBundlePreferredScales() {
 #pragma mark - Preload
 - (void)preloadAllFrames {
     if (!self.isAllFramesLoaded) {
-        NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray arrayWithCapacity:self.animatedImageFrameCount];
+        NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:self.animatedImageFrameCount];
         for (size_t i = 0; i < self.animatedImageFrameCount; i++) {
             UIImage *image = [self animatedImageFrameAtIndex:i];
             NSTimeInterval duration = [self animatedImageDurationAtIndex:i];
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration]; // through the image should be nonnull, used as nullable for `animatedImageFrameAtIndex:`
+            SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:duration]; // through the image should be nonnull, used as nullable for `animatedImageFrameAtIndex:`
             [frames addObject:frame];
         }
         self.loadedAnimatedImageFrames = frames;
@@ -406,7 +406,7 @@ static NSArray *SDBundlePreferredScales() {
         return nil;
     }
     if (self.isAllFramesLoaded) {
-        SDWebImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
+        SDImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
         return frame.image;
     }
     return [self.coder animatedImageFrameAtIndex:index];
@@ -417,7 +417,7 @@ static NSArray *SDBundlePreferredScales() {
         return 0;
     }
     if (self.isAllFramesLoaded) {
-        SDWebImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
+        SDImageFrame *frame = [self.loadedAnimatedImageFrames objectAtIndex:index];
         return frame.duration;
     }
     return [self.coder animatedImageDurationAtIndex:index];
