@@ -13,7 +13,7 @@
 #import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
 #import "SDWebImageTransformer.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 
 @interface SDImageCache ()
@@ -177,7 +177,7 @@
                 if (!data && image) {
                     // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
                     SDImageFormat format;
-                    if ([SDWebImageCoderHelper CGImageContainsAlpha:image.CGImage]) {
+                    if ([SDImageCoderHelper CGImageContainsAlpha:image.CGImage]) {
                         format = SDImageFormatPNG;
                     } else {
                         format = SDImageFormatJPEG;

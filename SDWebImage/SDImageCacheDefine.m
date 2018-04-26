@@ -8,7 +8,7 @@
 
 #import "SDImageCacheDefine.h"
 #import "SDWebImageCodersManager.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
 
@@ -47,9 +47,9 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         if (shouldDecode) {
             BOOL shouldScaleDown = options & SDWebImageScaleDownLargeImages;
             if (shouldScaleDown) {
-                image = [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
+                image = [SDImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
             } else {
-                image = [SDWebImageCoderHelper decodedImageWithImage:image];
+                image = [SDImageCoderHelper decodedImageWithImage:image];
             }
         }
     }

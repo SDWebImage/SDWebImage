@@ -9,7 +9,7 @@
 #import "SDWebImageLoader.h"
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCodersManager.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
 #import "objc/runtime.h"
@@ -62,9 +62,9 @@ UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData,
         if (shouldDecode) {
             BOOL shouldScaleDown = options & SDWebImageScaleDownLargeImages;
             if (shouldScaleDown) {
-                image = [SDWebImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
+                image = [SDImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
             } else {
-                image = [SDWebImageCoderHelper decodedImageWithImage:image];
+                image = [SDImageCoderHelper decodedImageWithImage:image];
             }
         }
     }
@@ -131,7 +131,7 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
             shouldDecode = NO;
         }
         if (shouldDecode) {
-            image = [SDWebImageCoderHelper decodedImageWithImage:image];
+            image = [SDImageCoderHelper decodedImageWithImage:image];
         }
         // mark the image as progressive (completionBlock one are not mark as progressive)
         image.sd_isIncremental = YES;

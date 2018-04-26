@@ -9,7 +9,7 @@
 #ifdef SD_WEBP
 
 #import "SDWebImageWebPCoder.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "UIImage+ForceDecode.h"
@@ -168,13 +168,13 @@ dispatch_semaphore_signal(self->_lock);
     BOOL hasAlpha = flags & ALPHA_FLAG;
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
     bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
-    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
+    CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, [SDImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
     if (!canvas) {
         WebPDemuxDelete(demuxer);
         return nil;
     }
     
-    NSMutableArray<SDWebImageFrame *> *frames = [NSMutableArray array];
+    NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
     
     do {
         @autoreleasepool {
@@ -190,7 +190,7 @@ dispatch_semaphore_signal(self->_lock);
             CGImageRelease(imageRef);
             
             NSTimeInterval duration = [self sd_frameDurationWithIterator:iter];
-            SDWebImageFrame *frame = [SDWebImageFrame frameWithImage:image duration:duration];
+            SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
         }
         
@@ -200,7 +200,7 @@ dispatch_semaphore_signal(self->_lock);
     WebPDemuxDelete(demuxer);
     CGContextRelease(canvas);
     
-    UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
+    UIImage *animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
     animatedImage.sd_imageLoopCount = loopCount;
     
     return animatedImage;
@@ -251,7 +251,7 @@ dispatch_semaphore_signal(self->_lock);
         size_t rgbaSize = last_y * stride;
         CGDataProviderRef provider =
         CGDataProviderCreateWithData(NULL, rgba, rgbaSize, NULL);
-        CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper colorSpaceGetDeviceRGB];
+        CGColorSpaceRef colorSpaceRef = [SDImageCoderHelper colorSpaceGetDeviceRGB];
         
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
         size_t components = 4;
@@ -270,7 +270,7 @@ dispatch_semaphore_signal(self->_lock);
             return nil;
         }
         
-        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
+        CGContextRef canvas = CGBitmapContextCreate(NULL, width, height, 8, 0, [SDImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
         if (!canvas) {
             CGImageRelease(imageRef);
             return nil;
@@ -393,7 +393,7 @@ dispatch_semaphore_signal(self->_lock);
     size_t bitsPerComponent = 8;
     size_t bitsPerPixel = 32;
     size_t bytesPerRow = config.output.u.RGBA.stride;
-    CGColorSpaceRef colorSpaceRef = [SDWebImageCoderHelper colorSpaceGetDeviceRGB];
+    CGColorSpaceRef colorSpaceRef = [SDImageCoderHelper colorSpaceGetDeviceRGB];
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
     
@@ -428,7 +428,7 @@ dispatch_semaphore_signal(self->_lock);
     if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
         compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
     }
-    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
+    NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
@@ -441,7 +441,7 @@ dispatch_semaphore_signal(self->_lock);
             return nil;
         }
         for (size_t i = 0; i < frames.count; i++) {
-            SDWebImageFrame *currentFrame = frames[i];
+            SDImageFrame *currentFrame = frames[i];
             NSData *webpData = [self sd_encodedWebpDataWithImage:currentFrame.image quality:compressionQuality];
             int duration = currentFrame.duration * 1000;
             WebPMuxFrameInfo frame = { .bitstream.bytes = webpData.bytes,
@@ -662,7 +662,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     if (!_canvas) {
         CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
         bitmapInfo |= _hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
-        CGContextRef canvas = CGBitmapContextCreate(NULL, _canvasWidth, _canvasHeight, 8, 0, [SDWebImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
+        CGContextRef canvas = CGBitmapContextCreate(NULL, _canvasWidth, _canvasHeight, 8, 0, [SDImageCoderHelper colorSpaceGetDeviceRGB], bitmapInfo);
         if (!canvas) {
             return nil;
         }

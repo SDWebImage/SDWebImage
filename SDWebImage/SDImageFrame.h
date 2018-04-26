@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
-@interface SDWebImageFrame : NSObject
+@interface SDImageFrame : NSObject
 
-// This class is used for creating animated images via `animatedImageWithFrames` in `SDWebImageCoderHelper`. Attention if you need to specify animated images loop count, use `sd_imageLoopCount` property in `UIImage+WebCache.h`.
+// This class is used for creating animated images via `animatedImageWithFrames` in `SDImageCoderHelper`. Attention if you need to specify animated images loop count, use `sd_imageLoopCount` property in `UIImage+WebCache.h`.
 
 /**
  The image of current frame. You should not set an animated image.

@@ -8,9 +8,9 @@
 
 #import <ImageIO/ImageIO.h>
 #import "SDWebImageCompat.h"
-#import "SDWebImageFrame.h"
+#import "SDImageFrame.h"
 
-@interface SDWebImageCoderHelper : NSObject
+@interface SDImageCoderHelper : NSObject
 
 /**
  Return an animated image with frames array.
@@ -20,7 +20,7 @@
  @param frames The frames array. If no frames or frames is empty, return nil
  @return A animated image for rendering on UIImageView(UIKit) or NSImageView(AppKit)
  */
-+ (UIImage * _Nullable)animatedImageWithFrames:(NSArray<SDWebImageFrame *> * _Nullable)frames;
++ (UIImage * _Nullable)animatedImageWithFrames:(NSArray<SDImageFrame *> * _Nullable)frames;
 
 /**
  Return frames array from an animated image.
@@ -30,7 +30,7 @@
  @param animatedImage A animated image. If it's not animated, return nil
  @return The frames array
  */
-+ (NSArray<SDWebImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
++ (NSArray<SDImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
 
 /**
  Return the shared device-dependent RGB color space. This follows The Get Rule.

@@ -59,7 +59,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 /**
  Decode the image data to image.
- @note This protocol may supports decode animated image frames. You can use `+[SDWebImageCoderHelper animatedImageWithFrames:]` to produce an animated image with frames.
+ @note This protocol may supports decode animated image frames. You can use `+[SDImageCoderHelper animatedImageWithFrames:]` to produce an animated image with frames.
 
  @param data The image data to be decoded
  @param options A dictionary containing any decoding options. Pass @{SDWebImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
@@ -80,7 +80,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 /**
  Encode the image to image data.
- @note This protocol may supports encode animated image frames. You can use `+[SDWebImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames.
+ @note This protocol may supports encode animated image frames. You can use `+[SDImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames.
 
  @param image The image to be encoded
  @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible

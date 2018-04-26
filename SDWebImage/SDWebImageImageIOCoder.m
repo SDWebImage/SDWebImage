@@ -7,7 +7,7 @@
  */
 
 #import "SDWebImageImageIOCoder.h"
-#import "SDWebImageCoderHelper.h"
+#import "SDImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
@@ -159,7 +159,7 @@
                 }
             }
 #if SD_UIKIT || SD_WATCH
-            UIImageOrientation imageOrientation = [SDWebImageCoderHelper imageOrientationFromEXIFOrientation:_orientation];
+            UIImageOrientation imageOrientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:_orientation];
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:imageOrientation];
 #else
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
@@ -191,7 +191,7 @@
     }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDWebImageCoderHelper CGImageContainsAlpha:image.CGImage];
+        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage];
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {
@@ -211,7 +211,7 @@
     
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
 #if SD_UIKIT || SD_WATCH
-    CGImagePropertyOrientation exifOrientation = [SDWebImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
+    CGImagePropertyOrientation exifOrientation = [SDImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
 #else
     CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
