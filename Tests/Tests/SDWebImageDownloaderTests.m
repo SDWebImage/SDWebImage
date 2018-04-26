@@ -9,7 +9,7 @@
 
 #import "SDTestCase.h"
 #import "SDWebImageTestDownloadOperation.h"
-#import "SDWebImageTestDecoder.h"
+#import "SDWebImageTestCoder.h"
 #import "SDWebImageTestLoader.h"
 
 /**
@@ -346,8 +346,8 @@
 - (void)test22ThatCustomDecoderWorksForImageDownload {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom decoder for SDWebImageDownloader not works"];
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
-    SDWebImageTestDecoder *testDecoder = [[SDWebImageTestDecoder alloc] init];
-    [[SDWebImageCodersManager sharedManager] addCoder:testDecoder];
+    SDWebImageTestCoder *testDecoder = [[SDWebImageTestCoder alloc] init];
+    [[SDImageCodersManager sharedManager] addCoder:testDecoder];
     NSURL * testImageURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"png"];
     
     // Decoded result is JPEG
@@ -360,7 +360,7 @@
         if (![data1 isEqualToData:data2]) {
             XCTFail(@"The image data is not equal to cutom decoder, check -[SDWebImageTestDecoder decodedImageWithData:]");
         }
-        [[SDWebImageCodersManager sharedManager] removeCoder:testDecoder];
+        [[SDImageCodersManager sharedManager] removeCoder:testDecoder];
         [expectation fulfill];
     }];
     

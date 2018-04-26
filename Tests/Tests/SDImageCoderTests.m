@@ -81,33 +81,33 @@
 
 - (void)test09ThatStaticWebPCoderWorks {
     NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
-    [self verifyCoder:[SDWebImageWebPCoder sharedCoder]
+    [self verifyCoder:[SDImageWebPCoder sharedCoder]
     withLocalImageURL:staticWebPURL
       isAnimatedImage:NO];
 }
 
 - (void)test10ThatAnimatedWebPCoderWorks {
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
-    [self verifyCoder:[SDWebImageWebPCoder sharedCoder]
+    [self verifyCoder:[SDImageWebPCoder sharedCoder]
     withLocalImageURL:animatedWebPURL
       isAnimatedImage:YES];
 }
 
 - (void)test11ThatAPNGPCoderWorks {
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
-    [self verifyCoder:[SDWebImageAPNGCoder sharedCoder]
+    [self verifyCoder:[SDImageAPNGCoder sharedCoder]
     withLocalImageURL:animatedWebPURL
       isAnimatedImage:YES];
 }
 
 - (void)test20ThatOurGIFCoderWorksNotFLAnimatedImage {
     NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
-    [self verifyCoder:[SDWebImageGIFCoder sharedCoder]
+    [self verifyCoder:[SDImageGIFCoder sharedCoder]
     withLocalImageURL:gifURL
       isAnimatedImage:YES];
 }
 
-- (void)verifyCoder:(id<SDWebImageCoder>)coder
+- (void)verifyCoder:(id<SDImageCoder>)coder
   withLocalImageURL:(NSURL *)imageUrl
     isAnimatedImage:(BOOL)isAnimated {
     NSData *inputImageData = [NSData dataWithContentsOfURL:imageUrl];

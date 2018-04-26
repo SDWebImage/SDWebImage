@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageTestDecoder.h"
+#import "SDWebImageTestCoder.h"
 
-@implementation SDWebImageTestDecoder
+@implementation SDWebImageTestCoder
 
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     return YES;
@@ -19,13 +19,13 @@
     return YES;
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
 }
 
-- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options
+- (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options
 {
     self = [super init];
     if (self) {
@@ -37,7 +37,7 @@
     return;
 }
 
-- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+- (UIImage *)incrementalDecodedImageWithOptions:(SDImageCoderOptions *)options {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     return image;
@@ -47,7 +47,7 @@
     return YES;
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     NSString *testString = @"TestEncode";
     NSData *data = [testString dataUsingEncoding:NSUTF8StringEncoding];
     return data;
