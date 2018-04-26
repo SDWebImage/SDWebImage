@@ -6,19 +6,19 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageTransformer.h"
+#import "SDImageTransformer.h"
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
 #endif
 
-// Separator for different transformerKey, for example, `image.png` |> flip(YES,NO) |> rotate(pi/4,YES) => 'image-SDWebImageFlippingTransformer(1,0)-SDWebImageRotationTransformer(0.78539816339,1).png'
-static NSString * const SDWebImageTransformerKeySeparator = @"-";
+// Separator for different transformerKey, for example, `image.png` |> flip(YES,NO) |> rotate(pi/4,YES) => 'image-SDImageFlippingTransformer(1,0)-SDImageRotationTransformer(0.78539816339,1).png'
+static NSString * const SDImageTransformerKeySeparator = @"-";
 
 NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString * _Nonnull transformerKey) {
     if (!key || !transformerKey) {
         return nil;
     }
-    return [[key stringByAppendingString:SDWebImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+    return [[key stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey];
 }
 
 @interface UIColor (HexString)
@@ -63,34 +63,34 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImagePipelineTransformer ()
+@interface SDImagePipelineTransformer ()
 
-@property (nonatomic, copy, readwrite, nonnull) NSArray<id<SDWebImageTransformer>> *transformers;
+@property (nonatomic, copy, readwrite, nonnull) NSArray<id<SDImageTransformer>> *transformers;
 @property (nonatomic, copy, readwrite) NSString *transformerKey;
 
 @end
 
-@implementation SDWebImagePipelineTransformer
+@implementation SDImagePipelineTransformer
 
-+ (instancetype)transformerWithTransformers:(NSArray<id<SDWebImageTransformer>> *)transformers {
-    SDWebImagePipelineTransformer *transformer = [SDWebImagePipelineTransformer new];
++ (instancetype)transformerWithTransformers:(NSArray<id<SDImageTransformer>> *)transformers {
+    SDImagePipelineTransformer *transformer = [SDImagePipelineTransformer new];
     transformer.transformers = transformers;
     transformer.transformerKey = [[self class] cacheKeyForTransformers:transformers];
     
     return transformer;
 }
 
-+ (NSString *)cacheKeyForTransformers:(NSArray<id<SDWebImageTransformer>> *)transformers {
++ (NSString *)cacheKeyForTransformers:(NSArray<id<SDImageTransformer>> *)transformers {
     if (transformers.count == 0) {
         return @"";
     }
     NSMutableArray<NSString *> *cacheKeys = [NSMutableArray arrayWithCapacity:transformers.count];
-    [transformers enumerateObjectsUsingBlock:^(id<SDWebImageTransformer>  _Nonnull transformer, NSUInteger idx, BOOL * _Nonnull stop) {
+    [transformers enumerateObjectsUsingBlock:^(id<SDImageTransformer>  _Nonnull transformer, NSUInteger idx, BOOL * _Nonnull stop) {
         NSString *cacheKey = transformer.transformerKey;
         [cacheKeys addObject:cacheKey];
     }];
     
-    return [cacheKeys componentsJoinedByString:SDWebImageTransformerKeySeparator];
+    return [cacheKeys componentsJoinedByString:SDImageTransformerKeySeparator];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -98,7 +98,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
         return nil;
     }
     UIImage *transformedImage = image;
-    for (id<SDWebImageTransformer> transformer in self.transformers) {
+    for (id<SDImageTransformer> transformer in self.transformers) {
         transformedImage = [transformer transformedImageWithImage:transformedImage forKey:key];
     }
     return transformedImage;
@@ -106,7 +106,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImageRoundCornerTransformer ()
+@interface SDImageRoundCornerTransformer ()
 
 @property (nonatomic, assign) CGFloat cornerRadius;
 @property (nonatomic, assign) SDRectCorner corners;
@@ -115,10 +115,10 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@implementation SDWebImageRoundCornerTransformer
+@implementation SDImageRoundCornerTransformer
 
 + (instancetype)transformerWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(UIColor *)borderColor {
-    SDWebImageRoundCornerTransformer *transformer = [SDWebImageRoundCornerTransformer new];
+    SDImageRoundCornerTransformer *transformer = [SDImageRoundCornerTransformer new];
     transformer.cornerRadius = cornerRadius;
     transformer.corners = corners;
     transformer.borderWidth = borderWidth;
@@ -128,7 +128,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageRoundCornerTransformer(%f,%lu,%f,%@)", self.cornerRadius, (unsigned long)self.corners, self.borderWidth, self.borderColor.sd_hexString];
+    return [NSString stringWithFormat:@"SDImageRoundCornerTransformer(%f,%lu,%f,%@)", self.cornerRadius, (unsigned long)self.corners, self.borderWidth, self.borderColor.sd_hexString];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -140,17 +140,17 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImageResizingTransformer ()
+@interface SDImageResizingTransformer ()
 
 @property (nonatomic, assign) CGSize size;
 @property (nonatomic, assign) SDImageScaleMode scaleMode;
 
 @end
 
-@implementation SDWebImageResizingTransformer
+@implementation SDImageResizingTransformer
 
 + (instancetype)transformerWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode {
-    SDWebImageResizingTransformer *transformer = [SDWebImageResizingTransformer new];
+    SDImageResizingTransformer *transformer = [SDImageResizingTransformer new];
     transformer.size = size;
     transformer.scaleMode = scaleMode;
     
@@ -159,7 +159,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 - (NSString *)transformerKey {
     CGSize size = self.size;
-    return [NSString stringWithFormat:@"SDWebImageResizingTransformer({%f,%f},%lu)", size.width, size.height, (unsigned long)self.scaleMode];
+    return [NSString stringWithFormat:@"SDImageResizingTransformer({%f,%f},%lu)", size.width, size.height, (unsigned long)self.scaleMode];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -171,16 +171,16 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImageCroppingTransformer ()
+@interface SDImageCroppingTransformer ()
 
 @property (nonatomic, assign) CGRect rect;
 
 @end
 
-@implementation SDWebImageCroppingTransformer
+@implementation SDImageCroppingTransformer
 
 + (instancetype)transformerWithRect:(CGRect)rect {
-    SDWebImageCroppingTransformer *transformer = [SDWebImageCroppingTransformer new];
+    SDImageCroppingTransformer *transformer = [SDImageCroppingTransformer new];
     transformer.rect = rect;
     
     return transformer;
@@ -188,7 +188,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 - (NSString *)transformerKey {
     CGRect rect = self.rect;
-    return [NSString stringWithFormat:@"SDWebImageCroppingTransformer({%f,%f,%f,%f})", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height];
+    return [NSString stringWithFormat:@"SDImageCroppingTransformer({%f,%f,%f,%f})", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -200,17 +200,17 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImageFlippingTransformer ()
+@interface SDImageFlippingTransformer ()
 
 @property (nonatomic, assign) BOOL horizontal;
 @property (nonatomic, assign) BOOL vertical;
 
 @end
 
-@implementation SDWebImageFlippingTransformer
+@implementation SDImageFlippingTransformer
 
 + (instancetype)transformerWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
-    SDWebImageFlippingTransformer *transformer = [SDWebImageFlippingTransformer new];
+    SDImageFlippingTransformer *transformer = [SDImageFlippingTransformer new];
     transformer.horizontal = horizontal;
     transformer.vertical = vertical;
     
@@ -218,7 +218,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageFlippingTransformer(%d,%d)", self.horizontal, self.vertical];
+    return [NSString stringWithFormat:@"SDImageFlippingTransformer(%d,%d)", self.horizontal, self.vertical];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -230,17 +230,17 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 @end
 
-@interface SDWebImageRotationTransformer ()
+@interface SDImageRotationTransformer ()
 
 @property (nonatomic, assign) CGFloat angle;
 @property (nonatomic, assign) BOOL fitSize;
 
 @end
 
-@implementation SDWebImageRotationTransformer
+@implementation SDImageRotationTransformer
 
 + (instancetype)transformerWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
-    SDWebImageRotationTransformer *transformer = [SDWebImageRotationTransformer new];
+    SDImageRotationTransformer *transformer = [SDImageRotationTransformer new];
     transformer.angle = angle;
     transformer.fitSize = fitSize;
     
@@ -248,7 +248,7 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageRotationTransformer(%f,%d)", self.angle, self.fitSize];
+    return [NSString stringWithFormat:@"SDImageRotationTransformer(%f,%d)", self.angle, self.fitSize];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -262,23 +262,23 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 #pragma mark - Image Blending
 
-@interface SDWebImageTintTransformer ()
+@interface SDImageTintTransformer ()
 
 @property (nonatomic, strong, nonnull) UIColor *tintColor;
 
 @end
 
-@implementation SDWebImageTintTransformer
+@implementation SDImageTintTransformer
 
 + (instancetype)transformerWithColor:(UIColor *)tintColor {
-    SDWebImageTintTransformer *transformer = [SDWebImageTintTransformer new];
+    SDImageTintTransformer *transformer = [SDImageTintTransformer new];
     transformer.tintColor = tintColor;
     
     return transformer;
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageTintTransformer(%@)", self.tintColor.sd_hexString];
+    return [NSString stringWithFormat:@"SDImageTintTransformer(%@)", self.tintColor.sd_hexString];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -292,23 +292,23 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 
 #pragma mark - Image Effect
 
-@interface SDWebImageBlurTransformer ()
+@interface SDImageBlurTransformer ()
 
 @property (nonatomic, assign) CGFloat blurRadius;
 
 @end
 
-@implementation SDWebImageBlurTransformer
+@implementation SDImageBlurTransformer
 
 + (instancetype)transformerWithRadius:(CGFloat)blurRadius {
-    SDWebImageBlurTransformer *transformer = [SDWebImageBlurTransformer new];
+    SDImageBlurTransformer *transformer = [SDImageBlurTransformer new];
     transformer.blurRadius = blurRadius;
     
     return transformer;
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageBlurTransformer(%f)", self.blurRadius];
+    return [NSString stringWithFormat:@"SDImageBlurTransformer(%f)", self.blurRadius];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -321,23 +321,23 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
 @end
 
 #if SD_UIKIT || SD_MAC
-@interface SDWebImageFilterTransformer ()
+@interface SDImageFilterTransformer ()
 
 @property (nonatomic, strong, nonnull) CIFilter *filter;
 
 @end
 
-@implementation SDWebImageFilterTransformer
+@implementation SDImageFilterTransformer
 
 + (instancetype)transformerWithFilter:(CIFilter *)filter {
-    SDWebImageFilterTransformer *transformer = [SDWebImageFilterTransformer new];
+    SDImageFilterTransformer *transformer = [SDImageFilterTransformer new];
     transformer.filter = filter;
     
     return transformer;
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDWebImageFilterTransformer(%@)", self.filter.name];
+    return [NSString stringWithFormat:@"SDImageFilterTransformer(%@)", self.filter.name];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {

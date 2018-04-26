@@ -12,7 +12,7 @@
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
-#import "SDWebImageTransformer.h"
+#import "SDImageTransformer.h"
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 
@@ -371,9 +371,9 @@
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
                 NSString *cacheKey = key;
-                if ([context valueForKey:SDWebImageContextCustomTransformer]) {
+                if ([context valueForKey:SDWebImageContextImageTransformer]) {
                     // grab the transformed disk image if transformer provided
-                    id<SDWebImageTransformer> transformer = [context valueForKey:SDWebImageContextCustomTransformer];
+                    id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
                     NSString *transformerKey = [transformer transformerKey];
                     cacheKey = SDTransformedKeyForKey(key, transformerKey);
                 }
