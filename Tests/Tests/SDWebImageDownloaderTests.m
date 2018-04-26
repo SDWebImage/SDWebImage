@@ -118,8 +118,10 @@
 
 - (void)test08ThatAHTTPAuthDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"HTTP Auth download"];
-    SDWebImageDownloader.sharedDownloader.config.username = @"httpwatch";
-    SDWebImageDownloader.sharedDownloader.config.password = @"httpwatch01";
+    SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
+    config.username = @"httpwatch";
+    config.password = @"httpwatch01";
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
     NSURL *imageURL = [NSURL URLWithString:@"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633"];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
@@ -128,9 +130,9 @@
             XCTFail(@"Something went wrong");
         }
     }];
-    [self waitForExpectationsWithCommonTimeout];
-    SDWebImageDownloader.sharedDownloader.config.username = nil;
-    SDWebImageDownloader.sharedDownloader.config.password = nil;
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
+    }];
 }
 
 - (void)test09ThatProgressiveJPEGWorks {
