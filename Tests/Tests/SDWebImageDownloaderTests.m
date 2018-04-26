@@ -123,7 +123,7 @@
     config.password = @"httpwatch01";
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
     NSURL *imageURL = [NSURL URLWithString:@"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
