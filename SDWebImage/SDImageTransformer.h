@@ -20,11 +20,11 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 /**
  A transformer protocol to transform the image load from cache or from download.
- You can provide transformer to cache and manager (Through the `transformer` property or context option `SDWebImageContextCustomTransformer`).
+ You can provide transformer to cache and manager (Through the `transformer` property or context option `SDWebImageContextImageTransformer`).
  
  @note The transform process is called from a global queue in order to not to block the main queue.
  */
-@protocol SDWebImageTransformer <NSObject>
+@protocol SDImageTransformer <NSObject>
 
 @required
 /**
@@ -49,12 +49,12 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 // Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
 // Because transformers are lightweight, if you want to append or arrange transfomers, create another pipeline transformer instead. This class is considered as immutable.
-@interface SDWebImagePipelineTransformer : NSObject <SDWebImageTransformer>
+@interface SDImagePipelineTransformer : NSObject <SDImageTransformer>
 
-@property (nonatomic, copy, readonly, nonnull) NSArray<id<SDWebImageTransformer>> *transformers;
+@property (nonatomic, copy, readonly, nonnull) NSArray<id<SDImageTransformer>> *transformers;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
-+ (nonnull instancetype)transformerWithTransformers:(nonnull NSArray<id<SDWebImageTransformer>> *)transformers;
++ (nonnull instancetype)transformerWithTransformers:(nonnull NSArray<id<SDImageTransformer>> *)transformers;
 
 @end
 
@@ -63,7 +63,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 #pragma mark - Image Geometry
 
 // Image round corner transformer
-@interface SDWebImageRoundCornerTransformer: NSObject <SDWebImageTransformer>
+@interface SDImageRoundCornerTransformer: NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) CGFloat cornerRadius;
 @property (nonatomic, assign, readonly) SDRectCorner corners;
@@ -76,7 +76,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @end
 
 // Image resizing transformer
-@interface SDWebImageResizingTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageResizingTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) CGSize size;
 @property (nonatomic, assign, readonly) SDImageScaleMode scaleMode;
@@ -87,7 +87,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @end
 
 // Image cropping transformer
-@interface SDWebImageCroppingTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageCroppingTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) CGRect rect;
 
@@ -97,7 +97,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @end
 
 // Image flipping transformer
-@interface SDWebImageFlippingTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageFlippingTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) BOOL horizontal;
 @property (nonatomic, assign, readonly) BOOL vertical;
@@ -108,7 +108,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @end
 
 // Image rotation transformer
-@interface SDWebImageRotationTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageRotationTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) CGFloat angle;
 @property (nonatomic, assign, readonly) BOOL fitSize;
@@ -121,7 +121,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 #pragma mark - Image Blending
 
 // Image tint color transformer
-@interface SDWebImageTintTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageTintTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, strong, readonly, nonnull) UIColor *tintColor;
 
@@ -133,7 +133,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 #pragma mark - Image Effect
 
 // Image blur effect transformer
-@interface SDWebImageBlurTransformer : NSObject <SDWebImageTransformer>
+@interface SDImageBlurTransformer : NSObject <SDImageTransformer>
 
 @property (nonatomic, assign, readonly) CGFloat blurRadius;
 
@@ -144,7 +144,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 #if SD_UIKIT || SD_MAC
 // Core Image filter transformer
-@interface SDWebImageFilterTransformer: NSObject <SDWebImageTransformer>
+@interface SDImageFilterTransformer: NSObject <SDImageTransformer>
 
 @property (nonatomic, strong, readonly, nonnull) CIFilter *filter;
 

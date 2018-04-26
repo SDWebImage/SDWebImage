@@ -280,7 +280,7 @@ static id<SDWebImageLoader> _defaultImageLoader;
                 }
                 id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
                 NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
-                id<SDWebImageTransformer> transformer = [context valueForKey:SDWebImageContextCustomTransformer];
+                id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
                 id<SDWebImageCacheSerializer> cacheSerializer = [context valueForKey:SDWebImageContextCacheKeyFilter];
                 if (downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -366,9 +366,9 @@ static id<SDWebImageLoader> _defaultImageLoader;
     SDWebImageMutableContext *mutableContext = [SDWebImageMutableContext dictionary];
     
     // Image Transformer from manager
-    if (![context valueForKey:SDWebImageContextCustomTransformer]) {
-        id<SDWebImageTransformer> transformer = self.transformer;
-        [mutableContext setValue:transformer forKey:SDWebImageContextCustomTransformer];
+    if (![context valueForKey:SDWebImageContextImageTransformer]) {
+        id<SDImageTransformer> transformer = self.transformer;
+        [mutableContext setValue:transformer forKey:SDWebImageContextImageTransformer];
     }
     // Cache key filter from manager
     if (![context valueForKey:SDWebImageContextCacheKeyFilter]) {
