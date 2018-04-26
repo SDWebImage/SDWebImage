@@ -22,7 +22,7 @@ typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeFirstFrameOnly;
 /**
  A CGFloat value which is greater than or equal to 1.0. This value specify the image scale factor for decoding. If not provide, use 1.0. (NSNumber)
- @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDWebImageAnimatedCoder`.
+ @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleFactor;
 
@@ -129,7 +129,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressio
 
 /**
  Incremental decode the current image data to image.
- @note Due to the performance issue for progressive decoding and the integration for image view. This method may only return the first frame image even if the image data is animated image. If you want progressive animated image decoding, conform to `SDWebImageAnimatedCoder` protocol as well and use `animatedImageFrameAtIndex:` instead.
+ @note Due to the performance issue for progressive decoding and the integration for image view. This method may only return the first frame image even if the image data is animated image. If you want progressive animated image decoding, conform to `SDAnimatedImageCoder` protocol as well and use `animatedImageFrameAtIndex:` instead.
 
  @param options A dictionary containing any progressive decoding options. Pass @{SDImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive image
  @return The decoded image from current data
@@ -140,7 +140,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressio
 
 #pragma mark - Animated Image Provider
 /**
- This is the animated image protocol to provide the basic function for animated image rendering. It's adopted by `SDAnimatedImage` and `SDWebImageAnimatedCoder`
+ This is the animated image protocol to provide the basic function for animated image rendering. It's adopted by `SDAnimatedImage` and `SDAnimatedImageCoder`
  */
 @protocol SDAnimatedImageProvider <NSObject>
 

@@ -9,7 +9,7 @@
 #ifdef SD_WEBP
 
 #import "UIImage+WebP.h"
-#import "SDWebImageWebPCoder.h"
+#import "SDImageWebPCoder.h"
 
 @implementation UIImage (WebP)
 
@@ -22,7 +22,7 @@
         return nil;
     }
     SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
-    return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data options:options];
+    return [[SDImageWebPCoder sharedCoder] decodedImageWithData:data options:options];
 }
 
 @end

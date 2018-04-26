@@ -6,39 +6,32 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageAPNGCoder.h"
+#import "SDImageGIFCoder.h"
+#import "NSImage+Compatibility.h"
+#import "UIImage+WebCache.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
-#import "UIImage+WebCache.h"
-#import "NSImage+Compatibility.h"
 #import "SDWebImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 
-// iOS 8 Image/IO framework binary does not contains these APNG contants, so we define them. Thanks Apple :)
-#if (__IPHONE_OS_VERSION_MIN_REQUIRED && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
-const CFStringRef kCGImagePropertyAPNGLoopCount = (__bridge CFStringRef)@"LoopCount";
-const CFStringRef kCGImagePropertyAPNGDelayTime = (__bridge CFStringRef)@"DelayTime";
-const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef)@"UnclampedDelayTime";
-#endif
-
-@interface SDAPNGCoderFrame : NSObject
+@interface SDGIFCoderFrame : NSObject
 
 @property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
 @property (nonatomic, assign) NSTimeInterval duration; // Frame duration in seconds
 
 @end
 
-@implementation SDAPNGCoderFrame
+@implementation SDGIFCoderFrame
 @end
 
-@implementation SDWebImageAPNGCoder {
+@implementation SDImageGIFCoder {
     size_t _width, _height;
     CGImageSourceRef _imageSource;
     NSData *_imageData;
     CGFloat _scale;
     NSUInteger _loopCount;
     NSUInteger _frameCount;
-    NSArray<SDAPNGCoderFrame *> *_frames;
+    NSArray<SDGIFCoderFrame *> *_frames;
     BOOL _finished;
 }
 
@@ -63,17 +56,17 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 }
 
 + (instancetype)sharedCoder {
-    static SDWebImageAPNGCoder *coder;
+    static SDImageGIFCoder *coder;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        coder = [[SDWebImageAPNGCoder alloc] init];
+        coder = [[SDImageGIFCoder alloc] init];
     });
     return coder;
 }
 
 #pragma mark - Decode
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
-    return ([NSData sd_imageFormatForImageData:data] == SDImageFormatPNG);
+    return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
 - (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
@@ -137,13 +130,13 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 }
 
 - (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source {
-    NSUInteger loopCount = 0;
+    NSUInteger loopCount = 1;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
-    NSDictionary *pngProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary];
-    if (pngProperties) {
-        NSNumber *apngLoopCount = [pngProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount];
-        if (apngLoopCount != nil) {
-            loopCount = apngLoopCount.unsignedIntegerValue;
+    NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
+    if (gifProperties) {
+        NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount];
+        if (gifLoopCount != nil) {
+            loopCount = gifLoopCount.unsignedIntegerValue;
         }
     }
     return loopCount;
@@ -152,18 +145,26 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 - (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
     float frameDuration = 0.1f;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
+    if (!cfFrameProperties) {
+        return frameDuration;
+    }
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
-    NSDictionary *pngProperties = frameProperties[(NSString *)kCGImagePropertyPNGDictionary];
+    NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary];
     
-    NSNumber *delayTimeUnclampedProp = pngProperties[(__bridge_transfer NSString *)kCGImagePropertyAPNGUnclampedDelayTime];
+    NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
     if (delayTimeUnclampedProp != nil) {
         frameDuration = [delayTimeUnclampedProp floatValue];
     } else {
-        NSNumber *delayTimeProp = pngProperties[(__bridge_transfer NSString *)kCGImagePropertyAPNGDelayTime];
+        NSNumber *delayTimeProp = gifProperties[(NSString *)kCGImagePropertyGIFDelayTime];
         if (delayTimeProp != nil) {
             frameDuration = [delayTimeProp floatValue];
         }
     }
+    
+    // Many annoying ads specify a 0 duration to make an image flash as quickly as possible.
+    // We follow Firefox's behavior and use a duration of 100 ms for any frames that specify
+    // a duration of <= 10 ms. See <rdar://problem/7689300> and <http://webkit.org/b/36082>
+    // for more information.
     
     if (frameDuration < 0.011f) {
         frameDuration = 0.100f;
@@ -173,77 +174,16 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return frameDuration;
 }
 
-#pragma mark - Encode
-- (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    return (format == SDImageFormatPNG);
-}
-
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
-    if (!image) {
-        return nil;
-    }
-    
-    if (format != SDImageFormatPNG) {
-        return nil;
-    }
-    
-    NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
-    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
-    
-    // Create an image destination. APNG does not support EXIF image orientation
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
-    if (!imageDestination) {
-        // Handle failure.
-        return nil;
-    }
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
-    }
-    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
-    
-    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
-    if (encodeFirstFrame || frames.count == 0) {
-        // for static single PNG images
-        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
-    } else {
-        // for animated APNG images
-        NSUInteger loopCount = image.sd_imageLoopCount;
-        NSDictionary *pngProperties = @{(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)};
-        [properties setValue:pngProperties forKey:(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary];
-        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
-        
-        for (size_t i = 0; i < frames.count; i++) {
-            SDWebImageFrame *frame = frames[i];
-            float frameDuration = frame.duration;
-            CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyAPNGDelayTime : @(frameDuration)}};
-            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
-        }
-    }
-    // Finalize the destination.
-    if (CGImageDestinationFinalize(imageDestination) == NO) {
-        // Handle failure.
-        imageData = nil;
-    }
-    
-    CFRelease(imageDestination);
-    
-    return [imageData copy];
-}
-
 #pragma mark - Progressive Decode
 
 - (BOOL)canIncrementalDecodeFromData:(NSData *)data {
-    return ([NSData sd_imageFormatForImageData:data] == SDImageFormatPNG);
+    return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
 - (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
-        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
+        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
         CGFloat scale = 1;
         if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
@@ -315,7 +255,68 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return image;
 }
 
-#pragma mark - SDWebImageAnimatedCoder
+#pragma mark - Encode
+- (BOOL)canEncodeToFormat:(SDImageFormat)format {
+    return (format == SDImageFormatGIF);
+}
+
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
+    if (!image) {
+        return nil;
+    }
+    
+    if (format != SDImageFormatGIF) {
+        return nil;
+    }
+    
+    NSMutableData *imageData = [NSMutableData data];
+    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
+    NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
+    
+    // Create an image destination. GIF does not support EXIF image orientation
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
+    if (!imageDestination) {
+        // Handle failure.
+        return nil;
+    }
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    double compressionQuality = 1;
+    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    }
+    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
+    
+    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
+    if (encodeFirstFrame || frames.count == 0) {
+        // for static single GIF images
+        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
+    } else {
+        // for animated GIF images
+        NSUInteger loopCount = image.sd_imageLoopCount;
+        NSDictionary *gifProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)};
+        [properties setValue:gifProperties forKey:(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary];
+        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
+        
+        for (size_t i = 0; i < frames.count; i++) {
+            SDWebImageFrame *frame = frames[i];
+            float frameDuration = frame.duration;
+            CGImageRef frameImageRef = frame.image.CGImage;
+            NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyGIFDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
+            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
+        }
+    }
+    // Finalize the destination.
+    if (CGImageDestinationFinalize(imageDestination) == NO) {
+        // Handle failure.
+        imageData = nil;
+    }
+    
+    CFRelease(imageDestination);
+    
+    return [imageData copy];
+}
+
+#pragma mark - SDAnimatedImageCoder
 - (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
@@ -349,17 +350,16 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return self;
 }
 
-- (BOOL)scanAndCheckFramesValidWithImageSource:(CGImageSourceRef)imageSource
-{
+- (BOOL)scanAndCheckFramesValidWithImageSource:(CGImageSourceRef)imageSource {
     if (!imageSource) {
         return NO;
     }
     NSUInteger frameCount = CGImageSourceGetCount(imageSource);
     NSUInteger loopCount = [self sd_imageLoopCountWithSource:imageSource];
-    NSMutableArray<SDAPNGCoderFrame *> *frames = [NSMutableArray array];
+    NSMutableArray<SDGIFCoderFrame *> *frames = [NSMutableArray array];
     
     for (size_t i = 0; i < frameCount; i++) {
-        SDAPNGCoderFrame *frame = [[SDAPNGCoderFrame alloc] init];
+        SDGIFCoderFrame *frame = [[SDGIFCoderFrame alloc] init];
         frame.index = i;
         frame.duration = [self sd_frameDurationAtIndex:i source:imageSource];
         [frames addObject:frame];
@@ -372,36 +372,31 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return YES;
 }
 
-- (NSData *)animatedImageData
-{
+- (NSData *)animatedImageData {
     return _imageData;
 }
 
-- (NSUInteger)animatedImageLoopCount
-{
+- (NSUInteger)animatedImageLoopCount {
     return _loopCount;
 }
 
-- (NSUInteger)animatedImageFrameCount
-{
+- (NSUInteger)animatedImageFrameCount {
     return _frameCount;
 }
 
-- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index
-{
+- (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
     if (index >= _frameCount) {
         return 0;
     }
     return _frames[index].duration;
 }
 
-- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index
-{
+- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
     CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
     if (!imageRef) {
         return nil;
     }
-    // Image/IO create CGImage does not decompressed, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
+    // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
     CGImageRef newImageRef = [SDWebImageCoderHelper CGImageCreateDecoded:imageRef];
     if (!newImageRef) {
         newImageRef = imageRef;
@@ -411,7 +406,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 #if SD_MAC
     UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
 #else
-    UIImage *image = [UIImage imageWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
+    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
 #endif
     CGImageRelease(newImageRef);
     return image;

@@ -6,14 +6,18 @@
  * file that was distributed with this source code.
  */
 
+#ifdef SD_WEBP
+
 #import <Foundation/Foundation.h>
 #import "SDImageCoder.h"
 
 /**
- Built in coder using ImageIO that supports APNG encoding/decoding
+ Built in coder that supports WebP and animated WebP
  */
-@interface SDWebImageAPNGCoder : NSObject <SDProgressiveImageCoder, SDAnimatedImageCoder>
+@interface SDImageWebPCoder : NSObject <SDProgressiveImageCoder, SDAnimatedImageCoder>
 
-@property (nonatomic, class, readonly, nonnull) SDWebImageAPNGCoder *sharedCoder;
+@property (nonatomic, class, readonly, nonnull) SDImageWebPCoder *sharedCoder;
 
 @end
+
+#endif

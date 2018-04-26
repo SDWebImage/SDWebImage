@@ -8,7 +8,7 @@
 
 #ifdef SD_WEBP
 
-#import "SDWebImageWebPCoder.h"
+#import "SDImageWebPCoder.h"
 #import "SDWebImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
@@ -48,7 +48,7 @@ dispatch_semaphore_signal(self->_lock);
 @implementation SDWebPCoderFrame
 @end
 
-@implementation SDWebImageWebPCoder {
+@implementation SDImageWebPCoder {
     WebPIDecoder *_idec;
     WebPDemuxer *_demux;
     NSData *_imageData;
@@ -82,10 +82,10 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 + (instancetype)sharedCoder {
-    static SDWebImageWebPCoder *coder;
+    static SDImageWebPCoder *coder;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        coder = [[SDWebImageWebPCoder alloc] init];
+        coder = [[SDImageWebPCoder alloc] init];
     });
     return coder;
 }
@@ -525,7 +525,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     free((void *)data);
 }
 
-#pragma mark - SDWebImageAnimatedCoder
+#pragma mark - SDAnimatedImageCoder
 - (instancetype)initWithAnimatedImageData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;

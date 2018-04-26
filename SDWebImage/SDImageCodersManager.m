@@ -6,12 +6,12 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCodersManager.h"
-#import "SDWebImageImageIOCoder.h"
-#import "SDWebImageGIFCoder.h"
-#import "SDWebImageAPNGCoder.h"
+#import "SDImageCodersManager.h"
+#import "SDImageIOCoder.h"
+#import "SDImageGIFCoder.h"
+#import "SDImageAPNGCoder.h"
 #ifdef SD_WEBP
-#import "SDWebImageWebPCoder.h"
+#import "SDImageWebPCoder.h"
 #endif
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
@@ -20,13 +20,13 @@
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
-@interface SDWebImageCodersManager ()
+@interface SDImageCodersManager ()
 
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t codersLock;
 
 @end
 
-@implementation SDWebImageCodersManager
+@implementation SDImageCodersManager
 
 + (nonnull instancetype)sharedManager {
     static dispatch_once_t once;
@@ -40,9 +40,9 @@
 - (instancetype)init {
     if (self = [super init]) {
         // initialize with default coders
-        NSMutableArray<id<SDImageCoder>> *mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder], [SDWebImageGIFCoder sharedCoder], [SDWebImageAPNGCoder sharedCoder]] mutableCopy];
+        NSMutableArray<id<SDImageCoder>> *mutableCoders = [@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]] mutableCopy];
 #ifdef SD_WEBP
-        [mutableCoders addObject:[SDWebImageWebPCoder sharedCoder]];
+        [mutableCoders addObject:[SDImageWebPCoder sharedCoder]];
 #endif
         _coders = [mutableCoders copy];
         _codersLock = dispatch_semaphore_create(1);

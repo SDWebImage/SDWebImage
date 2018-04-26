@@ -52,11 +52,11 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/SDAnimatedImage.h>
 #import <SDWebImage/SDAnimatedImageView.h>
 #import <SDWebImage/SDAnimatedImageView+WebCache.h>
-#import <SDWebImage/SDWebImageCodersManager.h>
+#import <SDWebImage/SDImageCodersManager.h>
 #import <SDWebImage/SDImageCoder.h>
-#import <SDWebImage/SDWebImageAPNGCoder.h>
-#import <SDWebImage/SDWebImageGIFCoder.h>
-#import <SDWebImage/SDWebImageImageIOCoder.h>
+#import <SDWebImage/SDImageAPNGCoder.h>
+#import <SDWebImage/SDImageGIFCoder.h>
+#import <SDWebImage/SDImageIOCoder.h>
 #import <SDWebImage/SDWebImageFrame.h>
 #import <SDWebImage/SDWebImageCoderHelper.h>
 #import <SDWebImage/UIImage+GIF.h>
@@ -90,5 +90,5 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 // WebP
 #if __has_include(<SDWebImage/UIImage+WebP.h>)
 #import <SDWebImage/UIImage+WebP.h>
-#import <SDWebImage/SDWebImageWebPCoder.h>
+#import <SDWebImage/SDImageWebPCoder.h>
 #endif

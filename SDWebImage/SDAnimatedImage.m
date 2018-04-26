@@ -10,7 +10,7 @@
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import "SDImageCoder.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCodersManager.h"
 #import "SDWebImageFrame.h"
 
 #define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
@@ -286,7 +286,7 @@ static NSArray *SDBundlePreferredScales() {
     }
     data = [data copy]; // avoid mutable data
     id<SDAnimatedImageCoder> animatedCoder = nil;
-    for (id<SDImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
+    for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
         if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
             if ([coder canDecodeFromData:data]) {
                 animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:@{SDImageCoderDecodeScaleFactor : @(scale)}];
@@ -357,7 +357,7 @@ static NSArray *SDBundlePreferredScales() {
             return self;
         }
         id<SDAnimatedImageCoder> animatedCoder = nil;
-        for (id<SDImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
+        for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
             if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
                 if ([coder canDecodeFromData:animatedImageData]) {
                     animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:animatedImageData options:@{SDImageCoderDecodeScaleFactor : @(scale)}];

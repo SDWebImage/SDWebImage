@@ -29,12 +29,12 @@
  Those methods are called on each coder in the array (using the priority order) until one of them returns YES.
  That means that coder can decode that data / encode to that format
  */
-@interface SDWebImageCodersManager : NSObject<SDImageCoder>
+@interface SDImageCodersManager : NSObject<SDImageCoder>
 
 /**
  Returns the global shared coders manager instance.
  */
-@property (nonatomic, class, readonly, nonnull) SDWebImageCodersManager *sharedManager;
+@property (nonatomic, class, readonly, nonnull) SDImageCodersManager *sharedManager;
 
 /**
  All coders in coders manager. The coders array is a priority queue, which means the later added coder will have the highest priority

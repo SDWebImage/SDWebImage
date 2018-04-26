@@ -6,13 +6,13 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageImageIOCoder.h"
+#import "SDImageIOCoder.h"
 #import "SDWebImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
 
-@implementation SDWebImageImageIOCoder {
+@implementation SDImageIOCoder {
     size_t _width, _height;
     CGImagePropertyOrientation _orientation;
     CGImageSourceRef _imageSource;
@@ -38,10 +38,10 @@
 }
 
 + (instancetype)sharedCoder {
-    static SDWebImageImageIOCoder *coder;
+    static SDImageIOCoder *coder;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        coder = [[SDWebImageImageIOCoder alloc] init];
+        coder = [[SDImageIOCoder alloc] init];
     });
     return coder;
 }

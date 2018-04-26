@@ -7,7 +7,7 @@
  */
 
 #import "UIImage+MultiFormat.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCodersManager.h"
 
 @implementation UIImage (MultiFormat)
 
@@ -23,7 +23,7 @@
         scale = 1;
     }
     SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale)};
-    return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:options];
+    return [[SDImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
 - (nullable NSData *)sd_imageData {
@@ -36,7 +36,7 @@
 
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality {
     SDImageCoderOptions *options = @{SDImageCoderEncodeCompressionQuality : @(compressionQuality)};
-    return [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
+    return [[SDImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
 }
 
 @end
