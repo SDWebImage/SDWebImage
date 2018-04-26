@@ -24,7 +24,7 @@
     }
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
-                               options:SDWebImageProgressiveDownload];
+                               options:SDWebImageProgressiveLoad];
 }
 
 - (void)viewDidLoad

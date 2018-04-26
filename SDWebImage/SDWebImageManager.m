@@ -19,7 +19,7 @@ static id<SDWebImageLoader> _defaultImageLoader;
 @interface SDWebImageCombinedOperation ()
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
-@property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> downloadOperation;
+@property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> loaderOperation;
 @property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> cacheOperation;
 @property (weak, nonatomic, nullable) SDWebImageManager *manager;
 
@@ -237,7 +237,7 @@ static id<SDWebImageLoader> _defaultImageLoader;
         
         // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
         __weak typeof(operation) weakOperation = operation;
-        operation.downloadOperation = [self.imageLoader loadImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+        operation.loaderOperation = [self.imageLoader loadImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
             __strong typeof(weakOperation) strongOperation = weakOperation;
             if (!strongOperation || strongOperation.isCancelled) {
                 // Do nothing if the operation was cancelled
@@ -404,9 +404,9 @@ static id<SDWebImageLoader> _defaultImageLoader;
             [self.cacheOperation cancel];
             self.cacheOperation = nil;
         }
-        if (self.downloadOperation) {
-            [self.downloadOperation cancel];
-            self.downloadOperation = nil;
+        if (self.loaderOperation) {
+            [self.loaderOperation cancel];
+            self.loaderOperation = nil;
         }
         [self.manager safelyRemoveOperationFromRunning:self];
     }

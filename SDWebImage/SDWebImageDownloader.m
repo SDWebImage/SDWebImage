@@ -480,7 +480,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
     SDWebImageDownloaderOptions downloaderOptions = 0;
     if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
-    if (options & SDWebImageProgressiveDownload) downloaderOptions |= SDWebImageDownloaderProgressiveDownload;
+    if (options & SDWebImageProgressiveLoad) downloaderOptions |= SDWebImageDownloaderProgressiveLoad;
     if (options & SDWebImageRefreshCached) downloaderOptions |= SDWebImageDownloaderUseNSURLCache;
     if (options & SDWebImageContinueInBackground) downloaderOptions |= SDWebImageDownloaderContinueInBackground;
     if (options & SDWebImageHandleCookies) downloaderOptions |= SDWebImageDownloaderHandleCookies;
@@ -490,7 +490,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     if (cachedImage && options & SDWebImageRefreshCached) {
         // force progressive off if image already cached but forced refreshing
-        downloaderOptions &= ~SDWebImageDownloaderProgressiveDownload;
+        downloaderOptions &= ~SDWebImageDownloaderProgressiveLoad;
         // ignore image read from NSURLCache if image if cached but force refreshing
         downloaderOptions |= SDWebImageDownloaderIgnoreCachedResponse;
     }

@@ -196,7 +196,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
-    [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageProgressiveDownload progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+    [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageProgressiveLoad progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         dispatch_async(dispatch_get_main_queue(), ^{
             UIImage *image = imageView.image;
             // Progressive image may be nil when download data is not enough

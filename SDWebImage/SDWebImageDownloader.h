@@ -23,7 +23,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      */
-    SDWebImageDownloaderProgressiveDownload = 1 << 1,
+    SDWebImageDownloaderProgressiveLoad = 1 << 1,
 
     /**
      * By default, request prevent the use of NSURLCache. With this flag, NSURLCache
@@ -64,7 +64,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
      * images to a size compatible with the constrained memory of devices.
-     * This flag take no effect if `SDWebImageDownloaderAvoidDecodeImage` is set. And it will be ignored if `SDWebImageDownloaderProgressiveDownload` is set.
+     * This flag take no effect if `SDWebImageDownloaderAvoidDecodeImage` is set. And it will be ignored if `SDWebImageDownloaderProgressiveLoad` is set.
      */
     SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
     
@@ -197,8 +197,8 @@ typedef SDWebImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
  * @param completedBlock A block called once the download is completed.
  *                       If the download succeeded, the image parameter is set, in case of error,
  *                       error parameter is set with the error. The last parameter is always YES
- *                       if SDWebImageDownloaderProgressiveDownload isn't use. With the
- *                       SDWebImageDownloaderProgressiveDownload option, this block is called
+ *                       if SDWebImageDownloaderProgressiveLoad isn't use. With the
+ *                       SDWebImageDownloaderProgressiveLoad option, this block is called
  *                       repeatedly with the partial image object and the finished argument set to NO
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.

@@ -29,7 +29,7 @@
     self.imageView3.animates = YES;
     self.imageView4.animates = YES;
     self.imageView1.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
-    [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"] placeholderImage:nil options:SDWebImageProgressiveDownload];
+    [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"] placeholderImage:nil options:SDWebImageProgressiveLoad];
     [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"https:raw.githubusercontent.com/onevcat/APNGKit/master/TestImages/APNG-cube.apng"]];
     [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif"]];
     self.imageView4.wantsLayer = YES;

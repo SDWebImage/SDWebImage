@@ -19,23 +19,23 @@ typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _N
 
 typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
-// A combined operation representing the cache and download operation. You can it to cancel the load process.
+// A combined operation representing the cache and loader operation. You can it to cancel the load process.
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
 /**
- Cancel the current operation, including cache and download process
+ Cancel the current operation, including cache and loader process
  */
 - (void)cancel;
 
 /**
- The cache operation used for image cache query
+ The cache operation from the image cache query
  */
 @property (strong, nonatomic, nullable, readonly) id<SDWebImageOperation> cacheOperation;
 
 /**
- The download operation if the image is download from the network
+ The loader operation from the image loader (such as download operation)
  */
-@property (strong, nonatomic, nullable, readonly) id<SDWebImageOperation> downloadOperation;
+@property (strong, nonatomic, nullable, readonly) id<SDWebImageOperation> loaderOperation;
 
 @end
 
@@ -194,7 +194,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *   The forth parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
  *   or from the memory cache or from the network.
  *
- *   The fith parameter is set to NO when the SDWebImageProgressiveDownload option is used and the image is
+ *   The fith parameter is set to NO when the SDWebImageProgressiveLoad option is used and the image is
  *   downloading. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
  *   block is called a last time with the full image and the last parameter set to YES.
  *
