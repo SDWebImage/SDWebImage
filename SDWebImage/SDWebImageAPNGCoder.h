@@ -7,12 +7,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCoder.h"
+#import "SDImageCoder.h"
 
 /**
  Built in coder using ImageIO that supports APNG encoding/decoding
  */
-@interface SDWebImageAPNGCoder : NSObject <SDWebImageProgressiveCoder, SDWebImageAnimatedCoder>
+@interface SDWebImageAPNGCoder : NSObject <SDProgressiveImageCoder, SDAnimatedImageCoder>
 
 @property (nonatomic, class, readonly, nonnull) SDWebImageAPNGCoder *sharedCoder;
 

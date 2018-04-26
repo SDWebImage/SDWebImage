@@ -76,13 +76,13 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatPNG);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -104,7 +104,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     size_t count = CGImageSourceGetCount(source);
     UIImage *animatedImage;
     
-    BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
@@ -178,7 +178,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return (format == SDImageFormatPNG);
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
@@ -199,12 +199,12 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     double compressionQuality = 1;
-    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
     
-    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single PNG images
         CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
@@ -240,14 +240,14 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatPNG);
 }
 
-- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
+- (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -288,7 +288,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     [self scanAndCheckFramesValidWithImageSource:_imageSource];
 }
 
-- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+- (UIImage *)incrementalDecodedImageWithOptions:(SDImageCoderOptions *)options {
     UIImage *image;
     
     if (_width + _height > 0) {
@@ -297,8 +297,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -316,7 +316,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 }
 
 #pragma mark - SDWebImageAnimatedCoder
-- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -333,8 +333,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCoder.h"
+#import "SDImageCoder.h"
 
 /**
  Built in coder using ImageIO that supports GIF encoding/decoding
@@ -15,7 +15,7 @@
  @note Use `SDWebImageGIFCoder` for fully animated GIFs. For `UIImageView`, it will produce animated `UIImage`(`NSImage` on macOS) for rendering. For `SDAnimatedImageView`, it will use `SDAnimatedImage` for rendering.
  @note The recommended approach for animated GIFs is using `SDAnimatedImage` with `SDAnimatedImageView`. It's more performant than `UIImageView` for GIF displaying(especially on memory usage)
  */
-@interface SDWebImageGIFCoder : NSObject <SDWebImageProgressiveCoder, SDWebImageAnimatedCoder>
+@interface SDWebImageGIFCoder : NSObject <SDProgressiveImageCoder, SDAnimatedImageCoder>
 
 @property (nonatomic, class, readonly, nonnull) SDWebImageGIFCoder *sharedCoder;
 

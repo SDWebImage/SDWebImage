@@ -21,7 +21,7 @@
     if (!data) {
         return nil;
     }
-    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
     return [[SDWebImageWebPCoder sharedCoder] decodedImageWithData:data options:options];
 }
 

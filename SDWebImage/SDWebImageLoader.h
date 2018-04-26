@@ -10,7 +10,7 @@
 #import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
 
-@protocol SDWebImageProgressiveCoder;
+@protocol SDProgressiveImageCoder;
 typedef void(^SDWebImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 typedef void(^SDWebImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 

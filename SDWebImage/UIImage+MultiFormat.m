@@ -22,7 +22,7 @@
     if (scale < 1) {
         scale = 1;
     }
-    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeScaleFactor : @(scale)};
+    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale)};
     return [[SDWebImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
@@ -35,7 +35,7 @@
 }
 
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality {
-    SDWebImageCoderOptions *options = @{SDWebImageCoderEncodeCompressionQuality : @(compressionQuality)};
+    SDImageCoderOptions *options = @{SDImageCoderEncodeCompressionQuality : @(compressionQuality)};
     return [[SDWebImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
 }
 

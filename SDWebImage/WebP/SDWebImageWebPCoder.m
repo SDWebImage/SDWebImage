@@ -99,7 +99,7 @@ dispatch_semaphore_signal(self->_lock);
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -115,10 +115,10 @@ dispatch_semaphore_signal(self->_lock);
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
-    BOOL decodeFirstFrame = [[options valueForKey:SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [[options valueForKey:SDImageCoderDecodeFirstFrameOnly] boolValue];
     CGFloat scale = 1;
-    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -207,14 +207,14 @@ dispatch_semaphore_signal(self->_lock);
 }
 
 #pragma mark - Progressive Decode
-- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
+- (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
         // Progressive images need transparent, so always use premultiplied RGBA
         _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -237,7 +237,7 @@ dispatch_semaphore_signal(self->_lock);
     // libwebp current does not support progressive decoding for animated image, so no need to scan and update the frame information
 }
 
-- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+- (UIImage *)incrementalDecodedImageWithOptions:(SDImageCoderOptions *)options {
     UIImage *image;
     
     int width = 0;
@@ -285,8 +285,8 @@ dispatch_semaphore_signal(self->_lock);
             return nil;
         }
         CGFloat scale = _scale;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -417,7 +417,7 @@ dispatch_semaphore_signal(self->_lock);
     return (format == SDImageFormatWebP);
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
@@ -425,12 +425,12 @@ dispatch_semaphore_signal(self->_lock);
     NSData *data;
     
     double compressionQuality = 1;
-    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     NSArray<SDWebImageFrame *> *frames = [SDWebImageCoderHelper framesFromAnimatedImage:image];
     
-    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single webp image
         data = [self sd_encodedWebpDataWithImage:image quality:compressionQuality];
@@ -526,7 +526,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
 }
 
 #pragma mark - SDWebImageAnimatedCoder
-- (instancetype)initWithAnimatedImageData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (instancetype)initWithAnimatedImageData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -545,8 +545,8 @@ static void FreeImageData(void *info, const void *data, size_t size) {
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

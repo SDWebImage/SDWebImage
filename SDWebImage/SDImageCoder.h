@@ -10,33 +10,33 @@
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
 
-typedef NSString * SDWebImageCoderOption NS_STRING_ENUM;
-typedef NSDictionary<SDWebImageCoderOption, id> SDWebImageCoderOptions;
+typedef NSString * SDImageCoderOption NS_STRING_ENUM;
+typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
 
 #pragma mark - Coder Options
 // These options are for image decoding
 /**
  A Boolean value indicating whether to decode the first frame only for animated image during decoding. (NSNumber). If not provide, decode animated image if need.
- @note works for `SDWebImageCoder`.
+ @note works for `SDImageCoder`.
  */
-FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeFirstFrameOnly;
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeFirstFrameOnly;
 /**
  A CGFloat value which is greater than or equal to 1.0. This value specify the image scale factor for decoding. If not provide, use 1.0. (NSNumber)
- @note works for `SDWebImageCoder`, `SDWebImageProgressiveCoder`, `SDWebImageAnimatedCoder`.
+ @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDWebImageAnimatedCoder`.
  */
-FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderDecodeScaleFactor;
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleFactor;
 
 // These options are for image encoding
 /**
  A Boolean value indicating whether to encode the first frame only for animated image during encoding. (NSNumber). If not provide, encode animated image if need.
- @note works for `SDWebImageCoder`.
+ @note works for `SDImageCoder`.
  */
-FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeFirstFrameOnly;
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeFirstFrameOnly;
 /**
  A double value between 0.0-1.0 indicating the encode compression quality to produce the image data. 1.0 resulting in no compression and 0.0 resulting in the maximum compression possible. If not provide, use 1.0. (NSNumber)
- @note works for `SDWebImageCoder`
+ @note works for `SDImageCoder`
  */
-FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeCompressionQuality;
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressionQuality;
 
 #pragma mark - Coder
 /**
@@ -45,7 +45,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  You do not need to specify image scale during decoding because we may scale image later.
  @note Pay attention that these methods are not called from main queue.
  */
-@protocol SDWebImageCoder <NSObject>
+@protocol SDImageCoder <NSObject>
 
 @required
 #pragma mark - Decoding
@@ -59,14 +59,14 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 /**
  Decode the image data to image.
- @note This protocol may supports decode animated image frames. You can use `+[SDWebImageCoderHelper animatedImageWithFrames:]` to produce an animated image with frames.
+ @note This protocol may supports decode animated image frames. You can use `+[SDImageCoderHelper animatedImageWithFrames:]` to produce an animated image with frames.
 
  @param data The image data to be decoded
- @param options A dictionary containing any decoding options. Pass @{SDWebImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
+ @param options A dictionary containing any decoding options. Pass @{SDImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
  @return The decoded image from data
  */
 - (nullable UIImage *)decodedImageWithData:(nullable NSData *)data
-                                   options:(nullable SDWebImageCoderOptions *)options;
+                                   options:(nullable SDImageCoderOptions *)options;
 
 #pragma mark - Encoding
 
@@ -80,16 +80,16 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 /**
  Encode the image to image data.
- @note This protocol may supports encode animated image frames. You can use `+[SDWebImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames.
+ @note This protocol may supports encode animated image frames. You can use `+[SDImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames.
 
  @param image The image to be encoded
  @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible
- @param options A dictionary containing any encoding options. Pass @{SDWebImageCoderEncodeCompressionQuality: @(1)} to specify compression quality.
+ @param options A dictionary containing any encoding options. Pass @{SDImageCoderEncodeCompressionQuality: @(1)} to specify compression quality.
  @return The encoded image data
  */
 - (nullable NSData *)encodedDataWithImage:(nullable UIImage *)image
                                    format:(SDImageFormat)format
-                                  options:(nullable SDWebImageCoderOptions *)options;
+                                  options:(nullable SDImageCoderOptions *)options;
 
 @end
 
@@ -99,7 +99,7 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  These methods are all required to implement.
  @note Pay attention that these methods are not called from main queue.
  */
-@protocol SDWebImageProgressiveCoder <SDWebImageCoder>
+@protocol SDProgressiveImageCoder <SDImageCoder>
 
 @required
 /**
@@ -114,10 +114,10 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  Because incremental decoding need to keep the decoded context, we will alloc a new instance with the same class for each download operation to avoid conflicts
  This init method should not return nil
 
- @param options A dictionary containing any progressive decoding options (instance-level). Pass @{SDWebImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive animated image (each frames should use the same scale).
+ @param options A dictionary containing any progressive decoding options (instance-level). Pass @{SDImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive animated image (each frames should use the same scale).
  @return A new instance to do incremental decoding for the specify image format
  */
-- (nonnull instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options;
+- (nonnull instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options;
 
 /**
  Update the incremental decoding when new image data available
@@ -131,10 +131,10 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  Incremental decode the current image data to image.
  @note Due to the performance issue for progressive decoding and the integration for image view. This method may only return the first frame image even if the image data is animated image. If you want progressive animated image decoding, conform to `SDWebImageAnimatedCoder` protocol as well and use `animatedImageFrameAtIndex:` instead.
 
- @param options A dictionary containing any progressive decoding options. Pass @{SDWebImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive image
+ @param options A dictionary containing any progressive decoding options. Pass @{SDImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for progressive image
  @return The decoded image from current data
  */
-- (nullable UIImage *)incrementalDecodedImageWithOptions:(nullable SDWebImageCoderOptions *)options;
+- (nullable UIImage *)incrementalDecodedImageWithOptions:(nullable SDImageCoderOptions *)options;
 
 @end
 
@@ -187,9 +187,9 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
 
 #pragma mark - Animated Coder
 /**
- This is the animated image coder protocol for custom animated image class like  `SDAnimatedImage`. Through it inherit from `SDWebImageCoder`. We currentlly only use the method `canDecodeFromData:` to detect the proper coder for specify animated image format.
+ This is the animated image coder protocol for custom animated image class like  `SDAnimatedImage`. Through it inherit from `SDImageCoder`. We currentlly only use the method `canDecodeFromData:` to detect the proper coder for specify animated image format.
  */
-@protocol SDWebImageAnimatedCoder <SDWebImageCoder, SDAnimatedImageProvider>
+@protocol SDAnimatedImageCoder <SDImageCoder, SDAnimatedImageProvider>
 
 @required
 /**
@@ -198,9 +198,9 @@ FOUNDATION_EXPORT SDWebImageCoderOption _Nonnull const SDWebImageCoderEncodeComp
  After the instance created, we may call methods in `SDAnimatedImageProvider` to produce animated image frame.
 
  @param data The animated image data to be decode
- @param options A dictionary containing any animated decoding options (instance-level). Pass @{SDWebImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for animated image (each frames should use the same scale).
+ @param options A dictionary containing any animated decoding options (instance-level). Pass @{SDImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for animated image (each frames should use the same scale).
  @return A new instance to do animated decoding for specify image data
  */
-- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDWebImageCoderOptions *)options;
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDImageCoderOptions *)options;
 
 @end
