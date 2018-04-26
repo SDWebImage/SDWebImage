@@ -10,16 +10,16 @@
 
 #if SD_MAC
 
-#import "SDWebImageGIFCoder.h"
-#import "SDWebImageAPNGCoder.h"
+#import "SDImageGIFCoder.h"
+#import "SDImageAPNGCoder.h"
 
-@interface SDWebImageGIFCoder ()
+@interface SDImageGIFCoder ()
 
 - (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source;
 
 @end
 
-@interface SDWebImageAPNGCoder ()
+@interface SDImageAPNGCoder ()
 
 - (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source;
 - (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source;
@@ -64,7 +64,7 @@
             // Do initilize about frame count, current frame/duration and loop count
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
-            NSUInteger loopCount = [[SDWebImageAPNGCoder sharedCoder] sd_imageLoopCountWithSource:imageSource];
+            NSUInteger loopCount = [[SDImageAPNGCoder sharedCoder] sd_imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         }
     }
@@ -89,10 +89,10 @@
         float frameDuration = 0;
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
-            frameDuration = [[SDWebImageGIFCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
+            frameDuration = [[SDImageGIFCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
         } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
-            frameDuration = [[SDWebImageAPNGCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
+            frameDuration = [[SDImageAPNGCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
             return;

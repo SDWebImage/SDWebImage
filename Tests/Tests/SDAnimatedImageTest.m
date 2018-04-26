@@ -62,7 +62,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test03AnimatedImageInitWithAnimatedCoder {
     NSData *validData = [self testGIFData];
-    SDWebImageGIFCoder *coder = [[SDWebImageGIFCoder alloc] initWithAnimatedImageData:validData options:nil];
+    SDImageGIFCoder *coder = [[SDImageGIFCoder alloc] initWithAnimatedImageData:validData options:nil];
     SDAnimatedImage *image = [[SDAnimatedImage alloc] initWithAnimatedCoder:coder scale:1];
     expect(image).notTo.beNil();
     // enough, other can be test with InitWithData
@@ -154,7 +154,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test09AnimatedImageViewSetProgressiveAnimatedImage {
     NSData *gifData = [self testGIFData];
-    SDWebImageGIFCoder *progressiveCoder = [[SDWebImageGIFCoder alloc] initIncrementalWithOptions:nil];
+    SDImageGIFCoder *progressiveCoder = [[SDImageGIFCoder alloc] initIncrementalWithOptions:nil];
     // simulate progressive decode, pass partial data
     NSData *partialData = [gifData subdataWithRange:NSMakeRange(0, gifData.length - 1)];
     [progressiveCoder updateIncrementalData:partialData finished:NO];

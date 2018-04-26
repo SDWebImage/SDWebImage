@@ -7,7 +7,7 @@
  */
 
 #import "SDImageCacheDefine.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCodersManager.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
@@ -33,7 +33,7 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         }
     }
     if (!image) {
-        image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
+        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;

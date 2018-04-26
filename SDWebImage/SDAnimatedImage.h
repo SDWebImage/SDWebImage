@@ -7,24 +7,24 @@
  */
 
 #import "SDWebImageCompat.h"
-#import "SDWebImageCoder.h"
+#import "SDImageCoder.h"
 
 
 /**
- This is the protocol for SDAnimatedImage class only but not for SDWebImageAnimatedCoder. If you want to provide a custom animated image class with full advanced function, you can conform to this instead of the base protocol.
+ This is the protocol for SDAnimatedImage class only but not for SDAnimatedImageCoder. If you want to provide a custom animated image class with full advanced function, you can conform to this instead of the base protocol.
  */
 @protocol SDAnimatedImage <SDAnimatedImageProvider>
 
 @required
 /**
  Initializes the image with an animated coder. You can use the coder to decode the image frame later.
- @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this with animated coder which conforms to `SDWebImageProgressiveCoder` as well instead.
+ @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this with animated coder which conforms to `SDProgressiveImageCoder` as well instead.
  
- @param animatedCoder An animated coder which conform `SDWebImageAnimatedCoder` protocol
+ @param animatedCoder An animated coder which conform `SDAnimatedImageCoder` protocol
  @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
  @return An initialized object
  */
-- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale;
+- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDAnimatedImageCoder>)animatedCoder scale:(CGFloat)scale;
 
 @optional
 /**
@@ -63,7 +63,7 @@
 - (nullable instancetype)initWithContentsOfFile:(nonnull NSString *)path;
 - (nullable instancetype)initWithData:(nonnull NSData *)data;
 - (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale;
-- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale;
+- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDAnimatedImageCoder>)animatedCoder scale:(CGFloat)scale;
 
 /**
  Current animated image format.

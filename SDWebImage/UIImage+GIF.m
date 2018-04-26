@@ -8,7 +8,7 @@
  */
 
 #import "UIImage+GIF.h"
-#import "SDWebImageGIFCoder.h"
+#import "SDImageGIFCoder.h"
 
 @implementation UIImage (GIF)
 
@@ -20,8 +20,8 @@
     if (!data) {
         return nil;
     }
-    SDWebImageCoderOptions *options = @{SDWebImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
-    return [[SDWebImageGIFCoder sharedCoder] decodedImageWithData:data options:options];
+    SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDImageGIFCoder sharedCoder] decodedImageWithData:data options:options];
 }
 
 @end

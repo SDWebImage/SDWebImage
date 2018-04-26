@@ -11,7 +11,7 @@
 #import "SDDiskCache.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCodersManager.h"
 #import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
@@ -182,7 +182,7 @@
                     } else {
                         format = SDImageFormatJPEG;
                     }
-                    data = [[SDWebImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
+                    data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
                 [self _storeImageDataToDisk:data forKey:key];
             }

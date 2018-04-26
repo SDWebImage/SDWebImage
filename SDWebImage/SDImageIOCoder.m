@@ -6,13 +6,13 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageImageIOCoder.h"
+#import "SDImageIOCoder.h"
 #import "SDImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
 
-@implementation SDWebImageImageIOCoder {
+@implementation SDImageIOCoder {
     size_t _width, _height;
     CGImagePropertyOrientation _orientation;
     CGImageSourceRef _imageSource;
@@ -38,10 +38,10 @@
 }
 
 + (instancetype)sharedCoder {
-    static SDWebImageImageIOCoder *coder;
+    static SDImageIOCoder *coder;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        coder = [[SDWebImageImageIOCoder alloc] init];
+        coder = [[SDImageIOCoder alloc] init];
     });
     return coder;
 }
@@ -60,13 +60,13 @@
     }
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -91,13 +91,13 @@
     }
 }
 
-- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
+- (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -143,7 +143,7 @@
     }
 }
 
-- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+- (UIImage *)incrementalDecodedImageWithOptions:(SDImageCoderOptions *)options {
     UIImage *image;
     
     if (_width + _height > 0) {
@@ -152,8 +152,8 @@
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -185,7 +185,7 @@
     }
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
@@ -217,8 +217,8 @@
 #endif
     [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
     double compressionQuality = 1;
-    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
     

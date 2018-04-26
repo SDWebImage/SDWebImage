@@ -9,8 +9,8 @@
 #import "SDAnimatedImage.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
-#import "SDWebImageCoder.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCoder.h"
+#import "SDImageCodersManager.h"
 #import "SDImageFrame.h"
 
 #define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
@@ -197,7 +197,7 @@ static NSArray *SDBundlePreferredScales() {
 
 @interface SDAnimatedImage ()
 
-@property (nonatomic, strong) id<SDWebImageAnimatedCoder> coder;
+@property (nonatomic, strong) id<SDAnimatedImageCoder> coder;
 @property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
 @property (atomic, copy) NSArray<SDImageFrame *> *loadedAnimatedImageFrames; // Mark as atomic to keep thread-safe
 @property (nonatomic, assign, getter=isAllFramesLoaded) BOOL allFramesLoaded;
@@ -285,11 +285,11 @@ static NSArray *SDBundlePreferredScales() {
         return nil;
     }
     data = [data copy]; // avoid mutable data
-    id<SDWebImageAnimatedCoder> animatedCoder = nil;
-    for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
-        if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
+    id<SDAnimatedImageCoder> animatedCoder = nil;
+    for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
+        if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
             if ([coder canDecodeFromData:data]) {
-                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
+                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:@{SDImageCoderDecodeScaleFactor : @(scale)}];
                 break;
             }
         }
@@ -300,7 +300,7 @@ static NSArray *SDBundlePreferredScales() {
     return [self initWithAnimatedCoder:animatedCoder scale:scale];
 }
 
-- (instancetype)initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)animatedCoder scale:(CGFloat)scale {
+- (instancetype)initWithAnimatedCoder:(id<SDAnimatedImageCoder>)animatedCoder scale:(CGFloat)scale {
     if (!animatedCoder) {
         return nil;
     }
@@ -356,11 +356,11 @@ static NSArray *SDBundlePreferredScales() {
         if (!animatedImageData) {
             return self;
         }
-        id<SDWebImageAnimatedCoder> animatedCoder = nil;
-        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders) {
-            if ([coder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
+        id<SDAnimatedImageCoder> animatedCoder = nil;
+        for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
+            if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
                 if ([coder canDecodeFromData:animatedImageData]) {
-                    animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:animatedImageData options:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
+                    animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:animatedImageData options:@{SDImageCoderDecodeScaleFactor : @(scale)}];
                     break;
                 }
             }

@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageGIFCoder.h"
+#import "SDImageGIFCoder.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+WebCache.h"
 #import <ImageIO/ImageIO.h>
@@ -24,7 +24,7 @@
 @implementation SDGIFCoderFrame
 @end
 
-@implementation SDWebImageGIFCoder {
+@implementation SDImageGIFCoder {
     size_t _width, _height;
     CGImageSourceRef _imageSource;
     NSData *_imageData;
@@ -56,10 +56,10 @@
 }
 
 + (instancetype)sharedCoder {
-    static SDWebImageGIFCoder *coder;
+    static SDImageGIFCoder *coder;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        coder = [[SDWebImageGIFCoder alloc] init];
+        coder = [[SDImageGIFCoder alloc] init];
     });
     return coder;
 }
@@ -69,13 +69,13 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
-- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+- (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -97,7 +97,7 @@
     size_t count = CGImageSourceGetCount(source);
     UIImage *animatedImage;
     
-    BOOL decodeFirstFrame = [options[SDWebImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [[UIImage alloc] initWithData:data scale:scale];
     } else {
@@ -180,14 +180,14 @@
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatGIF);
 }
 
-- (instancetype)initIncrementalWithOptions:(nullable SDWebImageCoderOptions *)options {
+- (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -228,7 +228,7 @@
     [self scanAndCheckFramesValidWithImageSource:_imageSource];
 }
 
-- (UIImage *)incrementalDecodedImageWithOptions:(SDWebImageCoderOptions *)options {
+- (UIImage *)incrementalDecodedImageWithOptions:(SDImageCoderOptions *)options {
     UIImage *image;
     
     if (_width + _height > 0) {
@@ -237,8 +237,8 @@
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -260,7 +260,7 @@
     return (format == SDImageFormatGIF);
 }
 
-- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDWebImageCoderOptions *)options {
+- (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     if (!image) {
         return nil;
     }
@@ -281,12 +281,12 @@
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     double compressionQuality = 1;
-    if ([options valueForKey:SDWebImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDWebImageCoderEncodeCompressionQuality] doubleValue];
+    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
     
-    BOOL encodeFirstFrame = [options[SDWebImageCoderEncodeFirstFrameOnly] boolValue];
+    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single GIF images
         CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
@@ -316,8 +316,8 @@
     return [imageData copy];
 }
 
-#pragma mark - SDWebImageAnimatedCoder
-- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDWebImageCoderOptions *)options {
+#pragma mark - SDAnimatedImageCoder
+- (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
         return nil;
     }
@@ -334,8 +334,8 @@
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDWebImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDWebImageCoderDecodeScaleFactor] doubleValue];
+        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
+            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

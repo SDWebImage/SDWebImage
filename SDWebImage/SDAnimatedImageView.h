@@ -53,7 +53,7 @@
 /**
  Whehter or not to enable incremental image load for animated image. This is for the animated image which `sd_isIncremental` is YES (See `UIImage+WebCache.h`). If enable, animated image rendering will stop at the last frame available currently, and continue when another `setImage:` trigger, where the new animated image's `animatedImageData` should be updated from the previous one. If the `sd_isIncremental` is NO. The incremental image load stop.
  @note If you are confused about this description, open Chrome browser to view some large GIF images with low network speed to see the animation behavior.
- @note The best practice to use incremental load is using `initWithAnimatedCoder:scale` in `SDAnimatedImage` with animated coder which conform to `SDWebImageProgressiveCoder` as well. Then call incremental update and incremental decode method to produce the image.
+ @note The best practice to use incremental load is using `initWithAnimatedCoder:scale` in `SDAnimatedImage` with animated coder which conform to `SDProgressiveImageCoder` as well. Then call incremental update and incremental decode method to produce the image.
  Default is YES. Set to NO to only render the static poster for incremental animated image.
  */
 @property (nonatomic, assign) BOOL shouldIncrementalLoad;

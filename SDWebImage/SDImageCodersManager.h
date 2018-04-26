@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCoder.h"
+#import "SDImageCoder.h"
 
 /**
  Global object holding the array of coders, so that we avoid passing them from object to object.
@@ -24,35 +24,35 @@
  
  Coders
  ------
- A coder must conform to the `SDWebImageCoder` protocol or even to `SDWebImageProgressiveCoder` if it supports progressive decoding
+ A coder must conform to the `SDImageCoder` protocol or even to `SDProgressiveImageCoder` if it supports progressive decoding
  Conformance is important because that way, they will implement `canDecodeFromData` or `canEncodeToFormat`
  Those methods are called on each coder in the array (using the priority order) until one of them returns YES.
  That means that coder can decode that data / encode to that format
  */
-@interface SDWebImageCodersManager : NSObject<SDWebImageCoder>
+@interface SDImageCodersManager : NSObject<SDImageCoder>
 
 /**
  Returns the global shared coders manager instance.
  */
-@property (nonatomic, class, readonly, nonnull) SDWebImageCodersManager *sharedManager;
+@property (nonatomic, class, readonly, nonnull) SDImageCodersManager *sharedManager;
 
 /**
  All coders in coders manager. The coders array is a priority queue, which means the later added coder will have the highest priority
  */
-@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDWebImageCoder>> *coders;
+@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDImageCoder>> *coders;
 
 /**
  Add a new coder to the end of coders array. Which has the highest priority.
 
  @param coder coder
  */
-- (void)addCoder:(nonnull id<SDWebImageCoder>)coder;
+- (void)addCoder:(nonnull id<SDImageCoder>)coder;
 
 /**
  Remove a coder in the coders array.
 
  @param coder coder
  */
-- (void)removeCoder:(nonnull id<SDWebImageCoder>)coder;
+- (void)removeCoder:(nonnull id<SDImageCoder>)coder;
 
 @end

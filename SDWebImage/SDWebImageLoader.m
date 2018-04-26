@@ -8,7 +8,7 @@
 
 #import "SDWebImageLoader.h"
 #import "SDWebImageCacheKeyFilter.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCodersManager.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+WebCache.h"
@@ -47,7 +47,7 @@ UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData,
         }
     }
     if (!image) {
-        image = [[SDWebImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
+        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
@@ -91,13 +91,13 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
     if (scale < 1) {
         scale = 1;
     }
-    id<SDWebImageProgressiveCoder> progressiveCoder = objc_getAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey);
+    id<SDProgressiveImageCoder> progressiveCoder = objc_getAssociatedObject(operation, SDWebImageLoaderProgressiveCoderKey);
     if (!progressiveCoder) {
         // We need to create a new instance for progressive decoding to avoid conflicts
-        for (id<SDWebImageCoder>coder in [SDWebImageCodersManager sharedManager].coders.reverseObjectEnumerator) {
-            if ([coder conformsToProtocol:@protocol(SDWebImageProgressiveCoder)] &&
-                [((id<SDWebImageProgressiveCoder>)coder) canIncrementalDecodeFromData:imageData]) {
-                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:@{SDWebImageCoderDecodeScaleFactor : @(scale)}];
+        for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders.reverseObjectEnumerator) {
+            if ([coder conformsToProtocol:@protocol(SDProgressiveImageCoder)] &&
+                [((id<SDProgressiveImageCoder>)coder) canIncrementalDecodeFromData:imageData]) {
+                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:@{SDImageCoderDecodeScaleFactor : @(scale)}];
                 break;
             }
         }
@@ -113,13 +113,13 @@ UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull
         // check whether we should use `SDAnimatedImage`
         if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
             Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
-            if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDWebImageAnimatedCoder)]) {
-                image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDWebImageAnimatedCoder>)progressiveCoder scale:scale];
+            if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
+                image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDAnimatedImageCoder>)progressiveCoder scale:scale];
             }
         }
     }
     if (!image) {
-        image = [progressiveCoder incrementalDecodedImageWithOptions:@{SDWebImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDWebImageCoderDecodeScaleFactor : @(scale)}];
+        image = [progressiveCoder incrementalDecodedImageWithOptions:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
