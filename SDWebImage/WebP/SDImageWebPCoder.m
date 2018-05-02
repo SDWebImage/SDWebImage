@@ -24,6 +24,7 @@
 #import "webp/demux.h"
 #import "webp/mux.h"
 #endif
+#import <Accelerate/Accelerate.h>
 
 #define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
 __VA_ARGS__; \
@@ -210,7 +211,7 @@ dispatch_semaphore_signal(self->_lock);
 - (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
-        // Progressive images need transparent, so always use premultiplied RGBA
+        // Progressive images need transparent, so always use premultiplied BGRA
         _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
         CGFloat scale = 1;
         if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
@@ -497,18 +498,106 @@ dispatch_semaphore_signal(self->_lock);
     }
     
     size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    BOOL hasAlpha = !(alphaInfo == kCGImageAlphaNone ||
+                      alphaInfo == kCGImageAlphaNoneSkipFirst ||
+                      alphaInfo == kCGImageAlphaNoneSkipLast);
+    BOOL byteOrderNormal = NO;
+    switch (byteOrderInfo) {
+        case kCGBitmapByteOrderDefault: {
+            byteOrderNormal = YES;
+        } break;
+        case kCGBitmapByteOrder32Little: {
+        } break;
+        case kCGBitmapByteOrder32Big: {
+            byteOrderNormal = YES;
+        } break;
+        default: break;
+    }
+    // If we can not get bitmap buffer, early return
     CGDataProviderRef dataProvider = CGImageGetDataProvider(imageRef);
     if (!dataProvider) {
         return nil;
     }
     CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-    uint8_t *rgba = (uint8_t *)CFDataGetBytePtr(dataRef);
+    if (!dataRef) {
+        return nil;
+    }
     
-    uint8_t *data = NULL;
+    uint8_t *rgba = NULL;
+    // We could not assume that input CGImage's color mode is always RGB888/RGBA8888. Convert all other cases to target color mode using vImage
+    if (byteOrderNormal && ((alphaInfo == kCGImageAlphaNone) || (alphaInfo == kCGImageAlphaLast))) {
+        // If the input CGImage is already RGB888/RGBA8888
+        rgba = (uint8_t *)CFDataGetBytePtr(dataRef);
+    } else {
+        // Convert all other cases to target color mode using vImage
+        vImageConverterRef convertor = NULL;
+        vImage_Error error = kvImageNoError;
+        
+        vImage_CGImageFormat srcFormat = {
+            .bitsPerComponent = (uint32_t)CGImageGetBitsPerComponent(imageRef),
+            .bitsPerPixel = (uint32_t)CGImageGetBitsPerPixel(imageRef),
+            .colorSpace = CGImageGetColorSpace(imageRef),
+            .bitmapInfo = bitmapInfo
+        };
+        vImage_CGImageFormat destFormat = {
+            .bitsPerComponent = 8,
+            .bitsPerPixel = hasAlpha ? 32 : 24,
+            .colorSpace = [SDImageCoderHelper colorSpaceGetDeviceRGB],
+            .bitmapInfo = hasAlpha ? kCGImageAlphaLast | kCGBitmapByteOrderDefault : kCGImageAlphaNone | kCGBitmapByteOrderDefault // RGB888/RGBA8888 (Non-premultiplied to works for libwebp)
+        };
+        
+        convertor = vImageConverter_CreateWithCGImageFormat(&srcFormat, &destFormat, NULL, kvImageNoFlags, &error);
+        if (error != kvImageNoError) {
+            CFRelease(dataRef);
+            return nil;
+        }
+        
+        vImage_Buffer src = {
+            .data = (uint8_t *)CFDataGetBytePtr(dataRef),
+            .width = width,
+            .height = height,
+            .rowBytes = bytesPerRow
+        };
+        vImage_Buffer dest;
+        
+        error = vImageBuffer_Init(&dest, height, width, destFormat.bitsPerPixel, kvImageNoFlags);
+        if (error != kvImageNoError) {
+            CFRelease(dataRef);
+            return nil;
+        }
+        
+        // Convert input color mode to RGB888/RGBA8888
+        error = vImageConvert_AnyToAny(convertor, &src, &dest, NULL, kvImageNoFlags);
+        if (error != kvImageNoError) {
+            CFRelease(dataRef);
+            return nil;
+        }
+        
+        rgba = dest.data; // Converted buffer
+        bytesPerRow = dest.rowBytes; // Converted bytePerRow
+        CFRelease(dataRef);
+        dataRef = NULL;
+    }
+    
+    uint8_t *data = NULL; // Output WebP data
     float qualityFactor = quality * 100; // WebP quality is 0-100
-    size_t size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, qualityFactor, &data);
-    CFRelease(dataRef);
-    rgba = NULL;
+    // Encode RGB888/RGBA8888 buffer to WebP data
+    size_t size;
+    if (hasAlpha) {
+        size = WebPEncodeRGBA(rgba, (int)width, (int)height, (int)bytesPerRow, qualityFactor, &data);
+    } else {
+        size = WebPEncodeRGB(rgba, (int)width, (int)height, (int)bytesPerRow, qualityFactor, &data);
+    }
+    if (dataRef) {
+        CFRelease(dataRef); // free non-converted rgba buffer
+        dataRef = NULL;
+    } else {
+        free(rgba); // free converted rgba buffer
+        rgba = NULL;
+    }
     
     if (size) {
         // success
