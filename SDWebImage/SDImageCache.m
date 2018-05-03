@@ -346,7 +346,7 @@
     
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
-    BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryDataWhenInMemory));
+    BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryMemoryData));
     if (shouldQueryMemoryOnly) {
         if (doneBlock) {
             doneBlock(image, nil, SDImageCacheTypeMemory);
@@ -354,7 +354,13 @@
         return nil;
     }
     
+    // Second check the disk cache...
     NSOperation *operation = [NSOperation new];
+    // Check whether we need to synchronously query disk
+    // 1. in-memory cache hit & memoryDataSync
+    // 2. in-memory cache miss & diskDataSync
+    BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryMemoryDataSync) ||
+                                (!image && options & SDImageCacheQueryDiskDataSync));
     void(^queryDiskBlock)(void) =  ^{
         if (operation.isCancelled) {
             // do not call the completion if cancelled
@@ -366,7 +372,7 @@
             UIImage *diskImage;
             SDImageCacheType cacheType = SDImageCacheTypeDisk;
             if (image) {
-                // the image is from in-memory cache
+                // the image is from in-memory cache, but need image data
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
@@ -386,7 +392,7 @@
             }
             
             if (doneBlock) {
-                if (options & SDImageCacheQueryDiskSync) {
+                if (shouldQueryDiskSync) {
                     doneBlock(diskImage, diskData, cacheType);
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -397,8 +403,9 @@
         }
     };
     
-    if (options & SDImageCacheQueryDiskSync) {
-        queryDiskBlock();
+    // Query in ioQueue to keep IO-safe
+    if (shouldQueryDiskSync) {
+        dispatch_sync(self.ioQueue, queryDiskBlock);
     } else {
         dispatch_async(self.ioQueue, queryDiskBlock);
     }
@@ -578,8 +585,9 @@
 
 - (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
     SDImageCacheOptions cacheOptions = 0;
-    if (options & SDWebImageQueryDataWhenInMemory) cacheOptions |= SDImageCacheQueryDataWhenInMemory;
-    if (options & SDWebImageQueryDiskSync) cacheOptions |= SDImageCacheQueryDiskSync;
+    if (options & SDWebImageQueryMemoryData) cacheOptions |= SDImageCacheQueryMemoryData;
+    if (options & SDWebImageQueryMemoryDataSync) cacheOptions |= SDImageCacheQueryMemoryDataSync;
+    if (options & SDWebImageQueryDiskDataSync) cacheOptions |= SDImageCacheQueryDiskDataSync;
     if (options & SDWebImageTransformAnimatedImage) cacheOptions |= SDImageCacheTransformAnimatedImage;
     if (options & SDWebImageDecodeFirstFrameOnly) cacheOptions |= SDImageCacheDecodeFirstFrameOnly;
     if (options & SDWebImagePreloadAllFrames) cacheOptions |= SDImageCachePreloadAllFrames;

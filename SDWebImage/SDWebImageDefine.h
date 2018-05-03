@@ -133,48 +133,54 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageScaleDownLargeImages = 1 << 12,
     
     /**
-     * By default, we do not query disk data when the image is cached in memory. This mask can force to query disk data at the same time.
-     * This flag is recommend to be used with `SDWebImageQueryDiskSync` to ensure the image is loaded in the same runloop.
+     * By default, we do not query image data when the image is already cached in memory. This mask can force to query image data at the same time. However, this query is asynchronously unless you specify `SDWebImageQueryMemoryDataSync`
      */
-    SDWebImageQueryDataWhenInMemory = 1 << 13,
+    SDWebImageQueryMemoryData = 1 << 13,
     
     /**
-     * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously to ensure that image is loaded in the same runloop.
-     * This flag can avoid flashing during cell reuse if you disable memory cache or in some other cases.
+     * By default, when you only specify `SDWebImageQueryMemoryData`, we query the memory image data asynchronously. Combined this mask as well to query the memory image data synchronously.
+     * @note Query data synchronously is not recommend, unless you want to ensure the image is loaded in the same runloop to avoid flashing during cell reusing.
      */
-    SDWebImageQueryDiskSync = 1 << 14,
+    SDWebImageQueryMemoryDataSync = 1 << 14,
+    
+    /**
+     * By default, when the memory cache miss, we query the disk cache asynchronously. This mask can force to query disk cache (when memory cache miss) synchronously.
+     * @note These 3 query options can be combined together. For the full list about these masks combination, see wiki page.
+     * @note Query data synchronously is not recommend, unless you want to ensure the image is loaded in the same runloop to avoid flashing during cell reusing.
+     */
+    SDWebImageQueryDiskDataSync = 1 << 15,
     
     /**
      * By default, when the cache missed, the image is load from the loader. This flag can prevent this to load from cache only.
      */
-    SDWebImageFromCacheOnly = 1 << 15,
+    SDWebImageFromCacheOnly = 1 << 16,
     
     /**
      * By default, we query the cache before the image is load from the loader. This flag can prevent this to load from loader only.
      */
-    SDWebImageFromLoaderOnly = 1 << 16,
+    SDWebImageFromLoaderOnly = 1 << 17,
     
     /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
      */
-    SDWebImageForceTransition = 1 << 17,
+    SDWebImageForceTransition = 1 << 18,
     
     /**
      * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
      * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
      */
-    SDWebImageAvoidDecodeImage = 1 << 18,
+    SDWebImageAvoidDecodeImage = 1 << 19,
     
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDWebImageDecodeFirstFrameOnly = 1 << 19,
+    SDWebImageDecodeFirstFrameOnly = 1 << 20,
     
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
      * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
      */
-    SDWebImagePreloadAllFrames = 1 << 20
+    SDWebImagePreloadAllFrames = 1 << 21
 };
 
 
