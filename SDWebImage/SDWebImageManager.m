@@ -15,7 +15,30 @@
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
 @property (strong, nonatomic, nullable) SDWebImageDownloadToken *downloadToken;
 @property (strong, nonatomic, nullable) NSOperation *cacheOperation;
-@property (weak, nonatomic, nullable) SDWebImageManager *manager;
+@property (copy, nonatomic) void (^cancelDownLoad)(SDWebImageDownloadToken*);
+@property (copy, nonatomic) void (^removeCacheOperation)(SDWebImageCombinedOperation*);
+
+@end
+    
+@implementation SDWebImageCombinedOperation
+
+- (void)cancel {
+    @synchronized(self) {
+        self.cancelled = YES;
+        if (self.cacheOperation) {
+            [self.cacheOperation cancel];
+            self.cacheOperation = nil;
+        }
+        
+        if (self.cancelDownLoad && self.downloadToken) {
+            self.cancelDownLoad(self.downloadToken);
+        }
+        
+        if (self.removeCacheOperation) {
+            self.removeCacheOperation(self);
+        }
+    }
+}
 
 @end
 
@@ -126,7 +149,13 @@
     }
 
     SDWebImageCombinedOperation *operation = [SDWebImageCombinedOperation new];
-    operation.manager = self;
+    __weak __typeof(self) weakSelf = self;
+    operation.cancelDownLoad = ^(SDWebImageDownloadToken *downloadToken) {
+        [weakSelf.imageDownloader cancel:downloadToken];
+    };
+    operation.removeCacheOperation = ^(SDWebImageCombinedOperation *operation) {
+        [weakSelf safelyRemoveOperationFromRunning:operation];
+    };
 
     BOOL isFailedUrl = NO;
     if (url) {
@@ -335,25 +364,6 @@
             completionBlock(image, data, error, cacheType, finished, url);
         }
     });
-}
-
-@end
-
-
-@implementation SDWebImageCombinedOperation
-
-- (void)cancel {
-    @synchronized(self) {
-        self.cancelled = YES;
-        if (self.cacheOperation) {
-            [self.cacheOperation cancel];
-            self.cacheOperation = nil;
-        }
-        if (self.downloadToken) {
-            [self.manager.imageDownloader cancel:self.downloadToken];
-        }
-        [self.manager safelyRemoveOperationFromRunning:self];
-    }
 }
 
 @end
