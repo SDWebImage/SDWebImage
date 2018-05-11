@@ -140,9 +140,7 @@
         return operation;
     }
 
-    @synchronized (self.runningOperations) {
-        [self.runningOperations addObject:operation];
-    }
+    [self safelyRemoveOperationFromRunning:operation];
     NSString *key = [self cacheKeyForURL:url];
     
     SDImageCacheOptions cacheOptions = 0;
