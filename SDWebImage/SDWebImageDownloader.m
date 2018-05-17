@@ -464,7 +464,7 @@ didReceiveResponse:(NSURLResponse *)response
 
 @end
 
-@implementation SDWebImageDownloader (SDWebImageLoader)
+@implementation SDWebImageDownloader (SDImageLoader)
 
 - (BOOL)canLoadWithURL:(NSURL *)url {
     if (!url) {
@@ -474,7 +474,7 @@ didReceiveResponse:(NSURLResponse *)response
     return YES;
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderCompletedBlock)completedBlock {
+- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
     UIImage *cachedImage;
     if ([context valueForKey:SDWebImageContextLoaderCachedImage]) {
         cachedImage = [context valueForKey:SDWebImageContextLoaderCachedImage];

@@ -13,7 +13,7 @@
 #import "SDImageTransformer.h"
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCacheSerializer.h"
-#import "SDWebImageLoader.h"
+#import "SDImageLoader.h"
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
@@ -105,7 +105,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 /**
  * The image loader used by manager to load image.
  */
-@property (strong, nonatomic, readonly, nonnull) id<SDWebImageLoader> imageLoader;
+@property (strong, nonatomic, readonly, nonnull) id<SDImageLoader> imageLoader;
 
 /**
  The image transformer for manager. It's used for image transform after the image load finished and store the transformed image to cache, see `SDImageTransformer`.
@@ -164,7 +164,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  The default image loader for manager which is created with no arguments. Such as shared manager or init.
  Defaults to nil. Means using `SDWebImageDownloader.sharedDownloader`
  */
-@property (nonatomic, class, nullable) id<SDWebImageLoader> defaultImageLoader;
+@property (nonatomic, class, nullable) id<SDImageLoader> defaultImageLoader;
 
 /**
  * Returns global shared manager instance.
@@ -175,7 +175,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * Allows to specify instance of cache and image loader used with image manager.
  * @return new instance of `SDWebImageManager` with specified cache and loader.
  */
-- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache loader:(nonnull id<SDWebImageLoader>)loader NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache loader:(nonnull id<SDImageLoader>)loader NS_DESIGNATED_INITIALIZER;
 
 /**
  * Downloads the image at the given URL if not present in cache or return the cached version otherwise.

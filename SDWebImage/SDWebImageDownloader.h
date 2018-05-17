@@ -12,7 +12,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderRequestModifier.h"
-#import "SDWebImageLoader.h"
+#import "SDImageLoader.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
@@ -88,8 +88,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 
-typedef SDWebImageLoaderProgressBlock SDWebImageDownloaderProgressBlock;
-typedef SDWebImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
+typedef SDImageLoaderProgressBlock SDWebImageDownloaderProgressBlock;
+typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 /**
  *  A token associated with each download. Can be used to cancel a download
@@ -249,10 +249,10 @@ typedef SDWebImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 
 /**
- SDWebImageDownloader is the built-in image loader conform to `SDWebImageLoader`. Which provide the HTTP/HTTPS/FTP download, or local file URL using NSURLSession.
+ SDWebImageDownloader is the built-in image loader conform to `SDImageLoader`. Which provide the HTTP/HTTPS/FTP download, or local file URL using NSURLSession.
  However, this downloader class itself also support customization for advanced users. You can specify `operationClass` in download config to custom download operation, See `SDWebImageDownloaderOperation`.
- If you want to provide some image loader which beyond network or local file, consider to create your own custom class conform to `SDWebImageLoader`.
+ If you want to provide some image loader which beyond network or local file, consider to create your own custom class conform to `SDImageLoader`.
  */
-@interface SDWebImageDownloader (SDWebImageLoader) <SDWebImageLoader>
+@interface SDWebImageDownloader (SDImageLoader) <SDImageLoader>
 
 @end

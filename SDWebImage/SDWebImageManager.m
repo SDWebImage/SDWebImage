@@ -17,7 +17,7 @@
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
 static id<SDImageCache> _defaultImageCache;
-static id<SDWebImageLoader> _defaultImageLoader;
+static id<SDImageLoader> _defaultImageLoader;
 
 @interface SDWebImageCombinedOperation ()
 
@@ -31,7 +31,7 @@ static id<SDWebImageLoader> _defaultImageLoader;
 @interface SDWebImageManager ()
 
 @property (strong, nonatomic, readwrite, nonnull) SDImageCache *imageCache;
-@property (strong, nonatomic, readwrite, nonnull) id<SDWebImageLoader> imageLoader;
+@property (strong, nonatomic, readwrite, nonnull) id<SDImageLoader> imageLoader;
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t failedURLsLock; // a lock to keep the access to `failedURLs` thread-safe
 @property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
@@ -52,12 +52,12 @@ static id<SDWebImageLoader> _defaultImageLoader;
     _defaultImageCache = defaultImageCache;
 }
 
-+ (id<SDWebImageLoader>)defaultImageLoader {
++ (id<SDImageLoader>)defaultImageLoader {
     return _defaultImageLoader;
 }
 
-+ (void)setDefaultImageLoader:(id<SDWebImageLoader>)defaultImageLoader {
-    if (defaultImageLoader && ![defaultImageLoader conformsToProtocol:@protocol(SDWebImageLoader)]) {
++ (void)setDefaultImageLoader:(id<SDImageLoader>)defaultImageLoader {
+    if (defaultImageLoader && ![defaultImageLoader conformsToProtocol:@protocol(SDImageLoader)]) {
         return;
     }
     _defaultImageLoader = defaultImageLoader;
@@ -77,14 +77,14 @@ static id<SDWebImageLoader> _defaultImageLoader;
     if (!cache) {
         cache = [SDImageCache sharedImageCache];
     }
-    id<SDWebImageLoader> loader = [[self class] defaultImageLoader];
+    id<SDImageLoader> loader = [[self class] defaultImageLoader];
     if (!loader) {
         loader = [SDWebImageDownloader sharedDownloader];
     }
     return [self initWithCache:cache loader:loader];
 }
 
-- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache loader:(nonnull id<SDWebImageLoader>)loader {
+- (nonnull instancetype)initWithCache:(nonnull id<SDImageCache>)cache loader:(nonnull id<SDImageLoader>)loader {
     if ((self = [super init])) {
         _imageCache = cache;
         _imageLoader = loader;
