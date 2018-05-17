@@ -9,11 +9,10 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageOperation.h"
 #import "SDImageCacheDefine.h"
-#import "SDWebImageDownloader.h"
+#import "SDImageLoader.h"
 #import "SDImageTransformer.h"
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCacheSerializer.h"
-#import "SDImageLoader.h"
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
@@ -204,7 +203,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (nullable SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageOptions)options
-                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                  progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                                  completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**
@@ -222,7 +221,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 - (nullable SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageOptions)options
                                                    context:(nullable SDWebImageContext *)context
-                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                  progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                                  completed:(nonnull SDInternalCompletionBlock)completedBlock;
 
 /**

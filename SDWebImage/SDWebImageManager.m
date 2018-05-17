@@ -8,9 +8,8 @@
 
 #import "SDWebImageManager.h"
 #import "SDImageCache.h"
-#import "NSImage+Compatibility.h"
+#import "SDWebImageDownloader.h"
 #import "UIImage+WebCache.h"
-#import "SDAnimatedImage.h"
 #import "SDWebImageError.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
@@ -116,14 +115,14 @@ static id<SDImageLoader> _defaultImageLoader;
     return SDScaledImageForKey(key, image);
 }
 
-- (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
+- (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
     return [self loadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
 - (SDWebImageCombinedOperation *)loadImageWithURL:(nullable NSURL *)url
                                           options:(SDWebImageOptions)options
                                           context:(nullable SDWebImageContext *)context
-                                         progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                         progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                         completed:(nonnull SDInternalCompletionBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSAssert(completedBlock != nil, @"If you mean to prefetch the image, use -[SDWebImagePrefetcher prefetchURLs] instead");
@@ -188,7 +187,7 @@ static id<SDImageLoader> _defaultImageLoader;
                                  url:(nullable NSURL *)url
                              options:(SDWebImageOptions)options
                              context:(nullable SDWebImageContext *)context
-                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Check whether we should query cache
     BOOL shouldQueryCache = (options & SDWebImageFromLoaderOnly) == 0;
@@ -218,7 +217,7 @@ static id<SDImageLoader> _defaultImageLoader;
                             cachedImage:(nullable UIImage *)cachedImage
                              cachedData:(nullable NSData *)cachedData
                               cacheType:(SDImageCacheType)cacheType
-                               progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                               progress:(nullable SDImageLoaderProgressBlock)progressBlock
                               completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Check whether we should download image from network
     BOOL shouldDownload = (options & SDWebImageFromCacheOnly) == 0;

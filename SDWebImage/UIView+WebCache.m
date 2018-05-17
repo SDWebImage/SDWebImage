@@ -40,7 +40,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
                            context:(nullable SDWebImageContext *)context
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDInternalCompletionBlock)completedBlock {
+                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                         completed:(nullable SDInternalCompletionBlock)completedBlock {
     context = [context copy]; // copy to avoid mutable object
     NSString *validOperationKey = nil;
     if ([context valueForKey:SDWebImageContextSetImageOperationKey]) {
@@ -90,7 +92,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         }
         
         __weak __typeof(self)wself = self;
-        SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+        SDImageLoaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
             __strong __typeof (wself) sself = wself;
             NSProgress *imageProgress = sself.sd_imageProgress;
             imageProgress.totalUnitCount = expectedSize;

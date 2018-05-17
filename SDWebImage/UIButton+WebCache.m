@@ -76,7 +76,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
-- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+- (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDImageLoaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
@@ -85,7 +85,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
                    context:(nullable SDWebImageContext *)context
-                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                  progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.sd_imageURLStorage removeObjectForKey:imageURLKeyForState(state)];
@@ -156,7 +156,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
 }
 
-- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDImageLoaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 context:nil progress:progressBlock completed:completedBlock];
 }
 
@@ -165,7 +165,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
                              context:(nullable SDWebImageContext *)context
-                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
     if (!url) {
         [self.sd_imageURLStorage removeObjectForKey:backgroundImageURLKeyForState(state)];
