@@ -433,7 +433,7 @@
 - (void)test31ThatLoadersManagerWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
     NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
-    [[SDWebImageLoadersManager sharedManager] loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+    [[SDImageLoadersManager sharedManager] loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         expect(error).to.beNil();

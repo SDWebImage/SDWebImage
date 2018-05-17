@@ -8,9 +8,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <SDWebImage/SDWebImageLoader.h>
+#import <SDWebImage/SDImageLoader.h>
 
 // A really naive implementation of custom image loader using `NSURLSession`
-@interface SDWebImageTestLoader : NSObject <SDWebImageLoader>
+@interface SDWebImageTestLoader : NSObject <SDImageLoader>
 
 @end
