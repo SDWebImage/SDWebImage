@@ -46,7 +46,7 @@
         // AppKit design is different from UIKit. Where CGImage based image rep does not respect to any orientation. Only data based image rep which contains the EXIF metadata can automatically detect orientation.
         // This should be nonnull, until the memory is exhausted cause `CGBitmapContextCreate` failed.
         CGImageRef rotatedCGImage = [SDImageCoderHelper CGImageCreateDecoded:cgImage orientation:orientation];
-        imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+        imageRep = [[NSBitmapImageRep alloc] initWithCGImage:rotatedCGImage];
         CGImageRelease(rotatedCGImage);
     } else {
         imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
