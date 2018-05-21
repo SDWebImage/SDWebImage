@@ -322,6 +322,9 @@ dispatch_semaphore_signal(self->_lock);
         }
         
         [self.layer setNeedsDisplay];
+#if SD_MAC
+        [self.layer displayIfNeeded]; // macOS's imageViewLayer is not equal to self.layer. But `[super setImage:]` will impliedly mark it needsDisplay. We call `[self.layer displayIfNeeded]` to immediately refresh the imageViewLayer to avoid flashing
+#endif
     }
 }
 
