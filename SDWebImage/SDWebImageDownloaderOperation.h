@@ -20,28 +20,37 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 /**
  Describes a downloader operation. If one wants to use a custom downloader op, it needs to inherit from `NSOperation` and conform to this protocol
  For the description about these methods, see `SDWebImageDownloaderOperation`
+ @note If your custom operation class does not use `NSURLSession` at all, do not implement the optional methods and session delegate methods.
  */
-@protocol SDWebImageDownloaderOperationInterface<NSObject>
-
+@protocol SDWebImageDownloaderOperation <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@required
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options;
 
+- (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
+                              inSession:(nullable NSURLSession *)session
+                                options:(SDWebImageDownloaderOptions)options
+                                context:(nullable SDWebImageContext *)context;
+
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
-
-- (BOOL)shouldDecompressImages;
-- (void)setShouldDecompressImages:(BOOL)value;
 
 - (nullable NSURLCredential *)credential;
 - (void)setCredential:(nullable NSURLCredential *)value;
 
 - (BOOL)cancel:(nullable id)token;
 
+- (nullable NSURLRequest *)request;
+- (nullable NSURLResponse *)response;
+
+@optional
+- (nullable NSURLSessionTask *)dataTask;
+
 @end
 
 
-@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperationInterface, SDWebImageOperation, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
+@interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation>
 
 /**
  * The request used by the operation's task.
@@ -49,18 +58,14 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
 
 /**
+ * The response returned by the operation's task.
+ */
+@property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
+
+/**
  * The operation's task
  */
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
-
-
-@property (assign, nonatomic) BOOL shouldDecompressImages;
-
-/**
- *  Was used to determine whether the URL connection should consult the credential storage for authenticating the connection.
- *  @deprecated Not used for a couple of versions
- */
-@property (nonatomic, assign) BOOL shouldUseCredentialStorage __deprecated_msg("Property deprecated. Does nothing. Kept only for backwards compatibility");
 
 /**
  * The credential used for authentication challenges in `-URLSession:task:didReceiveChallenge:completionHandler:`.
@@ -70,19 +75,14 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
 
 /**
- * The SDWebImageDownloaderOptions for the receiver.
+ * The options for the receiver.
  */
 @property (assign, nonatomic, readonly) SDWebImageDownloaderOptions options;
 
 /**
- * The expected size of data.
+ * The context for the receiver.
  */
-@property (assign, nonatomic) NSInteger expectedSize;
-
-/**
- * The response returned by the operation's task.
- */
-@property (strong, nonatomic, nullable) NSURLResponse *response;
+@property (copy, nonatomic, readonly, nullable) SDWebImageContext *context;
 
 /**
  *  Initializes a `SDWebImageDownloaderOperation` object
@@ -97,7 +97,24 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  */
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
-                                options:(SDWebImageDownloaderOptions)options NS_DESIGNATED_INITIALIZER;
+                                options:(SDWebImageDownloaderOptions)options;
+
+/**
+ *  Initializes a `SDWebImageDownloaderOperation` object
+ *
+ *  @see SDWebImageDownloaderOperation
+ *
+ *  @param request        the URL request
+ *  @param session        the URL session in which this operation will run
+ *  @param options        downloader options
+ *  @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ *
+ *  @return the initialized instance
+ */
+- (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
+                              inSession:(nullable NSURLSession *)session
+                                options:(SDWebImageDownloaderOptions)options
+                                context:(nullable SDWebImageContext *)context NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Adds handlers for progress and completion. Returns a tokent that can be passed to -cancel: to cancel this set of

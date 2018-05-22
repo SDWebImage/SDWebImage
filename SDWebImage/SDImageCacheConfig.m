@@ -7,22 +7,55 @@
  */
 
 #import "SDImageCacheConfig.h"
+#import "SDMemoryCache.h"
+#import "SDDiskCache.h"
 
+static SDImageCacheConfig *_defaultCacheConfig;
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
 @implementation SDImageCacheConfig
 
++ (SDImageCacheConfig *)defaultCacheConfig {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _defaultCacheConfig = [SDImageCacheConfig new];
+    });
+    return _defaultCacheConfig;
+}
+
 - (instancetype)init {
     if (self = [super init]) {
-        _shouldDecompressImages = YES;
         _shouldDisableiCloud = YES;
         _shouldCacheImagesInMemory = YES;
+        _shouldRemoveExpiredDataWhenEnterBackground = YES;
         _diskCacheReadingOptions = 0;
         _diskCacheWritingOptions = NSDataWritingAtomic;
         _maxCacheAge = kDefaultCacheMaxCacheAge;
         _maxCacheSize = 0;
+        _namespacePrefix = @"com.hackemist.SDImageCache.";
+        _memoryCacheClass = [SDMemoryCache class];
+        _diskCacheClass = [SDDiskCache class];
     }
     return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    SDImageCacheConfig *config = [[[self class] allocWithZone:zone] init];
+    config.shouldDisableiCloud = self.shouldDisableiCloud;
+    config.shouldCacheImagesInMemory = self.shouldCacheImagesInMemory;
+    config.shouldRemoveExpiredDataWhenEnterBackground = self.shouldRemoveExpiredDataWhenEnterBackground;
+    config.diskCacheReadingOptions = self.diskCacheReadingOptions;
+    config.diskCacheWritingOptions = self.diskCacheWritingOptions;
+    config.maxCacheAge = self.maxCacheAge;
+    config.maxCacheSize = self.maxCacheSize;
+    config.maxMemoryCost = self.maxMemoryCost;
+    config.maxMemoryCount = self.maxMemoryCount;
+    config.namespacePrefix = [self.namespacePrefix copyWithZone:zone];
+    config.fileManager = self.fileManager; // NSFileManager does not conform to NSCopying, just pass the reference
+    config.memoryCacheClass = self.memoryCacheClass;
+    config.diskCacheClass = self.diskCacheClass;
+    
+    return config;
 }
 
 @end

@@ -22,7 +22,7 @@
 /**
  * Get the current image URL.
  */
-- (nullable NSURL *)sd_currentImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
 
 /**
  * Get the image URL for a control state.
@@ -128,12 +128,62 @@
                    options:(SDWebImageOptions)options
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
+/**
+ * Set the imageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrieved from the local cache or from the network.
+ *                       The fourth parameter is the original image url.
+ */
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+/**
+ * Set the imageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url            The url for the image.
+ * @param state          The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrieved from the local cache or from the network.
+ *                       The fourth parameter is the original image url.
+ */
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                   context:(nullable SDWebImageContext *)context
+                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+
 #pragma mark - Background Image
 
 /**
  * Get the current background image URL.
  */
-- (nullable NSURL *)sd_currentBackgroundImageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentBackgroundImageURL;
 
 /**
  * Get the background image URL for a control state.
@@ -236,6 +286,54 @@
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+/**
+ * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrieved from the local cache or from the network.
+ *                       The fourth parameter is the original image url.
+ */
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options
+                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                           completed:(nullable SDExternalCompletionBlock)completedBlock;
+
+/**
+ * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrieved from the local cache or from the network.
+ *                       The fourth parameter is the original image url.
+ */
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options
+                             context:(nullable SDWebImageContext *)context
+                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #pragma mark - Cancel

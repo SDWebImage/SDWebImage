@@ -13,3 +13,8 @@
 - (void)cancel;
 
 @end
+
+// NSOperation conform to `SDWebImageOperation`
+@interface NSOperation (SDWebImageOperation) <SDWebImageOperation>
+
+@end

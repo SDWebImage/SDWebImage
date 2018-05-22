@@ -12,14 +12,21 @@
 @interface UIImage (GIF)
 
 /**
- *  Creates an animated UIImage from an NSData.
- *  For static GIF, will create an UIImage with `images` array set to nil. For animated GIF, will create an UIImage with valid `images` array.
+ Creates an animated UIImage from an NSData.
+ For Static GIF, will create an UIImage with `images` array set to nil. For Animated GIF, will create an UIImage with valid `images` array.
+
+ @param data The GIF data
+ @return The created image
  */
-+ (UIImage *)sd_animatedGIFWithData:(NSData *)data;
++ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data;
 
 /**
- *  Checks if an UIImage instance is a GIF. Will use the `images` array.
+ Creates an animated UIImage from an NSData.
+ 
+ @param data The GIF data
+ @param firstFrameOnly Even if the image data is Animated GIF format, decode the first frame only
+ @return The created image
  */
-- (BOOL)isGIF;
++ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly;
 
 @end

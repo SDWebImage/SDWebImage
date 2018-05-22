@@ -7,7 +7,7 @@
  */
 
 #import "InterfaceController.h"
-#import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImage/SDWebImage.h>
 
 
 @interface InterfaceController()

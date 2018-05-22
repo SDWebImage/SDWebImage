@@ -37,6 +37,6 @@ typedef NS_ENUM(NSInteger, SDImageFormat) {
  @param format Format as SDImageFormat
  @return The UTType as CFStringRef
  */
-+ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format;
++ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format CF_RETURNS_NOT_RETAINED;
 
 @end

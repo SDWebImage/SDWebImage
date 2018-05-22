@@ -10,21 +10,47 @@
 #import "NSData+ImageContentType.h"
 
 @interface UIImage (MultiFormat)
+#pragma mark - Decode
+/**
+ Create and decode a image with the specify image data
+
+ @param data The image data
+ @return The created image
+ */
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
 
 /**
- * UIKit:
- * For static image format, this value is always 0.
- * For animated image format, 0 means infinite looping.
- * Note that because of the limitations of categories this property can get out of sync if you create another instance with CGImage or other methods.
- * AppKit:
- * NSImage currently only support animated via GIF imageRep unlike UIImage.
- * The getter of this property will get the loop count from GIF imageRep
- * The setter of this property will set the loop count from GIF imageRep
+ Create and decode a image with the specify image data and scale
+ 
+ @param data The image data
+ @param scale The image scale factor. Should be greater than or equal to 1.0.
+ @return The created image
  */
-@property (nonatomic, assign) NSUInteger sd_imageLoopCount;
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale;
 
-+ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
+#pragma mark - Encode
+/**
+ Encode the current image to the data, the image format is unspecified
+
+ @return The encoded data. If can't encode, return nil
+ */
 - (nullable NSData *)sd_imageData;
+
+/**
+ Encode the current image to data with the specify image format
+
+ @param imageFormat The specify image format
+ @return The encoded data. If can't encode, return nil
+ */
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat;
+
+/**
+ Encode the current image to data with the specify image format and compression quality
+
+ @param imageFormat The specify image format
+ @param compressionQuality The quality of the resulting image data. Value between 0.0-1.0. Some coders may not support compression quality.
+ @return The encoded data. If can't encode, return nil
+ */
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality;
 
 @end
