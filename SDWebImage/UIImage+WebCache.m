@@ -10,7 +10,7 @@
 #import "NSImage+Compatibility.h"
 #import "objc/runtime.h"
 
-#if SD_UIKIT
+#if SD_UIKIT || SD_WATCH
 
 @implementation UIImage (WebCache)
 
