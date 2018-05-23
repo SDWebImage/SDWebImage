@@ -7,9 +7,6 @@
  */
 
 #import "SDWebImageCompat.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "SDWebImageDefine.h"
 #import "SDWebImageManager.h"
 #import "SDWebImageTransition.h"
@@ -77,6 +74,8 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  */
 - (void)sd_cancelCurrentImageLoad;
 
+#if SD_UIKIT || SD_MAC
+
 #pragma mark - Image Transition
 
 /**
@@ -94,6 +93,6 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  */
 @property (nonatomic, strong, nullable) id<SDWebImageIndicator> sd_imageIndicator;
 
-@end
-
 #endif
+
+@end

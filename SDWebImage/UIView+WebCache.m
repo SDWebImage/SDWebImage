@@ -7,9 +7,6 @@
  */
 
 #import "UIView+WebCache.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "SDWebImageError.h"
@@ -79,8 +76,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         self.sd_imageProgress.totalUnitCount = 0;
         self.sd_imageProgress.completedUnitCount = 0;
         
+#if SD_UIKIT || SD_MAC
         // check and start image indicator
         [self sd_startImageIndicator];
+#endif
         
         SDWebImageManager *manager;
         if ([context valueForKey:SDWebImageContextCustomManager]) {
@@ -89,8 +88,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             manager = [SDWebImageManager sharedManager];
         }
         
-        id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
-        
         __weak __typeof(self)wself = self;
         SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
             wself.sd_imageProgress.totalUnitCount = expectedSize;
@@ -98,12 +95,15 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             if (progressBlock) {
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
+#if SD_UIKIT || SD_MAC
+            id<SDWebImageIndicator> imageIndicator = wself.sd_imageIndicator;
             if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
                 double progress = wself.sd_imageProgress.fractionCompleted;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [imageIndicator updateIndicatorProgress:progress];
                 });
             }
+#endif
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
@@ -114,10 +114,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
             
+#if SD_UIKIT || SD_MAC
             // check and stop image indicator
             if (finished) {
                 [self sd_stopImageIndicator];
             }
+#endif
             
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
@@ -152,16 +154,22 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 targetData = nil;
             }
             
+#if SD_UIKIT || SD_MAC
             // check whether we should use the image transition
             SDWebImageTransition *transition = nil;
             if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
                 transition = sself.sd_imageTransition;
             }
+#endif
             
             if (group) {
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
+#if SD_UIKIT || SD_MAC
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+#else
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+#endif
                 });
                 // ensure completion block is called after custom setImage process finish
                 dispatch_group_notify(group, dispatch_get_main_queue(), ^{
@@ -169,14 +177,20 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 });
             } else {
                 dispatch_main_async_safe(^{
+#if SD_UIKIT || SD_MAC
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+#else
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+#endif
                     callCompletedBlockClojure();
                 });
             }
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
+#if SD_UIKIT || SD_MAC
         [self sd_stopImageIndicator];
+#endif
         dispatch_main_async_safe(^{
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidURL userInfo:@{NSLocalizedDescriptionKey : @"Image url is nil"}];
@@ -191,23 +205,31 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
+#if SD_UIKIT || SD_MAC
     [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:0 imageURL:nil];
+#else
+    // watchOS does not support view transition. Simplify the logic
+    if (setImageBlock) {
+        setImageBlock(image, imageData);
+    } else if ([self isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)self;
+        [imageView setImage:image];
+    }
+#endif
 }
 
+#if SD_UIKIT || SD_MAC
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock transition:(SDWebImageTransition *)transition cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
     UIView *view = self;
     SDSetImageBlock finalSetImageBlock;
     if (setImageBlock) {
         finalSetImageBlock = setImageBlock;
-    }
-#if SD_UIKIT || SD_MAC
-    else if ([view isKindOfClass:[UIImageView class]]) {
+    } else if ([view isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData) {
             imageView.image = setImage;
         };
     }
-#endif
 #if SD_UIKIT
     else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
@@ -273,14 +295,19 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         }
     }
 }
+#endif
 
 - (void)sd_setNeedsLayout {
 #if SD_UIKIT
     [self setNeedsLayout];
 #elif SD_MAC
     [self setNeedsLayout:YES];
+#elif SD_WATCH
+    // Do nothing because WatchKit automatically layout the view after property change
 #endif
 }
+
+#if SD_UIKIT || SD_MAC
 
 #pragma mark - Image Transition
 - (SDWebImageTransition *)sd_imageTransition {
@@ -340,6 +367,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     });
 }
 
-@end
-
 #endif
+
+@end

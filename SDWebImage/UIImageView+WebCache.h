@@ -7,9 +7,6 @@
  */
 
 #import "SDWebImageCompat.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "SDWebImageManager.h"
 
 /**
@@ -197,5 +194,3 @@
 #endif
 
 @end
-
-#endif
