@@ -20,10 +20,8 @@
 @property (assign, nonatomic, nullable) Class operationClass;
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 
-- (nullable SDWebImageDownloadToken *)addProgressCallback:(SDWebImageDownloaderProgressBlock)progressBlock
-                                           completedBlock:(SDWebImageDownloaderCompletedBlock)completedBlock
-                                                   forURL:(nullable NSURL *)url
-                                           createCallback:(SDWebImageDownloaderOperation *(^)(void))createCallback;
+- (SDWebImageDownloaderOperation *)createDownloaderOperationWithUrl:(nullable NSURL *)url options:(SDWebImageDownloaderOptions)options;
+
 @end
 
 /**
@@ -119,16 +117,8 @@
     expect([SDWebImageDownloader sharedDownloader].operationClass).to.equal([SDWebImageDownloaderOperation class]);
 }
 
-- (void)test07ThatAddProgressCallbackCompletedBlockWithNilURLCallsTheCompletionBlockWithNils {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with nils"];
-    [[SDWebImageDownloader sharedDownloader] addProgressCallback:nil completedBlock:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        if (!image && !data && !error) {
-            [expectation fulfill];
-        } else {
-            XCTFail(@"All params should be nil");
-        }
-    } forURL:nil createCallback:nil];
-    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+- (void)test07ThatCreateDownloaderOperationWithNilUrl {
+    [[SDWebImageDownloader sharedDownloader] createDownloaderOperationWithUrl:nil options:0];
 }
 
 - (void)test08ThatAHTTPAuthDownloadWorks {
@@ -310,9 +300,9 @@
                                            }
                                        }];
     expect(token2).toNot.beNil();
-
+    
     [[SDWebImageDownloader sharedDownloader] cancel:token1];
-
+    
     [self waitForExpectationsWithCommonTimeout];
 }
 
@@ -386,3 +376,4 @@
 }
 
 @end
+
