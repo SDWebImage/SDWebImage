@@ -9,7 +9,6 @@
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
 #import <objc/message.h>
-#import <pthread/pthread.h>
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
