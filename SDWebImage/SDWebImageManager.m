@@ -30,12 +30,11 @@
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t failedURLsLock; // a lock to keep the access to `failedURLs` thread-safe
 @property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t runningOperationsLock; // a lock to keep the access to `runningOperations` thread-safe
 
 @end
 
-@implementation SDWebImageManager {
-    pthread_mutex_t _runningOperationsLock; // a lock to keep the access to `runningOperations` thread-safe
-}
+@implementation SDWebImageManager
 
 + (nonnull instancetype)sharedManager {
     static dispatch_once_t once;
@@ -44,10 +43,6 @@
         instance = [self new];
     });
     return instance;
-}
-
-- (void)dealloc {
-    pthread_mutex_destroy(&_runningOperationsLock);
 }
 
 - (nonnull instancetype)init {
@@ -63,11 +58,7 @@
         _failedURLs = [NSMutableSet new];
         _failedURLsLock = dispatch_semaphore_create(1);
         _runningOperations = [NSMutableArray new];
-        
-        pthread_mutexattr_t attribute;
-        pthread_mutexattr_init(&attribute);
-        pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_RECURSIVE);
-        pthread_mutex_init(&_runningOperationsLock, &attribute);
+        _runningOperationsLock = dispatch_semaphore_create(1);
     }
     return self;
 }
@@ -157,9 +148,9 @@
         return operation;
     }
 
-    pthread_mutex_lock(&_runningOperationsLock);
+    LOCK(self.runningOperationsLock);
     [self.runningOperations addObject:operation];
-    pthread_mutex_unlock(&_runningOperationsLock);
+    UNLOCK(self.runningOperationsLock);
     NSString *key = [self cacheKeyForURL:url];
     
     SDImageCacheOptions cacheOptions = 0;
@@ -309,27 +300,26 @@
 }
 
 - (void)cancelAll {
-    pthread_mutex_lock(&_runningOperationsLock);
+    LOCK(self.runningOperationsLock);
     NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
-    [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
-    [self.runningOperations removeObjectsInArray:copiedOperations];
-    pthread_mutex_unlock(&_runningOperationsLock);
+    UNLOCK(self.runningOperationsLock);
+    [copiedOperations makeObjectsPerformSelector:@selector(cancel)]; // This will call `safelyRemoveOperationFromRunning:` and remove from the array
 }
 
 - (BOOL)isRunning {
     BOOL isRunning = NO;
-    pthread_mutex_lock(&_runningOperationsLock);
+    LOCK(self.runningOperationsLock);
     isRunning = (self.runningOperations.count > 0);
-    pthread_mutex_unlock(&_runningOperationsLock);
+    UNLOCK(self.runningOperationsLock);
     return isRunning;
 }
 
 - (void)safelyRemoveOperationFromRunning:(nullable SDWebImageCombinedOperation*)operation {
-    pthread_mutex_lock(&_runningOperationsLock);
+    LOCK(self.runningOperationsLock);
     if (operation) {
         [self.runningOperations removeObject:operation];
     }
-    pthread_mutex_unlock(&_runningOperationsLock);
+    UNLOCK(self.runningOperationsLock);
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation
