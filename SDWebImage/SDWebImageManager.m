@@ -9,6 +9,10 @@
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
 #import <objc/message.h>
+#import <pthread/pthread.h>
+
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
 @interface SDWebImageCombinedOperation : NSObject <SDWebImageOperation>
 
@@ -24,11 +28,14 @@
 @property (strong, nonatomic, readwrite, nonnull) SDImageCache *imageCache;
 @property (strong, nonatomic, readwrite, nonnull) SDWebImageDownloader *imageDownloader;
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t failedURLsLock; // a lock to keep the access to `failedURLs` thread-safe
 @property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
 
 @end
 
-@implementation SDWebImageManager
+@implementation SDWebImageManager {
+    pthread_mutex_t _runningOperationsLock; // a lock to keep the access to `runningOperations` thread-safe
+}
 
 + (nonnull instancetype)sharedManager {
     static dispatch_once_t once;
@@ -37,6 +44,10 @@
         instance = [self new];
     });
     return instance;
+}
+
+- (void)dealloc {
+    pthread_mutex_destroy(&_runningOperationsLock);
 }
 
 - (nonnull instancetype)init {
@@ -50,7 +61,13 @@
         _imageCache = cache;
         _imageDownloader = downloader;
         _failedURLs = [NSMutableSet new];
+        _failedURLsLock = dispatch_semaphore_create(1);
         _runningOperations = [NSMutableArray new];
+        
+        pthread_mutexattr_t attribute;
+        pthread_mutexattr_init(&attribute);
+        pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&_runningOperationsLock, &attribute);
     }
     return self;
 }
@@ -130,9 +147,9 @@
 
     BOOL isFailedUrl = NO;
     if (url) {
-        @synchronized (self.failedURLs) {
-            isFailedUrl = [self.failedURLs containsObject:url];
-        }
+        LOCK(self.failedURLsLock);
+        isFailedUrl = [self.failedURLs containsObject:url];
+        UNLOCK(self.failedURLsLock);
     }
 
     if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
@@ -140,9 +157,9 @@
         return operation;
     }
 
-    @synchronized (self.runningOperations) {
-        [self.runningOperations addObject:operation];
-    }
+    pthread_mutex_lock(&_runningOperationsLock);
+    [self.runningOperations addObject:operation];
+    pthread_mutex_unlock(&_runningOperationsLock);
     NSString *key = [self cacheKeyForURL:url];
     
     SDImageCacheOptions cacheOptions = 0;
@@ -213,16 +230,16 @@
                     }
                     
                     if (shouldBlockFailedURL) {
-                        @synchronized (self.failedURLs) {
-                            [self.failedURLs addObject:url];
-                        }
+                        LOCK(self.failedURLsLock);
+                        [self.failedURLs addObject:url];
+                        UNLOCK(self.failedURLsLock);
                     }
                 }
                 else {
                     if ((options & SDWebImageRetryFailed)) {
-                        @synchronized (self.failedURLs) {
-                            [self.failedURLs removeObject:url];
-                        }
+                        LOCK(self.failedURLsLock);
+                        [self.failedURLs removeObject:url];
+                        UNLOCK(self.failedURLsLock);
                     }
                     
                     BOOL cacheOnDisk = !(options & SDWebImageCacheMemoryOnly);
@@ -292,27 +309,27 @@
 }
 
 - (void)cancelAll {
-    @synchronized (self.runningOperations) {
-        NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
-        [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
-        [self.runningOperations removeObjectsInArray:copiedOperations];
-    }
+    pthread_mutex_lock(&_runningOperationsLock);
+    NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
+    [copiedOperations makeObjectsPerformSelector:@selector(cancel)];
+    [self.runningOperations removeObjectsInArray:copiedOperations];
+    pthread_mutex_unlock(&_runningOperationsLock);
 }
 
 - (BOOL)isRunning {
     BOOL isRunning = NO;
-    @synchronized (self.runningOperations) {
-        isRunning = (self.runningOperations.count > 0);
-    }
+    pthread_mutex_lock(&_runningOperationsLock);
+    isRunning = (self.runningOperations.count > 0);
+    pthread_mutex_unlock(&_runningOperationsLock);
     return isRunning;
 }
 
 - (void)safelyRemoveOperationFromRunning:(nullable SDWebImageCombinedOperation*)operation {
-    @synchronized (self.runningOperations) {
-        if (operation) {
-            [self.runningOperations removeObject:operation];
-        }
+    pthread_mutex_lock(&_runningOperationsLock);
+    if (operation) {
+        [self.runningOperations removeObject:operation];
     }
+    pthread_mutex_unlock(&_runningOperationsLock);
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation
