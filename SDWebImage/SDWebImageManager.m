@@ -347,20 +347,34 @@
 @end
 
 
+@interface SDWebImageCombinedOperation ()
+
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t cancelLock; // a lock to make the `cancel` method thread-safe
+
+@end
+
 @implementation SDWebImageCombinedOperation
 
-- (void)cancel {
-    @synchronized(self) {
-        self.cancelled = YES;
-        if (self.cacheOperation) {
-            [self.cacheOperation cancel];
-            self.cacheOperation = nil;
-        }
-        if (self.downloadToken) {
-            [self.manager.imageDownloader cancel:self.downloadToken];
-        }
-        [self.manager safelyRemoveOperationFromRunning:self];
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _cancelLock = dispatch_semaphore_create(1);
     }
+    return self;
+}
+
+- (void)cancel {
+    LOCK(self.cancelLock);
+    self.cancelled = YES;
+    if (self.cacheOperation) {
+        [self.cacheOperation cancel];
+        self.cacheOperation = nil;
+    }
+    if (self.downloadToken) {
+        [self.manager.imageDownloader cancel:self.downloadToken];
+    }
+    [self.manager safelyRemoveOperationFromRunning:self];
+    UNLOCK(self.cancelLock);
 }
 
 @end
