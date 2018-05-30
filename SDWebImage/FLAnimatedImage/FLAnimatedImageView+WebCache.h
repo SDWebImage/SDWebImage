@@ -39,6 +39,29 @@
 @interface FLAnimatedImageView (WebCache)
 
 /**
+ * Optimal Frame Cache Size of FLAnimatedImage
+ * This value will help you set frameCacheSizeOptimal property of FLAnimatedImage after image load.
+ * default is 0.
+ * If this value is 0, frameCacheSizeOptimal property of FLAnimatedImage will set automatically.
+ */
+@property (nonatomic) NSUInteger sd_optimalFrameCacheSize;
+
+/**
+ * Set Default Optimal Frame Cache Size of FLAnimatedImage
+ * If sd_optimalFrameCacheSize is 0, FLAnimatedImage will use sd_defaultOptimalFrameCacheSize
+ * default is 0
+ *
+ * @param cacheSize     Default optimal frame cache size of FLAnimatedImage
+ */
++ (void)setSd_defaultOptimalFrameCacheSize:(NSUInteger)cacheSize;
+
+/**
+ *  Get Default Optimal Frame Cache Size of FLAnimatedImage
+ *  default is 0
+ */
++ (NSUInteger)sd_defaultOptimalFrameCacheSize;
+
+/**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
  * The download is asynchronous and cached.
  *

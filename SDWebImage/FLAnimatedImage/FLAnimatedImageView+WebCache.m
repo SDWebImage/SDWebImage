@@ -27,7 +27,32 @@
 
 @end
 
+static NSUInteger kDefaultOptimalFrameCacheSize = 0;
+static char optimalFrameCacheSizeKey;
+
 @implementation FLAnimatedImageView (WebCache)
+
+
++ (void)setSd_defaultOptimalFrameCacheSize:(NSUInteger)cacheSize
+{
+    kDefaultOptimalFrameCacheSize = cacheSize;
+}
++ (NSUInteger)sd_defaultOptimalFrameCacheSize
+{
+    return kDefaultOptimalFrameCacheSize;
+}
+
+
+- (void)setSd_optimalFrameCacheSize:(NSUInteger)cacheSize
+{
+    objc_setAssociatedObject(self, &optimalFrameCacheSizeKey, @(cacheSize), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSUInteger)sd_optimalFrameCacheSize
+{
+    return [objc_getAssociatedObject(self, &optimalFrameCacheSizeKey) floatValue];
+}
+
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
@@ -83,7 +108,9 @@
                                weakSelf.animatedImage = nil;
                                // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                   FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:imageData];
+                                   NSUInteger cacheSize = self.sd_optimalFrameCacheSize > 0 ? self.sd_optimalFrameCacheSize : kDefaultOptimalFrameCacheSize;
+                                   
+                                   FLAnimatedImage *animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:cacheSize predrawingEnabled:YES];
                                    dispatch_async(dispatch_get_main_queue(), ^{
                                        image.sd_FLAnimatedImage = animatedImage;
                                        weakSelf.animatedImage = animatedImage;
