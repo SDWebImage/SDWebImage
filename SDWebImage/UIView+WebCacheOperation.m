@@ -7,9 +7,6 @@
  */
 
 #import "UIView+WebCacheOperation.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "objc/runtime.h"
 
 static char loadOperationKey;
@@ -80,5 +77,3 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 }
 
 @end
-
-#endif

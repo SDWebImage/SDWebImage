@@ -29,9 +29,11 @@
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
     
-    NSString *urlString = @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png";
-    [[SDWebImageManager sharedManager] loadImageWithURL:[NSURL URLWithString:urlString] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-        self.imageInterface.image = image;
+    NSString *urlString = @"http://apng.onevcat.com/assets/elephant.png";
+    WKInterfaceImage *imageInterface = self.imageInterface;
+    [imageInterface sd_setImageWithURL:[NSURL URLWithString:urlString] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        // `WKInterfaceImage` unlike `UIImageView`. Even the image is animated image, you should explicitly call `startAnimating` to play animation.
+        [imageInterface startAnimating];
     }];
 }
 

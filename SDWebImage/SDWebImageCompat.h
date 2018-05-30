@@ -72,6 +72,12 @@
     #endif
     #if SD_WATCH
         #import <WatchKit/WatchKit.h>
+        #ifndef UIView
+            #define UIView WKInterfaceObject
+        #endif
+        #ifndef UIImageView
+            #define UIImageView WKInterfaceImage
+        #endif
     #endif
 #endif
 
