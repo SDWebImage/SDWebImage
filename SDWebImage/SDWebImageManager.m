@@ -314,10 +314,11 @@
 }
 
 - (void)safelyRemoveOperationFromRunning:(nullable SDWebImageCombinedOperation*)operation {
-    LOCK(self.runningOperationsLock);
-    if (operation) {
-        [self.runningOperations removeObject:operation];
+    if (!operation) {
+        return;
     }
+    LOCK(self.runningOperationsLock);
+    [self.runningOperations removeObject:operation];
     UNLOCK(self.runningOperationsLock);
 }
 
