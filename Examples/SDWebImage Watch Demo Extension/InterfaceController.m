@@ -7,7 +7,7 @@
  */
 
 #import "InterfaceController.h"
-#import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImage/UIImageView+WebCache.h>
 
 
 @interface InterfaceController()
@@ -30,9 +30,8 @@
     [super willActivate];
     
     NSString *urlString = @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png";
-    [[SDWebImageManager sharedManager] loadImageWithURL:[NSURL URLWithString:urlString] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-        self.imageInterface.image = image;
-    }];
+    WKInterfaceImage *imageInterface = self.imageInterface;
+    [imageInterface sd_setImageWithURL:[NSURL URLWithString:urlString]];
 }
 
 - (void)didDeactivate {

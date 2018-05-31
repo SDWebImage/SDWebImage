@@ -7,10 +7,7 @@
  */
 
 #import "SDWebImageCompat.h"
-
-#if SD_UIKIT || SD_MAC
-
-#import "SDWebImageManager.h"
+#import "SDWebImageOperation.h"
 
 // These methods are used to support canceling for UIView image loading, it's designed to be used internal but not external.
 // All the stored operations are weak, so it will be dalloced after image loading finished. If you need to store operations, use your own class to keep a strong reference for them.
@@ -39,5 +36,3 @@
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key;
 
 @end
-
-#endif

@@ -7,9 +7,6 @@
  */
 
 #import "UIImageView+WebCache.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
@@ -140,5 +137,3 @@ static char animationLoadOperationKey;
 #endif
 
 @end
-
-#endif
