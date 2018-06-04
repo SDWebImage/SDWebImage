@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name = 'SDWebImage'
-  s.version = '4.0.0'
+  s.version = '4.4.0'
 
-  s.osx.deployment_target = '10.8'
+  s.osx.deployment_target = '10.9'
   s.ios.deployment_target = '7.0'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
@@ -28,12 +28,12 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
-    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}'
+    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageWebPCoder.{h,m}'
     core.tvos.exclude_files = 'SDWebImage/MKAnnotationView+WebCache.*'
   end
 
   s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.8'
+    mk.osx.deployment_target = '10.9'
     mk.ios.deployment_target = '7.0'
     mk.tvos.deployment_target = '9.0'
     mk.source_files = 'SDWebImage/MKAnnotationView+WebCache.*'
@@ -52,7 +52,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'WebP' do |webp|
-    webp.source_files = 'SDWebImage/UIImage+WebP.{h,m}'
+    webp.source_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageWebPCoder.{h,m}'
     webp.xcconfig = { 
       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1',
       'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
@@ -62,6 +62,6 @@ Pod::Spec.new do |s|
       'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
     }
     webp.dependency 'SDWebImage/Core'
-    webp.dependency 'libwebp'
+    webp.dependency 'libwebp', '~> 0.5'
   end
 end

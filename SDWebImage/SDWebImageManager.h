@@ -25,7 +25,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageLowPriority = 1 << 1,
 
     /**
-     * This flag disables on-disk caching
+     * This flag disables on-disk caching after the download finished, only cache in memory
      */
     SDWebImageCacheMemoryOnly = 1 << 2,
 
@@ -94,14 +94,37 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * images to a size compatible with the constrained memory of devices.
      * If `SDWebImageProgressiveDownload` flag is set the scale down is deactivated.
      */
-    SDWebImageScaleDownLargeImages = 1 << 12
+    SDWebImageScaleDownLargeImages = 1 << 12,
+    
+    /**
+     * By default, we do not query disk data when the image is cached in memory. This mask can force to query disk data at the same time.
+     * This flag is recommend to be used with `SDWebImageQueryDiskSync` to ensure the image is loaded in the same runloop.
+     */
+    SDWebImageQueryDataWhenInMemory = 1 << 13,
+    
+    /**
+     * By default, we query the memory cache synchronously, disk cache asynchronously. This mask can force to query disk cache synchronously to ensure that image is loaded in the same runloop.
+     * This flag can avoid flashing during cell reuse if you disable memory cache or in some other cases.
+     */
+    SDWebImageQueryDiskSync = 1 << 14,
+    
+    /**
+     * By default, when the cache missed, the image is download from the network. This flag can prevent network to load from cache only.
+     */
+    SDWebImageFromCacheOnly = 1 << 15,
+    /**
+     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
+     */
+    SDWebImageForceTransition = 1 << 16
 };
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
 typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL);
 
-typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
+typedef NSString * _Nullable(^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable url);
+
+typedef NSData * _Nullable(^SDWebImageCacheSerializerBlock)(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL);
 
 
 @class SDWebImageManager;
@@ -119,6 +142,16 @@ typedef NSString * _Nullable (^SDWebImageCacheKeyFilterBlock)(NSURL * _Nullable 
  * @return Return NO to prevent the downloading of the image on cache misses. If not implemented, YES is implied.
  */
 - (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldDownloadImageForURL:(nullable NSURL *)imageURL;
+
+/**
+ * Controls the complicated logic to mark as failed URLs when download error occur.
+ * If the delegate implement this method, we will not use the built-in way to mark URL as failed based on error code;
+ @param imageManager The current `SDWebImageManager`
+ @param imageURL The url of the image
+ @param error The download error for the url
+ @return Whether to block this url or not. Return YES to mark this URL as failed.
+ */
+- (BOOL)imageManager:(nonnull SDWebImageManager *)imageManager shouldBlockFailedURL:(nonnull NSURL *)imageURL withError:(nonnull NSError *)error;
 
 /**
  * Allows to transform the image immediately after it has been downloaded and just before to cache it on disk and memory.
@@ -172,14 +205,34 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  *
  * @code
 
-[[SDWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url) {
+SDWebImageManager.sharedManager.cacheKeyFilter = ^(NSURL * _Nullable url) {
     url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
     return [url absoluteString];
-}];
+};
 
  * @endcode
  */
 @property (nonatomic, copy, nullable) SDWebImageCacheKeyFilterBlock cacheKeyFilter;
+
+/**
+ * The cache serializer is a block used to convert the decoded image, the source downloaded data, to the actual data used for storing to the disk cache. If you return nil, means to generate the data from the image instance, see `SDImageCache`.
+ * For example, if you are using WebP images and facing the slow decoding time issue when later retriving from disk cache again. You can try to encode the decoded image to JPEG/PNG format to disk cache instead of source downloaded data.
+ * @note The `image` arg is nonnull, but when you also provide a image transformer and the image is transformed, the `data` arg may be nil, take attention to this case.
+ * @note This method is called from a global queue in order to not to block the main thread.
+ * @code
+ SDWebImageManager.sharedManager.cacheSerializer = ^NSData * _Nullable(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL) {
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    switch (format) {
+        case SDImageFormatWebP:
+            return image.images ? data : nil;
+        default:
+            return data;
+    }
+ };
+ * @endcode
+ * The default value is nil. Means we just store the source downloaded data to disk cache.
+ */
+@property (nonatomic, copy, nullable) SDWebImageCacheSerializerBlock cacheSerializer;
 
 /**
  * Returns global SDWebImageManager instance.

@@ -1,10 +1,10 @@
-//
-//  SDImageCacheConfig.m
-//  SDWebImage
-//
-//  Created by Bogdan on 09/09/16.
-//  Copyright © 2016 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "SDImageCacheConfig.h"
 
@@ -17,6 +17,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         _shouldDecompressImages = YES;
         _shouldDisableiCloud = YES;
         _shouldCacheImagesInMemory = YES;
+        _diskCacheReadingOptions = 0;
+        _diskCacheWritingOptions = NSDataWritingAtomic;
         _maxCacheAge = kDefaultCacheMaxCacheAge;
         _maxCacheSize = 0;
     }

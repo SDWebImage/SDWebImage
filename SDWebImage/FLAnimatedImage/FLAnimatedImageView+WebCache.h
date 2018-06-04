@@ -13,10 +13,23 @@
 #if __has_include(<FLAnimatedImage/FLAnimatedImage.h>)
 #import <FLAnimatedImage/FLAnimatedImage.h>
 #else
-#import "FLAnimatedImageView.h"
+#import "FLAnimatedImage.h"
 #endif
 
 #import "SDWebImageManager.h"
+
+/**
+ *  FLAnimatedImage is not a subclass of UIImage, so it's not possible to store it into the memory cache currently. However, for performance issue and cell reuse on FLAnimatedImageView, we use associate object to bind a FLAnimatedImage into UIImage when an animated GIF image load. For most cases, you don't need to touch this.
+ */
+@interface UIImage (FLAnimatedImage)
+
+/**
+ *  The FLAnimatedImage associated to the UIImage instance when an animated GIF image load.
+ *  For most cases this is read-only and you should avoid manually setting this value. Util some cases like using placeholder with a `FLAnimatedImage`.
+ */
+@property (nonatomic, strong, nullable) FLAnimatedImage *sd_FLAnimatedImage;
+
+@end
 
 
 /**
@@ -26,12 +39,26 @@
 @interface FLAnimatedImageView (WebCache)
 
 /**
+ * Optimal frame cache size of FLAnimatedImage during initializer. (1.0.11 version later)
+ * This value will help you set `optimalFrameCacheSize` arg of FLAnimatedImage initializer after image load.
+ * Defaults to 0.
+ */
+@property (nonatomic, assign) NSUInteger sd_optimalFrameCacheSize;
+
+/**
+ * Predrawing control of FLAnimatedImage during initializer. (1.0.11 version later)
+ * This value will help you set `predrawingEnabled` arg of FLAnimatedImage initializer after image load.
+ * Defaults to YES.
+ */
+@property (nonatomic, assign) BOOL sd_predrawingEnabled;
+
+/**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
  * The download is asynchronous and cached.
  *
  * @param url The url for the image.
  */
-- (void)sd_setImageWithURL:(nullable NSURL *)url;
+- (void)sd_setImageWithURL:(nullable NSURL *)url NS_REFINED_FOR_SWIFT;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -42,7 +69,7 @@
  * @param placeholder The image to be set initially, until the image request finishes.
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
-          placeholderImage:(nullable UIImage *)placeholder;
+          placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -55,7 +82,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
-                   options:(SDWebImageOptions)options;
+                   options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
@@ -86,7 +113,7 @@
  */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
-                 completed:(nullable SDExternalCompletionBlock)completedBlock;
+                 completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images

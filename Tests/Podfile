@@ -2,7 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
 
-xcodeproj 'SDWebImage Tests'
+project 'SDWebImage Tests'
 workspace '../SDWebImage'
 
 target 'Tests' do
