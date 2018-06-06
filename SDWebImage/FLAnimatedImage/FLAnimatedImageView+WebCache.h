@@ -39,6 +39,20 @@
 @interface FLAnimatedImageView (WebCache)
 
 /**
+ * Optimal frame cache size of FLAnimatedImage during initializer. (1.0.11 version later)
+ * This value will help you set `optimalFrameCacheSize` arg of FLAnimatedImage initializer after image load.
+ * Defaults to 0.
+ */
+@property (nonatomic, assign) NSUInteger sd_optimalFrameCacheSize;
+
+/**
+ * Predrawing control of FLAnimatedImage during initializer. (1.0.11 version later)
+ * This value will help you set `predrawingEnabled` arg of FLAnimatedImage initializer after image load.
+ * Defaults to YES.
+ */
+@property (nonatomic, assign) BOOL sd_predrawingEnabled;
+
+/**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images
  * The download is asynchronous and cached.
  *

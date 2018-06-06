@@ -253,7 +253,8 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     
     LOCK(self.operationsLock);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
-    if (!operation) {
+    if (!operation || operation.isFinished) {
+    // There is a case that the operation may be marked as finished, but not been removed from `self.URLOperations`.
         operation = createCallback();
         if (!operation) {
             UNLOCK(self.operationsLock);

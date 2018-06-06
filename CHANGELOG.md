@@ -1,3 +1,36 @@
+## [4.4.0 - watchOS View Category, on May 31st, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.0)
+See [all tickets marked for the 4.4.0 release](https://github.com/rs/SDWebImage/milestone/25)
+
+#### Features
+- View Category
+	- Add the support for watchOS to use View Category method (`sd_setImageWithURL:`) on WKInterfaceImage #2343
+	- Add optimalFrameCacheSize && predrawingEnabled options for FLAnimatedImage #2323
+- Cache
+	- Add `SDImageCacheScaleDownLargeImages` to allow cache to scale down large images if need #2281 #2273
+
+#### Improvements
+- View Category
+	- Add `UIViewAnimationOptionAllowUserInteraction` as default options for convenient image transition #2315
+- Manager
+	- Replace `@synchronized` with dispatch_semaphore_t in SDWebImageManager #2340
+
+#### Performances
+- Coder
+	- Remove the extra calculation of image orientation for ImageIO coder #2313
+	- Remove the duplicated process to force decode (draw on bitmap context) in Image/IO's progressive decoding #2314
+- Common
+	- Minor optimize for dispatch_queue_async_safe #2329
+	
+#### Fixes
+- Coder
+	- Fix that force decode not works for alpha-channel images #2272 #2297
+	- Fix WebP Encoding only works for RGBA8888 CGImage but not other color mode #2318
+	- Fix the thread-safe issue for coders manager #2274 #2249 #1484
+	- Fix the wrong declaration of NSArray generics #2260
+
+#### Docs
+- Fix function storeImageDataToDisk description #2301
+
 ## [4.3.3 - Cache Serializer, on Mar 12th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.3.3)
 See [all tickets marked for the 4.3.3 release](https://github.com/rs/SDWebImage/milestone/24)
 
@@ -631,3 +664,5 @@ For consistency, added async methods in `SDWebImageManager` `cachedImageExistsFo
 ## [1.0.0 on Dec 31st, 2009](https://github.com/rs/SDWebImage/releases/tag/1.0.0)
 
 ## [1.0 on Dec 31st, 2009](https://github.com/rs/SDWebImage/releases/tag/1.0)
+
+
