@@ -275,7 +275,8 @@
     
     LOCK(self.operationsLock);
     SDWebImageDownloaderOperation *operation = [self.URLOperations objectForKey:url];
-    if (!operation) {
+    // There is a case that the operation may be marked as finished, but not been removed from `self.URLOperations`.
+    if (!operation || operation.isFinished) {
         operation = createCallback();
         __weak typeof(self) wself = self;
         operation.completionBlock = ^{
