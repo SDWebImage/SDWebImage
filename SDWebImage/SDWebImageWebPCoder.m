@@ -73,9 +73,12 @@
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
     CGBitmapInfo bitmapInfo;
+    // `CGBitmapContextCreate` does not support RGB888 on iOS. Where `CGImageCreate` supports.
     if (!(flags & ALPHA_FLAG)) {
+        // RGBX8888
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
     } else {
+        // RGBA8888
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     }
     CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
@@ -298,7 +301,15 @@
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
     CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
-    CGBitmapInfo bitmapInfo = config.input.has_alpha ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGBitmapByteOrder32Big | kCGImageAlphaNoneSkipLast;
+    CGBitmapInfo bitmapInfo;
+    // `CGBitmapContextCreate` does not support RGB888 on iOS. Where `CGImageCreate` supports.
+    if (!config.input.has_alpha) {
+        // RGB888
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaNone;
+    } else {
+        // RGBA8888
+        bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    }
     size_t components = config.input.has_alpha ? 4 : 3;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     CGImageRef imageRef = CGImageCreate(width, height, 8, components * 8, components * width, colorSpaceRef, bitmapInfo, provider, NULL, NO, renderingIntent);
