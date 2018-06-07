@@ -1,3 +1,12 @@
+## [4.4.1 - 4.4 patch, on June 7th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.1)
+See [all tickets marked for the 4.4.1 release](https://github.com/rs/SDWebImage/milestone/26)
+	
+#### Fixes
+- Coder
+	- Fix that WebP (including Animated WebP) decoding issue on iOS 12 #2348 #2347
+- Downloader
+	- Fix that the downloader operation may not call the completion block when requesting the same image url in race condition #2346 #2344
+
 ## [4.4.0 - watchOS View Category, on May 31st, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.0)
 See [all tickets marked for the 4.4.0 release](https://github.com/rs/SDWebImage/milestone/25)
 
