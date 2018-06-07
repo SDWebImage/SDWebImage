@@ -6,29 +6,29 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageLoader.h"
+#import "SDImageLoader.h"
 
-@interface SDWebImageLoadersManager : NSObject <SDWebImageLoader>
+@interface SDImageLoadersManager : NSObject <SDImageLoader>
 
-@property (nonatomic, class, readonly, nonnull) SDWebImageLoadersManager *sharedManager;
+@property (nonatomic, class, readonly, nonnull) SDImageLoadersManager *sharedManager;
 
 /**
  All image loaders in manager. The loaders array is a priority queue, which means the later added loader will have the highest priority
  */
-@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDWebImageLoader>>* loaders;
+@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDImageLoader>>* loaders;
 
 /**
  Add a new image loader to the end of loaders array. Which has the highest priority.
  
  @param loader loader
  */
-- (void)addLoader:(nonnull id<SDWebImageLoader>)loader;
+- (void)addLoader:(nonnull id<SDImageLoader>)loader;
 
 /**
  Remove a image loader in the loaders array.
  
  @param loader loader
  */
-- (void)removeLoader:(nonnull id<SDWebImageLoader>)loader;
+- (void)removeLoader:(nonnull id<SDImageLoader>)loader;
 
 @end

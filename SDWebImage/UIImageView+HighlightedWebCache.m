@@ -33,14 +33,14 @@ static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOpera
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:completedBlock];
 }
 
-- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
+- (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDExternalCompletionBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
                               context:(nullable SDWebImageContext *)context
-                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
     __weak typeof(self)weakSelf = self;
     SDWebImageMutableContext *mutableContext;

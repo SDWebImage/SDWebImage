@@ -49,30 +49,30 @@
 		320CAE1E2086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
 		320CAE1F2086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
 		320CAE202086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
-		321B37812083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37822083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37832083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37842083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37852083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37862083290E00C0EA77 /* SDWebImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDWebImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37872083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B37882083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B37892083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B378A2083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B378B2083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B378C2083290E00C0EA77 /* SDWebImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDWebImageLoader.m */; };
-		321B378D2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B378E2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B378F2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37902083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37912083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37922083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		321B37932083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
-		321B37942083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
-		321B37952083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
-		321B37962083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
-		321B37972083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
-		321B37982083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */; };
+		321B37812083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37822083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37832083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37842083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37852083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37862083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37872083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B37882083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B37892083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B378A2083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B378B2083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B378C2083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
+		321B378D2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B378E2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B378F2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37902083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37912083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37922083290E00C0EA77 /* SDImageLoadersManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		321B37932083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
+		321B37942083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
+		321B37952083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
+		321B37962083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
+		321B37972083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
+		321B37982083290E00C0EA77 /* SDImageLoadersManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B37802083290E00C0EA77 /* SDImageLoadersManager.m */; };
 		321DB3612011D4D70015D2CB /* NSButton+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321DB3622011D4D70015D2CB /* NSButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 321DB3602011D4D60015D2CB /* NSButton+WebCache.m */; };
 		321E60861F38E8C800405457 /* SDImageCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 321E60841F38E8C800405457 /* SDImageCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1545,10 +1545,10 @@
 		320224BA203979BA00E9F285 /* SDAnimatedImageRep.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDAnimatedImageRep.m; sourceTree = "<group>"; };
 		320CAE132086F50500CFFC80 /* SDWebImageError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageError.h; sourceTree = "<group>"; };
 		320CAE142086F50500CFFC80 /* SDWebImageError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageError.m; sourceTree = "<group>"; };
-		321B377D2083290D00C0EA77 /* SDWebImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageLoader.h; sourceTree = "<group>"; };
-		321B377E2083290D00C0EA77 /* SDWebImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageLoader.m; sourceTree = "<group>"; };
-		321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageLoadersManager.h; sourceTree = "<group>"; };
-		321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageLoadersManager.m; sourceTree = "<group>"; };
+		321B377D2083290D00C0EA77 /* SDImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageLoader.h; sourceTree = "<group>"; };
+		321B377E2083290D00C0EA77 /* SDImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageLoader.m; sourceTree = "<group>"; };
+		321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageLoadersManager.h; sourceTree = "<group>"; };
+		321B37802083290E00C0EA77 /* SDImageLoadersManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageLoadersManager.m; sourceTree = "<group>"; };
 		321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSButton+WebCache.h"; path = "SDWebImage/NSButton+WebCache.h"; sourceTree = "<group>"; };
 		321DB3602011D4D60015D2CB /* NSButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSButton+WebCache.m"; path = "SDWebImage/NSButton+WebCache.m"; sourceTree = "<group>"; };
 		321E60841F38E8C800405457 /* SDImageCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCoder.h; sourceTree = "<group>"; };
@@ -2185,10 +2185,10 @@
 				32B9B536206ED4230026769D /* SDWebImageDownloaderConfig.m */,
 				32F21B4F20788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.h */,
 				32F21B5020788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.m */,
-				321B377D2083290D00C0EA77 /* SDWebImageLoader.h */,
-				321B377E2083290D00C0EA77 /* SDWebImageLoader.m */,
-				321B377F2083290E00C0EA77 /* SDWebImageLoadersManager.h */,
-				321B37802083290E00C0EA77 /* SDWebImageLoadersManager.m */,
+				321B377D2083290D00C0EA77 /* SDImageLoader.h */,
+				321B377E2083290D00C0EA77 /* SDImageLoader.m */,
+				321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */,
+				321B37802083290E00C0EA77 /* SDImageLoadersManager.m */,
 			);
 			name = Downloader;
 			sourceTree = "<group>";
@@ -2398,7 +2398,7 @@
 				32B9B53A206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
 				328BB6AD2081FEE500760D6C /* SDWebImageCacheSerializer.h in Headers */,
 				80377C4A1F2F666300F89830 /* bit_writer_utils.h in Headers */,
-				321B37902083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B37902083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				323F8BE71F38EF770092B609 /* vp8li_enc.h in Headers */,
 				329A185C1FFF5DFD008C9A2F /* UIImage+WebCache.h in Headers */,
 				4369C27A1D9807EC007E863A /* UIView+WebCache.h in Headers */,
@@ -2441,7 +2441,7 @@
 				328BB6D02082581100760D6C /* SDMemoryCache.h in Headers */,
 				321E60891F38E8C800405457 /* SDImageCoder.h in Headers */,
 				00733A721BC4880E00A5A117 /* UIView+WebCacheOperation.h in Headers */,
-				321B37842083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37842083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				80377C481F2F666300F89830 /* bit_reader_utils.h in Headers */,
 				80377C511F2F666300F89830 /* huffman_encode_utils.h in Headers */,
 				32484778201775F600AF9E5A /* SDAnimatedImage.h in Headers */,
@@ -2520,7 +2520,7 @@
 				4314D16F1D0E0E3B004B36C9 /* NSData+ImageContentType.h in Headers */,
 				80377C121F2F666300F89830 /* bit_reader_inl_utils.h in Headers */,
 				4314D1701D0E0E3B004B36C9 /* mux.h in Headers */,
-				321B378E2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B378E2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				321E60871F38E8C800405457 /* SDImageCoder.h in Headers */,
 				80377EA21F2F66D400F89830 /* vp8i_dec.h in Headers */,
 				320CAE162086F50500CFFC80 /* SDWebImageError.h in Headers */,
@@ -2529,7 +2529,7 @@
 				80377C211F2F666300F89830 /* quant_levels_dec_utils.h in Headers */,
 				4314D1721D0E0E3B004B36C9 /* SDWebImageCompat.h in Headers */,
 				32484776201775F600AF9E5A /* SDAnimatedImage.h in Headers */,
-				321B37822083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37822083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				80377C251F2F666300F89830 /* random_utils.h in Headers */,
 				80377D4F1F2F66A700F89830 /* lossless.h in Headers */,
 				80377D511F2F66A700F89830 /* msa_macro.h in Headers */,
@@ -2585,7 +2585,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				321B37912083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B37912083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				80377C791F2F666400F89830 /* utils.h in Headers */,
 				328BB6A02081FED200760D6C /* SDWebImageCacheKeyFilter.h in Headers */,
 				323F8B721F38EF770092B609 /* delta_palettization_enc.h in Headers */,
@@ -2598,7 +2598,7 @@
 				32484767201775F600AF9E5A /* SDAnimatedImageView+WebCache.h in Headers */,
 				80377C601F2F666400F89830 /* bit_reader_inl_utils.h in Headers */,
 				32FDE89920888726008D7530 /* UIImage+WebP.h in Headers */,
-				321B37852083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37852083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				329A185D1FFF5DFD008C9A2F /* UIImage+WebCache.h in Headers */,
 				431BB6DC1D06D2C1006A3455 /* UIButton+WebCache.h in Headers */,
 				431BB6E11D06D2C1006A3455 /* SDWebImage.h in Headers */,
@@ -2693,7 +2693,7 @@
 				32B9B53C206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
 				328BB6AF2081FEE500760D6C /* SDWebImageCacheSerializer.h in Headers */,
 				4397D2BA1D0DDD8C00BB2784 /* demux.h in Headers */,
-				321B37922083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B37922083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				80377C8F1F2F666400F89830 /* rescaler_utils.h in Headers */,
 				4397D2BD1D0DDD8C00BB2784 /* types.h in Headers */,
 				4397D2C01D0DDD8C00BB2784 /* SDWebImage.h in Headers */,
@@ -2739,7 +2739,7 @@
 				328BB6D22082581100760D6C /* SDMemoryCache.h in Headers */,
 				323F8BDD1F38EF770092B609 /* vp8i_enc.h in Headers */,
 				323F8B671F38EF770092B609 /* cost_enc.h in Headers */,
-				321B37862083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37862083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				80377EE11F2F66D500F89830 /* vp8_dec.h in Headers */,
 				80377EE41F2F66D500F89830 /* vp8li_dec.h in Headers */,
 				80377C931F2F666400F89830 /* utils.h in Headers */,
@@ -2794,7 +2794,7 @@
 				32B9B539206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
 				328BB6AC2081FEE500760D6C /* SDWebImageCacheSerializer.h in Headers */,
 				80377C301F2F666300F89830 /* bit_writer_utils.h in Headers */,
-				321B378F2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B378F2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				431739541CDFC8B70008FEB9 /* types.h in Headers */,
 				323F8BE61F38EF770092B609 /* vp8li_enc.h in Headers */,
 				329A185B1FFF5DFD008C9A2F /* UIImage+WebCache.h in Headers */,
@@ -2839,7 +2839,7 @@
 				328BB6CF2082581100760D6C /* SDMemoryCache.h in Headers */,
 				321E60881F38E8C800405457 /* SDImageCoder.h in Headers */,
 				4A2CAE371AB4BB7500B6BC39 /* UIView+WebCacheOperation.h in Headers */,
-				321B37832083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37832083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				80377C2E1F2F666300F89830 /* bit_reader_utils.h in Headers */,
 				80377C371F2F666300F89830 /* huffman_encode_utils.h in Headers */,
 				32484777201775F600AF9E5A /* SDAnimatedImage.h in Headers */,
@@ -2931,7 +2931,7 @@
 				321E60BE1F38E91700405457 /* UIImage+ForceDecode.h in Headers */,
 				5376131E155AD0D5005750A4 /* SDWebImagePrefetcher.h in Headers */,
 				32F7C06F2030114C00873181 /* SDImageTransformer.h in Headers */,
-				321B378D2083290E00C0EA77 /* SDWebImageLoadersManager.h in Headers */,
+				321B378D2083290E00C0EA77 /* SDImageLoadersManager.h in Headers */,
 				32FDE8A220888789008D7530 /* SDWebImage.h in Headers */,
 				324DF4B4200A14DC008A84CC /* SDWebImageDefine.h in Headers */,
 				80377CE11F2F66A100F89830 /* common_sse2.h in Headers */,
@@ -2958,7 +2958,7 @@
 				32FDE88F20888726008D7530 /* SDImageWebPCoder.h in Headers */,
 				320CAE152086F50500CFFC80 /* SDWebImageError.h in Headers */,
 				323F8B861F38EF770092B609 /* histogram_enc.h in Headers */,
-				321B37812083290E00C0EA77 /* SDWebImageLoader.h in Headers */,
+				321B37812083290E00C0EA77 /* SDImageLoader.h in Headers */,
 				323F8BF61F38EF770092B609 /* animi.h in Headers */,
 				321E60861F38E8C800405457 /* SDImageCoder.h in Headers */,
 				80377C0D1F2F665300F89830 /* rescaler_utils.h in Headers */,
@@ -3259,7 +3259,7 @@
 				80377DD71F2F66A700F89830 /* lossless_sse2.c in Sources */,
 				80377DA81F2F66A700F89830 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				80377DB11F2F66A700F89830 /* cost_mips_dsp_r2.c in Sources */,
-				321B37962083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37962083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				80377C581F2F666300F89830 /* random_utils.c in Sources */,
 				323F8B591F38EF770092B609 /* config_enc.c in Sources */,
 				80377DE91F2F66A700F89830 /* yuv_mips32.c in Sources */,
@@ -3319,7 +3319,7 @@
 				80377C561F2F666300F89830 /* quant_levels_utils.c in Sources */,
 				323F8BCF1F38EF770092B609 /* token_enc.c in Sources */,
 				80377DD11F2F66A700F89830 /* lossless_enc_sse2.c in Sources */,
-				321B378A2083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B378A2083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				32484772201775F600AF9E5A /* SDAnimatedImage.m in Sources */,
 				323F8C1D1F38EF770092B609 /* muxread.c in Sources */,
 				807A12311F89636300EC2A9B /* SDImageCodersManager.m in Sources */,
@@ -3463,7 +3463,7 @@
 				80377E9C1F2F66D400F89830 /* idec_dec.c in Sources */,
 				323F8B7B1F38EF770092B609 /* frame_enc.c in Sources */,
 				80377D211F2F66A700F89830 /* alpha_processing_sse41.c in Sources */,
-				321B37942083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37942083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				323F8B8D1F38EF770092B609 /* iterator_enc.c in Sources */,
 				3248475E201775F600AF9E5A /* SDAnimatedImageView.m in Sources */,
 				80377D481F2F66A700F89830 /* lossless_enc_sse41.c in Sources */,
@@ -3524,7 +3524,7 @@
 				80377E991F2F66D400F89830 /* buffer_dec.c in Sources */,
 				80377C201F2F666300F89830 /* quant_levels_dec_utils.c in Sources */,
 				32F7C07F2030719600873181 /* UIImage+Transform.m in Sources */,
-				321B37882083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B37882083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				80377D471F2F66A700F89830 /* lossless_enc_sse2.c in Sources */,
 				80377C1E1F2F666300F89830 /* huffman_utils.c in Sources */,
 			);
@@ -3630,7 +3630,7 @@
 				80377DF01F2F66A800F89830 /* alpha_processing_sse41.c in Sources */,
 				80377ECC1F2F66D500F89830 /* idec_dec.c in Sources */,
 				323F8B7E1F38EF770092B609 /* frame_enc.c in Sources */,
-				321B37972083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37972083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				80377E171F2F66A800F89830 /* lossless_enc_sse41.c in Sources */,
 				32484761201775F600AF9E5A /* SDAnimatedImageView.m in Sources */,
 				323F8B901F38EF770092B609 /* iterator_enc.c in Sources */,
@@ -3690,7 +3690,7 @@
 				80377EC91F2F66D500F89830 /* buffer_dec.c in Sources */,
 				80377C6C1F2F666400F89830 /* huffman_utils.c in Sources */,
 				32F7C0822030719600873181 /* UIImage+Transform.m in Sources */,
-				321B378B2083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B378B2083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				80377E161F2F66A800F89830 /* lossless_enc_sse2.c in Sources */,
 				431BB6C71D06D2C1006A3455 /* UIImageView+HighlightedWebCache.m in Sources */,
 			);
@@ -3780,7 +3780,7 @@
 				32F21B5C20788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.m in Sources */,
 				32D122292080B2EB003685A3 /* SDImageCacheDefine.m in Sources */,
 				80377E3B1F2F66A800F89830 /* cost_mips_dsp_r2.c in Sources */,
-				321B378C2083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B378C2083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				4397D29B1D0DDD8C00BB2784 /* SDWebImageDownloader.m in Sources */,
 				80377E711F2F66A800F89830 /* upsampling.c in Sources */,
 				328BB6A72081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
@@ -3857,7 +3857,7 @@
 				323F8B851F38EF770092B609 /* histogram_enc.c in Sources */,
 				80377EE51F2F66D500F89830 /* webp_dec.c in Sources */,
 				4397D2B01D0DDD8C00BB2784 /* SDImageCache.m in Sources */,
-				321B37982083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37982083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				32F7C07A2030114C00873181 /* SDImageTransformer.m in Sources */,
 				80377E4F1F2F66A800F89830 /* enc_sse41.c in Sources */,
 				80377E701F2F66A800F89830 /* upsampling_sse2.c in Sources */,
@@ -3928,7 +3928,7 @@
 				80377D921F2F66A700F89830 /* lossless_sse2.c in Sources */,
 				80377D631F2F66A700F89830 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				80377D6C1F2F66A700F89830 /* cost_mips_dsp_r2.c in Sources */,
-				321B37952083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37952083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				4A2CAE361AB4BB7500B6BC39 /* UIImageView+WebCache.m in Sources */,
 				323F8B581F38EF770092B609 /* config_enc.c in Sources */,
 				43C892A21D9D6DDD0022038D /* demux.c in Sources */,
@@ -3988,7 +3988,7 @@
 				4A2CAE191AB4BB6400B6BC39 /* SDWebImageCompat.m in Sources */,
 				80377DA11F2F66A700F89830 /* upsampling_sse2.c in Sources */,
 				323F8BCE1F38EF770092B609 /* token_enc.c in Sources */,
-				321B37892083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B37892083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				32484771201775F600AF9E5A /* SDAnimatedImage.m in Sources */,
 				80377C3C1F2F666300F89830 /* quant_levels_utils.c in Sources */,
 				323F8C1C1F38EF770092B609 /* muxread.c in Sources */,
@@ -4099,7 +4099,7 @@
 				80377CD91F2F66A100F89830 /* alpha_processing_mips_dsp_r2.c in Sources */,
 				80377CE21F2F66A100F89830 /* cost_mips_dsp_r2.c in Sources */,
 				5376130B155AD0D5005750A4 /* SDWebImageDownloader.m in Sources */,
-				321B37932083290E00C0EA77 /* SDWebImageLoadersManager.m in Sources */,
+				321B37932083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				323F8B561F38EF770092B609 /* config_enc.c in Sources */,
 				43C8929B1D9D6DD70022038D /* demux.c in Sources */,
 				80377D1A1F2F66A100F89830 /* yuv_mips32.c in Sources */,
@@ -4158,7 +4158,7 @@
 				80377D171F2F66A100F89830 /* upsampling_sse2.c in Sources */,
 				323F8BCC1F38EF770092B609 /* token_enc.c in Sources */,
 				80377C081F2F665300F89830 /* quant_levels_utils.c in Sources */,
-				321B37872083290E00C0EA77 /* SDWebImageLoader.m in Sources */,
+				321B37872083290E00C0EA77 /* SDImageLoader.m in Sources */,
 				3248476F201775F600AF9E5A /* SDAnimatedImage.m in Sources */,
 				323F8C1A1F38EF770092B609 /* muxread.c in Sources */,
 				807A122E1F89636300EC2A9B /* SDImageCodersManager.m in Sources */,

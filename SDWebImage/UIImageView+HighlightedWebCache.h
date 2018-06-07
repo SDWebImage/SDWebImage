@@ -86,7 +86,7 @@
  */
 - (void)sd_setHighlightedImageWithURL:(nullable NSURL *)url
                               options:(SDWebImageOptions)options
-                             progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 @end

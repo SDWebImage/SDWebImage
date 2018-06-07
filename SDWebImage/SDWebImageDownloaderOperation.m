@@ -345,7 +345,7 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDWebImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+            UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
@@ -412,7 +412,7 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = SDWebImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                        UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
                             [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];

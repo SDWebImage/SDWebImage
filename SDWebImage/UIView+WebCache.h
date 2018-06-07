@@ -66,7 +66,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                            options:(SDWebImageOptions)options
                            context:(nullable SDWebImageContext *)context
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                          progress:(nullable SDImageLoaderProgressBlock)progressBlock
                          completed:(nullable SDInternalCompletionBlock)completedBlock;
 
 /**

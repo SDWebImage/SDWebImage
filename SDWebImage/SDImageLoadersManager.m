@@ -6,25 +6,25 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageLoadersManager.h"
+#import "SDImageLoadersManager.h"
 #import "SDWebImageDownloader.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
 
-@interface SDWebImageLoadersManager ()
+@interface SDImageLoadersManager ()
 
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t loadersLock;
 
 @end
 
-@implementation SDWebImageLoadersManager
+@implementation SDImageLoadersManager
 
-+ (SDWebImageLoadersManager *)sharedManager {
++ (SDImageLoadersManager *)sharedManager {
     static dispatch_once_t onceToken;
-    static SDWebImageLoadersManager *manager;
+    static SDImageLoadersManager *manager;
     dispatch_once(&onceToken, ^{
-        manager = [[SDWebImageLoadersManager alloc] init];
+        manager = [[SDImageLoadersManager alloc] init];
     });
     return manager;
 }
@@ -41,12 +41,12 @@
 
 #pragma mark - Loader Property
 
-- (void)addLoader:(id<SDWebImageLoader>)loader {
-    if (![loader conformsToProtocol:@protocol(SDWebImageLoader)]) {
+- (void)addLoader:(id<SDImageLoader>)loader {
+    if (![loader conformsToProtocol:@protocol(SDImageLoader)]) {
         return;
     }
     LOCK(self.loadersLock);
-    NSMutableArray<id<SDWebImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
+    NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
     if (!mutableLoaders) {
         mutableLoaders = [NSMutableArray array];
     }
@@ -55,24 +55,24 @@
     UNLOCK(self.loadersLock);
 }
 
-- (void)removeLoader:(id<SDWebImageLoader>)loader {
-    if (![loader conformsToProtocol:@protocol(SDWebImageLoader)]) {
+- (void)removeLoader:(id<SDImageLoader>)loader {
+    if (![loader conformsToProtocol:@protocol(SDImageLoader)]) {
         return;
     }
     LOCK(self.loadersLock);
-    NSMutableArray<id<SDWebImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
+    NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
     [mutableLoaders removeObject:loader];
     self.loaders = [mutableLoaders copy];
     UNLOCK(self.loadersLock);
 }
 
-#pragma mark - SDWebImageLoader
+#pragma mark - SDImageLoader
 
 - (BOOL)canLoadWithURL:(nullable NSURL *)url {
     LOCK(self.loadersLock);
-    NSArray<id<SDWebImageLoader>> *loaders = self.loaders;
+    NSArray<id<SDImageLoader>> *loaders = self.loaders;
     UNLOCK(self.loadersLock);
-    for (id<SDWebImageLoader> loader in loaders.reverseObjectEnumerator) {
+    for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canLoadWithURL:url]) {
             return YES;
         }
@@ -80,14 +80,14 @@
     return NO;
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDWebImageLoaderProgressBlock)progressBlock completed:(SDWebImageLoaderCompletedBlock)completedBlock {
+- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
     if (!url) {
         return nil;
     }
     LOCK(self.loadersLock);
-    NSArray<id<SDWebImageLoader>> *loaders = self.loaders;
+    NSArray<id<SDImageLoader>> *loaders = self.loaders;
     UNLOCK(self.loadersLock);
-    for (id<SDWebImageLoader> loader in loaders.reverseObjectEnumerator) {
+    for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader respondsToSelector:@selector(loadImageWithURL:options:context:progress:completed:)]) {
             return [loader loadImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];
         }

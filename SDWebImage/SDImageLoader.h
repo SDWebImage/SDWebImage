@@ -10,9 +10,8 @@
 #import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
 
-@protocol SDProgressiveImageCoder;
-typedef void(^SDWebImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
-typedef void(^SDWebImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
+typedef void(^SDImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
+typedef void(^SDImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
 
 #pragma mark - Context Options
 
@@ -35,7 +34,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextLoader
  @param context The context arg from the input
  @return The decoded image for current image data load from the network
  */
-FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context);
 
 /**
  This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveLoad` option is set. (It's not required when your loader does not support progressive image loading)
@@ -49,16 +48,16 @@ FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeImageData(NSData * _
  @param context The context arg from the input
  @return The decoded progressive image for current image data load from the network
  */
-FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished,  id<SDWebImageOperation> _Nonnull operation, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished,  id<SDWebImageOperation> _Nonnull operation, SDWebImageOptions options, SDWebImageContext * _Nullable context);
 
-#pragma mark - SDWebImageLoader
+#pragma mark - SDImageLoader
 
 // This is the protocol to specify custom image load process. You can create your own class to conform this protocol and use as a image loader to load image from network or any avaiable remote resources defined by yourself.
-// If you want to implement custom loader for image download from network or local file, you just need to concentrate on image data download only. After the download finish, call `SDWebImageLoaderDecodeImageData` or `SDWebImageLoaderDecodeProgressiveImageData` to use the built-in decoding process and produce image (Remember to call in the global queue). And finally callback the completion block.
+// If you want to implement custom loader for image download from network or local file, you just need to concentrate on image data download only. After the download finish, call `SDImageLoaderDecodeImageData` or `SDImageLoaderDecodeProgressiveImageData` to use the built-in decoding process and produce image (Remember to call in the global queue). And finally callback the completion block.
 // If you directlly get the image instance using some third-party SDKs, such as image directlly from Photos framework. You can process the image data and image instance by yourself without that built-in decoding process. And finally callback the completion block.
 // @note It's your responsibility to load the image in the desired global queue(to avoid block main queue). We do not dispatch these method call in a global queue but just from the call queue (For `SDWebImageManager`, it typically call from the main queue).
 
-@protocol SDWebImageLoader <NSObject>
+@protocol SDImageLoader <NSObject>
 
 /**
  Whether current image loader supports to load the provide image URL.
@@ -83,7 +82,7 @@ FOUNDATION_EXPORT UIImage * _Nullable SDWebImageLoaderDecodeProgressiveImageData
 - (nullable id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
                                              options:(SDWebImageOptions)options
                                              context:(nullable SDWebImageContext *)context
-                                            progress:(nullable SDWebImageLoaderProgressBlock)progressBlock
-                                           completed:(nullable SDWebImageLoaderCompletedBlock)completedBlock;
+                                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                                           completed:(nullable SDImageLoaderCompletedBlock)completedBlock;
 
 @end

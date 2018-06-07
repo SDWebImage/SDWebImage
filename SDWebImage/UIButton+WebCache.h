@@ -149,7 +149,7 @@
                   forState:(UIControlState)state
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
-                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                  progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
@@ -175,7 +175,7 @@
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options
                    context:(nullable SDWebImageContext *)context
-                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                  progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #pragma mark - Background Image
@@ -308,7 +308,7 @@
                             forState:(UIControlState)state
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
-                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
@@ -333,7 +333,7 @@
                     placeholderImage:(nullable UIImage *)placeholder
                              options:(SDWebImageOptions)options
                              context:(nullable SDWebImageContext *)context
-                            progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 #pragma mark - Cancel
