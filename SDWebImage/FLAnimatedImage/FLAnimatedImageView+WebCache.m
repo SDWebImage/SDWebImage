@@ -80,6 +80,18 @@
     [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
+
+
+
+/**
+ category方法
+
+ @param url url
+ @param placeholder 占位符
+ @param options options
+ @param progressBlock 进度回调
+ @param completedBlock 完成回调
+ */
 - (void)sd_setImageWithURL:(nullable NSURL *)url
           placeholderImage:(nullable UIImage *)placeholder
                    options:(SDWebImageOptions)options

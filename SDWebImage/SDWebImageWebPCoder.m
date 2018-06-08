@@ -46,6 +46,7 @@
 }
 
 #pragma mark - Decode
+// 类型检测
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
@@ -53,7 +54,7 @@
 - (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
     return ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP);
 }
-
+// 从webP中解析出image
 - (UIImage *)decodedImageWithData:(NSData *)data {
     if (!data) {
         return nil;

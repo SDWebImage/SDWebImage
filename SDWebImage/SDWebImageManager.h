@@ -72,7 +72,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
      * of the placeholder image until after the image has finished loading.
-     */
+     */ // 延迟加载iamgeView直到占位图加载完成
     SDWebImageDelayPlaceholder = 1 << 9,
 
     /**

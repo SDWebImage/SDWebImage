@@ -21,6 +21,8 @@
 
 @implementation NSData (ImageContentType)
 
+
+//返回图片的格式
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data {
     if (!data) {
         return SDImageFormatUndefined;

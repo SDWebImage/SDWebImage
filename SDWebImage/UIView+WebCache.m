@@ -52,6 +52,20 @@ static char TAG_ACTIVITY_SHOW;
     return [self sd_internalSetImageWithURL:url placeholderImage:placeholder options:options operationKey:operationKey setImageBlock:setImageBlock progress:progressBlock completed:completedBlock context:nil];
 }
 
+
+
+/**
+ 
+
+ @param url url
+ @param placeholder 占位图
+ @param options options
+ @param operationKey operationKey
+ @param setImageBlock 包含image的回调
+ @param progressBlock 进度条回调
+ @param completedBlock 完成回调
+ @param context contex,包含group信息
+ */
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
@@ -62,14 +76,17 @@ static char TAG_ACTIVITY_SHOW;
                            context:(nullable NSDictionary<NSString *, id> *)context {
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
+
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     if (!(options & SDWebImageDelayPlaceholder)) {
+        // 不需要占位图
         if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
             dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
             dispatch_group_enter(group);
         }
         dispatch_main_async_safe(^{
+        // 设置占位图
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
         });
     }
@@ -94,6 +111,7 @@ static char TAG_ACTIVITY_SHOW;
         }
         
         __weak __typeof(self)wself = self;
+        // 下载过程中的block
         SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
             wself.sd_imageProgress.totalUnitCount = expectedSize;
             wself.sd_imageProgress.completedUnitCount = receivedSize;
@@ -101,10 +119,12 @@ static char TAG_ACTIVITY_SHOW;
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
         };
+        // 构造operation
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
 #if SD_UIKIT
+            // 下载完成,移除laoding
             [sself sd_removeActivityIndicator];
 #endif
             // if the progress not been updated, mark it to complete state
@@ -112,14 +132,18 @@ static char TAG_ACTIVITY_SHOW;
                 sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
                 sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
+
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
+            
+            // 不自动设置图片 ,通过completed回调手动设置
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
             SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
-                if (!sself) { return; }
+                if (!sself) { return; }  // 当前对象被释放
                 if (!shouldNotSetImage) {
                     [sself sd_setNeedsLayout];
                 }
+                // 下载完成并且可以设置image的回调.
                 if (completedBlock && shouldCallCompletedBlock) {
                     completedBlock(image, error, cacheType, url);
                 }
@@ -128,6 +152,7 @@ static char TAG_ACTIVITY_SHOW;
             // case 1a: we got an image, but the SDWebImageAvoidAutoSetImage flag is set
             // OR
             // case 1b: we got no image and the SDWebImageDelayPlaceholder is not set
+            // 自动设置图片,并且不等待占位图. 那么就回调image
             if (shouldNotSetImage) {
                 dispatch_main_async_safe(callCompletedBlockClojure);
                 return;
@@ -152,7 +177,7 @@ static char TAG_ACTIVITY_SHOW;
                 transition = sself.sd_imageTransition;
             }
 #endif
-            if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
+            if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) { // 如果给定group
                 dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
@@ -166,7 +191,7 @@ static char TAG_ACTIVITY_SHOW;
                 dispatch_group_notify(group, dispatch_get_main_queue(), ^{
                     callCompletedBlockClojure();
                 });
-            } else {
+            } else {  // 没有设定group
                 dispatch_main_async_safe(^{
 #if SD_UIKIT || SD_MAC
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
@@ -179,8 +204,10 @@ static char TAG_ACTIVITY_SHOW;
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
+        // 没有url 返回error
         dispatch_main_async_safe(^{
 #if SD_UIKIT
+            // 移除loading图
             [self sd_removeActivityIndicator];
 #endif
             if (completedBlock) {
@@ -195,6 +222,7 @@ static char TAG_ACTIVITY_SHOW;
     [self sd_cancelImageLoadOperationWithKey:NSStringFromClass([self class])];
 }
 
+//
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
 #if SD_UIKIT || SD_MAC
     [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:0 imageURL:nil];
@@ -210,6 +238,7 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 #if SD_UIKIT || SD_MAC
+// 设置图片. 给动效
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock transition:(SDWebImageTransition *)transition cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
     UIView *view = self;
     SDSetImageBlock finalSetImageBlock;
@@ -293,6 +322,7 @@ static char TAG_ACTIVITY_SHOW;
 #if SD_UIKIT || SD_MAC
 
 #pragma mark - Image Transition
+// 图片的显示动画.
 - (SDWebImageTransition *)sd_imageTransition {
     return objc_getAssociatedObject(self, @selector(sd_imageTransition));
 }
@@ -312,6 +342,7 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
 }
 
+// 是否显示loading图
 - (void)sd_setShowActivityIndicatorView:(BOOL)show {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
 }
@@ -320,6 +351,7 @@ static char TAG_ACTIVITY_SHOW;
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
+// 设置loading图式样
 - (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
 }
