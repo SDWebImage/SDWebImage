@@ -37,7 +37,7 @@
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
 @property (assign, nonatomic, nullable) Class operationClass;
-@property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;
+@property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, SDWebImageDownloaderOperation *> *URLOperations;  // 缓存operation
 @property (strong, nonatomic, nullable) SDHTTPHeadersMutableDictionary *HTTPHeaders;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t headersLock; // a lock to keep the access to `HTTPHeaders` thread-safe
@@ -90,7 +90,7 @@
         _operationClass = [SDWebImageDownloaderOperation class];
         _shouldDecompressImages = YES;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
-        _downloadQueue = [NSOperationQueue new];
+        _downloadQueue = [NSOperationQueue new];  // 下载队列 NSOperationQueue
         _downloadQueue.maxConcurrentOperationCount = 6;
         _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
         _URLOperations = [NSMutableDictionary new];
@@ -200,6 +200,7 @@
     __weak SDWebImageDownloader *wself = self;
 
     return [self addProgressCallback:progressBlock completedBlock:completedBlock forURL:url createCallback:^SDWebImageDownloaderOperation *{
+        // 创建下载的operation
         __strong __typeof (wself) sself = wself;
         NSTimeInterval timeoutInterval = sself.downloadTimeout;
         if (timeoutInterval == 0.0) {
@@ -294,6 +295,7 @@
     }
     UNLOCK(self.operationsLock);
 
+    // callbacks 的字典
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
     SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
