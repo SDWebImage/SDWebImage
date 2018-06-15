@@ -344,6 +344,13 @@
         return nil;
     }
     
+    if ([context valueForKey:SDWebImageContextImageTransformer]) {
+        // grab the transformed disk image if transformer provided
+        id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
+        NSString *transformerKey = [transformer transformerKey];
+        key = SDTransformedKeyForKey(key, transformerKey);
+    }
+    
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryMemoryData));
@@ -376,18 +383,11 @@
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
-                NSString *cacheKey = key;
-                if ([context valueForKey:SDWebImageContextImageTransformer]) {
-                    // grab the transformed disk image if transformer provided
-                    id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
-                    NSString *transformerKey = [transformer transformerKey];
-                    cacheKey = SDTransformedKeyForKey(key, transformerKey);
-                }
                 // decode image data only if in-memory cache missed
-                diskImage = [self diskImageForKey:cacheKey data:diskData options:options context:context];
+                diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
                     NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
-                    [self.memCache setObject:diskImage forKey:cacheKey cost:cost];
+                    [self.memCache setObject:diskImage forKey:key cost:cost];
                 }
             }
             
@@ -698,7 +698,9 @@
 - (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
     switch (cacheType) {
         case SDImageCacheTypeNone: {
-            return;
+            if (completionBlock) {
+                completionBlock();
+            }
         }
             break;
         case SDImageCacheTypeMemory: {
