@@ -16,13 +16,17 @@
 }
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale {
+    return [self sd_imageWithData:data scale:scale firstFrameOnly:NO];
+}
+
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale firstFrameOnly:(BOOL)firstFrameOnly {
     if (!data) {
         return nil;
     }
     if (scale < 1) {
         scale = 1;
     }
-    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale)};
+    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale), SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
     return [[SDImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
@@ -35,7 +39,11 @@
 }
 
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality {
-    SDImageCoderOptions *options = @{SDImageCoderEncodeCompressionQuality : @(compressionQuality)};
+    return [self sd_imageDataAsFormat:imageFormat compressionQuality:compressionQuality firstFrameOnly:NO];
+}
+
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality firstFrameOnly:(BOOL)firstFrameOnly {
+    SDImageCoderOptions *options = @{SDImageCoderEncodeCompressionQuality : @(compressionQuality), SDImageCoderEncodeFirstFrameOnly : @(firstFrameOnly)};
     return [[SDImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
 }
 

@@ -43,11 +43,11 @@
 
 - (void)test03UIImageGIFCategory {
     // Test invalid image data
-    UIImage *image = [UIImage sd_animatedGIFWithData:nil];
+    UIImage *image = [UIImage sd_imageWithGIFData:nil];
     expect(image).to.beNil();
     // Test valid image data
     NSData *data = [NSData dataWithContentsOfFile:[self testGIFPath]];
-    image = [UIImage sd_animatedGIFWithData:data];
+    image = [UIImage sd_imageWithGIFData:data];
     expect(image).notTo.beNil();
 }
 
