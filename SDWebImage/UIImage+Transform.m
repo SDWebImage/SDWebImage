@@ -14,14 +14,14 @@
 #endif
 
 #if SD_MAC
-static CGContextRef SDCGContextCreateARGBBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
+static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
     size_t width = ceil(size.width * scale);
     size_t height = ceil(size.height * scale);
     if (width < 1 || height < 1) return NULL;
     
-    //pre-multiplied ARGB, 8-bits per component
+    //pre-multiplied BGRA, 8-bits per component, as Apple's doc
     CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-    CGImageAlphaInfo alphaInfo = (opaque ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaPremultipliedFirst);
+    CGImageAlphaInfo alphaInfo = kCGBitmapByteOrder32Host | (opaque ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaPremultipliedFirst);
     CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, kCGBitmapByteOrderDefault | alphaInfo);
     CGColorSpaceRelease(space);
     if (!context) {
@@ -41,7 +41,7 @@ static void SDGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGF
 #if SD_UIKIT || SD_WATCH
     UIGraphicsBeginImageContextWithOptions(size, opaque, scale);
 #else
-    CGContextRef context = SDCGContextCreateARGBBitmapContext(size, opaque, scale);
+    CGContextRef context = SDCGContextCreateBitmapContext(size, opaque, scale);
     if (!context) {
         return;
     }
