@@ -21,7 +21,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         _diskCacheWritingOptions = NSDataWritingAtomic;
         _maxCacheAge = kDefaultCacheMaxCacheAge;
         _maxCacheSize = 0;
-        _cacheClearBy = SDImageCacheConfigExpireTypeModificationDate;
+        _diskCacheExpireType = SDImageCacheConfigExpireTypeModificationDate;
     }
     return self;
 }

@@ -609,7 +609,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
         // Compute content date key to be used for tests
         NSURLResourceKey cacheContentDateKey = NSURLContentModificationDateKey;
-        switch (self.config.cacheClearBy) {
+        switch (self.config.diskCacheExpireType) {
             case SDImageCacheConfigExpireTypeAccessDate:
                 cacheContentDateKey = NSURLContentAccessDateKey;
                 break;

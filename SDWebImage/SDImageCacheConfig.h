@@ -64,6 +64,6 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  * The attribute which the clear cache will be checked against when clearing the disk cache
  * Default is Modified Date
  */
-@property (assign, nonatomic) SDImageCacheConfigExpireType cacheClearBy;
+@property (assign, nonatomic) SDImageCacheConfigExpireType diskCacheExpireType;
 
 @end
