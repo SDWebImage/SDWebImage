@@ -9,6 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
+typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
+    /**
+     * When the image is accessed it will update this value
+     */
+    SDImageCacheConfigExpireTypeAccessDate,
+    /**
+     * The image was obtained from the disk cache (Default)
+     */
+    SDImageCacheConfigExpireTypeModificationDate
+};
+
 @interface SDImageCacheConfig : NSObject
 
 /**
@@ -48,5 +59,11 @@
  * The maximum size of the cache, in bytes.
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;
+
+/**
+ * The attribute which the clear cache will be checked against when clearing the disk cache
+ * Default is Modified Date
+ */
+@property (assign, nonatomic) SDImageCacheConfigExpireType diskCacheExpireType;
 
 @end
