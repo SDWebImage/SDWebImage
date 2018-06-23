@@ -54,6 +54,22 @@
                    options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
+ * Set the imageView `image` with an `url`, placeholder, custom options and context.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url         The url for the image.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context     A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ */
+
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                   context:(nullable SDWebImageContext *)context;
+
+/**
  * Set the imageView `image` with an `url`.
  *
  * The download is asynchronous and cached.
@@ -127,7 +143,7 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the imageView `image` with an `url`, placeholder and custom options.
+ * Set the imageView `image` with an `url`, placeholder, custom options and context.
  *
  * The download is asynchronous and cached.
  *
