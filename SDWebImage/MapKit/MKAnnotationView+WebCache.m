@@ -25,7 +25,11 @@
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self sd_setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+}
+
+- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context {
+    [self sd_setImageWithURL:url placeholderImage:placeholder options:options context:context progress:nil completed:nil];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url completed:(nullable SDExternalCompletionBlock)completedBlock {

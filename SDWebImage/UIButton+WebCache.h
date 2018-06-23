@@ -32,7 +32,7 @@
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state;
 
 /**
- * Set the imageView `image` with an `url`.
+ * Set the button `image` with an `url`.
  *
  * The download is asynchronous and cached.
  *
@@ -43,7 +43,7 @@
                   forState:(UIControlState)state NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the imageView `image` with an `url` and a placeholder.
+ * Set the button `image` with an `url` and a placeholder.
  *
  * The download is asynchronous and cached.
  *
@@ -57,7 +57,7 @@
           placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the imageView `image` with an `url`, placeholder and custom options.
+ * Set the button `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -72,7 +72,24 @@
                    options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the imageView `image` with an `url`.
+ * Set the button `image` with an `url`, placeholder, custom options and context.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context     A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ */
+- (void)sd_setImageWithURL:(nullable NSURL *)url
+                  forState:(UIControlState)state
+          placeholderImage:(nullable UIImage *)placeholder
+                   options:(SDWebImageOptions)options
+                   context:(nullable SDWebImageContext *)context;
+
+/**
+ * Set the button `image` with an `url`.
  *
  * The download is asynchronous and cached.
  *
@@ -89,7 +106,7 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the imageView `image` with an `url`, placeholder.
+ * Set the button `image` with an `url`, placeholder.
  *
  * The download is asynchronous and cached.
  *
@@ -108,7 +125,7 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the imageView `image` with an `url`, placeholder and custom options.
+ * Set the button `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -129,7 +146,7 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the imageView `image` with an `url`, placeholder and custom options.
+ * Set the button `image` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -153,7 +170,7 @@
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the imageView `image` with an `url`, placeholder and custom options.
+ * Set the button `image` with an `url`, placeholder, custom options and context.
  *
  * The download is asynchronous and cached.
  *
@@ -193,7 +210,7 @@
 - (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state;
 
 /**
- * Set the backgroundImageView `image` with an `url`.
+ * Set the button `backgroundImage` with an `url`.
  *
  * The download is asynchronous and cached.
  *
@@ -204,7 +221,7 @@
                             forState:(UIControlState)state NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the backgroundImageView `image` with an `url` and a placeholder.
+ * Set the button `backgroundImage` with an `url` and a placeholder.
  *
  * The download is asynchronous and cached.
  *
@@ -218,7 +235,7 @@
                     placeholderImage:(nullable UIImage *)placeholder NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ * Set the button `backgroundImage` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -233,7 +250,24 @@
                              options:(SDWebImageOptions)options NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the backgroundImageView `image` with an `url`.
+ * Set the button `backgroundImage` with an `url`, placeholder, custom options and context.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url         The url for the image.
+ * @param state       The state that uses the specified title. The values are described in UIControlState.
+ * @param placeholder The image to be set initially, until the image request finishes.
+ * @param options     The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context     A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ */
+- (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
+                            forState:(UIControlState)state
+                    placeholderImage:(nullable UIImage *)placeholder
+                             options:(SDWebImageOptions)options
+                             context:(nullable SDWebImageContext *)context;
+
+/**
+ * Set the button `backgroundImage` with an `url`.
  *
  * The download is asynchronous and cached.
  *
@@ -250,7 +284,7 @@
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the backgroundImageView `image` with an `url`, placeholder.
+ * Set the button `backgroundImage` with an `url`, placeholder.
  *
  * The download is asynchronous and cached.
  *
@@ -269,7 +303,7 @@
                            completed:(nullable SDExternalCompletionBlock)completedBlock NS_REFINED_FOR_SWIFT;
 
 /**
- * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ * Set the button `backgroundImage` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -289,7 +323,7 @@
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ * Set the button `backgroundImage` with an `url`, placeholder and custom options.
  *
  * The download is asynchronous and cached.
  *
@@ -312,7 +346,7 @@
                            completed:(nullable SDExternalCompletionBlock)completedBlock;
 
 /**
- * Set the backgroundImageView `image` with an `url`, placeholder and custom options.
+ * Set the button `backgroundImage` with an `url`, placeholder, custom options and context.
  *
  * The download is asynchronous and cached.
  *
