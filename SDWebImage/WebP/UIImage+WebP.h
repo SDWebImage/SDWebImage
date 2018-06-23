@@ -10,25 +10,17 @@
 
 #import "SDWebImageCompat.h"
 
+// This category is just use as a convenience method. For more detail control, use methods in `UIImage+MultiFormat.h` or directlly use `SDImageCoder`
 @interface UIImage (WebP)
 
 /**
  Create a image from the WebP data.
- This may create animated image if the data is Animated WebP.
+ This will create animated image if the data is Animated WebP. And will create a static image is the data is Static WebP.
 
  @param data The WebP data
  @return The created image
  */
 + (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data;
-
-/**
- Create a image from the WebP data.
- 
- @param data The WebP data
- @param firstFrameOnly Even if the image data is Animated WebP format, decode the first frame only
- @return The created image
- */
-+ (nullable UIImage *)sd_imageWithWebPData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly;
 
 @end
 

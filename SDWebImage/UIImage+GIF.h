@@ -9,24 +9,16 @@
 
 #import "SDWebImageCompat.h"
 
+// This category is just use as a convenience method. For more detail control, use methods in `UIImage+MultiFormat.h` or directlly use `SDImageCoder`
 @interface UIImage (GIF)
 
 /**
  Creates an animated UIImage from an NSData.
- For Static GIF, will create an UIImage with `images` array set to nil. For Animated GIF, will create an UIImage with valid `images` array.
+ This will create animated image if the data is Animated GIF. And will create a static image is the data is Static GIF.
 
  @param data The GIF data
  @return The created image
  */
-+ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data;
-
-/**
- Creates an animated UIImage from an NSData.
- 
- @param data The GIF data
- @param firstFrameOnly Even if the image data is Animated GIF format, decode the first frame only
- @return The created image
- */
-+ (nullable UIImage *)sd_animatedGIFWithData:(nullable NSData *)data firstFrameOnly:(BOOL)firstFrameOnly;
++ (nullable UIImage *)sd_imageWithGIFData:(nullable NSData *)data;
 
 @end
