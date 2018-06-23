@@ -280,8 +280,8 @@ static id<SDImageLoader> _defaultImageLoader;
                 }
                 
                 SDImageCacheType storeCacheType = SDImageCacheTypeAll;
-                if (options & SDWebImageCacheMemoryOnly) {
-                    storeCacheType = SDImageCacheTypeMemory;
+                if ([context valueForKey:SDWebImageContextStoreCacheType]) {
+                    storeCacheType = [[context valueForKey:SDWebImageContextStoreCacheType] unsignedIntegerValue];
                 }
                 id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
                 NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
