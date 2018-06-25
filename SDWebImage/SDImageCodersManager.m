@@ -13,8 +13,6 @@
 #ifdef SD_WEBP
 #import "SDImageWebPCoder.h"
 #endif
-#import "NSImage+Compatibility.h"
-#import "UIImage+WebCache.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);

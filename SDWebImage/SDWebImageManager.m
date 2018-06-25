@@ -9,7 +9,7 @@
 #import "SDWebImageManager.h"
 #import "SDImageCache.h"
 #import "SDWebImageDownloader.h"
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "SDWebImageError.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);

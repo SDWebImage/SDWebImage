@@ -10,7 +10,7 @@
 #import "SDImageCodersManager.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 
 UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     UIImage *image;

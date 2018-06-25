@@ -11,7 +11,7 @@
 #import "SDImageWebPCoder.h"
 #import "SDImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "UIImage+ForceDecode.h"
 #if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
 #import <webp/decode.h>

@@ -9,7 +9,7 @@
 #import "SDImageAPNGCoder.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
