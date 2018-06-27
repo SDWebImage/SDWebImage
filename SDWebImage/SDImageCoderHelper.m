@@ -245,7 +245,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (width == 0 || height == 0) return NULL;
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
     // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
-    // Through you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
+    // Though you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
     // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
     bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;

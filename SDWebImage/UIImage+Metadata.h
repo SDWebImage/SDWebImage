@@ -8,7 +8,7 @@
 
 #import "SDWebImageCompat.h"
 
-@interface UIImage (WebCache)
+@interface UIImage (Metadata)
 
 /**
  * UIKit:

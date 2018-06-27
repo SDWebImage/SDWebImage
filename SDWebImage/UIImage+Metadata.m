@@ -6,13 +6,13 @@
  * file that was distributed with this source code.
  */
 
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "objc/runtime.h"
 
 #if SD_UIKIT || SD_WATCH
 
-@implementation UIImage (WebCache)
+@implementation UIImage (Metadata)
 
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;
@@ -47,7 +47,7 @@
 
 #if SD_MAC
 
-@implementation NSImage (WebCache)
+@implementation NSImage (Metadata)
 
 - (NSUInteger)sd_imageLoopCount {
     NSUInteger imageLoopCount = 0;

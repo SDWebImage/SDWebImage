@@ -10,7 +10,7 @@
 
 #if SD_UIKIT || SD_MAC
 
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import <mach/mach.h>
 #import <objc/runtime.h>

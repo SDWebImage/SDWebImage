@@ -11,7 +11,7 @@
 #import "SDImageCodersManager.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
-#import "UIImage+WebCache.h"
+#import "UIImage+Metadata.h"
 #import "objc/runtime.h"
 
 static void * SDImageLoaderProgressiveCoderKey = &SDImageLoaderProgressiveCoderKey;

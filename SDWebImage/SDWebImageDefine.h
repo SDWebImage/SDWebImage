@@ -27,7 +27,7 @@ FOUNDATION_EXPORT CGFloat SDImageScaleFactorForKey(NSString * _Nullable key);
 
 /**
  Scale the image with the scale factor for the specify key. If no need to scale, return the original image.
- This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+Metadata.h`.
  @note This is actually a convenience function, which firstlly call `SDImageScaleFactorForKey` and then call `SDScaledImageForScaleFactor`, kept for backward compatibility.
 
  @param key The image cache key
@@ -38,7 +38,7 @@ FOUNDATION_EXPORT UIImage * _Nullable SDScaledImageForKey(NSString * _Nullable k
 
 /**
  Scale the image with the scale factor. If no need to scale, return the original image.
- This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+WebCache`.
+ This works for `UIImage`(UIKit) or `NSImage`(AppKit). And this function also preserve the associated value in `UIImage+Metadata.h`.
  
  @param scale The image scale factor
  @param image The image
