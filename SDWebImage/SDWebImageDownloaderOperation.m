@@ -201,8 +201,10 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 }
 
 - (void)done {
-    self.finished = YES;
-    self.executing = NO;
+    @synchronized (self) {
+        self.finished = YES;
+        self.executing = NO;
+    }
     [self reset];
 }
 

@@ -339,7 +339,9 @@
 }
 
 - (void)cancel {
-    self.cancelled = YES;
+    @synchronized (self) {
+        self.cancelled = YES;
+    }
     if (self.cacheOperation) {
         [self.cacheOperation cancel];
         self.cacheOperation = nil;
