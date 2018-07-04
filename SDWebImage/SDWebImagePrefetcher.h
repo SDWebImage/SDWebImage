@@ -14,7 +14,7 @@
 @interface SDWebImagePrefetchToken : NSObject <SDWebImageOperation>
 
 /**
- * Cancel the current prefeching.
+ * Cancel the current prefetching.
  */
 - (void)cancel;
 
