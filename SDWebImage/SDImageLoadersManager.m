@@ -88,7 +88,7 @@
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
-        if ([loader respondsToSelector:@selector(loadImageWithURL:options:context:progress:completed:)]) {
+        if ([loader canLoadWithURL:url]) {
             return [loader loadImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];
         }
     }
