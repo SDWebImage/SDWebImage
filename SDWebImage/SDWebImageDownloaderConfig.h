@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
  * Set the default URL credential to be set for request operations.
  * Defaults to nil.
  */
-@property (nonatomic, strong, nullable) NSURLCredential *urlCredential;
+@property (nonatomic, copy, nullable) NSURLCredential *urlCredential;
 
 /**
  * Set username using for HTTP Basic authentication.

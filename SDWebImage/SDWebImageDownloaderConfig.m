@@ -37,9 +37,9 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     config.sessionConfiguration = [self.sessionConfiguration copyWithZone:zone];
     config.operationClass = self.operationClass;
     config.executionOrder = self.executionOrder;
-    config.urlCredential = [self.urlCredential copyWithZone:zone];
-    config.username = [self.username copyWithZone:zone];
-    config.password = [self.password copyWithZone:zone];
+    config.urlCredential = self.urlCredential;
+    config.username = self.username;
+    config.password = self.password;
     
     return config;
 }
