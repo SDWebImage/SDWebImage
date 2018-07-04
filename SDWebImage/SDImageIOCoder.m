@@ -240,28 +240,15 @@
     static BOOL canDecode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
 #if TARGET_OS_SIMULATOR || SD_WATCH
         canDecode = NO;
-#elif SD_MAC
-        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-        if ([processInfo respondsToSelector:@selector(operatingSystemVersion)]) {
-            // macOS 10.13+
-            canDecode = processInfo.operatingSystemVersion.minorVersion >= 13;
-        } else {
-            canDecode = NO;
-        }
-#elif SD_UIKIT
-        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-        if ([processInfo respondsToSelector:@selector(operatingSystemVersion)]) {
-            // iOS 11+ && tvOS 11+
-            canDecode = processInfo.operatingSystemVersion.majorVersion >= 11;
+#else
+        if (@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)) {
+            canDecode = YES;
         } else {
             canDecode = NO;
         }
 #endif
-#pragma clang diagnostic pop
     });
     return canDecode;
 }

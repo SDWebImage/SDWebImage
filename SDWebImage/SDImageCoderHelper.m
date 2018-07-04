@@ -203,20 +203,15 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
-        BOOL shouldUseSRGB = NO;
 #if SD_UIKIT
-        NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-        shouldUseSRGB = processInfo.operatingSystemVersion.majorVersion >= 9;
-#endif
-        if (shouldUseSRGB) {
-            // This is what iOS/tvOS device used colorspace, combined with right bitmapInfo, even without decode, can still avoid extra CA::Render::copy_image(which marked `Color Copied Images` from Instruments)
+        if (@available(iOS 9.0, tvOS 9.0, *)) {
             colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
         } else {
             colorSpace = CGColorSpaceCreateDeviceRGB();
         }
-#pragma clang diagnostic pop
+#else
+        colorSpace = CGColorSpaceCreateDeviceRGB();
+#endif
     });
     return colorSpace;
 }

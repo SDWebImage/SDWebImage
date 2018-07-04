@@ -41,7 +41,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 /**
  The timing function used for all animations within this transition animation (macOS).
  */
-@property (nonatomic, strong, nullable) CAMediaTimingFunction *timingFunction NS_AVAILABLE_MAC(10_7);
+@property (nonatomic, strong, nullable) CAMediaTimingFunction *timingFunction API_UNAVAILABLE(ios, tvos, watchos);
 /**
  A mask of options indicating how you want to perform the animations.
  */
