@@ -84,7 +84,7 @@
     }
     
     CFRelease(source);
-    
+    animatedImage.sd_imageFormat = SDImageFormatGIF;
     return animatedImage;
 #endif
 }

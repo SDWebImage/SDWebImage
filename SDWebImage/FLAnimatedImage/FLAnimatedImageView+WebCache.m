@@ -14,6 +14,18 @@
 #import "UIView+WebCache.h"
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
+#import "UIImage+MultiFormat.h"
+
+static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
+    FLAnimatedImage *animatedImage;
+    // Compatibility in 4.x for lower version FLAnimatedImage.
+    if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
+        animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:imageView.sd_optimalFrameCacheSize predrawingEnabled:imageView.sd_predrawingEnabled];
+    } else {
+        animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
+    }
+    return animatedImage;
+}
 
 @implementation UIImage (FLAnimatedImage)
 
@@ -133,6 +145,8 @@
                            // We could not directlly create the animated image on bacakground queue because it's time consuming, by the time we set it back, the current runloop has passed and the placeholder has been rendered and then replaced with animated image, this cause a flashing.
                            // Previously we use a trick to firstly set the static poster image, then set animated image back to avoid flashing, but this trick fail when using with custom UIView transition. Core Animation will use the current layer state to do rendering, so even we later set it back, the transition will not update. (it's recommended to use `SDWebImageTransition` instead)
                            // So we have no choice to force store the FLAnimatedImage into memory cache using a associated object binding to UIImage instance. This consumed memory is adoptable and much smaller than `_UIAnimatedImage` for big GIF
+                           
+                           // Step 1. Check memory cache (associate object)
                            FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
                            if (associatedAnimatedImage) {
                                // Asscociated animated image exist
@@ -141,50 +155,64 @@
                                if (group) {
                                    dispatch_group_leave(group);
                                }
-                           } else if ([NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF) {
-                               // Directly create FLAnimatedImage on main queue
-                               if (strongSelf.sd_setImagePolicy == FLAnimatedImageViewSetImagePolicyStandard) {
-                                   FLAnimatedImage *animatedImage;
-                                   // Compatibility in 4.x for lower version FLAnimatedImage.
-                                   if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
-                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:strongSelf.sd_optimalFrameCacheSize predrawingEnabled:strongSelf.sd_predrawingEnabled];
-                                   } else {
-                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
+                               return;
+                           }
+                           // Step 2. Check if "GIF" (including animated image as well to avoid force decode case, which lose the image format)
+                           BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF || image.images.count > 0);
+                           if (!isGIF) {
+                               strongSelf.image = image;
+                               strongSelf.animatedImage = nil;
+                               if (group) {
+                                   dispatch_group_leave(group);
+                               }
+                               return;
+                           }
+                           // Step 3. Check if data exist and query disk cache
+                           BOOL isAsync = self.sd_setImagePolicy == FLAnimatedImageViewSetImagePolicyFast;
+                           NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+                           __block NSData *gifData = imageData;
+                           if (isAsync) {
+                               // Firstly set the static poster image to avoid flashing
+                               UIImage *posterImage = image.images ? image.images.firstObject : image;
+                               strongSelf.image = posterImage;
+                               strongSelf.animatedImage = nil;
+                               // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
+                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                   if (!gifData) {
+                                       // Step 4. Create FLAnimatedImage
+                                       gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
                                    }
-                                   image.sd_FLAnimatedImage = animatedImage;
-                                   strongSelf.animatedImage = animatedImage;
-                                   strongSelf.image = nil;
-                                   if (group) {
-                                       dispatch_group_leave(group);
-                                   }
-                               } else {
-                                   // Firstly set the static poster image to avoid flashing
-                                   UIImage *posterImage = image.images ? image.images.firstObject : image;
-                                   strongSelf.image = posterImage;
-                                   strongSelf.animatedImage = nil;
-                                   // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
-                                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                       FLAnimatedImage *animatedImage;
-                                       // Compatibility in 4.x for lower version FLAnimatedImage.
-                                       if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
-                                           animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:strongSelf.sd_optimalFrameCacheSize predrawingEnabled:strongSelf.sd_predrawingEnabled];
-                                       } else {
-                                           animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
-                                       }
-                                       dispatch_async(dispatch_get_main_queue(), ^{
+                                   FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(self, gifData);
+                                   dispatch_async(dispatch_get_main_queue(), ^{
+                                       // Step 5. Set animatedImage
+                                       if (animatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
                                            strongSelf.animatedImage = animatedImage;
                                            strongSelf.image = nil;
-                                           if (group) {
-                                               dispatch_group_leave(group);
-                                           }
-                                       });
+                                       } else {
+                                           strongSelf.animatedImage = nil;
+                                           strongSelf.image = image;
+                                       }
+                                       if (group) {
+                                           dispatch_group_leave(group);
+                                       }
                                    });
-                               }
+                               });
                            } else {
-                               // Not animated image
-                               strongSelf.image = image;
-                               strongSelf.animatedImage = nil;
+                               if (!gifData) {
+                                   // Step 4. Create FLAnimatedImage
+                                   gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
+                               }
+                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(self, gifData);
+                               // Step 5. Set animatedImage
+                               if (animatedImage) {
+                                   image.sd_FLAnimatedImage = animatedImage;
+                                   strongSelf.animatedImage = animatedImage;
+                                   strongSelf.image = nil;
+                               } else {
+                                   strongSelf.animatedImage = nil;
+                                   strongSelf.image = image;
+                               }
                                if (group) {
                                    dispatch_group_leave(group);
                                }

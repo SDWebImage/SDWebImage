@@ -32,8 +32,8 @@
 @end
 
 typedef NS_ENUM(NSUInteger, FLAnimatedImageViewSetImagePolicy) {
-    FLAnimatedImageViewSetImagePolicyStandard, // The setImageBlock & completionBlock is always run on the same runloop. When the image or image data can determinate as a GIF image, create `FLAnimatedImage` instance on the main queue and then set it to `animatedImage` property. This may block main queue for large GIF.
-    FLAnimatedImageViewSetImagePolicyFast // The completionBlock may run on the next runloop after setImageBlock. When the image or image data can determinate as a GIF image, firstlly use static poster image to let it render, then create `FLAnimatedImage` instance on the global queue, and finally set it to `animatedImage` property on the main queue. This may be helpful for large GIF.
+    FLAnimatedImageViewSetImagePolicyStandard, // The setImageBlock & completionBlock is always run on the same runloop. When the `FLAnimatedImage` not available, but image data can determinate as a GIF image, create `FLAnimatedImage` instance on the main queue and then set it to `animatedImage` property. When image data not available, query disk cache on the main queue and continue as above. This may block main queue for large GIF.
+    FLAnimatedImageViewSetImagePolicyFast // The completionBlock may run on the next runloop after setImageBlock. When the `FLAnimatedImage` not available, but image data can determinate as a GIF image, firstlly use static poster image to let it render, then create `FLAnimatedImage` instance on the global queue, and finally set it to `animatedImage` property on the main queue. When image data not available, query disk cache on the main queue and continue as above. This not block main queue and may be helpful for large GIF.
 };
 
 
