@@ -133,6 +133,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 }
 
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field {
+    if (!field) {
+        return;
+    }
     NSMutableDictionary *mutableHTTPHeaders = [self.HTTPHeaders mutableCopy];
     if (value) {
         [mutableHTTPHeaders setObject:value forKey:field];

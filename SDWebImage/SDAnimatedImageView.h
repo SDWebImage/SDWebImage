@@ -57,12 +57,14 @@
  Default is YES. Set to NO to only render the static poster for incremental animated image.
  */
 @property (nonatomic, assign) BOOL shouldIncrementalLoad;
+
+#if SD_UIKIT
 /**
  You can specify a runloop mode to let it rendering.
  Default is NSRunLoopCommonModes on multi-core iOS device, NSDefaultRunLoopMode on single-core iOS device
  */
-@property (nonatomic, copy, nonnull) NSRunLoopMode runLoopMode NS_AVAILABLE_IOS(3_1);
-
+@property (nonatomic, copy, nonnull) NSRunLoopMode runLoopMode;
+#endif
 @end
 
 #endif
