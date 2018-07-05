@@ -237,6 +237,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         UIImage *imageWithoutAlpha = [[UIImage alloc] initWithCGImage:imageRefWithoutAlpha scale:image.scale orientation:image.imageOrientation];
         CGContextRelease(context);
         CGImageRelease(imageRefWithoutAlpha);
+        imageWithoutAlpha.sd_imageFormat = image.sd_imageFormat;
         
         return imageWithoutAlpha;
     }
@@ -358,6 +359,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImage == nil) {
             return image;
         }
+        destImage.sd_imageFormat = image.sd_imageFormat;
+        
         return destImage;
     }
 }

@@ -17,6 +17,9 @@
 #import "UIImage+MultiFormat.h"
 
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
+    if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
+        return nil;
+    }
     FLAnimatedImage *animatedImage;
     // Compatibility in 4.x for lower version FLAnimatedImage.
     if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
@@ -115,12 +118,19 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
     SDSetImageGroupConditionBlock groupConditionBlock = ^BOOL(UIImage *image, NSData *imageData) {
         FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
         if (associatedAnimatedImage) {
-            return YES;
+            return NO;
         }
-        if ([NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF) {
-            return YES;
+        BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
+        if (!isGIF) {
+            return NO;
         }
-        return NO;
+        BOOL isAsync = self.sd_setImagePolicy == FLAnimatedImageViewSetImagePolicyPerformance;
+        if (!isAsync) {
+            return NO;
+        }
+        // After these condition pass, the setImageBlock will perform async operation on global queue and then end the dispatch group, which cause the completionBlock to be executed on the next runloop
+        // This is because our user assume this behavior: The completionBlock is called after setImageBlock. Currentlly we just keep this.
+        return YES;
     };
     if (group) {
         NSMutableDictionary *mutableContext = [NSMutableDictionary dictionaryWithCapacity:2];
@@ -157,8 +167,8 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                }
                                return;
                            }
-                           // Step 2. Check if "GIF" (including animated image as well to avoid force decode case, which lose the image format)
-                           BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF || image.images.count > 0);
+                           // Step 2. Check if original compressed image data is "GIF"
+                           BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
                            if (!isGIF) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
@@ -168,10 +178,28 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                return;
                            }
                            // Step 3. Check if data exist and query disk cache
-                           BOOL isAsync = self.sd_setImagePolicy == FLAnimatedImageViewSetImagePolicyFast;
+                           BOOL isAsync = self.sd_setImagePolicy == FLAnimatedImageViewSetImagePolicyPerformance;
                            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
                            __block NSData *gifData = imageData;
-                           if (isAsync) {
+                           if (!isAsync) {
+                               if (!gifData) {
+                                   // Step 4. Create FLAnimatedImage
+                                   gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
+                               }
+                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(self, gifData);
+                               // Step 5. Set animatedImage
+                               if (animatedImage) {
+                                   image.sd_FLAnimatedImage = animatedImage;
+                                   strongSelf.animatedImage = animatedImage;
+                                   strongSelf.image = nil;
+                               } else {
+                                   strongSelf.animatedImage = nil;
+                                   strongSelf.image = image;
+                               }
+                               if (group) {
+                                   dispatch_group_leave(group);
+                               }
+                           } else {
                                // Firstly set the static poster image to avoid flashing
                                UIImage *posterImage = image.images ? image.images.firstObject : image;
                                strongSelf.image = posterImage;
@@ -198,24 +226,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                        }
                                    });
                                });
-                           } else {
-                               if (!gifData) {
-                                   // Step 4. Create FLAnimatedImage
-                                   gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
-                               }
-                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(self, gifData);
-                               // Step 5. Set animatedImage
-                               if (animatedImage) {
-                                   image.sd_FLAnimatedImage = animatedImage;
-                                   strongSelf.animatedImage = animatedImage;
-                                   strongSelf.image = nil;
-                               } else {
-                                   strongSelf.animatedImage = nil;
-                                   strongSelf.image = image;
-                               }
-                               if (group) {
-                                   dispatch_group_leave(group);
-                               }
                            }
                        }
                             progress:progressBlock

@@ -18,7 +18,7 @@
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
 
 /**
- A SDSetImageGroupConditionBlock block object to maintain setImageBlock and completionBlock behavior. This block is called to determine whether we should use `SDWebImageInternalSetImageGroupKey` CGD group to maintain setImageBlock and completionBlock order.
+ A SDSetImageGroupConditionBlock block object to maintain setImageBlock and completionBlock behavior. This block is called to determine whether we should use `SDWebImageInternalSetImageGroupKey` group to maintain setImageBlock and completionBlock order.
  Return YES to indicate that we should check `SDWebImageInternalSetImageGroupKey` and the completion block should be submitted to the main queue and get executed on next runloop. Return NO to indicate that the completion block should be executed immeditally. (SDSetImageGroupConditionBlock)
  If you don't specify this value when using `SDWebImageInternalSetImageGroupKey`, always assume YES for this condition.
  Used by internal usage for FLAnimatedImageView currently.

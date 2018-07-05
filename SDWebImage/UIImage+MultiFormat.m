@@ -7,9 +7,9 @@
  */
 
 #import "UIImage+MultiFormat.h"
-
-#import "objc/runtime.h"
+#import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
+#import "objc/runtime.h"
 
 @implementation UIImage (MultiFormat)
 
@@ -60,7 +60,7 @@
         imageFormat = value.integerValue;
         return imageFormat;
     }
-    // Check CGImage's UTType
+    // Check CGImage's UTType, may return nil for non-Image/IO based image
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
     if (&CGImageGetUTType != NULL) {
