@@ -16,6 +16,7 @@
     atomic_ulong _skippedCount;
     atomic_ulong _finishedCount;
     atomic_ulong _totalCount;
+    atomic_flag  _isAllFinished;
 }
 
 @property (nonatomic, copy, readwrite) NSArray<NSURL *> *urls;
@@ -78,6 +79,7 @@
     token->_skippedCount = 0;
     token->_finishedCount = 0;
     token->_totalCount = token.urls.count;
+    atomic_flag_clear(&(token->_isAllFinished));
     token.operations = [NSPointerArray weakObjectsPointerArray];
     token.progressBlock = progressBlock;
     token.completionBlock = completionBlock;
@@ -105,8 +107,10 @@
             
             if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) + atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed) >= atomic_load_explicit(&(token->_totalCount), memory_order_relaxed)) {
                 // All finished
-                [sself callCompletionBlockForToken:token];
-                [sself removeRunningToken:token];
+                if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
+                    [sself callCompletionBlockForToken:token];
+                    [sself removeRunningToken:token];
+                }
             }
         }];
         @synchronized (token) {
