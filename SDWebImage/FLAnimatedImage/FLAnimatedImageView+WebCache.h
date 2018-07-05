@@ -31,6 +31,11 @@
 
 @end
 
+typedef NS_ENUM(NSUInteger, FLAnimatedImageViewSetImagePolicy) {
+    FLAnimatedImageViewSetImagePolicyStandard, // The setImageBlock & completionBlock is always run on the same runloop. When the image or image data can determinate as a GIF image, create `FLAnimatedImage` instance on the main queue and then set it to `animatedImage` property. This may block main queue for large GIF.
+    FLAnimatedImageViewSetImagePolicyFast // The completionBlock may run on the next runloop after setImageBlock. When the image or image data can determinate as a GIF image, firstlly use static poster image to let it render, then create `FLAnimatedImage` instance on the global queue, and finally set it to `animatedImage` property on the main queue. This may be helpful for large GIF.
+};
+
 
 /**
  *  A category for the FLAnimatedImage imageView class that hooks it to the SDWebImage system.
@@ -51,6 +56,13 @@
  * Defaults to YES.
  */
 @property (nonatomic, assign) BOOL sd_predrawingEnabled;
+
+/**
+ * The advanced control for setImage process and rendering for FLAnimatedImageView after image loading. This may be useful for GIF render performance.
+ * See `FLAnimatedImageViewSetImagePolicy` description above for different behavior and choose the most proper one for your use case.
+ * Defaults to `FLAnimatedImageViewSetImagePolicyStandard`.
+ */
+@property (nonatomic, assign) FLAnimatedImageViewSetImagePolicy sd_setImagePolicy;
 
 /**
  * Load the image at the given url (either from cache or download) and load it in this imageView. It works with both static and dynamic images

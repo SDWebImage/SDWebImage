@@ -11,9 +11,20 @@
 #import "SDWebImageTransition.h"
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
+ A Dispatch group to maintain setImageBlock and completionBlock runloop order. This key should be used only internally and may be changed in the future. (dispatch_group_t)
+ You can also provide `SDWebImageInternalSetImageGroupConditionBlockKey` to dynamic control the runloop order.
+ Used by internal usage for FLAnimatedImageView currently.
  */
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
+
+/**
+ A SDSetImageGroupConditionBlock block object to maintain setImageBlock and completionBlock behavior. This block is called to determine whether we should use `SDWebImageInternalSetImageGroupKey` CGD group to maintain setImageBlock and completionBlock order.
+ Return YES to indicate that we should check `SDWebImageInternalSetImageGroupKey` and the completion block should be submitted to the main queue and get executed on next runloop. Return NO to indicate that the completion block should be executed immeditally. (SDSetImageGroupConditionBlock)
+ If you don't specify this value when using `SDWebImageInternalSetImageGroupKey`, always assume YES for this condition.
+ Used by internal usage for FLAnimatedImageView currently.
+ */
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupConditionBlockKey;
+
 /**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
  */
@@ -24,6 +35,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 FOUNDATION_EXPORT const int64_t SDWebImageProgressUnitCountUnknown; /* 1LL */
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
+typedef BOOL(^SDSetImageGroupConditionBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
 
 @interface UIView (WebCache)
 
