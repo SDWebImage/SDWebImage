@@ -37,7 +37,7 @@ This library provides an async image downloader with cache support. For convenie
 - tvOS 9.0 or later
 - watchOS 2.0 or later
 - macOS 10.10 or later
-- Xcode 7.3 or later
+- Xcode 9.0 or later
 
 #### Backwards compatibility
 
