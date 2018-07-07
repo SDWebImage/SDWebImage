@@ -56,6 +56,19 @@
     objc_setAssociatedObject(self, @selector(sd_predrawingEnabled), @(sd_predrawingEnabled), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (BOOL)sd_cacheFLAnimatedImage {
+    BOOL cacheFLAnimatedImage = YES;
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_cacheFLAnimatedImage));
+    if ([value isKindOfClass:[NSNumber class]]) {
+        cacheFLAnimatedImage = value.boolValue;
+    }
+    return cacheFLAnimatedImage;
+}
+
+- (void)setSd_cacheFLAnimatedImage:(BOOL)sd_cacheFLAnimatedImage {
+    objc_setAssociatedObject(self, @selector(sd_cacheFLAnimatedImage), @(sd_cacheFLAnimatedImage), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (void)sd_setImageWithURL:(nullable NSURL *)url {
     [self sd_setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
 }
@@ -113,12 +126,14 @@
                                    FLAnimatedImage *animatedImage;
                                    // Compatibility in 4.x for lower version FLAnimatedImage.
                                    if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
-                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:self.sd_optimalFrameCacheSize predrawingEnabled:self.sd_predrawingEnabled];
+                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:weakSelf.sd_optimalFrameCacheSize predrawingEnabled:weakSelf.sd_predrawingEnabled];
                                    } else {
                                        animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
                                    }
                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                       image.sd_FLAnimatedImage = animatedImage;
+                                       if (weakSelf.sd_cacheFLAnimatedImage) {
+                                           image.sd_FLAnimatedImage = animatedImage;
+                                       }
                                        weakSelf.animatedImage = animatedImage;
                                        weakSelf.image = nil;
                                        if (group) {
