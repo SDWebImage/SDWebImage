@@ -15,8 +15,9 @@
     // These value are just used as incrementing counter, keep thread-safe using memory_order_relaxed for performance.
     atomic_ulong _skippedCount;
     atomic_ulong _finishedCount;
-    atomic_ulong _totalCount;
     atomic_flag  _isAllFinished;
+    
+    unsigned long _totalCount;
 }
 
 @property (nonatomic, copy, readwrite) NSArray<NSURL *> *urls;
@@ -105,7 +106,7 @@
             // Current operation finished
             [sself callProgressBlockForToken:token imageURL:imageURL];
             
-            if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) + atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed) >= atomic_load_explicit(&(token->_totalCount), memory_order_relaxed)) {
+            if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) == token->_totalCount) {
                 // All finished
                 if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
                     [sself callCompletionBlockForToken:token];
@@ -138,7 +139,7 @@
     NSUInteger tokenFinishedCount = [self tokenFinishedCount];
     NSUInteger tokenTotalCount = [self tokenTotalCount];
     NSUInteger finishedCount = atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
-    NSUInteger totalCount = atomic_load_explicit(&(token->_totalCount), memory_order_relaxed);
+    NSUInteger totalCount = token->_totalCount;
     dispatch_async(self.delegateQueue, ^{
         if (shouldCallDelegate) {
             [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:tokenFinishedCount totalCount:tokenTotalCount];
@@ -173,7 +174,7 @@
     NSUInteger tokenTotalCount = 0;
     @synchronized (self.runningTokens) {
         for (SDWebImagePrefetchToken *token in self.runningTokens) {
-            tokenTotalCount += atomic_load_explicit(&(token->_totalCount), memory_order_relaxed);
+            tokenTotalCount += token->_totalCount;
         }
     }
     return tokenTotalCount;
