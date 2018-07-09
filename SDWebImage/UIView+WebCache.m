@@ -7,9 +7,6 @@
  */
 
 #import "UIView+WebCache.h"
-
-#if SD_UIKIT || SD_MAC
-
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 
@@ -23,8 +20,8 @@ static char imageURLKey;
 #if SD_UIKIT
 static char TAG_ACTIVITY_INDICATOR;
 static char TAG_ACTIVITY_STYLE;
-#endif
 static char TAG_ACTIVITY_SHOW;
+#endif
 
 @implementation UIView (WebCache)
 
@@ -78,10 +75,12 @@ static char TAG_ACTIVITY_SHOW;
     }
     
     if (url) {
+#if SD_UIKIT
         // check if activityView is enabled or not
         if ([self sd_showActivityIndicatorView]) {
             [self sd_addActivityIndicator];
         }
+#endif
         
         // reset the progress
         self.sd_imageProgress.totalUnitCount = 0;
@@ -105,7 +104,9 @@ static char TAG_ACTIVITY_SHOW;
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
+#if SD_UIKIT
             [sself sd_removeActivityIndicator];
+#endif
             // if the progress not been updated, mark it to complete state
             if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
                 sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
@@ -144,16 +145,22 @@ static char TAG_ACTIVITY_SHOW;
                 targetData = nil;
             }
             
+#if SD_UIKIT || SD_MAC
             // check whether we should use the image transition
             SDWebImageTransition *transition = nil;
             if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
                 transition = sself.sd_imageTransition;
             }
+#endif
             if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
                 dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
                 dispatch_group_enter(group);
                 dispatch_main_async_safe(^{
+#if SD_UIKIT || SD_MAC
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+#else
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+#endif
                 });
                 // ensure completion block is called after custom setImage process finish
                 dispatch_group_notify(group, dispatch_get_main_queue(), ^{
@@ -161,7 +168,11 @@ static char TAG_ACTIVITY_SHOW;
                 });
             } else {
                 dispatch_main_async_safe(^{
+#if SD_UIKIT || SD_MAC
                     [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+#else
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+#endif
                     callCompletedBlockClojure();
                 });
             }
@@ -169,7 +180,9 @@ static char TAG_ACTIVITY_SHOW;
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
         dispatch_main_async_safe(^{
+#if SD_UIKIT
             [self sd_removeActivityIndicator];
+#endif
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
@@ -183,23 +196,31 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
+#if SD_UIKIT || SD_MAC
     [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:0 imageURL:nil];
+#else
+    // watchOS does not support view transition. Simplify the logic
+    if (setImageBlock) {
+        setImageBlock(image, imageData);
+    } else if ([self isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)self;
+        [imageView setImage:image];
+    }
+#endif
 }
 
+#if SD_UIKIT || SD_MAC
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock transition:(SDWebImageTransition *)transition cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
     UIView *view = self;
     SDSetImageBlock finalSetImageBlock;
     if (setImageBlock) {
         finalSetImageBlock = setImageBlock;
-    }
-#if SD_UIKIT || SD_MAC
-    else if ([view isKindOfClass:[UIImageView class]]) {
+    } else if ([view isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData) {
             imageView.image = setImage;
         };
     }
-#endif
 #if SD_UIKIT
     else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
@@ -257,14 +278,19 @@ static char TAG_ACTIVITY_SHOW;
         }
     }
 }
+#endif
 
 - (void)sd_setNeedsLayout {
 #if SD_UIKIT
     [self setNeedsLayout];
 #elif SD_MAC
     [self setNeedsLayout:YES];
+#elif SD_WATCH
+    // Do nothing because WatchKit automatically layout the view after property change
 #endif
 }
+
+#if SD_UIKIT || SD_MAC
 
 #pragma mark - Image Transition
 - (SDWebImageTransition *)sd_imageTransition {
@@ -275,10 +301,9 @@ static char TAG_ACTIVITY_SHOW;
     objc_setAssociatedObject(self, @selector(sd_imageTransition), sd_imageTransition, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-#pragma mark - Activity indicator
-
-#pragma mark -
 #if SD_UIKIT
+
+#pragma mark - Activity indicator
 - (UIActivityIndicatorView *)activityIndicator {
     return (UIActivityIndicatorView *)objc_getAssociatedObject(self, &TAG_ACTIVITY_INDICATOR);
 }
@@ -286,7 +311,6 @@ static char TAG_ACTIVITY_SHOW;
 - (void)setActivityIndicator:(UIActivityIndicatorView *)activityIndicator {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_INDICATOR, activityIndicator, OBJC_ASSOCIATION_RETAIN);
 }
-#endif
 
 - (void)sd_setShowActivityIndicatorView:(BOOL)show {
     objc_setAssociatedObject(self, &TAG_ACTIVITY_SHOW, @(show), OBJC_ASSOCIATION_RETAIN);
@@ -296,7 +320,6 @@ static char TAG_ACTIVITY_SHOW;
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_SHOW) boolValue];
 }
 
-#if SD_UIKIT
 - (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style{
     objc_setAssociatedObject(self, &TAG_ACTIVITY_STYLE, [NSNumber numberWithInt:style], OBJC_ASSOCIATION_RETAIN);
 }
@@ -304,10 +327,8 @@ static char TAG_ACTIVITY_SHOW;
 - (int)sd_getIndicatorStyle{
     return [objc_getAssociatedObject(self, &TAG_ACTIVITY_STYLE) intValue];
 }
-#endif
 
 - (void)sd_addActivityIndicator {
-#if SD_UIKIT
     dispatch_main_async_safe(^{
         if (!self.activityIndicator) {
             self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:[self sd_getIndicatorStyle]];
@@ -332,20 +353,19 @@ static char TAG_ACTIVITY_SHOW;
         }
         [self.activityIndicator startAnimating];
     });
-#endif
 }
 
 - (void)sd_removeActivityIndicator {
-#if SD_UIKIT
     dispatch_main_async_safe(^{
         if (self.activityIndicator) {
             [self.activityIndicator removeFromSuperview];
             self.activityIndicator = nil;
         }
     });
-#endif
 }
 
-@end
+#endif
 
 #endif
+
+@end

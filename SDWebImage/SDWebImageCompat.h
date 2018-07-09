@@ -70,6 +70,12 @@
     #endif
     #if SD_WATCH
         #import <WatchKit/WatchKit.h>
+        #ifndef UIView
+            #define UIView WKInterfaceObject
+        #endif
+        #ifndef UIImageView
+            #define UIImageView WKInterfaceImage
+        #endif
     #endif
 #endif
 
@@ -89,7 +95,7 @@ FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
 
 #ifndef dispatch_queue_async_safe
 #define dispatch_queue_async_safe(queue, block)\
-    if (strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(queue)) == 0) {\
+    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(queue)) {\
         block();\
     } else {\
         dispatch_async(queue, block);\
