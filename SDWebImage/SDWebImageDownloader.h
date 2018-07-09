@@ -109,12 +109,12 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 /**
  The download's request.
  */
-@property (nonatomic, copy, nullable, readonly) NSURLRequest *request;
+@property (nonatomic, strong, nullable, readonly) NSURLRequest *request;
 
 /**
  The download's response.
  */
-@property (nonatomic, copy, nullable, readonly) NSURLResponse *response;
+@property (nonatomic, strong, nullable, readonly) NSURLResponse *response;
 
 @end
 
