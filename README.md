@@ -162,6 +162,7 @@ community can help you solve it.
 - [Bogdan Poplauschi](https://github.com/bpoplauschi)
 - [Chester Liu](https://github.com/skyline75489)
 - [DreamPiggy](https://github.com/dreampiggy)
+- [Wu Zhong](https://github.com/zhongwuzw)
 
 ## Licenses
 
