@@ -54,7 +54,7 @@
 
 /**
  * Cache control for associated FLAnimatedImage object for memory cache. When enabled, we will bind created FLAnimatedImage instance to UIImage, and store it into memory cache to avoid create this instance cause decoding performance. See `UIImage+FLAnimatedImage`.
- * When enabled, this may consume more memory, if you are facing memory issue, disable it and let FLAnimatedImage been created just in time and dealloced as it not been used. However, when disabled, this may impact performance since we need query disk cache when current GIF url is cached.
+ * When enabled, this may consume more memory, if you are facing memory issue, disable it and let FLAnimatedImage been created just in time and dealloced as it not been used. However, when disabled, this may impact performance since we need query disk cache, create FLAnimatedImage and decoding even when the current GIF url is cached.
  * Defatuls to YES;
  */
 @property (nonatomic, assign) BOOL sd_cacheFLAnimatedImage;
