@@ -11,6 +11,7 @@
 #import "NSImage+WebCache.h"
 #import <ImageIO/ImageIO.h>
 #import "NSData+ImageContentType.h"
+#import "UIImage+MultiFormat.h"
 
 #if SD_UIKIT || SD_WATCH
 static const size_t kBytesPerPixel = 4;
@@ -97,6 +98,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data];
+    image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
     
     return image;
 }
@@ -146,6 +148,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             image = [[UIImage alloc] initWithCGImage:partialImageRef size:NSZeroSize];
 #endif
             CGImageRelease(partialImageRef);
+            image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
         }
     }
     
@@ -234,6 +237,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         UIImage *imageWithoutAlpha = [[UIImage alloc] initWithCGImage:imageRefWithoutAlpha scale:image.scale orientation:image.imageOrientation];
         CGContextRelease(context);
         CGImageRelease(imageRefWithoutAlpha);
+        imageWithoutAlpha.sd_imageFormat = image.sd_imageFormat;
         
         return imageWithoutAlpha;
     }
@@ -355,6 +359,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImage == nil) {
             return image;
         }
+        destImage.sd_imageFormat = image.sd_imageFormat;
+        
         return destImage;
     }
 }

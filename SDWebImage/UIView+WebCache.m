@@ -11,6 +11,7 @@
 #import "UIView+WebCacheOperation.h"
 
 NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
+NSString * const SDWebImageInternalSetImageGroupConditionBlockKey = @"internalSetImageGroupConditionBlock";
 NSString * const SDWebImageExternalCustomManagerKey = @"externalCustomManager";
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
@@ -152,30 +153,30 @@ static char TAG_ACTIVITY_SHOW;
                 transition = sself.sd_imageTransition;
             }
 #endif
-            if ([context valueForKey:SDWebImageInternalSetImageGroupKey]) {
-                dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+            // check whether we should use GCD group to maintain setImageBlock & completionBlock order (For FLAnimatedImage compatibility)
+            dispatch_group_t group = [context valueForKey:SDWebImageInternalSetImageGroupKey];
+            BOOL groupCondition = YES;
+            if (group) {
+                // check whether we should use group notify to submit the completionBlock (or execute immediately)
+                SDSetImageGroupConditionBlock groupConditionBlock = [context valueForKey:SDWebImageInternalSetImageGroupConditionBlockKey];
+                if (groupConditionBlock) {
+                    groupCondition = groupConditionBlock(targetImage, targetData);
+                }
                 dispatch_group_enter(group);
-                dispatch_main_async_safe(^{
-#if SD_UIKIT || SD_MAC
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
-#else
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-#endif
-                });
-                // ensure completion block is called after custom setImage process finish
-                dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                    callCompletedBlockClojure();
-                });
-            } else {
-                dispatch_main_async_safe(^{
-#if SD_UIKIT || SD_MAC
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
-#else
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-#endif
-                    callCompletedBlockClojure();
-                });
             }
+            dispatch_main_async_safe(^{
+#if SD_UIKIT || SD_MAC
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+#else
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+#endif
+                if (group && groupCondition) {
+                    // submit the completion block to main queue, it may be executed on next runloop
+                    dispatch_group_notify(group, dispatch_get_main_queue(), callCompletedBlockClojure);
+                } else {
+                    callCompletedBlockClojure();
+                }
+            });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {
