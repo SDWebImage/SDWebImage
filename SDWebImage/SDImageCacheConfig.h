@@ -9,6 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
+typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
+    /**
+     * When the image is accessed it will update this value
+     */
+    SDImageCacheConfigExpireTypeAccessDate,
+    /**
+     * The image was obtained from the disk cache (Default)
+     */
+    SDImageCacheConfigExpireTypeModificationDate
+};
+
 // This class conform to NSCopying, make sure to add the property in `copyWithZone:` as well.
 @interface SDImageCacheConfig : NSObject <NSCopying>
 
@@ -26,9 +37,17 @@
 
 /**
  * Whether or not to use memory cache
+ * @note When the memory cache is disabled, the weak memory cache will also be disabled.
  * Defaults to YES.
  */
 @property (assign, nonatomic) BOOL shouldCacheImagesInMemory;
+
+/*
+ * The option to control weak memory cache for images. When enable, `SDImageCache`'s memory cache will use a weak maptable to store the image at the same time when it stored to memory, and get removed at the same time.
+ * However when memory warning is triggered, since the weak maptable does not hold a strong reference to image instacnce, even when the memory cache itself is purged, some images which are held strongly by UIImageViews or other live instances can be recovered again, to avoid later re-query from disk cache or network. This may be helpful for the case, for example, when app enter background and memory is purged, cause cell flashing after re-enter foreground.
+ * Defautls to YES. You can change this option dynamically.
+ */
+@property (assign, nonatomic) BOOL shouldUseWeakMemoryCache;
 
 /**
  * Whether or not to remove the expired disk data when application entering the background. (Not works for macOS)
@@ -71,6 +90,12 @@
  * Defaults to 0. Which means there is no memory count limit.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCount;
+
+/*
+ * The attribute which the clear cache will be checked against when clearing the disk cache
+ * Default is Modified Date
+ */
+@property (assign, nonatomic) SDImageCacheConfigExpireType diskCacheExpireType;
 
 /**
  * The namespace prefix of cache. It's used to prefix the namespace you provide to the caches's initializer. You 'd better name it with reverse domain name notation and keep the final dot.
