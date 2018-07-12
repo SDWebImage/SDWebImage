@@ -93,3 +93,17 @@
         dispatch_async(dispatch_get_main_queue(), block);\
     }
 #endif
+
+#ifndef LOCK
+#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+#endif
+
+#ifndef UNLOCK
+#define UNLOCK(lock) dispatch_semaphore_signal(lock);
+#endif
+
+#ifndef LOCKBLOCK
+#define LOCKBLOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
+__VA_ARGS__; \
+dispatch_semaphore_signal(self->_lock);
+#endif

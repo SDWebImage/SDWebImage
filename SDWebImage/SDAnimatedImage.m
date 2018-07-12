@@ -12,10 +12,6 @@
 #import "SDImageCodersManager.h"
 #import "SDImageFrame.h"
 
-#define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
-__VA_ARGS__; \
-dispatch_semaphore_signal(self->_lock);
-
 static CGFloat SDImageScaleFromPath(NSString *string) {
     if (string.length == 0 || [string hasSuffix:@"/"]) return 1;
     NSString *name = string.stringByDeletingPathExtension;
@@ -108,7 +104,7 @@ static NSArray *SDBundlePreferredScales() {
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    LOCK({
+    LOCKBLOCK({
         [self.imageTable removeAllObjects];
     });
 }
@@ -178,7 +174,7 @@ static NSArray *SDBundlePreferredScales() {
 - (UIImage *)imageForName:(NSString *)name {
     NSParameterAssert(name);
     UIImage *image;
-    LOCK({
+    LOCKBLOCK({
         image = [self.imageTable objectForKey:name];
     });
     return image;
@@ -187,7 +183,7 @@ static NSArray *SDBundlePreferredScales() {
 - (void)storeImage:(UIImage *)image forName:(NSString *)name {
     NSParameterAssert(image);
     NSParameterAssert(name);
-    LOCK({
+    LOCKBLOCK({
         [self.imageTable setObject:image forKey:name];
     });
 }

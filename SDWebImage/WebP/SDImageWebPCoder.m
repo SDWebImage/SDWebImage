@@ -26,10 +26,6 @@
 #endif
 #import <Accelerate/Accelerate.h>
 
-#define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
-__VA_ARGS__; \
-dispatch_semaphore_signal(self->_lock);
-
 @interface SDWebPCoderFrame : NSObject
 
 @property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
@@ -741,7 +737,7 @@ static void FreeImageData(void *info, const void *data, size_t size) {
     if (index >= _frameCount) {
         return nil;
     }
-    LOCK({
+    LOCKBLOCK({
         image = [self safeAnimatedImageFrameAtIndex:index];
     });
     return image;

@@ -14,9 +14,6 @@
 #import "SDImageWebPCoder.h"
 #endif
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
 @interface SDImageCodersManager ()
 
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t codersLock;

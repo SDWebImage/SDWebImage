@@ -9,9 +9,6 @@
 #import "SDImageLoadersManager.h"
 #import "SDWebImageDownloader.h"
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
 @interface SDImageLoadersManager ()
 
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t loadersLock;

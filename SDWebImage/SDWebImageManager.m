@@ -12,9 +12,6 @@
 #import "UIImage+Metadata.h"
 #import "SDWebImageError.h"
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
 static id<SDImageCache> _defaultImageCache;
 static id<SDImageLoader> _defaultImageLoader;
 

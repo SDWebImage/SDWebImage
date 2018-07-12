@@ -9,9 +9,6 @@
 #import "SDMemoryCache.h"
 #import "SDImageCacheConfig.h"
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
 NSUInteger SDMemoryCacheCostForImage(UIImage * _Nullable image) {
 #if SD_MAC
     return image.size.height * image.size.width;

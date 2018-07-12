@@ -13,9 +13,6 @@
 
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
-#define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#define UNLOCK(lock) dispatch_semaphore_signal(lock);
-
 @interface SDWebImageDownloadToken ()
 
 @property (nonatomic, strong, nullable, readwrite) NSURL *url;

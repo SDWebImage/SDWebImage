@@ -38,10 +38,6 @@ static NSUInteger SDDeviceFreeMemory() {
     return vm_stat.free_count * page_size;
 }
 
-#define LOCK(...) dispatch_semaphore_wait(self->_lock, DISPATCH_TIME_FOREVER); \
-__VA_ARGS__; \
-dispatch_semaphore_signal(self->_lock);
-
 @interface SDWeakProxy : NSProxy
 
 @property (nonatomic, weak, readonly) id target;
@@ -242,7 +238,7 @@ dispatch_semaphore_signal(self->_lock);
     self.animatedImageScale = 1;
     [_fetchQueue cancelAllOperations];
     _fetchQueue = nil;
-    LOCK({
+    LOCKBLOCK({
         [_frameBuffer removeAllObjects];
         _frameBuffer = nil;
     });
@@ -303,7 +299,7 @@ dispatch_semaphore_signal(self->_lock);
         self.animatedImageScale = image.scale;
         if (!self.isProgressive) {
             self.currentFrame = image;
-            LOCK({
+            LOCKBLOCK({
                 self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
             });
         }
@@ -424,7 +420,7 @@ dispatch_semaphore_signal(self->_lock);
     [_fetchQueue cancelAllOperations];
     [_fetchQueue addOperationWithBlock:^{
         NSNumber *currentFrameIndex = @(self.currentFrameIndex);
-        LOCK({
+        LOCKBLOCK({
             NSArray *keys = self.frameBuffer.allKeys;
             // only keep the next frame for later rendering
             for (NSNumber * key in keys) {
@@ -681,12 +677,12 @@ dispatch_semaphore_signal(self->_lock);
     
     // Update the current frame
     UIImage *currentFrame;
-    LOCK({
+    LOCKBLOCK({
         currentFrame = self.frameBuffer[@(currentFrameIndex)];
     });
     BOOL bufferFull = NO;
     if (currentFrame) {
-        LOCK({
+        LOCKBLOCK({
             // Remove the frame buffer if need
             if (self.frameBuffer.count > self.maxBufferCount) {
                 self.frameBuffer[@(currentFrameIndex)] = nil;
@@ -710,7 +706,7 @@ dispatch_semaphore_signal(self->_lock);
         if (self.isProgressive) {
             // Recovery the current frame index and removed frame buffer (See above)
             self.currentFrameIndex = currentFrameIndex;
-            LOCK({
+            LOCKBLOCK({
                 self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
             });
             [self stopAnimating];
@@ -740,7 +736,7 @@ dispatch_semaphore_signal(self->_lock);
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
             UIImage *fetchFrame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
-            LOCK({
+            LOCKBLOCK({
                 self.frameBuffer[@(fetchFrameIndex)] = fetchFrame;
             });
         }];
