@@ -10,51 +10,77 @@ This guide is provided in order to ease the transition of existing applications 
 SDWebImage 5.0 officially supports iOS 8 and later, Mac OS X 10.10 and later, watchOS 2 and later and tvOS 9 and later.
 It needs Xcode 9 or later to be able to build everything properly.
 
-For targeting previous versions of the SDKs, check [README - Backwards compatibility](https://github.com/rs/SDWebImage#backwards-compatibility)
-.
+For targeting previous versions of the SDKs, check [README - Backwards compatibility](https://github.com/rs/SDWebImage#backwards-compatibility).
 
 ### Migration
 
-#### Swift
+Using the view categories brings no change from 4.x to 5.0. 
 
-- TBD if needed -
+Objective-C:
 
-#### Objective-C
+```objective-c
+[imageView sd_setImageWithURL:url placeholderImage:placeholderImage];
+```
 
-- TBD if needed -
+Swift:
 
-### FLAnimatedImage support moved to a dedicated plugin repo
-We are no longer hosting the integration with `FLAnimatedImage` inside this repo. We have a dedicated repo for that.
-TBD
+```swift
+imageView.sd_setImage(with: url, placeholderImage: placeholder)
+```
 
-### Entities
+However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. Which can hold anything that previous enum `SDWebImageOptions` can not. This allow user to control advanced behavior for view loading as well as many aspect. See the declaration for `SDWebImageContext` for detailed information.
+
+### New Features
+
+#### Animated Image View
+
+In 5.0, we introduce a brand new animated image solution. Which including animated image loading, rendering, decoding, and also support customization for advanced user.
+
+This animated image solution is available for iOS/tvOS/macOS. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to allow most compatible for common framework APIs. See [Animated Image](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
+
+#### Transformer
+
+In 5.0, we introduce a easy way to provide a image transform process after the image was downloaded from network. Which allow user to easily scale, rotate, rounded corner the original image. And even support chain a list of transformers together to output the final one. These transformed image will also stored to cache to avoid duplicate process. See [Image Transformer](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#transformer-50) for more detailed information.
+
+#### Customization
+
+In 5.0, we refactor our framework architecture, to allow it easy to customize for advanced user, without breaking anything or create their fork. We introduce [Custom Cache](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50), [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50), and make current [Custom Coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-coder-420) works better for these developers.
+
+#### FLAnimatedImage support moved to a dedicated plugin repo
+
+Since we introduce the new animated image solution. Now we are no longer hosting the integration with `FLAnimatedImage` inside this repo. But for user who need `FLAnimatedImage` support. We have a dedicated repo for that and contains all the code compatible for SDWebImage 5.0. See [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) for more detailed information.
+
+#### Photos Plugin
+
+By taking the advantage of [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) feature, we introduce a plugin to allow easily load Photos Library images. See [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) for more detailed information.
+
+
+### API Changes
 
 #### SDImageCache
 
-- new initializer `initWithNamespace:diskCacheDirectory:config:`, is now the designated initializer
 - moved `maxMemoryCost` and `maxMemoryCountLimit` to `SDImageCacheConfig`
-- added `SDImageCache diskImageDataExistsWithKey:` synchronous method
+- `makeDiskCachePath:` removed, use `NSSearchPathForDirectoriesInDomains` with NSString's Path API instead.
 - `addReadOnlyCachePath:` removed, use `additionalCachePathBlock` instead
 - `cachePathForKey:inPath:` removed, use `cachePathForKey:` with NSString's path API instead.
 - `defaultCachePathForKey:` removed, use `cachePathForKey:` instead
+- `SDCacheQueryCompletedBlock` renamed to `SDImageCacheQueryCompletionBlock`
+- `SDWebImageCheckCacheCompletionBlock` renamed to `SDImageCacheCheckCompletionBlock`
+- `SDWebImageCalculateSizeBlock` renamed to `SDImageCacheCalculateSizeBlock`
 
 #### SDImageCacheConfig
 
-- added `diskCacheWritingOptions` of type `NSDataWritingOptions`, defaults to `NSDataWritingAtomic`
-- added `maxMemoryCost` and `maxMemoryCountLimit` properties (used to be in `SDImageCache`)
 - `shouldDecompressImages` removed. Use  `SDImageCacheAvoidDecodeImage` in cache options instead
 
 #### SDWebImageManager
 
 - `loadImageWithURL:options:progress:completed:` changed the `completed` param requirement from `nullable` to `nonnull`
 - `loadImageWithURL:options:progress:completed:` return type `id<SDWebImageOperation>` changed to `SDWebImageCombinedOperation *`
-- `shared()` changed to `shared`
-- `isRunning()` changed to `isRunning`
-- `imageCache` changed from nullable to nonnull
-- `imageDownloader` renamed to `imageLoader` and changed from nullable to nonnull
-- `cacheKeyFilter` property type changed to `id<SDWebImageCacheKeyFilter>`, use the `SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:`
-- `cacheSerializer` property type CHANGED to `id<SDWebImageCacheSerializer>`, use the `SDWebImageCacheSerializer cacheSerializerWithBlock:`
-- `imageCache` property type changed from `SDImageCache *` to `id<SDImageCache>`. The default value does not change.
+- `imageCache` changed from nullable to nonnull. And property type changed from `SDImageCache *` to `id<SDImageCache>`. The default value does not change.
+- `imageDownloader` renamed to `imageLoader` and changed from nullable to nonnull. And property type changed from `SDWebImageDownloader *` to `id<SDImageLoader>`. The default value does not change.
+- `cacheKeyFilter` property type changed to `id<SDWebImageCacheKeyFilter>`, you can use `+[SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:]` to create
+- `cacheSerializer` property type changed to `id<SDWebImageCacheSerializer>`, you can use `+[SDWebImageCacheSerializer cacheSerializerWithBlock:]` to create
+- `SDWebImageCacheKeyFilterBlock`'s `url` arg change from nullable to nonnull
 - `initWithCache:downloader:` 's `cache` arg type changed from `SDImageCache *` to `id<SDImageCache>`
 - `initWithCache:downloader` renamed to `initWithCache:loader:` 
 - `saveImageToCache:forURL:` removed. Use `SDImageCache storeImage:imageData:forKey:cacheType:completion:` (or `SDImageCache storeImage:forKey:toDisk:completion:` if you use default cache class) with `cacheKeyForURL:` instead.
@@ -63,25 +89,26 @@ TBD
 
 #### SDWebImageManagerDelegate
 
-- removed `imageManager:transformDownloadedImage:forKey:`
+- removed `imageManager:transformDownloadedImage:forKey:`, use `SDImageTransformer` with context option instead
 
 #### UIView and subclasses (UIImageView, UIButton, ...)
 
 - `sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:` renamed to `UIView sd_internalSetImageWithURL:placeholderImage:options:context:setImageBlock:progress:completed:` (The biggest changes is that the completion block type from `SDExternalCompletionBlock` to `SDInternalCompletionBlock`. Which allow advanced user to get more information of image loading process) 
 - `sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:context:` removed
 - activity indicator refactoring - use `sd_imageIndicator` with `SDWebImageActivityIndicator`
-  - `sd_setShowActivityIndicatorView:` removed 
-  - `sd_setIndicatorStyle:` removed
-  - `sd_showActivityIndicatorView` removed
-  - `sd_addActivityIndicator:` removed
-  - `sd_removeActivityIndicator:` removed
+- `sd_setShowActivityIndicatorView:` removed 
+- `sd_setIndicatorStyle:` removed
+- `sd_showActivityIndicatorView` removed
+- `sd_addActivityIndicator:` removed
+- `sd_removeActivityIndicator:` removed
 
 #### UIImage
 
 - Renamed `isGIF` to `sd_isAnimated`, also `NSImage isGIF` renamed to `NSImage sd_isAnimated`
 - Renamed `decodedImageWithImage:` to `sd_decodedImageWithImage:`
 - Renamed `decodedAndScaledDownImageWithImage:` to `sd_decodedAndScaledDownImageWithImage:`
-- Removed `sd_webpLoopCount` since we have `sd_imageLoopCount`
+- Renamed `sd_animatedGIFWithData` to `sd_imageWithGIFData:`
+- Removed `sd_webpLoopCount`
 
 #### UIImageView
 
@@ -89,9 +116,6 @@ TBD
 
 #### SDWebImageDownloader
 
-- `shared()` changed to `shared`
-- `setOperationClass` available for Swift user
-- `setSuspended(_:)` changed to `isSuspended` property
 - `shouldDecompressImages` moved to `SDWebImageDownloaderConfig.shouldDecompressImages`
 - `maxConcurrentDownloads` moved to `SDWebImageDownloaderConfig.maxConcurrentDownloads`
 - `downloadTimeout` moved to `SDWebImageDownloaderConfig.downloadTimeout`
@@ -100,10 +124,10 @@ TBD
 - `urlCredential` moved to `SDWebImageDownloaderConfig.urlCredential`
 - `username` moved to `SDWebImageDownloaderConfig.username`
 - `password` moved to `SDWebImageDownloaderConfig.password`
-- `initWithSessionConfiguration:` removed, use `initWithConfig:]` with session configuration instead
-- `createNewSessionWithConfiguration:` removed, use `initWithConfig:]` with new session configuration instead. To modify shared downloader configuration, provide custom `SDWebImageDownloaderConfig.defaultDownloaderConfig` before it created.
+- `initWithSessionConfiguration:` removed, use `initWithConfig:` with session configuration instead
+- `createNewSessionWithConfiguration:` removed, use `initWithConfig:` with new session configuration instead. To modify shared downloader configuration, provide custom `SDWebImageDownloaderConfig.defaultDownloaderConfig` before it created.
 - `headersFilter` removed, use `requestModifier` instead
-- `cancel:` removed, use `SDWebImageDownloadToken cancel` instead
+- `cancel:` removed, use `-[SDWebImageDownloadToken cancel]` instead
 - `shouldDecompressImages` removed. Use `SDWebImageDownloaderAvoidDecodeImage` in downloader options instead
 - use `SDWebImageLoaderProgressBlock` instead of `SDWebImageDownloaderProgressBlock`
 - use `SDWebImageLoaderCompletedBlock` instead of `SDWebImageDownloaderCompletedBlock`
@@ -112,9 +136,10 @@ TBD
 
 - `initWithRequest:inSession:options:context:` is now the designated initializer
 - Removed `shouldUseCredentialStorage` property
-- `SDWebImageDownloadOperationInterface` protocol renamed to `SDWebImageDownloadOperation`. (`SDWebImageDownloadOperationProtocol` for Swift)
+- `SDWebImageDownloadOperationInterface` protocol renamed to `SDWebImageDownloadOperation`
 - `expectedSize` removed, use `response.expectedContentLength` instead
 - `shouldDecompressImages` removed. Use `SDWebImageDownloaderAvoidDecodeImage` in downloader options instead.
+- `response` property change to readonly
 
 #### SDWebImagePrefetcher
 
@@ -123,13 +148,36 @@ TBD
 - `maxConcurrentDownloads` property removed, use `SDWebImageManager.downloader` config instead
 
 #### SDImageCoder
-- `SDCGColorSpaceGetDeviceRGB()` moved to `SDImageCoderHelper colorSpaceGetDeviceRGB` 
-- `SDCGImageRefContainsAlpha()`, moved to `SDImageCoderHelper imageRefContainsAlpha:`
+- `SDCGColorSpaceGetDeviceRGB()` moved to `+[SDImageCoderHelper colorSpaceGetDeviceRGB]` 
+- `SDCGImageRefContainsAlpha()`, moved to `+[SDImageCoderHelper imageRefContainsAlpha:]`
 - `decodedImageWithData:` replaced with `decodedImageWithData:options:`
 - `encodedDataWithImage:format:` replaced with `encodedDataWithImage:format:options`
 - `init` method from `SDWebImageProgressiveCoder` changed to `initIncrementalWithOptions:`
-- `incrementalDecodedImageWithData:finished` replaced with `updateIncrementalData:finished` and `incrementalDecodedImageWithOptions:`
-- removed `decompressedImage:data:options`
+- `incrementalDecodedImageWithData:finished` replaced with `updateIncrementalData:finished` and `incrementalDecodedImageWithOptions:` two APIs
+- removed `decompressedImage:data:options`, use `+[SDImageCoderHelper decodedImageWithImage:]` and `+[SDImageCoderHelper decodedAndScaledDownImageWithImage:limitBytes:]` instead
+
+#### Constants
+
+- `SDWebImageInternalSetImageGroupKey` renamed to `SDWebImageContextSetImageGroup`
+- `SDWebImageExternalCustomManagerKey` renamed to `SDWebImageContextCustomManager`
+
+### Swift Specific API Changes
+We did a full cleanup of the Swift APIs. We are using many modern Objective-C declarations to generate the Swift API. We now provide full nullability support, string enum, class property, and even custom Swift API name, all to make the framework easier to use for our Swift users. Here are the API change specify for Swift. 
+
+#### UIView+WebCache
+- `sd_imageURL()` changed to `sd_imageURL`
+
+#### SDWebImageManager
+- `shared()` changed to `shared`
+- `isRunning()` changed to `isRunning`
+
+#### SDWebImageDownloader
+- `shared()` changed to `shared`
+- `setOperationClass(_:)` available for Swift user with `operationClass` property
+- `setSuspended(_:)` changed to `isSuspended` property
+
+#### SDWebImageDownloadOperation
+- `SDWebImageDownloadOperationInterface` protocol renamed to `SDWebImageDownloadOperationProtocol`. 
 
 #### SDImageCodersManager
 
@@ -154,13 +202,12 @@ TBD
 #### UIButton-WebCache
 
 - `sd_currentImageURL()` changed to `sd_currentImageURL`
-  
+
 #### NSButton-WebCache
 
 - `sd_currentImageURL()` changed to `sd_currentImageURL`
 - `sd_currentAlternateImageURL()` changed to `sd_currentAlternateImageURL`
 
-#### Constants
+### Full API Diff
+For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](API-Diff/5.0/apidiff.html)
 
-- `SDWebImageInternalSetImageGroupKey` renamed to `SDWebImageContextSetImageGroup`
-- `SDWebImageExternalCustomManagerKey` renamed to `SDWebImageContextCustomManager`
