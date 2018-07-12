@@ -3,14 +3,12 @@
 SDWebImage 5.0 is the latest major release of SDWebImage, a top library for downloading and caching images.
 As a major release, following [Semantic Versioning](http://semver.org/) conventions, 5.0 introduces several API-breaking changes with its new architecture.
 
-.... RELEASE_SUMMARY ....
-
 This guide is provided in order to ease the transition of existing applications using SDWebImage 4.X to the latest APIs, as well as explain the design and structure of new and changed functionality.
 
-### Requirements: iOS 8, Mac OS X 10.10, watchOS 2, tvOS 9, Xcode 8
+### Requirements: iOS 8, Mac OS X 10.10, watchOS 2, tvOS 9, Xcode 9
 
 SDWebImage 5.0 officially supports iOS 8 and later, Mac OS X 10.10 and later, watchOS 2 and later and tvOS 9 and later.
-It needs Xcode 8 or later to be able to build everything properly.
+It needs Xcode 9 or later to be able to build everything properly.
 
 For targeting previous versions of the SDKs, check [README - Backwards compatibility](https://github.com/rs/SDWebImage#backwards-compatibility)
 .
@@ -19,24 +17,17 @@ For targeting previous versions of the SDKs, check [README - Backwards compatibi
 
 #### Swift
 
+- TBD if needed -
+
 #### Objective-C
 
-example
+- TBD if needed -
 
-SDWebImage 4.x
-```
-[imageView sd_setImageWithURL:url placeholderImage:placeholderImage];
-```
-
-SDWebImage 5.x
-```
-[imageView sd_setImageWithURL:url placeholderImage:placeholderImage];
-```
+### FLAnimatedImage support moved to a dedicated plugin repo
+We are no longer hosting the integration with `FLAnimatedImage` inside this repo. We have a dedicated repo for that.
+TBD
 
 ### Entities
-
-#### Added
-...
 
 #### SDImageCache
 
@@ -114,6 +105,8 @@ SDWebImage 5.x
 - `headersFilter` removed, use `requestModifier` instead
 - `cancel:` removed, use `SDWebImageDownloadToken cancel` instead
 - `shouldDecompressImages` removed. Use `SDWebImageDownloaderAvoidDecodeImage` in downloader options instead
+- use `SDWebImageLoaderProgressBlock` instead of `SDWebImageDownloaderProgressBlock`
+- use `SDWebImageLoaderCompletedBlock` instead of `SDWebImageDownloaderCompletedBlock`
 
 #### SDWebImageDownloaderOperation
 
@@ -129,28 +122,28 @@ SDWebImage 5.x
 - `prefetcherQueue` property renamed to `delegateQueue`
 - `maxConcurrentDownloads` property removed, use `SDWebImageManager.downloader` config instead
 
-#### SDWebImageCoder
-- `SDCGColorSpaceGetDeviceRGB()` moved to `SDWebImageCoderHelper colorSpaceGetDeviceRGB` 
-- `SDCGImageRefContainsAlpha()`, moved to `SDWebImageCoderHelper imageRefContainsAlpha:`
+#### SDImageCoder
+- `SDCGColorSpaceGetDeviceRGB()` moved to `SDImageCoderHelper colorSpaceGetDeviceRGB` 
+- `SDCGImageRefContainsAlpha()`, moved to `SDImageCoderHelper imageRefContainsAlpha:`
 - `decodedImageWithData:` replaced with `decodedImageWithData:options:`
 - `encodedDataWithImage:format:` replaced with `encodedDataWithImage:format:options`
 - `init` method from `SDWebImageProgressiveCoder` changed to `initIncrementalWithOptions:`
 - `incrementalDecodedImageWithData:finished` replaced with `updateIncrementalData:finished` and `incrementalDecodedImageWithOptions:`
 - removed `decompressedImage:data:options`
 
-#### SDWebImageCodersManager
+#### SDImageCodersManager
 
 - `sharedInstance()` changed to `shared`
 
-#### SDWebImageImageIOCoder
+#### SDImageIOCoder
 
 - `shared()` changed to `shared`
 
-#### SDWebImageGIFCoder
+#### SDImageGIFCoder
 
 - `shared()` changed to `shared`
 
-#### SDWebImageWebPCoder
+#### SDImageWebPCoder
 
 - `shared()` changed to `shared`
 

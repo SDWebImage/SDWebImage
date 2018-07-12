@@ -20261,7 +20261,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFUkhyNUo23oFw="
 									},
-									"name": "SDWebImageProgressiveDownload",
+									"name": "SDWebImageProgressiveLoad",
 									"visibility": "public"
 								},
 								{
