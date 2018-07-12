@@ -28,7 +28,7 @@
 @property (strong, nonatomic, readwrite, nonnull) SDWebImageDownloader *imageDownloader;
 @property (strong, nonatomic, nonnull) NSMutableSet<NSURL *> *failedURLs;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t failedURLsLock; // a lock to keep the access to `failedURLs` thread-safe
-@property (strong, nonatomic, nonnull) NSMutableArray<SDWebImageCombinedOperation *> *runningOperations;
+@property (strong, nonatomic, nonnull) NSMutableSet<SDWebImageCombinedOperation *> *runningOperations;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t runningOperationsLock; // a lock to keep the access to `runningOperations` thread-safe
 
 @end
@@ -56,7 +56,7 @@
         _imageDownloader = downloader;
         _failedURLs = [NSMutableSet new];
         _failedURLsLock = dispatch_semaphore_create(1);
-        _runningOperations = [NSMutableArray new];
+        _runningOperations = [NSMutableSet new];
         _runningOperationsLock = dispatch_semaphore_create(1);
     }
     return self;
@@ -300,7 +300,7 @@
 
 - (void)cancelAll {
     LOCK(self.runningOperationsLock);
-    NSArray<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
+    NSSet<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
     UNLOCK(self.runningOperationsLock);
     [copiedOperations makeObjectsPerformSelector:@selector(cancel)]; // This will call `safelyRemoveOperationFromRunning:` and remove from the array
 }
