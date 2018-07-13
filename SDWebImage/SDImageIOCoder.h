@@ -14,7 +14,7 @@
  
  GIF
  Also supports static GIF (meaning will only handle the 1st frame).
- For a full GIF support, we recommend `FLAnimatedImage` or our less performant `SDImageGIFCoder`
+ For a full GIF support, we recommend `SDAnimatedImageView` to keep both CPU and memory balanced.
  
  HEIC
  This coder also supports HEIC format because ImageIO supports it natively. But it depends on the system capabilities, so it won't work on all devices, see: https://devstreaming-cdn.apple.com/videos/wwdc/2017/511tj33587vdhds/511/511_working_with_heif_and_hevc.pdf

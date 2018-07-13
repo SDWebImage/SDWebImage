@@ -118,25 +118,6 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)testFLAnimatedImageViewSetImageWithURL {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"FLAnimatedImageView setImageWithURL"];
-    
-    FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://www.interntheory.com/img/loading-small.gif"];
-    
-    [imageView sd_setImageWithURL:originalImageURL
-                        completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                            expect(image).toNot.beNil();
-                            expect(error).to.beNil();
-                            expect(originalImageURL).to.equal(imageURL);
-                            
-                            expect(imageView.animatedImage).toNot.beNil();
-                            [expectation fulfill];
-                                }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-#endif
-
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
     UIView *view = [[UIView alloc] init];

@@ -362,7 +362,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Expecta-macOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-macOS/KVOController.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-WebP/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImage-macOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-macOS/libwebp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -436,15 +436,13 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Expecta-iOS/Expecta.framework",
-				"${BUILT_PRODUCTS_DIR}/FLAnimatedImage/FLAnimatedImage.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-iOS/KVOController.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-GIF-MapKit-WebP/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImage-iOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-iOS/libwebp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLAnimatedImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
