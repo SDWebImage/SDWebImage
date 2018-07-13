@@ -14,36 +14,31 @@
 
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
-     * By default, we do not query image data when the image is already cached in memory. This mask can force to query image data at the same time. However, this query is asynchronously unless you specify `SDImageCacheQueryMemoryDataSync`
+     * By default, we do not query image disk data when the image is already cached in memory. This mask can force to query image disk data only. However, this query is asynchronously unless you specify `SDImageCacheQueryDiskDataSync`
      */
-    SDImageCacheQueryMemoryData = 1 << 0,
-    /**
-     * By default, when you only specify `SDImageCacheQueryMemoryData`, we query the memory image data asynchronously. Combined this mask as well to query the memory image data synchronously.
-     */
-    SDImageCacheQueryMemoryDataSync = 1 << 1,
+    SDImageCacheForceQueryDiskData = 1 << 0,
     /**
      * By default, when the memory cache miss, we query the disk cache asynchronously. This mask can force to query disk cache (when memory cache miss) synchronously.
-     @note These 3 query options can be combined together. For the full list about these masks combination, see wiki page.
      */
-    SDImageCacheQueryDiskDataSync = 1 << 2,
+    SDImageCacheQueryDiskDataSync = 1 << 1,
     /**
      * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
      * images to a size compatible with the constrained memory of devices.
      */
-    SDImageCacheScaleDownLargeImages = 1 << 3,
+    SDImageCacheScaleDownLargeImages = 1 << 2,
     /**
      * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
      * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
      */
-    SDImageCacheAvoidDecodeImage = 1 << 4,
+    SDImageCacheAvoidDecodeImage = 1 << 3,
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
      */
-    SDImageCacheDecodeFirstFrameOnly = 1 << 5,
+    SDImageCacheDecodeFirstFrameOnly = 1 << 4,
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from disk cache
      */
-    SDImageCachePreloadAllFrames = 1 << 6
+    SDImageCachePreloadAllFrames = 1 << 5
 };
 
 /**

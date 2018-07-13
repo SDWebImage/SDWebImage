@@ -350,23 +350,23 @@
         key = SDTransformedKeyForKey(key, transformerKey);
     }
     
-    // First check the in-memory cache...
-    UIImage *image = [self imageFromMemoryCacheForKey:key];
-    BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryMemoryData));
-    if (shouldQueryMemoryOnly) {
-        if (doneBlock) {
-            doneBlock(image, nil, SDImageCacheTypeMemory);
+    UIImage *image = nil;
+    // If we set the option to query disk data forcely. We don't need to query memory data.
+    if (!(options & SDImageCacheForceQueryDiskData)) {
+        // First check the in-memory cache...
+        image = [self imageFromMemoryCacheForKey:key];
+        if (image) {
+            if (doneBlock) {
+                doneBlock(image, nil, SDImageCacheTypeMemory);
+            }
+            return nil;
         }
-        return nil;
     }
     
     // Second check the disk cache...
     NSOperation *operation = [NSOperation new];
     // Check whether we need to synchronously query disk
-    // 1. in-memory cache hit & memoryDataSync
-    // 2. in-memory cache miss & diskDataSync
-    BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryMemoryDataSync) ||
-                                (!image && options & SDImageCacheQueryDiskDataSync));
+    BOOL shouldQueryDiskSync = (options & SDImageCacheQueryDiskDataSync);
     void(^queryDiskBlock)(void) =  ^{
         if (operation.isCancelled) {
             // do not call the completion if cancelled
@@ -584,8 +584,7 @@
 
 - (id<SDWebImageOperation>)queryImageForKey:(NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
     SDImageCacheOptions cacheOptions = 0;
-    if (options & SDWebImageQueryMemoryData) cacheOptions |= SDImageCacheQueryMemoryData;
-    if (options & SDWebImageQueryMemoryDataSync) cacheOptions |= SDImageCacheQueryMemoryDataSync;
+    if (options & SDWebImageQueryMemoryData) cacheOptions |= SDImageCacheForceQueryDiskData;
     if (options & SDWebImageQueryDiskDataSync) cacheOptions |= SDImageCacheQueryDiskDataSync;
     if (options & SDWebImageScaleDownLargeImages) cacheOptions |= SDImageCacheScaleDownLargeImages;
     if (options & SDWebImageAvoidDecodeImage) cacheOptions |= SDImageCacheAvoidDecodeImage;
