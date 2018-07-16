@@ -17,7 +17,7 @@
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `WebPCoder`. (`GIFCoder` is not recommended to add only if you want to get GIF support without `FLAnimatedImage`)
+ - by default we internally set coders = `IOCoder`, `GIFCoder`, `APNGCoder` and `WebPCoder` (When WebP subspec is available).
  - calling `coders` will return `@[WebPCoder, IOCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
  - calling `coders` now returns `@[MyCrazyCoder, WebPCoder, IOCoder]`

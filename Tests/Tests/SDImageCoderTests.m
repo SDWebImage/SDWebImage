@@ -100,7 +100,7 @@
       isAnimatedImage:YES];
 }
 
-- (void)test20ThatOurGIFCoderWorksNotFLAnimatedImage {
+- (void)test20ThatOurGIFCoderWorks {
     NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
     [self verifyCoder:[SDImageGIFCoder sharedCoder]
     withLocalImageURL:gifURL

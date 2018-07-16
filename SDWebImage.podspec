@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/*.{h,m}', 'WebImage/SDWebImage.h'
-    core.exclude_files = 'SDWebImage/MapKit/*.{h,m}', 'SDWebImage/WebP/*.{h,m}', 'SDWebImage/FLAnimatedImage/*.{h,m}'
+    core.exclude_files = 'SDWebImage/MapKit/*.{h,m}', 'SDWebImage/WebP/*.{h,m}'
   end
 
   s.subspec 'MapKit' do |mk|
@@ -39,16 +39,6 @@ Pod::Spec.new do |s|
     mk.source_files = 'SDWebImage/MapKit/*.{h,m}'
     mk.framework = 'MapKit'
     mk.dependency 'SDWebImage/Core'
-  end
-
-  s.subspec 'GIF' do |gif|
-    gif.ios.deployment_target = '8.0'
-    gif.source_files = 'SDWebImage/FLAnimatedImage/*.{h,m}'
-    gif.dependency 'SDWebImage/Core'
-    gif.dependency 'FLAnimatedImage', '~> 1.0'
-    gif.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/FLAnimatedImage/FLAnimatedImage'
-    }
   end
 
   s.subspec 'WebP' do |webp|

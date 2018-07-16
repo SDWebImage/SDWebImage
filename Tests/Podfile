@@ -11,7 +11,6 @@ target 'Tests' do
   pod 'KVOController'
   pod 'SDWebImage/WebP', :path => '../'
   pod 'SDWebImage/MapKit', :path => '../'
-  pod 'SDWebImage/GIF', :path => '../'
 
 end
 
