@@ -28,34 +28,34 @@ Swift:
 imageView.sd_setImage(with: url, placeholderImage: placeholder)
 ```
 
-However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. Which can hold anything that previous enum `SDWebImageOptions` can not. This allow user to control advanced behavior for image loading as well as many aspect (cache, loader, etc). See the declaration for `SDWebImageContext` for detailed information.
+However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. This param can hold anything, as oposed to the previous `SDWebImageOptions` enum limitations. This gives developers advanced control for the behavior of image loading (cache, loader, etc). See the declaration for `SDWebImageContext` for detailed information.
 
 ### New Feature
 
 #### Animated Image View
 
-In 5.0, we introduce a brand new animated image solution. Which including animated image loading, rendering, decoding, and also support customization for advanced user.
+In 5.0, we introduced a brand new mechanism for supporting animated images. This includes animated image loading, rendering, decoding, and also supports customizations (for advanced users).
 
-This animated image solution is available for iOS/tvOS/macOS. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to allow most compatible for common framework APIs. See [Animated Image](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
+This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to make them compatible with the common frameworks APIs. See [Animated Image](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
 
 #### Transformer
 
-In 5.0, we introduce a easy way to provide a image transform process after the image was downloaded from network. Which allow user to easily scale, rotate, rounded corner the original image. And even support chain a list of transformers together to output the final one. These transformed image will also stored to cache to avoid duplicate process. See [Image Transformer](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#transformer-50) for more detailed information.
+In 5.0, we introduced an easy way to hook an image transformation process after the image was downloaded from network. This allows the user to easily scale, rotate, add rounded corner the original image and even chain a list of transformations. These transformed images will also be stored to the cache as they are after transformation. The reasons for this decision are: avoiding redoing the transformations (which can lead to unwanted behavior) and also time saving. See [Image Transformer](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#transformer-50) for more detailed information.
 
 #### Customization
 
-In 5.0, we refactor our framework architecture with many aspect. This make our framework easier to customize for advanced user, without hook anything or create their fork. We introduce [Custom Cache](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50) to control detailed cache loading behavior, and separate the memory cache & disk cache implementation. We introduce [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) to allow custom loading from your own source (which even not need to be on network). And also, we change current [Custom Coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-coder-420) to works better for custom image decoder/encoder and animated image.
+In 5.0, we refactored our framework architecture in many aspects. This makes our framework easier to customize for advanced users, without the need for hooking anything or forking. We introduced [Custom Cache](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50) to control detailed cache loading behavior, and separate the memory cache & disk cache implementation. We introduced [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) to allow custom loading from your own source (doesn't have to be the network). And also, we changed the current [Custom Coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-coder-420) to work better for custom image decoder/encoder and animated images.
 
 #### View Indicator
-In 5.0, we refactor the current image loading indicator API. To use a better and extensible API for both iOS/tvOS/macOS. Which is suitable for easy usage for provide a loading view during the image loading process. See [View Indicator](https://github.com/rs/SDWebImage/wiki/How-to-use#use-view-indicator-50) for more detailed information.
+In 5.0, we refactored the image loading indicator API into a better and extensible API for `iOS`/`tvOS`/`macOS`. This is suitable for easy usage like providing a loading view during the image loading process. See [View Indicator](https://github.com/rs/SDWebImage/wiki/How-to-use#use-view-indicator-50) for more detailed information.
 
 #### FLAnimatedImage support moved to a dedicated plugin repo
 
-Since we introduce the new animated image solution. Now we are no longer hosting the integration with `FLAnimatedImage` inside this repo. But for user who need `FLAnimatedImage` support. We have a dedicated repo for that and contains all the code compatible for SDWebImage 5.0. See [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) for more detailed information.
+In order to clean up things and make our core project do less things, we decided that the `FLAnimatedImage` integration does not belong here. From 5.0, this will still be available, but under a dedicated repo [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin).
 
 #### Photos Plugin
 
-By taking the advantage of [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) feature, we introduce a plugin to allow easily load Photos Library images. See [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) for more detailed information.
+By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) feature, we introduced a plugin to allow easy loading images from the Photos Library. See [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) for more detailed information.
 
 
 ### API Changes
