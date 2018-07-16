@@ -117,6 +117,7 @@
                                }];
     [self waitForExpectationsWithCommonTimeout];
 }
+#endif
 
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
