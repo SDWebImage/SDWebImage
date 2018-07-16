@@ -28,9 +28,9 @@ Swift:
 imageView.sd_setImage(with: url, placeholderImage: placeholder)
 ```
 
-However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. Which can hold anything that previous enum `SDWebImageOptions` can not. This allow user to control advanced behavior for view loading as well as many aspect. See the declaration for `SDWebImageContext` for detailed information.
+However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. Which can hold anything that previous enum `SDWebImageOptions` can not. This allow user to control advanced behavior for image loading as well as many aspect (cache, loader, etc). See the declaration for `SDWebImageContext` for detailed information.
 
-### New Features
+### New Feature
 
 #### Animated Image View
 
@@ -44,7 +44,10 @@ In 5.0, we introduce a easy way to provide a image transform process after the i
 
 #### Customization
 
-In 5.0, we refactor our framework architecture, to allow it easy to customize for advanced user, without breaking anything or create their fork. We introduce [Custom Cache](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50), [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50), and make current [Custom Coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-coder-420) works better for these developers.
+In 5.0, we refactor our framework architecture with many aspect. This make our framework easier to customize for advanced user, without hook anything or create their fork. We introduce [Custom Cache](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50) to control detailed cache loading behavior, and separate the memory cache & disk cache implementation. We introduce [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) to allow custom loading from your own source (which even not need to be on network). And also, we change current [Custom Coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-coder-420) to works better for custom image decoder/encoder and animated image.
+
+#### View Indicator
+In 5.0, we refactor the current image loading indicator API. To use a better and extensible API for both iOS/tvOS/macOS. Which is suitable for easy usage for provide a loading view during the image loading process. See [View Indicator](https://github.com/rs/SDWebImage/wiki/How-to-use#use-view-indicator-50) for more detailed information.
 
 #### FLAnimatedImage support moved to a dedicated plugin repo
 
@@ -96,11 +99,11 @@ By taking the advantage of [Custom Loader](https://github.com/rs/SDWebImage/wiki
 - `sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:` renamed to `UIView sd_internalSetImageWithURL:placeholderImage:options:context:setImageBlock:progress:completed:` (The biggest changes is that the completion block type from `SDExternalCompletionBlock` to `SDInternalCompletionBlock`. Which allow advanced user to get more information of image loading process) 
 - `sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:context:` removed
 - activity indicator refactoring - use `sd_imageIndicator` with `SDWebImageActivityIndicator`
-- `sd_setShowActivityIndicatorView:` removed 
-- `sd_setIndicatorStyle:` removed
-- `sd_showActivityIndicatorView` removed
-- `sd_addActivityIndicator:` removed
-- `sd_removeActivityIndicator:` removed
+  - `sd_setShowActivityIndicatorView:` removed 
+  - `sd_setIndicatorStyle:` removed
+  - `sd_showActivityIndicatorView` removed
+  - `sd_addActivityIndicator:` removed
+  - `sd_removeActivityIndicator:` removed
 
 #### UIImage
 
@@ -161,53 +164,56 @@ By taking the advantage of [Custom Loader](https://github.com/rs/SDWebImage/wiki
 - `SDWebImageInternalSetImageGroupKey` renamed to `SDWebImageContextSetImageGroup`
 - `SDWebImageExternalCustomManagerKey` renamed to `SDWebImageContextCustomManager`
 
-### Swift Specific API Changes
-We did a full cleanup of the Swift APIs. We are using many modern Objective-C declarations to generate the Swift API. We now provide full nullability support, string enum, class property, and even custom Swift API name, all to make the framework easier to use for our Swift users. Here are the API change specify for Swift. 
+#### Swift Specific API Change
+In SDWebImage 5.0 we did a clean up of the API. We are using many modern Objective-C declarations to generate the Swift API. We now provide full nullability support, string enum, class property, and even custom Swift API name, all to make the framework easier to use for our Swift users. Here are the API change specify for Swift. 
 
-#### UIView+WebCache
+##### UIView+WebCache
 - `sd_imageURL()` changed to `sd_imageURL`
 
-#### SDWebImageManager
+##### SDImageCache
+- `shared()` changed to `shared`
+
+##### SDWebImageManager
 - `shared()` changed to `shared`
 - `isRunning()` changed to `isRunning`
 
-#### SDWebImageDownloader
+##### SDWebImageDownloader
 - `shared()` changed to `shared`
 - `setOperationClass(_:)` available for Swift user with `operationClass` property
 - `setSuspended(_:)` changed to `isSuspended` property
 
-#### SDWebImageDownloadOperation
+##### SDWebImageDownloadOperation
 - `SDWebImageDownloadOperationInterface` protocol renamed to `SDWebImageDownloadOperationProtocol`. 
 
-#### SDImageCodersManager
+##### SDImageCodersManager
 
 - `sharedInstance()` changed to `shared`
 
-#### SDImageIOCoder
+##### SDImageIOCoder
 
 - `shared()` changed to `shared`
 
-#### SDImageGIFCoder
+##### SDImageGIFCoder
 
 - `shared()` changed to `shared`
 
-#### SDImageWebPCoder
+##### SDImageWebPCoder
 
 - `shared()` changed to `shared`
 
-#### NSData-ImageContentType
+##### NSData-ImageContentType
 
 - `sd_UTTypeFromSDImageFormat` return `CFString` instead of `Unmanaged<CFString>`
 
-#### UIButton-WebCache
+##### UIButton-WebCache
 
 - `sd_currentImageURL()` changed to `sd_currentImageURL`
-
-#### NSButton-WebCache
+  
+##### NSButton-WebCache
 
 - `sd_currentImageURL()` changed to `sd_currentImageURL`
 - `sd_currentAlternateImageURL()` changed to `sd_currentAlternateImageURL`
 
 ### Full API Diff
-For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](API-Diff/5.0/apidiff.html)
+For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/Diff/5.0/apidiff.html)
 
