@@ -20,6 +20,11 @@ This library provides an async image downloader with cache support. For convenie
 - [x] An asynchronous image downloader
 - [x] An asynchronous memory + disk image caching with automatic cache expiration handling
 - [x] A background image decompression
+- [x] Improved [support for animated images](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50)
+- [x] [Customizable and composable transformations](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#transformer-50) can be applied to the images right after download
+- [x] [Custom cache control](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-cache-50)
+- [x] Expand the image loading capabilites by adding your [own custom loaders](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) or using prebuilt loaders like [FLAnimatedImage plugin](https://github.com/SDWebImage/SDWebImageFLPlugin) or [Photos Library plugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin)
+- [x] [Loading indicators](https://github.com/rs/SDWebImage/wiki/How-to-use#use-view-indicator-50)
 - [x] A guarantee that the same URL won't be downloaded several times
 - [x] A guarantee that bogus URLs won't be retried again and again
 - [x] A guarantee that main thread will never be blocked
@@ -92,11 +97,11 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 
 ## Animated Images (GIF) support
 
-- Starting with the 4.0 version, we rely on [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) to take care of our animated images. 
-- If you use cocoapods, add `pod 'SDWebImage/GIF'` to your podfile.
-- To use it, simply make sure you use `FLAnimatedImageView` instead of `UIImageView`.
-- **Note**: there is a backwards compatible feature, so if you are still trying to load a GIF into a `UIImageView`, it will only show the 1st frame as a static image by default. However, you can enable the full GIF support by using the built-in GIF coder. See [GIF coder](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#gif-coder)
-- **Important**: FLAnimatedImage only works on the iOS platform. For macOS, use `NSImageView` with `animates` set to `YES` to show the entire animated images and `NO` to only show the 1st frame. For all the other platforms (tvOS, watchOS) we will fallback to the backwards compatibility feature described above 
+In 5.0, we introduced a brand new mechanism for supporting animated images. This includes animated image loading, rendering, decoding, and also supports customizations (for advanced users).
+This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to make them compatible with the common frameworks APIs. See [Animated Image](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
+
+#### FLAnimatedImage integration has its own dedicated repo
+In order to clean up things and make our core project do less things, we decided that the `FLAnimatedImage` integration does not belong here. From 5.0, this will still be available, but under a dedicated repo [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin).
 
 ## Installation
 
@@ -123,7 +128,7 @@ use_frameworks!
 
 #### Subspecs
 
-There are 4 subspecs available now: `Core`, `MapKit`, `GIF` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
 
 Podfile example:
 ```

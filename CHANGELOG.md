@@ -1,4 +1,4 @@
-## [5.0.0 - Release_name_TBD, on Apr xxth, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta)
+## [5.0.0-beta - Customizable SDWebImage, on Jul 17th, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta)
 See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
 
 #### Infrastructure
@@ -49,8 +49,6 @@ See the [5.0 Migration Guide](Docs/SDWebImage-5.0-Migration-guide.md) for a list
 
 #### Fixes
 - `SDWebImageManager loadImageWithURL:options:progress:completed:` changed the `completed` param requirement from `nullable` to `nonnull` #2164
-
-TODO: Update diagrams
 
 ## [4.4.1 - 4.4 patch, on June 7th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.1)
 See [all tickets marked for the 4.4.1 release](https://github.com/rs/SDWebImage/milestone/26)
