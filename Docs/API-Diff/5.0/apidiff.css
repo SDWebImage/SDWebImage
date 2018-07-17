@@ -1,0 +1,103 @@
+body {
+    font: 12px 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif;
+    margin: 0;
+    padding: 0 2em 2em 2em;
+}
+
+h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.headerFile {
+    margin-left: 20px;
+}
+
+.headerName {
+    margin:  15px 0px 10px -20px;
+    padding:  4px 4px  4px  20px;
+    font-weight: bold;
+    font-size: 120%;
+    background-color: #f8f8f8;
+}
+
+.differenceGroup {
+    margin-top: 5px;
+}
+
+.difference {
+    padding-left: 20px;
+    font-family: Courier, Consolas, monospace;
+    font-size: 110%;
+}
+
+.status {
+    font-style: italic;
+    font-size: 80%;
+}
+
+.removed {
+    color: red;
+}
+
+.added {
+    color: blue;
+}
+
+.modified {
+    color: #080;
+}
+
+.declaration {
+    font-family: Courier, Consolas, monospace;
+}
+
+table {
+    border: 1px #888 solid;
+    padding: 2px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    margin-left: 40px;
+    margin-top: 7px;
+}
+
+td, th {
+    font-size: 10px;
+    border: 1px #888 solid;
+    padding:3px 6px;
+}
+
+th {
+    font-size: 10px;
+    text-align: center;
+    background-color: #eee;
+}
+
+td {
+    font-size: 90%;
+    text-align: left;
+}
+
+ul {
+    list-style: disc outside;
+    margin: 0 0 0 16px;
+    padding: 0;
+}
+
+li {
+    margin-top: 7px;
+}
+
+.message {
+    margin-left: 20px;
+    font-style: italic;
+    color: #888;
+}
+
+a:link          { color: #18396E; text-decoration: none; }
+a:active        { color: #18396E; text-decoration: none; }
+a:visited       { color: #003366; text-decoration: none; }
+a:link:hover    { color: #18396E; text-decoration: underline; }
+a:visited:hover { color: #003366; text-decoration: underline; }

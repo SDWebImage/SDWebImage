@@ -1,3 +1,57 @@
+## [5.0.0 - Release_name_TBD, on Apr xxth, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta)
+See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
+
+#### Infrastructure
+- the new requirements are **iOS 8.0+** and **macOS 10.10+** #2147
+- **Xcode 9+**
+
+#### Backwards incompatible changes
+
+See the [5.0 Migration Guide](Docs/SDWebImage-5.0-Migration-guide.md) for a list of comprehensive changes and the way to update your code
+
+#### Features
+- Introduce `SDAnimatedImageView`, `SDAnimatedImage` and refactor the way we handle animated images #2140
+- Added APNG support via dedicated coder `SDImageAPNGCoder` #2149
+- Refactored `SDWebImageDownloader` configs, separated them into a dedicated `SDWebImageDownloaderConfig` object #2263
+- Refactored the way we work with the scale factor #2266
+- Created request and response modifier #2261
+- Refactor Cache Path API #2276
+- Refactor custom cache serializer & headers filter for request level #2280
+- Refactor cache - Support custom memory cache & disk cache #2282
+- Refactor cache - Support custom web cache #2278
+- Refactor - custom image loader - Supports loader protocol #2256
+- Use `SDWebImageAvoidDecodeImage` to allow user to control force decode feature for individual image request #2283
+
+- `SDImageCache` supports disk cache writing options. See `SDImageCacheConfig diskCacheWritingOptions` #2148
+- `SDImageCache` now uses `NSData writeToFile:options:error` instead of `NSFileManager createFileAtPath:contents:attributes` #2148
+- Moved `SDImageCache maxMemoryCost` and `SDImageCache maxMemoryCountLimit` to `SDImageCacheConfig` #2151
+- Added `SDImageCache diskImageDataExistsWithKey:` synchronous method #2151
+- Moved `UIImage sd_imageLoopCount` and `UIImage isGIF` (and renamed to `sd_isAnimated`) to `UIImage+WebCache` category, removed the outdated methods #2152
+- Move context and other type definitions to a separate header (`SDWebImageDefine`) to allow to be included without dependency #2188
+- Pass `context` arg from the top level APIs to the bottom level APIs to allow specify logic in the future #2189 d6a3e2c c24c3d3
+- Refactor the image indicator by creating `SDWebImageIndicator` and `SDWebImageProgressIndicator` protocols and two concrete classes that implement activity and progress indicators for both UIKit and AppKit #2185 46b62cf
+- Refactor the implementation of `SDWebImagePrefetcher` so it behaves more like a "shared instance" object, similar to other platform classes. Each instance will manage its own list of urls. #2191 1efc247 92f3d2c bc164d6
+- Refactored and enhanced the way we allow image transformations. Switched from a single delegate method to composition of `SDImageTransformer` #2219
+- API style refactoring - #2250
+  - Use property instead of setters and getters to make the property available in Swift
+  - Use class property with the correct name instead of `+(instanceType)sharedInstance` in singleton to make it more easy to use in Swift. The generated interface should be simple `open class var shared { get }`
+  - Add all nullability annotation to avoid any `AnyObject!` implicitly unwrapped optionals (Except that `null_resettable`)
+  - Add all Core Foundation Ownership using `CF_RETURNS_RETAINED` for
+    Get Rule and `CF_RETURNS_NOT_RETAINED` for Create Rule to avoid any `Unmanaged` CF value
+  - Change all key for Dictionary with `NS_STRING_ENUM` to make it easy to use in Swift with dot syntax
+  - Change all global value type which represent enum with `NS_TYPED_ENUM` to make it easy to use in Swift with dot syntax
+- Remove the extra calculation of image orientation for ImageIO coder & Fix macOS image orientation #2271
+- Added `SDWebImageError` (defined as `NS_ERROR_ENUM`) to group all our errors together #2290
+- Added tests for macOS
+- Add the `SDWebImageContextStoreCacheType` context option to specify target cache type when the image is downloaded by manager and will store to cache #2360
+- Feature watchOS `WKInterfaceImage` with `sd_setImageWithURL` #2331
+- Add options to specify query cache sync/async behavior #2312
+
+#### Fixes
+- `SDWebImageManager loadImageWithURL:options:progress:completed:` changed the `completed` param requirement from `nullable` to `nonnull` #2164
+
+TODO: Update diagrams
+
 ## [4.4.1 - 4.4 patch, on June 7th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.1)
 See [all tickets marked for the 4.4.1 release](https://github.com/rs/SDWebImage/milestone/26)
 	
