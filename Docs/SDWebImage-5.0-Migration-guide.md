@@ -38,9 +38,9 @@ In 5.0, we introduced a brand new mechanism for supporting animated images. This
 
 This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to make them compatible with the common frameworks APIs. See [Animated Image](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
 
-#### Transformer
+#### Image Transformer
 
-In 5.0, we introduced an easy way to hook an image transformation process after the image was downloaded from network. This allows the user to easily scale, rotate, add rounded corner the original image and even chain a list of transformations. These transformed images will also be stored to the cache as they are after transformation. The reasons for this decision are: avoiding redoing the transformations (which can lead to unwanted behavior) and also time saving. See [Image Transformer](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#transformer-50) for more detailed information.
+In 5.0, we introduced an easy way to hook an image transformation process after the image was downloaded from network. This allows the user to easily scale, rotate, add rounded corner the original image and even chain a list of transformations. These transformed images will also be stored to the cache as they are after transformation. The reasons for this decision are: avoiding redoing the transformations (which can lead to unwanted behavior) and also time saving. See [Image Transformer](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#image-transformer-50) for more detailed information.
 
 #### Customization
 
@@ -57,6 +57,51 @@ In order to clean up things and make our core project do less things, we decided
 
 By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) feature, we introduced a plugin to allow easy loading images from the Photos Library. See [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) for more detailed information.
 
+
+### Notable Behavior Changes
+
+#### Cache
+
+`SDImageCache` in 5.x, use `~/Library/com.hackemist.SDImageCache.default` as default cache path. However, 4.x use `~/Library/com.hackemist.SDWebImageCache.default`. If you have images in cache, it may be lost during migration.
+
+If you still want to keep the 4.x default cache path, you can custom the cache path prefix using `namespacePrefix` property.
+
++ Objective-C
+
+```objective-c
+SDImageCacheConfig.defaultCacheConfig.namespacePrefix = @"com.hackemist.SDWebImageCache.";
+```
+
++ Swift
+
+```swift
+SDImageCacheConfig.`default`.namespacePrefix = "com.hackemist.SDWebImageCache."
+```
+
+#### Prefetcher
+
+`SDWebImagePrefetcher` in 5.x, change the concept of fetching batch of URLs. Now, each time you call `prefetchURLs:`, you will get a token which represents the specified URLs list. It does not cancel the previous URLs which is prefetching, which make the shared prefetcher behaves more intuitively.
+
+However, in 4.x, each time you call `prefetchURLs:`, it will cancel all previous URLs which is been prefetching.
+
+If you still want the same behavior, manually call `cancelPrefetching` each time before any `prefetchURLs:` calls.
+
+
++ Objective-C
+
+```objective-c
+SDWebImagePrefetcher *prefetcher = SDWebImagePrefetcher.sharedImagePrefetcher;
+[prefetcher cancelPrefetching];
+[prefetcher prefetchURLs:@[url1, url2]];
+```
+
++ Swift
+
+```swift
+let prefetcher = SDWebImagePrefetcher.shared
+prefetcher.cancelPrefetching()
+prefetcher.prefetchURLs([url1, url2])
+```
 
 ### API Changes
 
@@ -132,8 +177,8 @@ By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/
 - `headersFilter` removed, use `requestModifier` instead
 - `cancel:` removed, use `-[SDWebImageDownloadToken cancel]` instead
 - `shouldDecompressImages` removed. Use `SDWebImageDownloaderAvoidDecodeImage` in downloader options instead
-- use `SDWebImageLoaderProgressBlock` instead of `SDWebImageDownloaderProgressBlock`
-- use `SDWebImageLoaderCompletedBlock` instead of `SDWebImageDownloaderCompletedBlock`
+- use `SDImageLoaderProgressBlock` instead of `SDWebImageDownloaderProgressBlock`
+- use `SDImageLoaderCompletedBlock` instead of `SDWebImageDownloaderCompletedBlock`
 
 #### SDWebImageDownloaderOperation
 
@@ -215,5 +260,5 @@ In SDWebImage 5.0 we did a clean up of the API. We are using many modern Objecti
 - `sd_currentAlternateImageURL()` changed to `sd_currentAlternateImageURL`
 
 ### Full API Diff
-For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/API-Diff/5.0/apidiff.html)
+For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://htmlpreview.github.io/?https://github.com/rs/SDWebImage/blob/5.x/Docs/API-Diff/5.0/apidiff.html)
 

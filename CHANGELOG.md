@@ -80,7 +80,7 @@ See the [5.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/5.
 - `SDImageCache` now uses `NSData writeToFile:options:error` instead of `NSFileManager createFileAtPath:contents:attributes` #2148
 - Moved `SDImageCache maxMemoryCost` and `SDImageCache maxMemoryCountLimit` to `SDImageCacheConfig` #2151
 - Added `SDImageCache diskImageDataExistsWithKey:` synchronous method #2151
-- Moved `UIImage sd_imageLoopCount` and `UIImage isGIF` (and renamed to `sd_isAnimated`) to `UIImage+WebCache` category, removed the outdated methods #2152
+- Moved `UIImage sd_imageLoopCount` and `UIImage isGIF` (and renamed to `sd_isAnimated`) to `UIImage+Metadata` category, removed the outdated methods #2152
 - Move context and other type definitions to a separate header (`SDWebImageDefine`) to allow to be included without dependency #2188
 - Pass `context` arg from the top level APIs to the bottom level APIs to allow specify logic in the future #2189 d6a3e2c c24c3d3
 - Refactor the image indicator by creating `SDWebImageIndicator` and `SDWebImageProgressIndicator` protocols and two concrete classes that implement activity and progress indicators for both UIKit and AppKit #2185 46b62cf
