@@ -7,9 +7,9 @@
  */
 
 #import "UIImage+MultiFormat.h"
-
-#import "objc/runtime.h"
+#import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
+#import "objc/runtime.h"
 
 @implementation UIImage (MultiFormat)
 
@@ -52,6 +52,28 @@
     objc_setAssociatedObject(self, @selector(sd_imageLoopCount), value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 #endif
+
+- (SDImageFormat)sd_imageFormat {
+    SDImageFormat imageFormat = SDImageFormatUndefined;
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageFormat));
+    if ([value isKindOfClass:[NSNumber class]]) {
+        imageFormat = value.integerValue;
+        return imageFormat;
+    }
+    // Check CGImage's UTType, may return nil for non-Image/IO based image
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+    if (&CGImageGetUTType != NULL) {
+        CFStringRef uttype = CGImageGetUTType(self.CGImage);
+        imageFormat = [NSData sd_imageFormatFromUTType:uttype];
+    }
+#pragma clang diagnostic pop
+    return imageFormat;
+}
+
+- (void)setSd_imageFormat:(SDImageFormat)sd_imageFormat {
+    objc_setAssociatedObject(self, @selector(sd_imageFormat), @(sd_imageFormat), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
     return [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
