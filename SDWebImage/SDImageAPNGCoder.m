@@ -139,9 +139,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 - (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source {
     NSUInteger loopCount = 0;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
-    NSDictionary *pngProperties = [imageProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary];
+    NSDictionary *pngProperties = [imageProperties valueForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary];
     if (pngProperties) {
-        NSNumber *apngLoopCount = [pngProperties valueForKey:(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount];
+        NSNumber *apngLoopCount = [pngProperties valueForKey:(__bridge NSString *)kCGImagePropertyAPNGLoopCount];
         if (apngLoopCount != nil) {
             loopCount = apngLoopCount.unsignedIntegerValue;
         }
@@ -155,11 +155,11 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
     NSDictionary *pngProperties = frameProperties[(NSString *)kCGImagePropertyPNGDictionary];
     
-    NSNumber *delayTimeUnclampedProp = pngProperties[(__bridge_transfer NSString *)kCGImagePropertyAPNGUnclampedDelayTime];
+    NSNumber *delayTimeUnclampedProp = pngProperties[(__bridge NSString *)kCGImagePropertyAPNGUnclampedDelayTime];
     if (delayTimeUnclampedProp != nil) {
         frameDuration = [delayTimeUnclampedProp floatValue];
     } else {
-        NSNumber *delayTimeProp = pngProperties[(__bridge_transfer NSString *)kCGImagePropertyAPNGDelayTime];
+        NSNumber *delayTimeProp = pngProperties[(__bridge NSString *)kCGImagePropertyAPNGDelayTime];
         if (delayTimeProp != nil) {
             frameDuration = [delayTimeProp floatValue];
         }
@@ -202,7 +202,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
-    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
+    [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
@@ -211,15 +211,15 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     } else {
         // for animated APNG images
         NSUInteger loopCount = image.sd_imageLoopCount;
-        NSDictionary *pngProperties = @{(__bridge_transfer NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)};
-        [properties setValue:pngProperties forKey:(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary];
+        NSDictionary *pngProperties = @{(__bridge NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)};
+        [properties setValue:pngProperties forKey:(__bridge NSString *)kCGImagePropertyPNGDictionary];
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {
             SDImageFrame *frame = frames[i];
             float frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{(__bridge_transfer NSString *)kCGImagePropertyPNGDictionary : @{(__bridge_transfer NSString *)kCGImagePropertyAPNGDelayTime : @(frameDuration)}};
+            NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyPNGDictionary : @{(__bridge NSString *)kCGImagePropertyAPNGDelayTime : @(frameDuration)}};
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
         }
     }
@@ -244,7 +244,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     self = [super init];
     if (self) {
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
-        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceTypeIdentifierHint : (__bridge_transfer NSString *)imageUTType});
+        _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceTypeIdentifierHint : (__bridge NSString *)imageUTType});
         CGFloat scale = 1;
         if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
             scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
@@ -323,7 +323,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     self = [super init];
     if (self) {
         // use Image/IO cache because it's already keep a balance between CPU & memory
-        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)@{(__bridge_transfer NSString *)kCGImageSourceShouldCache : @(YES)});
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceShouldCache : @(YES)});
         if (!imageSource) {
             return nil;
         }

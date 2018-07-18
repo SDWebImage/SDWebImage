@@ -215,12 +215,12 @@
 #else
     CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
-    [properties setValue:@(exifOrientation) forKey:(__bridge_transfer NSString *)kCGImagePropertyOrientation];
+    [properties setValue:@(exifOrientation) forKey:(__bridge NSString *)kCGImagePropertyOrientation];
     double compressionQuality = 1;
     if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
     }
-    [properties setValue:@(compressionQuality) forKey:(__bridge_transfer NSString *)kCGImageDestinationLossyCompressionQuality];
+    [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     
     // Add your image to the destination.
     CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
