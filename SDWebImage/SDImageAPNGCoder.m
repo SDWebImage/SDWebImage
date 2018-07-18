@@ -188,7 +188,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     }
     
     NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatPNG];
     NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. APNG does not support EXIF image orientation
@@ -243,7 +243,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 - (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
     self = [super init];
     if (self) {
-        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatPNG];
+        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatPNG];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceTypeIdentifierHint : (__bridge NSString *)imageUTType});
         CGFloat scale = 1;
         if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {

@@ -203,7 +203,7 @@
     }
     
     NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:format];
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
     
     // Create an image destination.
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
@@ -261,7 +261,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSMutableData *imageData = [NSMutableData data];
-        CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIC];
+        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIC];
         
         // Create an image destination.
         CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
