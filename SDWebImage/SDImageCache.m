@@ -262,6 +262,18 @@
     return [self.diskCache containsDataForKey:key];
 }
 
+- (nullable NSData *)diskImageDataForKey:(nullable NSString *)key {
+    if (!key) {
+        return nil;
+    }
+    __block NSData *imageData = nil;
+    dispatch_sync(self.ioQueue, ^{
+        imageData = [self diskImageDataBySearchingAllPathsForKey:key];
+    });
+    
+    return imageData;
+}
+
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
 }
@@ -310,7 +322,7 @@
 }
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
-    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
+    NSData *data = [self diskImageDataForKey:key];
     return [self diskImageForKey:key data:data];
 }
 

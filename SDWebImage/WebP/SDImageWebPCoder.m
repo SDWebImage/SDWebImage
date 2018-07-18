@@ -153,6 +153,7 @@
 #else
         UIImage *firstFrameImage = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
+        firstFrameImage.sd_imageFormat = SDImageFormatWebP;
         CGImageRelease(imageRef);
         WebPDemuxReleaseIterator(&iter);
         WebPDemuxDelete(demuxer);
@@ -199,6 +200,7 @@
     
     UIImage *animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
     animatedImage.sd_imageLoopCount = loopCount;
+    animatedImage.sd_imageFormat = SDImageFormatWebP;
     
     return animatedImage;
 }
@@ -295,6 +297,7 @@
         image = [[UIImage alloc] initWithCGImage:newImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
         image.sd_isDecoded = YES; // Already drawn on bitmap context above
+        image.sd_imageFormat = SDImageFormatWebP;
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
     }

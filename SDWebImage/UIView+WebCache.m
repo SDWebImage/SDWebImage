@@ -50,24 +50,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     } else {
         validOperationKey = NSStringFromClass([self class]);
     }
-    dispatch_group_t group = nil;
-    if ([context valueForKey:SDWebImageContextSetImageGroup]) {
-        group = [context valueForKey:SDWebImageContextSetImageGroup];
-    }
-    if (context && group) {
-        // Remove the context option for View Category only and pass others for manager
-        // Operation key may be useful for some advanced feature, keep it
-        SDWebImageMutableContext *mutableContext = [context mutableCopy];
-        [mutableContext removeObjectForKey:SDWebImageContextSetImageGroup];
-        context = [mutableContext copy];
-    }
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     self.sd_imageURL = url;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
-        if (group) {
-            dispatch_group_enter(group);
-        }
         dispatch_main_async_safe(^{
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
         });
@@ -165,30 +151,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 transition = sself.sd_imageTransition;
             }
 #endif
-            
-            if (group) {
-                dispatch_group_enter(group);
-                dispatch_main_async_safe(^{
+            dispatch_main_async_safe(^{
 #if SD_UIKIT || SD_MAC
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
 #endif
-                });
-                // ensure completion block is called after custom setImage process finish
-                dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                    callCompletedBlockClojure();
-                });
-            } else {
-                dispatch_main_async_safe(^{
-#if SD_UIKIT || SD_MAC
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
-#else
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
-#endif
-                    callCompletedBlockClojure();
-                });
-            }
+                callCompletedBlockClojure();
+            });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
     } else {

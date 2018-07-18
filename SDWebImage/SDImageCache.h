@@ -200,6 +200,15 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
+ *  Query the image data for the given key synchronously.
+ *
+ *  @param key The unique key used to store the wanted image
+ *  @return The image data for the given key, or nil if not found.
+ */
+- (nullable NSData *)diskImageDataForKey:(nullable NSString *)key;
+
+/**
+ * Operation that queries the cache asynchronously and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
@@ -235,6 +244,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * Synchronously query the memory cache.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key;
 
@@ -242,6 +252,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * Synchronously query the disk cache.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key;
 
@@ -249,6 +260,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * Synchronously query the cache (memory and or disk) after checking the memory cache.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key;
 

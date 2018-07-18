@@ -95,4 +95,27 @@
     return UTType;
 }
 
++ (SDImageFormat)sd_imageFormatFromUTType:(CFStringRef)uttype {
+    if (!uttype) {
+        return SDImageFormatUndefined;
+    }
+    SDImageFormat imageFormat;
+    if (CFStringCompare(uttype, kUTTypeJPEG, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatJPEG;
+    } else if (CFStringCompare(uttype, kUTTypePNG, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatPNG;
+    } else if (CFStringCompare(uttype, kUTTypeGIF, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatGIF;
+    } else if (CFStringCompare(uttype, kUTTypeTIFF, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatTIFF;
+    } else if (CFStringCompare(uttype, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatWebP;
+    } else if (CFStringCompare(uttype, kSDUTTypeHEIC, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatHEIC;
+    } else {
+        imageFormat = SDImageFormatUndefined;
+    }
+    return imageFormat;
+}
+
 @end

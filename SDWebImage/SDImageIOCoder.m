@@ -10,7 +10,7 @@
 #import "SDImageCoderHelper.h"
 #import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
-#import "NSData+ImageContentType.h"
+#import "UIImage+Metadata.h"
 
 @implementation SDImageIOCoder {
     size_t _width, _height;
@@ -73,6 +73,7 @@
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
+    image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
     return image;
 }
 
@@ -165,6 +166,8 @@
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
 #endif
             CGImageRelease(partialImageRef);
+            CFStringRef uttype = CGImageSourceGetType(_imageSource);
+            image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];
         }
     }
     

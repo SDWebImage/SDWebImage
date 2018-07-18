@@ -129,7 +129,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
     }
-    
+    animatedImage.sd_imageFormat = SDImageFormatPNG;
     CFRelease(source);
     
     return animatedImage;
@@ -309,6 +309,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
             CGImageRelease(partialImageRef);
+            image.sd_imageFormat = SDImageFormatPNG;
         }
     }
     

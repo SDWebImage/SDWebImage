@@ -122,7 +122,7 @@
         animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
     }
-    
+    animatedImage.sd_imageFormat = SDImageFormatGIF;
     CFRelease(source);
     
     return animatedImage;
@@ -249,6 +249,7 @@
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
             CGImageRelease(partialImageRef);
+            image.sd_imageFormat = SDImageFormatGIF;
         }
     }
     
