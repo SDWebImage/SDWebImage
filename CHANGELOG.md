@@ -1,3 +1,19 @@
+## [4.4.2 - 4.4 patch, on July 18th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.2)
+See [all tickets marked for the 4.4.2 release](https://github.com/rs/SDWebImage/milestone/27)
+
+#### Features
+- Ability to change the clear cache option `SDImageCacheConfig.diskCacheExpireType` #2357
+- Add option to enable or disable weak memory cache for `SDImageCache` via `SDImageCacheConfig.shouldUseWeakMemoryCache` #2379
+- Add cache control for `FLAnimatedImage`, this allow user to disable memory cache for associated `FLAnimatedImage` instance #2378
+- Add `diskImageDataForKey:` sync API for `SDImageCache` to directly get the image data from disk #2391
+
+#### Fixes
+-  `SDWebImageManager.runningOperations` type changed from `Array` to `Set` #2382
+- Keep the information about image's original compressed format #2390
+- Fix `FLAnimatedImageView+WebCache` delayed draw due to #2047 which is now reverted #2393
+- Check for nullable key when cancel image load operation #2386
+- Replace `__bridge_transfer` with `__bridge` when convert from `CFStringRef` to `NSString` #2394
+
 ## [4.4.1 - 4.4 patch, on June 7th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.1)
 See [all tickets marked for the 4.4.1 release](https://github.com/rs/SDWebImage/milestone/26)
 	
