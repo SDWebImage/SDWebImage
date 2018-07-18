@@ -106,6 +106,7 @@
         }
         WebPDemuxDelete(demuxer);
         CGContextRelease(canvas);
+        staticImage.sd_imageFormat = SDImageFormatWebP;
         return staticImage;
     }
     
@@ -145,6 +146,7 @@
     
     UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
     animatedImage.sd_imageLoopCount = loopCount;
+    animatedImage.sd_imageFormat = SDImageFormatWebP;
     
     return animatedImage;
 }
@@ -215,6 +217,7 @@
 #else
         image = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
 #endif
+        image.sd_imageFormat = SDImageFormatWebP;
         CGImageRelease(newImageRef);
         CGContextRelease(canvas);
     }
