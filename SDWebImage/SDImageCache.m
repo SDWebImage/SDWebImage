@@ -399,6 +399,18 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return exists;
 }
 
+- (nullable NSData *)diskImageDataForKey:(nullable NSString *)key {
+    if (!key) {
+        return nil;
+    }
+    __block NSData *imageData = nil;
+    dispatch_sync(self.ioQueue, ^{
+        imageData = [self diskImageDataBySearchingAllPathsForKey:key];
+    });
+    
+    return imageData;
+}
+
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
     return [self.memCache objectForKey:key];
 }
@@ -459,7 +471,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 }
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
-    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
+    NSData *data = [self diskImageDataForKey:key];
     return [self diskImageForKey:key data:data];
 }
 

@@ -179,6 +179,14 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
 - (BOOL)diskImageDataExistsWithKey:(nullable NSString *)key;
 
 /**
+ *  Query the image data for the given key synchronously.
+ *
+ *  @param key The unique key used to store the wanted image
+ *  @return The image data for the given key, or nil if not found.
+ */
+- (nullable NSData *)diskImageDataForKey:(nullable NSString *)key;
+
+/**
  * Operation that queries the cache asynchronously and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image
@@ -203,6 +211,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * Query the memory cache synchronously.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key;
 
@@ -210,6 +219,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * Query the disk cache synchronously.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key;
 
@@ -217,6 +227,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * Query the cache (memory and or disk) synchronously after checking the memory cache.
  *
  * @param key The unique key used to store the image
+ * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key;
 

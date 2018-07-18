@@ -14,6 +14,21 @@
 #import "UIView+WebCache.h"
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
+#import "UIImage+MultiFormat.h"
+
+static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
+    if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
+        return nil;
+    }
+    FLAnimatedImage *animatedImage;
+    // Compatibility in 4.x for lower version FLAnimatedImage.
+    if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
+        animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:imageView.sd_optimalFrameCacheSize predrawingEnabled:imageView.sd_predrawingEnabled];
+    } else {
+        animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
+    }
+    return animatedImage;
+}
 
 @implementation UIImage (FLAnimatedImage)
 
@@ -98,61 +113,52 @@
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    dispatch_group_t group = dispatch_group_create();
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
-                           // We could not directlly create the animated image on background queue because it's time consuming, by the time we set it back, the current runloop has passed and the placeholder has been rendered and then replaced with animated image, this cause a flashing.
-                           // Previously we use a trick to firstly set the static poster image, then set animated image back to avoid flashing, but this trick fail when using with custom UIView transition. Core Animation will use the current layer state to do rendering, so even we later set it back, the transition will not update. (it's recommended to use `SDWebImageTransition` instead)
-                           // So we have no choice to force store the FLAnimatedImage into memory cache using a associated object binding to UIImage instance. This consumed memory is adoptable and much smaller than `_UIAnimatedImage` for big GIF
+                           __strong typeof(weakSelf)strongSelf = weakSelf;
+                           if (!strongSelf) {
+                               return;
+                           }
+                           // Step 1. Check memory cache (associate object)
                            FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
                            if (associatedAnimatedImage) {
                                // Asscociated animated image exist
-                               weakSelf.animatedImage = associatedAnimatedImage;
-                               weakSelf.image = nil;
-                               if (group) {
-                                   dispatch_group_leave(group);
+                               strongSelf.animatedImage = associatedAnimatedImage;
+                               strongSelf.image = nil;
+                               return;
+                           }
+                           // Step 2. Check if original compressed image data is "GIF"
+                           BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
+                           if (!isGIF) {
+                               strongSelf.image = image;
+                               strongSelf.animatedImage = nil;
+                               return;
+                           }
+                           // Step 3. Check if data exist or query disk cache
+                           if (!imageData) {
+                               NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+                               imageData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
+                           }
+                           // Step 4. Create FLAnimatedImage
+                           FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, imageData);
+                           // Step 5. Set animatedImage or normal image
+                           if (animatedImage) {
+                               if (strongSelf.sd_cacheFLAnimatedImage) {
+                                   image.sd_FLAnimatedImage = animatedImage;
                                }
-                           } else if ([NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF) {
-                               // Firstly set the static poster image to avoid flashing
-                               UIImage *posterImage = image.images ? image.images.firstObject : image;
-                               weakSelf.image = posterImage;
-                               weakSelf.animatedImage = nil;
-                               // Secondly create FLAnimatedImage in global queue because it's time consuming, then set it back
-                               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                   FLAnimatedImage *animatedImage;
-                                   // Compatibility in 4.x for lower version FLAnimatedImage.
-                                   if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
-                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:weakSelf.sd_optimalFrameCacheSize predrawingEnabled:weakSelf.sd_predrawingEnabled];
-                                   } else {
-                                       animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
-                                   }
-                                   dispatch_async(dispatch_get_main_queue(), ^{
-                                       if (weakSelf.sd_cacheFLAnimatedImage) {
-                                           image.sd_FLAnimatedImage = animatedImage;
-                                       }
-                                       weakSelf.animatedImage = animatedImage;
-                                       weakSelf.image = nil;
-                                       if (group) {
-                                           dispatch_group_leave(group);
-                                       }
-                                   });
-                               });
+                               strongSelf.animatedImage = animatedImage;
+                               strongSelf.image = nil;
                            } else {
-                               // Not animated image
-                               weakSelf.image = image;
-                               weakSelf.animatedImage = nil;
-                               if (group) {
-                                   dispatch_group_leave(group);
-                               }
+                               strongSelf.animatedImage = nil;
+                               strongSelf.image = image;
                            }
                        }
                             progress:progressBlock
-                           completed:completedBlock
-                             context:group ? @{SDWebImageInternalSetImageGroupKey : group} : nil];
+                           completed:completedBlock];
 }
 
 @end

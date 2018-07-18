@@ -81,6 +81,7 @@
         
         animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
         animatedImage.sd_imageLoopCount = loopCount;
+        animatedImage.sd_imageFormat = SDImageFormatGIF;
     }
     
     CFRelease(source);
