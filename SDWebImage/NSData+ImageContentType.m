@@ -66,7 +66,7 @@
     return SDImageFormatUndefined;
 }
 
-+ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format {
++ (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format {
     CFStringRef UTType;
     switch (format) {
         case SDImageFormatJPEG:

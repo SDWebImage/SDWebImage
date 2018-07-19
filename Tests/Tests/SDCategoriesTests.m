@@ -24,7 +24,7 @@
     expect(format == SDImageFormatUndefined);
     
     // Test invalid format
-    CFStringRef type = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatUndefined];
+    CFStringRef type = [NSData sd_UTTypeFromImageFormat:SDImageFormatUndefined];
     expect(CFStringCompare(kUTTypePNG, type, 0)).equal(kCFCompareEqualTo);
 }
 

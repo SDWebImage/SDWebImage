@@ -80,7 +80,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #else
     
     NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatGIF];
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatGIF];
     // Create an image destination. GIF does not support EXIF image orientation
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frameCount, NULL);
     if (!imageDestination) {
