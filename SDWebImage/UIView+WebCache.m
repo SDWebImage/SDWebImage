@@ -82,10 +82,8 @@ static char TAG_ACTIVITY_SHOW;
         self.sd_imageProgress.totalUnitCount = 0;
         self.sd_imageProgress.completedUnitCount = 0;
         
-        SDWebImageManager *manager;
-        if ([context valueForKey:SDWebImageExternalCustomManagerKey]) {
-            manager = (SDWebImageManager *)[context valueForKey:SDWebImageExternalCustomManagerKey];
-        } else {
+        SDWebImageManager *manager = [context objectForKey:SDWebImageExternalCustomManagerKey];
+        if (!manager) {
             manager = [SDWebImageManager sharedManager];
         }
         
