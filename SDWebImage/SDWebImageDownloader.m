@@ -173,10 +173,8 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         mutableRequest.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
         mutableRequest.HTTPShouldUsePipelining = YES;
         mutableRequest.allHTTPHeaderFields = sself.HTTPHeaders;
-        id<SDWebImageDownloaderRequestModifier> requestModifier;
-        if ([context valueForKey:SDWebImageContextDownloadRequestModifier]) {
-            requestModifier = [context valueForKey:SDWebImageContextDownloadRequestModifier];
-        } else {
+        id<SDWebImageDownloaderRequestModifier> requestModifier = context[SDWebImageContextDownloadRequestModifier];
+        if (!requestModifier) {
             requestModifier = self.requestModifier;
         }
         
@@ -475,10 +473,8 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 - (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
-    UIImage *cachedImage;
-    if ([context valueForKey:SDWebImageContextLoaderCachedImage]) {
-        cachedImage = [context valueForKey:SDWebImageContextLoaderCachedImage];
-    }
+    UIImage *cachedImage = context[SDWebImageContextLoaderCachedImage];
+    
     SDWebImageDownloaderOptions downloaderOptions = 0;
     if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
     if (options & SDWebImageProgressiveLoad) downloaderOptions |= SDWebImageDownloaderProgressiveLoad;

@@ -65,8 +65,9 @@
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+    NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+    if (scaleFactor != nil) {
+        scale = [scaleFactor doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -97,8 +98,9 @@
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -153,8 +155,9 @@
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+            if (scaleFactor != nil) {
+                scale = [scaleFactor doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -220,8 +223,8 @@
 #endif
     [properties setValue:@(exifOrientation) forKey:(__bridge NSString *)kCGImagePropertyOrientation];
     double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    if (options[SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     

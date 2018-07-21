@@ -81,8 +81,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+    NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+    if (scaleFactor != nil) {
+        scale = [scaleFactor doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -139,9 +140,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
 - (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source {
     NSUInteger loopCount = 0;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
-    NSDictionary *pngProperties = [imageProperties valueForKey:(__bridge NSString *)kCGImagePropertyPNGDictionary];
+    NSDictionary *pngProperties = imageProperties[(__bridge NSString *)kCGImagePropertyPNGDictionary];
     if (pngProperties) {
-        NSNumber *apngLoopCount = [pngProperties valueForKey:(__bridge NSString *)kCGImagePropertyAPNGLoopCount];
+        NSNumber *apngLoopCount = pngProperties[(__bridge NSString *)kCGImagePropertyAPNGLoopCount];
         if (apngLoopCount != nil) {
             loopCount = apngLoopCount.unsignedIntegerValue;
         }
@@ -199,8 +200,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    if (options[SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     
@@ -246,8 +247,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatPNG];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceTypeIdentifierHint : (__bridge NSString *)imageUTType});
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -297,8 +299,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+            if (scaleFactor != nil) {
+                scale = [scaleFactor doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -334,8 +337,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

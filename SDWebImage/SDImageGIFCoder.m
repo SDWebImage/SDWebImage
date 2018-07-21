@@ -74,8 +74,9 @@
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+    NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+    if (scaleFactor != nil) {
+        scale = [scaleFactor doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -132,9 +133,9 @@
 - (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source {
     NSUInteger loopCount = 1;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
-    NSDictionary *gifProperties = [imageProperties valueForKey:(__bridge NSString *)kCGImagePropertyGIFDictionary];
+    NSDictionary *gifProperties = imageProperties[(__bridge NSString *)kCGImagePropertyGIFDictionary];
     if (gifProperties) {
-        NSNumber *gifLoopCount = [gifProperties valueForKey:(__bridge NSString *)kCGImagePropertyGIFLoopCount];
+        NSNumber *gifLoopCount = gifProperties[(__bridge NSString *)kCGImagePropertyGIFLoopCount];
         if (gifLoopCount != nil) {
             loopCount = gifLoopCount.unsignedIntegerValue;
         }
@@ -186,8 +187,9 @@
         CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatGIF];
         _imageSource = CGImageSourceCreateIncremental((__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceTypeIdentifierHint : (__bridge NSString *)imageUTType});
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -237,8 +239,9 @@
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+            if (scaleFactor != nil) {
+                scale = [scaleFactor doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -282,8 +285,8 @@
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    if (options[SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
     
@@ -335,8 +338,9 @@
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

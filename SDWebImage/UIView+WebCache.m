@@ -44,10 +44,8 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                           progress:(nullable SDImageLoaderProgressBlock)progressBlock
                          completed:(nullable SDInternalCompletionBlock)completedBlock {
     context = [context copy]; // copy to avoid mutable object
-    NSString *validOperationKey = nil;
-    if ([context valueForKey:SDWebImageContextSetImageOperationKey]) {
-        validOperationKey = [context valueForKey:SDWebImageContextSetImageOperationKey];
-    } else {
+    NSString *validOperationKey = context[SDWebImageContextSetImageOperationKey];
+    if (!validOperationKey) {
         validOperationKey = NSStringFromClass([self class]);
     }
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
@@ -70,10 +68,8 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
 #endif
         
-        SDWebImageManager *manager;
-        if ([context valueForKey:SDWebImageContextCustomManager]) {
-            manager = (SDWebImageManager *)[context valueForKey:SDWebImageContextCustomManager];
-        } else {
+        SDWebImageManager *manager = context[SDWebImageContextCustomManager];
+        if (!manager) {
             manager = [SDWebImageManager sharedManager];
         }
         

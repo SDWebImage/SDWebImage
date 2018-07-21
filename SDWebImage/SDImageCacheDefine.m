@@ -15,20 +15,18 @@
 UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     UIImage *image;
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
-    NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
+    NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     if (scale < 1) {
         scale = 1;
     }
     if (!decodeFirstFrame) {
+        Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         // check whether we should use `SDAnimatedImage`
-        if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
-            Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
-            if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
-                if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                    [((id<SDAnimatedImage>)image) preloadAllFrames];
-                }
+        if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
+            image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
+            if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
+                [((id<SDAnimatedImage>)image) preloadAllFrames];
             }
         }
     }
