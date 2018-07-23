@@ -10,15 +10,18 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
-typedef NS_ENUM(NSInteger, SDImageFormat) {
-    SDImageFormatUndefined = -1,
-    SDImageFormatJPEG = 0,
-    SDImageFormatPNG,
-    SDImageFormatGIF,
-    SDImageFormatTIFF,
-    SDImageFormatWebP,
-    SDImageFormatHEIC
-};
+/**
+ You can use switch case like normal enum. It's also recommended to add a default case.
+ For custom coder plugin, it may also extern the enum for supported format.
+ */
+typedef NSInteger SDImageFormat NS_TYPED_EXTENSIBLE_ENUM;
+static const SDImageFormat SDImageFormatUndefined = -1;
+static const SDImageFormat SDImageFormatJPEG = 0;
+static const SDImageFormat SDImageFormatPNG = 1;
+static const SDImageFormat SDImageFormatGIF = 2;
+static const SDImageFormat SDImageFormatTIFF = 3;
+static const SDImageFormat SDImageFormatWebP = 4;
+static const SDImageFormat SDImageFormatHEIC = 5;
 
 @interface NSData (ImageContentType)
 
