@@ -134,11 +134,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         return;
     }
     NSMutableDictionary *mutableHTTPHeaders = [self.HTTPHeaders mutableCopy];
-    if (value) {
-        [mutableHTTPHeaders setObject:value forKey:field];
-    } else {
-        [mutableHTTPHeaders removeObjectForKey:field];
-    }
+    [mutableHTTPHeaders setValue:value forKey:field];
     self.HTTPHeaders = [mutableHTTPHeaders copy];
 }
 
@@ -272,7 +268,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             [sself.URLOperations removeObjectForKey:url];
             UNLOCK(sself.operationsLock);
         };
-        [self.URLOperations setObject:operation forKey:url];
+        self.URLOperations[url] = operation;
         // Add operation to operation queue only after all configuration done according to Apple's doc.
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
