@@ -203,7 +203,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     if (options[SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
-    [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+    properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = @(compressionQuality);
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
@@ -213,7 +213,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         // for animated APNG images
         NSUInteger loopCount = image.sd_imageLoopCount;
         NSDictionary *pngProperties = @{(__bridge NSString *)kCGImagePropertyAPNGLoopCount : @(loopCount)};
-        [properties setValue:pngProperties forKey:(__bridge NSString *)kCGImagePropertyPNGDictionary];
+        properties[(__bridge NSString *)kCGImagePropertyPNGDictionary] = pngProperties;
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {

@@ -288,7 +288,7 @@
     if (options[SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
-    [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+    properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = @(compressionQuality);
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
@@ -298,7 +298,7 @@
         // for animated GIF images
         NSUInteger loopCount = image.sd_imageLoopCount;
         NSDictionary *gifProperties = @{(__bridge NSString *)kCGImagePropertyGIFLoopCount : @(loopCount)};
-        [properties setValue:gifProperties forKey:(__bridge NSString *)kCGImagePropertyGIFDictionary];
+        properties[(__bridge NSString *)kCGImagePropertyGIFDictionary] = gifProperties;
         CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
         
         for (size_t i = 0; i < frames.count; i++) {

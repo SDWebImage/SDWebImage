@@ -233,7 +233,7 @@ static id<SDImageLoader> _defaultImageLoader;
             } else {
                 mutableContext = [NSMutableDictionary dictionary];
             }
-            [mutableContext setValue:cachedImage forKey:SDWebImageContextLoaderCachedImage];
+            mutableContext[SDWebImageContextLoaderCachedImage] = cachedImage;
             context = [mutableContext copy];
         }
         
