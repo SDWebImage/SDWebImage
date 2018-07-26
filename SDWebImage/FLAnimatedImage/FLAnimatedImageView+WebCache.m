@@ -15,6 +15,7 @@
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
+#import "SDWebImageGroup.h"
 
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
@@ -113,6 +114,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
+    SDWebImageGroup *group = [SDWebImageGroup new];
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -129,6 +131,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                // Asscociated animated image exist
                                strongSelf.animatedImage = associatedAnimatedImage;
                                strongSelf.image = nil;
+                               [group leave];
                                return;
                            }
                            // Step 2. Check if original compressed image data is "GIF"
@@ -136,29 +139,38 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            if (!isGIF) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
+                               [group leave];
                                return;
                            }
-                           // Step 3. Check if data exist or query disk cache
-                           if (!imageData) {
-                               NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
-                               imageData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
-                           }
-                           // Step 4. Create FLAnimatedImage
-                           FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, imageData);
-                           // Step 5. Set animatedImage or normal image
-                           if (animatedImage) {
-                               if (strongSelf.sd_cacheFLAnimatedImage) {
-                                   image.sd_FLAnimatedImage = animatedImage;
+                           
+                           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                               // Step 3. Check if data exist or query disk cache
+                               NSData *diskData = imageData;
+                               if (!diskData) {
+                                   NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+                                   diskData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
                                }
-                               strongSelf.animatedImage = animatedImage;
-                               strongSelf.image = nil;
-                           } else {
-                               strongSelf.animatedImage = nil;
-                               strongSelf.image = image;
-                           }
+                               // Step 4. Create FLAnimatedImage
+                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, diskData);
+                               dispatch_async(dispatch_get_main_queue(), ^{
+                                   // Step 5. Set animatedImage or normal image
+                                   if (animatedImage) {
+                                       if (strongSelf.sd_cacheFLAnimatedImage) {
+                                           image.sd_FLAnimatedImage = animatedImage;
+                                       }
+                                       strongSelf.animatedImage = animatedImage;
+                                       strongSelf.image = nil;
+                                   } else {
+                                       strongSelf.animatedImage = nil;
+                                       strongSelf.image = image;
+                                   }
+                                   [group leave];
+                               });
+                           });
                        }
                             progress:progressBlock
-                           completed:completedBlock];
+                           completed:completedBlock
+                             context:@{SDWebImageInternalSetImageSDGroupKey: group}];
 }
 
 @end
