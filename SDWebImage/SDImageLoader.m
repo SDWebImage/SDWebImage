@@ -47,7 +47,13 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         }
     }
     if (!image) {
-        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
+        SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+        if (context) {
+            SDImageCoderMutableOptions *mutableOptions = [options mutableCopy];
+            [mutableOptions setValue:context forKey:SDImageCoderWebImageContext];
+            options = [mutableOptions copy];
+        }
+        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:options];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
@@ -119,7 +125,13 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         }
     }
     if (!image) {
-        image = [progressiveCoder incrementalDecodedImageWithOptions:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
+        SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+        if (context) {
+            SDImageCoderMutableOptions *mutableOptions = [options mutableCopy];
+            [mutableOptions setValue:context forKey:SDImageCoderWebImageContext];
+            options = [mutableOptions copy];
+        }
+        image = [progressiveCoder incrementalDecodedImageWithOptions:options];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
