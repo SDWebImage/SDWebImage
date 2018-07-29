@@ -127,8 +127,9 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
                            if (associatedAnimatedImage) {
                                // Asscociated animated image exist
+                               // FLAnimatedImage framework contains a bug that cause GIF been rotated if previous rendered image orientation is not Up. We have to call `setImage:` with non-nil image to reset the state. See `https://github.com/rs/SDWebImage/issues/2402`
+                               strongSelf.image = associatedAnimatedImage.posterImage;
                                strongSelf.animatedImage = associatedAnimatedImage;
-                               strongSelf.image = nil;
                                return;
                            }
                            // Step 2. Check if original compressed image data is "GIF"
@@ -150,11 +151,11 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                if (strongSelf.sd_cacheFLAnimatedImage) {
                                    image.sd_FLAnimatedImage = animatedImage;
                                }
+                               strongSelf.image = animatedImage.posterImage;
                                strongSelf.animatedImage = animatedImage;
-                               strongSelf.image = nil;
                            } else {
-                               strongSelf.animatedImage = nil;
                                strongSelf.image = image;
+                               strongSelf.animatedImage = nil;
                            }
                        }
                             progress:progressBlock
