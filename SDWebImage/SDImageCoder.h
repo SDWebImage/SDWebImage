@@ -12,6 +12,7 @@
 
 typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
+typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;
 
 #pragma mark - Coder Options
 // These options are for image decoding
@@ -37,6 +38,14 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeFirstFrame
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressionQuality;
+
+/**
+ A SDWebImageContext object which hold the original context options from top-level API. (SDWebImageContext)
+ This option is ignored for all built-in coders and take no effect.
+ But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data inforamtion only.
+ See `SDWebImageContext` for more detailed information.
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
 
 #pragma mark - Coder
 /**

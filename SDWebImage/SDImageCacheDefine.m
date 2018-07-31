@@ -33,7 +33,13 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         }
     }
     if (!image) {
-        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:@{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)}];
+        SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+        if (context) {
+            SDImageCoderMutableOptions *mutableOptions = [options mutableCopy];
+            [mutableOptions setValue:context forKey:SDImageCoderWebImageContext];
+            options = [mutableOptions copy];
+        }
+        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:options];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
