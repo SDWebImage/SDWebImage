@@ -178,10 +178,28 @@ All source code is licensed under the [MIT License](https://raw.github.com/rs/SD
 
 ## Architecture
 
+#### High Level Diagram
 <p align="center" >
-    <img src="Docs/SDWebImageClassDiagram.png" title="SDWebImage class diagram">
+    <img src="Docs/Diagrams/SDWebImageHighLevelDiagram.jpeg" title="SDWebImage high level diagram">
 </p>
 
+#### Overall Class Diagram
 <p align="center" >
-    <img src="Docs/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
+    <img src="Docs/Diagrams/SDWebImageClassDiagram.png" title="SDWebImage overall class diagram">
 </p>
+
+#### Top Level API Diagram
+<p align="center" >
+    <img src="Docs/Diagrams/SDWebImageTopLevelClassDiagram.png" title="SDWebImage top level API diagram">
+</p>
+
+#### Main Sequence Diagram
+<p align="center" >
+    <img src="Docs/Diagrams/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
+</p>
+
+#### More detailed diagrams
+- [Manager API Diagram](Docs/Diagrams/SDWebImageManagerClassDiagram.png)
+- [Coders API Diagram](Docs/Diagrams/SDWebImageCodersClassDiagram.png)
+- [Loader API Diagram](Docs/Diagrams/SDWebImageLoaderClassDiagram.png)
+- [Cache API Diagram](Docs/Diagrams/SDWebImageCacheClassDiagram.png)
