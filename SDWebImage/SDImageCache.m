@@ -86,7 +86,7 @@
         
         NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
         _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath config:_config];
-        [self moveOldDefaultDiskPathOfFilesToNewDefaultDiskPath];
+        [self migrateCacheDiskDirectory];
 
 #if SD_UIKIT
         // Subscribe to app events
@@ -589,23 +589,17 @@
     return options;
 }
 
-- (void)moveOldDefaultDiskPathOfFilesToNewDefaultDiskPath {
-    dispatch_async(self.ioQueue, ^{
-        NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
-        NSString *oldPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
-        
-        NSFileManager *fileManager = self.config.fileManager;
-        if (!fileManager) { fileManager = [NSFileManager new]; }
-        
-        if (![self.diskCachePath isEqualToString:newDefaultPath] && ![fileManager fileExistsAtPath:oldPath]) { return; }
-    
-        NSDirectoryEnumerator *dirEnumerator = [fileManager enumeratorAtPath:oldPath];
-        NSString *file;
-        while ((file = [dirEnumerator nextObject])) {
-            // Don't handle error, just try to move.
-            [fileManager moveItemAtPath:[oldPath stringByAppendingPathComponent:file] toPath:[newDefaultPath stringByAppendingPathComponent:file] error:NULL];
-        }
-        [fileManager removeItemAtPath:oldPath error:NULL];
+- (void)migrateCacheDiskDirectory {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dispatch_async(self.ioQueue, ^{
+            NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
+            NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+            
+            if ([self.diskCache respondsToSelector:@selector(migrateCacheFromCachePath:toCachePath:)]) {
+                [self.diskCache performSelector:@selector(migrateCacheFromCachePath:toCachePath:) withObject:oldDefaultPath withObject:newDefaultPath];
+            }
+        });
     });
 }
 

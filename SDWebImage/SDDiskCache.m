@@ -42,6 +42,19 @@
     }
 }
 
+- (void)migrateCacheFromCachePath:(NSString *)srcPath toCachePath:(NSString *)dstPath {
+    // DstPath is new default path, only if diskCachePath is equal to the new default path and old default path exist, we can do move operation later.
+    if (![self.diskCachePath isEqualToString:dstPath] && ![self.fileManager fileExistsAtPath:srcPath]) { return; }
+    
+    NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtPath:srcPath];
+    NSString *file;
+    while ((file = [dirEnumerator nextObject])) {
+        // Don't handle error, just try to move.
+        [self.fileManager moveItemAtPath:[srcPath stringByAppendingPathComponent:file] toPath:[dstPath stringByAppendingPathComponent:file] error:NULL];
+    }
+    [self.fileManager removeItemAtPath:srcPath error:NULL];
+}
+
 - (BOOL)containsDataForKey:(NSString *)key {
     NSParameterAssert(key);
     NSString *filePath = [self cachePathForKey:key];
