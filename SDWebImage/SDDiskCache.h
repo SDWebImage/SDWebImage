@@ -103,5 +103,6 @@
 @property (nonatomic, strong, readonly, nonnull) SDImageCacheConfig *config;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
+- (void)migrateCacheFromCachePath:(nonnull NSString *)srcPath toCachePath:(nonnull NSString *)dstPath;
 
 @end
