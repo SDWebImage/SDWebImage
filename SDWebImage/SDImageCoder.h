@@ -89,7 +89,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
  @param format The image format
  @return YES if this coder can encode the image, NO otherwise
  */
-- (BOOL)canEncodeToFormat:(SDImageFormat)format;
+- (BOOL)canEncodeToFormat:(SDImageFormat)format NS_SWIFT_NAME(canEncode(to:));
 
 /**
  Encode the image to image data.

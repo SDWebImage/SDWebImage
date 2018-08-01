@@ -40,7 +40,7 @@ static const SDImageFormat SDImageFormatHEIC      = 5;
  *  @param format Format as SDImageFormat
  *  @return The UTType as CFStringRef
  */
-+ (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format CF_RETURNS_NOT_RETAINED;
++ (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format CF_RETURNS_NOT_RETAINED NS_SWIFT_NAME(sd_UTType(from:));
 
 /**
  *  Convert UTTyppe to SDImageFormat
