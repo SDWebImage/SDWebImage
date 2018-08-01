@@ -86,6 +86,7 @@
         
         NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
         _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath config:_config];
+        [self moveOldDefaultDiskPathOfFilesToNewDefaultDiskPath];
 
 #if SD_UIKIT
         // Subscribe to app events
@@ -123,7 +124,7 @@
     return [self.diskCache cachePathForKey:key];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
+- (nonnull NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
@@ -586,6 +587,26 @@
     if (cacheOptions & SDImageCacheAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
     
     return options;
+}
+
+- (void)moveOldDefaultDiskPathOfFilesToNewDefaultDiskPath {
+    dispatch_async(self.ioQueue, ^{
+        NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
+        NSString *oldPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+        
+        NSFileManager *fileManager = self.config.fileManager;
+        if (!fileManager) { fileManager = [NSFileManager new]; }
+        
+        if (![self.diskCachePath isEqualToString:newDefaultPath] && ![fileManager fileExistsAtPath:oldPath]) { return; }
+    
+        NSDirectoryEnumerator *dirEnumerator = [fileManager enumeratorAtPath:oldPath];
+        NSString *file;
+        while ((file = [dirEnumerator nextObject])) {
+            // Don't handle error, just try to move.
+            [fileManager moveItemAtPath:[oldPath stringByAppendingPathComponent:file] toPath:[newDefaultPath stringByAppendingPathComponent:file] error:NULL];
+        }
+        [fileManager removeItemAtPath:oldPath error:NULL];
+    });
 }
 
 @end
