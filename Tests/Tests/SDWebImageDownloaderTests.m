@@ -99,6 +99,17 @@
     [downloader invalidateSessionAndCancel:YES];
 }
 
+- (void)test07ThatDownloadImageWithNilURLCallsCompletionWithNils {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with nils"];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:nil options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(image).to.beNil();
+        expect(data).to.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidURL);
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test08ThatAHTTPAuthDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"HTTP Auth download"];
     SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
