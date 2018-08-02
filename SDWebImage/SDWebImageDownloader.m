@@ -488,6 +488,9 @@ didReceiveResponse:(NSURLResponse *)response
     if (options & SDWebImageAllowInvalidSSLCertificates) downloaderOptions |= SDWebImageDownloaderAllowInvalidSSLCertificates;
     if (options & SDWebImageHighPriority) downloaderOptions |= SDWebImageDownloaderHighPriority;
     if (options & SDWebImageScaleDownLargeImages) downloaderOptions |= SDWebImageDownloaderScaleDownLargeImages;
+    if (options & SDWebImageAvoidDecodeImage) downloaderOptions |= SDWebImageDownloaderAvoidDecodeImage;
+    if (options & SDWebImageDecodeFirstFrameOnly) downloaderOptions |= SDWebImageDownloaderDecodeFirstFrameOnly;
+    if (options & SDWebImagePreloadAllFrames) downloaderOptions |= SDWebImageDownloaderPreloadAllFrames;
     
     if (cachedImage && options & SDWebImageRefreshCached) {
         // force progressive off if image already cached but forced refreshing
