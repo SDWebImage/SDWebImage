@@ -36,9 +36,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
-- (nullable NSURLCredential *)credential;
-- (void)setCredential:(nullable NSURLCredential *)value;
-
 - (BOOL)cancel:(nullable id)token;
 
 - (nullable NSURLRequest *)request;
@@ -46,6 +43,10 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 
 @optional
 - (nullable NSURLSessionTask *)dataTask;
+- (nullable NSURLCredential *)credential;
+- (void)setCredential:(nullable NSURLCredential *)credential;
+- (NSTimeInterval)minimumProgressInterval;
+- (void)setMinimumProgressInterval:(NSTimeInterval)minimumProgressInterval;
 
 @end
 
@@ -73,6 +74,15 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
 @property (nonatomic, strong, nullable) NSURLCredential *credential;
+
+/**
+ * The minimum interval about progress percent during network downloading. Which means the next progress callback and current progress callback's progress percent difference should be larger or equal to this value.
+ * The value should be 0.0-1.0.
+ * @note If you're using progressive decoding feature, this will also effect the image refresh rate.
+ * @note This value may enhance the performance if you don't want progress callback too frequently.
+ * Defaults to 0, which means each time we receive the new data from URLSession, we callback the progressBlock immediately.
+ */
+@property (assign, nonatomic) NSTimeInterval minimumProgressInterval;
 
 /**
  * The options for the receiver.
