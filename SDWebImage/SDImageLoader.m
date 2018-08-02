@@ -47,13 +47,13 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         }
     }
     if (!image) {
-        SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+        SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
         if (context) {
-            SDImageCoderMutableOptions *mutableOptions = [options mutableCopy];
-            [mutableOptions setValue:context forKey:SDImageCoderWebImageContext];
-            options = [mutableOptions copy];
+            SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
+            [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
+            coderOptions = [mutableCoderOptions copy];
         }
-        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:options];
+        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:coderOptions];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
@@ -125,13 +125,13 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         }
     }
     if (!image) {
-        SDImageCoderOptions *options = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+        SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
         if (context) {
-            SDImageCoderMutableOptions *mutableOptions = [options mutableCopy];
-            [mutableOptions setValue:context forKey:SDImageCoderWebImageContext];
-            options = [mutableOptions copy];
+            SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
+            [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
+            coderOptions = [mutableCoderOptions copy];
         }
-        image = [progressiveCoder incrementalDecodedImageWithOptions:options];
+        image = [progressiveCoder incrementalDecodedImageWithOptions:coderOptions];
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
