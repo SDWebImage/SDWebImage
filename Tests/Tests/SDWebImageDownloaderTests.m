@@ -265,6 +265,34 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test17ThatMinimumProgressIntervalWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Minimum progress interval"];
+    SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
+    config.minimumProgressInterval = 0.51; // This will make the progress only callback once
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
+    NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"];
+    __block NSUInteger allProgressCount = 0; // All progress (including operation start / first HTTP response, etc)
+    __block NSUInteger validProgressCount = 0; // Only progress from `URLSession:dataTask:didReceiveData:`
+    [downloader downloadImageWithURL:imageURL options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+        allProgressCount++;
+        if (expectedSize <= 0 || receivedSize <= 0) {
+            // ignore the progress callback until we receive data
+            return;
+        }
+        validProgressCount++;
+    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (allProgressCount > 1 && validProgressCount == 1) {
+            [expectation fulfill];
+        } else {
+            XCTFail(@"Progress callback more than once");
+        }
+    }];
+     
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
+    }];
+}
+
 /**
  *  Per #883 - Fix multiple requests for same image and then canceling one
  *  Old SDWebImage (3.x) could not handle correctly multiple requests for the same image + cancel
