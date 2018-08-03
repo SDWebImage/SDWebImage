@@ -21,7 +21,8 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 
 @end
 
-@interface SDImageCacheTests : SDTestCase
+@interface SDImageCacheTests : SDTestCase <NSFileManagerDelegate>
+
 @end
 
 @implementation SDImageCacheTests
@@ -357,6 +358,25 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
     SDWebImageTestDiskCache *diskCache = cache.diskCache;
     expect([diskCache isKindOfClass:[SDWebImageTestDiskCache class]]).to.beTruthy();
+}
+
+- (void)test44DiskCacheMigrationFromOldVersion {
+    SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    config.fileManager = fileManager;
+    
+    // Fake to store a.png into old path
+    NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
+    NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+    [fileManager createDirectoryAtPath:oldDefaultPath withIntermediateDirectories:YES attributes:nil error:nil];
+    [fileManager createFileAtPath:[oldDefaultPath stringByAppendingPathComponent:@"a.png"] contents:[NSData dataWithContentsOfFile:[self testPNGPath]] attributes:nil];
+    // Call migration
+    SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:newDefaultPath config:config];
+    [diskCache moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
+    
+    // Expect a.png into new path
+    BOOL exist = [fileManager fileExistsAtPath:[newDefaultPath stringByAppendingPathComponent:@"a.png"]];
+    expect(exist).beTruthy();
 }
 
 #pragma mark - SDImageCache & SDImageCachesManager
