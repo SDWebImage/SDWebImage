@@ -250,10 +250,18 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     }
     NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options context:context];
     
-    if (self.config.urlCredential) {
-        operation.credential = self.config.urlCredential;
-    } else if (self.config.username && self.config.password) {
-        operation.credential = [NSURLCredential credentialWithUser:self.config.username password:self.config.password persistence:NSURLCredentialPersistenceForSession];
+    if ([operation respondsToSelector:@selector(setCredential:)]) {
+        if (self.config.urlCredential) {
+            operation.credential = self.config.urlCredential;
+        } else if (self.config.username && self.config.password) {
+            operation.credential = [NSURLCredential credentialWithUser:self.config.username password:self.config.password persistence:NSURLCredentialPersistenceForSession];
+        }
+    }
+        
+    if ([operation respondsToSelector:@selector(setMinimumProgressInterval:)]) {
+        NSTimeInterval minimumProgressInterval = self.config.minimumProgressInterval;
+        minimumProgressInterval = MIN(MAX(minimumProgressInterval, 0), 1);
+        operation.minimumProgressInterval = minimumProgressInterval;
     }
     
     if (options & SDWebImageDownloaderHighPriority) {

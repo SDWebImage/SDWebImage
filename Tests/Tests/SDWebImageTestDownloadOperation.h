@@ -15,7 +15,6 @@
  */
 @interface SDWebImageTestDownloadOperation : NSOperation <SDWebImageDownloaderOperation>
 
-@property (nonatomic, strong, nullable) NSURLCredential *credential;
 @property (nonatomic, strong, nullable) NSURLRequest *request;
 @property (nonatomic, strong, nullable) NSURLResponse *response;
 

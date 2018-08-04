@@ -34,6 +34,7 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     SDWebImageDownloaderConfig *config = [[[self class] allocWithZone:zone] init];
     config.maxConcurrentDownloads = self.maxConcurrentDownloads;
     config.downloadTimeout = self.downloadTimeout;
+    config.minimumProgressInterval = self.minimumProgressInterval;
     config.sessionConfiguration = [self.sessionConfiguration copyWithZone:zone];
     config.operationClass = self.operationClass;
     config.executionOrder = self.executionOrder;
