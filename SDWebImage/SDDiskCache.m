@@ -46,6 +46,10 @@
     // DstPath is new default path, only if diskCachePath is equal to the new default path and old default path exist, we can do move operation later.
     if (![self.diskCachePath isEqualToString:dstPath] && ![self.fileManager fileExistsAtPath:srcPath]) { return; }
     
+    if (![self.fileManager fileExistsAtPath:self.diskCachePath]) {
+        [self.fileManager createDirectoryAtPath:self.diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
+    }
+    
     NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtPath:srcPath];
     NSString *file;
     while ((file = [dirEnumerator nextObject])) {

@@ -596,8 +596,11 @@
             NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
             NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
             
-            if ([self.diskCache respondsToSelector:@selector(migrateCacheFromCachePath:toCachePath:)]) {
-                [self.diskCache performSelector:@selector(migrateCacheFromCachePath:toCachePath:) withObject:oldDefaultPath withObject:newDefaultPath];
+            if ([self.diskCache respondsToSelector:NSSelectorFromString(@"migrateCacheFromCachePath:toCachePath:")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                [self.diskCache performSelector:NSSelectorFromString(@"migrateCacheFromCachePath:toCachePath:") withObject:oldDefaultPath withObject:newDefaultPath];
+#pragma clang diagnostic pop
             }
         });
     });
