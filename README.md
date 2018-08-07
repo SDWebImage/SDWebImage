@@ -7,8 +7,6 @@
 [![Pod Version](http://img.shields.io/cocoapods/v/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod License](http://img.shields.io/cocoapods/l/SDWebImage.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Dependency Status](https://www.versioneye.com/objective-c/sdwebimage/badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage)
-[![Reference Status](https://www.versioneye.com/objective-c/sdwebimage/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/sdwebimage/references)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/rs/SDWebImage)
 [![codecov](https://codecov.io/gh/rs/SDWebImage/branch/master/graph/badge.svg)](https://codecov.io/gh/rs/SDWebImage)
 
