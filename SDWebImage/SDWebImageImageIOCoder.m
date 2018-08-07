@@ -451,9 +451,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     dispatch_once(&onceToken, ^{
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIC];
         NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-            canDecode = YES;
-        }
+        canDecode = [imageUTTypes containsObject:(__bridge NSString *)(imageUTType)];
     });
     return canDecode;
 }
@@ -464,9 +462,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     dispatch_once(&onceToken, ^{
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIF];
         NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-            canDecode = YES;
-        }
+        canDecode = [imageUTTypes containsObject:(__bridge NSString *)(imageUTType)];
     });
     return canDecode;
 }
@@ -475,19 +471,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSMutableData *imageData = [NSMutableData data];
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIC];
-        
-        // Create an image destination.
-        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-        if (!imageDestination) {
-            // Can't encode to HEIC
-            canEncode = NO;
-        } else {
-            // Can encode to HEIC
-            CFRelease(imageDestination);
-            canEncode = YES;
-        }
+        NSArray *imageDestinationTypes = (__bridge_transfer NSArray *)CGImageDestinationCopyTypeIdentifiers();
+        canEncode = [imageDestinationTypes containsObject:(__bridge NSString *)imageUTType];
     });
     return canEncode;
 }
@@ -496,19 +482,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSMutableData *imageData = [NSMutableData data];
         CFStringRef imageUTType = [NSData sd_UTTypeFromSDImageFormat:SDImageFormatHEIF];
-        
-        // Create an image destination.
-        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-        if (!imageDestination) {
-            // Can't encode to HEIF
-            canEncode = NO;
-        } else {
-            // Can encode to HEIF
-            CFRelease(imageDestination);
-            canEncode = YES;
-        }
+        NSArray *imageDestinationTypes = (__bridge_transfer NSArray *)CGImageDestinationCopyTypeIdentifiers();
+        canEncode = [imageDestinationTypes containsObject:(__bridge NSString *)imageUTType];
     });
     return canEncode;
 }
