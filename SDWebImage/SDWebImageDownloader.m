@@ -429,20 +429,20 @@ didReceiveResponse:(NSURLResponse *)response
 @implementation SDWebImageDownloadToken
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:_downloadOperation];
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:nil];
+- (void)setDownloadOperation:(NSOperation<SDWebImageDownloaderOperation> *)downloadOperation {
+    if (downloadOperation != _downloadOperation) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:_downloadOperation];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
+        _downloadOperation = downloadOperation;
     }
-    return self;
 }
 
 - (void)downloadReceiveResponse:(NSNotification *)notification {
     NSOperation<SDWebImageDownloaderOperation> *downloadOperation = notification.object;
-    if (downloadOperation && downloadOperation == self.downloadOperation) {
+    if (downloadOperation) {
         self.response = downloadOperation.response;
     }
 }
