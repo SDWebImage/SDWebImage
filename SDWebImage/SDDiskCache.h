@@ -104,4 +104,15 @@
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
 
+/**
+ Move the cache directory from old location to new location, the old location will be removed after finish.
+ If the old location does not exist, does nothing.
+ If the new location does not exist, only do a movement of directory.
+ If the new location does exist, will move and merge the files from old location.
+
+ @param srcPath old location of cache directory
+ @param dstPath new location of cache directory
+ */
+- (void)moveCacheDirectoryFromPath:(nonnull NSString *)srcPath toPath:(nonnull NSString *)dstPath;
+
 @end

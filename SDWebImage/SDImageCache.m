@@ -86,6 +86,9 @@
         
         NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
         _diskCache = [[config.diskCacheClass alloc] initWithCachePath:_diskCachePath config:_config];
+        
+        // Check and migrate disk cache directory if need
+        [self migrateDiskCacheDirectory];
 
 #if SD_UIKIT
         // Subscribe to app events
@@ -123,9 +126,22 @@
     return [self.diskCache cachePathForKey:key];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
+- (nullable NSString *)makeDiskCachePath:(nonnull NSString *)fullNamespace {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [paths[0] stringByAppendingPathComponent:fullNamespace];
+    return [paths.firstObject stringByAppendingPathComponent:fullNamespace];
+}
+
+- (void)migrateDiskCacheDirectory {
+    if ([self.diskCache isKindOfClass:[SDDiskCache class]]) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
+            NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+            dispatch_async(self.ioQueue, ^{
+                [((SDDiskCache *)self.diskCache) moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
+            });
+        });
+    }
 }
 
 #pragma mark - Store Ops
