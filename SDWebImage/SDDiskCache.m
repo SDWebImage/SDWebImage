@@ -228,6 +228,39 @@
     return [path stringByAppendingPathComponent:filename];
 }
 
+- (void)moveCacheDirectoryFromPath:(nonnull NSString *)srcPath toPath:(nonnull NSString *)dstPath {
+    NSParameterAssert(srcPath);
+    NSParameterAssert(dstPath);
+    // Check if old path is equal to new path
+    if ([srcPath isEqualToString:dstPath]) {
+        return;
+    }
+    BOOL isDirectory;
+    // Check if old path is directory
+    if (![self.fileManager fileExistsAtPath:srcPath isDirectory:&isDirectory] || !isDirectory) {
+        return;
+    }
+    // Check if new path is directory
+    if (![self.fileManager fileExistsAtPath:dstPath isDirectory:&isDirectory] || !isDirectory) {
+        if (!isDirectory) {
+            // New path is not directory, remove file
+            [self.fileManager removeItemAtPath:dstPath error:nil];
+        }
+        // New directory does not exist, rename directory
+        [self.fileManager moveItemAtPath:srcPath toPath:dstPath error:nil];
+    } else {
+        // New directory exist, merge the files
+        NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtPath:srcPath];
+        NSString *file;
+        while ((file = [dirEnumerator nextObject])) {
+            // Don't handle error, just try to move.
+            [self.fileManager moveItemAtPath:[srcPath stringByAppendingPathComponent:file] toPath:[dstPath stringByAppendingPathComponent:file] error:nil];
+        }
+        // Remove the old path
+        [self.fileManager removeItemAtPath:srcPath error:nil];
+    }
+}
+
 #pragma mark - Hash
 
 static inline NSString * _Nullable SDDiskCacheFileNameForKey(NSString * _Nullable key) {

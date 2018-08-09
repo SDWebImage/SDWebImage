@@ -37,9 +37,11 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
-@property (assign, nonatomic, readwrite) NSUInteger expectedSize;
+@property (assign, nonatomic) NSUInteger expectedSize; // may be 0
+@property (assign, nonatomic) NSUInteger receivedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 @property (strong, nonatomic, nullable) NSError *responseError;
+@property (assign, nonatomic) double previousProgress; // previous progress percent
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -336,17 +338,37 @@ didReceiveResponse:(NSURLResponse *)response
         self.imageData = [[NSMutableData alloc] initWithCapacity:self.expectedSize];
     }
     [self.imageData appendData:data];
+    
+    self.receivedSize = self.imageData.length;
+    if (self.expectedSize == 0) {
+        // Unknown expectedSize, immediately call progressBlock and return
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+        }
+        return;
+    }
+    
+    // Get the finish status
+    BOOL finished = (self.receivedSize >= self.expectedSize);
+    // Get the current progress
+    double currentProgress = (double)self.receivedSize / (double)self.expectedSize;
+    double previousProgress = self.previousProgress;
+    // Check if we need callback progress
+    if (currentProgress - previousProgress < self.minimumProgressInterval) {
+        return;
+    }
+    self.previousProgress = currentProgress;
 
-    if ((self.options & SDWebImageDownloaderProgressiveLoad) && self.expectedSize > 0) {
+    if (self.options & SDWebImageDownloaderProgressiveLoad) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
-        // Get the total bytes downloaded
-        const NSUInteger totalSize = imageData.length;
-        // Get the finish status
-        BOOL finished = (totalSize >= self.expectedSize);
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
+            // If all the data has already been downloaded, earily return to avoid further decoding
+            if (self.receivedSize >= self.expectedSize) {
+                return;
+            }
             UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
@@ -355,9 +377,9 @@ didReceiveResponse:(NSURLResponse *)response
             }
         });
     }
-
+    
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.imageData.length, self.expectedSize, self.request.URL);
+        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
     }
 }
 

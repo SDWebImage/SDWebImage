@@ -12,6 +12,7 @@
 
 typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
+typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;
 
 #pragma mark - Coder Options
 // These options are for image decoding
@@ -37,6 +38,14 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeFirstFrame
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressionQuality;
+
+/**
+ A SDWebImageContext object which hold the original context options from top-level API. (SDWebImageContext)
+ This option is ignored for all built-in coders and take no effect.
+ But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data inforamtion only.
+ See `SDWebImageContext` for more detailed information.
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
 
 #pragma mark - Coder
 /**
@@ -72,11 +81,15 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressio
 
 /**
  Returns YES if this coder can encode some image. Otherwise, it should be passed to another coder.
+ For custom coder which introduce new image format, you'd better define a new `SDImageFormat` using like this. If you're creating public coder plugin for new image format, also update `https://github.com/rs/SDWebImage/wiki/Coder-Plugin-List` to avoid same value been defined twice.
+ * @code
+ static const SDImageFormat SDImageFormatHEIF = 10;
+ * @endcode
  
  @param format The image format
  @return YES if this coder can encode the image, NO otherwise
  */
-- (BOOL)canEncodeToFormat:(SDImageFormat)format;
+- (BOOL)canEncodeToFormat:(SDImageFormat)format NS_SWIFT_NAME(canEncode(to:));
 
 /**
  Encode the image to image data.

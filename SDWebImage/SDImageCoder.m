@@ -13,3 +13,5 @@ SDImageCoderOption const SDImageCoderDecodeScaleFactor = @"decodeScaleFactor";
 
 SDImageCoderOption const SDImageCoderEncodeFirstFrameOnly = @"encodeFirstFrameOnly";
 SDImageCoderOption const SDImageCoderEncodeCompressionQuality = @"encodeCompressionQuality";
+
+SDImageCoderOption const SDImageCoderWebImageContext = @"webImageContext";

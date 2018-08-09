@@ -1,3 +1,16 @@
+## [5.0.0-beta2 - Customizable SDWebImage, on Jul 31st, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta2)
+See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
+
+#### Features
+- Add `SDImageCoderWebImageContext` coder option, which allow custom coder plugin, to receive the context option from top-level API #2405
+- Updated all existing diagrams for 5.0 release + added new ones (small detailed diagrams for the most important components) #2407
+
+#### Fixes
+- Fix nullable key for `sd_imageLoadOperationForKey` #2389
+- Replace `__bridge_transfer` with `__bridge` when convert from `CFStringRef` to `NSString` #2392
+- Rename `sd_UTTypeFromSDImageFormat` to `sd_UTTypeFromImageFormat` #2395
+- Change `SDImageFormat` to use `NS_TYPED_EXTENSIBLE_ENUM` instead of fixed enum, to allow custom coder plugins to extend it #2400
+
 ## [4.4.2 - 4.4 patch, on July 18th, 2018](https://github.com/rs/SDWebImage/releases/tag/4.4.2)
 See [all tickets marked for the 4.4.2 release](https://github.com/rs/SDWebImage/milestone/27)
 
