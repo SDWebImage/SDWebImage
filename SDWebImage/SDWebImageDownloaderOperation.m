@@ -337,9 +337,7 @@ didReceiveResponse:(NSURLResponse *)response
     self.receivedSize = self.imageData.length;
     if (self.expectedSize == 0) {
         // Unknown expectedSize, immediately call progressBlock and return
-        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
-        }
+        [self callProgressBlocks];
         return;
     }
     
@@ -349,7 +347,8 @@ didReceiveResponse:(NSURLResponse *)response
     double currentProgress = (double)self.receivedSize / (double)self.expectedSize;
     double previousProgress = self.previousProgress;
     // Check if we need callback progress
-    if (currentProgress - previousProgress < self.minimumProgressInterval) {
+    if ((currentProgress - previousProgress) < self.minimumProgressInterval || finished) {
+        [self callProgressBlocks];
         return;
     }
     self.previousProgress = currentProgress;
@@ -360,10 +359,6 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            // If all the data has already been downloaded, earily return to avoid further decoding
-            if (self.receivedSize >= self.expectedSize) {
-                return;
-            }
             UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
@@ -373,9 +368,7 @@ didReceiveResponse:(NSURLResponse *)response
         });
     }
     
-    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
-    }
+    [self callProgressBlocks];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -510,6 +503,12 @@ didReceiveResponse:(NSURLResponse *)response
             completedBlock(image, imageData, error, finished);
         }
     });
+}
+
+- (void)callProgressBlocks {
+    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+    }
 }
 
 @end

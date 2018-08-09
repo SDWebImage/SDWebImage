@@ -82,7 +82,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  * @note This value may enhance the performance if you don't want progress callback too frequently.
  * Defaults to 0, which means each time we receive the new data from URLSession, we callback the progressBlock immediately.
  */
-@property (assign, nonatomic) NSTimeInterval minimumProgressInterval;
+@property (assign, nonatomic) double minimumProgressInterval;
 
 /**
  * The options for the receiver.
