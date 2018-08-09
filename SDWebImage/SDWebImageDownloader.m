@@ -23,6 +23,10 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
 @property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+- (nonnull instancetype)initWithDownloadOperation:(nullable NSOperation<SDWebImageDownloaderOperation> *)downloadOperation;
+
 @end
 
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
@@ -199,8 +203,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
-    SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
-    token.downloadOperation = operation;
+    SDWebImageDownloadToken *token = [[SDWebImageDownloadToken alloc] initWithDownloadOperation:operation];
     token.url = url;
     token.request = operation.request;
     token.downloadOperationCancelToken = downloadOperationCancelToken;
@@ -432,10 +435,11 @@ didReceiveResponse:(NSURLResponse *)response
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
 }
 
-- (instancetype)init {
+- (instancetype)initWithDownloadOperation:(NSOperation<SDWebImageDownloaderOperation> *)downloadOperation {
     self = [super init];
     if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:nil];
+        _downloadOperation = downloadOperation;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
     }
     return self;
 }
