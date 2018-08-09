@@ -23,6 +23,10 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @property (nonatomic, weak, nullable) SDWebImageDownloader *downloader;
 @property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+- (nonnull instancetype)initWithDownloadOperation:(nullable NSOperation<SDWebImageDownloaderOperation> *)downloadOperation NS_DESIGNATED_INITIALIZER;
+
 @end
 
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
@@ -429,10 +433,6 @@ didReceiveResponse:(NSURLResponse *)response
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
-}
-
-- (instancetype)init {
-    return [self initWithDownloadOperation:nil];
 }
 
 - (instancetype)initWithDownloadOperation:(NSOperation<SDWebImageDownloaderOperation> *)downloadOperation {

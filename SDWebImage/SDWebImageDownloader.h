@@ -91,8 +91,6 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
 typedef SDImageLoaderProgressBlock SDWebImageDownloaderProgressBlock;
 typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
-@protocol SDWebImageDownloaderOperation;
-
 /**
  *  A token associated with each download. Can be used to cancel a download
  */
@@ -117,11 +115,6 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
  The download's response.
  */
 @property (nonatomic, strong, nullable, readonly) NSURLResponse *response;
-
-/**
- Init download token with downloadOperation.
- */
-- (nonnull instancetype)initWithDownloadOperation:(nullable NSOperation<SDWebImageDownloaderOperation> *)downloadOperation;
 
 @end
 
