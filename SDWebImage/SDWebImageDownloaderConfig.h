@@ -42,13 +42,13 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 @property (nonatomic, assign) NSTimeInterval downloadTimeout;
 
 /**
- * The minimum interval about progress percent during network downloading. Which means the next progress callback and current progress callback's progress percent difference should be larger or equal to this value.
+ * The minimum interval about progress percent during network downloading. Which means the next progress callback and current progress callback's progress percent difference should be larger or equal to this value. However, the final finish download progress callback does not get effected.
  * The value should be 0.0-1.0.
  * @note If you're using progressive decoding feature, this will also effect the image refresh rate.
  * @note This value may enhance the performance if you don't want progress callback too frequently.
  * Defaults to 0, which means each time we receive the new data from URLSession, we callback the progressBlock immediately.
  */
-@property (nonatomic, assign) NSTimeInterval minimumProgressInterval;
+@property (nonatomic, assign) double minimumProgressInterval;
 
 /**
  * The custom session configuration in use by NSURLSession. If you don't provide one, we will use `defaultSessionConfiguration` instead.
