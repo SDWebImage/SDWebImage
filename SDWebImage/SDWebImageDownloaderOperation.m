@@ -348,8 +348,9 @@ didReceiveResponse:(NSURLResponse *)response
     // Get the current progress
     double currentProgress = (double)self.receivedSize / (double)self.expectedSize;
     double previousProgress = self.previousProgress;
+    double progressInterval = currentProgress - previousProgress;
     // Check if we need callback progress
-    if (currentProgress - previousProgress < self.minimumProgressInterval) {
+    if (!finished && (progressInterval < self.minimumProgressInterval)) {
         return;
     }
     self.previousProgress = currentProgress;
@@ -360,10 +361,6 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            // If all the data has already been downloaded, earily return to avoid further decoding
-            if (self.receivedSize >= self.expectedSize) {
-                return;
-            }
             UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.

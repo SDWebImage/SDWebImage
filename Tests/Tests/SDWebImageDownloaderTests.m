@@ -262,7 +262,7 @@
 - (void)test17ThatMinimumProgressIntervalWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Minimum progress interval"];
     SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
-    config.minimumProgressInterval = 0.51; // This will make the progress only callback once
+    config.minimumProgressInterval = 0.51; // This will make the progress only callback twice (once is 51%, another is 100%)
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
     NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"];
     __block NSUInteger allProgressCount = 0; // All progress (including operation start / first HTTP response, etc)
@@ -275,7 +275,7 @@
         }
         validProgressCount++;
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        if (allProgressCount > 1 && validProgressCount == 1) {
+        if (allProgressCount > 2 && validProgressCount == 2) {
             [expectation fulfill];
         } else {
             XCTFail(@"Progress callback more than once");
