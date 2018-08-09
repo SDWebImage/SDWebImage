@@ -199,8 +199,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
-    SDWebImageDownloadToken *token = [SDWebImageDownloadToken new];
-    token.downloadOperation = operation;
+    SDWebImageDownloadToken *token = [[SDWebImageDownloadToken alloc] initWithDownloadOperation:operation];
     token.url = url;
     token.request = operation.request;
     token.downloadOperationCancelToken = downloadOperationCancelToken;
@@ -429,20 +428,25 @@ didReceiveResponse:(NSURLResponse *)response
 @implementation SDWebImageDownloadToken
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:_downloadOperation];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:nil];
 }
 
-- (void)setDownloadOperation:(NSOperation<SDWebImageDownloaderOperation> *)downloadOperation {
-    if (downloadOperation != _downloadOperation) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:SDWebImageDownloadReceiveResponseNotification object:_downloadOperation];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
+- (instancetype)init {
+    return [self initWithDownloadOperation:nil];
+}
+
+- (instancetype)initWithDownloadOperation:(NSOperation<SDWebImageDownloaderOperation> *)downloadOperation {
+    self = [super init];
+    if (self) {
         _downloadOperation = downloadOperation;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
     }
+    return self;
 }
 
 - (void)downloadReceiveResponse:(NSNotification *)notification {
     NSOperation<SDWebImageDownloaderOperation> *downloadOperation = notification.object;
-    if (downloadOperation) {
+    if (downloadOperation && downloadOperation == self.downloadOperation) {
         self.response = downloadOperation.response;
     }
 }
