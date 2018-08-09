@@ -337,7 +337,9 @@ didReceiveResponse:(NSURLResponse *)response
     self.receivedSize = self.imageData.length;
     if (self.expectedSize == 0) {
         // Unknown expectedSize, immediately call progressBlock and return
-        [self callProgressBlocks];
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+        }
         return;
     }
     
@@ -348,7 +350,9 @@ didReceiveResponse:(NSURLResponse *)response
     double previousProgress = self.previousProgress;
     // Check if we need callback progress
     if ((currentProgress - previousProgress) < self.minimumProgressInterval || finished) {
-        [self callProgressBlocks];
+        for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+        }
         return;
     }
     self.previousProgress = currentProgress;
@@ -368,7 +372,9 @@ didReceiveResponse:(NSURLResponse *)response
         });
     }
     
-    [self callProgressBlocks];
+    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
+        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -503,12 +509,6 @@ didReceiveResponse:(NSURLResponse *)response
             completedBlock(image, imageData, error, finished);
         }
     });
-}
-
-- (void)callProgressBlocks {
-    for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
-    }
 }
 
 @end
