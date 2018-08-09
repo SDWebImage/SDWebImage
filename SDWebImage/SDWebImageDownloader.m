@@ -25,7 +25,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
 + (nonnull instancetype)new  NS_UNAVAILABLE;
-- (nonnull instancetype)initWithDownloadOperation:(nullable NSOperation<SDWebImageDownloaderOperation> *)downloadOperation NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithDownloadOperation:(nullable NSOperation<SDWebImageDownloaderOperation> *)downloadOperation;
 
 @end
 
