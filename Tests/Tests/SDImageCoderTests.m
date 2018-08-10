@@ -83,6 +83,7 @@
     NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
     [self verifyCoder:[SDImageWebPCoder sharedCoder]
     withLocalImageURL:staticWebPURL
+     supportsEncoding:YES
       isAnimatedImage:NO];
 }
 
@@ -90,6 +91,7 @@
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
     [self verifyCoder:[SDImageWebPCoder sharedCoder]
     withLocalImageURL:animatedWebPURL
+     supportsEncoding:YES
       isAnimatedImage:YES];
 }
 
@@ -97,18 +99,41 @@
     NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
     [self verifyCoder:[SDImageAPNGCoder sharedCoder]
     withLocalImageURL:animatedWebPURL
+     supportsEncoding:YES
       isAnimatedImage:YES];
 }
 
-- (void)test20ThatOurGIFCoderWorks {
+- (void)test12ThatGIFCoderWorks {
     NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
     [self verifyCoder:[SDImageGIFCoder sharedCoder]
     withLocalImageURL:gifURL
+     supportsEncoding:YES
       isAnimatedImage:YES];
+}
+
+- (void)test13ThatHEICWorks {
+    if (@available(iOS 11, macOS 10.13, *)) {
+        NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heic"];
+        [self verifyCoder:[SDImageIOCoder sharedCoder]
+        withLocalImageURL:heicURL
+         supportsEncoding:YES
+          isAnimatedImage:NO];
+    }
+}
+
+- (void)test14ThatHEIFWorks {
+    if (@available(iOS 11, macOS 10.13, *)) {
+        NSURL *heifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heif"];
+        [self verifyCoder:[SDImageIOCoder sharedCoder]
+        withLocalImageURL:heifURL
+         supportsEncoding:NO
+          isAnimatedImage:NO];
+    }
 }
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
   withLocalImageURL:(NSURL *)imageUrl
+   supportsEncoding:(BOOL)supportsEncoding
     isAnimatedImage:(BOOL)isAnimated {
     NSData *inputImageData = [NSData dataWithContentsOfURL:imageUrl];
     expect(inputImageData).toNot.beNil();
@@ -137,18 +162,20 @@
 #endif
     }
     
-    // 3 - check if we can encode to the original format
-    expect([coder canEncodeToFormat:inputImageFormat]).to.beTruthy();
-    
-    // 4 - encode from UIImage to NSData using the inputImageFormat and check it
-    NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat options:nil];
-    expect(outputImageData).toNot.beNil();
-    UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
-    expect(outputImage.size).to.equal(inputImage.size);
-    expect(outputImage.scale).to.equal(inputImage.scale);
+    if (supportsEncoding) {
+        // 3 - check if we can encode to the original format
+        expect([coder canEncodeToFormat:inputImageFormat]).to.beTruthy();
+        
+        // 4 - encode from UIImage to NSData using the inputImageFormat and check it
+        NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat options:nil];
+        expect(outputImageData).toNot.beNil();
+        UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
+        expect(outputImage.size).to.equal(inputImage.size);
+        expect(outputImage.scale).to.equal(inputImage.scale);
 #if SD_UIKIT
-    expect(outputImage.images.count).to.equal(inputImage.images.count);
+        expect(outputImage.images.count).to.equal(inputImage.images.count);
 #endif
+    }
 }
 
 @end
