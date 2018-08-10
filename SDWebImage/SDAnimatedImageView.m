@@ -621,20 +621,28 @@ static NSUInteger SDDeviceFreeMemory() {
         return;
     }
     if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental) {
-        NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
-        if (currentData) {
-            NSData *previousData;
-            if ([self.image conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                previousData = [((UIImage<SDAnimatedImage> *)self.image) animatedImageData];
-            }
-            // Check whether to use progressive coding
-            if (!previousData) {
-                // If previous data is nil
+        UIImage *previousImage = self.image;
+        if ([previousImage conformsToProtocol:@protocol(SDAnimatedImage)] && previousImage.sd_isIncremental) {
+            NSData *previousData = [((UIImage<SDAnimatedImage> *)previousImage) animatedImageData];
+            NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
+            // Check whether to use progressive rendering or not
+            
+            // Warning: normally the `previousData` is same instance as `currentData` because our `SDAnimatedImage` class share the same `coder` instance internally. But there may be a race condition, that later retrived `currentData` is already been updated and it's not the same instance as `previousData`.
+            // And for protocol extensible design, we should not assume `SDAnimatedImage` protocol implementations always share same instance. So both of two reasons, we need that `rangeOfData` check.
+            if ([currentData isEqualToData:previousData]) {
+                // If current data is the same data (or instance) as previous data
                 self.isProgressive = YES;
-            } else if ([currentData isEqualToData:previousData]) {
-                // If current data is equal to previous data
-                self.isProgressive = YES;
+            } else if (currentData.length > previousData.length) {
+                // If current data is appended by previous data, use `NSDataSearchAnchored`
+                NSRange range = [currentData rangeOfData:previousData options:NSDataSearchAnchored range:NSMakeRange(0, previousData.length)];
+                if (range.location == 0 && range.length == previousData.length) {
+                    // Contains hole previous data and they start with the same beginning
+                    self.isProgressive = YES;
+                }
             }
+        } else {
+            // Previous image is not progressive, so start progressive rendering
+            self.isProgressive = YES;
         }
     }
 }
