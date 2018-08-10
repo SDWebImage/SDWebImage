@@ -192,7 +192,7 @@
     }
 #else
     self.indicatorView.indeterminate = NO;
-    self.indicatorView.doubleValue = 1;
+    self.indicatorView.doubleValue = 100;
     [self.indicatorView stopAnimation:nil];
 #endif
 }
