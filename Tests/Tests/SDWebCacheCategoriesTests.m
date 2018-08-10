@@ -184,7 +184,14 @@
     
     // Attach a window, or CALayer will not submit drawing
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    // Cover each convenience method
     imageView.sd_imageTransition = SDWebImageTransition.fadeTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.flipFromTopTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.flipFromLeftTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.flipFromBottomTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.flipFromRightTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.curlUpTransition;
+    imageView.sd_imageTransition = SDWebImageTransition.curlDownTransition;
     imageView.sd_imageTransition.duration = 1;
     
 #if SD_UIKIT
@@ -219,9 +226,17 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView indicator does not work"];
     
     UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.sd_imageIndicator = SDWebImageActivityIndicator.grayIndicator;
+    // Cover each convience method, finally use progress indicator for test
     imageView.sd_imageIndicator = SDWebImageActivityIndicator.grayLargeIndicator;
-    // Test setter trigger removeFromSuperView
+    imageView.sd_imageIndicator = SDWebImageActivityIndicator.whiteIndicator;
+    imageView.sd_imageIndicator = SDWebImageActivityIndicator.whiteLargeIndicator;
+#if SD_IOS
+    imageView.sd_imageIndicator = SDWebImageProgressIndicator.barIndicator;
+#endif
     imageView.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
+    // Test setter trigger removeFromSuperView
+    expect(imageView.subviews.count).equal(1);
     
     NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
     __weak typeof(imageView) wimageView = imageView;
@@ -236,7 +251,7 @@
                              return;
                          }
                          
-                         // Current progess indicator update is called after progressBlock
+                         // Base on current implementation, since we dispatch the progressBlock to main queue, the indicator's progress state should be synchonized
                          double progress = 0;
                          double imageProgress = (double)receivedSize / (double)expectedSize;
 #if SD_UIKIT
