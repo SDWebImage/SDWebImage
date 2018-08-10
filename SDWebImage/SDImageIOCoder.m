@@ -55,6 +55,9 @@
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
             return [[self class] canDecodeFromHEICFormat];
+        case SDImageFormatHEIF:
+            // Check HEIF decoding compatibility
+            return [[self class] canDecodeFromHEIFFormat];
         default:
             return YES;
     }
@@ -87,6 +90,9 @@
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
             return [[self class] canDecodeFromHEICFormat];
+        case SDImageFormatHEIF:
+            // Check HEIF decoding compatibility
+            return [[self class] canDecodeFromHEIFFormat];
         default:
             return YES;
     }
@@ -183,6 +189,9 @@
         case SDImageFormatHEIC:
             // Check HEIC encoding compatibility
             return [[self class] canEncodeToHEICFormat];
+        case SDImageFormatHEIF:
+            // Check HEIF encoding compatibility
+            return [[self class] canEncodeToHEIFFormat];
         default:
             return YES;
     }
@@ -243,15 +252,24 @@
     static BOOL canDecode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#if TARGET_OS_SIMULATOR || SD_WATCH
-        canDecode = NO;
-#else
-        if (@available(iOS 11.0, tvOS 11.0, macOS 10.13, *)) {
+        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIC];
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
+        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
             canDecode = YES;
-        } else {
-            canDecode = NO;
         }
-#endif
+    });
+    return canDecode;
+}
+
++ (BOOL)canDecodeFromHEIFFormat {
+    static BOOL canDecode = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIF];
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
+        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
+            canDecode = YES;
+        }
     });
     return canDecode;
 }
@@ -270,6 +288,27 @@
             canEncode = NO;
         } else {
             // Can encode to HEIC
+            CFRelease(imageDestination);
+            canEncode = YES;
+        }
+    });
+    return canEncode;
+}
+
++ (BOOL)canEncodeToHEIFFormat {
+    static BOOL canEncode = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableData *imageData = [NSMutableData data];
+        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIF];
+        
+        // Create an image destination.
+        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
+        if (!imageDestination) {
+            // Can't encode to HEIF
+            canEncode = NO;
+        } else {
+            // Can encode to HEIF
             CFRelease(imageDestination);
             canEncode = YES;
         }
