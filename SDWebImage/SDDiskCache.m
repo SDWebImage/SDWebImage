@@ -246,6 +246,11 @@
             // New path is not directory, remove file
             [self.fileManager removeItemAtPath:dstPath error:nil];
         }
+        NSString *dstParentPath = [dstPath stringByDeletingLastPathComponent];
+        // Creates any non-existent parent directories as part of creating the directory in path
+        if (![self.fileManager fileExistsAtPath:dstParentPath]) {
+            [self.fileManager createDirectoryAtPath:dstParentPath withIntermediateDirectories:YES attributes:nil error:NULL];
+        }
         // New directory does not exist, rename directory
         [self.fileManager moveItemAtPath:srcPath toPath:dstPath error:nil];
     } else {
@@ -253,7 +258,6 @@
         NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtPath:srcPath];
         NSString *file;
         while ((file = [dirEnumerator nextObject])) {
-            // Don't handle error, just try to move.
             [self.fileManager moveItemAtPath:[srcPath stringByAppendingPathComponent:file] toPath:[dstPath stringByAppendingPathComponent:file] error:nil];
         }
         // Remove the old path

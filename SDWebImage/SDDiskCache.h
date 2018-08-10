@@ -109,6 +109,7 @@
  If the old location does not exist, does nothing.
  If the new location does not exist, only do a movement of directory.
  If the new location does exist, will move and merge the files from old location.
+ If the new location does exist, but is not a directory, will remove it and do a movement of directory.
 
  @param srcPath old location of cache directory
  @param dstPath new location of cache directory
