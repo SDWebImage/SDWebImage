@@ -50,6 +50,33 @@
                                    }];
     [self waitForExpectationsWithCommonTimeout];
 }
+
+- (void)testUIImageViewSetAnimationImagesWithURLs {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"MKAnnotationView setImageWithURL"];
+    
+    const NSUInteger urlCount = 30;
+    NSString *urlformat = @"https://raw.githubusercontent.com/mikeswanson/JBWatchActivityIndicator/master/Common%%20Images/Normal%%20Size%%20(1.0x)/30/Activity%d%%402x.png";
+    NSMutableArray<NSURL *> *urls = [NSMutableArray arrayWithCapacity:urlCount];
+    for (int i = 1; i <= urlCount; i++) {
+        NSString *url = [NSString stringWithFormat:urlformat, i];
+        [urls addObject:[NSURL URLWithString:url]];
+    }
+    
+    __block NSUInteger counter = 0;
+    UIImageView *imageView = [[UIImageView alloc] init];
+    [imageView sd_setAnimationImagesWithURLs:[urls copy] progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+        counter++;
+        expect(counter).equal(noOfFinishedUrls);
+        expect(noOfTotalUrls).equal(urlCount);
+    } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+        expect(noOfSkippedUrls).equal(0);
+        expect(noOfFinishedUrls).equal(urlCount);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
+}
+
 #endif
 
 - (void)testMKAnnotationViewSetImageWithURL {
