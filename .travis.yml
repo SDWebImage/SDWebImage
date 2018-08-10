@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode9
+osx_image: xcode9.4
 
 env:
   global:
@@ -40,9 +40,9 @@ script:
 
     - echo Build the Demo apps
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 8' | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 6s' | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 8' | xcpretty -c
 
     - echo Clean DerivedData
     - mkdir DerivedData
@@ -50,7 +50,7 @@ script:
 
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6s' -configuration Debug | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8' -configuration Debug | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
