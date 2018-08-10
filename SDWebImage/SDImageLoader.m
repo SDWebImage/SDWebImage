@@ -21,7 +21,7 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     NSCParameterAssert(imageURL);
     
     UIImage *image;
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
     NSString *cacheKey;
     if (cacheKeyFilter) {
         cacheKey = [cacheKeyFilter cacheKeyForURL:imageURL];
@@ -29,20 +29,18 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         cacheKey = imageURL.absoluteString;
     }
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
-    NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
+    NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     if (scale < 1) {
         scale = 1;
     }
     if (!decodeFirstFrame) {
         // check whether we should use `SDAnimatedImage`
-        if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
-            Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
-            if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-                image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
-                if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                    [((id<SDAnimatedImage>)image) preloadAllFrames];
-                }
+        Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
+        if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
+            image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
+            if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
+                [((id<SDAnimatedImage>)image) preloadAllFrames];
             }
         }
     }
@@ -84,7 +82,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     NSCParameterAssert(operation);
     
     UIImage *image;
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
     NSString *cacheKey;
     if (cacheKeyFilter) {
         cacheKey = [cacheKeyFilter cacheKeyForURL:imageURL];
@@ -92,7 +90,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         cacheKey = imageURL.absoluteString;
     }
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
-    NSNumber *scaleValue = [context valueForKey:SDWebImageContextImageScaleFactor];
+    NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     if (scale < 1) {
         scale = 1;
@@ -117,11 +115,9 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     [progressiveCoder updateIncrementalData:imageData finished:finished];
     if (!decodeFirstFrame) {
         // check whether we should use `SDAnimatedImage`
-        if ([context valueForKey:SDWebImageContextAnimatedImageClass]) {
-            Class animatedImageClass = [context valueForKey:SDWebImageContextAnimatedImageClass];
-            if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
-                image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDAnimatedImageCoder>)progressiveCoder scale:scale];
-            }
+        Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
+        if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
+            image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDAnimatedImageCoder>)progressiveCoder scale:scale];
         }
     }
     if (!image) {

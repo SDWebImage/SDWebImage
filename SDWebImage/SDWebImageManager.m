@@ -189,7 +189,7 @@ static id<SDImageLoader> _defaultImageLoader;
     // Check whether we should query cache
     BOOL shouldQueryCache = (options & SDWebImageFromLoaderOnly) == 0;
     if (shouldQueryCache) {
-        id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+        id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
         NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
         __weak SDWebImageCombinedOperation *weakOperation = operation;
         operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
@@ -233,7 +233,7 @@ static id<SDImageLoader> _defaultImageLoader;
             } else {
                 mutableContext = [NSMutableDictionary dictionary];
             }
-            [mutableContext setValue:cachedImage forKey:SDWebImageContextLoaderCachedImage];
+            mutableContext[SDWebImageContextLoaderCachedImage] = cachedImage;
             context = [mutableContext copy];
         }
         
@@ -277,13 +277,13 @@ static id<SDImageLoader> _defaultImageLoader;
                 }
                 
                 SDImageCacheType storeCacheType = SDImageCacheTypeAll;
-                if ([context valueForKey:SDWebImageContextStoreCacheType]) {
-                    storeCacheType = [[context valueForKey:SDWebImageContextStoreCacheType] unsignedIntegerValue];
+                if (context[SDWebImageContextStoreCacheType]) {
+                    storeCacheType = [context[SDWebImageContextStoreCacheType] integerValue];
                 }
-                id<SDWebImageCacheKeyFilter> cacheKeyFilter = [context valueForKey:SDWebImageContextCacheKeyFilter];
+                id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
                 NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
-                id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
-                id<SDWebImageCacheSerializer> cacheSerializer = [context valueForKey:SDWebImageContextCacheKeyFilter];
+                id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+                id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheKeyFilter];
                 if (downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                         UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
@@ -369,17 +369,17 @@ static id<SDImageLoader> _defaultImageLoader;
     SDWebImageMutableContext *mutableContext = [SDWebImageMutableContext dictionary];
     
     // Image Transformer from manager
-    if (![context valueForKey:SDWebImageContextImageTransformer]) {
+    if (!context[SDWebImageContextImageTransformer]) {
         id<SDImageTransformer> transformer = self.transformer;
         [mutableContext setValue:transformer forKey:SDWebImageContextImageTransformer];
     }
     // Cache key filter from manager
-    if (![context valueForKey:SDWebImageContextCacheKeyFilter]) {
+    if (!context[SDWebImageContextCacheKeyFilter]) {
         id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
         [mutableContext setValue:cacheKeyFilter forKey:SDWebImageContextCacheKeyFilter];
     }
     // Cache serializer from manager
-    if (![context valueForKey:SDWebImageContextCacheSerializer]) {
+    if (!context[SDWebImageContextCacheSerializer]) {
         id<SDWebImageCacheSerializer> cacheSerializer = self.cacheSerializer;
         [mutableContext setValue:cacheSerializer forKey:SDWebImageContextCacheSerializer];
     }

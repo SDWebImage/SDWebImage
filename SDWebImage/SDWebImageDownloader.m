@@ -159,11 +159,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         return;
     }
     NSMutableDictionary *mutableHTTPHeaders = [self.HTTPHeaders mutableCopy];
-    if (value) {
-        [mutableHTTPHeaders setObject:value forKey:field];
-    } else {
-        [mutableHTTPHeaders removeObjectForKey:field];
-    }
+    [mutableHTTPHeaders setValue:value forKey:field];
     self.HTTPHeaders = [mutableHTTPHeaders copy];
 }
 
@@ -215,7 +211,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             [sself.URLOperations removeObjectForKey:url];
             UNLOCK(sself.operationsLock);
         };
-        [self.URLOperations setObject:operation forKey:url];
+        self.URLOperations[url] = operation;
         // Add operation to operation queue only after all configuration done according to Apple's doc.
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
@@ -502,10 +498,8 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 - (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
-    UIImage *cachedImage;
-    if ([context valueForKey:SDWebImageContextLoaderCachedImage]) {
-        cachedImage = [context valueForKey:SDWebImageContextLoaderCachedImage];
-    }
+    UIImage *cachedImage = context[SDWebImageContextLoaderCachedImage];
+    
     SDWebImageDownloaderOptions downloaderOptions = 0;
     if (options & SDWebImageLowPriority) downloaderOptions |= SDWebImageDownloaderLowPriority;
     if (options & SDWebImageProgressiveLoad) downloaderOptions |= SDWebImageDownloaderProgressiveLoad;

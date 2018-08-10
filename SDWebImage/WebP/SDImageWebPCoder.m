@@ -112,10 +112,11 @@
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     BOOL hasAnimation = flags & ANIMATION_FLAG;
-    BOOL decodeFirstFrame = [[options valueForKey:SDImageCoderDecodeFirstFrameOnly] boolValue];
+    BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     CGFloat scale = 1;
-    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+    NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+    if (scaleFactor != nil) {
+        scale = [scaleFactor doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -212,8 +213,9 @@
         // Progressive images need transparent, so always use premultiplied BGRA
         _idec = WebPINewRGB(MODE_bgrA, NULL, 0, 0);
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -284,8 +286,9 @@
             return nil;
         }
         CGFloat scale = _scale;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -425,8 +428,8 @@
     NSData *data;
     
     double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    if (options[SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
@@ -633,8 +636,9 @@ static void FreeImageData(void *info, const void *data, size_t size) {
             return nil;
         }
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }

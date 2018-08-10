@@ -371,9 +371,9 @@
         return nil;
     }
     
-    if ([context valueForKey:SDWebImageContextImageTransformer]) {
+    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (transformer) {
         // grab the transformed disk image if transformer provided
-        id<SDImageTransformer> transformer = [context valueForKey:SDWebImageContextImageTransformer];
         NSString *transformerKey = [transformer transformerKey];
         key = SDTransformedKeyForKey(key, transformerKey);
     }

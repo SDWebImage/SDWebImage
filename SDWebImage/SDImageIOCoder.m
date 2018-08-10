@@ -68,8 +68,9 @@
         return nil;
     }
     CGFloat scale = 1;
-    if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-        scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+    NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+    if (scaleFactor != nil) {
+        scale = [scaleFactor doubleValue];
         if (scale < 1) {
             scale = 1;
         }
@@ -103,8 +104,9 @@
     if (self) {
         _imageSource = CGImageSourceCreateIncremental(NULL);
         CGFloat scale = 1;
-        if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-            scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = [scaleFactor doubleValue];
             if (scale < 1) {
                 scale = 1;
             }
@@ -159,8 +161,9 @@
         
         if (partialImageRef) {
             CGFloat scale = _scale;
-            if ([options valueForKey:SDImageCoderDecodeScaleFactor]) {
-                scale = [[options valueForKey:SDImageCoderDecodeScaleFactor] doubleValue];
+            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+            if (scaleFactor != nil) {
+                scale = [scaleFactor doubleValue];
                 if (scale < 1) {
                     scale = 1;
                 }
@@ -227,12 +230,12 @@
 #else
     CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
-    [properties setValue:@(exifOrientation) forKey:(__bridge NSString *)kCGImagePropertyOrientation];
+    properties[(__bridge NSString *)kCGImagePropertyOrientation] = @(exifOrientation);
     double compressionQuality = 1;
-    if ([options valueForKey:SDImageCoderEncodeCompressionQuality]) {
-        compressionQuality = [[options valueForKey:SDImageCoderEncodeCompressionQuality] doubleValue];
+    if (options[SDImageCoderEncodeCompressionQuality]) {
+        compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
-    [properties setValue:@(compressionQuality) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+    properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = @(compressionQuality);
     
     // Add your image to the destination.
     CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
