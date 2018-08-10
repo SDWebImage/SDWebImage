@@ -232,7 +232,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 
 - (void)test34CachePathForSimpleKeyWithExtension {
-    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestJpegURL];
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestJPEGURL];
     expect(cachePath).toNot.beNil();
     expect([cachePath pathExtension]).to.equal(@"jpg");
 }

@@ -53,7 +53,7 @@
 
 - (void)test04ThatASimpleDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Simple download"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
@@ -75,7 +75,7 @@
 
 - (void)test06ThatUsingACustomDownloaderOperationWorks {
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:nil];
-    NSURL *imageURL1 = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL1 = [NSURL URLWithString:kTestJPEGURL];
     NSURL *imageURL2 = [NSURL URLWithString:kTestPNGURL];
     NSURL *imageURL3 = [NSURL URLWithString:kTestGIFURL];
     // we try to set a usual NSOperation as operation class. Should not work
@@ -131,7 +131,7 @@
 
 - (void)test09ThatProgressiveJPEGWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive JPEG download"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestProgressiveJPEGURL];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
@@ -161,7 +161,7 @@
 - (void)test11ThatCancelWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel"];
     
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
                                           XCTFail(@"Should not get here");
@@ -181,7 +181,7 @@
 
 - (void)test12ThatWeCanUseAnotherSessionForEachDownloadOperation {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Owned session"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:imageURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
     request.HTTPShouldUsePipelining = YES;
@@ -207,7 +207,7 @@
 
 - (void)test13ThatDownloadCanContinueWhenTheAppEntersBackground {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Simple download"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderContinueInBackground progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
@@ -287,6 +287,36 @@
     }];
 }
 
+- (void)test18ThatProgressiveGIFWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive GIF download"];
+    NSURL *imageURL = [NSURL URLWithString:kTestGIFURL];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (image && data && !error && finished) {
+            [expectation fulfill];
+        } else if (finished) {
+            XCTFail(@"Something went wrong");
+        } else {
+            // progressive updates
+        }
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test19ThatProgressiveAPNGWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive APNG download"];
+    NSURL *imageURL = [NSURL URLWithString:kTestAPNGPURL];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (image && data && !error && finished) {
+            [expectation fulfill];
+        } else if (finished) {
+            XCTFail(@"Something went wrong");
+        } else {
+            // progressive updates
+        }
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 /**
  *  Per #883 - Fix multiple requests for same image and then canceling one
  *  Old SDWebImage (3.x) could not handle correctly multiple requests for the same image + cancel
@@ -296,7 +326,7 @@
 - (void)test20ThatDownloadingSameURLTwiceAndCancellingFirstWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Correct image downloads"];
     
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     
     SDWebImageDownloadToken *token1 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
@@ -334,7 +364,7 @@
 - (void)test21ThatCancelingDownloadThenRequestingAgainWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Correct image downloads"];
     
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     
     SDWebImageDownloadToken *token1 = [[SDWebImageDownloader sharedDownloader]
                                        downloadImageWithURL:imageURL
@@ -403,7 +433,7 @@
             components.query = @"text=Hello+World";
             mutableRequest.URL = components.URL;
             return mutableRequest;
-        } else if ([request.URL.absoluteString isEqualToString:kTestJpegURL]) {
+        } else if ([request.URL.absoluteString isEqualToString:kTestJPEGURL]) {
             // Test that return nil request will treat as error
             return nil;
         } else {
@@ -415,7 +445,7 @@
     __block BOOL firstCheck = NO;
     __block BOOL secondCheck = NO;
     
-    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJpegURL] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         // Except error
         expect(error).notTo.beNil();
         firstCheck = YES;
@@ -440,7 +470,7 @@
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     [loader loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
@@ -454,7 +484,7 @@
 
 - (void)test31ThatLoadersManagerWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     [[SDImageLoadersManager sharedManager] loadImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {

@@ -20,7 +20,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIImageView setImageWithURL"];
     
     UIImageView *imageView = [[UIImageView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [imageView sd_setImageWithURL:originalImageURL
                         completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                             expect(image).toNot.beNil();
@@ -37,7 +37,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIImageView setHighlightedImageWithURL"];
     
     UIImageView *imageView = [[UIImageView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [imageView sd_setHighlightedImageWithURL:originalImageURL
                                    completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                                        expect(image).toNot.beNil();
@@ -54,7 +54,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"MKAnnotationView setImageWithURL"];
     
     MKAnnotationView *annotationView = [[MKAnnotationView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [annotationView sd_setImageWithURL:originalImageURL
                              completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                                  expect(image).toNot.beNil();
@@ -71,7 +71,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIButton setImageWithURL normalState"];
     
     UIButton *button = [[UIButton alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [button sd_setImageWithURL:originalImageURL
                       forState:UIControlStateNormal
                      completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
@@ -88,7 +88,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIButton setImageWithURL highlightedState"];
     
     UIButton *button = [[UIButton alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [button sd_setImageWithURL:originalImageURL
                       forState:UIControlStateHighlighted
                      completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
@@ -105,7 +105,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIButton setBackgroundImageWithURL normalState"];
     
     UIButton *button = [[UIButton alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [button sd_setBackgroundImageWithURL:originalImageURL
                                 forState:UIControlStateNormal
                                completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
@@ -122,7 +122,7 @@
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
     UIView *view = [[UIView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     
     [self.KVOController observe:view.sd_imageProgress keyPath:NSStringFromSelector(@selector(fractionCompleted)) options:NSKeyValueObservingOptionNew block:^(id  _Nullable observer, id  _Nonnull object, NSDictionary<NSString *,id> * _Nonnull change) {
         NSProgress *progress = object;
@@ -133,7 +133,7 @@
     }];
     
     // Clear the disk cache to force download from network
-    [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
         [view sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             expect(view.sd_imageProgress.fractionCompleted).equal(1.0);
             expect([view.sd_imageProgress.userInfo[NSStringFromSelector(_cmd)] boolValue]).equal(YES);
