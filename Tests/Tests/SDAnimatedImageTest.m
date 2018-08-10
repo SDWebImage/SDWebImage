@@ -102,7 +102,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(imageView.currentFrame).beNil(); // current frame
 }
 
-- (void)test07AnimatedImageViewSetAnimatedImage {
+- (void)test07AnimatedImageViewSetAnimatedImageWEBP {
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAnimatedWebPData]];
     imageView.image = image;
@@ -110,7 +110,23 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(imageView.currentFrame).notTo.beNil(); // current frame
 }
 
-- (void)test08AnimatedImageViewRendering {
+- (void)test08AnimatedImageViewSetAnimatedImageGIF {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
+    imageView.image = image;
+    expect(imageView.image).notTo.beNil();
+    expect(imageView.currentFrame).notTo.beNil(); // current frame
+}
+
+- (void)test09AnimatedImageViewSetAnimatedImageAPNG {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.image = image;
+    expect(imageView.image).notTo.beNil();
+    expect(imageView.currentFrame).notTo.beNil(); // current frame
+}
+
+- (void)test10AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
 #if SD_UIKIT
@@ -152,7 +168,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test09AnimatedImageViewSetProgressiveAnimatedImage {
+- (void)test11AnimatedImageViewSetProgressiveAnimatedImage {
     NSData *gifData = [self testGIFData];
     SDImageGIFCoder *progressiveCoder = [[SDImageGIFCoder alloc] initIncrementalWithOptions:nil];
     // simulate progressive decode, pass partial data
@@ -179,7 +195,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(isProgressive).equal(NO);
 }
 
-- (void)test10AnimatedImageViewCategory {
+- (void)test12AnimatedImageViewCategory {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     NSURL *testURL = [NSURL URLWithString:kTestWebPURL];
@@ -192,7 +208,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test11AnimatedImageViewCategoryProgressive {
+- (void)test13AnimatedImageViewCategoryProgressive {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
@@ -247,6 +263,16 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (NSData *)testAnimatedWebPData {
     return [NSData dataWithContentsOfFile:[self testAnimatedWebPPath]];
+}
+
+- (NSString *)testAPNGPPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestImageAnimated" ofType:@"apng"];
+    return testPath;
+}
+
+- (NSData *)testAPNGPData {
+    return [NSData dataWithContentsOfFile:[self testAPNGPPath]];
 }
 
 - (NSString *)testJPEGPath {
