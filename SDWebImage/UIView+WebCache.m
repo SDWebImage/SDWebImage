@@ -83,9 +83,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             NSProgress *imageProgress = sself.sd_imageProgress;
             imageProgress.totalUnitCount = expectedSize;
             imageProgress.completedUnitCount = receivedSize;
-            if (progressBlock) {
-                progressBlock(receivedSize, expectedSize, targetURL);
-            }
 #if SD_UIKIT || SD_MAC
             if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
                 double progress = imageProgress.fractionCompleted;
@@ -94,6 +91,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 });
             }
 #endif
+            if (progressBlock) {
+                progressBlock(receivedSize, expectedSize, targetURL);
+            }
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
