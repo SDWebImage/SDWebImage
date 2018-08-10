@@ -105,15 +105,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
     LOCK(self.callbacksLock);
-    NSArray<SDCallbacksDictionary *> *callbackBlocks = [self.callbackBlocks copy];
+    NSMutableArray<id> *callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
     UNLOCK(self.callbacksLock);
-    NSMutableArray<id> *callbacks = [NSMutableArray arrayWithCapacity:callbackBlocks.count];
-    for (SDCallbacksDictionary *callbacksDic in callbackBlocks) {
-        id callback = callbacksDic[key];
-        if (callback) {
-            [callbacks addObject:callback];
-        }
-    }
+    // We need to remove [NSNull null] because there might not always be a progress block for each callback
+    [callbacks removeObjectIdenticalTo:[NSNull null]];
     return [callbacks copy]; // strip mutability here
 }
 
