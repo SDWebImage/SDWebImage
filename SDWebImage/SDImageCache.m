@@ -139,7 +139,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
-                          r[11], r[12], r[13], r[14], r[15]];    
+                          r[11], r[12], r[13], r[14], r[15]];
     if (ext.length > 222) {
         unsigned char e[CC_MD5_DIGEST_LENGTH];
         const char *strExtension = key.pathExtension.UTF8String;
@@ -148,15 +148,12 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                             e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10],
                             e[11], e[12], e[13], e[14], e[15]];
     } else {
-        ext = [NSString stringWithFormat:@".%@", key.pathExtension];
+        ext = ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext];
     }
     filename = [filename stringByAppendingString:ext];
 
     return filename;
 }
-
-
-
 
 - (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
