@@ -142,7 +142,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
                           r[11], r[12], r[13], r[14], r[15]];
     if (ext.length > 222) {
         unsigned char e[CC_MD5_DIGEST_LENGTH];
-        const char *strExtension = key.pathExtension.UTF8String;
+        const char *strExtension = ext.UTF8String;
         CC_MD5(strExtension, (CC_LONG)strlen(strExtension), e);
         ext = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                             e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10],
