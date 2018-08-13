@@ -15,7 +15,11 @@
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
-#import "SDWebImageGroup.h"
+
+/**
+ A `SDWebImageGroup` to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (`SDWebImageGroup`)
+ */
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageSDGroupKey;
 
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
@@ -114,7 +118,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                    options:(SDWebImageOptions)options
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    SDWebImageGroup *group = [SDWebImageGroup new];
+    dispatch_group_t group = dispatch_group_create();
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -132,7 +136,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                // FLAnimatedImage framework contains a bug that cause GIF been rotated if previous rendered image orientation is not Up. We have to call `setImage:` with non-nil image to reset the state. See `https://github.com/rs/SDWebImage/issues/2402`
                                strongSelf.image = associatedAnimatedImage.posterImage;
                                strongSelf.animatedImage = associatedAnimatedImage;
-                               [group leave];
                                return;
                            }
                            // Step 2. Check if original compressed image data is "GIF"
@@ -140,10 +143,10 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            if (!isGIF) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
-                               [group leave];
                                return;
                            }
-                           
+                           // Hack, mark we need should use dispatch group notify for completedBlock
+                           objc_setAssociatedObject(group, &SDWebImageInternalSetImageSDGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                                // Step 3. Check if data exist or query disk cache
                                NSData *diskData = imageData;
@@ -165,7 +168,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                        strongSelf.image = image;
                                        strongSelf.animatedImage = nil;
                                    }
-                                   [group leave];
+                                   dispatch_group_leave(group);
                                });
                            });
                        }
