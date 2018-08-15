@@ -24,6 +24,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 FOUNDATION_EXPORT const int64_t SDWebImageProgressUnitCountUnknown; /* 1LL */
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
+typedef void(^SDSetImageWithIsPlaceholderBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, BOOL isPlaceholder);
 
 @interface UIView (WebCache)
 
@@ -93,6 +94,34 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                            options:(SDWebImageOptions)options
                       operationKey:(nullable NSString *)operationKey
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock
+                           context:(nullable NSDictionary<NSString *, id> *)context;
+
+/**
+ * Set the imageView `image` with an `url` and optionally a placeholder image.
+ *
+ * The download is asynchronous and cached.
+ *
+ * @param url            The url for the image.
+ * @param placeholder    The image to be set initially, until the image request finishes.
+ * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param operationKey   A string to be used as the operation key. If nil, will use the class name
+ * @param setImageWithIsPlaceholderBlock  Block used for custom set image code
+ * @param progressBlock  A block called while image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called when operation has been completed. This block has no return value
+ *                       and takes the requested UIImage as first parameter. In case of error the image parameter
+ *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
+ *                       indicating if the image was retrieved from the local cache or from the network.
+ *                       The fourth parameter is the original image url.
+ * @param context        A context with extra information to perform specify changes or processes.
+ */
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+    setImageWithIsPlaceholderBlock:(nullable SDSetImageWithIsPlaceholderBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
                            context:(nullable NSDictionary<NSString *, id> *)context;

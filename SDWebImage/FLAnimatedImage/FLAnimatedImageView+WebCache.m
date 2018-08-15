@@ -124,7 +124,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+      setImageWithIsPlaceholderBlock:^(UIImage *image, NSData *imageData, BOOL isPlaceholder) {
                            __strong typeof(weakSelf)strongSelf = weakSelf;
                            if (!strongSelf) {
                                return;
@@ -138,7 +138,13 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                strongSelf.animatedImage = associatedAnimatedImage;
                                return;
                            }
-                           // Step 2. Check if original compressed image data is "GIF"
+                           // Step 2. Check if image is placeholder image
+                           if (isPlaceholder) {
+                               strongSelf.image = image;
+                               strongSelf.animatedImage = nil;
+                               return;
+                           }
+                           // Step 3. Check if original compressed image data is "GIF"
                            BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
                            if (!isGIF) {
                                strongSelf.image = image;
@@ -148,16 +154,16 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            // Hack, mark we need should use dispatch group notify for completedBlock
                            objc_setAssociatedObject(group, &SDWebImageInternalSetImageSDGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                               // Step 3. Check if data exist or query disk cache
+                               // Step 4. Check if data exist or query disk cache
                                NSData *diskData = imageData;
                                if (!diskData) {
                                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
                                    diskData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
                                }
-                               // Step 4. Create FLAnimatedImage
+                               // Step 5. Create FLAnimatedImage
                                FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, diskData);
                                dispatch_async(dispatch_get_main_queue(), ^{
-                                   // Step 5. Set animatedImage or normal image
+                                   // Step 6. Set animatedImage or normal image
                                    if (animatedImage) {
                                        if (strongSelf.sd_cacheFLAnimatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
