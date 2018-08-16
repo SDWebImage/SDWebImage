@@ -126,7 +126,7 @@ static void * SDCategoriesTestsContext = &SDCategoriesTestsContext;
     XCTestExpectation *expectation = [self expectationWithDescription:@"FLAnimatedImageView setImageWithURL"];
     
     FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://www.interntheory.com/img/loading-small.gif"];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestGIFURL];
     
     [imageView sd_setImageWithURL:originalImageURL
                         completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
