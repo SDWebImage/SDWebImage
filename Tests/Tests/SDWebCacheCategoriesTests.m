@@ -119,6 +119,40 @@
 }
 #endif
 
+- (void)testUIViewInternalSetImageWithURL {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView internalSetImageWithURL"];
+    
+    UIView *view = [[UIView alloc] init];
+#if SD_MAC
+    view.wantsLayer = YES;
+#endif
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    UIImage *placeholder = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    [view sd_internalSetImageWithURL:originalImageURL
+                    placeholderImage:placeholder
+                             options:0
+                             context:nil
+                       setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                           if (!imageData && cacheType == SDImageCacheTypeNone) {
+                               // placeholder
+                               expect(image).to.equal(placeholder);
+                           } else {
+                               // cache or download
+                               expect(image).toNot.beNil();
+                           }
+                           view.layer.contents = (__bridge id _Nullable)(image.CGImage);
+                       }
+                            progress:nil
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                               expect(image).toNot.beNil();
+                               expect(error).to.beNil();
+                               expect(originalImageURL).to.equal(imageURL);
+                               expect((__bridge CGImageRef)view.layer.contents == image.CGImage).to.beTruthy();
+                               [expectation fulfill];
+                           }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
     UIView *view = [[UIView alloc] init];
@@ -141,6 +175,12 @@
         }];
     }];
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (NSString *)testJPEGPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
+    return testPath;
 }
 
 @end
