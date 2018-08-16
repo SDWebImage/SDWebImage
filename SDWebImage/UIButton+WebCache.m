@@ -109,7 +109,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                     placeholderImage:placeholder
                              options:options
                              context:mutableContext
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+                       setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            [weakSelf setImage:image forState:state];
                        }
                             progress:progressBlock
@@ -193,7 +193,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                     placeholderImage:placeholder
                              options:options
                              context:mutableContext
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+                       setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            [weakSelf setBackgroundImage:image forState:state];
                        }
                             progress:progressBlock

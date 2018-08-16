@@ -59,7 +59,7 @@
                     placeholderImage:placeholder
                              options:options
                              context:context
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+                       setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            weakSelf.image = image;
                        }
                             progress:progressBlock

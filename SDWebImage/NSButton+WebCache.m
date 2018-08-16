@@ -126,7 +126,7 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
                     placeholderImage:placeholder
                              options:options
                              context:mutableContext
-                       setImageBlock:^(NSImage * _Nullable image, NSData * _Nullable imageData) {
+                       setImageBlock:^(NSImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            weakSelf.alternateImage = image;
                        }
                             progress:progressBlock
