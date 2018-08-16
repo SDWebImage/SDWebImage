@@ -11,9 +11,9 @@
 #import "SDWebImageTransition.h"
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
+ A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future, please don't rely on this option (dispatch_group_t)
  */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey __deprecated_msg("Key Deprecated. Does nothing. This key should be used only internally");
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
 /**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
  */
@@ -24,7 +24,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 FOUNDATION_EXPORT const int64_t SDWebImageProgressUnitCountUnknown; /* 1LL */
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
-typedef void(^SDSetImageWithIsPlaceholderBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, BOOL isPlaceholder);
+typedef void(^SDSetImageWithCacheTypeBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType);
 
 @interface UIView (WebCache)
 
@@ -121,7 +121,7 @@ typedef void(^SDSetImageWithIsPlaceholderBlock)(UIImage * _Nullable image, NSDat
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
                       operationKey:(nullable NSString *)operationKey
-    setImageWithIsPlaceholderBlock:(nullable SDSetImageWithIsPlaceholderBlock)setImageBlock
+    setImageWithCacheTypeBlock:(nullable SDSetImageWithCacheTypeBlock)setImageBlock
                           progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                          completed:(nullable SDExternalCompletionBlock)completedBlock
                            context:(nullable NSDictionary<NSString *, id> *)context;

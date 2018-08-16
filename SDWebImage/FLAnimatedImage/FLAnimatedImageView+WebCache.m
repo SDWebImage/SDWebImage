@@ -16,11 +16,6 @@
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
 
-/**
- A `SDWebImageGroup` to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (`SDWebImageGroup`)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageSDGroupKey;
-
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
         return nil;
@@ -120,11 +115,21 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     dispatch_group_t group = dispatch_group_create();
     __weak typeof(self)weakSelf = self;
+    NSString *cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+    UIImage *cacheImage = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:cacheKey];
+    BOOL cacheFLAnimatedImage = self.sd_cacheFLAnimatedImage;
+    // Fix user uses `UIImageView` category method to load GIF, and then uses `FLAnimatedImageView` category method to load the same image.
+    // Fix image load from disk, and then `SDImageCache` restore it to memory cache.
+    // It's not 100% safe, race condition would appear if we remove and then store cache when using `UIImageView` category method before `FLAnimatedImageView` category method complete.
+    if (cacheImage && (!cacheFLAnimatedImage || !cacheImage.sd_FLAnimatedImage)) {
+        [[SDImageCache sharedImageCache] removeImageForKey:cacheKey fromDisk:NO withCompletion:nil];
+    }
+
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
-      setImageWithIsPlaceholderBlock:^(UIImage *image, NSData *imageData, BOOL isPlaceholder) {
+          setImageWithCacheTypeBlock:^(UIImage *image, NSData *imageData, SDImageCacheType cacheType) {
                            __strong typeof(weakSelf)strongSelf = weakSelf;
                            if (!strongSelf) {
                                return;
@@ -138,34 +143,55 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                strongSelf.animatedImage = associatedAnimatedImage;
                                return;
                            }
-                           // Step 2. Check if image is placeholder image
-                           if (isPlaceholder) {
-                               strongSelf.image = image;
-                               strongSelf.animatedImage = nil;
+                           // Step 2. Hit memory image or placeholder
+                           if (!imageData) {
+                               // Step 2.1. Hit memory image but not have associatedAnimatedImage, so we try to load data from disk again in last chance
+                               if (image && cacheType == SDImageCacheTypeMemory) {
+                                   // Hack, mark we need should use dispatch group notify for completedBlock
+                                   objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                       NSData *diskData = [[SDImageCache sharedImageCache] diskImageDataForKey:cacheKey];
+                                       // Step 4. Create FLAnimatedImage
+                                       FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, diskData);
+                                       dispatch_async(dispatch_get_main_queue(), ^{
+                                           // Step 5. Set animatedImage or normal image
+                                           if (animatedImage) {
+                                               if (cacheFLAnimatedImage) {
+                                                   image.sd_FLAnimatedImage = animatedImage;
+                                               }
+                                               strongSelf.image = animatedImage.posterImage;
+                                               strongSelf.animatedImage = animatedImage;
+                                           } else {
+                                               strongSelf.image = image;
+                                               strongSelf.animatedImage = nil;
+                                           }
+                                           dispatch_group_leave(group);
+                                       });
+                                   });
+                               }
+                               // Step 2.2. E.x. placeholder
+                               else {
+                                   strongSelf.image = image;
+                                   strongSelf.animatedImage = nil;
+                               }
                                return;
                            }
-                           // Step 3. Check if original compressed image data is "GIF"
-                           BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
+                           // Step 3. ImageData exist and check if image data is "GIF"
+                           BOOL isGIF = [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF;
                            if (!isGIF) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
                                return;
                            }
                            // Hack, mark we need should use dispatch group notify for completedBlock
-                           objc_setAssociatedObject(group, &SDWebImageInternalSetImageSDGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                           objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                               // Step 4. Check if data exist or query disk cache
-                               NSData *diskData = imageData;
-                               if (!diskData) {
-                                   NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
-                                   diskData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
-                               }
-                               // Step 5. Create FLAnimatedImage
-                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, diskData);
+                               // Step 4. Create FLAnimatedImage
+                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, imageData);
                                dispatch_async(dispatch_get_main_queue(), ^{
-                                   // Step 6. Set animatedImage or normal image
+                                   // Step 5. Set animatedImage or normal image
                                    if (animatedImage) {
-                                       if (strongSelf.sd_cacheFLAnimatedImage) {
+                                       if (cacheFLAnimatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
                                        }
                                        strongSelf.image = animatedImage.posterImage;
@@ -180,7 +206,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:@{SDWebImageInternalSetImageSDGroupKey: group}];
+                             context:@{SDWebImageInternalSetImageGroupKey: group}];
 }
 
 @end
