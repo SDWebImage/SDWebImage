@@ -23,7 +23,7 @@
 - (void)test02ThatDownloadInvokesCompletionBlockWithCorrectParamsAsync {
     __block XCTestExpectation *expectation = [self expectationWithDescription:@"Image download completes"];
 
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     
     [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
                                                 options:SDWebImageRefreshCached
@@ -111,14 +111,14 @@
 
 - (void)test08ThatImageTransformerWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     NSString *testImagePath = [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.transformer = transformer;
-    [[SDImageCache sharedImageCache] removeImageForKey:kTestJpegURL withCompletion:^{
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
         [manager loadImageWithURL:imageURL options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             expect(image).equal(transformer.testImage);
             [expectation fulfill];
