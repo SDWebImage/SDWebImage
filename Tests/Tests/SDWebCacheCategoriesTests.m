@@ -126,7 +126,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"NSButton setImageWithURL"];
     
     NSButton *button = [[NSButton alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [button sd_setImageWithURL:originalImageURL
                      completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                          expect(image).toNot.beNil();
@@ -142,7 +142,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"NSButton setAlternateImageWithURL"];
     
     NSButton *button = [[NSButton alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [button sd_setAlternateImageWithURL:originalImageURL
                               completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                                   expect(image).toNot.beNil();
@@ -203,7 +203,7 @@
     
     UIImage *placeholder = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     __weak typeof(imageView) wimageView = imageView;
     [imageView sd_setImageWithURL:originalImageURL
                  placeholderImage:placeholder
@@ -238,7 +238,7 @@
     // Test setter trigger removeFromSuperView
     expect(imageView.subviews.count).equal(1);
     
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJpegURL];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     __weak typeof(imageView) wimageView = imageView;
     [imageView sd_setImageWithURL:originalImageURL
                  placeholderImage:nil options:SDWebImageFromLoaderOnly progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
