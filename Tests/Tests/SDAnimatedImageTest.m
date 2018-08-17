@@ -10,11 +10,6 @@
 #import "SDTestCase.h"
 #import <KVOController/KVOController.h>
 
-#if SD_MAC
-#define UIWindow NSWindow
-#define UIScreen NSScreen
-#endif
-
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
 
 // Internal header
