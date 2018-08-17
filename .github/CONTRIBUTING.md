@@ -1,6 +1,26 @@
 # Contributing to SDWebImage
 
+First of all, we want to thank you for you interest in this project.
+Every contribution matters, this is how we are keeping the project alive. 
+We are all owners, from Olivier who started the project, to the people who use it in their projects and participated in a conversation, improved the documentation, created an example or made any code changes.
+If you want to help, but don't know where to begin, we recommend you start small:
+- it would help a lot if you read: https://opensource.guide/how-to-contribute/
+- read the ongoing discussions to see what the overall status is
+- pitch in the converstations where you feel it's useful. Talk to other people, ask questions if you don't understand something
+- contributing to the documentation or the ongoing converstations is as important as contributing to the code
+
 We want to make contributing to this project as easy and transparent as possible. Here are a few guidelines for making all our lives easier.
+
+## Contribute to ongoing conversations
+
+If you have a valid opinion about something we are talking about, feel free to share it.
+If you also encountered an issue that someone else described, pitch in. Better yet, if you already fixed it in a certain way, share that.
+We focus mostly on the GitHub conversations, but you can also help by going to the [questions tagged with "SDWebImage" on StackOverflow](https://stackoverflow.com/questions/tagged/sdwebimage) and getting involved.
+
+## Improving documentation
+
+A project's documentation is something you can always improve on. Make sure you go through the existing documentation and suggest changes or just create new pieces of documentation.
+Examples are also welcome.
 
 ## Asking questions
 
