@@ -130,10 +130,8 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                              options:options
                         operationKey:nil
           setImageWithCacheTypeBlock:^(UIImage *image, NSData *imageData, SDImageCacheType cacheType) {
-                           __strong typeof(weakSelf)strongSelf = weakSelf;
-                           if (!strongSelf) {
-                               return;
-                           }
+                           __strong typeof(weakSelf) strongSelf = weakSelf;
+                           if (!strongSelf) { return; }
                            // Step 1. Check memory cache (associate object)
                            FLAnimatedImage *associatedAnimatedImage = image.sd_FLAnimatedImage;
                            if (associatedAnimatedImage) {
@@ -147,23 +145,31 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            if (!imageData) {
                                // Step 2.1. Hit memory image but not have associatedAnimatedImage, so we try to load data from disk again in last chance
                                if (image && cacheType == SDImageCacheTypeMemory) {
+                                   __weak typeof(strongSelf) wweakSelf = strongSelf;
                                    // Hack, mark we need should use dispatch group notify for completedBlock
                                    objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                                       // Don't let GCD retain FLAnimatedImageView
+                                       __strong typeof(wweakSelf) sstrongSelf = wweakSelf;
+                                       // Prevent FLAnimatedImageView load wrong image when reuse
+                                       if (!sstrongSelf || ![url isEqual:sstrongSelf.sd_imageURL]) { return; }
+                                       
                                        NSData *diskData = [[SDImageCache sharedImageCache] diskImageDataForKey:cacheKey];
                                        // Step 4. Create FLAnimatedImage
-                                       FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, diskData);
+                                       FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(sstrongSelf, diskData);
                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                           // Prevent FLAnimatedImageView load wrong image when reuse
+                                           if (![url isEqual:sstrongSelf.sd_imageURL]) { return; }
                                            // Step 5. Set animatedImage or normal image
                                            if (animatedImage) {
                                                if (cacheFLAnimatedImage) {
                                                    image.sd_FLAnimatedImage = animatedImage;
                                                }
-                                               strongSelf.image = animatedImage.posterImage;
-                                               strongSelf.animatedImage = animatedImage;
+                                               sstrongSelf.image = animatedImage.posterImage;
+                                               sstrongSelf.animatedImage = animatedImage;
                                            } else {
-                                               strongSelf.image = image;
-                                               strongSelf.animatedImage = nil;
+                                               sstrongSelf.image = image;
+                                               sstrongSelf.animatedImage = nil;
                                            }
                                            dispatch_group_leave(group);
                                        });
@@ -183,22 +189,29 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                strongSelf.animatedImage = nil;
                                return;
                            }
+                           __weak typeof(strongSelf) wweakSelf = strongSelf;
                            // Hack, mark we need should use dispatch group notify for completedBlock
                            objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                               // Don't let GCD retain FLAnimatedImageView
+                               __strong typeof(wweakSelf) sstrongSelf = wweakSelf;
+                               if (!sstrongSelf || ![url isEqual:sstrongSelf.sd_imageURL]) { return; }
+                               
                                // Step 4. Create FLAnimatedImage
                                FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, imageData);
                                dispatch_async(dispatch_get_main_queue(), ^{
+                                   // Prevent FLAnimatedImageView load wrong image when reuse
+                                   if (![url isEqual:sstrongSelf.sd_imageURL]) { return; }
                                    // Step 5. Set animatedImage or normal image
                                    if (animatedImage) {
                                        if (cacheFLAnimatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
                                        }
-                                       strongSelf.image = animatedImage.posterImage;
-                                       strongSelf.animatedImage = animatedImage;
+                                       sstrongSelf.image = animatedImage.posterImage;
+                                       sstrongSelf.animatedImage = animatedImage;
                                    } else {
-                                       strongSelf.image = image;
-                                       strongSelf.animatedImage = nil;
+                                       sstrongSelf.image = image;
+                                       sstrongSelf.animatedImage = nil;
                                    }
                                    dispatch_group_leave(group);
                                });
