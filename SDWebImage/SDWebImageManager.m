@@ -283,7 +283,7 @@ static id<SDImageLoader> _defaultImageLoader;
                 id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
                 NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
                 id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
-                id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheKeyFilter];
+                id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
                 if (downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                         UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];

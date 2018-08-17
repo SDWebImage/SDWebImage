@@ -113,9 +113,8 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
-    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    NSString *testImagePath = [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
-    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.transformer = transformer;
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
@@ -126,6 +125,69 @@
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test09ThatCacheKeyFilterWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Cache key filter work"];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    
+    NSString *cacheKey = @"kTestJPEGURL";
+    SDWebImageCacheKeyFilter *cacheKeyFilter = [SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:^NSString * _Nullable(NSURL * _Nonnull url) {
+        if ([url isEqual:imageURL]) {
+            return cacheKey;
+        } else {
+            return url.absoluteString;
+        }
+    }];
+    
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
+    manager.cacheKeyFilter = cacheKeyFilter;
+    // Check download and retrieve custom cache key
+    [manager loadImageWithURL:imageURL options:0 context:@{SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(cacheType).equal(SDImageCacheTypeNone);
+        
+        // Check memory cache exist
+        [manager.imageCache containsImageForKey:cacheKey cacheType:SDImageCacheTypeMemory completion:^(SDImageCacheType containsCacheType) {
+            expect(containsCacheType).equal(SDImageCacheTypeMemory);
+            
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test10ThatCacheSerializerWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Cache serializer work"];
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    __block NSData *imageData;
+    
+    SDWebImageCacheSerializer *cacheSerializer = [SDWebImageCacheSerializer cacheSerializerWithBlock:^NSData * _Nullable(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL) {
+        imageData = [image sd_imageDataAsFormat:SDImageFormatPNG];
+        return imageData;
+    }];
+    
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
+    manager.cacheSerializer = cacheSerializer;
+    // Check download and store custom disk data
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
+        [manager loadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            // Dispatch to let store disk finish
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
+                NSData *diskImageData = [[SDImageCache sharedImageCache] diskImageDataForKey:kTestJPEGURL];
+                expect(diskImageData).equal(imageData); // disk data equal to serializer data
+                
+                [expectation fulfill];
+            });
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (NSString *)testJPEGPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
 }
 
 @end
