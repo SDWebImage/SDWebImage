@@ -193,8 +193,8 @@
 
 #pragma mark - Animation of multiple images
 
-typedef void(^SDImageBatchProgressBlock)(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls);
-typedef void(^SDImageBatchCompletionBlock)(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls);
+typedef void(^SDImageBatchProgressBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls);
+typedef void(^SDImageBatchCompletionBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls);
 
 /**
  * Download an array of images and starts them in an animation loop

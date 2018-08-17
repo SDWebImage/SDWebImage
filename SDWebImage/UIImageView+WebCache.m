@@ -86,14 +86,11 @@
     
     __block NSUInteger finishedCount = 0;
     __block NSUInteger skippedCount = 0;
+    __weak __typeof(self) wself = self;
     [arrayOfURLs enumerateObjectsUsingBlock:^(NSURL *logoImageURL, NSUInteger idx, BOOL * _Nonnull stop) {
-        __weak __typeof(self) wself = self;
         id <SDWebImageOperation> operation = [[SDWebImageManager sharedManager] loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong typeof(wself) sself = wself;
-            if (!sself) {
-                return;
-            }
-            if (!finished) {
+            if (!sself || !finished) {
                 return;
             }
             dispatch_main_async_safe(^{

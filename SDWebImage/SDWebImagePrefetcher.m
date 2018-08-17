@@ -91,10 +91,7 @@
         __weak typeof(self) wself = self;
         id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             __strong typeof(wself) sself = wself;
-            if (!sself) {
-                return;
-            }
-            if (!finished) {
+            if (!sself || !finished) {
                 return;
             }
             atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);

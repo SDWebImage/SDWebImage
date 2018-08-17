@@ -64,13 +64,13 @@
     
     __block NSUInteger counter = 0;
     UIImageView *imageView = [[UIImageView alloc] init];
-    [imageView sd_setAnimationImagesWithURLs:[urls copy] progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+    [imageView sd_setAnimationImagesWithURLs:[urls copy] progress:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls) {
         counter++;
-        expect(counter).equal(noOfFinishedUrls);
-        expect(noOfTotalUrls).equal(urlCount);
-    } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-        expect(noOfSkippedUrls).equal(0);
-        expect(noOfFinishedUrls).equal(urlCount);
+        expect(counter).equal(numberOfFinishedUrls);
+        expect(numberOfTotalUrls).equal(urlCount);
+    } completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+        expect(numberOfSkippedUrls).equal(0);
+        expect(numberOfFinishedUrls).equal(urlCount);
         [expectation fulfill];
     }];
     

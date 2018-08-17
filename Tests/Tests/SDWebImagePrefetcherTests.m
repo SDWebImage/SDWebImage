@@ -35,15 +35,15 @@
     __block NSUInteger numberOfPrefetched = 0;
     
     [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
-        [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+        [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs progress:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls) {
             numberOfPrefetched += 1;
-            expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
-            expect(noOfFinishedUrls).to.beLessThanOrEqualTo(noOfTotalUrls);
-            expect(noOfTotalUrls).to.equal(imageURLs.count);
-        } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-            expect(numberOfPrefetched).to.equal(noOfFinishedUrls);
-            expect(noOfFinishedUrls).to.equal(imageURLs.count);
-            expect(noOfSkippedUrls).to.equal(0);
+            expect(numberOfPrefetched).to.equal(numberOfFinishedUrls);
+            expect(numberOfFinishedUrls).to.beLessThanOrEqualTo(numberOfTotalUrls);
+            expect(numberOfTotalUrls).to.equal(imageURLs.count);
+        } completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+            expect(numberOfPrefetched).to.equal(numberOfFinishedUrls);
+            expect(numberOfFinishedUrls).to.equal(imageURLs.count);
+            expect(numberOfSkippedUrls).to.equal(0);
             [expectation fulfill];
         }];
     }];
@@ -54,9 +54,9 @@
 - (void)test03PrefetchWithEmptyArrayWillCallTheCompletionWithAllZeros {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetch with empty array"];
     
-    [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:@[] progress:nil completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-        expect(noOfFinishedUrls).to.equal(0);
-        expect(noOfSkippedUrls).to.equal(0);
+    [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:@[] progress:nil completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+        expect(numberOfFinishedUrls).to.equal(0);
+        expect(numberOfSkippedUrls).to.equal(0);
         [expectation fulfill];
     }];
     
@@ -80,10 +80,10 @@
     // Clear the disk cache to make it more realistic for multi-thread environment
     [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
         dispatch_async(queue1, ^{
-            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs1 progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs1 progress:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls) {
                 numberOfPrefetched1 += 1;
-            } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-                expect(numberOfPrefetched1).to.equal(noOfFinishedUrls);
+            } completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+                expect(numberOfPrefetched1).to.equal(numberOfFinishedUrls);
                 prefetchFinished1 = YES;
                 // both completion called
                 if (prefetchFinished1 && prefetchFinished2) {
@@ -92,10 +92,10 @@
             }];
         });
         dispatch_async(queue2, ^{
-            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs2 progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
+            [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:imageURLs2 progress:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls) {
                 numberOfPrefetched2 += 1;
-            } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-                expect(numberOfPrefetched2).to.equal(noOfFinishedUrls);
+            } completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+                expect(numberOfPrefetched2).to.equal(numberOfFinishedUrls);
                 prefetchFinished2 = YES;
                 // both completion called
                 if (prefetchFinished1 && prefetchFinished2) {
@@ -121,12 +121,12 @@
     self.prefetcher.delegate = self;
     // Current implementation, the delegate method called before the progressBlock and completionBlock
     [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
-        [self.prefetcher prefetchURLs:[imageURLs copy] progress:^(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls) {
-            expect(self.finishedCount).to.equal(noOfFinishedUrls);
-            expect(self.totalCount).to.equal(noOfTotalUrls);
-        } completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
-            expect(self.finishedCount).to.equal(noOfFinishedUrls);
-            expect(self.skippedCount).to.equal(noOfSkippedUrls);
+        [self.prefetcher prefetchURLs:[imageURLs copy] progress:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls) {
+            expect(self.finishedCount).to.equal(numberOfFinishedUrls);
+            expect(self.totalCount).to.equal(numberOfTotalUrls);
+        } completed:^(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls) {
+            expect(self.finishedCount).to.equal(numberOfFinishedUrls);
+            expect(self.skippedCount).to.equal(numberOfSkippedUrls);
             [expectation fulfill];
         }];
     }];
