@@ -32,7 +32,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
  @return The cache key to appended after the original cache key. Should not be nil.
  */
-- (nonnull NSString *)transformerKey;
+@property (nonatomic, copy, readonly, nonnull) NSString *transformerKey;
 
 /**
  Transform the image to another image.

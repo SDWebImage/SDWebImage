@@ -85,7 +85,7 @@
  
  @return The total data count.
  */
-- (NSInteger)totalCount;
+- (NSUInteger)totalCount;
 
 /**
  Returns the total size (in bytes) of data in this cache.
@@ -93,7 +93,7 @@
  
  @return The total data size in bytes.
  */
-- (NSInteger)totalSize;
+- (NSUInteger)totalSize;
 
 @end
 

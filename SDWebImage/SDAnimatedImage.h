@@ -43,7 +43,7 @@
 /**
  Returns a Boolean value indicating whether all animated image frames are already pre-loaded into memory.
  */
-- (BOOL)isAllFramesLoaded;
+@property (nonatomic, assign, readonly, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
 @end
 

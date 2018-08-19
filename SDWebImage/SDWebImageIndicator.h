@@ -20,7 +20,7 @@
 
  @return The indicator view
  */
-- (nonnull UIView *)indicatorView;
+@property (nonatomic, strong, readonly, nonnull) UIView *indicatorView;
 /**
  Start the animating for indicator.
  */

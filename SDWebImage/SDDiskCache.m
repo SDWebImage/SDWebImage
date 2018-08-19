@@ -203,7 +203,7 @@
     return [self cachePathForKey:key inPath:self.diskCachePath];
 }
 
-- (NSInteger)totalSize {
+- (NSUInteger)totalSize {
     NSUInteger size = 0;
     NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtPath:self.diskCachePath];
     for (NSString *fileName in fileEnumerator) {
@@ -214,7 +214,7 @@
     return size;
 }
 
-- (NSInteger)totalCount {
+- (NSUInteger)totalCount {
     NSUInteger count = 0;
     NSDirectoryEnumerator *fileEnumerator = [self.fileManager enumeratorAtPath:self.diskCachePath];
     count = fileEnumerator.allObjects.count;
