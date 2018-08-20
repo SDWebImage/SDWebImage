@@ -91,11 +91,11 @@
     [self.fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
 }
 
-- (NSInteger)totalCount {
+- (NSUInteger)totalCount {
     return [self.fileManager contentsOfDirectoryAtPath:self.cachePath error:nil].count;
 }
 
-- (NSInteger)totalSize {
+- (NSUInteger)totalSize {
     NSUInteger size = 0;
     for (NSString *fileName in [self.fileManager enumeratorAtPath:self.cachePath]) {
         NSString *filePath = [self.cachePath stringByAppendingPathComponent:fileName];

@@ -38,15 +38,13 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 
 - (BOOL)cancel:(nullable id)token;
 
-- (nullable NSURLRequest *)request;
-- (nullable NSURLResponse *)response;
+@property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
+@property (strong, nonatomic, readonly, nullable) NSURLResponse *response;
 
 @optional
-- (nullable NSURLSessionTask *)dataTask;
-- (nullable NSURLCredential *)credential;
-- (void)setCredential:(nullable NSURLCredential *)credential;
-- (double)minimumProgressInterval;
-- (void)setMinimumProgressInterval:(double)minimumProgressInterval;
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
+@property (strong, nonatomic, nullable) NSURLCredential *credential;
+@property (assign, nonatomic) double minimumProgressInterval;
 
 @end
 
@@ -61,7 +59,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 /**
  * The response returned by the operation's task.
  */
-@property (strong, nonatomic, nullable, readonly) NSURLResponse *response;
+@property (strong, nonatomic, readonly, nullable) NSURLResponse *response;
 
 /**
  * The operation's task
@@ -73,7 +71,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  *
  * This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
  */
-@property (nonatomic, strong, nullable) NSURLCredential *credential;
+@property (strong, nonatomic, nullable) NSURLCredential *credential;
 
 /**
  * The minimum interval about progress percent during network downloading. Which means the next progress callback and current progress callback's progress percent difference should be larger or equal to this value. However, the final finish download progress callback does not get effected.

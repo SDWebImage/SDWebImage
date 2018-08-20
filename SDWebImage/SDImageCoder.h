@@ -164,7 +164,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
  
  @return The animated image data
  */
-- (nullable NSData *)animatedImageData;
+@property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
 
 /**
  Total animated frame count.
@@ -172,13 +172,13 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
  
  @return Total animated frame count.
  */
-- (NSUInteger)animatedImageFrameCount;
+@property (nonatomic, assign, readonly) NSUInteger animatedImageFrameCount;
 /**
  Animation loop count, 0 means infinite looping.
  
  @return Animation loop count
  */
-- (NSUInteger)animatedImageLoopCount;
+@property (nonatomic, assign, readonly) NSUInteger animatedImageLoopCount;
 /**
  Returns the frame image from a specified index.
  @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's not recommend to store the images into array because it's memory consuming)
