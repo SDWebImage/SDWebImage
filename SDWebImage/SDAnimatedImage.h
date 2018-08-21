@@ -17,8 +17,19 @@
 
 @required
 /**
+ Initializes and returns the image object with the specified data, scale factor and possible animation decoding options.
+ @note We use this to create animated image instance for normal animation decoding.
+ 
+ @param data The data object containing the image data.
+ @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
+ @param options A dictionary containing any animation decoding options.
+ @return An initialized object
+ */
+- (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale options:(nullable SDImageCoderOptions *)options;
+
+/**
  Initializes the image with an animated coder. You can use the coder to decode the image frame later.
- @note Normally we use `initWithData:scale:` to create custom animated image class. However, for progressive image decoding, we will use this with animated coder which conforms to `SDProgressiveImageCoder` as well instead.
+ @note We use this with animated coder which conforms to `SDProgressiveImageCoder` for progressive animation decoding.
  
  @param animatedCoder An animated coder which conform `SDAnimatedImageCoder` protocol
  @param scale The scale factor to assume when interpreting the image data. Applying a scale factor of 1.0 results in an image whose size matches the pixel-based dimensions of the image. Applying a different scale factor changes the size of the image as reported by the `size` property.
@@ -27,6 +38,7 @@
 - (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDAnimatedImageCoder>)animatedCoder scale:(CGFloat)scale;
 
 @optional
+// These methods are used for optional advanced feature, like image frame preloading.
 /**
  Pre-load all animated image frame into memory. Then later frame image request can directly return the frame for index without decoding.
  This method may be called on background thread.
@@ -63,7 +75,6 @@
 - (nullable instancetype)initWithContentsOfFile:(nonnull NSString *)path;
 - (nullable instancetype)initWithData:(nonnull NSData *)data;
 - (nullable instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale;
-- (nullable instancetype)initWithAnimatedCoder:(nonnull id<SDAnimatedImageCoder>)animatedCoder scale:(CGFloat)scale;
 
 /**
  Current animated image format.
