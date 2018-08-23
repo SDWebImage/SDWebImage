@@ -189,22 +189,4 @@
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
-#if SD_UIKIT
-
-#pragma mark - Animation of multiple images
-
-/**
- * Download an array of images and starts them in an animation loop
- *
- * @param arrayOfURLs An array of NSURL
- */
-- (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs;
-
-/**
- * Cancel the current animation images load
- */
-- (void)sd_cancelCurrentAnimationImagesLoad;
-
-#endif
-
 @end
