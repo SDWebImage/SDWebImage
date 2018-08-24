@@ -68,13 +68,14 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 @property (assign, nonatomic) NSDataWritingOptions diskCacheWritingOptions;
 
 /**
- * The maximum length of time to keep an image in the cache, in seconds.
+ * The maximum length of time to keep an image in the disk cache, in seconds.
+ * Setting this to a negative value means no expiring.
  * Defaults to 1 weak.
  */
 @property (assign, nonatomic) NSTimeInterval maxCacheAge;
 
 /**
- * The maximum size of the cache, in bytes.
+ * The maximum size of the disk cache, in bytes.
  * Defaults to 0. Which means there is no cache size limit.
  */
 @property (assign, nonatomic) NSUInteger maxCacheSize;

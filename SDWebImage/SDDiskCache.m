@@ -135,7 +135,7 @@
                                                                   options:NSDirectoryEnumerationSkipsHiddenFiles
                                                              errorHandler:NULL];
     
-    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
+    NSDate *expirationDate = (self.config.maxCacheAge < 0) ? nil: [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
     NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
     NSUInteger currentCacheSize = 0;
     
@@ -155,7 +155,7 @@
         
         // Remove files that are older than the expiration date;
         NSDate *modifiedDate = resourceValues[cacheContentDateKey];
-        if ([[modifiedDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
+        if (expirationDate && [[modifiedDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
             [urlsToDelete addObject:fileURL];
             continue;
         }
