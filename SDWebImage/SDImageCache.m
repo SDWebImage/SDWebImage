@@ -707,10 +707,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             // Target half of our maximum cache size for this cleanup pass.
             const NSUInteger desiredCacheSize = self.config.maxCacheSize / 2;
 
-            // Sort the remaining cache files by their last modification time (oldest first).
+            // Sort the remaining cache files by their last modification time or last access time (oldest first).
             NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
                                                                      usingComparator:^NSComparisonResult(id obj1, id obj2) {
-                                                                         return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];
+                                                                         return [obj1[cacheContentDateKey] compare:obj2[cacheContentDateKey]];
                                                                      }];
 
             // Delete files until we fall below our desired cache size.
