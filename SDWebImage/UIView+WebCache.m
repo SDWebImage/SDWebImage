@@ -53,7 +53,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         dispatch_main_async_safe(^{
-            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:SDImageCacheTypeNone imageURL:url];
         });
     }
     
@@ -151,7 +151,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #if SD_UIKIT || SD_MAC
                 [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:cacheType imageURL:imageURL];
 #endif
                 callCompletedBlockClojure();
             });
@@ -174,13 +174,13 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     [self sd_cancelImageLoadOperationWithKey:NSStringFromClass([self class])];
 }
 
-- (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {
+- (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
 #if SD_UIKIT || SD_MAC
-    [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:0 imageURL:nil];
+    [self sd_setImage:image imageData:imageData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:nil cacheType:cacheType imageURL:imageURL];
 #else
     // watchOS does not support view transition. Simplify the logic
     if (setImageBlock) {
-        setImageBlock(image, imageData);
+        setImageBlock(image, imageData, cacheType, imageURL);
     } else if ([self isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)self;
         [imageView setImage:image];
@@ -196,14 +196,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         finalSetImageBlock = setImageBlock;
     } else if ([view isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)view;
-        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData) {
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
             imageView.image = setImage;
         };
     }
 #if SD_UIKIT
     else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
-        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
             [button setImage:setImage forState:UIControlStateNormal];
         };
     }
@@ -211,7 +211,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #if SD_MAC
     else if ([view isKindOfClass:[NSButton class]]) {
         NSButton *button = (NSButton *)view;
-        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
             button.image = setImage;
         };
     }
@@ -227,7 +227,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         } completion:^(BOOL finished) {
             [UIView transitionWithView:view duration:transition.duration options:transition.animationOptions animations:^{
                 if (finalSetImageBlock && !transition.avoidAutoSetImage) {
-                    finalSetImageBlock(image, imageData);
+                    finalSetImageBlock(image, imageData, cacheType, imageURL);
                 }
                 if (transition.animations) {
                     transition.animations(view, image);
@@ -247,7 +247,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 context.timingFunction = transition.timingFunction;
                 context.allowsImplicitAnimation = (transition.animationOptions & SDWebImageAnimationOptionAllowsImplicitAnimation);
                 if (finalSetImageBlock && !transition.avoidAutoSetImage) {
-                    finalSetImageBlock(image, imageData);
+                    finalSetImageBlock(image, imageData, cacheType, imageURL);
                 }
                 if (transition.animations) {
                     transition.animations(view, image);
@@ -261,7 +261,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #endif
     } else {
         if (finalSetImageBlock) {
-            finalSetImageBlock(image, imageData);
+            finalSetImageBlock(image, imageData, cacheType, imageURL);
         }
     }
 }

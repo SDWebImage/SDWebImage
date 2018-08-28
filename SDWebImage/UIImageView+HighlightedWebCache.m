@@ -58,7 +58,7 @@ static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOpera
                     placeholderImage:nil
                              options:options
                              context:mutableContext
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+                       setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            weakSelf.highlightedImage = image;
                        }
                             progress:progressBlock
