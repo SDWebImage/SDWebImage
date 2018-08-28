@@ -44,14 +44,14 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 
 /*
  * The option to control weak memory cache for images. When enable, `SDImageCache`'s memory cache will use a weak maptable to store the image at the same time when it stored to memory, and get removed at the same time.
- * However when memory warning is triggered, since the weak maptable does not hold a strong reference to image instacnce, even when the memory cache itself is purged, some images which are held strongly by UIImageViews or other live instances can be recovered again, to avoid later re-query from disk cache or network. This may be helpful for the case, for example, when app enter background and memory is purged, cause cell flashing after re-enter foreground.
+ * However when memory warning is triggered, since the weak maptable does not hold a strong reference to image instance, even when the memory cache itself is purged, some images which are held strongly by UIImageViews or other live instances can be recovered again, to avoid later re-query from disk cache or network. This may be helpful for the case, for example, when app enter background and memory is purged, cause cell flashing after re-enter foreground.
  * Defautls to YES. You can change this option dynamically.
  */
 @property (assign, nonatomic) BOOL shouldUseWeakMemoryCache;
 
 /**
  * Whether or not to remove the expired disk data when application entering the background. (Not works for macOS)
- * Defatuls to YES.
+ * Defaults to YES.
  */
 @property (assign, nonatomic) BOOL shouldRemoveExpiredDataWhenEnterBackground;
 
@@ -70,6 +70,7 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 /**
  * The maximum length of time to keep an image in the disk cache, in seconds.
  * Setting this to a negative value means no expiring.
+ * Setting this to zero means that all cached files would be removed when do expiration check.
  * Defaults to 1 weak.
  */
 @property (assign, nonatomic) NSTimeInterval maxCacheAge;
