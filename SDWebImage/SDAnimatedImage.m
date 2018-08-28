@@ -276,6 +276,10 @@ static NSArray *SDBundlePreferredScales() {
 }
 
 - (instancetype)initWithData:(NSData *)data scale:(CGFloat)scale {
+    return [self initWithData:data scale:scale options:nil];
+}
+
+- (instancetype)initWithData:(NSData *)data scale:(CGFloat)scale options:(SDImageCoderOptions *)options {
     if (!data || data.length == 0) {
         return nil;
     }
@@ -284,7 +288,10 @@ static NSArray *SDBundlePreferredScales() {
     for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
         if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
             if ([coder canDecodeFromData:data]) {
-                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:@{SDImageCoderDecodeScaleFactor : @(scale)}];
+                if (!options) {
+                    options = @{SDImageCoderDecodeScaleFactor : @(scale)};
+                }
+                animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:options];
                 break;
             }
         }

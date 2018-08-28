@@ -51,7 +51,6 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
 /**
  This is the image coder protocol to provide custom image decoding/encoding.
  These methods are all required to implement.
- You do not need to specify image scale during decoding because we may scale image later.
  @note Pay attention that these methods are not called from main queue.
  */
 @protocol SDImageCoder <NSObject>
@@ -71,7 +70,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
  @note This protocol may supports decode animated image frames. You can use `+[SDImageCoderHelper animatedImageWithFrames:]` to produce an animated image with frames.
 
  @param data The image data to be decoded
- @param options A dictionary containing any decoding options. Pass @{SDImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
+ @param options A dictionary containing any decoding options. Pass @{SDImageCoderDecodeScaleFactor: @(1.0)} to specify scale factor for image. Pass @{SDImageCoderDecodeFirstFrameOnly: @(YES)} to decode the first frame only.
  @return The decoded image from data
  */
 - (nullable UIImage *)decodedImageWithData:(nullable NSData *)data

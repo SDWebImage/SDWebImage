@@ -34,23 +34,24 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     if (scale < 1) {
         scale = 1;
     }
+    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+    if (context) {
+        SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
+        [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
+        coderOptions = [mutableCoderOptions copy];
+    }
+    
     if (!decodeFirstFrame) {
         // check whether we should use `SDAnimatedImage`
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
+            image = [[animatedImageClass alloc] initWithData:imageData scale:scale options:coderOptions];
             if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
                 [((id<SDAnimatedImage>)image) preloadAllFrames];
             }
         }
     }
     if (!image) {
-        SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
-        if (context) {
-            SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
-            [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
-            coderOptions = [mutableCoderOptions copy];
-        }
         image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:coderOptions];
     }
     if (image) {
@@ -95,13 +96,20 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     if (scale < 1) {
         scale = 1;
     }
+    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+    if (context) {
+        SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
+        [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
+        coderOptions = [mutableCoderOptions copy];
+    }
+    
     id<SDProgressiveImageCoder> progressiveCoder = objc_getAssociatedObject(operation, SDImageLoaderProgressiveCoderKey);
     if (!progressiveCoder) {
         // We need to create a new instance for progressive decoding to avoid conflicts
         for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders.reverseObjectEnumerator) {
             if ([coder conformsToProtocol:@protocol(SDProgressiveImageCoder)] &&
                 [((id<SDProgressiveImageCoder>)coder) canIncrementalDecodeFromData:imageData]) {
-                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:@{SDImageCoderDecodeScaleFactor : @(scale)}];
+                progressiveCoder = [[[coder class] alloc] initIncrementalWithOptions:coderOptions];
                 break;
             }
         }
@@ -121,12 +129,6 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         }
     }
     if (!image) {
-        SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
-        if (context) {
-            SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
-            [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
-            coderOptions = [mutableCoderOptions copy];
-        }
         image = [progressiveCoder incrementalDecodedImageWithOptions:coderOptions];
     }
     if (image) {

@@ -20,23 +20,24 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     if (scale < 1) {
         scale = 1;
     }
+    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
+    if (context) {
+        SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
+        [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
+        coderOptions = [mutableCoderOptions copy];
+    }
+    
     if (!decodeFirstFrame) {
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         // check whether we should use `SDAnimatedImage`
         if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            image = [[animatedImageClass alloc] initWithData:imageData scale:scale];
+            image = [[animatedImageClass alloc] initWithData:imageData scale:scale options:coderOptions];
             if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
                 [((id<SDAnimatedImage>)image) preloadAllFrames];
             }
         }
     }
     if (!image) {
-        SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
-        if (context) {
-            SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
-            [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
-            coderOptions = [mutableCoderOptions copy];
-        }
         image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:coderOptions];
     }
     if (image) {
