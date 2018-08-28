@@ -69,17 +69,34 @@
 #pragma mark - Animation of multiple images
 
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs {
+    return [self sd_setAnimationImagesWithURLs:arrayOfURLs progress:nil completed:nil];
+}
+
+- (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs progress:(nullable SDImageBatchProgressBlock)progressBlock completed:(nullable SDImageBatchCompletionBlock)completedBlock {
     [self sd_cancelCurrentAnimationImagesLoad];
     NSPointerArray *operationsArray = [self sd_animationOperationArray];
     
+    NSUInteger totalCount = arrayOfURLs.count;
+    if (totalCount == 0) {
+        if (completedBlock) {
+            completedBlock(0, 0);
+        }
+        return;
+    }
+    
+    __block NSUInteger finishedCount = 0;
+    __block NSUInteger skippedCount = 0;
+    __weak __typeof(self) wself = self;
     [arrayOfURLs enumerateObjectsUsingBlock:^(NSURL *logoImageURL, NSUInteger idx, BOOL * _Nonnull stop) {
-        __weak __typeof(self) wself = self;
         id <SDWebImageOperation> operation = [[SDWebImageManager sharedManager] loadImageWithURL:logoImageURL options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong typeof(wself) sself = wself;
-            if (!sself) return;
+            if (!sself || !finished) {
+                return;
+            }
             dispatch_main_async_safe(^{
-                [sself stopAnimating];
-                if (sself && image) {
+                finishedCount++;
+                if (image) {
+                    [sself stopAnimating];
                     NSMutableArray<UIImage *> *currentImages = [[sself animationImages] mutableCopy];
                     if (!currentImages) {
                         currentImages = [[NSMutableArray alloc] init];
@@ -97,8 +114,21 @@
 
                     sself.animationImages = currentImages;
                     [sself setNeedsLayout];
+                    [sself startAnimating];
+                } else {
+                    skippedCount++;
                 }
-                [sself startAnimating];
+                // Current operation finished
+                if (progressBlock) {
+                    progressBlock(finishedCount, totalCount);
+                }
+                
+                // All finished
+                if (finishedCount == totalCount) {
+                    if (completedBlock) {
+                        completedBlock(finishedCount, skippedCount);
+                    }
+                }
             });
         }];
         @synchronized (self) {

@@ -193,12 +193,31 @@
 
 #pragma mark - Animation of multiple images
 
+typedef void(^SDImageBatchProgressBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls);
+typedef void(^SDImageBatchCompletionBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls);
+
 /**
  * Download an array of images and starts them in an animation loop
  *
  * @param arrayOfURLs An array of NSURL
  */
 - (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs;
+
+/**
+ * Download an array of images and starts them in an animation loop
+ *
+ * @param arrayOfURLs An array of NSURL
+ * @param progressBlock   block to be called when progress updates;
+ *                        first parameter is the number of completed (successful or not) requests,
+ *                        second parameter is the total number of images originally requested to be fetched
+ * @param completedBlock  block to be called when the current fetching is completed
+ *                        first param is the number of completed (successful or not) requests,
+ *                        second parameter is the number of skipped requests
+ */
+- (void)sd_setAnimationImagesWithURLs:(nonnull NSArray<NSURL *> *)arrayOfURLs
+                             progress:(nullable SDImageBatchProgressBlock)progressBlock
+                            completed:(nullable SDImageBatchCompletionBlock)completedBlock;
+
 
 /**
  * Cancel the current animation images load

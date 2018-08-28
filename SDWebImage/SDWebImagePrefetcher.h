@@ -49,8 +49,8 @@
 
 @end
 
-typedef void(^SDWebImagePrefetcherProgressBlock)(NSUInteger noOfFinishedUrls, NSUInteger noOfTotalUrls);
-typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls);
+typedef void(^SDWebImagePrefetcherProgressBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfTotalUrls);
+typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger numberOfFinishedUrls, NSUInteger numberOfSkippedUrls);
 
 /**
  * Prefetch some URLs in the cache for future use. Images are downloaded in low priority.
