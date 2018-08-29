@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import <SDWebImage/SDWebImage.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 @interface ViewController ()
 
@@ -24,6 +25,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
     
     [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"http://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"]];
     [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"]];

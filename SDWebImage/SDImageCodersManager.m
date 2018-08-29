@@ -10,9 +10,6 @@
 #import "SDImageIOCoder.h"
 #import "SDImageGIFCoder.h"
 #import "SDImageAPNGCoder.h"
-#ifdef SD_WEBP
-#import "SDImageWebPCoder.h"
-#endif
 
 @interface SDImageCodersManager ()
 
@@ -35,9 +32,6 @@
     if (self = [super init]) {
         // initialize with default coders
         NSMutableArray<id<SDImageCoder>> *mutableCoders = [@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]] mutableCopy];
-#ifdef SD_WEBP
-        [mutableCoders addObject:[SDImageWebPCoder sharedCoder]];
-#endif
         _coders = [mutableCoders copy];
         _codersLock = dispatch_semaphore_create(1);
     }

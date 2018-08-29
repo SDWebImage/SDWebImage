@@ -37,8 +37,12 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage tvOS' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage watchOS' -sdk watchsimulator -configuration Debug | xcpretty -c
+    
+    - echo Clean DerivedData
+    - rm -rf ~/Library/Developer/Xcode/DerivedData
 
     - echo Build the Demo apps
+    - pod install --project-directory=Examples
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 8' | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c

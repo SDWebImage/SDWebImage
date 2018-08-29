@@ -112,11 +112,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             }
             headerDictionary[@"User-Agent"] = userAgent;
         }
-#ifdef SD_WEBP
-        headerDictionary[@"Accept"] = @"image/webp,image/*;q=0.8";
-#else
         headerDictionary[@"Accept"] = @"image/*;q=0.8";
-#endif
         _HTTPHeaders = [headerDictionary copy];
         _operationsLock = dispatch_semaphore_create(1);
         NSURLSessionConfiguration *sessionConfiguration = _config.sessionConfiguration;

@@ -79,26 +79,10 @@
 }
 #endif
 
-- (void)test09ThatStaticWebPCoderWorks {
-    NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
-    [self verifyCoder:[SDImageWebPCoder sharedCoder]
-    withLocalImageURL:staticWebPURL
-     supportsEncoding:YES
-      isAnimatedImage:NO];
-}
-
-- (void)test10ThatAnimatedWebPCoderWorks {
-    NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
-    [self verifyCoder:[SDImageWebPCoder sharedCoder]
-    withLocalImageURL:animatedWebPURL
-     supportsEncoding:YES
-      isAnimatedImage:YES];
-}
-
 - (void)test11ThatAPNGPCoderWorks {
-    NSURL *animatedWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
+    NSURL *APNGURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
     [self verifyCoder:[SDImageAPNGCoder sharedCoder]
-    withLocalImageURL:animatedWebPURL
+    withLocalImageURL:APNGURL
      supportsEncoding:YES
       isAnimatedImage:YES];
 }

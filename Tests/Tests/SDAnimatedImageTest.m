@@ -29,7 +29,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)tearDown {
     [[SDImageCache sharedImageCache] removeImageForKey:kTestGIFURL fromDisk:YES withCompletion:nil];
-    [[SDImageCache sharedImageCache] removeImageForKey:kTestWebPURL fromDisk:YES withCompletion:nil];
 }
 
 - (void)test01AnimatedImageInitWithData {
@@ -95,14 +94,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
     expect(imageView.currentFrame).beNil(); // current frame
-}
-
-- (void)test07AnimatedImageViewSetAnimatedImageWEBP {
-    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAnimatedWebPData]];
-    imageView.image = image;
-    expect(imageView.image).notTo.beNil();
-    expect(imageView.currentFrame).notTo.beNil(); // current frame
 }
 
 - (void)test08AnimatedImageViewSetAnimatedImageGIF {
@@ -210,7 +201,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 - (void)test22AnimatedImageViewCategory {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    NSURL *testURL = [NSURL URLWithString:kTestWebPURL];
+    NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
     [imageView sd_setImageWithURL:testURL completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
@@ -266,16 +257,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 - (NSData *)testGIFData {
     NSData *testData = [NSData dataWithContentsOfFile:[self testGIFPath]];
     return testData;
-}
-
-- (NSString *)testAnimatedWebPPath {
-    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    NSString *testPath = [testBundle pathForResource:@"TestImageAnimated" ofType:@"webp"];
-    return testPath;
-}
-
-- (NSData *)testAnimatedWebPData {
-    return [NSData dataWithContentsOfFile:[self testAnimatedWebPPath]];
 }
 
 - (NSString *)testAPNGPPath {

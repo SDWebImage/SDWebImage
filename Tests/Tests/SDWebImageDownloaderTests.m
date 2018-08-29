@@ -231,34 +231,6 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test15ThatWEBPWorks {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"WEBP"];
-    NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test2.webp"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        if (image && data && !error && finished) {
-            [expectation fulfill];
-        } else {
-            XCTFail(@"Something went wrong");
-        }
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-
-- (void)test16ThatProgressiveWebPWorks {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive WebP download"];
-    NSURL *imageURL = [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        if (image && data && !error && finished) {
-            [expectation fulfill];
-        } else if (finished) {
-            XCTFail(@"Something went wrong");
-        } else {
-            // progressive updates
-        }
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-
 - (void)test17ThatMinimumProgressIntervalWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Minimum progress interval"];
     SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;

@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/*.{h,m}', 'WebImage/SDWebImage.h'
-    core.exclude_files = 'SDWebImage/MapKit/*.{h,m}', 'SDWebImage/WebP/*.{h,m}'
+    core.exclude_files = 'SDWebImage/MapKit/*.{h,m}'
   end
 
   s.subspec 'MapKit' do |mk|
@@ -39,19 +39,5 @@ Pod::Spec.new do |s|
     mk.source_files = 'SDWebImage/MapKit/*.{h,m}'
     mk.framework = 'MapKit'
     mk.dependency 'SDWebImage/Core'
-  end
-
-  s.subspec 'WebP' do |webp|
-    webp.source_files = 'SDWebImage/WebP/*.{h,m}'
-    webp.xcconfig = { 
-      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
-    }
-    webp.watchos.xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_WEBP=1 WEBP_USE_INTRINSICS=1',
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/libwebp/src'
-    }
-    webp.dependency 'SDWebImage/Core'
-    webp.dependency 'libwebp', '~> 0.5'
   end
 end

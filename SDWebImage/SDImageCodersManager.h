@@ -17,10 +17,10 @@
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `GIFCoder`, `APNGCoder` and `WebPCoder` (When WebP subspec is available).
- - calling `coders` will return `@[WebPCoder, IOCoder]`
+ - by default we internally set coders = `IOCoder`, `GIFCoder`
+ - calling `coders` will return `@[IOCoder, GIFCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
- - calling `coders` now returns `@[MyCrazyCoder, WebPCoder, IOCoder]`
+ - calling `coders` now returns `@[MyCrazyCoder, IOCoder, GIFCoder]`
  
  Coders
  ------
