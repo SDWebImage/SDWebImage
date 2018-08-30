@@ -626,6 +626,10 @@ static NSUInteger SDDeviceFreeMemory() {
             NSData *previousData = [((UIImage<SDAnimatedImage> *)previousImage) animatedImageData];
             NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
             // Check whether to use progressive rendering or not
+            if (!previousData || !currentData) {
+                // Early return
+                return;
+            }
             
             // Warning: normally the `previousData` is same instance as `currentData` because our `SDAnimatedImage` class share the same `coder` instance internally. But there may be a race condition, that later retrived `currentData` is already been updated and it's not the same instance as `previousData`.
             // And for protocol extensible design, we should not assume `SDAnimatedImage` protocol implementations always share same instance. So both of two reasons, we need that `rangeOfData` check.
