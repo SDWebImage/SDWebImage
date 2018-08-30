@@ -1,3 +1,28 @@
+## [5.0.0-beta3 - Customizable SDWebImage, on Aug 30th, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta3)
+See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
+
+#### Features
+- Minimum progress interval config for `SDWebImageDownloader` #2415 #2437 1d8454d
+- Feature disk cache migration from 4.x #2417 #2433
+- Add `SDImageFormatHEIF` represent `mif1` && `msf1` brands #2423 (imported from 4.4.3)
+- Add default `HTTP User-Agent` for specific system #2409 (imported from 4.4.3)
+- Replace `valueForKey` with `objectForKey` when access NSDictionary #2399
+- Improved unit tests #2438 #2434
+- Enhanced contributing guide #2416
+- Adopt all the protocol APIs which contains getter value to use property instead, to make the API easy to use or Swift user #2452
+- Remove `sd_setAnimationImagesWithURLs` API, because its cause ambiguity, behave not consistently and have rare use case #2459
+- Improved `SDAnimatedImage` protocol with `initWithData:scale:options:` #2453
+- Extra args for `SDSetImageBlock` (added `cacheType` and `imageURL`) #2449
+
+#### Fixes
+- Fix that using `NS_TYPED_ENUM` on `SDImageFormat` cause the existing Swift API (`sd_UTTypeFromImageFormat`) naming changed #2413
+- Fix that downloader options about image decoding is not correctly set #2414
+- Make download receive response notification only dispatch to specific observer #2426
+- Fix a race condition during progressive animation load in `SDAnimatedImageView` #2435
+- Fix the bug that `SDWebImageContextCacheKeyFilter` wrongly be used as cache serializer and cause crash #2451
+- Fix resource key invalid when clean cached disk file #2462
+- Add no expiration file support of disk cache #2461
+
 ## [5.0.0-beta2 - Customizable SDWebImage, on Jul 31st, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta2)
 See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
 
