@@ -689,8 +689,10 @@ static NSUInteger SDDeviceFreeMemory() {
     
     // Update the current frame
     UIImage *currentFrame;
+    UIImage *fetchFrame;
     LOCKBLOCK({
         currentFrame = self.frameBuffer[@(currentFrameIndex)];
+        fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
     });
     BOOL bufferFull = NO;
     if (currentFrame) {
@@ -743,11 +745,6 @@ static NSUInteger SDDeviceFreeMemory() {
         // Or, most cases, the decode speed is faster than render speed, we fetch next frame
         fetchFrameIndex = nextFrameIndex;
     }
-    
-    UIImage *fetchFrame;
-    LOCKBLOCK({
-        fetchFrame = self.frameBuffer[@(fetchFrameIndex)];
-    });
     
     if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
