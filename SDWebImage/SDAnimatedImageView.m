@@ -639,7 +639,7 @@ static NSUInteger SDDeviceFreeMemory() {
             } else if (currentData.length > previousData.length) {
                 // If current data is appended by previous data, use `NSDataSearchAnchored`
                 NSRange range = [currentData rangeOfData:previousData options:NSDataSearchAnchored range:NSMakeRange(0, previousData.length)];
-                if (range.location == 0 && range.length == previousData.length) {
+                if (range.location == 0) {
                     // Contains hole previous data and they start with the same beginning
                     self.isProgressive = YES;
                 }
@@ -743,13 +743,19 @@ static NSUInteger SDDeviceFreeMemory() {
         // Or, most cases, the decode speed is faster than render speed, we fetch next frame
         fetchFrameIndex = nextFrameIndex;
     }
-    if (!bufferFull && self.fetchQueue.operationCount == 0) {
+    
+    UIImage *fetchFrame;
+    LOCKBLOCK({
+        fetchFrame = self.frameBuffer[@(fetchFrameIndex)];
+    });
+    
+    if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-            UIImage *fetchFrame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
+            UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
             LOCKBLOCK({
-                self.frameBuffer[@(fetchFrameIndex)] = fetchFrame;
+                self.frameBuffer[@(fetchFrameIndex)] = frame;
             });
         }];
         [self.fetchQueue addOperation:operation];
