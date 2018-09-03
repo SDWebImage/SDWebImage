@@ -637,9 +637,9 @@ static NSUInteger SDDeviceFreeMemory() {
                 // If current data is the same data (or instance) as previous data
                 self.isProgressive = YES;
             } else if (currentData.length > previousData.length) {
-                // If current data is appended by previous data, use `NSDataSearchAnchored`
+                // If current data is appended by previous data, use `NSDataSearchAnchored`, search is limited to start of currentData
                 NSRange range = [currentData rangeOfData:previousData options:NSDataSearchAnchored range:NSMakeRange(0, previousData.length)];
-                if (range.location == 0) {
+                if (range.location != NSNotFound) {
                     // Contains hole previous data and they start with the same beginning
                     self.isProgressive = YES;
                 }
