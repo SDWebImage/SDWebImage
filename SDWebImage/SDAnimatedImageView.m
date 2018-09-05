@@ -637,9 +637,9 @@ static NSUInteger SDDeviceFreeMemory() {
                 // If current data is the same data (or instance) as previous data
                 self.isProgressive = YES;
             } else if (currentData.length > previousData.length) {
-                // If current data is appended by previous data, use `NSDataSearchAnchored`
+                // If current data is appended by previous data, use `NSDataSearchAnchored`, search is limited to start of currentData
                 NSRange range = [currentData rangeOfData:previousData options:NSDataSearchAnchored range:NSMakeRange(0, previousData.length)];
-                if (range.location == 0 && range.length == previousData.length) {
+                if (range.location != NSNotFound) {
                     // Contains hole previous data and they start with the same beginning
                     self.isProgressive = YES;
                 }
@@ -689,8 +689,10 @@ static NSUInteger SDDeviceFreeMemory() {
     
     // Update the current frame
     UIImage *currentFrame;
+    UIImage *fetchFrame;
     LOCKBLOCK({
         currentFrame = self.frameBuffer[@(currentFrameIndex)];
+        fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
     });
     BOOL bufferFull = NO;
     if (currentFrame) {
@@ -743,13 +745,14 @@ static NSUInteger SDDeviceFreeMemory() {
         // Or, most cases, the decode speed is faster than render speed, we fetch next frame
         fetchFrameIndex = nextFrameIndex;
     }
-    if (!bufferFull && self.fetchQueue.operationCount == 0) {
+    
+    if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-            UIImage *fetchFrame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
+            UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
             LOCKBLOCK({
-                self.frameBuffer[@(fetchFrameIndex)] = fetchFrame;
+                self.frameBuffer[@(fetchFrameIndex)] = frame;
             });
         }];
         [self.fetchQueue addOperation:operation];
