@@ -326,8 +326,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     }
     self = [super init];
     if (self) {
-        // use Image/IO cache because it's already keep a balance between CPU & memory
-        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)@{(__bridge NSString *)kCGImageSourceShouldCache : @(YES)});
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
         if (!imageSource) {
             return nil;
         }
