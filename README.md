@@ -163,10 +163,13 @@ pod 'SDWebImage/MapKit'
 
 To install with carthage, follow the instruction on [Carthage](https://github.com/Carthage/Carthage)
 
-#### Cartfile
-```
-github "rs/SDWebImage"
-```
+Carthage users can point to this repository and use whichever generated framework they'd like: SDWebImage, SDWebImageMapKit or both.
+
+Make the following entry in your Cartfile: `github "rs/SDWebImage"`
+Then run `carthage update`
+If this is your first time using Carthage in the project, you'll need to go through some additional steps as explained [over at Carthage](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
+
+> NOTE: At this time, Carthage does not provide a way to build only specific repository subcomponents (or equivalent of CocoaPods's subspecs). All components and their dependencies will be built with the above command. However, you don't need to copy frameworks you aren't using into your project. For instance, if you aren't using `SDWebImageMapKit`, feel free to delete that framework from the Carthage Build directory after `carthage update` completes.
 
 ### Installation by cloning the repository
 - see [Manual install](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/ManualInstallation.md)
