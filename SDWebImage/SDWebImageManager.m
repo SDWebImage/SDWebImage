@@ -282,29 +282,33 @@ static id<SDImageLoader> _defaultImageLoader;
                 id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
                 if (downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                        UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
-                        if (transformedImage && finished) {
-                            NSString *transformerKey = [transformer transformerKey];
-                            NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
-                            BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                            NSData *cacheData;
-                            // pass nil if the image was transformed, so we can recalculate the data from the image
-                            if (cacheSerializer) {
-                                cacheData = [cacheSerializer cacheDataWithImage:transformedImage  originalData:(imageWasTransformed ? nil : downloadedData) imageURL:url];
-                            } else {
-                                cacheData = (imageWasTransformed ? nil : downloadedData);
+                        @autoreleasepool {
+                            UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
+                            if (transformedImage && finished) {
+                                NSString *transformerKey = [transformer transformerKey];
+                                NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
+                                BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                                NSData *cacheData;
+                                // pass nil if the image was transformed, so we can recalculate the data from the image
+                                if (cacheSerializer) {
+                                    cacheData = [cacheSerializer cacheDataWithImage:transformedImage  originalData:(imageWasTransformed ? nil : downloadedData) imageURL:url];
+                                } else {
+                                    cacheData = (imageWasTransformed ? nil : downloadedData);
+                                }
+                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
                             }
-                            [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
+                            
+                            [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         }
-                        
-                        [self callCompletionBlockForOperation:strongOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                     });
                 } else {
                     if (downloadedImage && finished) {
                         if (cacheSerializer) {
                             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                NSData *cacheData = [cacheSerializer cacheDataWithImage:downloadedImage originalData:downloadedData imageURL:url];
-                                [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key cacheType:storeCacheType completion:nil];
+                                @autoreleasepool {
+                                    NSData *cacheData = [cacheSerializer cacheDataWithImage:downloadedImage originalData:downloadedData imageURL:url];
+                                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key cacheType:storeCacheType completion:nil];
+                                }
                             });
                         } else {
                             [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key cacheType:storeCacheType completion:nil];
