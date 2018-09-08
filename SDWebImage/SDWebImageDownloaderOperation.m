@@ -359,15 +359,13 @@ didReceiveResponse:(NSURLResponse *)response
         // Get the image data
         NSData *imageData = [self.imageData copy];
         
-        // progressive decode the image in coder queue
-        dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
-            if (image) {
-                // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
-                
-                [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
-            }
-        });
+        // Progressive decode may be really frequently, do in the delegate queue instead of coder queue, avoid block full pixel decoding process.
+        UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+        if (image) {
+            // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
+            
+            [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
+        }
     }
     
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
