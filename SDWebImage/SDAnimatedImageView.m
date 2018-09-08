@@ -238,10 +238,8 @@ static NSUInteger SDDeviceFreeMemory() {
     self.animatedImageScale = 1;
     [_fetchQueue cancelAllOperations];
     _fetchQueue = nil;
-    LOCKBLOCK({
-        [_frameBuffer removeAllObjects];
-        _frameBuffer = nil;
-    });
+    [_frameBuffer removeAllObjects];
+    _frameBuffer = nil;
 }
 
 - (void)resetProgressiveImage
@@ -299,9 +297,7 @@ static NSUInteger SDDeviceFreeMemory() {
         self.animatedImageScale = image.scale;
         if (!self.isProgressive) {
             self.currentFrame = image;
-            LOCKBLOCK({
-                self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
-            });
+            self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
         }
         
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
@@ -418,17 +414,16 @@ static NSUInteger SDDeviceFreeMemory() {
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
     [_fetchQueue cancelAllOperations];
+    
+    // Keep frame which should render in buffer
+    NSNumber *currentFrameIndex = @(self.currentFrameIndex);
+    NSMutableDictionary<NSNumber *,UIImage *> *frameBuffer = self.frameBuffer;
+    self.frameBuffer = nil;
+    self.frameBuffer[currentFrameIndex] = frameBuffer[currentFrameIndex];
+    
     [_fetchQueue addOperationWithBlock:^{
-        NSNumber *currentFrameIndex = @(self.currentFrameIndex);
-        LOCKBLOCK({
-            NSArray *keys = self.frameBuffer.allKeys;
-            // only keep the next frame for later rendering
-            for (NSNumber * key in keys) {
-                if (![key isEqualToNumber:currentFrameIndex]) {
-                    [self.frameBuffer removeObjectForKey:key];
-                }
-            }
-        });
+        // Release frame on secondly queue
+        [frameBuffer removeAllObjects];
     }];
 }
 
@@ -690,22 +685,20 @@ static NSUInteger SDDeviceFreeMemory() {
     // Update the current frame
     UIImage *currentFrame;
     UIImage *fetchFrame;
-    LOCKBLOCK({
-        currentFrame = self.frameBuffer[@(currentFrameIndex)];
-        fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
-    });
+    
+    currentFrame = self.frameBuffer[@(currentFrameIndex)];
+    fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
+    
     BOOL bufferFull = NO;
     if (currentFrame) {
-        LOCKBLOCK({
-            // Remove the frame buffer if need
-            if (self.frameBuffer.count > self.maxBufferCount) {
-                self.frameBuffer[@(currentFrameIndex)] = nil;
-            }
-            // Check whether we can stop fetch
-            if (self.frameBuffer.count == totalFrameCount) {
-                bufferFull = YES;
-            }
-        });
+        // Remove the frame buffer if need
+        if (self.frameBuffer.count > self.maxBufferCount) {
+            self.frameBuffer[@(currentFrameIndex)] = nil;
+        }
+        // Check whether we can stop fetch
+        if (self.frameBuffer.count == totalFrameCount) {
+            bufferFull = YES;
+        }
         self.currentFrame = currentFrame;
         self.currentFrameIndex = nextFrameIndex;
         self.bufferMiss = NO;
@@ -720,9 +713,7 @@ static NSUInteger SDDeviceFreeMemory() {
         if (self.isProgressive) {
             // Recovery the current frame index and removed frame buffer (See above)
             self.currentFrameIndex = currentFrameIndex;
-            LOCKBLOCK({
-                self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
-            });
+            self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
             [self stopAnimating];
             return;
         }
@@ -751,7 +742,7 @@ static NSUInteger SDDeviceFreeMemory() {
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
-            LOCKBLOCK({
+            dispatch_async(dispatch_get_main_queue(), ^{
                 self.frameBuffer[@(fetchFrameIndex)] = frame;
             });
         }];
