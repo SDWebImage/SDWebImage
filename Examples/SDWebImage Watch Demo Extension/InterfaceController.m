@@ -8,6 +8,7 @@
 
 #import "InterfaceController.h"
 #import <SDWebImage/SDWebImage.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 
 @interface InterfaceController()
@@ -23,6 +24,7 @@
     [super awakeWithContext:context];
 
     // Configure interface objects here.
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
 }
 
 - (void)willActivate {

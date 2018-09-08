@@ -215,5 +215,5 @@ In SDWebImage 5.0 we did a clean up of the API. We are using many modern Objecti
 - `sd_currentAlternateImageURL()` changed to `sd_currentAlternateImageURL`
 
 ### Full API Diff
-For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/Diff/5.0/apidiff.html)
+For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/API-Diff/5.0/apidiff.html)
 

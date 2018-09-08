@@ -1,3 +1,0 @@
-[submodule "Vendors/libwebp"]
-	path = Vendors/libwebp
-	url = https://github.com/webmproject/libwebp

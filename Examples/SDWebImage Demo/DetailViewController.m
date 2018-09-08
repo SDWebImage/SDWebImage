@@ -17,8 +17,7 @@
 
 @implementation DetailViewController
 
-- (void)configureView
-{
+- (void)configureView {
     if (!self.imageView.sd_imageIndicator) {
         self.imageView.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
     }
@@ -27,15 +26,9 @@
                                options:SDWebImageProgressiveLoad];
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     [self configureView];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
 
 @end

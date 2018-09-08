@@ -11,8 +11,6 @@
 		1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D7AF05F1F329763000083C2 /* SDTestCase.m */; };
 		320630412085A37C006E0FA4 /* SDAnimatedImageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */; };
-		321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259EB1F39E3240096FE0E /* TestImageStatic.webp */; };
-		321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
 		3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
@@ -40,8 +38,6 @@
 		32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
 		32B99EA5203B31360017FD66 /* TestImageLarge.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 43828A441DA67F9900000E62 /* TestImageLarge.jpg */; };
 		32B99EA6203B31360017FD66 /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
-		32B99EA7203B31360017FD66 /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259ED1F39E4110096FE0E /* TestImageAnimated.webp */; };
-		32B99EA8203B31360017FD66 /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 321259EB1F39E3240096FE0E /* TestImageStatic.webp */; };
 		32B99EA9203B34B60017FD66 /* SDImageCoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDImageCoderTests.m */; };
 		32B99EAA203B365F0017FD66 /* SDImageCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D68195475D800390AB0 /* SDImageCacheTests.m */; };
 		32B99EAB203B36620017FD66 /* SDWebImageManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */; };
@@ -72,8 +68,6 @@
 		1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderTests.m; sourceTree = "<group>"; };
 		2D7AF05E1F329763000083C2 /* SDTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDTestCase.h; sourceTree = "<group>"; };
 		2D7AF05F1F329763000083C2 /* SDTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDTestCase.m; sourceTree = "<group>"; };
-		321259EB1F39E3240096FE0E /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
-		321259ED1F39E4110096FE0E /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3226ECB920754F7700FAFACF /* SDWebImageTestDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDownloadOperation.h; sourceTree = "<group>"; };
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
 		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
@@ -159,8 +153,6 @@
 				433BBBB81D7EF8260086B6E9 /* TestImage.png */,
 				327A418B211D660600495442 /* TestImage.heic */,
 				32905E63211D786E00460FCF /* TestImage.heif */,
-				321259ED1F39E4110096FE0E /* TestImageAnimated.webp */,
-				321259EB1F39E3240096FE0E /* TestImageStatic.webp */,
 				327054E1206CEFF3006EA328 /* TestImageAnimated.apng */,
 			);
 			path = Images;
@@ -298,7 +290,7 @@
 		DA248D461954721A00390AB0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0940;
 				TargetAttributes = {
 					32B99E91203B2DF90017FD66 = {
 						CreatedOnToolsVersion = 9.2;
@@ -336,8 +328,6 @@
 				32B99EA2203B31360017FD66 /* MonochromeTestImage.jpg in Resources */,
 				32905E65211D786E00460FCF /* TestImage.heif in Resources */,
 				327A418D211D660600495442 /* TestImage.heic in Resources */,
-				32B99EA8203B31360017FD66 /* TestImageStatic.webp in Resources */,
-				32B99EA7203B31360017FD66 /* TestImageAnimated.webp in Resources */,
 				32B99EA5203B31360017FD66 /* TestImageLarge.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,12 +337,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				327A418C211D660600495442 /* TestImage.heic in Resources */,
-				321259EE1F39E4110096FE0E /* TestImageAnimated.webp in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
-				321259EC1F39E3240096FE0E /* TestImageStatic.webp in Resources */,
 				DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				327054E2206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
@@ -373,14 +361,12 @@
 				"${BUILT_PRODUCTS_DIR}/Expecta-macOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-macOS/KVOController.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-macOS/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp-macOS/libwebp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -433,14 +419,12 @@
 				"${BUILT_PRODUCTS_DIR}/Expecta-iOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-iOS/KVOController.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-iOS/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp-iOS/libwebp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -595,11 +579,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -629,11 +615,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;

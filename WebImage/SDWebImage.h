@@ -80,9 +80,3 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #if __has_include(<SDWebImage/MKAnnotationView+WebCache.h>)
 #import <SDWebImage/MKAnnotationView+WebCache.h>
 #endif
-
-// WebP
-#if __has_include(<SDWebImage/UIImage+WebP.h>)
-#import <SDWebImage/UIImage+WebP.h>
-#import <SDWebImage/SDImageWebPCoder.h>
-#endif

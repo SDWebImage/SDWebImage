@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="SDWebImage_logo.png" title="SDWebImage logo" float=left>
+  <img src="https://raw.githubusercontent.com/rs/SDWebImage/master/SDWebImage_logo.png" title="SDWebImage logo" float=left>
 </p>
 
 
@@ -32,7 +32,31 @@ This library provides an async image downloader with cache support. For convenie
 ## Supported Image Formats
 
 - Image formats supported by UIImage (JPEG, PNG, ...), including GIF
-- WebP format, including animated WebP (use the `WebP` subspec)
+- WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project)
+
+## Additional modules
+
+In order to keep SDWebImage focused and limited to the core features, but also allow extensibility and custom behaviors, during the 5.0 refactoring we focused on modularizing the library.
+As such, we have moved/built new modules to [SDWebImage org](https://github.com/SDWebImage).
+
+#### Coders for additional image formats
+- [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP image format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
+- [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`
+- [SDWebImageAPNGCoder](https://github.com/SDWebImage/SDWebImageAPNGCoder) - coder for APNG format (animated PNG)
+- [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format
+
+#### Loaders
+- [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) - plugin to support loading images from Photos (using `Photos.framework`) 
+
+#### Integration with 3rd party libraries
+- [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) - plugin to support [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) as the engine for animated GIFs
+- [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin) - plugin to integrate [YYImage](https://github.com/ibireme/YYImage) & [YYCache](https://github.com/ibireme/YYCache) for image rendering & caching
+- [SDWebImageProgressiveJPEGDemo](https://github.com/SDWebImage/SDWebImageProgressiveJPEGDemo) - demo project for using `SDWebImage` + [Concorde library](https://github.com/contentful-labs/Concorde) for Progressive JPEG decoding
+
+#### Make our lives easier
+- [libwebp-Xcode](https://github.com/SDWebImage/libwebp-Xcode) - A wrapper for [libwebp](https://chromium.googlesource.com/webm/libwebp) + an Xcode project.
+
+You can use those directly, or create similar components of your own.
 
 ## Requirements
 
@@ -56,8 +80,8 @@ This library provides an async image downloader with cache support. For convenie
 - Read the [Documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Read the [Installation Guide](https://github.com/rs/SDWebImage/wiki/Installation-Guide)
-- Read the [SDWebImage 5.0 Migration Guide](Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
-- Read the [SDWebImage 4.0 Migration Guide](Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
+- Read the [SDWebImage 5.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
+- Read the [SDWebImage 4.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 - Read the [Common Problems](https://github.com/rs/SDWebImage/wiki/Common-Problems) to find the solution for common problems 
 - Go to the [Wiki Page](https://github.com/rs/SDWebImage/wiki) for more information such as [Advanced Usage](https://github.com/rs/SDWebImage/wiki/Advanced-Usage)
 
@@ -70,7 +94,7 @@ This library provides an async image downloader with cache support. For convenie
 - If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/sdwebimage).
 - If you **found a bug**, open an issue.
 - If you **have a feature request**, open an issue.
-- If you **want to contribute**, submit a pull request.
+- If you **want to contribute**, read the [Contributing Guide](https://raw.githubusercontent.com/rs/SDWebImage/master/.github/CONTRIBUTING.md)
 
 ## How To Use
 
@@ -91,7 +115,7 @@ import SDWebImage
 imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
 
-- For details about how to use the library and clear examples, see [The detailed How to use](Docs/HowToUse.md)
+- For details about how to use the library and clear examples, see [The detailed How to use](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/HowToUse.md)
 
 ## Animated Images (GIF) support
 
@@ -126,11 +150,11 @@ use_frameworks!
 
 #### Subspecs
 
-There are 3 subspecs available now: `Core`, `MapKit` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+There are 2 subspecs available now: `Core` and `MapKit` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `MapKit`, you need to specify it). 
 
 Podfile example:
 ```
-pod 'SDWebImage/WebP'
+pod 'SDWebImage/MapKit'
 ```
 
 ### Installation with Carthage (iOS 8+)
@@ -145,7 +169,7 @@ github "rs/SDWebImage"
 ```
 
 ### Installation by cloning the repository
-- see [Manual install](Docs/ManualInstallation.md)
+- see [Manual install](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/ManualInstallation.md)
 
 ### Import headers in your source files
 
@@ -178,26 +202,26 @@ All source code is licensed under the [MIT License](https://raw.github.com/rs/SD
 
 #### High Level Diagram
 <p align="center" >
-    <img src="Docs/Diagrams/SDWebImageHighLevelDiagram.jpeg" title="SDWebImage high level diagram">
+    <img src="https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageHighLevelDiagram.jpeg" title="SDWebImage high level diagram">
 </p>
 
 #### Overall Class Diagram
 <p align="center" >
-    <img src="Docs/Diagrams/SDWebImageClassDiagram.png" title="SDWebImage overall class diagram">
+    <img src="https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageClassDiagram.png" title="SDWebImage overall class diagram">
 </p>
 
 #### Top Level API Diagram
 <p align="center" >
-    <img src="Docs/Diagrams/SDWebImageTopLevelClassDiagram.png" title="SDWebImage top level API diagram">
+    <img src="https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageTopLevelClassDiagram.png" title="SDWebImage top level API diagram">
 </p>
 
 #### Main Sequence Diagram
 <p align="center" >
-    <img src="Docs/Diagrams/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
+    <img src="https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
 </p>
 
 #### More detailed diagrams
-- [Manager API Diagram](Docs/Diagrams/SDWebImageManagerClassDiagram.png)
-- [Coders API Diagram](Docs/Diagrams/SDWebImageCodersClassDiagram.png)
-- [Loader API Diagram](Docs/Diagrams/SDWebImageLoaderClassDiagram.png)
-- [Cache API Diagram](Docs/Diagrams/SDWebImageCacheClassDiagram.png)
+- [Manager API Diagram](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageManagerClassDiagram.png)
+- [Coders API Diagram](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageCodersClassDiagram.png)
+- [Loader API Diagram](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageLoaderClassDiagram.png)
+- [Cache API Diagram](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/Diagrams/SDWebImageCacheClassDiagram.png)

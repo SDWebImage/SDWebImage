@@ -51,16 +51,6 @@
     expect(image).notTo.beNil();
 }
 
-- (void)test04UIImageWebPCategory {
-    // Test invalid image data
-    UIImage *image = [UIImage sd_imageWithWebPData:nil];
-    expect(image).to.beNil();
-    // Test valid image data
-    NSData *data = [NSData dataWithContentsOfFile:[self testWebPPath]];
-    image = [UIImage sd_imageWithWebPData:data];
-    expect(image).notTo.beNil();
-}
-
 #pragma mark - Helper
 
 - (NSString *)testJPEGPath {
@@ -71,11 +61,6 @@
 - (NSString *)testGIFPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"gif"];
-}
-
-- (NSString *)testWebPPath {
-    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    return [testBundle pathForResource:@"TestImageStatic" ofType:@"webp"];
 }
 
 @end

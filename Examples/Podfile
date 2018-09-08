@@ -1,0 +1,25 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+use_frameworks!
+
+project 'SDWebImage Demo'
+workspace '../SDWebImage'
+
+pod 'SDWebImage/Core', :path => '../'
+pod 'SDWebImageWebPCoder', :git => 'https://github.com/SDWebImage/SDWebImageWebPCoder.git', :branch => 'master'
+
+target 'SDWebImage iOS Demo' do
+  platform :ios, '8.0'
+end
+
+target 'SDWebImage OSX Demo' do
+  platform :osx, '10.10'
+end
+
+target 'SDWebImage TV Demo' do
+  platform :tvos, '9.2'
+end
+
+target 'SDWebImage Watch Demo Extension' do
+  platform :watchos, '2.0'
+end

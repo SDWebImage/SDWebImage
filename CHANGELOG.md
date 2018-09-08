@@ -61,7 +61,7 @@ See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/
 
 #### Backwards incompatible changes
 
-See the [5.0 Migration Guide](Docs/SDWebImage-5.0-Migration-guide.md) for a list of comprehensive changes and the way to update your code
+See the [5.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/SDWebImage-5.0-Migration-guide.md) for a list of comprehensive changes and the way to update your code
 
 #### Features
 - Introduce `SDAnimatedImageView`, `SDAnimatedImage` and refactor the way we handle animated images #2140
