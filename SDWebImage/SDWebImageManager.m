@@ -243,28 +243,32 @@
                         // Image refresh hit the NSURLCache cache, do not call the completion block
                     } else if (downloadedImage && (!downloadedImage.images || (options & SDWebImageTransformAnimatedImage)) && [self.delegate respondsToSelector:@selector(imageManager:transformDownloadedImage:withURL:)]) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                            UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
-
-                            if (transformedImage && finished) {
-                                BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
-                                NSData *cacheData;
-                                // pass nil if the image was transformed, so we can recalculate the data from the image
-                                if (self.cacheSerializer) {
-                                    cacheData = self.cacheSerializer(transformedImage, (imageWasTransformed ? nil : downloadedData), url);
-                                } else {
-                                    cacheData = (imageWasTransformed ? nil : downloadedData);
+                            @autoreleasepool {
+                                UIImage *transformedImage = [self.delegate imageManager:self transformDownloadedImage:downloadedImage withURL:url];
+                                
+                                if (transformedImage && finished) {
+                                    BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                                    NSData *cacheData;
+                                    // pass nil if the image was transformed, so we can recalculate the data from the image
+                                    if (self.cacheSerializer) {
+                                        cacheData = self.cacheSerializer(transformedImage, (imageWasTransformed ? nil : downloadedData), url);
+                                    } else {
+                                        cacheData = (imageWasTransformed ? nil : downloadedData);
+                                    }
+                                    [self.imageCache storeImage:transformedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
                                 }
-                                [self.imageCache storeImage:transformedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                
+                                [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                             }
-                            
-                            [self callCompletionBlockForOperation:strongSubOperation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                         });
                     } else {
                         if (downloadedImage && finished) {
                             if (self.cacheSerializer) {
                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                                    NSData *cacheData = self.cacheSerializer(downloadedImage, downloadedData, url);
-                                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                    @autoreleasepool {
+                                        NSData *cacheData = self.cacheSerializer(downloadedImage, downloadedData, url);
+                                        [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key toDisk:cacheOnDisk completion:nil];
+                                    }
                                 });
                             } else {
                                 [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key toDisk:cacheOnDisk completion:nil];

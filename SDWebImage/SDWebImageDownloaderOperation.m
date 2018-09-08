@@ -345,17 +345,19 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
-            if (image) {
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                image = [self scaledImageForKey:key image:image];
-                if (self.shouldDecompressImages) {
-                    image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+            @autoreleasepool {
+                UIImage *image = [self.progressiveCoder incrementallyDecodedImageWithData:imageData finished:finished];
+                if (image) {
+                    NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                    image = [self scaledImageForKey:key image:image];
+                    if (self.shouldDecompressImages) {
+                        image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+                    }
+                    
+                    // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
+                    
+                    [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
                 }
-                
-                // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
-                
-                [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
             }
         });
     }
@@ -416,36 +418,38 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
-                        NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                        image = [self scaledImageForKey:key image:image];
-                        
-                        BOOL shouldDecode = YES;
-                        // Do not force decoding animated GIFs and WebPs
-                        if (image.images) {
-                            shouldDecode = NO;
-                        } else {
-#ifdef SD_WEBP
-                            SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                            if (imageFormat == SDImageFormatWebP) {
+                        @autoreleasepool {
+                            UIImage *image = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:imageData];
+                            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+                            image = [self scaledImageForKey:key image:image];
+                            
+                            BOOL shouldDecode = YES;
+                            // Do not force decoding animated GIFs and WebPs
+                            if (image.images) {
                                 shouldDecode = NO;
-                            }
+                            } else {
+#ifdef SD_WEBP
+                                SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
+                                if (imageFormat == SDImageFormatWebP) {
+                                    shouldDecode = NO;
+                                }
 #endif
-                        }
-                        
-                        if (shouldDecode) {
-                            if (self.shouldDecompressImages) {
-                                BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
-                                image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
                             }
+                            
+                            if (shouldDecode) {
+                                if (self.shouldDecompressImages) {
+                                    BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
+                                    image = [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&imageData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(shouldScaleDown)}];
+                                }
+                            }
+                            CGSize imageSize = image.size;
+                            if (imageSize.width == 0 || imageSize.height == 0) {
+                                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                            } else {
+                                [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                            }
+                            [self done];
                         }
-                        CGSize imageSize = image.size;
-                        if (imageSize.width == 0 || imageSize.height == 0) {
-                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                        } else {
-                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
-                        }
-                        [self done];
                     });
                 }
             } else {
