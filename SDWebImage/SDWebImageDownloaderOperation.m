@@ -361,11 +361,13 @@ didReceiveResponse:(NSURLResponse *)response
         
         // progressive decode the image in coder queue
         dispatch_async(self.coderQueue, ^{
-            UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
-            if (image) {
-                // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
-                
-                [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
+            @autoreleasepool {
+                UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                if (image) {
+                    // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
+                    
+                    [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
+                }
             }
         });
     }
@@ -428,14 +430,16 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue
                     dispatch_async(self.coderQueue, ^{
-                        UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
-                        CGSize imageSize = image.size;
-                        if (imageSize.width == 0 || imageSize.height == 0) {
-                            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
-                        } else {
-                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                        @autoreleasepool {
+                            UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                            CGSize imageSize = image.size;
+                            if (imageSize.width == 0 || imageSize.height == 0) {
+                                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                            } else {
+                                [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                            }
+                            [self done];
                         }
-                        [self done];
                     });
                 }
             } else {
