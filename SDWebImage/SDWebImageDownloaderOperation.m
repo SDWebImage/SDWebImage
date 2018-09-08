@@ -359,15 +359,20 @@ didReceiveResponse:(NSURLResponse *)response
         // Get the image data
         NSData *imageData = [self.imageData copy];
         
-        // progressive decode the image in coder queue
-        dispatch_async(self.coderQueue, ^{
+        // progressive decode the image
+        dispatch_block_t decodingBlock = ^{
             UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
             if (image) {
                 // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                 
                 [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
             }
-        });
+        };
+        if (self.options & SDWebImageDownloaderAvoidConcurrentDecode) {
+            decodingBlock();
+        } else {
+            dispatch_async(self.coderQueue, decodingBlock);
+        }
     }
     
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
@@ -426,8 +431,8 @@ didReceiveResponse:(NSURLResponse *)response
                     [self callCompletionBlocksWithError:self.responseError];
                     [self done];
                 } else {
-                    // decode the image in coder queue
-                    dispatch_async(self.coderQueue, ^{
+                    // decode the image
+                    dispatch_block_t decodingBlock = ^{
                         UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
@@ -436,7 +441,12 @@ didReceiveResponse:(NSURLResponse *)response
                             [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
                         }
                         [self done];
-                    });
+                    };
+                    if (self.options & SDWebImageDownloaderAvoidConcurrentDecode) {
+                        decodingBlock();
+                    } else {
+                        dispatch_async(self.coderQueue, decodingBlock);
+                    }
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];

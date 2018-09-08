@@ -175,7 +175,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
      * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
      */
-    SDWebImagePreloadAllFrames = 1 << 20
+    SDWebImagePreloadAllFrames = 1 << 20,
+    
+    /**
+     * By default, for `SDWebImageDownloader`, we decoding the image in a seperate queue after image data was downloaded. However, this will cause multiple decoding process running concurrently, each decoding need to allocate some memory buffer for bitmap and may cause memory peak or crash for really large images. Using this can disable it and use the URLSession delegate queue and decodig serially.
+     * This options is also useful if you want to do progerssive decoding for large images. Which will reduce too frequently decoding process and reduce CPU && memory usage.
+     */
+    SDWebImageAvoidConcurrentDecode = 1 << 21
 };
 
 
