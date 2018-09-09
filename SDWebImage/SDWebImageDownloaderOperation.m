@@ -53,7 +53,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t callbacksLock; // a lock to keep the access to `callbackBlocks` thread-safe
 
-@property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue; // the queue to do image decoding
+@property (strong, nonatomic, nonnull) NSOperationQueue *decodeQueue; // the queue to do image decoding
+@property (strong, nonatomic, nullable) NSOperation *lastProgressiveDecodeOperation;
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -66,16 +67,20 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @synthesize finished = _finished;
 
 - (nonnull instancetype)init {
-    return [self initWithRequest:nil inSession:nil options:0];
+    return [self initWithRequest:nil inSession:nil options:0 decodeQueue:[NSOperationQueue new]];
 }
 
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
-    return [self initWithRequest:request inSession:session options:options context:nil];
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                      inSession:(NSURLSession *)session
+                        options:(SDWebImageDownloaderOptions)options
+                    decodeQueue:(NSOperationQueue *)decodeQueue {
+    return [self initWithRequest:request inSession:session options:options decodeQueue:decodeQueue context:nil];
 }
 
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(NSOperationQueue *)decodeQueue
                                 context:(nullable SDWebImageContext *)context {
     if ((self = [super init])) {
         _request = [request copy];
@@ -87,7 +92,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _expectedSize = 0;
         _unownedSession = session;
         _callbacksLock = dispatch_semaphore_create(1);
-        _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
+        _decodeQueue = decodeQueue;
     }
     return self;
 }
@@ -360,7 +365,8 @@ didReceiveResponse:(NSURLResponse *)response
         NSData *imageData = [self.imageData copy];
         
         // progressive decode the image in coder queue
-        dispatch_async(self.coderQueue, ^{
+        [self.lastProgressiveDecodeOperation cancel];
+        NSOperation *decodeOperation = [NSBlockOperation blockOperationWithBlock:^{
             @autoreleasepool {
                 UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                 if (image) {
@@ -369,7 +375,9 @@ didReceiveResponse:(NSURLResponse *)response
                     [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
                 }
             }
-        });
+        }];
+        self.lastProgressiveDecodeOperation = decodeOperation;
+        [self.decodeQueue addOperation:decodeOperation];
     }
     
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
@@ -429,7 +437,8 @@ didReceiveResponse:(NSURLResponse *)response
                     [self done];
                 } else {
                     // decode the image in coder queue
-                    dispatch_async(self.coderQueue, ^{
+                    // final decode operation, this one should not be cancelled
+                    [self.decodeQueue addOperationWithBlock:^{
                         @autoreleasepool {
                             UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                             CGSize imageSize = image.size;
@@ -440,7 +449,7 @@ didReceiveResponse:(NSURLResponse *)response
                             }
                             [self done];
                         }
-                    });
+                    }];
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];

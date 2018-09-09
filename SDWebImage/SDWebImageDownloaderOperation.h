@@ -26,11 +26,13 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 @required
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
-                                options:(SDWebImageDownloaderOptions)options;
+                                options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(nonnull NSOperationQueue *)decodeQueue;
 
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(nonnull NSOperationQueue *)decodeQueue
                                 context:(nullable SDWebImageContext *)context;
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
@@ -105,7 +107,8 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
  */
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
-                                options:(SDWebImageDownloaderOptions)options;
+                                options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(nonnull NSOperationQueue *)decodeQueue;
 
 /**
  *  Initializes a `SDWebImageDownloaderOperation` object
@@ -122,6 +125,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadFinishNotification
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(nonnull NSOperationQueue *)decodeQueue
                                 context:(nullable SDWebImageContext *)context NS_DESIGNATED_INITIALIZER;
 
 /**
