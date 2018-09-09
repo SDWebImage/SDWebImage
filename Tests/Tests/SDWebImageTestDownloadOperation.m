@@ -52,11 +52,18 @@
     [self didChangeValueForKey:@"isExecuting"];
 }
 
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
-    return [self initWithRequest:request inSession:session options:options context:nil];
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                      inSession:(NSURLSession *)session
+                        options:(SDWebImageDownloaderOptions)options
+                    decodeQueue:(NSOperationQueue *)decodeQueue {
+    return [self initWithRequest:request inSession:session options:options decodeQueue:decodeQueue context:nil];
 }
 
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options context:(SDWebImageContext *)context {
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                      inSession:(NSURLSession *)session
+                        options:(SDWebImageDownloaderOptions)options
+                    decodeQueue:(NSOperationQueue *)decodeQueue
+                        context:(SDWebImageContext *)context {
     self = [super init];
     if (self) {
         self.request = request;
