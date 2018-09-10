@@ -24,6 +24,7 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     self = [super init];
     if (self) {
         _maxConcurrentDownloads = 6;
+        _maxConcurrentDecodeCount = NSOperationQueueDefaultMaxConcurrentOperationCount;
         _downloadTimeout = 15.0;
         _executionOrder = SDWebImageDownloaderFIFOExecutionOrder;
     }
@@ -35,6 +36,7 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     config.maxConcurrentDownloads = self.maxConcurrentDownloads;
     config.downloadTimeout = self.downloadTimeout;
     config.minimumProgressInterval = self.minimumProgressInterval;
+    config.maxConcurrentDecodeCount = self.maxConcurrentDecodeCount;
     config.sessionConfiguration = [self.sessionConfiguration copyWithZone:zone];
     config.operationClass = self.operationClass;
     config.executionOrder = self.executionOrder;

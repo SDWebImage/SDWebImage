@@ -51,6 +51,12 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
 @property (nonatomic, assign) double minimumProgressInterval;
 
 /**
+ * The maximum number of concurrent decode images.
+ * Defaults to NSOperationQueueDefaultMaxConcurrentOperationCount.
+ */
+@property (nonatomic, assign) NSInteger maxConcurrentDecodeCount;
+
+/**
  * The custom session configuration in use by NSURLSession. If you don't provide one, we will use `defaultSessionConfiguration` instead.
  * Defatuls to nil.
  * @note This property does not support dynamic changes, means it's immutable after the downloader instance initialized.

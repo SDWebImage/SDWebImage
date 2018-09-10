@@ -36,6 +36,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t imageDataLock; // a lock to keep the access to `imageData` thread-safe
 @property (copy, nonatomic, nullable) NSData *cachedData; // for `SDWebImageDownloaderIgnoreCachedResponse`
 @property (assign, nonatomic) NSUInteger expectedSize; // may be 0
 @property (assign, nonatomic) NSUInteger receivedSize;
@@ -53,7 +54,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t callbacksLock; // a lock to keep the access to `callbackBlocks` thread-safe
 
-@property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue; // the queue to do image decoding
+@property (strong, nonatomic, nonnull) NSOperationQueue *decodeQueue; // the queue to do image decoding
+@property (weak, nonatomic, nullable) NSOperation *lastProgressiveDecodeOperation; // the latest progressive decode operation
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -66,16 +68,20 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @synthesize finished = _finished;
 
 - (nonnull instancetype)init {
-    return [self initWithRequest:nil inSession:nil options:0];
+    return [self initWithRequest:nil inSession:nil options:0 decodeQueue:[NSOperationQueue new]];
 }
 
-- (instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(SDWebImageDownloaderOptions)options {
-    return [self initWithRequest:request inSession:session options:options context:nil];
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                      inSession:(NSURLSession *)session
+                        options:(SDWebImageDownloaderOptions)options
+                    decodeQueue:(NSOperationQueue *)decodeQueue {
+    return [self initWithRequest:request inSession:session options:options decodeQueue:decodeQueue context:nil];
 }
 
 - (nonnull instancetype)initWithRequest:(nullable NSURLRequest *)request
                               inSession:(nullable NSURLSession *)session
                                 options:(SDWebImageDownloaderOptions)options
+                            decodeQueue:(NSOperationQueue *)decodeQueue
                                 context:(nullable SDWebImageContext *)context {
     if ((self = [super init])) {
         _request = [request copy];
@@ -87,7 +93,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _expectedSize = 0;
         _unownedSession = session;
         _callbacksLock = dispatch_semaphore_create(1);
-        _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
+        _imageDataLock = dispatch_semaphore_create(1);
+        _decodeQueue = decodeQueue;
     }
     return self;
 }
@@ -332,8 +339,11 @@ didReceiveResponse:(NSURLResponse *)response
     if (!self.imageData) {
         self.imageData = [[NSMutableData alloc] initWithCapacity:self.expectedSize];
     }
+    LOCK(self.imageDataLock);
     [self.imageData appendData:data];
+    UNLOCK(self.imageDataLock);
     
+    // No need to use lock to protext imageData, because delegate run in serial queue
     self.receivedSize = self.imageData.length;
     if (self.expectedSize == 0) {
         // Unknown expectedSize, immediately call progressBlock and return
@@ -356,20 +366,44 @@ didReceiveResponse:(NSURLResponse *)response
     self.previousProgress = currentProgress;
 
     if (self.options & SDWebImageDownloaderProgressiveLoad) {
-        // Get the image data
-        NSData *imageData = [self.imageData copy];
-        
+        NSOperation *dependencyOperation = self.lastProgressiveDecodeOperation;
+        // Try to cancel last progressive decode operation
+        if (dependencyOperation && !dependencyOperation.isExecuting) {
+            NSOperation *previousOfLastProgressiveDecodeOperation = dependencyOperation.dependencies.firstObject;
+            [dependencyOperation cancel];
+            // Maintain a dependency list
+            if (previousOfLastProgressiveDecodeOperation) {
+                [dependencyOperation removeDependency:previousOfLastProgressiveDecodeOperation];
+                dependencyOperation = previousOfLastProgressiveDecodeOperation;
+            }
+        }
         // progressive decode the image in coder queue
-        dispatch_async(self.coderQueue, ^{
+        NSBlockOperation *decodeOperation = [NSBlockOperation new];
+        __weak typeof(NSBlockOperation *) wOperation = decodeOperation;
+        [decodeOperation addExecutionBlock:^{
             @autoreleasepool {
+                // If task is cancelled, just return
+                if (self.cancelled) { return; }
+                
+                // Get current image data
+                LOCK(self.imageDataLock);
+                NSData *imageData = [self.imageData copy];
+                UNLOCK(self.imageDataLock);
                 UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
-                if (image) {
+                // Only image is valid and operation not be cancelled, we can call completion blocks
+                if (image && !wOperation.cancelled) {
                     // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                     
                     [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
                 }
             }
-        });
+        }];
+        // Ensure only one progressive operation run
+        if (dependencyOperation) {
+            [decodeOperation addDependency:dependencyOperation];
+        }
+        self.lastProgressiveDecodeOperation = decodeOperation;
+        [self.decodeQueue addOperation:decodeOperation];
     }
     
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
@@ -417,6 +451,7 @@ didReceiveResponse:(NSURLResponse *)response
         [self done];
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
+            // delegate run on serial queue, no need to use lock to protext imageData
             NSData *imageData = [self.imageData copy];
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
@@ -428,9 +463,14 @@ didReceiveResponse:(NSURLResponse *)response
                     [self callCompletionBlocksWithError:self.responseError];
                     [self done];
                 } else {
-                    // decode the image in coder queue
-                    dispatch_async(self.coderQueue, ^{
+                    // Try to cancel last progressive decode operation
+                    [self.lastProgressiveDecodeOperation cancel];
+                    // progressive decode the image in coder queue
+                    NSOperation *decodeOperation = [NSBlockOperation blockOperationWithBlock:^{
                         @autoreleasepool {
+                            // If task is cancelled, just return
+                            if (self.cancelled) { return; }
+                            
                             UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                             CGSize imageSize = image.size;
                             if (imageSize.width == 0 || imageSize.height == 0) {
@@ -440,7 +480,8 @@ didReceiveResponse:(NSURLResponse *)response
                             }
                             [self done];
                         }
-                    });
+                    }];
+                    [self.decodeQueue addOperation:decodeOperation];
                 }
             } else {
                 [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]];

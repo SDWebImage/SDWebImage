@@ -32,6 +32,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
+@property (strong, nonatomic, nonnull) NSOperationQueue *decodeQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, NSOperation<SDWebImageDownloaderOperation> *> *URLOperations;
 @property (copy, atomic, nullable) NSDictionary<NSString *, NSString *> *HTTPHeaders; // Since modify this value is rare, use immutable object can enhance performance. But should mark as atomic to keep thread-safe
@@ -91,6 +92,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = _config.maxConcurrentDownloads;
         _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
+        _decodeQueue = [NSOperationQueue new];
+        _decodeQueue.maxConcurrentOperationCount = _config.maxConcurrentDecodeCount;
+        _decodeQueue.name = @"com.hackemist.SDWebImageDownloader.decode";
         _URLOperations = [NSMutableDictionary new];
         NSMutableDictionary<NSString *, NSString *> *headerDictionary = [NSMutableDictionary dictionary];
         NSString *userAgent = nil;
@@ -264,7 +268,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     } else {
         operationClass = [SDWebImageDownloaderOperation class];
     }
-    NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options context:context];
+    NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options decodeQueue:self.decodeQueue context:context];
     
     if ([operation respondsToSelector:@selector(setCredential:)]) {
         if (self.config.urlCredential) {
