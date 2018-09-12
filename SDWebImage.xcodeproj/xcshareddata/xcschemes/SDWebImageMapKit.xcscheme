@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-               BuildableName = "SDWebImage.framework"
-               BlueprintName = "SDWebImage tvOS"
+               BlueprintIdentifier = "80B6DF862142B71600BCB334"
+               BuildableName = "SDWebImageMapKit.framework"
+               BlueprintName = "SDWebImageMapKit"
                ReferencedContainer = "container:SDWebImage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-            BuildableName = "SDWebImage.framework"
-            BlueprintName = "SDWebImage tvOS"
+            BlueprintIdentifier = "80B6DF862142B71600BCB334"
+            BuildableName = "SDWebImageMapKit.framework"
+            BlueprintName = "SDWebImageMapKit"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "00733A4B1BC487C000A5A117"
-            BuildableName = "SDWebImage.framework"
-            BlueprintName = "SDWebImage tvOS"
+            BlueprintIdentifier = "80B6DF862142B71600BCB334"
+            BuildableName = "SDWebImageMapKit.framework"
+            BlueprintName = "SDWebImageMapKit"
             ReferencedContainer = "container:SDWebImage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
