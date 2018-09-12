@@ -18,7 +18,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #if SD_MAC
     return image.size.height * image.size.width;
 #elif SD_UIKIT || SD_WATCH
-    return image.size.height * image.size.width * image.scale * image.scale;
+    return image.size.height * image.size.width * image.scale * image.scale * CGImageGetBitsPerPixel(image.CGImage) / 8;
 #endif
 }
 
