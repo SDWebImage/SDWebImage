@@ -184,13 +184,13 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         return nil;
     }
     
-    LOCK(self.operationsLock);
+    SD_LOCK(self.operationsLock);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     if (!operation || operation.isFinished) {
         // There is a case that the operation may be marked as finished, but not been removed from `self.URLOperations`.
         operation = [self createDownloaderOperationWithUrl:url options:options context:context];
         if (!operation) {
-            UNLOCK(self.operationsLock);
+            SD_UNLOCK(self.operationsLock);
             if (completedBlock) {
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadOperation userInfo:@{NSLocalizedDescriptionKey : @"Downloader operation is nil"}];
                 completedBlock(nil, nil, error, YES);
@@ -203,16 +203,16 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             if (!sself) {
                 return;
             }
-            LOCK(sself.operationsLock);
+            SD_LOCK(sself.operationsLock);
             [sself.URLOperations removeObjectForKey:url];
-            UNLOCK(sself.operationsLock);
+            SD_UNLOCK(sself.operationsLock);
         };
         self.URLOperations[url] = operation;
         // Add operation to operation queue only after all configuration done according to Apple's doc.
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
     }
-    UNLOCK(self.operationsLock);
+    SD_UNLOCK(self.operationsLock);
     
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
@@ -300,7 +300,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     if (!url) {
         return;
     }
-    LOCK(self.operationsLock);
+    SD_LOCK(self.operationsLock);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     if (operation) {
         BOOL canceled = [operation cancel:token.downloadOperationCancelToken];
@@ -308,7 +308,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             [self.URLOperations removeObjectForKey:url];
         }
     }
-    UNLOCK(self.operationsLock);
+    SD_UNLOCK(self.operationsLock);
 }
 
 - (void)cancelAllDownloads {
