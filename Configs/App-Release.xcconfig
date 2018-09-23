@@ -1,0 +1,11 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Module-Release.xcconfig"
+#include "App-Shared.xcconfig"
+
+// If enabled, only the active architecture is built.
+ONLY_ACTIVE_ARCH = NO
+
+// Space-separated list of additional flags to pass to the compiler for C and Objective-C files. Be sure to backslash-escape any arguments that contain spaces or special characters, such as path names that may contain spaces. Use this setting if Xcode does not already provide UI for a particular C or Objective-C compiler flag.
+OTHER_CFLAGS = -DNS_BLOCK_ASSERTIONS=1
