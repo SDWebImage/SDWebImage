@@ -89,9 +89,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     }
     if (key && obj) {
         // Store weak cache
-        LOCK(self.weakCacheLock);
+        SD_LOCK(self.weakCacheLock);
         [self.weakCache setObject:obj forKey:key];
-        UNLOCK(self.weakCacheLock);
+        SD_UNLOCK(self.weakCacheLock);
     }
 }
 
@@ -102,9 +102,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     }
     if (key && !obj) {
         // Check weak cache
-        LOCK(self.weakCacheLock);
+        SD_LOCK(self.weakCacheLock);
         obj = [self.weakCache objectForKey:key];
-        UNLOCK(self.weakCacheLock);
+        SD_UNLOCK(self.weakCacheLock);
         if (obj) {
             // Sync cache
             NSUInteger cost = 0;
@@ -124,9 +124,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     }
     if (key) {
         // Remove weak cache
-        LOCK(self.weakCacheLock);
+        SD_LOCK(self.weakCacheLock);
         [self.weakCache removeObjectForKey:key];
-        UNLOCK(self.weakCacheLock);
+        SD_UNLOCK(self.weakCacheLock);
     }
 }
 
@@ -136,9 +136,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
         return;
     }
     // Manually remove should also remove weak cache
-    LOCK(self.weakCacheLock);
+    SD_LOCK(self.weakCacheLock);
     [self.weakCache removeAllObjects];
-    UNLOCK(self.weakCacheLock);
+    SD_UNLOCK(self.weakCacheLock);
 }
 #endif
 

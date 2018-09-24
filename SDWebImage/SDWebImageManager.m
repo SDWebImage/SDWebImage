@@ -136,9 +136,9 @@ static id<SDImageLoader> _defaultImageLoader;
 
     BOOL isFailedUrl = NO;
     if (url) {
-        LOCK(self.failedURLsLock);
+        SD_LOCK(self.failedURLsLock);
         isFailedUrl = [self.failedURLs containsObject:url];
-        UNLOCK(self.failedURLsLock);
+        SD_UNLOCK(self.failedURLsLock);
     }
 
     if (url.absoluteString.length == 0 || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
@@ -146,9 +146,9 @@ static id<SDImageLoader> _defaultImageLoader;
         return operation;
     }
 
-    LOCK(self.runningOperationsLock);
+    SD_LOCK(self.runningOperationsLock);
     [self.runningOperations addObject:operation];
-    UNLOCK(self.runningOperationsLock);
+    SD_UNLOCK(self.runningOperationsLock);
     
     // Preprocess the context arg to provide the default value from manager
     context = [self processedContextWithContext:context];
@@ -160,17 +160,17 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (void)cancelAll {
-    LOCK(self.runningOperationsLock);
+    SD_LOCK(self.runningOperationsLock);
     NSSet<SDWebImageCombinedOperation *> *copiedOperations = [self.runningOperations copy];
-    UNLOCK(self.runningOperationsLock);
+    SD_UNLOCK(self.runningOperationsLock);
     [copiedOperations makeObjectsPerformSelector:@selector(cancel)]; // This will call `safelyRemoveOperationFromRunning:` and remove from the array
 }
 
 - (BOOL)isRunning {
     BOOL isRunning = NO;
-    LOCK(self.runningOperationsLock);
+    SD_LOCK(self.runningOperationsLock);
     isRunning = (self.runningOperations.count > 0);
-    UNLOCK(self.runningOperationsLock);
+    SD_UNLOCK(self.runningOperationsLock);
     return isRunning;
 }
 
@@ -261,15 +261,15 @@ static id<SDImageLoader> _defaultImageLoader;
                 }
                 
                 if (shouldBlockFailedURL) {
-                    LOCK(self.failedURLsLock);
+                    SD_LOCK(self.failedURLsLock);
                     [self.failedURLs addObject:url];
-                    UNLOCK(self.failedURLsLock);
+                    SD_UNLOCK(self.failedURLsLock);
                 }
             } else {
                 if ((options & SDWebImageRetryFailed)) {
-                    LOCK(self.failedURLsLock);
+                    SD_LOCK(self.failedURLsLock);
                     [self.failedURLs removeObject:url];
-                    UNLOCK(self.failedURLsLock);
+                    SD_UNLOCK(self.failedURLsLock);
                 }
                 
                 SDImageCacheType storeCacheType = SDImageCacheTypeAll;
@@ -338,9 +338,9 @@ static id<SDImageLoader> _defaultImageLoader;
     if (!operation) {
         return;
     }
-    LOCK(self.runningOperationsLock);
+    SD_LOCK(self.runningOperationsLock);
     [self.runningOperations removeObject:operation];
-    UNLOCK(self.runningOperationsLock);
+    SD_UNLOCK(self.runningOperationsLock);
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation

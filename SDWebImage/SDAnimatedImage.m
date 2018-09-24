@@ -104,9 +104,9 @@ static NSArray *SDBundlePreferredScales() {
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    LOCKBLOCK({
-        [self.imageTable removeAllObjects];
-    });
+    SD_LOCK(_lock);
+    [self.imageTable removeAllObjects];
+    SD_UNLOCK(_lock);
 }
 
 - (NSString *)getPathForName:(NSString *)name bundle:(NSBundle *)bundle preferredScale:(CGFloat *)scale {
@@ -174,18 +174,18 @@ static NSArray *SDBundlePreferredScales() {
 - (UIImage *)imageForName:(NSString *)name {
     NSParameterAssert(name);
     UIImage *image;
-    LOCKBLOCK({
-        image = [self.imageTable objectForKey:name];
-    });
+    SD_LOCK(_lock);
+    image = [self.imageTable objectForKey:name];
+    SD_UNLOCK(_lock);
     return image;
 }
 
 - (void)storeImage:(UIImage *)image forName:(NSString *)name {
     NSParameterAssert(image);
     NSParameterAssert(name);
-    LOCKBLOCK({
-        [self.imageTable setObject:image forKey:name];
-    });
+    SD_LOCK(_lock);
+    [self.imageTable setObject:image forKey:name];
+    SD_UNLOCK(_lock);
 }
 
 @end

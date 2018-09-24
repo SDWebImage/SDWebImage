@@ -97,16 +97,16 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks addObject:callbacks];
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     return callbacks;
 }
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     NSMutableArray<id> *callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     // We need to remove [NSNull null] because there might not always be a progress block for each callback
     [callbacks removeObjectIdenticalTo:[NSNull null]];
     return [callbacks copy]; // strip mutability here
@@ -114,12 +114,12 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (BOOL)cancel:(nullable id)token {
     BOOL shouldCancel = NO;
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks removeObjectIdenticalTo:token];
     if (self.callbackBlocks.count == 0) {
         shouldCancel = YES;
     }
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     if (shouldCancel) {
         [self cancel];
     }
@@ -259,9 +259,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (void)reset {
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks removeAllObjects];
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     self.dataTask = nil;
     
     if (self.ownedSession) {
