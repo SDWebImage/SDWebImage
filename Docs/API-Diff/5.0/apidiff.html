@@ -6,16 +6,70 @@
 <body>
 
 <div class="headerFile">
+<div class="headerName">FLAnimatedImage.h</div>
+
+<div class="differenceGroup">
+<div class="difference"><span class="status removed">Removed</span> kFLAnimatedImageDelayTimeIntervalMinimum</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.posterImage</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.size</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.loopCount</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.delayTimesForIndexes</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.frameCount</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.frameCacheSizeCurrent</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.frameCacheSizeMax</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImage imageLazilyCachedAtIndex:]</div>
+<div class="difference"><span class="status removed">Removed</span> +[FLAnimatedImage sizeForImage:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImage initWithAnimatedGIFData:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImage initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:]</div>
+<div class="difference"><span class="status removed">Removed</span> +[FLAnimatedImage animatedImageWithGIFData:]</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImage.data</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevel</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelNone</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelError</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelWarn</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelInfo</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelDebug</div>
+<div class="difference"><span class="status removed">Removed</span> FLLogLevelVerbose</div>
+<div class="difference"><span class="status removed">Removed</span> +[FLAnimatedImage setLogBlock:logLevel:]</div>
+<div class="difference"><span class="status removed">Removed</span> +[FLAnimatedImage logStringFromBlock:withLevel:]</div>
+<div class="difference"><span class="status removed">Removed</span> #def FLLog</div>
+<div class="difference"><span class="status removed">Removed</span> FLWeakProxy</div>
+<div class="difference"><span class="status removed">Removed</span> +[FLWeakProxy weakProxyForObject:]</div>
+</div>
+
+</div>
+
+<div class="headerFile">
+<div class="headerName">FLAnimatedImageView.h</div>
+
+<div class="differenceGroup">
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.animatedImage</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.loopCompletionBlock</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.currentFrame</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.currentFrameIndex</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.runLoopMode</div>
+</div>
+
+</div>
+
+<div class="headerFile">
 <div class="headerName">FLAnimatedImageView+WebCache.h</div>
 
 <div class="differenceGroup">
-<div class="difference"><span class="status modified">Modified</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:options:progress:completed:]</div>
-<table>
-<tr><th></th><th>Declaration</th></tr>
-<tr><th>From</th><td class="declaration">- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock</td></tr>
-<tr><th>To</th><td class="declaration">- (void)sd_setImageWithURL:(nullable NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDImageLoaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock</td></tr>
-</table>
-<br>
+<div class="difference"><span class="status removed">Removed</span> UIImage (FLAnimatedImage)</div>
+<div class="difference"><span class="status removed">Removed</span> UIImage.sd_FLAnimatedImage</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.sd_optimalFrameCacheSize</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.sd_predrawingEnabled</div>
+<div class="difference"><span class="status removed">Removed</span> FLAnimatedImageView.sd_cacheFLAnimatedImage</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:options:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:options:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[FLAnimatedImageView sd_setImageWithURL:placeholderImage:options:progress:completed:]</div>
 </div>
 
 </div>
@@ -24,9 +78,43 @@
 <div class="headerName">MKAnnotationView+WebCache.h</div>
 
 <div class="differenceGroup">
-<div class="difference"><span class="status added">Added</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:options:context:]</div>
-<div class="difference"><span class="status added">Added</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:options:progress:completed:]</div>
-<div class="difference"><span class="status added">Added</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:options:context:progress:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> MKAnnotationView (WebCache)</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:options:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[MKAnnotationView sd_setImageWithURL:placeholderImage:options:completed:]</div>
+</div>
+
+</div>
+
+<div class="headerFile">
+<div class="headerName">NSData+ImageContentType.h</div>
+
+<div class="differenceGroup">
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatUndefined</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatJPEG</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatPNG</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatGIF</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatTIFF</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatWebP</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatHEIC</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageFormatHEIF</div>
+<div class="difference"><span class="status removed">Removed</span> +[NSData sd_UTTypeFromSDImageFormat:]</div>
+</div>
+
+
+<div class="differenceGroup">
+<div class="difference"><span class="status added">Added</span> SDImageFormatUndefined</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatJPEG</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatPNG</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatGIF</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatTIFF</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatWebP</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatHEIC</div>
+<div class="difference"><span class="status added">Added</span> SDImageFormatHEIF</div>
+<div class="difference"><span class="status added">Added</span> +[NSData sd_UTTypeFromImageFormat:]</div>
 </div>
 
 </div>
@@ -36,10 +124,11 @@
 
 <div class="differenceGroup">
 <div class="difference"><span class="status added">Added</span> SDAnimatedImage</div>
+<div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithData:scale:options:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithAnimatedCoder:scale:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage preloadAllFrames]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage unloadAllFrames]</div>
-<div class="difference"><span class="status added">Added</span> -[SDAnimatedImage isAllFramesLoaded]</div>
+<div class="difference"><span class="status added">Added</span> SDAnimatedImage.allFramesLoaded</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImage</div>
 <div class="difference"><span class="status added">Added</span> +[SDAnimatedImage imageNamed:]</div>
 <div class="difference"><span class="status added">Added</span> +[SDAnimatedImage imageNamed:inBundle:compatibleWithTraitCollection:]</div>
@@ -49,7 +138,6 @@
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithContentsOfFile:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithData:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithData:scale:]</div>
-<div class="difference"><span class="status added">Added</span> -[SDAnimatedImage initWithAnimatedCoder:scale:]</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImage.animatedImageFormat</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImage.animatedImageData</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImage.scale</div>
@@ -111,6 +199,7 @@
 <div class="difference"><span class="status added">Added</span> -[SDDiskCache totalSize]</div>
 <div class="difference"><span class="status added">Added</span> SDDiskCache</div>
 <div class="difference"><span class="status added">Added</span> SDDiskCache.config</div>
+<div class="difference"><span class="status added">Added</span> -[SDDiskCache moveCacheDirectoryFromPath:toPath:]</div>
 </div>
 
 </div>
@@ -304,10 +393,12 @@
 <div class="differenceGroup">
 <div class="difference"><span class="status added">Added</span> SDImageCoderOption</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoderOptions</div>
+<div class="difference"><span class="status added">Added</span> SDImageCoderMutableOptions</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoderDecodeFirstFrameOnly</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoderDecodeScaleFactor</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoderEncodeFirstFrameOnly</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoderEncodeCompressionQuality</div>
+<div class="difference"><span class="status added">Added</span> SDImageCoderWebImageContext</div>
 <div class="difference"><span class="status added">Added</span> SDImageCoder</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageCoder canDecodeFromData:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageCoder decodedImageWithData:options:]</div>
@@ -319,9 +410,9 @@
 <div class="difference"><span class="status added">Added</span> -[SDProgressiveImageCoder updateIncrementalData:finished:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDProgressiveImageCoder incrementalDecodedImageWithOptions:]</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImageProvider</div>
-<div class="difference"><span class="status added">Added</span> -[SDAnimatedImageProvider animatedImageData]</div>
-<div class="difference"><span class="status added">Added</span> -[SDAnimatedImageProvider animatedImageFrameCount]</div>
-<div class="difference"><span class="status added">Added</span> -[SDAnimatedImageProvider animatedImageLoopCount]</div>
+<div class="difference"><span class="status added">Added</span> SDAnimatedImageProvider.animatedImageData</div>
+<div class="difference"><span class="status added">Added</span> SDAnimatedImageProvider.animatedImageFrameCount</div>
+<div class="difference"><span class="status added">Added</span> SDAnimatedImageProvider.animatedImageLoopCount</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImageProvider animatedImageFrameAtIndex:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDAnimatedImageProvider animatedImageDurationAtIndex:]</div>
 <div class="difference"><span class="status added">Added</span> SDAnimatedImageCoder</div>
@@ -429,7 +520,7 @@
 <div class="differenceGroup">
 <div class="difference"><span class="status added">Added</span> SDTransformedKeyForKey()</div>
 <div class="difference"><span class="status added">Added</span> SDImageTransformer</div>
-<div class="difference"><span class="status added">Added</span> -[SDImageTransformer transformerKey]</div>
+<div class="difference"><span class="status added">Added</span> SDImageTransformer.transformerKey</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageTransformer transformedImageWithImage:forKey:]</div>
 <div class="difference"><span class="status added">Added</span> SDImagePipelineTransformer</div>
 <div class="difference"><span class="status added">Added</span> SDImagePipelineTransformer.transformers</div>
@@ -576,6 +667,12 @@
 <div class="difference"><span class="status removed">Removed</span> #def dispatch_queue_async_safe</div>
 </div>
 
+
+<div class="differenceGroup">
+<div class="difference"><span class="status added">Added</span> #def SD_LOCK</div>
+<div class="difference"><span class="status added">Added</span> #def SD_UNLOCK</div>
+</div>
+
 </div>
 
 <div class="headerFile">
@@ -596,7 +693,6 @@
 <div class="difference"><span class="status added">Added</span> SDWebImageDecodeFirstFrameOnly</div>
 <div class="difference"><span class="status added">Added</span> SDWebImagePreloadAllFrames</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageContextSetImageOperationKey</div>
-<div class="difference"><span class="status added">Added</span> SDWebImageContextSetImageGroup</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageContextCustomManager</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageContextImageTransformer</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageContextImageScaleFactor</div>
@@ -721,6 +817,7 @@
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.defaultDownloaderConfig</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.maxConcurrentDownloads</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.downloadTimeout</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.minimumProgressInterval</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.sessionConfiguration</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.operationClass</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderConfig.executionOrder</div>
@@ -743,6 +840,7 @@
 <div class="difference"><span class="status removed">Removed</span> -[SDWebImageDownloaderOperationInterface credential]</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDWebImageDownloaderOperationInterface setCredential:]</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDWebImageDownloaderOperationInterface cancel:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[SDWebImageDownloaderOperationInterface dataTask]</div>
 <div class="difference"><span class="status removed">Removed</span> SDWebImageDownloaderOperation.shouldDecompressImages</div>
 <div class="difference"><span class="status removed">Removed</span> SDWebImageDownloaderOperation.shouldUseCredentialStorage</div>
 <div class="difference"><span class="status removed">Removed</span> SDWebImageDownloaderOperation.expectedSize</div>
@@ -754,12 +852,13 @@
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation initWithRequest:inSession:options:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation initWithRequest:inSession:options:context:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation addHandlersForProgress:completed:]</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation credential]</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation setCredential:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation cancel:]</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation request]</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation response]</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation dataTask]</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.request</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.response</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.dataTask</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.credential</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.minimumProgressInterval</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.minimumProgressInterval</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloaderOperation.context</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloaderOperation initWithRequest:inSession:options:context:]</div>
 </div>
@@ -769,7 +868,7 @@
 <div class="difference"><span class="status modified">Modified</span> SDWebImageDownloaderOperation</div>
 <table>
 <tr><th></th><th>Protocols</th></tr>
-<tr><th>From</th><td>NSURLSessionDataDelegate, NSURLSessionTaskDelegate, SDWebImageDownloaderOperationInterface, SDWebImageOperation</td></tr>
+<tr><th>From</th><td>SDWebImageDownloaderOperationInterface, SDWebImageOperation</td></tr>
 <tr><th>To</th><td>SDWebImageDownloaderOperation</td></tr>
 </table>
 <br>
@@ -861,7 +960,7 @@
 
 <div class="differenceGroup">
 <div class="difference"><span class="status added">Added</span> SDWebImageIndicator</div>
-<div class="difference"><span class="status added">Added</span> -[SDWebImageIndicator indicatorView]</div>
+<div class="difference"><span class="status added">Added</span> SDWebImageIndicator.indicatorView</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageIndicator startAnimatingIndicator]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageIndicator stopAnimatingIndicator]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageIndicator updateIndicatorProgress:]</div>
@@ -1155,6 +1254,8 @@
 
 <div class="differenceGroup">
 <div class="difference"><span class="status removed">Removed</span> -[UIImageView sd_setImageWithPreviousCachedImageWithURL:placeholderImage:options:progress:completed:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[UIImageView sd_setAnimationImagesWithURLs:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[UIImageView sd_cancelCurrentAnimationImagesLoad]</div>
 </div>
 
 
@@ -1199,6 +1300,13 @@
 
 
 <div class="differenceGroup">
+<div class="difference"><span class="status modified">Modified</span> SDSetImageBlock</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">typedef void (^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData)</td></tr>
+<tr><th>To</th><td class="declaration">typedef void (^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL)</td></tr>
+</table>
+<br>
 <div class="difference"><span class="status modified">Modified</span> -[UIView sd_imageURL]</div>
 <table>
 <tr><th></th><th>Declaration</th></tr>
