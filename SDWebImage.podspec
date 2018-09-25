@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.9'
   s.ios.deployment_target = '7.0'
   s.tvos.deployment_target = '9.0'
-  s.watchos.deployment_target = '2.0'
+  s.watchos.deployment_target = '3.0'
 
   s.license = 'MIT'
   s.summary = 'Asynchronous image downloader with cache support with an UIImageView category.'
