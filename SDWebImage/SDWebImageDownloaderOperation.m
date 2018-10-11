@@ -64,6 +64,11 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @synthesize executing = _executing;
 @synthesize finished = _finished;
 
+- (void)dealloc {
+    // Edge case if user call [SDWebImageDownloaderOperation start] directly and deallocated it.
+    [self cancel];
+}
+
 - (nonnull instancetype)init {
     return [self initWithRequest:nil inSession:nil options:0];
 }
@@ -82,6 +87,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _unownedSession = session;
         _callbacksLock = dispatch_semaphore_create(1);
         _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
+#if SD_UIKIT
+        _backgroundTaskId = UIBackgroundTaskInvalid;
+#endif
     }
     return self;
 }
@@ -135,14 +143,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             __weak __typeof__ (self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
             self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
-
-                if (sself) {
-                    [sself cancel];
-
-                    [app endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
+                [wself cancel];
             }];
         }
 #endif
@@ -206,18 +207,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         [self done];
         return;
     }
-
-#if SD_UIKIT
-    Class UIApplicationClass = NSClassFromString(@"UIApplication");
-    if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
-        return;
-    }
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
-        [app endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-    }
-#endif
 }
 
 - (void)cancel {
@@ -256,11 +245,23 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     LOCK(self.callbacksLock);
     [self.callbackBlocks removeAllObjects];
     UNLOCK(self.callbacksLock);
-    self.dataTask = nil;
     
-    if (self.ownedSession) {
-        [self.ownedSession invalidateAndCancel];
-        self.ownedSession = nil;
+    @synchronized (self) {
+        self.dataTask = nil;
+        
+        if (self.ownedSession) {
+            [self.ownedSession invalidateAndCancel];
+            self.ownedSession = nil;
+        }
+        
+#if SD_UIKIT
+        if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+            // If backgroundTaskId != UIBackgroundTaskInvalid, sharedApplication is always exist
+            UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
+            [app endBackgroundTask:self.backgroundTaskId];
+            self.backgroundTaskId = UIBackgroundTaskInvalid;
+        }
+#endif
     }
 }
 
