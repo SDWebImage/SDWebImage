@@ -14,7 +14,7 @@ This guide is provided in order to ease the transition of existing applications 
 SDWebImage 4.0 officially supports iOS 7 and later, Mac OS X 10.8 and later, watchOS 2 and later and tvOS 9 and later.
 It needs Xcode 7.3 or later to be able to build everything properly.
 
-For targeting previous versions of the SDKs, check [README - Backwards compatibility](https://github.com/rs/SDWebImage#backwards-compatibility)
+For targeting previous versions of the SDKs, check [README - Backwards compatibility](https://github.com/SDWebImage/SDWebImage#backwards-compatibility)
 .
 
 ### Migration

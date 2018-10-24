@@ -390,7 +390,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     }
     BOOL exists = [self.fileManager fileExistsAtPath:[self defaultCachePathForKey:key]];
     
-    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
+    // fallback because of https://github.com/SDWebImage/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
     if (!exists) {
         exists = [self.fileManager fileExistsAtPath:[self defaultCachePathForKey:key].stringByDeletingPathExtension];
@@ -444,7 +444,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         return data;
     }
 
-    // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
+    // fallback because of https://github.com/SDWebImage/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
     data = [NSData dataWithContentsOfFile:defaultPath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
@@ -459,7 +459,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
             return imageData;
         }
 
-        // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
+        // fallback because of https://github.com/SDWebImage/SDWebImage/pull/976 that added the extension to the disk file name
         // checking the key with and without the extension
         imageData = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
         if (imageData) {
