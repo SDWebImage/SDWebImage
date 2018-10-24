@@ -2,7 +2,7 @@
 
 In order to gain access to all the files from the repository, you should clone it.
 ```
-git clone --recursive https://github.com/rs/SDWebImage.git
+git clone --recursive https://github.com/SDWebImage/SDWebImage.git
 ```
 
 ... TO BE CHECKED AND DESCRIBED IN DETAIL
