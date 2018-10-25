@@ -1,4 +1,4 @@
-<p align="center" >
+<p align="center">
   <img src="SDWebImage_logo.png" title="SDWebImage logo" float=left>
 </p>
 
