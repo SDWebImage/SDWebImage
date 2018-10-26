@@ -190,6 +190,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                 self.dataTask.priority = NSURLSessionTaskPriorityHigh;
             } else if (self.options & SDWebImageDownloaderLowPriority) {
                 self.dataTask.priority = NSURLSessionTaskPriorityLow;
+            } else {
+                self.dataTask.priority = NSURLSessionTaskPriorityDefault;
             }
         }
 #pragma clang diagnostic pop
