@@ -12,6 +12,9 @@
 #ifdef SD_WEBP
 #import "SDWebImageWebPCoder.h"
 #endif
+#ifdef SD_SVG
+#import "SDWebImageSVGCoder.h"
+#endif
 #import "UIImage+MultiFormat.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
@@ -40,6 +43,9 @@
         NSMutableArray<id<SDWebImageCoder>> *mutableCoders = [@[[SDWebImageImageIOCoder sharedCoder]] mutableCopy];
 #ifdef SD_WEBP
         [mutableCoders addObject:[SDWebImageWebPCoder sharedCoder]];
+#endif
+#ifdef SD_SVG
+        [mutableCoders addObject:[SDWebImageSVGCoder sharedCoder]];
 #endif
         _coders = [mutableCoders copy];
         _codersLock = dispatch_semaphore_create(1);

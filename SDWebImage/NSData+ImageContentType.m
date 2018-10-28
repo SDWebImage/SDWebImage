@@ -19,6 +19,8 @@
 // AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation
 #define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
 #define kSDUTTypeHEIF ((__bridge CFStringRef)@"public.heif")
+// Currently Image/IO does not support SVG
+#define kSDUTTypeSVG ((__bridge CFStringRef)@"public.svg")
 
 @implementation NSData (ImageContentType)
 
@@ -67,6 +69,14 @@
             break;
         }
     }
+
+    NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
+    if ([xmlParser parse]) {
+        NSRange range = [data rangeOfData:[@"</svg>" dataUsingEncoding:NSASCIIStringEncoding] options:NSDataSearchBackwards range:NSMakeRange(0, data.length)];
+        if (range.location != NSNotFound && range.length) {
+            return SDImageFormatSVG;
+        }
+    }
     return SDImageFormatUndefined;
 }
 
@@ -93,6 +103,9 @@
             break;
         case SDImageFormatHEIF:
             UTType = kSDUTTypeHEIF;
+            break;
+        case SDImageFormatSVG:
+            UTType = kSDUTTypeSVG;
             break;
         default:
             // default is kUTTypePNG
@@ -121,6 +134,8 @@
         imageFormat = SDImageFormatHEIC;
     } else if (CFStringCompare(uttype, kSDUTTypeHEIF, 0) == kCFCompareEqualTo) {
         imageFormat = SDImageFormatHEIF;
+    } else if (CFStringCompare(uttype, kSDUTTypeSVG, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatSVG;
     } else {
         imageFormat = SDImageFormatUndefined;
     }

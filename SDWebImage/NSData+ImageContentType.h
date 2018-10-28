@@ -18,7 +18,8 @@ typedef NS_ENUM(NSInteger, SDImageFormat) {
     SDImageFormatTIFF,
     SDImageFormatWebP,
     SDImageFormatHEIC,
-    SDImageFormatHEIF
+    SDImageFormatHEIF,
+    SDImageFormatSVG
 };
 
 @interface NSData (ImageContentType)
