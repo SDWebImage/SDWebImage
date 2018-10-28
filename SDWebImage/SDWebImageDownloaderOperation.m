@@ -428,9 +428,9 @@ didReceiveResponse:(NSURLResponse *)response
                             if (image.images) {
                                 shouldDecode = NO;
                             } else {
-#ifdef SD_WEBP
+#if (defined SD_WEBP) || (defined SD_SVG)
                                 SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                                if (imageFormat == SDImageFormatWebP) {
+                                if (imageFormat == SDImageFormatWebP || imageFormat == SDImageFormatSVG) {
                                     shouldDecode = NO;
                                 }
 #endif
