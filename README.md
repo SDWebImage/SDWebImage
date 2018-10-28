@@ -118,9 +118,14 @@ use_frameworks!
 
 #### Subspecs
 
-There are 4 subspecs available now: `Core`, `MapKit`, `GIF` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
+There are 5 subspecs available now: `Core`, `MapKit`, `GIF`, `SVG` and `WebP` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `WebP`, you need to specify it). 
 
 Podfile example:
+```
+pod 'SDWebImage/SVG'
+# To do this enter the following in your podfile: (https://github.com/SVGKit/SVGKit/tree/2.0.0)
+pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :branch => '2.x'
+```
 ```
 pod 'SDWebImage/WebP'
 ```

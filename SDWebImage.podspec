@@ -73,7 +73,5 @@ Pod::Spec.new do |s|
       }
       svg.dependency 'SDWebImage/Core'
       svg.dependency 'SVGKit', '~> 2.0'
-      # To do this enter the following in your podfile:
-      # pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :branch => '2.x'
   end
 end
