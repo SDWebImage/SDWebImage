@@ -34,8 +34,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
 @property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, NSOperation<SDWebImageDownloaderOperation> *> *URLOperations;
-@property (copy, atomic, nullable) NSDictionary<NSString *, NSString *> *HTTPHeaders; // Since modify this value is rare, use immutable object can enhance performance. But should mark as atomic to keep thread-safe
-@property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // a lock to keep the access to `URLOperations` thread-safe
+@property (strong, nonatomic, nullable) NSMutableDictionary<NSString *, NSString *> *HTTPHeaders;
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t HTTPHeadersLock; // A lock to keep the access to `HTTPHeaders` thread-safe
+@property (strong, nonatomic, nonnull) dispatch_semaphore_t operationsLock; // A lock to keep the access to `URLOperations` thread-safe
 
 // The session in which data tasks will run
 @property (strong, nonatomic) NSURLSession *session;
@@ -113,7 +114,8 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             headerDictionary[@"User-Agent"] = userAgent;
         }
         headerDictionary[@"Accept"] = @"image/*;q=0.8";
-        _HTTPHeaders = [headerDictionary copy];
+        _HTTPHeaders = headerDictionary;
+        _HTTPHeadersLock = dispatch_semaphore_create(1);
         _operationsLock = dispatch_semaphore_create(1);
         NSURLSessionConfiguration *sessionConfiguration = _config.sessionConfiguration;
         if (!sessionConfiguration) {
@@ -154,16 +156,19 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     if (!field) {
         return;
     }
-    NSMutableDictionary *mutableHTTPHeaders = [self.HTTPHeaders mutableCopy];
-    [mutableHTTPHeaders setValue:value forKey:field];
-    self.HTTPHeaders = [mutableHTTPHeaders copy];
+    SD_LOCK(self.HTTPHeadersLock);
+    [self.HTTPHeaders setValue:value forKey:field];
+    SD_UNLOCK(self.HTTPHeadersLock);
 }
 
 - (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field {
     if (!field) {
         return nil;
     }
-    return [self.HTTPHeaders objectForKey:field];
+    SD_LOCK(self.HTTPHeadersLock);
+    NSString *value = [self.HTTPHeaders objectForKey:field];
+    SD_UNLOCK(self.HTTPHeadersLock);
+    return value;
 }
 
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
@@ -238,7 +243,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:cachePolicy timeoutInterval:timeoutInterval];
     mutableRequest.HTTPShouldHandleCookies = (options & SDWebImageDownloaderHandleCookies);
     mutableRequest.HTTPShouldUsePipelining = YES;
+    SD_LOCK(self.HTTPHeadersLock);
     mutableRequest.allHTTPHeaderFields = self.HTTPHeaders;
+    SD_UNLOCK(self.HTTPHeadersLock);
     id<SDWebImageDownloaderRequestModifier> requestModifier;
     if ([context valueForKey:SDWebImageContextDownloadRequestModifier]) {
         requestModifier = [context valueForKey:SDWebImageContextDownloadRequestModifier];
