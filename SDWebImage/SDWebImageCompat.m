@@ -8,6 +8,9 @@
 
 #import "SDWebImageCompat.h"
 #import "UIImage+MultiFormat.h"
+#ifdef SD_SVG
+#import "SVGKImageView+WebCache.h"
+#endif
 
 #if !__has_feature(objc_arc)
     #error SDWebImage is ARC only. Either turn on ARC for the project or use -fobjc-arc flag
@@ -59,6 +62,9 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
 
             UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
             scaledImage.sd_imageFormat = image.sd_imageFormat;
+#ifdef SD_SVG
+            scaledImage.sd_SVGKImage = image.sd_SVGKImage;
+#endif
             image = scaledImage;
         }
         return image;

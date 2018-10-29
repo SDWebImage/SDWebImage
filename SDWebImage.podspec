@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/{NS,SD,UI}*.{h,m}'
-    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageWebPCoder.{h,m}', 'SDWebImage/SDWebImageSVGCoder.{h,m}'
+    core.exclude_files = 'SDWebImage/UIImage+WebP.{h,m}', 'SDWebImage/SDWebImageWebPCoder.{h,m}'
     core.tvos.exclude_files = 'SDWebImage/MKAnnotationView+WebCache.*'
   end
 
@@ -66,7 +66,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'SVG' do |svg|
-      svg.source_files = 'SDWebImage/SDWebImageSVGCoder.{h,m}'
+      svg.source_files = 'SDWebImage/SVGKit/*.{h,m}'
       svg.xcconfig = {
           'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SD_SVG=1',
           'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/SVGKit/Source'

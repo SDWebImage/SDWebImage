@@ -19,6 +19,7 @@ typedef NS_ENUM(NSInteger, SDImageFormat) {
     SDImageFormatWebP,
     SDImageFormatHEIC,
     SDImageFormatHEIF,
+    SDImageFormatPDF,
     SDImageFormatSVG
 };
 

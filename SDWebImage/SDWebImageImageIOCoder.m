@@ -69,7 +69,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
         case SDImageFormatWebP:
-            // Do not support WebP decoding
+        case SDImageFormatPDF:
+        case SDImageFormatSVG:
+            // Do not support WebP, PDF & SVG decoding
             return NO;
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
@@ -85,7 +87,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 - (BOOL)canIncrementallyDecodeFromData:(NSData *)data {
     switch ([NSData sd_imageFormatForImageData:data]) {
         case SDImageFormatWebP:
-            // Do not support WebP progressive decoding
+        case SDImageFormatPDF:
+        case SDImageFormatSVG:
+            // Do not support WebP, PDF & SVG progressive decoding
             return NO;
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
@@ -373,7 +377,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
     switch (format) {
         case SDImageFormatWebP:
-            // Do not support WebP encoding
+        case SDImageFormatPDF:
+        case SDImageFormatSVG:
+            // Do not support WebP, PDF & SVG encoding
             return NO;
         case SDImageFormatHEIC:
             // Check HEIC encoding compatibility

@@ -22,6 +22,23 @@
 // Currently Image/IO does not support SVG
 #define kSDUTTypeSVG ((__bridge CFStringRef)@"public.svg")
 
+@interface SDXMLParser : NSObject <NSXMLParserDelegate>
+
+@property (nonatomic, strong, readonly) NSString *rootElement;
+
+@end
+
+@implementation SDXMLParser
+
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+{
+    if (!_rootElement) {
+        _rootElement = elementName;
+    }
+}
+
+@end
+
 @implementation NSData (ImageContentType)
 
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data {
@@ -68,14 +85,22 @@
             }
             break;
         }
+        case 0x25: {
+            if (data.length >=4) {
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 4)] encoding:NSASCIIStringEncoding];
+                if ([testString isEqualToString:@"%PDF"]) {
+                    return SDImageFormatPDF;
+                }
+            }
+            break;
+        }
     }
 
+    SDXMLParser *parser = [SDXMLParser new];
     NSXMLParser *xmlParser = [[NSXMLParser alloc] initWithData:data];
-    if ([xmlParser parse]) {
-        NSRange range = [data rangeOfData:[@"</svg>" dataUsingEncoding:NSASCIIStringEncoding] options:NSDataSearchBackwards range:NSMakeRange(0, data.length)];
-        if (range.location != NSNotFound && range.length) {
-            return SDImageFormatSVG;
-        }
+    xmlParser.delegate = parser;
+    if ([xmlParser parse] && [parser.rootElement isEqualToString:@"svg"]) {
+        return SDImageFormatSVG;
     }
     return SDImageFormatUndefined;
 }
@@ -103,6 +128,9 @@
             break;
         case SDImageFormatHEIF:
             UTType = kSDUTTypeHEIF;
+            break;
+        case SDImageFormatPDF:
+            UTType = kUTTypePDF;
             break;
         case SDImageFormatSVG:
             UTType = kSDUTTypeSVG;
@@ -134,6 +162,8 @@
         imageFormat = SDImageFormatHEIC;
     } else if (CFStringCompare(uttype, kSDUTTypeHEIF, 0) == kCFCompareEqualTo) {
         imageFormat = SDImageFormatHEIF;
+    } else if (CFStringCompare(uttype, kUTTypePDF, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatPDF;
     } else if (CFStringCompare(uttype, kSDUTTypeSVG, 0) == kCFCompareEqualTo) {
         imageFormat = SDImageFormatSVG;
     } else {

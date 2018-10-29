@@ -8,6 +8,8 @@
 #ifdef SD_SVG
 
 #import "SDWebImageSVGCoder.h"
+#import "UIImage+MultiFormat.h"
+#import "SVGKImageView+WebCache.h"
 #if __has_include(<SVGKit/SVGKit.h>)
 #import <SVGKit/SVGKit.h>
 #else
@@ -33,7 +35,10 @@
 - (nullable UIImage *)decodedImageWithData:(nullable NSData *)data {
     SVGKImage *image = [[SVGKImage alloc] initWithData:data];
     if (image.hasSize) {
-        return image.UIImage;
+        UIImage *result = image.UIImage;
+        result.sd_imageFormat = SDImageFormatSVG;
+        result.sd_SVGKImage = image;
+        return result;
     }
     return nil;
 }
