@@ -174,14 +174,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             if (!URLCache) {
                 URLCache = [NSURLCache sharedURLCache];
             }
-            NSCachedURLResponse *cachedResponse;
-            // NSURLCache's `cachedResponseForRequest:` is not thread-safe, see https://developer.apple.com/documentation/foundation/nsurlcache#2317483
-            @synchronized (URLCache) {
-                cachedResponse = [URLCache cachedResponseForRequest:self.request];
-            }
-            if (cachedResponse) {
-                self.cachedData = cachedResponse.data;
-            }
+            self.cachedData = [URLCache cachedResponseForRequest:self.request].data;
         }
         
         self.dataTask = [session dataTaskWithRequest:self.request];
