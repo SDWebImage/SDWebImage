@@ -56,10 +56,12 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
                     scale = 3.0;
                 }
             }
-
-            UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
-            scaledImage.sd_imageFormat = image.sd_imageFormat;
-            image = scaledImage;
+            
+            if (scale != image.scale) {
+                UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+                scaledImage.sd_imageFormat = image.sd_imageFormat;
+                image = scaledImage;
+            }
         }
         return image;
     }
