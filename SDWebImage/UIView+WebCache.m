@@ -65,7 +65,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #if SD_UIKIT || SD_MAC
         // check and start image indicator
         [self sd_startImageIndicator];
-        id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
 #endif
         
         SDWebImageManager *manager = context[SDWebImageContextCustomManager];
@@ -80,6 +79,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             imageProgress.totalUnitCount = expectedSize;
             imageProgress.completedUnitCount = receivedSize;
 #if SD_UIKIT || SD_MAC
+            id <SDWebImageIndicator> imageIndicator = sself.sd_imageIndicator;
             if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
                 double progress = imageProgress.fractionCompleted;
                 dispatch_async(dispatch_get_main_queue(), ^{
