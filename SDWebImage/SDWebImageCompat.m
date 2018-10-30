@@ -57,7 +57,7 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
                 }
             }
             
-            if (scale != 1) {
+            if (scale != image.scale) {
                 UIImage *scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
                 scaledImage.sd_imageFormat = image.sd_imageFormat;
                 image = scaledImage;
