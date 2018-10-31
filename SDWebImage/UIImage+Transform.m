@@ -18,6 +18,10 @@
 static void *kNSGraphicsContextScaleFactorKey;
 
 static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
+    if (scale == 0) {
+        // Match `UIGraphicsBeginImageContextWithOptions`, reset to the scale factor of the device’s main screen if scale is 0.
+        scale = [NSScreen mainScreen].backingScaleFactor;
+    }
     size_t width = ceil(size.width * scale);
     size_t height = ceil(size.height * scale);
     if (width < 1 || height < 1) return NULL;
@@ -29,10 +33,6 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
     CGColorSpaceRelease(space);
     if (!context) {
         return NULL;
-    }
-    if (scale == 0) {
-        // Match `UIGraphicsBeginImageContextWithOptions`, reset to the scale factor of the device’s main screen if scale is 0.
-        scale = [NSScreen mainScreen].backingScaleFactor;
     }
     CGContextScaleCTM(context, scale, scale);
     
