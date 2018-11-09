@@ -28,3 +28,4 @@ DerivedData
 #
 Pods/
 Podfile.lock
+xcshareddata
