@@ -7,7 +7,6 @@
  */
 
 #import "UIImage+CacheMemoryCost.h"
-#import "SDWebImageCompat.h"
 #import "objc/runtime.h"
 
 FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
