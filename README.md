@@ -1,4 +1,4 @@
-<p align="center" >
+<p align="center">
   <img src="SDWebImage_logo.png" title="SDWebImage logo" float=left>
 </p>
 
@@ -168,10 +168,10 @@ All source code is licensed under the [MIT License](https://raw.github.com/SDWeb
 
 ## Architecture
 
-<p align="center" >
+<p align="center">
     <img src="Docs/SDWebImageClassDiagram.png" title="SDWebImage class diagram">
 </p>
 
-<p align="center" >
+<p align="center">
     <img src="Docs/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
 </p>
