@@ -46,7 +46,7 @@ CGContextRef SDGraphicsGetCurrentContext(void) {
 
 void SDGraphicsBeginImageContext(CGSize size) {
 #if SD_UIKIT || SD_WATCH
-    SDGraphicsBeginImageContext(size);
+    UIGraphicsBeginImageContext(size);
 #else
     SDGraphicsBeginImageContextWithOptions(size, NO, 1.0);
 #endif
