@@ -181,9 +181,9 @@
 
 - (void)test12ThatWeCanUseAnotherSessionForEachDownloadOperation {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Owned session"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:imageURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
     request.HTTPShouldUsePipelining = YES;
     request.allHTTPHeaderFields = @{@"Accept": @"image/*;q=0.8"};
     
