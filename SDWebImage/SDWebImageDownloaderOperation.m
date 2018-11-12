@@ -170,11 +170,11 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         
         if (self.options & SDWebImageDownloaderIgnoreCachedResponse) {
             // Grab the cached data for later check
-            NSURLCache *URLCache = session.configuration.URLCache;
-            if (!URLCache) {
-                URLCache = [NSURLCache sharedURLCache];
+            NSURLCache *urlCache = session.configuration.URLCache;
+            if (!urlCache) {
+                urlCache = [NSURLCache sharedURLCache];
             }
-            self.cachedData = [URLCache cachedResponseForRequest:self.request].data;
+            self.cachedData = [urlCache cachedResponseForRequest:self.request].data;
         }
         
         self.dataTask = [session dataTaskWithRequest:self.request];
