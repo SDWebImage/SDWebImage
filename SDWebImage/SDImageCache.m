@@ -535,12 +535,13 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
         @autoreleasepool {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage;
-            SDImageCacheType cacheType = SDImageCacheTypeDisk;
+            SDImageCacheType cacheType = SDImageCacheTypeNone;
             if (image) {
                 // the image is from in-memory cache
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
+                cacheType = SDImageCacheTypeDisk;
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:key data:diskData options:options];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
