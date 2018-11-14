@@ -145,9 +145,12 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                dispatch_group_leave(group);
                                return;
                            }
+                           __weak typeof(strongSelf) wweakSelf = strongSelf;
                            // Hack, mark we need should use dispatch group notify for completedBlock
                            objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                               __strong typeof(wweakSelf) sstrongSelf = wweakSelf;
+                               if (!sstrongSelf || ![url isEqual:sstrongSelf.sd_imageURL]) { return ; }
                                // Step 3. Check if data exist or query disk cache
                                __block NSData *gifData = imageData;
                                if (!gifData) {
@@ -155,18 +158,19 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                    gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
                                }
                                // Step 4. Create FLAnimatedImage
-                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(strongSelf, gifData);
+                               FLAnimatedImage *animatedImage = SDWebImageCreateFLAnimatedImage(sstrongSelf, gifData);
                                dispatch_async(dispatch_get_main_queue(), ^{
+                                   if (![url isEqual:sstrongSelf.sd_imageURL]) { return ; }
                                    // Step 5. Set animatedImage or normal image
                                    if (animatedImage) {
-                                       if (strongSelf.sd_cacheFLAnimatedImage) {
+                                       if (sstrongSelf.sd_cacheFLAnimatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
                                        }
-                                       strongSelf.image = animatedImage.posterImage;
-                                       strongSelf.animatedImage = animatedImage;
+                                       sstrongSelf.image = animatedImage.posterImage;
+                                       sstrongSelf.animatedImage = animatedImage;
                                    } else {
-                                       strongSelf.image = image;
-                                       strongSelf.animatedImage = nil;
+                                       sstrongSelf.image = image;
+                                       sstrongSelf.animatedImage = nil;
                                    }
                                    dispatch_group_leave(group);
                                });
@@ -174,7 +178,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:@{SDWebImageInternalSetImageGroupKey : group}];
+                             context:@{SDWebImageInternalSetImageGroupKey: group}];
 }
 
 @end
