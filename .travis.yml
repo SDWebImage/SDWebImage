@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode9.4
+osx_image: xcode10
 
 env:
   global:
@@ -13,7 +13,7 @@ notifications:
 before_install:
     - env
     - locale
-    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
+    - gem install cocoapods --pre --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - pod --version
     - pod setup --silent > /dev/null
@@ -44,15 +44,15 @@ script:
     - echo Build the Demo apps
     - pod install --project-directory=Examples
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone 8' | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -configuration Debug -destination 'name=iPhone XS' | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone 8' | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone XS' | xcpretty -c
 
     - mkdir DerivedData
 
     - echo Run the tests
     - pod install --project-directory=Tests
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8' -configuration Debug | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests' -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone XS' -configuration Debug | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -sdk macosx -destination 'platform=OS X,arch=x86_64' -configuration Debug | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS

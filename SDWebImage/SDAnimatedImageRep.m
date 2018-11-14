@@ -103,9 +103,12 @@
 }
 
 - (CGImageSourceRef)imageSource {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     if (_tiffData) {
         return (__bridge CGImageSourceRef)(_tiffData);
     }
+#pragma GCC diagnostic pop
     return NULL;
 }
 

@@ -66,8 +66,8 @@
     
     // need a bigger image here, that is why we don't use kTestJPEGURL
     // if the image is too small, it will get downloaded before we can cancel :)
-    NSURL *imageURL = [NSURL URLWithString:@"https://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"];
-    [[SDWebImageManager sharedManager] loadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    NSURL *url = [NSURL URLWithString:@"https://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"];
+    [[SDWebImageManager sharedManager] loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         XCTFail(@"Should not get here");
     }];
     
@@ -111,14 +111,14 @@
 
 - (void)test08ThatImageTransformerWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.transformer = transformer;
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
-        [manager loadImageWithURL:imageURL options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             expect(image).equal(transformer.testImage);
             [expectation fulfill];
         }];
@@ -129,10 +129,10 @@
 
 - (void)test09ThatCacheKeyFilterWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cache key filter work"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
     
     NSString *cacheKey = @"kTestJPEGURL";
-    SDWebImageCacheKeyFilter *cacheKeyFilter = [SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:^NSString * _Nullable(NSURL * _Nonnull url) {
+    SDWebImageCacheKeyFilter *cacheKeyFilter = [SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:^NSString * _Nullable(NSURL * _Nonnull imageURL) {
         if ([url isEqual:imageURL]) {
             return cacheKey;
         } else {
@@ -143,7 +143,7 @@
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.cacheKeyFilter = cacheKeyFilter;
     // Check download and retrieve custom cache key
-    [manager loadImageWithURL:imageURL options:0 context:@{SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    [manager loadImageWithURL:url options:0 context:@{SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(cacheType).equal(SDImageCacheTypeNone);
         
         // Check memory cache exist
@@ -159,7 +159,7 @@
 
 - (void)test10ThatCacheSerializerWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cache serializer work"];
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
     __block NSData *imageData;
     
     SDWebImageCacheSerializer *cacheSerializer = [SDWebImageCacheSerializer cacheSerializerWithBlock:^NSData * _Nullable(UIImage * _Nonnull image, NSData * _Nullable data, NSURL * _Nullable imageURL) {
@@ -171,7 +171,7 @@
     manager.cacheSerializer = cacheSerializer;
     // Check download and store custom disk data
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
-        [manager loadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [manager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             // Dispatch to let store disk finish
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
                 NSData *diskImageData = [[SDImageCache sharedImageCache] diskImageDataForKey:kTestJPEGURL];
