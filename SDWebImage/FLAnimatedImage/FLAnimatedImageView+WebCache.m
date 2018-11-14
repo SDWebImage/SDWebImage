@@ -115,6 +115,16 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     dispatch_group_t group = dispatch_group_create();
     __weak typeof(self)weakSelf = self;
+    NSString *cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+    UIImage *cacheImage = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:cacheKey];
+    BOOL cacheFLAnimatedImage = self.sd_cacheFLAnimatedImage;
+    // Fix user uses `UIImageView` category method to load GIF, and then uses `FLAnimatedImageView` category method to load the same image.
+    // Fix image load from disk, and then `SDImageCache` restore it to memory cache.
+    // It's not 100% safe, race condition would appear if we remove and then store cache when using `UIImageView` category method before `FLAnimatedImageView` category method complete.
+    if (cacheImage && (!cacheFLAnimatedImage || !cacheImage.sd_FLAnimatedImage)) {
+        [[SDImageCache sharedImageCache] removeImageForKey:cacheKey fromDisk:NO withCompletion:nil];
+    }
+    
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
