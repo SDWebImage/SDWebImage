@@ -101,7 +101,7 @@ static char TAG_ACTIVITY_SHOW;
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
-            if (!sself) { return; }
+            if (!sself || ![imageURL isEqual:sself.sd_imageURL]) { return; }
 #if SD_UIKIT
             [sself sd_removeActivityIndicator];
 #endif
@@ -114,9 +114,10 @@ static char TAG_ACTIVITY_SHOW;
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
             SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
-                if (!sself) { return; }
+                __strong __typeof(wself) strongSelf = wself;
+                if (!strongSelf || ![strongSelf.sd_imageURL isEqual:imageURL]) { return; }
                 if (!shouldNotSetImage) {
-                    [sself sd_setNeedsLayout];
+                    [strongSelf sd_setNeedsLayout];
                 }
                 if (completedBlock && shouldCallCompletedBlock) {
                     completedBlock(image, error, cacheType, url);
@@ -154,6 +155,7 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
+                if (![sself.sd_imageURL isEqual:imageURL]) { return ; }
 #if SD_UIKIT || SD_MAC
                 [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
