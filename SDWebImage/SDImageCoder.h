@@ -167,7 +167,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext;
 
 /**
  Total animated frame count.
- It the frame count is less than 1, then the methods below will be ignored.
+ If the frame count is less than 1, then the methods below will be ignored.
  
  @return Total animated frame count.
  */
