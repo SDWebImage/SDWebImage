@@ -93,30 +93,37 @@ static char TAG_ACTIVITY_SHOW;
         
         __weak __typeof(self)wself = self;
         SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            wself.sd_imageProgress.totalUnitCount = expectedSize;
-            wself.sd_imageProgress.completedUnitCount = receivedSize;
+            __strong __typeof (wself) sself = wself;
+            if (!sself) { return ; }
+            if ([url isEqual:sself.sd_imageURL]) {
+                sself.sd_imageProgress.totalUnitCount = expectedSize;
+                sself.sd_imageProgress.completedUnitCount = receivedSize;
+            }
             if (progressBlock) {
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
-            if (!sself || ![imageURL isEqual:sself.sd_imageURL]) { return; }
+            if (!sself) { return; }
+            if ([url isEqual:sself.sd_imageURL]) {
 #if SD_UIKIT
-            [sself sd_removeActivityIndicator];
+                [sself sd_removeActivityIndicator];
 #endif
-            // if the progress not been updated, mark it to complete state
-            if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
-                sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
-                sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
+                // if the progress not been updated, mark it to complete state
+                if (finished && !error && sself.sd_imageProgress.totalUnitCount == 0 && sself.sd_imageProgress.completedUnitCount == 0) {
+                    sself.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
+                    sself.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
+                }
             }
+
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
             SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
                 __strong __typeof(wself) strongSelf = wself;
-                if (!strongSelf || ![strongSelf.sd_imageURL isEqual:imageURL]) { return; }
-                if (!shouldNotSetImage) {
+                if (!strongSelf) { return; }
+                if (!shouldNotSetImage && [strongSelf.sd_imageURL isEqual:url]) {
                     [strongSelf sd_setNeedsLayout];
                 }
                 if (completedBlock && shouldCallCompletedBlock) {
@@ -155,12 +162,13 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
-                if (![sself.sd_imageURL isEqual:imageURL]) { return ; }
+                if ([sself.sd_imageURL isEqual:url]) {
 #if SD_UIKIT || SD_MAC
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
 #endif
+                }
                 if (group) {
                     // compatible code for FLAnimatedImage, because we assume completedBlock called after image was set. This will be removed in 5.x
                     BOOL shouldUseGroup = [objc_getAssociatedObject(group, &SDWebImageInternalSetImageGroupKey) boolValue];
