@@ -63,6 +63,7 @@ static char TAG_ACTIVITY_SHOW;
     NSString *validOperationKey = operationKey ?: NSStringFromClass([self class]);
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self sd_setImageURL:url forOperationKey:validOperationKey];
     
     dispatch_group_t group = context[SDWebImageInternalSetImageGroupKey];
     if (!(options & SDWebImageDelayPlaceholder)) {
@@ -91,9 +92,9 @@ static char TAG_ACTIVITY_SHOW;
             manager = [SDWebImageManager sharedManager];
         }
         
-        __weak __typeof(self)wself = self;
+        __weak __typeof(self) wself = self;
         SDWebImageDownloaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            __strong __typeof (wself) sself = wself;
+            __strong __typeof(wself) sself = wself;
             if (!sself) { return ; }
             if ([url isEqual:sself.sd_imageURL]) {
                 sself.sd_imageProgress.totalUnitCount = expectedSize;
@@ -104,7 +105,7 @@ static char TAG_ACTIVITY_SHOW;
             }
         };
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-            __strong __typeof (wself) sself = wself;
+            __strong __typeof(wself) sself = wself;
             if (!sself) { return; }
             if ([url isEqual:sself.sd_imageURL]) {
 #if SD_UIKIT
@@ -123,7 +124,7 @@ static char TAG_ACTIVITY_SHOW;
             SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
                 __strong __typeof(wself) strongSelf = wself;
                 if (!strongSelf) { return; }
-                if (!shouldNotSetImage && [strongSelf.sd_imageURL isEqual:url]) {
+                if (!shouldNotSetImage) {
                     [strongSelf sd_setNeedsLayout];
                 }
                 if (completedBlock && shouldCallCompletedBlock) {
@@ -162,11 +163,15 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
+                NSURL *operationURL = [sself sd_getImageURLWithOperationKey:validOperationKey];
+                // One operation key associate one url, check wether current operation still loading image of url, prevent set wrong image
+                if ([operationURL isEqual:url]) {
 #if SD_UIKIT || SD_MAC
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
 #endif
+                }
                 if (group) {
                     // compatible code for FLAnimatedImage, because we assume completedBlock called after image was set. This will be removed in 5.x
                     BOOL shouldUseGroup = [objc_getAssociatedObject(group, &SDWebImageInternalSetImageGroupKey) boolValue];
@@ -181,6 +186,7 @@ static char TAG_ACTIVITY_SHOW;
             });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
+        [self sd_setImageURL:url forOperationKey:validOperationKey];
     } else {
         dispatch_main_async_safe(^{
 #if SD_UIKIT
@@ -195,7 +201,7 @@ static char TAG_ACTIVITY_SHOW;
 }
 
 - (void)sd_cancelCurrentImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:NSStringFromClass([self class])];
+    [self sd_cancelAllImageLoadOperations];
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock {

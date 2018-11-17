@@ -28,7 +28,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 @interface UIView (WebCache)
 
 /**
- * Get the current image URL.
+ * Get the current image URL, if you load images concurrently, this return the latest image URL.
  *
  * @note Note that because of the limitations of categories this property can get out of sync if you use setImage: directly.
  */

@@ -56,8 +56,21 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
             }
             @synchronized (self) {
                 [operationDictionary removeObjectForKey:key];
+                // Also remove pair of image url and operation key
+                [self sd_imageURLOperationDictionary][key] = nil;
             }
         }
+    }
+}
+
+- (void)sd_cancelAllImageLoadOperations {
+    NSDictionary<NSString *, id<SDWebImageOperation>> *operationDictionary = nil;
+    @synchronized (self) {
+         operationDictionary = [[self sd_operationDictionary] dictionaryRepresentation];
+    }
+    
+    for (NSString *key in operationDictionary.allKeys) {
+        [self sd_cancelImageLoadOperationWithKey:key];
     }
 }
 
@@ -68,6 +81,34 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
             [operationDictionary removeObjectForKey:key];
         }
     }
+}
+
+- (NSMutableDictionary<NSString *, NSURL *> *)sd_imageURLOperationDictionary {
+    @synchronized(self) {
+        NSMutableDictionary<NSString *, NSURL *> *imageURLOperationDictionay = objc_getAssociatedObject(self, _cmd);
+        if (!imageURLOperationDictionay) {
+            imageURLOperationDictionay = [NSMutableDictionary dictionary];
+            objc_setAssociatedObject(self, _cmd, imageURLOperationDictionay, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        return imageURLOperationDictionay;
+    }
+}
+
+- (void)sd_setImageURL:(NSURL *)url forOperationKey:(NSString *)operationKey {
+    if (operationKey) {
+        @synchronized (self) {
+            [self sd_imageURLOperationDictionary][operationKey] = url;
+        }
+    }
+}
+
+- (NSURL *)sd_getImageURLWithOperationKey:(nullable NSString *)operationKey {
+    if (operationKey) {
+        @synchronized (self) {
+            return [self sd_imageURLOperationDictionary][operationKey];
+        }
+    }
+    return nil;
 }
 
 @end

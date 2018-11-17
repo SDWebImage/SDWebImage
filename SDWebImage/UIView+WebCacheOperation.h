@@ -22,11 +22,16 @@
 - (void)sd_setImageLoadOperation:(nullable id<SDWebImageOperation>)operation forKey:(nullable NSString *)key;
 
 /**
- *  Cancel all operations for the current UIView and key
+ *  Cancel operation for the current UIView and key
  *
  *  @param key key for identifying the operations
  */
 - (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key;
+
+/**
+ *  Cancel all operations for the current UIView
+ */
+- (void)sd_cancelAllImageLoadOperations;
 
 /**
  *  Just remove the operations corresponding to the current UIView and key without cancelling them
@@ -34,5 +39,21 @@
  *  @param key key for identifying the operations
  */
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key;
+
+/**
+ *  Set the image URL for the operation key
+ *
+ *  @param url            the image URL
+ *  @param operationKey   key for storing the image URL
+ */
+- (void)sd_setImageURL:(nullable NSURL *)url forOperationKey:(nullable NSString *)operationKey;
+
+/**
+ *  Get the image URL for the operation key
+ *
+ *  @param operationKey   key for storing the image URL
+ *  @return image URL
+ */
+- (nullable NSURL *)sd_getImageURLWithOperationKey:(nullable NSString *)operationKey;
 
 @end
