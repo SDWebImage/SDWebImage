@@ -62,21 +62,9 @@ By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/
 
 #### Cache
 
-`SDImageCache` in 5.x, use `~/Library/com.hackemist.SDImageCache.default` as default cache path. However, 4.x use `~/Library/com.hackemist.SDWebImageCache.default`. If you have images in cache, it may be lost during migration.
+`SDImageCache` in 5.x, use `~/Library/Caches/com.hackemist.SDImageCache/default/` as default cache path. However, 4.x use `~/Library/Caches/default/com.hackemist.SDWebImageCache.default/`. And don't be worried, we will do the migration automatically once the shared cache initialized.
 
-If you still want to keep the 4.x default cache path, you can custom the cache path prefix using `namespacePrefix` property.
-
-+ Objective-C
-
-```objective-c
-SDImageCacheConfig.defaultCacheConfig.namespacePrefix = @"com.hackemist.SDWebImageCache.";
-```
-
-+ Swift
-
-```swift
-SDImageCacheConfig.`default`.namespacePrefix = "com.hackemist.SDWebImageCache."
-```
+However, if you have some other custom namespace cache instance, you should try to do migration by your own. But typically, since the cache is designed to be invalid at any time, you'd better not to bind some important logic related on that cache path changes.
 
 #### Prefetcher
 
