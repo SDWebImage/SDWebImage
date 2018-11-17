@@ -34,7 +34,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         _maxCacheAge = kDefaultCacheMaxCacheAge;
         _maxCacheSize = 0;
         _diskCacheExpireType = SDImageCacheConfigExpireTypeModificationDate;
-        _namespacePrefix = @"com.hackemist.SDImageCache.";
         _memoryCacheClass = [SDMemoryCache class];
         _diskCacheClass = [SDDiskCache class];
     }
@@ -54,7 +53,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     config.maxMemoryCost = self.maxMemoryCost;
     config.maxMemoryCount = self.maxMemoryCount;
     config.diskCacheExpireType = self.diskCacheExpireType;
-    config.namespacePrefix = self.namespacePrefix;
     config.fileManager = self.fileManager; // NSFileManager does not conform to NSCopying, just pass the reference
     config.memoryCacheClass = self.memoryCacheClass;
     config.diskCacheClass = self.diskCacheClass;

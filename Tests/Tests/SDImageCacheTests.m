@@ -356,8 +356,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
     config.memoryCacheClass = [SDWebImageTestMemoryCache class];
     NSString *nameSpace = @"SDWebImageTestMemoryCache";
-    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:nil config:config];
     SDWebImageTestMemoryCache *memCache = cache.memCache;
     expect([memCache isKindOfClass:[SDWebImageTestMemoryCache class]]).to.beTruthy();
 }
@@ -366,8 +365,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
     config.diskCacheClass = [SDWebImageTestDiskCache class];
     NSString *nameSpace = @"SDWebImageTestDiskCache";
-    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:nil config:config];
     SDWebImageTestDiskCache *diskCache = cache.diskCache;
     expect([diskCache isKindOfClass:[SDWebImageTestDiskCache class]]).to.beTruthy();
 }
@@ -378,8 +376,8 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     config.fileManager = fileManager;
     
     // Fake to store a.png into old path
-    NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
-    NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+    NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
+    NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
     [fileManager createDirectoryAtPath:oldDefaultPath withIntermediateDirectories:YES attributes:nil error:nil];
     [fileManager createFileAtPath:[oldDefaultPath stringByAppendingPathComponent:@"a.png"] contents:[NSData dataWithContentsOfFile:[self testPNGPath]] attributes:nil];
     // Call migration
@@ -609,9 +607,9 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     return [testBundle pathForResource:@"TestImage" ofType:@"png"];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
+- (nullable NSString *)userCacheDirectory {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [paths[0] stringByAppendingPathComponent:fullNamespace];
+    return paths.firstObject;
 }
 
 @end

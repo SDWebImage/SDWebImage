@@ -87,23 +87,25 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns;
 
 /**
- * Init a new cache store with a specific namespace and directory
+ * Init a new cache store with a specific namespace and directory.
+ * If you don't provide the disk cache directory, we will use the User Cache directory with prefix (~/Library/Caches/com.hackemist.SDImageCache/).
  *
  * @param ns        The namespace to use for this cache store
  * @param directory Directory to cache disk images in
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory;
+                       diskCacheDirectory:(nullable NSString *)directory;
 
 /**
  * Init a new cache store with a specific namespace, directory and file manager
+ * The final disk cache directory should looks like ($directory/$namespace). And the default config of shared cache, should result in (~/Library/Caches/com.hackemist.SDImageCache/default/)
  *
  * @param ns          The namespace to use for this cache store
  * @param directory   Directory to cache disk images in
  * @param config      The cache config to be used to create the cache. You can provide custom memory cache or disk cache class in the cache config
  */
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory
+                       diskCacheDirectory:(nullable NSString *)directory
                                    config:(nullable SDImageCacheConfig *)config NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Cache paths
