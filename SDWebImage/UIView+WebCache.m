@@ -162,13 +162,11 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
-                if ([sself.sd_imageURL isEqual:url]) {
 #if SD_UIKIT || SD_MAC
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                    [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+                [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock];
 #endif
-                }
                 if (group) {
                     // compatible code for FLAnimatedImage, because we assume completedBlock called after image was set. This will be removed in 5.x
                     BOOL shouldUseGroup = [objc_getAssociatedObject(group, &SDWebImageInternalSetImageGroupKey) boolValue];
