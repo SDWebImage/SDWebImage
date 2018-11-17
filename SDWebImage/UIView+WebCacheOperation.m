@@ -11,7 +11,7 @@
 
 static char loadOperationKey;
 
-// key is copy, value is weak because operation instance is retained by SDWebImageManager's runningOperations property
+// key is strong, value is weak because operation instance is retained by SDWebImageManager's runningOperations property
 // we should use lock to keep thread-safe because these method may not be acessed from main queue
 typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 
@@ -30,7 +30,7 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 }
 
 - (void)sd_setImageLoadOperation:(nullable id<SDWebImageOperation>)operation forKey:(nullable NSString *)key {
-    if (key) {
+    if (key && operation) {
         [self sd_cancelImageLoadOperationWithKey:key];
         if (operation) {
             SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
