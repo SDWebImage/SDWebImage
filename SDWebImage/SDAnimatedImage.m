@@ -349,6 +349,21 @@ static NSArray *SDBundlePreferredScales() {
     }
 }
 
+- (NSUInteger)animatedImageMemoryCost {
+    CGImageRef imageRef = self.CGImage;
+    if (!imageRef) {
+        return 0;
+    }
+    NSUInteger bytesPerFrame = CGImageGetBytesPerRow(imageRef) * CGImageGetHeight(imageRef);
+    NSUInteger frameCount;
+    if (self.isAllFramesLoaded) {
+        frameCount = self.animatedImageFrameCount;
+    }
+    frameCount = frameCount > 0 ? frameCount : 1;
+    NSUInteger cost = bytesPerFrame * frameCount;
+    return cost;
+}
+
 #pragma mark - NSSecureCoding
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];

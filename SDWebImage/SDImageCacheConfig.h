@@ -82,13 +82,14 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 @property (assign, nonatomic) NSUInteger maxCacheSize;
 
 /**
- * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
+ * The maximum "total cost" of the in-memory image cache. The cost function is the bytes size held in memory.
+ * @note The memory cost is bytes size in memory, but not simple pixels count. For common ARGB8888 image, one pixel is 4 bytes (32 bits).
  * Defaults to 0. Which means there is no memory cost limit.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCost;
 
 /**
- * The maximum number of objects the cache should hold.
+ * The maximum number of objects in-memory image cache should hold.
  * Defaults to 0. Which means there is no memory count limit.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCount;

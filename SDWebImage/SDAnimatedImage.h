@@ -57,6 +57,12 @@
  */
 @property (nonatomic, assign, readonly, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
+/**
+ Retuens the current loaded animated image memory size, this can help to optimize memory usage, for the cache system.
+ It's recommaned to return the current loaded frames size * bytes per frame. If you don't implements `preloadAllFrams`, don't keep decoded frames in the memory, you may not need to implements this method because we provide a default calculation.
+ */
+@property (nonatomic, assign, readonly) NSUInteger animatedImageMemoryCost;
+
 @end
 
 @interface SDAnimatedImage : UIImage <SDAnimatedImage>

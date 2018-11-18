@@ -181,7 +181,7 @@
     }
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(image);
+        NSUInteger cost = [self.class memoryCacheCostForImage:image];
         [self.memCache setObject:image forKey:key cost:cost];
     }
     
@@ -219,7 +219,7 @@
     if (!image || !key) {
         return;
     }
-    NSUInteger cost = SDMemoryCacheCostForImage(image);
+    NSUInteger cost = [self.class memoryCacheCostForImage:image];
     [self.memCache setObject:image forKey:key cost:cost];
 }
 
@@ -297,7 +297,7 @@
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+        NSUInteger cost = [self.class memoryCacheCostForImage:diskImage];
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -414,7 +414,7 @@
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+                    NSUInteger cost = [self.class memoryCacheCostForImage:diskImage];
                     [self.memCache setObject:diskImage forKey:key cost:cost];
                 }
             }
@@ -603,6 +603,16 @@
     if (cacheOptions & SDImageCacheAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
     
     return options;
+}
+
++ (NSUInteger)memoryCacheCostForImage:(nonnull UIImage *)image {
+    NSUInteger cost;
+    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && [image respondsToSelector:@selector(animatedImageMemoryCost)]) {
+        cost = ((id<SDAnimatedImage>)image).animatedImageMemoryCost;
+    } else {
+        cost = SDMemoryCacheCostForImage(image);
+    }
+    return cost;
 }
 
 @end
