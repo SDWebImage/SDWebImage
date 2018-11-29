@@ -22,7 +22,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
     }
     FLAnimatedImage *animatedImage;
     // Compatibility in 4.x for lower version FLAnimatedImage.
-    if ([FLAnimatedImage respondsToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
+    if ([FLAnimatedImage instancesRespondToSelector:@selector(initWithAnimatedGIFData:optimalFrameCacheSize:predrawingEnabled:)]) {
         animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData optimalFrameCacheSize:imageView.sd_optimalFrameCacheSize predrawingEnabled:imageView.sd_predrawingEnabled];
     } else {
         animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
