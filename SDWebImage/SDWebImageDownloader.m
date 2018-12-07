@@ -217,6 +217,9 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
     }
+    else if (options & SDWebImageDownloaderHighPriority) {
+        operation.queuePriority = NSOperationQueuePriorityHigh;
+    }
     SD_UNLOCK(self.operationsLock);
     
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
