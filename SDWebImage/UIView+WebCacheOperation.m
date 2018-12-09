@@ -102,7 +102,7 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
     }
 }
 
-- (NSURL *)sd_getImageURLWithOperationKey:(nullable NSString *)operationKey {
+- (NSURL *)sd_imageURLWithOperationKey:(nullable NSString *)operationKey {
     if (operationKey) {
         @synchronized (self) {
             return [self sd_imageURLOperationDictionary][operationKey];

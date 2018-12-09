@@ -163,7 +163,7 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
-                NSURL *operationURL = [sself sd_getImageURLWithOperationKey:validOperationKey];
+                NSURL *operationURL = [sself sd_imageURLWithOperationKey:validOperationKey];
                 // One operation key associate one url, check wether current operation still loading image of url, prevent set wrong image
                 if ([operationURL isEqual:url]) {
 #if SD_UIKIT || SD_MAC

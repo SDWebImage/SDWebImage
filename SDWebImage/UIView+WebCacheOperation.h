@@ -54,6 +54,6 @@
  *  @param operationKey   key for storing the image URL
  *  @return image URL
  */
-- (nullable NSURL *)sd_getImageURLWithOperationKey:(nullable NSString *)operationKey;
+- (nullable NSURL *)sd_imageURLWithOperationKey:(nullable NSString *)operationKey;
 
 @end
