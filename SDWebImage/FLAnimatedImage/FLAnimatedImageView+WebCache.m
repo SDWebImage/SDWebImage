@@ -175,13 +175,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                            image.sd_FLAnimatedImage = animatedImage;
                                            image.sd_memoryCost = SDWebImageCalculateFLAnimatedImageMemoryCost(animatedImage);
                                            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
-                                           UIImage *cachedImage = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:key];
-                                           // If image can be find in memory cache, we update the cost value of cost.
-                                           if (cachedImage) {
-                                               [[SDImageCache sharedImageCache] removeImageForKey:key fromDisk:NO withCompletion:^{
-                                                   [[SDImageCache sharedImageCache] storeImage:image forKey:key toDisk:NO completion:nil];
-                                               }];
-                                           }
+                                           [[SDImageCache sharedImageCache] updateImageMemoryCostWithKey:key];
                                        }
                                        sstrongSelf.image = animatedImage.posterImage;
                                        sstrongSelf.animatedImage = animatedImage;
