@@ -110,7 +110,16 @@ platform :ios, '7.0'
 pod 'SDWebImage', '~> 4.0'
 ```
 
-If you are using Swift, be sure to add `use_frameworks!` and set your target to iOS 8+:
+##### Swift
+
+If you are using `Swift`, `Xcode 9+` and `CocoaPods` `1.5.0+`, you only need to set your target to `iOS 8+` if you need static library:
+
+```
+platform :ios, '8.0'
+```
+
+If not, you still need to add `use_frameworks!` to use dynamic framework:
+
 ```
 platform :ios, '8.0'
 use_frameworks!

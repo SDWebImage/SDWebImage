@@ -23,6 +23,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   
   s.default_subspec = 'Core'
 
