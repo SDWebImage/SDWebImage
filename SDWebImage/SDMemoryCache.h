@@ -13,8 +13,8 @@
  
  For `UIImage`, this method return the single frame bytes size when `image.images` is nil for static image. Retuen full bytes per frame * frame count when `image.images` is not nil for animated image.
  For `NSImage`, this method return the single frame bytes size because `NSImage` does not store all frames in memory.
+ For custom animated class conforms to `SDAnimatedImage` and implements `animatedImageMemoryCost` method, return that value instead.
  For any other case which cause the image's CGImage bitmap representation invalid (for example, vector image), return 0;
- @note For advanced custom animated class conforms to `SDAnimatedImage`, you can also use `animatedImageMemoryCost` method to return the desired value instead of this default calculation.
 
  @param image The image to store in cache
  @return The memory cost for the image

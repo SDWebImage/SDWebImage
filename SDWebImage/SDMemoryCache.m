@@ -11,6 +11,9 @@
 #import "SDAnimatedImage.h"
 
 NSUInteger SDMemoryCacheCostForImage(UIImage * _Nullable image) {
+    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && [image respondsToSelector:@selector(animatedImageMemoryCost)]) {
+        return ((id<SDAnimatedImage>)image).animatedImageMemoryCost;
+    }
     CGImageRef imageRef = image.CGImage;
     if (!imageRef) {
         return 0;
@@ -118,7 +121,7 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
             // Sync cache
             NSUInteger cost = 0;
             if ([obj isKindOfClass:[UIImage class]]) {
-                cost = [self.class memoryCacheCostForImage:obj];
+                cost = SDMemoryCacheCostForImage(obj);
             }
             [super setObject:obj forKey:key cost:cost];
         }
@@ -149,18 +152,6 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     [self.weakCache removeAllObjects];
     SD_UNLOCK(self.weakCacheLock);
 }
-
-#pragma mark - Helper
-+ (NSUInteger)memoryCacheCostForImage:(nonnull UIImage *)image {
-    NSUInteger cost;
-    if ([image conformsToProtocol:@protocol(SDAnimatedImage)] && [image respondsToSelector:@selector(animatedImageMemoryCost)]) {
-        cost = ((id<SDAnimatedImage>)image).animatedImageMemoryCost;
-    } else {
-        cost = SDMemoryCacheCostForImage(image);
-    }
-    return cost;
-}
-
 #endif
 
 #pragma mark - KVO
