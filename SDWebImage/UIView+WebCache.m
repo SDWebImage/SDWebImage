@@ -125,7 +125,7 @@ static char TAG_ACTIVITY_SHOW;
                 __strong __typeof(wself) strongSelf = wself;
                 if (!strongSelf) { return; }
                 if (!shouldNotSetImage) {
-                    [strongSelf sd_setNeedsLayout];
+                    [sself sd_setNeedsLayout];
                 }
                 if (completedBlock && shouldCallCompletedBlock) {
                     completedBlock(image, error, cacheType, url);

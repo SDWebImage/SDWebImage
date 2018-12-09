@@ -1,11 +1,9 @@
-## [4.4.3 - 4.4 patch, on Nov 12th, 2018](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.3)
+## [4.4.3 - 4.4 patch, on Nov 25th, 2018](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.3)
 See [all tickets marked for the 4.4.3 release](https://github.com/SDWebImage/SDWebImage/milestone/28)
 
 #### Fixes
 - Revert the hack code for `FLAnimatedImage`, because of the `FLAnimatedImage` initializer method blocks the main queue #2441
-- Optimize when scale = 1 #2520
 - Fix extention long length of file name #2516 6c6d848
-- Add autoreleasepool to release autorelease objects in advance when using GCD for 4.x #2475
 - Fix resource key invalid when clean cached disk file #2463
 - Fix the test case `testFLAnimatedImageViewSetImageWithURL` because of remote resource is not available #2450
 - Add default `HTTP User-Agent` for specific system #2409
@@ -13,6 +11,14 @@ See [all tickets marked for the 4.4.3 release](https://github.com/SDWebImage/SDW
 - remove `addProgressCallback`, add `createDownloaderOperationWithUrl` #2336
 - Fix the bug when `FLAnimatedImageView` firstly show one EXIF rotation JPEG `UIImage`, later animated GIF `FLAnimatedImage` will also be rotated #2406
 - Replace `SDWebImageDownloaderOperation` with `NSOperation<SDWebImageDownloaderOperationInterface>` to make generic #2397
+- Fix wrong image cache type when disk and memory cache missed #2529
+- Fix FLAnimatedImage version check issue for custom property `optimalFrameCacheSize` && `predrawingEnabled` #2543
+
+#### Performances
+- Add autoreleasepool to release autorelease objects in advance when using GCD for 4.x #2475
+- Optimize when scale = 1 #2520
+
+#### Docs
 - Updated URLs after project was transfered to [SDWebImage organization](https://github.com/SDWebImage) #2510 f9d05d9
 - Tidy up spacing for `README.md` #2511
 - Remove versioneye from README #2424
