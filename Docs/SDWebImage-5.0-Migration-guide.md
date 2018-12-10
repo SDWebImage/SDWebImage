@@ -64,9 +64,9 @@ By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/
 
 `SDImageCache` in 5.x, use `~/Library/Caches/com.hackemist.SDImageCache/default/` as default cache path. However, 4.x use `~/Library/Caches/default/com.hackemist.SDWebImageCache.default/`. And don't be worried, we will do the migration automatically once the shared cache initialized.
 
-However, if you have some other custom namespace cache instance, you should try to do migration by your own. But typically, since the cache is designed to be invalid at any time, you'd better not to bind some important logic related on that cache path changes.
+However, if you have some other custom namespace cache instance, you should try to do migration by yourself. But typically, since the cache is designed to be invalid at any time, you'd better not to bind some important logic related on that cache path changes.
 
-And, if you're previously using any version from `5.0.0-beta` to `5.0.0-beta3`, please note that the cache folder is been temporarily moved to `~/Library/Caches/default/com.hackemist.SDImageCache.default/`, however, the final release version of 5.0.0 use the path above. If you upgrade from those beta version, you may need manually do migration, check `+[SDDiskCache moveCacheDirectoryFromPath:toPath:]` for detail information.
+And, if you're previously using any version from `5.0.0-beta` to `5.0.0-beta3`, please note that the cache folder has been temporarily moved to `~/Library/Caches/default/com.hackemist.SDImageCache.default/`, however, the final release version of 5.0.0 use the path above. If you upgrade from those beta version, you may need manually do migration, check `+[SDDiskCache moveCacheDirectoryFromPath:toPath:]` for detail information.
 
 #### Prefetcher
 
