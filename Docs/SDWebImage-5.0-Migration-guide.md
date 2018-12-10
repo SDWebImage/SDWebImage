@@ -66,6 +66,8 @@ By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/
 
 However, if you have some other custom namespace cache instance, you should try to do migration by your own. But typically, since the cache is designed to be invalid at any time, you'd better not to bind some important logic related on that cache path changes.
 
+And, if you're previously using any version from `5.0.0-beta` to `5.0.0-beta3`, please note that the cache folder is been temporarily moved to `~/Library/Caches/default/com.hackemist.SDImageCache.default/`, however, the final release version of 5.0.0 use the path above. If you upgrade from those beta version, you may need manually do migration, check `+[SDDiskCache moveCacheDirectoryFromPath:toPath:]` for detail information.
+
 #### Prefetcher
 
 `SDWebImagePrefetcher` in 5.x, change the concept of fetching batch of URLs. Now, each time you call `prefetchURLs:`, you will get a token which represents the specified URLs list. It does not cancel the previous URLs which is prefetching, which make the shared prefetcher behaves more intuitively.

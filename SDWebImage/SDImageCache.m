@@ -132,7 +132,7 @@
         dispatch_once(&onceToken, ^{
             // ~/Library/Caches/com.hackemist.SDImageCache/default/
             NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
-            // ~/Library/Caches/default/com.hackemist.SDImageCache.default/
+            // ~/Library/Caches/default/com.hackemist.SDWebImageCache.default/
             NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
             dispatch_async(self.ioQueue, ^{
                 [((SDDiskCache *)self.diskCache) moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
