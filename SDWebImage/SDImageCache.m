@@ -82,7 +82,9 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     if (key && obj) {
         // Store weak cache
         LOCK(self.weakCacheLock);
-        [self.weakCache setObject:obj forKey:key];
+        // Do the real copy of the key and only let NSMapTable manage the key's lifetime
+        // Fixes issue #2507 https://github.com/SDWebImage/SDWebImage/issues/2507
+        [self.weakCache setObject:obj forKey:[[key mutableCopy] copy]];
         UNLOCK(self.weakCacheLock);
     }
 }
