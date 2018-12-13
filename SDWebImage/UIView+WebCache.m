@@ -224,6 +224,15 @@ static char TAG_ACTIVITY_SHOW;
         };
     }
 #endif
+    else {
+        finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData){
+#if SD_MAC
+            view.layer.contents = setImage;
+#else
+            view.layer.contents = (__bridge id)setImage.CGImage;
+#endif
+        };
+    }
     
     if (transition) {
 #if SD_UIKIT
