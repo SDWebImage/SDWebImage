@@ -45,24 +45,19 @@
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns {
-    NSString *path = [self makeDiskCachePath:ns];
-    return [self initWithNamespace:ns diskCacheDirectory:path];
+    return [self initWithNamespace:ns diskCacheDirectory:nil];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory {
+                       diskCacheDirectory:(nullable NSString *)directory {
     return [self initWithNamespace:ns diskCacheDirectory:directory config:SDImageCacheConfig.defaultCacheConfig];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory
+                       diskCacheDirectory:(nullable NSString *)directory
                                    config:(nullable SDImageCacheConfig *)config {
     if ((self = [super init])) {
-        NSString *namespacePrefix = config.namespacePrefix;
-        if (!namespacePrefix) {
-            namespacePrefix = @"";
-        }
-        NSString *fullNamespace = [namespacePrefix stringByAppendingString:ns];
+        NSAssert(ns, @"Cache namespace should not be nil");
         
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", DISPATCH_QUEUE_SERIAL);
@@ -78,9 +73,9 @@
         
         // Init the disk cache
         if (directory != nil) {
-            _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
+            _diskCachePath = [directory stringByAppendingPathComponent:ns];
         } else {
-            NSString *path = [self makeDiskCachePath:ns];
+            NSString *path = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:ns];
             _diskCachePath = path;
         }
         
@@ -126,17 +121,19 @@
     return [self.diskCache cachePathForKey:key];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString *)fullNamespace {
+- (nullable NSString *)userCacheDirectory {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [paths.firstObject stringByAppendingPathComponent:fullNamespace];
+    return paths.firstObject;
 }
 
 - (void)migrateDiskCacheDirectory {
     if ([self.diskCache isKindOfClass:[SDDiskCache class]]) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
-            NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+            // ~/Library/Caches/com.hackemist.SDImageCache/default/
+            NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
+            // ~/Library/Caches/default/com.hackemist.SDWebImageCache.default/
+            NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
             dispatch_async(self.ioQueue, ^{
                 [((SDDiskCache *)self.diskCache) moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
             });
