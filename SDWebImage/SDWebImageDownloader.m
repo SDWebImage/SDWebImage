@@ -308,6 +308,15 @@
         [self.downloadQueue addOperation:operation];
     }
     UNLOCK(self.operationsLock);
+    
+    // Prioritize the operation queue priority when the current operation is pending in queue
+    if ((options & SDWebImageDownloaderHighPriority || options & SDWebImageDownloaderLowPriority) && !operation.isFinished && !operation.isExecuting) {
+        if (options & SDWebImageDownloaderHighPriority) {
+            operation.queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            operation.queuePriority = NSOperationQueuePriorityLow;
+        }
+    }
 
     id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
