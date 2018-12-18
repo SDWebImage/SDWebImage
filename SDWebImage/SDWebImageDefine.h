@@ -176,7 +176,15 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. However, you can specify to preload all frames into memory to reduce CPU usage when the animated image is shared by lots of imageViews.
      * This will actually trigger `preloadAllAnimatedImageFrames` in the background queue(Disk Cache & Download only).
      */
-    SDWebImagePreloadAllFrames = 1 << 20
+    SDWebImagePreloadAllFrames = 1 << 20,
+    
+    /**
+     * By default, when current image request contains image transformer, we only check the image cache with the exact transformed key and do normal cache query.
+     * But however, there is a case when the original image (data) is in the image cache, and you want to avoid extra downloading. Using this option, will cause we firstly do query with the transformed key. If cache miss, then do a secondary query with the original key. If original image cache hit, do image transforming in global queue. If all the caches miss, continue downloading.
+     * @note This option does no effect if you don't use image transformer feature.
+     * @note We always do image transforming asynchronously in global queue, to avoid block the main queue. So if you use this option and the image is transformed from an original image in cache, the callback is always asynchronously.
+     */
+    SDWebImageQueryOriginalAndTransform = 1 << 21,
 };
 
 
