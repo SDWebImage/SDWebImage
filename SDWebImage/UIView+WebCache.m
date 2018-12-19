@@ -70,7 +70,7 @@ static char TAG_ACTIVITY_SHOW;
             dispatch_group_enter(group);
         }
         dispatch_main_async_safe(^{
-            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
+            [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:nil];
         });
     }
     
