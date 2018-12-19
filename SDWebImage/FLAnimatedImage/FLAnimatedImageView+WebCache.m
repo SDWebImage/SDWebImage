@@ -138,8 +138,8 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            // Step 2. Check if original compressed image data is "GIF"
                            BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
                            // Check if placeholder, which does not trigger a backup disk cache query
-                           BOOL isPlaceholder = (image == placeholder);
-                           if (!isGIF || isPlaceholder) {
+                           BOOL isPlaceholder = (placeholder && image == placeholder);
+                           if (!isGIF && isPlaceholder) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
                                dispatch_group_leave(group);
