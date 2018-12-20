@@ -66,9 +66,6 @@ static char TAG_ACTIVITY_SHOW;
     
     dispatch_group_t group = context[SDWebImageInternalSetImageGroupKey];
     if (!(options & SDWebImageDelayPlaceholder)) {
-        if (group) {
-            dispatch_group_enter(group);
-        }
         dispatch_main_async_safe(^{
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:nil];
         });
