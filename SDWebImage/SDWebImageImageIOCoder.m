@@ -104,9 +104,42 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data];
+    if (data.length/1024 > 128) {
+        image = [self compressImageWith:image];
+    }
     image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
     
     return image;
+}
+
+- (UIImage *)compressImageWith:(UIImage *)image
+{
+    float imageWidth = image.size.width;
+    float imageHeight = image.size.height;
+    float width = 640;
+    float height = image.size.height/(image.size.width/width);
+    
+    float widthScale = imageWidth /width;
+    float heightScale = imageHeight /height;
+    
+    // 创建一个bitmap的context
+    // 并把它设置成为当前正在使用的context
+    UIGraphicsBeginImageContext(CGSizeMake(width, height));
+    
+    if (widthScale > heightScale) {
+        [image drawInRect:CGRectMake(0, 0, imageWidth /heightScale , height)];
+    }
+    else {
+        [image drawInRect:CGRectMake(0, 0, width , imageHeight /widthScale)];
+    }
+    
+    // 从当前context中创建一个改变大小后的图片
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    // 使当前的context出堆栈
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+    
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
