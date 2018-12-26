@@ -64,11 +64,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @synthesize executing = _executing;
 @synthesize finished = _finished;
 
-- (void)dealloc {
-    // Edge case if user call [SDWebImageDownloaderOperation start] directly and deallocated it.
-    [self cancel];
-}
-
 - (nonnull instancetype)init {
     return [self initWithRequest:nil inSession:nil options:0];
 }
