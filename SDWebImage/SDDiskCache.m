@@ -172,10 +172,10 @@
     
     // If our remaining disk cache exceeds a configured maximum size, perform a second
     // size-based cleanup pass.  We delete the oldest files first.
-    NSUInteger maxCacheSize = self.config.maxDiskSize;
-    if (maxCacheSize > 0 && currentCacheSize > maxCacheSize) {
+    NSUInteger maxDiskSize = self.config.maxDiskSize;
+    if (maxDiskSize > 0 && currentCacheSize > maxDiskSize) {
         // Target half of our maximum cache size for this cleanup pass.
-        const NSUInteger desiredCacheSize = maxCacheSize / 2;
+        const NSUInteger desiredCacheSize = maxDiskSize / 2;
         
         // Sort the remaining cache files by their last modification time or last access time (oldest first).
         NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent

@@ -321,7 +321,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 #pragma mark - Cache Info
 
 /**
- * Get the size used by the disk cache
+ * Get the total bytes size of images in the disk cache
  */
 - (NSUInteger)totalDiskSize;
 
