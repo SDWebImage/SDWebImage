@@ -323,12 +323,12 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 /**
  * Get the size used by the disk cache
  */
-- (NSUInteger)getSize;
+- (NSUInteger)totalDiskSize;
 
 /**
  * Get the number of images in the disk cache
  */
-- (NSUInteger)getDiskCount;
+- (NSUInteger)totalDiskCount;
 
 /**
  * Asynchronously calculate the disk cache's size.

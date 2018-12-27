@@ -135,7 +135,7 @@
                                                                   options:NSDirectoryEnumerationSkipsHiddenFiles
                                                              errorHandler:NULL];
     
-    NSDate *expirationDate = (self.config.maxCacheAge < 0) ? nil: [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
+    NSDate *expirationDate = (self.config.maxDiskAge < 0) ? nil: [NSDate dateWithTimeIntervalSinceNow:-self.config.maxDiskAge];
     NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
     NSUInteger currentCacheSize = 0;
     
@@ -172,7 +172,7 @@
     
     // If our remaining disk cache exceeds a configured maximum size, perform a second
     // size-based cleanup pass.  We delete the oldest files first.
-    NSUInteger maxCacheSize = self.config.maxCacheSize;
+    NSUInteger maxCacheSize = self.config.maxDiskSize;
     if (maxCacheSize > 0 && currentCacheSize > maxCacheSize) {
         // Target half of our maximum cache size for this cleanup pass.
         const NSUInteger desiredCacheSize = maxCacheSize / 2;
