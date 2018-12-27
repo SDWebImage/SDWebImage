@@ -15,13 +15,6 @@
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
-#import "UIImage+CacheMemoryCost.h"
-
-static inline NSUInteger SDWebImageCalculateFLAnimatedImageMemoryCost(FLAnimatedImage *image) {
-    UIImage *posterImage = image.posterImage;
-    // Calculate pixels value, we use pixels as cost to store into memory cache, so we also use image.data's bytes length divide 4.
-    return image.frameCacheSizeCurrent * posterImage.size.height * posterImage.size.width * posterImage.scale * posterImage.scale + image.data.length / 4;
-}
 
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
@@ -152,7 +145,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                dispatch_group_leave(group);
                                return;
                            }
-
                            __weak typeof(strongSelf) wweakSelf = strongSelf;
                            // Hack, mark we need should use dispatch group notify for completedBlock
                            objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -173,9 +165,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                    if (animatedImage) {
                                        if (sstrongSelf.sd_cacheFLAnimatedImage) {
                                            image.sd_FLAnimatedImage = animatedImage;
-                                           image.sd_memoryCost = SDWebImageCalculateFLAnimatedImageMemoryCost(animatedImage);
-                                           NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
-                                           [[SDImageCache sharedImageCache] updateImageMemoryCostWithKey:key];
                                        }
                                        sstrongSelf.image = animatedImage.posterImage;
                                        sstrongSelf.animatedImage = animatedImage;
