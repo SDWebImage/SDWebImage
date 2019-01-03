@@ -160,6 +160,17 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  */
 - (void)storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key;
 
+#pragma mark - Update Ops
+
+/**
+ * Update image memory cost if image already be stored in memory.
+ *
+ *
+ * @param key        The unique image cache key, usually it's image absolute URL
+ * @note After image be stored in memory cache, if image's memory size changes, such as set a large memory associated object to it, or subclass `UIImage` which has its own large memory properties, you can use this to update memory cost which can make memory cache handle `maxMemoryCost` correctly
+ */
+- (void)updateImageMemoryCostWithKey:(nullable NSString *)key;
+
 #pragma mark - Query and Retrieve Ops
 
 /**
