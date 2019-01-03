@@ -6,10 +6,10 @@
  * file that was distributed with this source code.
  */
 
-#import "UIImage+CacheMemoryCost.h"
+#import "UIImage+MemoryCacheCost.h"
 #import "objc/runtime.h"
 
-FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
+FOUNDATION_STATIC_INLINE NSUInteger SDMemoryCacheCostForImage(UIImage *image) {
 #if SD_MAC
     return image.size.height * image.size.width;
 #elif SD_UIKIT || SD_WATCH
@@ -18,14 +18,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 #endif
 }
 
-@implementation UIImage (CacheMemoryCost)
+@implementation UIImage (MemoryCacheCost)
 
 - (NSUInteger)sd_memoryCost {
-    NSNumber *memoryCost = objc_getAssociatedObject(self, _cmd);
-    if (memoryCost == nil) {
-        memoryCost = @(SDCacheCostForImage(self));
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_memoryCost));
+    NSUInteger memoryCost;
+    if (value != nil) {
+        memoryCost = [value unsignedIntegerValue];
+    } else {
+        memoryCost = SDMemoryCacheCostForImage(self);
     }
-    return [memoryCost unsignedIntegerValue];
+    return memoryCost;
 }
 
 - (void)setSd_memoryCost:(NSUInteger)sd_memoryCost {

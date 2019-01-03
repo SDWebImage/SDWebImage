@@ -8,7 +8,7 @@
 
 #import "SDWebImageCompat.h"
 
-@interface UIImage (CacheMemoryCost)
+@interface UIImage (MemoryCacheCost)
 
 /**
  The memory cache cost for specify image used by image cache. The cost function is the pixles count held in memory.
