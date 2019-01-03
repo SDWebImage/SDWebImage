@@ -8,14 +8,6 @@
 
 #import "SDWebImageCompat.h"
 
-/**
- Return the memory cache cost for specify image
-
- @param image The image to store in cache
- @return The memory cost for the image
- */
-FOUNDATION_EXPORT NSUInteger SDMemoryCacheCostForImage(UIImage * _Nullable image);
-
 @class SDImageCacheConfig;
 // A protocol to allow custom memory cache used in SDImageCache.
 @protocol SDMemoryCache <NSObject>

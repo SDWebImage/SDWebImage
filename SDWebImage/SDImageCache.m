@@ -14,6 +14,7 @@
 #import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
+#import "UIImage+MemoryCacheCost.h"
 
 @interface SDImageCache ()
 
@@ -178,7 +179,7 @@
     }
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(image);
+        NSUInteger cost = image.sd_memoryCost;
         [self.memCache setObject:image forKey:key cost:cost];
     }
     
@@ -216,7 +217,7 @@
     if (!image || !key) {
         return;
     }
-    NSUInteger cost = SDMemoryCacheCostForImage(image);
+    NSUInteger cost = image.sd_memoryCost;
     [self.memCache setObject:image forKey:key cost:cost];
 }
 
@@ -294,7 +295,7 @@
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+        NSUInteger cost = diskImage.sd_memoryCost;
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -411,7 +412,7 @@
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+                    NSUInteger cost = diskImage.sd_memoryCost;
                     [self.memCache setObject:diskImage forKey:key cost:cost];
                 }
             }

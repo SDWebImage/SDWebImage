@@ -8,14 +8,7 @@
 
 #import "SDMemoryCache.h"
 #import "SDImageCacheConfig.h"
-
-NSUInteger SDMemoryCacheCostForImage(UIImage * _Nullable image) {
-#if SD_MAC
-    return image.size.height * image.size.width;
-#elif SD_UIKIT || SD_WATCH
-    return image.size.height * image.size.width * image.scale * image.scale;
-#endif
-}
+#import "UIImage+MemoryCacheCost.h"
 
 static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 
@@ -109,7 +102,7 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
             // Sync cache
             NSUInteger cost = 0;
             if ([obj isKindOfClass:[UIImage class]]) {
-                cost = SDMemoryCacheCostForImage(obj);
+                cost = [(UIImage *)obj sd_memoryCost];
             }
             [super setObject:obj forKey:key cost:cost];
         }
