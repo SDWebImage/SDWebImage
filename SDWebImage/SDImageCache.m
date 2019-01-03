@@ -359,18 +359,6 @@
     }
 }
 
-#pragma mark - Update Ops
-
-- (void)updateImageMemoryCostWithKey:(NSString *)key {
-    UIImage *cachedImage = [self imageFromMemoryCacheForKey:key];
-    // If image can be find in memory cache, we update the cost value of cost.
-    if (cachedImage) {
-        [self removeImageForKey:key fromDisk:NO withCompletion:^{
-            [self storeImage:cachedImage forKey:key toDisk:NO completion:nil];
-        }];
-    }
-}
-
 #pragma mark - Query and Retrieve Ops
 
 - (void)diskImageExistsWithKey:(nullable NSString *)key completion:(nullable SDWebImageCheckCacheCompletionBlock)completionBlock {
