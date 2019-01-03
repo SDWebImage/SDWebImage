@@ -37,6 +37,7 @@ static inline NSUInteger SDWebImageMemoryCostFLAnimatedImage(FLAnimatedImage *an
     NSUInteger animatedImageCost = frameCacheSizeCurrent * pixelsPerFrame;
     
     NSUInteger imageCost = image.size.height * image.size.width * image.scale * image.scale; // Same as normal cost calculation
+    imageCost = image.images ? (imageCost * image.images.count) : imageCost;
     
     return animatedImageCost + imageCost;
 }
