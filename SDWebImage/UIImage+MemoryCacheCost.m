@@ -8,14 +8,22 @@
 
 #import "UIImage+MemoryCacheCost.h"
 #import "objc/runtime.h"
+#import "NSImage+Compatibility.h"
 
 FOUNDATION_STATIC_INLINE NSUInteger SDMemoryCacheCostForImage(UIImage *image) {
+    CGImageRef imageRef = image.CGImage;
+    if (!imageRef) {
+        return 0;
+    }
+    NSUInteger bytesPerFrame = CGImageGetBytesPerRow(imageRef) * CGImageGetHeight(imageRef);
+    NSUInteger frameCount;
 #if SD_MAC
-    return image.size.height * image.size.width;
+    frameCount = 1;
 #elif SD_UIKIT || SD_WATCH
-    NSUInteger imageSize = image.size.height * image.size.width * image.scale * image.scale;
-    return image.images ? (imageSize * image.images.count) : imageSize;
+    frameCount = image.images.count > 0 ? image.images.count : 1;
 #endif
+    NSUInteger cost = bytesPerFrame * frameCount;
+    return cost;
 }
 
 @implementation UIImage (MemoryCacheCost)
