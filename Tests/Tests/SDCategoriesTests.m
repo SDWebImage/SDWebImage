@@ -140,6 +140,35 @@ static void * SDCategoriesTestsContext = &SDCategoriesTestsContext;
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)testFLAnimatedImageViewSetImageWithPlaceholderFromCacheForSameURL {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"FLAnimatedImageView set image with a placeholder which is the same as the cached image for same url"];
+    /**
+     This is a really rare case. Some of user, who query the cache key for one GIF url and get the placeholder
+     Then use the placeholder and trigger a query for same url, because it will hit memory cache immediately, so the two `setImageBlock` call will have the same image instance and hard to distinguish. (Because we should not do async disk cache check for placeholder)
+     */
+    
+    FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://assets.sbnation.com/assets/2512203/dogflops.gif"];
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:originalImageURL];
+    
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        
+        UIImage *cachedImage = [SDImageCache.sharedImageCache imageFromCacheForKey:key];
+        expect(cachedImage).toNot.beNil(); // Should be stored
+        cachedImage.sd_FLAnimatedImage = nil; // Cleanup the associated FLAnimatedImage instance
+        
+        [imageView sd_setImageWithURL:originalImageURL
+                     placeholderImage:cachedImage
+                            completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                                expect(image).to.equal(cachedImage); // should hit the cache and it's the same as placeholder
+                                expect(imageView.animatedImage).toNot.beNil();
+                                [expectation fulfill];
+                            }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)testUIViewImageProgressKVOWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView imageProgressKVO failed"];
     UIView *view = [[UIView alloc] init];
