@@ -16,6 +16,13 @@
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
 
+typedef void (^sd_cleanupBlock_t)(void);
+static void sd_executeCleanupBlock(__strong sd_cleanupBlock_t *block) {
+    (*block)();
+}
+#define onExit \
+__strong sd_cleanupBlock_t sd_exitBlock_temp __attribute__((cleanup(sd_executeCleanupBlock), unused)) = ^
+
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
         return nil;
@@ -120,9 +127,13 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                              options:options
                         operationKey:nil
                        setImageBlock:^(UIImage *image, NSData *imageData) {
+                           onExit {
+                               if (group) {
+                                   dispatch_group_leave(group);
+                               }
+                           };
                            __strong typeof(weakSelf)strongSelf = weakSelf;
                            if (!strongSelf) {
-                               dispatch_group_leave(group);
                                return;
                            }
                            // Step 1. Check memory cache (associate object)
@@ -132,7 +143,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                // FLAnimatedImage framework contains a bug that cause GIF been rotated if previous rendered image orientation is not Up. We have to call `setImage:` with non-nil image to reset the state. See `https://github.com/SDWebImage/SDWebImage/issues/2402`
                                strongSelf.image = associatedAnimatedImage.posterImage;
                                strongSelf.animatedImage = associatedAnimatedImage;
-                               dispatch_group_leave(group);
                                return;
                            }
                            // Step 2. Check if original compressed image data is "GIF"
@@ -142,7 +152,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            if (!isGIF || isPlaceholder) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
-                               dispatch_group_leave(group);
                                return;
                            }
                            __weak typeof(strongSelf) wweakSelf = strongSelf;
@@ -172,7 +181,6 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                        sstrongSelf.image = image;
                                        sstrongSelf.animatedImage = nil;
                                    }
-                                   dispatch_group_leave(group);
                                });
                            });
                        }
