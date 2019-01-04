@@ -37,6 +37,18 @@
 		00733A711BC4880E00A5A117 /* UIImageView+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 53922D95148C56230056699D /* UIImageView+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		00733A721BC4880E00A5A117 /* UIView+WebCacheOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		00733A731BC4880E00A5A117 /* SDWebImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2CAE031AB4BB5400B6BC39 /* SDWebImage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0A21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0B21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0C21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0D21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0E21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA0F21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E9EFA1021983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
+		0E9EFA1121983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
+		0E9EFA1221983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
+		0E9EFA1321983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
+		0E9EFA1421983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
+		0E9EFA1521983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */; };
 		320224BB203979BA00E9F285 /* SDAnimatedImageRep.h in Headers */ = {isa = PBXBuildFile; fileRef = 320224B9203979BA00E9F285 /* SDAnimatedImageRep.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		320224BC203979BA00E9F285 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 320224BA203979BA00E9F285 /* SDAnimatedImageRep.m */; };
 		321DB3612011D4D70015D2CB /* NSButton+WebCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1289,6 +1301,8 @@
 
 /* Begin PBXFileReference section */
 		00733A4C1BC487C000A5A117 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+MemoryCacheCost.h"; sourceTree = "<group>"; };
+		0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MemoryCacheCost.m"; sourceTree = "<group>"; };
 		320224B9203979BA00E9F285 /* SDAnimatedImageRep.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDAnimatedImageRep.h; sourceTree = "<group>"; };
 		320224BA203979BA00E9F285 /* SDAnimatedImageRep.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDAnimatedImageRep.m; sourceTree = "<group>"; };
 		321DB35F2011D4D60015D2CB /* NSButton+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSButton+WebCache.h"; path = "SDWebImage/NSButton+WebCache.h"; sourceTree = "<group>"; };
@@ -1790,6 +1804,8 @@
 				321E60BD1F38E91700405457 /* UIImage+ForceDecode.m */,
 				AB615301192DA24600A2D8E9 /* UIView+WebCacheOperation.h */,
 				AB615302192DA24600A2D8E9 /* UIView+WebCacheOperation.m */,
+				0E9EFA0821983283005D7892 /* UIImage+MemoryCacheCost.h */,
+				0E9EFA0921983283005D7892 /* UIImage+MemoryCacheCost.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -2018,6 +2034,7 @@
 				4369C27A1D9807EC007E863A /* UIView+WebCache.h in Headers */,
 				80377DCC1F2F66A700F89830 /* lossless_common.h in Headers */,
 				321E60971F38E8ED00405457 /* SDWebImageImageIOCoder.h in Headers */,
+				0E9EFA0D21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				43A918671D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				431739571CDFC8B70008FEB9 /* encode.h in Headers */,
 				00733A6F1BC4880E00A5A117 /* UIImage+WebP.h in Headers */,
@@ -2109,6 +2126,7 @@
 				4314D16D1D0E0E3B004B36C9 /* SDImageCache.h in Headers */,
 				4314D16F1D0E0E3B004B36C9 /* NSData+ImageContentType.h in Headers */,
 				80377C121F2F666300F89830 /* bit_reader_inl_utils.h in Headers */,
+				0E9EFA0B21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				4314D1701D0E0E3B004B36C9 /* mux.h in Headers */,
 				321E60871F38E8C800405457 /* SDWebImageCoder.h in Headers */,
 				80377EA21F2F66D400F89830 /* vp8i_dec.h in Headers */,
@@ -2175,6 +2193,7 @@
 				431BB6DC1D06D2C1006A3455 /* UIButton+WebCache.h in Headers */,
 				431BB6E11D06D2C1006A3455 /* SDWebImage.h in Headers */,
 				80377E311F2F66A800F89830 /* yuv.h in Headers */,
+				0E9EFA0E21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				80377ECA1F2F66D500F89830 /* common_dec.h in Headers */,
 				80377C771F2F666400F89830 /* thread_utils.h in Headers */,
 				80377E1F1F2F66A800F89830 /* mips_macro.h in Headers */,
@@ -2264,6 +2283,7 @@
 				4397D2C81D0DDD8C00BB2784 /* SDWebImageCompat.h in Headers */,
 				4397D2CB1D0DDD8C00BB2784 /* UIImageView+HighlightedWebCache.h in Headers */,
 				4397D2CC1D0DDD8C00BB2784 /* mux.h in Headers */,
+				0E9EFA0F21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				80377C911F2F666400F89830 /* thread_utils.h in Headers */,
 				4397D2D01D0DDD8C00BB2784 /* SDWebImageDownloaderOperation.h in Headers */,
 				4397D2D11D0DDD8C00BB2784 /* decode.h in Headers */,
@@ -2334,6 +2354,7 @@
 				80377D871F2F66A700F89830 /* lossless_common.h in Headers */,
 				321E60961F38E8ED00405457 /* SDWebImageImageIOCoder.h in Headers */,
 				4A2CAE041AB4BB5400B6BC39 /* SDWebImage.h in Headers */,
+				0E9EFA0C21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				431739511CDFC8B70008FEB9 /* format_constants.h in Headers */,
 				43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				323F8B701F38EF770092B609 /* delta_palettization_enc.h in Headers */,
@@ -2429,6 +2450,7 @@
 				80377D0B1F2F66A100F89830 /* mips_macro.h in Headers */,
 				5376131A155AD0D5005750A4 /* SDWebImageDownloader.h in Headers */,
 				4369C2771D9807EC007E863A /* UIView+WebCache.h in Headers */,
+				0E9EFA0A21983283005D7892 /* UIImage+MemoryCacheCost.h in Headers */,
 				80377CEF1F2F66A100F89830 /* dsp.h in Headers */,
 				80377C011F2F665300F89830 /* filters_utils.h in Headers */,
 				5376131C155AD0D5005750A4 /* SDWebImageManager.h in Headers */,
@@ -2698,6 +2720,7 @@
 				323F8BBD1F38EF770092B609 /* predictor_enc.c in Sources */,
 				3290FA0D1FA478AF0047D20C /* SDWebImageFrame.m in Sources */,
 				80377DBD1F2F66A700F89830 /* dec.c in Sources */,
+				0E9EFA1321983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				00733A561BC4880000A5A117 /* SDWebImageDownloaderOperation.m in Sources */,
 				80377DE71F2F66A700F89830 /* upsampling.c in Sources */,
 				321E60C71F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
@@ -2972,6 +2995,7 @@
 				321E60B71F38E90100405457 /* SDWebImageWebPCoder.m in Sources */,
 				80377D5D1F2F66A700F89830 /* upsampling.c in Sources */,
 				80377D251F2F66A700F89830 /* argb.c in Sources */,
+				0E9EFA1121983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				80377D281F2F66A700F89830 /* cost_mips32.c in Sources */,
 				323F8BF11F38EF770092B609 /* anim_encode.c in Sources */,
 				4314D1551D0E0E3B004B36C9 /* UIImageView+HighlightedWebCache.m in Sources */,
@@ -3116,6 +3140,7 @@
 				321E60BA1F38E90100405457 /* SDWebImageWebPCoder.m in Sources */,
 				80377E2C1F2F66A800F89830 /* upsampling.c in Sources */,
 				80377DF41F2F66A800F89830 /* argb.c in Sources */,
+				0E9EFA1421983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				80377DF71F2F66A800F89830 /* cost_mips32.c in Sources */,
 				323F8BF41F38EF770092B609 /* anim_encode.c in Sources */,
 				80377C6E1F2F666400F89830 /* quant_levels_dec_utils.c in Sources */,
@@ -3134,6 +3159,7 @@
 				80377E511F2F66A800F89830 /* filters_mips_dsp_r2.c in Sources */,
 				80377E371F2F66A800F89830 /* argb_mips_dsp_r2.c in Sources */,
 				80377E471F2F66A800F89830 /* dec.c in Sources */,
+				0E9EFA1521983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				80377C921F2F666400F89830 /* utils.c in Sources */,
 				4397D27E1D0DDD8C00BB2784 /* UIImage+GIF.m in Sources */,
 				321E60911F38E8C800405457 /* SDWebImageCoder.m in Sources */,
@@ -3282,6 +3308,7 @@
 				323F8BBC1F38EF770092B609 /* predictor_enc.c in Sources */,
 				3290FA0C1FA478AF0047D20C /* SDWebImageFrame.m in Sources */,
 				80377D781F2F66A700F89830 /* dec.c in Sources */,
+				0E9EFA1221983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				80377DA21F2F66A700F89830 /* upsampling.c in Sources */,
 				80377C401F2F666300F89830 /* rescaler_utils.c in Sources */,
 				321E60C61F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
@@ -3430,6 +3457,7 @@
 				323F8BBA1F38EF770092B609 /* predictor_enc.c in Sources */,
 				3290FA0A1FA478AF0047D20C /* SDWebImageFrame.m in Sources */,
 				80377CEE1F2F66A100F89830 /* dec.c in Sources */,
+				0E9EFA1021983283005D7892 /* UIImage+MemoryCacheCost.m in Sources */,
 				80377D181F2F66A100F89830 /* upsampling.c in Sources */,
 				80377C0C1F2F665300F89830 /* rescaler_utils.c in Sources */,
 				321E60C41F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
