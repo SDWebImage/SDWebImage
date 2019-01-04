@@ -11,9 +11,13 @@
 #import "SDWebImageTransition.h"
 
 /**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
+ A Dispatch group to maintain setImageBlock and completionBlock. This value should not be used in public APIs. (dispatch_group_t)
  */
 FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
+/**
+ A private context instance to maintain setImageBlock logic inside framework. This value should not be used in public APIs. (SDWebImageSetImageContext)
+ */
+FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageContextKey;
 /**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
  */
@@ -135,5 +139,13 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 #endif
 
 #endif
+
+@end
+
+// Private context object, should not be used outside the framework
+@interface SDWebImageSetImageContext : NSObject
+
+@property (nonatomic, assign) BOOL isPlaceholder;
+@property (nonatomic, assign) BOOL isAsyncCallback;
 
 @end

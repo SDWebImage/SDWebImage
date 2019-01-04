@@ -114,6 +114,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
     dispatch_group_t group = dispatch_group_create();
+    SDWebImageSetImageContext *setImageContext = [SDWebImageSetImageContext new];
     __weak typeof(self)weakSelf = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -138,7 +139,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                            // Step 2. Check if original compressed image data is "GIF"
                            BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
                            // Check if placeholder, which does not trigger a backup disk cache query
-                           BOOL isPlaceholder = (image == placeholder);
+                           BOOL isPlaceholder = setImageContext.isPlaceholder;
                            if (!isGIF || isPlaceholder) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
@@ -146,8 +147,8 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                return;
                            }
                            __weak typeof(strongSelf) wweakSelf = strongSelf;
-                           // Hack, mark we need should use dispatch group notify for completedBlock
-                           objc_setAssociatedObject(group, &SDWebImageInternalSetImageGroupKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                           // Mark we need should use dispatch group notify for completedBlock
+                           setImageContext.isAsyncCallback = YES;
                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                                __strong typeof(wweakSelf) sstrongSelf = wweakSelf;
                                if (!sstrongSelf || ![url isEqual:sstrongSelf.sd_imageURL]) { return ; }
@@ -178,7 +179,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                        }
                             progress:progressBlock
                            completed:completedBlock
-                             context:@{SDWebImageInternalSetImageGroupKey: group}];
+                             context:@{SDWebImageInternalSetImageGroupKey: group, SDWebImageInternalSetImageContextKey : setImageContext}];
 }
 
 @end

@@ -11,6 +11,7 @@
 #import "UIView+WebCacheOperation.h"
 
 NSString * const SDWebImageInternalSetImageGroupKey = @"internalSetImageGroup";
+NSString * const SDWebImageInternalSetImageContextKey = @"internalSetImageContext";
 NSString * const SDWebImageExternalCustomManagerKey = @"externalCustomManager";
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
@@ -64,10 +65,15 @@ static char TAG_ACTIVITY_SHOW;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
+    // compatible code for FLAnimatedImage
     dispatch_group_t group = context[SDWebImageInternalSetImageGroupKey];
+    SDWebImageSetImageContext *setImageContext = context[SDWebImageInternalSetImageContextKey];
     if (!(options & SDWebImageDelayPlaceholder)) {
         if (group) {
             dispatch_group_enter(group);
+        }
+        if (setImageContext) {
+            setImageContext.isPlaceholder = YES;
         }
         dispatch_main_async_safe(^{
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock];
@@ -154,6 +160,9 @@ static char TAG_ACTIVITY_SHOW;
                 if (group) {
                     dispatch_group_enter(group);
                 }
+                if (setImageContext) {
+                    setImageContext.isPlaceholder = NO;
+                }
 #if SD_UIKIT || SD_MAC
                 [sself sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
@@ -161,8 +170,8 @@ static char TAG_ACTIVITY_SHOW;
 #endif
                 if (group) {
                     // compatible code for FLAnimatedImage, because we assume completedBlock called after image was set. This will be removed in 5.x
-                    BOOL shouldUseGroup = [objc_getAssociatedObject(group, &SDWebImageInternalSetImageGroupKey) boolValue];
-                    if (shouldUseGroup) {
+                    BOOL isAsyncCallback = setImageContext.isAsyncCallback;
+                    if (isAsyncCallback) {
                         dispatch_group_notify(group, dispatch_get_main_queue(), callCompletedBlockClojure);
                     } else {
                         callCompletedBlockClojure();
@@ -362,5 +371,9 @@ static char TAG_ACTIVITY_SHOW;
 #endif
 
 #endif
+
+@end
+
+@implementation SDWebImageSetImageContext
 
 @end
