@@ -247,20 +247,7 @@ static id<SDImageLoader> _defaultImageLoader;
                 // Image refresh hit the NSURLCache cache, do not call the completion block
             } else if (error) {
                 [self callCompletionBlockForOperation:strongOperation completion:completedBlock error:error url:url];
-                BOOL shouldBlockFailedURL;
-                // Check whether we should block failed url
-                if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
-                    shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
-                } else {
-                    shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
-                                            && error.code != NSURLErrorCancelled
-                                            && error.code != NSURLErrorTimedOut
-                                            && error.code != NSURLErrorInternationalRoamingOff
-                                            && error.code != NSURLErrorDataNotAllowed
-                                            && error.code != NSURLErrorCannotFindHost
-                                            && error.code != NSURLErrorCannotConnectToHost
-                                            && error.code != NSURLErrorNetworkConnectionLost);
-                }
+                BOOL shouldBlockFailedURL = [self shouldBlockFailedURLWithURL:url error:error];
                 
                 if (shouldBlockFailedURL) {
                     SD_LOCK(self.failedURLsLock);
@@ -378,6 +365,33 @@ static id<SDImageLoader> _defaultImageLoader;
             completionBlock(image, data, error, cacheType, finished, url);
         }
     });
+}
+
+- (BOOL)shouldBlockFailedURLWithURL:(nonnull NSURL *)url
+                              error:(nonnull NSError *)error {
+    // Check whether we should block failed url
+    BOOL shouldBlockFailedURL;
+    if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
+        shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
+    } else {
+        NSString *domain = error.domain;
+        NSInteger code = error.code;
+        if ([domain isEqualToString:NSURLErrorDomain]) {
+            shouldBlockFailedURL = (   code != NSURLErrorNotConnectedToInternet
+                                    && code != NSURLErrorCancelled
+                                    && code != NSURLErrorTimedOut
+                                    && code != NSURLErrorInternationalRoamingOff
+                                    && code != NSURLErrorDataNotAllowed
+                                    && code != NSURLErrorCannotFindHost
+                                    && code != NSURLErrorCannotConnectToHost
+                                    && code != NSURLErrorNetworkConnectionLost);
+        } else {
+            // Custom loader, don't do extra error code check
+            shouldBlockFailedURL = NO;
+        }
+    }
+    
+    return shouldBlockFailedURL;
 }
 
 - (SDWebImageContext *)processedContextWithContext:(SDWebImageContext *)context {
