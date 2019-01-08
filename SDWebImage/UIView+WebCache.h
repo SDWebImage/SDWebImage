@@ -145,7 +145,4 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 // Private context object, should not be used outside the framework
 @interface SDWebImageSetImageContext : NSObject
 
-@property (nonatomic, assign) BOOL isPlaceholder;
-@property (nonatomic, assign) BOOL isAsyncCallback;
-
 @end

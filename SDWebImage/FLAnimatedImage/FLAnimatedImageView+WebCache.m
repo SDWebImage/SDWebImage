@@ -16,6 +16,13 @@
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
 
+@interface SDWebImageSetImageContext ()
+
+@property (nonatomic, assign) BOOL isPlaceholder;
+@property (nonatomic, assign) BOOL isAsyncCallback;
+
+@end
+
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
         return nil;

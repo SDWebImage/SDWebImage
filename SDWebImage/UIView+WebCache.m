@@ -24,6 +24,13 @@ static char TAG_ACTIVITY_STYLE;
 static char TAG_ACTIVITY_SHOW;
 #endif
 
+@interface SDWebImageSetImageContext ()
+
+@property (nonatomic, assign) BOOL isPlaceholder;
+@property (nonatomic, assign) BOOL isAsyncCallback;
+
+@end
+
 @implementation UIView (WebCache)
 
 - (nullable NSURL *)sd_imageURL {
