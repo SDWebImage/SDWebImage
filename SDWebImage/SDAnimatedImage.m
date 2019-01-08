@@ -429,13 +429,9 @@ static NSArray *SDBundlePreferredScales() {
 
 @end
 
-@interface SDAnimatedImage (MemoryCacheCost)
-
-@end
-
 @implementation SDAnimatedImage (MemoryCacheCost)
 
-- (NSUInteger)sd_imageMemoryCost {
+- (NSUInteger)sd_memoryCost {
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_memoryCost));
     if (value != nil) {
         return value.unsignedIntegerValue;
