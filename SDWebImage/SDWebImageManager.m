@@ -374,14 +374,21 @@ static id<SDImageLoader> _defaultImageLoader;
     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
-        shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
-                                && error.code != NSURLErrorCancelled
-                                && error.code != NSURLErrorTimedOut
-                                && error.code != NSURLErrorInternationalRoamingOff
-                                && error.code != NSURLErrorDataNotAllowed
-                                && error.code != NSURLErrorCannotFindHost
-                                && error.code != NSURLErrorCannotConnectToHost
-                                && error.code != NSURLErrorNetworkConnectionLost);
+        NSString *domain = error.domain;
+        NSInteger code = error.code;
+        if ([domain isEqualToString:NSURLErrorDomain]) {
+            shouldBlockFailedURL = (   code != NSURLErrorNotConnectedToInternet
+                                    && code != NSURLErrorCancelled
+                                    && code != NSURLErrorTimedOut
+                                    && code != NSURLErrorInternationalRoamingOff
+                                    && code != NSURLErrorDataNotAllowed
+                                    && code != NSURLErrorCannotFindHost
+                                    && code != NSURLErrorCannotConnectToHost
+                                    && code != NSURLErrorNetworkConnectionLost);
+        } else {
+            // Custom loader, don't do extra error code check
+            shouldBlockFailedURL = NO;
+        }
     }
     
     return shouldBlockFailedURL;
