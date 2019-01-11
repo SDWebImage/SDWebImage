@@ -193,8 +193,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(self) strongSelf = self;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:strongSelf];
         });
     } else {
@@ -216,8 +216,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         [self.dataTask cancel];
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(self) strongSelf = self;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
         });
 
@@ -303,9 +303,8 @@ didReceiveResponse:(NSURLResponse *)response
         // Status code invalid and marked as cancelled. Do not call `[self.dataTask cancel]` which may mass up URLSession life cycle
         disposition = NSURLSessionResponseCancel;
     }
-    
+    __block typeof(self) strongSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(self) strongSelf = self;
         [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:strongSelf];
     });
     
@@ -384,8 +383,8 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
         self.dataTask = nil;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(self) strongSelf = self;
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
             if (!error) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:strongSelf];
