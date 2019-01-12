@@ -24,6 +24,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 FOUNDATION_EXPORT const int64_t SDWebImageProgressUnitCountUnknown; /* 1LL */
 
 typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
+typedef void(^SDInternalSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
 @interface UIView (WebCache)
 
