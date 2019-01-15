@@ -219,9 +219,51 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test12ThatQueryOriginalAndTransformWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageQueryOriginalAndTransform option work"];
+    // This is a test case to ensure `SDWebImageQueryOriginalAndTransform` works.
+    // The logic is a little complicated, but it can benefit when using image transformer to avoid extra download
+    
+    // Use a fresh manager && cache to avoid get effected by other test cases
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"SDWebImageQueryOriginalAndTransform"];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    manager.transformer = transformer;
+    UIImage *testOriginalImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPath]];
+    UIImage *testTransformedImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    transformer.testImage = testTransformedImage;
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
+    NSString *key = [manager cacheKeyForURL:url];
+    
+    // First, store the original image data to disk cache
+    [cache storeImage:testOriginalImage imageData:nil forKey:key cacheType:SDImageCacheTypeDisk completion:^{
+        // Next, query without `SDWebImageQueryOriginalAndTransform`, should cache miss
+        [manager loadImageWithURL:url options:SDWebImageFromCacheOnly progress:nil completed:^(UIImage * _Nullable image1, NSData * _Nullable data1, NSError * _Nullable error1, SDImageCacheType cacheType1, BOOL finished1, NSURL * _Nullable imageURL1) {
+            expect(cacheType1).equal(SDImageCacheTypeNone);
+            expect(image1).to.beNil();
+            
+            // Finally, query using `SDWebImageQueryOriginalAndTransform`, should hit disk cache without downloading
+            [manager loadImageWithURL:url options:SDWebImageQueryOriginalAndTransform progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
+                expect(cacheType2).equal(SDImageCacheTypeDisk);
+                expect(image2).equal(testTransformedImage);
+                expect(image2).notTo.equal(testOriginalImage);
+                
+                [expectation fulfill];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
+}
+
+- (NSString *)testPNGPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    return [testBundle pathForResource:@"TestImage" ofType:@"png"];
 }
 
 @end
