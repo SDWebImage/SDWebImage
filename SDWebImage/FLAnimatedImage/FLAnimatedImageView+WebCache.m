@@ -121,7 +121,7 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
     // Fix user uses `UIImageView` category method to load GIF, and then uses `FLAnimatedImageView` category method to load the same image.
     // Fix image load from disk, and then `SDImageCache` restore it to memory cache.
     // It's not 100% safe, race condition would appear if we remove and then store cache when using `UIImageView` category method before `FLAnimatedImageView` category method complete.
-    if (cacheImage && (!cacheFLAnimatedImage || !cacheImage.sd_FLAnimatedImage)) {
+    if (cacheImage && cacheImage.sd_imageFormat == SDImageFormatGIF && (!cacheFLAnimatedImage || !cacheImage.sd_FLAnimatedImage)) {
         [[SDImageCache sharedImageCache] removeImageForKey:cacheKey fromDisk:NO withCompletion:nil];
     }
     
