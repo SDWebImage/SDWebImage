@@ -12,6 +12,7 @@
 #import "SDWebImageCoderHelper.h"
 #import "NSImage+WebCache.h"
 #import "UIImage+MultiFormat.h"
+#import "SDWebImageImageIOCoder.h"
 #if __has_include(<webp/decode.h>) && __has_include(<webp/encode.h>) && __has_include(<webp/demux.h>) && __has_include(<webp/mux.h>)
 #import <webp/decode.h>
 #import <webp/encode.h>
@@ -69,6 +70,18 @@
     }
     
     uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
+    
+    CGColorSpaceRef colorSpace = [self sd_colorSpaceWithDemuxer:demuxer];
+    
+    if (!(flags & ANIMATION_FLAG)) {
+        // for static single webp image
+        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData colorSpace:colorSpace];
+        WebPDemuxDelete(demuxer);
+        CGColorSpaceRelease(colorSpace);
+        staticImage.sd_imageFormat = SDImageFormatWebP;
+        return staticImage;
+    }
+    
     int loopCount = WebPDemuxGetI(demuxer, WEBP_FF_LOOP_COUNT);
     int canvasWidth = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_WIDTH);
     int canvasHeight = WebPDemuxGetI(demuxer, WEBP_FF_CANVAS_HEIGHT);
@@ -85,32 +98,8 @@
     CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
     if (!canvas) {
         WebPDemuxDelete(demuxer);
-        return nil;
-    }
-    CGColorSpaceRef colorSpace = [self sd_colorSpaceWithDemuxer:demuxer];
-    
-    if (!(flags & ANIMATION_FLAG)) {
-        // for static single webp image
-        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData colorSpace:colorSpace];
-        if (staticImage) {
-            // draw on CGBitmapContext can reduce memory usage
-            CGImageRef imageRef = staticImage.CGImage;
-            size_t width = CGImageGetWidth(imageRef);
-            size_t height = CGImageGetHeight(imageRef);
-            CGContextDrawImage(canvas, CGRectMake(0, 0, width, height), imageRef);
-            CGImageRef newImageRef = CGBitmapContextCreateImage(canvas);
-#if SD_UIKIT || SD_WATCH
-            staticImage = [[UIImage alloc] initWithCGImage:newImageRef];
-#else
-            staticImage = [[UIImage alloc] initWithCGImage:newImageRef size:NSZeroSize];
-#endif
-            CGImageRelease(newImageRef);
-        }
-        WebPDemuxDelete(demuxer);
-        CGContextRelease(canvas);
         CGColorSpaceRelease(colorSpace);
-        staticImage.sd_imageFormat = SDImageFormatWebP;
-        return staticImage;
+        return nil;
     }
     
     // for animated webp image
@@ -240,8 +229,10 @@
 - (UIImage *)decompressedImageWithImage:(UIImage *)image
                                    data:(NSData *__autoreleasing  _Nullable *)data
                                 options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    // WebP do not decompress
-    return image;
+    // Decompress can help pre-draw the image and transfer the backing store to render process.
+    // Well, it can reduce the `App process memory usage` from Xcode, because the backing store is in `Other process` (render process). But it does not help for total memory usage for device.
+    // This logic is actually the same as Image/IO, reuse the code. The refactory has already done in 5.x
+    return [[SDWebImageImageIOCoder sharedCoder] decompressedImageWithImage:image data:data options:optionsDict];
 }
 
 - (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter colorSpace:(nonnull CGColorSpaceRef)colorSpaceRef {
