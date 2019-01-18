@@ -81,15 +81,17 @@
         // RGBA8888
         bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     }
+    
     CGContextRef canvas = CGBitmapContextCreate(NULL, canvasWidth, canvasHeight, 8, 0, SDCGColorSpaceGetDeviceRGB(), bitmapInfo);
     if (!canvas) {
         WebPDemuxDelete(demuxer);
         return nil;
     }
+    CGColorSpaceRef colorSpace = [self sd_colorSpaceWithDemuxer:demuxer];
     
     if (!(flags & ANIMATION_FLAG)) {
         // for static single webp image
-        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData];
+        UIImage *staticImage = [self sd_rawWebpImageWithData:webpData colorSpace:colorSpace];
         if (staticImage) {
             // draw on CGBitmapContext can reduce memory usage
             CGImageRef imageRef = staticImage.CGImage;
@@ -106,6 +108,7 @@
         }
         WebPDemuxDelete(demuxer);
         CGContextRelease(canvas);
+        CGColorSpaceRelease(colorSpace);
         staticImage.sd_imageFormat = SDImageFormatWebP;
         return staticImage;
     }
@@ -116,6 +119,7 @@
         WebPDemuxReleaseIterator(&iter);
         WebPDemuxDelete(demuxer);
         CGContextRelease(canvas);
+        CGColorSpaceRelease(colorSpace);
         return nil;
     }
     
@@ -123,7 +127,7 @@
     
     do {
         @autoreleasepool {
-            UIImage *image = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter];
+            UIImage *image = [self sd_drawnWebpImageWithCanvas:canvas iterator:iter colorSpace:colorSpace];
             if (!image) {
                 continue;
             }
@@ -143,6 +147,7 @@
     WebPDemuxReleaseIterator(&iter);
     WebPDemuxDelete(demuxer);
     CGContextRelease(canvas);
+    CGColorSpaceRelease(colorSpace);
     
     UIImage *animatedImage = [SDWebImageCoderHelper animatedImageWithFrames:frames];
     animatedImage.sd_imageLoopCount = loopCount;
@@ -239,8 +244,8 @@
     return image;
 }
 
-- (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter {
-    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment];
+- (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter colorSpace:(nonnull CGColorSpaceRef)colorSpaceRef {
+    UIImage *image = [self sd_rawWebpImageWithData:iter.fragment colorSpace:colorSpaceRef];
     if (!image) {
         return nil;
     }
@@ -275,7 +280,7 @@
     return image;
 }
 
-- (nullable UIImage *)sd_rawWebpImageWithData:(WebPData)webpData {
+- (nullable UIImage *)sd_rawWebpImageWithData:(WebPData)webpData colorSpace:(nonnull CGColorSpaceRef)colorSpaceRef {
     WebPDecoderConfig config;
     if (!WebPInitDecoderConfig(&config)) {
         return nil;
@@ -303,7 +308,6 @@
     // Construct a UIImage from the decoded RGBA value array
     CGDataProviderRef provider =
     CGDataProviderCreateWithData(NULL, config.output.u.RGBA.rgba, config.output.u.RGBA.size, FreeImageData);
-    CGColorSpaceRef colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
     CGBitmapInfo bitmapInfo;
     // `CGBitmapContextCreate` does not support RGB888 on iOS. Where `CGImageCreate` supports.
     if (!config.input.has_alpha) {
@@ -327,6 +331,28 @@
     CGImageRelease(imageRef);
     
     return image;
+}
+
+// Create and return the correct colorspace by checking the ICC Profile
+- (nonnull CGColorSpaceRef)sd_colorSpaceWithDemuxer:(nonnull WebPDemuxer *)demuxer CF_RETURNS_RETAINED {
+    // WebP contains ICC Profile should use the desired colorspace, instead of default device colorspace
+    // See: https://developers.google.com/speed/webp/docs/riff_container#color_profile
+    
+    WebPChunkIterator chunk_iter;
+    CGColorSpaceRef colorSpaceRef = NULL;
+    
+    int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
+    if (result) {
+        NSData *profileData = [NSData dataWithBytes:chunk_iter.chunk.bytes length:chunk_iter.chunk.size];
+        colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
+    }
+    
+    if (!colorSpaceRef) {
+        colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
+        CGColorSpaceRetain(colorSpaceRef);
+    }
+    
+    return colorSpaceRef;
 }
 
 #pragma mark - Encode
