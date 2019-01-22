@@ -25,29 +25,6 @@
 #endif
 #import <Accelerate/Accelerate.h>
 
-// Create and return the correct colorspace by checking the ICC Profile
-static CGColorSpaceRef SDColorSpaceCreateWithDemuxer(WebPDemuxer *demuxer) {
-    // WebP contains ICC Profile should use the desired colorspace, instead of default device colorspace
-    // See: https://developers.google.com/speed/webp/docs/riff_container#color_profile
-    
-    WebPChunkIterator chunk_iter;
-    CGColorSpaceRef colorSpaceRef = NULL;
-    
-    int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
-    if (result) {
-        NSData *profileData = [NSData dataWithBytesNoCopy:(void *)chunk_iter.chunk.bytes length:chunk_iter.chunk.size freeWhenDone:NO];
-        colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
-    }
-    
-    WebPDemuxReleaseChunkIterator(&chunk_iter);
-    
-    if (!colorSpaceRef) {
-        colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
-        CGColorSpaceRetain(colorSpaceRef);
-    }
-    
-    return colorSpaceRef;
-}
 
 @implementation SDWebImageWebPCoder {
     WebPIDecoder *_idec;
@@ -115,7 +92,7 @@ static CGColorSpaceRef SDColorSpaceCreateWithDemuxer(WebPDemuxer *demuxer) {
     CGColorSpaceRef colorSpace = NULL;
     // ICC profile
     if (flags & ICCP_FLAG) {
-        colorSpace = SDColorSpaceCreateWithDemuxer(demuxer);
+        colorSpace = [self sd_colorSpaceWithDemuxer:demuxer];
     } else {
         colorSpace = SDCGColorSpaceGetDeviceRGB();
         CGColorSpaceRetain(colorSpace);
@@ -363,6 +340,30 @@ static CGColorSpaceRef SDColorSpaceCreateWithDemuxer(WebPDemuxer *demuxer) {
     CGImageRelease(imageRef);
     
     return image;
+}
+
+// Create and return the correct colorspace by checking the ICC Profile
+- (nonnull CGColorSpaceRef)sd_colorSpaceWithDemuxer:(nonnull WebPDemuxer *)demuxer CF_RETURNS_RETAINED {
+    // WebP contains ICC Profile should use the desired colorspace, instead of default device colorspace
+    // See: https://developers.google.com/speed/webp/docs/riff_container#color_profile
+    
+    WebPChunkIterator chunk_iter;
+    CGColorSpaceRef colorSpaceRef = NULL;
+    
+    int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
+    if (result) {
+        NSData *profileData = [NSData dataWithBytesNoCopy:(void *)chunk_iter.chunk.bytes length:chunk_iter.chunk.size freeWhenDone:NO];
+        colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
+    }
+    
+    WebPDemuxReleaseChunkIterator(&chunk_iter);
+    
+    if (!colorSpaceRef) {
+        colorSpaceRef = SDCGColorSpaceGetDeviceRGB();
+        CGColorSpaceRetain(colorSpaceRef);
+    }
+    
+    return colorSpaceRef;
 }
 
 #pragma mark - Encode
