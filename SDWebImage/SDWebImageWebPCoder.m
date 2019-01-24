@@ -26,6 +26,7 @@
 #endif
 #import <Accelerate/Accelerate.h>
 
+
 @implementation SDWebImageWebPCoder {
     WebPIDecoder *_idec;
 }
@@ -329,13 +330,17 @@
     // WebP contains ICC Profile should use the desired colorspace, instead of default device colorspace
     // See: https://developers.google.com/speed/webp/docs/riff_container#color_profile
     
-    WebPChunkIterator chunk_iter;
     CGColorSpaceRef colorSpaceRef = NULL;
+    uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
     
-    int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
-    if (result) {
-        NSData *profileData = [NSData dataWithBytes:chunk_iter.chunk.bytes length:chunk_iter.chunk.size];
-        colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
+    if (flags & ICCP_FLAG) {
+        WebPChunkIterator chunk_iter;
+        int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
+        if (result) {
+            NSData *profileData = [NSData dataWithBytesNoCopy:(void *)chunk_iter.chunk.bytes length:chunk_iter.chunk.size freeWhenDone:NO];
+            colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
+            WebPDemuxReleaseChunkIterator(&chunk_iter);
+        }
     }
     
     if (!colorSpaceRef) {
