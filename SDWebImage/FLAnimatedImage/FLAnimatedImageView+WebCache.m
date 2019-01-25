@@ -15,6 +15,7 @@
 #import "NSData+ImageContentType.h"
 #import "UIImageView+WebCache.h"
 #import "UIImage+MultiFormat.h"
+#import "UIImage+MemoryCacheCost.h"
 
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
@@ -28,6 +29,17 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
         animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:imageData];
     }
     return animatedImage;
+}
+
+static inline NSUInteger SDWebImageMemoryCostFLAnimatedImage(FLAnimatedImage *animatedImage, UIImage *image) {
+    NSUInteger frameCacheSizeCurrent = animatedImage.frameCacheSizeCurrent; // [1...frame count], more suitable than raw frame count because FLAnimatedImage internal actually store a buffer size but not full frames (they called `window`)
+    NSUInteger pixelsPerFrame = animatedImage.size.width * animatedImage.size.height; // FLAnimatedImage does not support scale factor
+    NSUInteger animatedImageCost = frameCacheSizeCurrent * pixelsPerFrame;
+    
+    NSUInteger imageCost = image.size.height * image.size.width * image.scale * image.scale; // Same as normal cost calculation
+    imageCost = image.images ? (imageCost * image.images.count) : imageCost;
+    
+    return animatedImageCost + imageCost;
 }
 
 @implementation UIImage (FLAnimatedImage)
@@ -152,9 +164,9 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                __strong typeof(wweakSelf) sstrongSelf = wweakSelf;
                                if (!sstrongSelf || ![url isEqual:sstrongSelf.sd_imageURL]) { return ; }
                                // Step 3. Check if data exist or query disk cache
+                               NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
                                __block NSData *gifData = imageData;
                                if (!gifData) {
-                                   NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
                                    gifData = [[SDImageCache sharedImageCache] diskImageDataForKey:key];
                                }
                                // Step 4. Create FLAnimatedImage
@@ -163,8 +175,12 @@ static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageV
                                    if (![url isEqual:sstrongSelf.sd_imageURL]) { return ; }
                                    // Step 5. Set animatedImage or normal image
                                    if (animatedImage) {
-                                       if (sstrongSelf.sd_cacheFLAnimatedImage) {
+                                       if (sstrongSelf.sd_cacheFLAnimatedImage && SDImageCache.sharedImageCache.config.shouldCacheImagesInMemory) {
                                            image.sd_FLAnimatedImage = animatedImage;
+                                           image.sd_memoryCost = SDWebImageMemoryCostFLAnimatedImage(animatedImage, image);
+                                           // Update the memory cache
+                                           [SDImageCache.sharedImageCache removeImageForKey:key fromDisk:NO withCompletion:nil];
+                                           [SDImageCache.sharedImageCache storeImage:image forKey:key toDisk:NO completion:nil];
                                        }
                                        sstrongSelf.image = animatedImage.posterImage;
                                        sstrongSelf.animatedImage = animatedImage;
