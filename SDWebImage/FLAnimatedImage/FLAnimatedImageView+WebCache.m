@@ -17,6 +17,19 @@
 #import "UIImage+MultiFormat.h"
 #import "UIImage+MemoryCacheCost.h"
 
+@interface UIView (PrivateWebCache)
+
+- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
+                  placeholderImage:(nullable UIImage *)placeholder
+                           options:(SDWebImageOptions)options
+                      operationKey:(nullable NSString *)operationKey
+             internalSetImageBlock:(nullable SDInternalSetImageBlock)setImageBlock
+                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                         completed:(nullable SDExternalCompletionBlock)completedBlock
+                           context:(nullable NSDictionary<NSString *, id> *)context;
+
+@end
+
 static inline FLAnimatedImage * SDWebImageCreateFLAnimatedImage(FLAnimatedImageView *imageView, NSData *imageData) {
     if ([NSData sd_imageFormatForImageData:imageData] != SDImageFormatGIF) {
         return nil;
@@ -131,7 +144,7 @@ static inline NSUInteger SDWebImageMemoryCostFLAnimatedImage(FLAnimatedImage *an
                     placeholderImage:placeholder
                              options:options
                         operationKey:nil
-                       setImageBlock:^(UIImage *image, NSData *imageData) {
+               internalSetImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            __strong typeof(weakSelf)strongSelf = weakSelf;
                            if (!strongSelf) {
                                dispatch_group_leave(group);
@@ -150,7 +163,7 @@ static inline NSUInteger SDWebImageMemoryCostFLAnimatedImage(FLAnimatedImage *an
                            // Step 2. Check if original compressed image data is "GIF"
                            BOOL isGIF = (image.sd_imageFormat == SDImageFormatGIF || [NSData sd_imageFormatForImageData:imageData] == SDImageFormatGIF);
                            // Check if placeholder, which does not trigger a backup disk cache query
-                           BOOL isPlaceholder = (image == placeholder);
+                           BOOL isPlaceholder = !imageData && image && cacheType == SDImageCacheTypeNone;
                            if (!isGIF || isPlaceholder) {
                                strongSelf.image = image;
                                strongSelf.animatedImage = nil;
