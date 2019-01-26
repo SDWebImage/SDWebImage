@@ -36,6 +36,27 @@ See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/
 - Rename `sd_UTTypeFromSDImageFormat` to `sd_UTTypeFromImageFormat` #2395
 - Change `SDImageFormat` to use `NS_TYPED_EXTENSIBLE_ENUM` instead of fixed enum, to allow custom coder plugins to extend it #2400
 
+## [4.4.4 - 4.4 patch, on Jan 26th, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.4)
+See [all tickets marked for the 4.4.4 release](https://github.com/SDWebImage/SDWebImage/milestone/29)
+
+#### Fixes
+- Fix memory cache image cost miscalculation for 4.x #2486
+- Fix background download for 4.x #2570
+- Fix race condition for creation of download operation when isCancelled is YES but isFinished is NO #2574
+- Fix the current image cost (pixels) for FLAnimatedImage #2558
+- Fix the FLAnimatedImage compatible code issue by introduce a private API #2588
+- Fix that WebP image with ICC Profile does not show color correctly, should use the profile colorspace instead of device colorspace #2585
+- Fix potential memory leaks for ICCP && optimize ICCP handler #2596
+- Fix that WebP decoder in master branch, does not consider the global `shouldDecompressImages` config and always do pre-draw for static WebP images #2592
+- Fix rare crash when NSMapTable empty keys #2556
+- Retain operation when post download related notifications (Hopefully fix, but if you face crash, please open a issue) #2576
+
+#### Performances
+- Prioritize SDWebImageDownloaderHighPriority if operation already exists #2575
+
+#### Project
+- Let SD can be imported using static library by CocoaPods using `DEFINES_MODULE` #2549
+
 ## [4.4.3 - 4.4 patch, on Nov 25th, 2018](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.3)
 See [all tickets marked for the 4.4.3 release](https://github.com/SDWebImage/SDWebImage/milestone/28)
 
