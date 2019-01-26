@@ -1,3 +1,36 @@
+## [5.0.0-beta4 - Customizable SDWebImage, on Jan 26th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta4)
+See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
+
+#### Features
+- Expose the graphics helper method for coder plugin author and fix scale issue #2523
+
+#### Performances
+- Decrease animated decode times when cache enable #2468
+- Remove kCGImageSourceShouldCache option when creating image source #2472
+- Add autoreleasepool to release autorelease objects in advance when using GCD #2474
+
+#### Fixes
+- Add protect when custom animated image class image data is nil during progressive animation check #2466
+- Fix background download #2500
+
+#### Project
+- Merged targets + MapKit dedicated target for Carthage installs #2476. Carthage user now does not enable MapKit support by default.
+- Upgrade Xcode 10 + using xcconfig for project settings #2494
+
+#### Notable Changes (from beta3)
+
+Behavior:
+
+- Move webp component (and libwebp dependency) to SDWebImage/SDWebImageWebPCoder #2469. Any user who use WebP in 5.0.0 should add [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) to your Podfile or Cartfile instead.
+- Refactory cache path about namespace && final cache directory #2535. Now the default disk cache path was moved to suitable path with the namespace.
+- Use the memory bytes size, instead of pixel size to calculate the memory cost function #2568. Now the memory cost function use bytes size instead of pixels count.
+
+Swift Only:
+
+- Fix the accident changes of Swift API naming for `sd_imageDataAsFormat:` #2517
+
+You can always check [5.0 migration guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) for the latest information for these changes.
+
 ## [5.0.0-beta3 - Customizable SDWebImage, on Aug 30th, 2018](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta3)
 See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
 

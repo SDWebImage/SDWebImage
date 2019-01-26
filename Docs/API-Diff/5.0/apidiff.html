@@ -227,6 +227,8 @@
 <div class="difference"><span class="status removed">Removed</span> SDImageCache.maxMemoryCountLimit</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDImageCache makeDiskCachePath:]</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDImageCache addReadOnlyCachePath:]</div>
+<div class="difference"><span class="status removed">Removed</span> -[SDImageCache getSize]</div>
+<div class="difference"><span class="status removed">Removed</span> -[SDImageCache getDiskCount]</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDImageCache cachePathForKey:inPath:]</div>
 <div class="difference"><span class="status removed">Removed</span> -[SDImageCache defaultCachePathForKey:]</div>
 </div>
@@ -247,6 +249,8 @@
 <div class="difference"><span class="status added">Added</span> -[SDImageCache queryCacheOperationForKey:options:context:done:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageCache removeImageFromMemoryForKey:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageCache removeImageFromDiskForKey:]</div>
+<div class="difference"><span class="status added">Added</span> -[SDImageCache totalDiskSize]</div>
+<div class="difference"><span class="status added">Added</span> -[SDImageCache totalDiskCount]</div>
 </div>
 
 
@@ -270,6 +274,13 @@
 <tr><th></th><th>Declaration</th></tr>
 <tr><th>From</th><td class="declaration">+ (nonnull instancetype)sharedImageCache</td></tr>
 <tr><th>To</th><td class="declaration">@property (class, nonatomic, readonly, nonnull) SDImageCache *sharedImageCache</td></tr>
+</table>
+<br>
+<div class="difference"><span class="status modified">Modified</span> -[SDImageCache initWithNamespace:diskCacheDirectory:]</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns diskCacheDirectory:(nonnull NSString *)directory</td></tr>
+<tr><th>To</th><td class="declaration">- (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns diskCacheDirectory:(nullable NSString *)directory</td></tr>
 </table>
 <br>
 <div class="difference"><span class="status modified">Modified</span> -[SDImageCache diskImageExistsWithKey:completion:]</div>
@@ -309,15 +320,18 @@
 
 <div class="differenceGroup">
 <div class="difference"><span class="status removed">Removed</span> SDImageCacheConfig.shouldDecompressImages</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageCacheConfig.maxCacheAge</div>
+<div class="difference"><span class="status removed">Removed</span> SDImageCacheConfig.maxCacheSize</div>
 </div>
 
 
 <div class="differenceGroup">
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.defaultCacheConfig</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.shouldRemoveExpiredDataWhenEnterBackground</div>
+<div class="difference"><span class="status added">Added</span> SDImageCacheConfig.maxDiskAge</div>
+<div class="difference"><span class="status added">Added</span> SDImageCacheConfig.maxDiskSize</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.maxMemoryCost</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.maxMemoryCount</div>
-<div class="difference"><span class="status added">Added</span> SDImageCacheConfig.namespacePrefix</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.fileManager</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.memoryCacheClass</div>
 <div class="difference"><span class="status added">Added</span> SDImageCacheConfig.diskCacheClass</div>
@@ -330,13 +344,6 @@
 <tr><th></th><th>Protocols</th></tr>
 <tr><th>From</th><td><em>none</em></td></tr>
 <tr><th>To</th><td>NSCopying</td></tr>
-</table>
-<br>
-<div class="difference"><span class="status modified">Modified</span> SDImageCacheConfig.maxCacheAge</div>
-<table>
-<tr><th></th><th>Declaration</th></tr>
-<tr><th>From</th><td class="declaration">@property (nonatomic, assign) NSInteger maxCacheAge</td></tr>
-<tr><th>To</th><td class="declaration">@property (nonatomic, assign) NSTimeInterval maxCacheAge</td></tr>
 </table>
 <br>
 </div>
@@ -476,6 +483,19 @@
 </div>
 
 <div class="headerFile">
+<div class="headerName">SDImageGraphics.h</div>
+
+<div class="differenceGroup">
+<div class="difference"><span class="status added">Added</span> SDGraphicsGetCurrentContext()</div>
+<div class="difference"><span class="status added">Added</span> SDGraphicsBeginImageContext()</div>
+<div class="difference"><span class="status added">Added</span> SDGraphicsBeginImageContextWithOptions()</div>
+<div class="difference"><span class="status added">Added</span> SDGraphicsEndImageContext()</div>
+<div class="difference"><span class="status added">Added</span> SDGraphicsGetImageFromCurrentImageContext()</div>
+</div>
+
+</div>
+
+<div class="headerFile">
 <div class="headerName">SDImageIOCoder.h</div>
 
 <div class="differenceGroup">
@@ -563,7 +583,6 @@
 <div class="headerName">SDMemoryCache.h</div>
 
 <div class="differenceGroup">
-<div class="difference"><span class="status added">Added</span> SDMemoryCacheCostForImage()</div>
 <div class="difference"><span class="status added">Added</span> SDMemoryCache</div>
 <div class="difference"><span class="status added">Added</span> -[SDMemoryCache initWithConfig:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDMemoryCache objectForKey:]</div>
@@ -1283,6 +1302,7 @@
 <div class="differenceGroup">
 <div class="difference"><span class="status removed">Removed</span> SDWebImageInternalSetImageGroupKey</div>
 <div class="difference"><span class="status removed">Removed</span> SDWebImageExternalCustomManagerKey</div>
+<div class="difference"><span class="status removed">Removed</span> SDInternalSetImageBlock</div>
 <div class="difference"><span class="status removed">Removed</span> -[UIView sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:]</div>
 <div class="difference"><span class="status removed">Removed</span> -[UIView sd_internalSetImageWithURL:placeholderImage:options:operationKey:setImageBlock:progress:completed:context:]</div>
 <div class="difference"><span class="status removed">Removed</span> -[UIView sd_setShowActivityIndicatorView:]</div>
