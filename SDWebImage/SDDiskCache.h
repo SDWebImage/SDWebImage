@@ -15,7 +15,7 @@
 // All of these method are called from the same global queue to avoid blocking on main queue and thread-safe problem. But it's also recommend to ensure thread-safe yourself using lock or other ways.
 @required
 /**
- Create a new disk cache based on the specified path.
+ Create a new disk cache based on the specified path. You can check `maxDiskSize` and `maxDiskAge` used for disk cache.
  
  @param cachePath Full path of a directory in which the cache will write data.
  Once initialized you should not read and write to this directory.

@@ -11,7 +11,7 @@
 #import "SDDiskCache.h"
 
 static SDImageCacheConfig *_defaultCacheConfig;
-static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
+static const NSInteger kDefaultCacheMaxDiskAge = 60 * 60 * 24 * 7; // 1 week
 
 @implementation SDImageCacheConfig
 
@@ -31,8 +31,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         _shouldRemoveExpiredDataWhenEnterBackground = YES;
         _diskCacheReadingOptions = 0;
         _diskCacheWritingOptions = NSDataWritingAtomic;
-        _maxCacheAge = kDefaultCacheMaxCacheAge;
-        _maxCacheSize = 0;
+        _maxDiskAge = kDefaultCacheMaxDiskAge;
+        _maxDiskSize = 0;
         _diskCacheExpireType = SDImageCacheConfigExpireTypeModificationDate;
         _memoryCacheClass = [SDMemoryCache class];
         _diskCacheClass = [SDDiskCache class];
@@ -48,8 +48,8 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     config.shouldRemoveExpiredDataWhenEnterBackground = self.shouldRemoveExpiredDataWhenEnterBackground;
     config.diskCacheReadingOptions = self.diskCacheReadingOptions;
     config.diskCacheWritingOptions = self.diskCacheWritingOptions;
-    config.maxCacheAge = self.maxCacheAge;
-    config.maxCacheSize = self.maxCacheSize;
+    config.maxDiskAge = self.maxDiskAge;
+    config.maxDiskSize = self.maxDiskSize;
     config.maxMemoryCost = self.maxMemoryCost;
     config.maxMemoryCount = self.maxMemoryCount;
     config.diskCacheExpireType = self.diskCacheExpireType;

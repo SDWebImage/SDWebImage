@@ -564,7 +564,7 @@
 
 #pragma mark - Cache Info
 
-- (NSUInteger)getSize {
+- (NSUInteger)totalDiskSize {
     __block NSUInteger size = 0;
     dispatch_sync(self.ioQueue, ^{
         size = [self.diskCache totalSize];
@@ -572,7 +572,7 @@
     return size;
 }
 
-- (NSUInteger)getDiskCount {
+- (NSUInteger)totalDiskCount {
     __block NSUInteger count = 0;
     dispatch_sync(self.ioQueue, ^{
         count = [self.diskCache totalCount];

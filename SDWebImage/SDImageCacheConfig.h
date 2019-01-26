@@ -73,13 +73,13 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  * Setting this to zero means that all cached files would be removed when do expiration check.
  * Defaults to 1 weak.
  */
-@property (assign, nonatomic) NSTimeInterval maxCacheAge;
+@property (assign, nonatomic) NSTimeInterval maxDiskAge;
 
 /**
  * The maximum size of the disk cache, in bytes.
  * Defaults to 0. Which means there is no cache size limit.
  */
-@property (assign, nonatomic) NSUInteger maxCacheSize;
+@property (assign, nonatomic) NSUInteger maxDiskSize;
 
 /**
  * The maximum "total cost" of the in-memory image cache. The cost function is the bytes size held in memory.

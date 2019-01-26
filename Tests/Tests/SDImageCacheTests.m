@@ -195,13 +195,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 
 - (void)test20InitialCacheSize{
-    expect([[SDImageCache sharedImageCache] getSize]).to.equal(0);
+    expect([[SDImageCache sharedImageCache] totalDiskSize]).to.equal(0);
 }
 
 - (void)test21InitialDiskCount{
     XCTestExpectation *expectation = [self expectationWithDescription:@"getDiskCount"];
     [[SDImageCache sharedImageCache] storeImage:[self testJPEGImage] forKey:kTestImageKeyJPEG completion:^{
-        expect([[SDImageCache sharedImageCache] getDiskCount]).to.equal(1);
+        expect([[SDImageCache sharedImageCache] totalDiskCount]).to.equal(1);
         [[SDImageCache sharedImageCache] removeImageForKey:kTestImageKeyJPEG withCompletion:^{
             [expectation fulfill];
         }];
