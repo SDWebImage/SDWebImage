@@ -117,7 +117,7 @@
     SD_UNLOCK(self.codersLock);
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canEncodeToFormat:format]) {
-            return [coder encodedDataWithImage:image format:format options:nil];
+            return [coder encodedDataWithImage:image format:format options:options];
         }
     }
     return nil;
