@@ -39,6 +39,12 @@
     // Test image encode PNG
     data = [image sd_imageDataAsFormat:SDImageFormatPNG];
     expect(data).notTo.beNil();
+    // Test image encode JPEG with compressionQuality
+    NSData *jpegData1 = [image sd_imageDataAsFormat:SDImageFormatJPEG compressionQuality:1];
+    NSData *jpegData2 = [image sd_imageDataAsFormat:SDImageFormatJPEG compressionQuality:0.5];
+    expect(jpegData1).notTo.beNil();
+    expect(jpegData2).notTo.beNil();
+    expect(jpegData1.length).notTo.equal(jpegData2.length);
 }
 
 - (void)test03UIImageGIFCategory {
@@ -49,6 +55,7 @@
     NSData *data = [NSData dataWithContentsOfFile:[self testGIFPath]];
     image = [UIImage sd_imageWithGIFData:data];
     expect(image).notTo.beNil();
+    expect(image.sd_isAnimated).beTruthy();
 }
 
 #pragma mark - Helper
