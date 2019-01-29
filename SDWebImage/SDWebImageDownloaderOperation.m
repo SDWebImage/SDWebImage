@@ -10,6 +10,7 @@
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
+#import "UIImage+MultiFormat.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -419,7 +420,7 @@ didReceiveResponse:(NSURLResponse *)response
                             image = [self scaledImageForKey:key image:image];
                             
                             // Do not force decoding animated images
-                            BOOL shouldDecode = !image.images;
+                            BOOL shouldDecode = !image.images && image.sd_imageFormat != SDImageFormatGIF;
                             if (shouldDecode) {
                                 if (self.shouldDecompressImages) {
                                     BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
