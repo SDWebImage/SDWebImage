@@ -293,8 +293,7 @@
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single GIF images
-        CGImageRef imageRef = frames.firstObject.image.CGImage ?: image.CGImage;
-        CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
+        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated GIF images
         NSUInteger loopCount = image.sd_imageLoopCount;
