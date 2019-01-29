@@ -267,7 +267,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         CGSize sourceResolution = CGSizeZero;
         sourceResolution.width = CGImageGetWidth(sourceImageRef);
         sourceResolution.height = CGImageGetHeight(sourceImageRef);
-        CGFloat sourceTotalPixels = sourceResolution.width * sourceResolution.height * image.scale * image.scale;
+        CGFloat sourceTotalPixels = sourceResolution.width * sourceResolution.height;
         // Determine the scale ratio to apply to the input image
         // that results in an output image of the defined size.
         // see kDestImageSizeMB, and how it relates to destTotalPixels.
