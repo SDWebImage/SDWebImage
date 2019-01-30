@@ -12,6 +12,11 @@
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
+     * Use default download settings.
+     */
+    SDWebImageDownloaderNoOptions = 0,
+    
+    /**
      * Put the download in the low queue priority and task priority.
      */
     SDWebImageDownloaderLowPriority = 1 << 0,
