@@ -208,8 +208,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single PNG images
-        CGImageRef imageRef = frames.firstObject.image.CGImage ?: image.CGImage;
-        CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
+        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated APNG images
         NSUInteger loopCount = image.sd_imageLoopCount;
