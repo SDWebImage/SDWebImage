@@ -1,3 +1,19 @@
+## [5.0.0-beta5 - Customizable SDWebImage, on Jan 31st, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta5)
+See [all tickets marked for the 5.0.0-beta5 release](https://github.com/rs/SDWebImage/milestone/32)
+
+#### Fixes
+- Fix encoding options does not works #2602
+- Remove unnecessary CGImage check when encode first frame #2609
+
+## [4.4.5 - 4.4 patch, on Jan 31st, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.5)
+See [all tickets marked for the 4.4.5 release](https://github.com/SDWebImage/SDWebImage/milestone/31)
+
+#### Fixes
+- Revert the modular framework, try to fix some user's install issue when using SDWebImage in prefix header #2604
+- Fix wrong decompression scale calculation #2608
+- Fix shouldDecode check when image format is GIF #2606
+- Fix modify data pointer if webp image scaled down #2607
+
 ## [5.0.0-beta4 - Customizable SDWebImage, on Jan 26th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta4)
 See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/milestone/15)
 
