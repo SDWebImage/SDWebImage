@@ -230,10 +230,15 @@
 - (UIImage *)decompressedImageWithImage:(UIImage *)image
                                    data:(NSData *__autoreleasing  _Nullable *)data
                                 options:(nullable NSDictionary<NSString*, NSObject*>*)optionsDict {
-    // Decompress can help pre-draw the image and transfer the backing store to render process.
-    // Well, it can reduce the `App process memory usage` from Xcode, because the backing store is in `Other process` (render process). But it does not help for total memory usage for device.
-    // This logic is actually the same as Image/IO, reuse the code. The refactory has already done in 5.x
-    return [[SDWebImageImageIOCoder sharedCoder] decompressedImageWithImage:image data:data options:optionsDict];
+    UIImage *decompressedImage = [[SDWebImageImageIOCoder sharedCoder] decompressedImageWithImage:image data:data options:optionsDict];
+    // if the image is scaled down, need to modify the data pointer as well
+    if (decompressedImage && !CGSizeEqualToSize(decompressedImage.size, image.size) && [NSData sd_imageFormatForImageData:*data] == SDImageFormatWebP) {
+        NSData *imageData = [self encodedDataWithImage:decompressedImage format:SDImageFormatWebP];
+        if (imageData) {
+            *data = imageData;
+        }
+    }
+    return decompressedImage;
 }
 
 - (nullable UIImage *)sd_drawnWebpImageWithCanvas:(CGContextRef)canvas iterator:(WebPIterator)iter colorSpace:(nonnull CGColorSpaceRef)colorSpaceRef {
