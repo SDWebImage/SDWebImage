@@ -1,3 +1,12 @@
+## [4.4.5 - 4.4 patch, on Jan 31st, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.5)
+See [all tickets marked for the 4.4.5 release](https://github.com/SDWebImage/SDWebImage/milestone/31)
+
+#### Fixes
+- Revert the modular framework, try to fix some user's install issue when using SDWebImage in prefix header #2604
+- Fix wrong decompression scale calculation #2608
+- Fix shouldDecode check when image format is GIF #2606
+- Fix modify data pointer if webp image scaled down #2607
+
 ## [4.4.4 - 4.4 patch, on Jan 26th, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.4)
 See [all tickets marked for the 4.4.4 release](https://github.com/SDWebImage/SDWebImage/milestone/29)
 

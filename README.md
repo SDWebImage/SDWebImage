@@ -28,6 +28,13 @@ This library provides an async image downloader with cache support. For convenie
 
 - Image formats supported by UIImage (JPEG, PNG, ...), including GIF
 - WebP format, including animated WebP (use the `WebP` subspec)
+- Support extendable coder plugins for new image formats. Like APNG, BPG, HFIF, SVG, etc. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+
+## Beta version
+
+SDWebImage's 5.0 version is nearing completion. Which introduce many new features like Animated ImageView and Transformer. We also provide a more modularized design used for advanced user customization.
+
+You can check the latest [5.x branch](https://github.com/SDWebImage/SDWebImage/tree/5.x) to know about the current status. We'd love you to have a try with the beta version and provide any feedback. If you'd love, check [SDWebImage 5.0 Migration Guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) and prepare for the migration.
 
 ## Requirements
 
@@ -118,7 +125,7 @@ However, start with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to buil
 
 ```
 platform :ios, '8.0'
-# Uncomment the next line when you want Pods as static framework
+# Uncomment the next line when you want all Pods as static framework
 # use_modular_headers!
 pod 'SDWebImage', :modular_headers => true
 ```
