@@ -342,7 +342,9 @@
         WebPChunkIterator chunk_iter;
         int result = WebPDemuxGetChunk(demuxer, "ICCP", 1, &chunk_iter);
         if (result) {
-            NSData *profileData = [NSData dataWithBytesNoCopy:(void *)chunk_iter.chunk.bytes length:chunk_iter.chunk.size freeWhenDone:NO];
+            // See #2618, the `CGColorSpaceCreateWithICCProfile` does not copy ICC Profile data, it only retain `CFDataRef`.
+            // When the libwebp `WebPDemuxer` dealloc, all chunks will be freed. So we must copy the ICC data (really cheap, less than 10KB)
+            NSData *profileData = [NSData dataWithBytes:chunk_iter.chunk.bytes length:chunk_iter.chunk.size];
             colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
             WebPDemuxReleaseChunkIterator(&chunk_iter);
         }
