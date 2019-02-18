@@ -28,6 +28,13 @@ This library provides an async image downloader with cache support. For convenie
 
 - Image formats supported by UIImage (JPEG, PNG, ...), including GIF
 - WebP format, including animated WebP (use the `WebP` subspec)
+- Support extendable coder plugins for new image formats. Like APNG, BPG, HFIF, SVG, etc. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+
+## Beta version
+
+SDWebImage's 5.0 version is nearing completion. Which introduce many new features like Animated ImageView and Transformer. We also provide a more modularized design used for advanced user customization.
+
+You can check the latest [5.x branch](https://github.com/SDWebImage/SDWebImage/tree/5.x) to know about the current status. We'd love you to have a try with the beta version and provide any feedback. If you'd love, check [SDWebImage 5.0 Migration Guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) and prepare for the migration.
 
 ## Requirements
 
@@ -110,19 +117,27 @@ platform :ios, '7.0'
 pod 'SDWebImage', '~> 4.0'
 ```
 
-##### Swift
+##### Swift and static framework
 
-If you are using `Swift`, `Xcode 9+` and `CocoaPods` `1.5.0+`, you only need to set your target to `iOS 8+` if you need static library:
+Swift project previously have to use `use_frameworks!` to make all Pods into dynamic framework to let CocoaPods works.
+
+However, start with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to build both Objective-C && Swift code into static framework. You can use modular headers to use SDWebImage as static framework, without the need of `use_frameworks!`:
 
 ```
 platform :ios, '8.0'
+# Uncomment the next line when you want all Pods as static framework
+# use_modular_headers!
+pod 'SDWebImage', :modular_headers => true
 ```
 
-If not, you still need to add `use_frameworks!` to use dynamic framework:
+See more on [CocoaPods 1.5.0 — Swift Static Libraries](http://blog.cocoapods.org/CocoaPods-1.5.0/)
+
+If not, you still need to add `use_frameworks!` to use SDWebImage as dynamic framework:
 
 ```
 platform :ios, '8.0'
 use_frameworks!
+pod 'SDWebImage'
 ```
 
 #### Subspecs
@@ -184,3 +199,5 @@ All source code is licensed under the [MIT License](https://raw.github.com/SDWeb
 <p align="center">
     <img src="Docs/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
 </p>
+
+

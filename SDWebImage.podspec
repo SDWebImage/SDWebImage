@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'SDWebImage'
-  s.version = '4.4.3'
+  s.version = '4.4.5'
 
   s.osx.deployment_target = '10.9'
   s.ios.deployment_target = '7.0'
@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   
   s.default_subspec = 'Core'
 
@@ -47,9 +46,6 @@ Pod::Spec.new do |s|
     gif.source_files = 'SDWebImage/FLAnimatedImage/*.{h,m}'
     gif.dependency 'SDWebImage/Core'
     gif.dependency 'FLAnimatedImage', '~> 1.0'
-    gif.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/FLAnimatedImage/FLAnimatedImage'
-    }
   end
 
   s.subspec 'WebP' do |webp|

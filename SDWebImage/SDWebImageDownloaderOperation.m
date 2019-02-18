@@ -10,6 +10,7 @@
 #import "SDWebImageManager.h"
 #import "NSImage+WebCache.h"
 #import "SDWebImageCodersManager.h"
+#import "UIImage+MultiFormat.h"
 
 #define LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #define UNLOCK(lock) dispatch_semaphore_signal(lock);
@@ -82,6 +83,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _unownedSession = session;
         _callbacksLock = dispatch_semaphore_create(1);
         _coderQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationCoderQueue", DISPATCH_QUEUE_SERIAL);
+#if SD_UIKIT
+        _backgroundTaskId = UIBackgroundTaskInvalid;
+#endif
     }
     return self;
 }
@@ -135,14 +139,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             __weak __typeof__ (self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
             self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
-
-                if (sself) {
-                    [sself cancel];
-
-                    [app endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
+                [wself cancel];
             }];
         }
 #endif
@@ -197,27 +194,15 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:strongSelf];
         });
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorUnknown userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
         [self done];
         return;
     }
-
-#if SD_UIKIT
-    Class UIApplicationClass = NSClassFromString(@"UIApplication");
-    if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
-        return;
-    }
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
-        [app endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-    }
-#endif
 }
 
 - (void)cancel {
@@ -232,9 +217,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         [self.dataTask cancel];
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
         });
 
         // As we cancelled the task, its callback won't be called and thus won't
@@ -256,11 +241,23 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     LOCK(self.callbacksLock);
     [self.callbackBlocks removeAllObjects];
     UNLOCK(self.callbacksLock);
-    self.dataTask = nil;
     
-    if (self.ownedSession) {
-        [self.ownedSession invalidateAndCancel];
-        self.ownedSession = nil;
+    @synchronized (self) {
+        self.dataTask = nil;
+        
+        if (self.ownedSession) {
+            [self.ownedSession invalidateAndCancel];
+            self.ownedSession = nil;
+        }
+        
+#if SD_UIKIT
+        if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+            // If backgroundTaskId != UIBackgroundTaskInvalid, sharedApplication is always exist
+            UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
+            [app endBackgroundTask:self.backgroundTaskId];
+            self.backgroundTaskId = UIBackgroundTaskInvalid;
+        }
+#endif
     }
 }
 
@@ -307,10 +304,9 @@ didReceiveResponse:(NSURLResponse *)response
         // Status code invalid and marked as cancelled. Do not call `[self.dataTask cancel]` which may mass up URLSession life cycle
         disposition = NSURLSessionResponseCancel;
     }
-    
-    __weak typeof(self) weakSelf = self;
+    __block typeof(self) strongSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:strongSelf];
     });
     
     if (completionHandler) {
@@ -388,11 +384,11 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
         self.dataTask = nil;
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
             if (!error) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:weakSelf];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:strongSelf];
             }
         });
     }
@@ -423,19 +419,9 @@ didReceiveResponse:(NSURLResponse *)response
                             NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                             image = [self scaledImageForKey:key image:image];
                             
-                            BOOL shouldDecode = YES;
-                            // Do not force decoding animated GIFs and WebPs
-                            if (image.images) {
-                                shouldDecode = NO;
-                            } else {
-#ifdef SD_WEBP
-                                SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:imageData];
-                                if (imageFormat == SDImageFormatWebP) {
-                                    shouldDecode = NO;
-                                }
-#endif
-                            }
-                            
+                            // Do not force decoding animated images or GIF,
+                            // because there has imageCoder which can change `image` or `imageData` to static image, lose the animated feature totally.
+                            BOOL shouldDecode = !image.images && image.sd_imageFormat != SDImageFormatGIF;
                             if (shouldDecode) {
                                 if (self.shouldDecompressImages) {
                                     BOOL shouldScaleDown = self.options & SDWebImageDownloaderScaleDownLargeImages;
