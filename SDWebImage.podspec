@@ -46,9 +46,6 @@ Pod::Spec.new do |s|
     gif.source_files = 'SDWebImage/FLAnimatedImage/*.{h,m}'
     gif.dependency 'SDWebImage/Core'
     gif.dependency 'FLAnimatedImage', '~> 1.0'
-    gif.xcconfig = {
-      'USER_HEADER_SEARCH_PATHS' => '$(inherited) $(SRCROOT)/FLAnimatedImage/FLAnimatedImage'
-    }
   end
 
   s.subspec 'WebP' do |webp|
