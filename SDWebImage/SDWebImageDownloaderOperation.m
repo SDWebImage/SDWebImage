@@ -301,6 +301,10 @@ didReceiveResponse:(NSURLResponse *)response
             progressBlock(0, expected, self.request.URL);
         }
     } else {
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageServerErrorDomain code:statusCode userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Server errors reported, the HTTP response code is %ld", (long)statusCode]}]];
+        LOCK(self.callbacksLock);
+        [self.callbackBlocks removeAllObjects];
+        UNLOCK(self.callbacksLock);
         // Status code invalid and marked as cancelled. Do not call `[self.dataTask cancel]` which may mass up URLSession life cycle
         disposition = NSURLSessionResponseCancel;
     }
@@ -496,6 +500,11 @@ didReceiveResponse:(NSURLResponse *)response
                                 error:(nullable NSError *)error
                              finished:(BOOL)finished {
     NSArray<id> *completionBlocks = [self callbacksForKey:kCompletedCallbackKey];
+    
+    if (!completionBlocks.count) {
+        return;
+    }
+    
     dispatch_main_async_safe(^{
         for (SDWebImageDownloaderCompletedBlock completedBlock in completionBlocks) {
             completedBlock(image, imageData, error, finished);

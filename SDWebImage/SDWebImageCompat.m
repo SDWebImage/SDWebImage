@@ -69,3 +69,4 @@ inline UIImage *SDScaledImageForKey(NSString * _Nullable key, UIImage * _Nullabl
 }
 
 NSString *const SDWebImageErrorDomain = @"SDWebImageErrorDomain";
+NSString *const SDWebImageServerErrorDomain = @"SDWebImageServerErrorDomain";

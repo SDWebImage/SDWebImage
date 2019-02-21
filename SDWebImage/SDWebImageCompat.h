@@ -92,6 +92,7 @@ FOUNDATION_EXPORT UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 typedef void(^SDWebImageNoParamsBlock)(void);
 
 FOUNDATION_EXPORT NSString *const SDWebImageErrorDomain;
+FOUNDATION_EXPORT NSString *const SDWebImageServerErrorDomain;
 
 #ifndef dispatch_queue_async_safe
 #define dispatch_queue_async_safe(queue, block)\
