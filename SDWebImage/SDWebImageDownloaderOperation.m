@@ -334,9 +334,9 @@ didReceiveResponse:(NSURLResponse *)response
     if (!self.imageData) {
         self.imageData = [[NSMutableData alloc] initWithCapacity:self.expectedSize];
     }
-    LOCK(self.imageDataLock);
+    SD_LOCK(self.imageDataLock);
     [self.imageData appendData:data];
-    UNLOCK(self.imageDataLock);
+    SD_UNLOCK(self.imageDataLock);
     
     // No need to use lock to protext imageData, because delegate run in serial queue
     self.receivedSize = self.imageData.length;
@@ -375,21 +375,23 @@ didReceiveResponse:(NSURLResponse *)response
         // progressive decode the image in coder queue
         NSBlockOperation *decodeOperation = [NSBlockOperation new];
         __weak typeof(NSBlockOperation *) wOperation = decodeOperation;
+        __weak __typeof(self)wself = self;
         [decodeOperation addExecutionBlock:^{
             @autoreleasepool {
                 // If task is cancelled, just return
-                if (self.cancelled) { return; }
+                __strong __typeof (wself) sself = wself;
+                if (!sself || sself.cancelled) { return; }
                 
                 // Get current image data
-                LOCK(self.imageDataLock);
-                NSData *imageData = [self.imageData copy];
-                UNLOCK(self.imageDataLock);
-                UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                SD_LOCK(sself.imageDataLock);
+                NSData *imageData = [sself.imageData copy];
+                SD_UNLOCK(sself.imageDataLock);
+                UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, sself.request.URL, finished, sself, [[sself class] imageOptionsFromDownloaderOptions:sself.options], sself.context);
                 // Only image is valid and operation not be cancelled, we can call completion blocks
                 if (image && !wOperation.cancelled) {
                     // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                     
-                    [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
+                    [sself callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
                 }
             }
         }];
@@ -446,14 +448,11 @@ didReceiveResponse:(NSURLResponse *)response
         [self done];
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
-            // delegate run on serial queue, no need to use lock to protext imageData
-            NSData *imageData = [self.imageData copy];
-            self.imageData = nil;  
-            if (imageData) {
+            if (self.imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data
                  */
-                if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
+                if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:self.imageData]) {
                     self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCacheNotModified userInfo:nil];
                     // call completion block with not modified error
                     [self callCompletionBlocksWithError:self.responseError];
@@ -461,20 +460,22 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // Try to cancel last progressive decode operation
                     [self.lastProgressiveDecodeOperation cancel];
+                    __weak __typeof(self)wself = self;
                     // progressive decode the image in coder queue
                     NSOperation *decodeOperation = [NSBlockOperation blockOperationWithBlock:^{
                         @autoreleasepool {
                             // If task is cancelled, just return
-                            if (self.cancelled) { return; }
+                            __strong __typeof (wself) sself = wself;
+                            if (!sself || self.cancelled) { return; }
                             
-                            UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                            UIImage *image = SDImageLoaderDecodeImageData(sself.imageData, sself.request.URL, [[sself class] imageOptionsFromDownloaderOptions:sself.options], sself.context);
                             CGSize imageSize = image.size;
                             if (imageSize.width == 0 || imageSize.height == 0) {
-                                [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
+                                [sself callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image has 0 pixels"}]];
                             } else {
-                                [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                                [sself callCompletionBlocksWithImage:image imageData:sself.imageData error:nil finished:YES];
                             }
-                            [self done];
+                            [sself done];
                         }
                     }];
                     [self.decodeQueue addOperation:decodeOperation];
