@@ -92,9 +92,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _finished = NO;
         _expectedSize = 0;
         _unownedSession = session;
-        _callbacksLock = dispatch_semaphore_create(1)
+        _callbacksLock = dispatch_semaphore_create(1);
         _imageDataLock = dispatch_semaphore_create(1);
-        _decodeQueue = decodeQueue
+        _decodeQueue = decodeQueue;
 #if SD_UIKIT
         _backgroundTaskId = UIBackgroundTaskInvalid;
 #endif
