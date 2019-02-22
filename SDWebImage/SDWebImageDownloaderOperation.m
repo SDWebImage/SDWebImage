@@ -92,9 +92,12 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _finished = NO;
         _expectedSize = 0;
         _unownedSession = session;
-        _callbacksLock = dispatch_semaphore_create(1);
+        _callbacksLock = dispatch_semaphore_create(1)
         _imageDataLock = dispatch_semaphore_create(1);
-        _decodeQueue = decodeQueue;
+        _decodeQueue = decodeQueue
+#if SD_UIKIT
+        _backgroundTaskId = UIBackgroundTaskInvalid;
+#endif
     }
     return self;
 }
@@ -104,16 +107,16 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     SDCallbacksDictionary *callbacks = [NSMutableDictionary new];
     if (progressBlock) callbacks[kProgressCallbackKey] = [progressBlock copy];
     if (completedBlock) callbacks[kCompletedCallbackKey] = [completedBlock copy];
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks addObject:callbacks];
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     return callbacks;
 }
 
 - (nullable NSArray<id> *)callbacksForKey:(NSString *)key {
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     NSMutableArray<id> *callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     // We need to remove [NSNull null] because there might not always be a progress block for each callback
     [callbacks removeObjectIdenticalTo:[NSNull null]];
     return [callbacks copy]; // strip mutability here
@@ -121,12 +124,12 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 - (BOOL)cancel:(nullable id)token {
     BOOL shouldCancel = NO;
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks removeObjectIdenticalTo:token];
     if (self.callbackBlocks.count == 0) {
         shouldCancel = YES;
     }
-    UNLOCK(self.callbacksLock);
+    SD_UNLOCK(self.callbacksLock);
     if (shouldCancel) {
         [self cancel];
     }
@@ -148,14 +151,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             __weak __typeof__ (self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
             self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
-                __strong __typeof (wself) sself = wself;
-
-                if (sself) {
-                    [sself cancel];
-
-                    [app endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
-                }
+                [wself cancel];
             }];
         }
 #endif
@@ -210,27 +206,15 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:strongSelf];
         });
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadOperation userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
         [self done];
         return;
     }
-
-#if SD_UIKIT
-    Class UIApplicationClass = NSClassFromString(@"UIApplication");
-    if(!UIApplicationClass || ![UIApplicationClass respondsToSelector:@selector(sharedApplication)]) {
-        return;
-    }
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
-        UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
-        [app endBackgroundTask:self.backgroundTaskId];
-        self.backgroundTaskId = UIBackgroundTaskInvalid;
-    }
-#endif
 }
 
 - (void)cancel {
@@ -245,9 +229,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         [self.dataTask cancel];
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
         });
 
         // As we cancelled the task, its callback won't be called and thus won't
@@ -266,14 +250,26 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (void)reset {
-    LOCK(self.callbacksLock);
+    SD_LOCK(self.callbacksLock);
     [self.callbackBlocks removeAllObjects];
-    UNLOCK(self.callbacksLock);
-    self.dataTask = nil;
+    SD_UNLOCK(self.callbacksLock);
     
-    if (self.ownedSession) {
-        [self.ownedSession invalidateAndCancel];
-        self.ownedSession = nil;
+    @synchronized (self) {
+        self.dataTask = nil;
+        
+        if (self.ownedSession) {
+            [self.ownedSession invalidateAndCancel];
+            self.ownedSession = nil;
+        }
+        
+#if SD_UIKIT
+        if (self.backgroundTaskId != UIBackgroundTaskInvalid) {
+            // If backgroundTaskId != UIBackgroundTaskInvalid, sharedApplication is always exist
+            UIApplication * app = [UIApplication performSelector:@selector(sharedApplication)];
+            [app endBackgroundTask:self.backgroundTaskId];
+            self.backgroundTaskId = UIBackgroundTaskInvalid;
+        }
+#endif
     }
 }
 
@@ -324,10 +320,9 @@ didReceiveResponse:(NSURLResponse *)response
         // Status code invalid and marked as cancelled. Do not call `[self.dataTask cancel]` which may mass up URLSession life cycle
         disposition = NSURLSessionResponseCancel;
     }
-    
-    __weak typeof(self) weakSelf = self;
+    __block typeof(self) strongSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:strongSelf];
     });
     
     if (completionHandler) {
@@ -432,11 +427,11 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
         self.dataTask = nil;
-        __weak typeof(self) weakSelf = self;
+        __block typeof(self) strongSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
             if (!error) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:weakSelf];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:strongSelf];
             }
         });
     }
@@ -453,6 +448,7 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             // delegate run on serial queue, no need to use lock to protext imageData
             NSData *imageData = [self.imageData copy];
+            self.imageData = nil;  
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data

@@ -195,13 +195,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 
 - (void)test20InitialCacheSize{
-    expect([[SDImageCache sharedImageCache] getSize]).to.equal(0);
+    expect([[SDImageCache sharedImageCache] totalDiskSize]).to.equal(0);
 }
 
 - (void)test21InitialDiskCount{
     XCTestExpectation *expectation = [self expectationWithDescription:@"getDiskCount"];
     [[SDImageCache sharedImageCache] storeImage:[self testJPEGImage] forKey:kTestImageKeyJPEG completion:^{
-        expect([[SDImageCache sharedImageCache] getDiskCount]).to.equal(1);
+        expect([[SDImageCache sharedImageCache] totalDiskCount]).to.equal(1);
         [[SDImageCache sharedImageCache] removeImageForKey:kTestImageKeyJPEG withCompletion:^{
             [expectation fulfill];
         }];
@@ -244,12 +244,25 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     expect([cachePath pathExtension]).to.equal(@"");
 }
 
-#if SD_UIKIT
+- (void)test36CachePathForKeyWithURLQueryParams {
+    NSString *urlString = @"https://imggen.alicdn.com/3b11cea896a9438329d85abfb07b30a8.jpg?aid=tanx&tid=1166&m=%7B%22img_url%22%3A%22https%3A%2F%2Fgma.alicdn.com%2Fbao%2Fuploaded%2Fi4%2F1695306010722305097%2FTB2S2KjkHtlpuFjSspoXXbcDpXa_%21%210-saturn_solar.jpg_sum.jpg%22%2C%22title%22%3A%22%E6%A4%8D%E7%89%A9%E8%94%B7%E8%96%87%E7%8E%AB%E7%91%B0%E8%8A%B1%22%2C%22promot_name%22%3A%22%22%2C%22itemid%22%3A%22546038044448%22%7D&e=cb88dab197bfaa19804f6ec796ca906dab536b88fe6d4475795c7ee661a7ede1&size=640x246";
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:urlString];
+    expect(cachePath).toNot.beNil();
+    expect([cachePath pathExtension]).to.equal(@"jpg");
+}
+
+- (void)test37CachePathForKeyWithTooLongExtension {
+    NSString *urlString = @"https://imggen.alicdn.com/3b11cea896a9438329d85abfb07b30a8.jpgasaaaaaaaaaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjaaaaaaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj";
+    NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:urlString];
+    expect(cachePath).toNot.beNil();
+    expect([cachePath pathExtension]).to.equal(@"");
+}
+
 - (void)test40InsertionOfImageData {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Insertion of image data works"];
     
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
-    NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    NSData *imageData = [image sd_imageDataAsFormat:SDImageFormatJPEG];
     [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kTestImageKeyJPEG];
     
     UIImage *storedImageFromMemory = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG];
@@ -257,7 +270,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     
     NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:kTestImageKeyJPEG];
     UIImage *cachedImage = [[UIImage alloc] initWithContentsOfFile:cachePath];
-    NSData *storedImageData = UIImageJPEGRepresentation(cachedImage, 1.0);
+    NSData *storedImageData = [cachedImage sd_imageDataAsFormat:SDImageFormatJPEG];
     expect(storedImageData.length).to.beGreaterThan(0);
     expect(cachedImage.size).to.equal(image.size);
     // can't directly compare image and cachedImage because apparently there are some slight differences, even though the image is the same
@@ -304,8 +317,8 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         NSString * decodedImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
         UIImage *testJPEGImage = [[UIImage alloc] initWithContentsOfFile:decodedImagePath];
         
-        NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
-        NSData *data2 = UIImagePNGRepresentation(diskCacheImage);
+        NSData *data1 = [testJPEGImage sd_imageDataAsFormat:SDImageFormatPNG];
+        NSData *data2 = [diskCacheImage sd_imageDataAsFormat:SDImageFormatPNG];
         
         if (![data1 isEqualToData:data2]) {
             XCTFail(@"Custom decoder not work for SDImageCache, check -[SDWebImageTestDecoder decodedImageWithData:]");
@@ -320,7 +333,6 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     
     [self waitForExpectationsWithCommonTimeout];
 }
-#endif
 
 - (void)test41StoreImageDataToDiskWithCustomFileManager {
     NSData *imageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
@@ -344,8 +356,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
     config.memoryCacheClass = [SDWebImageTestMemoryCache class];
     NSString *nameSpace = @"SDWebImageTestMemoryCache";
-    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:nil config:config];
     SDWebImageTestMemoryCache *memCache = cache.memCache;
     expect([memCache isKindOfClass:[SDWebImageTestMemoryCache class]]).to.beTruthy();
 }
@@ -354,8 +365,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
     config.diskCacheClass = [SDWebImageTestDiskCache class];
     NSString *nameSpace = @"SDWebImageTestDiskCache";
-    NSString *cacheDictionary = [self makeDiskCachePath:nameSpace];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:cacheDictionary config:config];
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:nil config:config];
     SDWebImageTestDiskCache *diskCache = cache.diskCache;
     expect([diskCache isKindOfClass:[SDWebImageTestDiskCache class]]).to.beTruthy();
 }
@@ -366,8 +376,8 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     config.fileManager = fileManager;
     
     // Fake to store a.png into old path
-    NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
-    NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+    NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
+    NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
     [fileManager createDirectoryAtPath:oldDefaultPath withIntermediateDirectories:YES attributes:nil error:nil];
     [fileManager createFileAtPath:[oldDefaultPath stringByAppendingPathComponent:@"a.png"] contents:[NSData dataWithContentsOfFile:[self testPNGPath]] attributes:nil];
     // Call migration
@@ -597,9 +607,9 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     return [testBundle pathForResource:@"TestImage" ofType:@"png"];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString*)fullNamespace {
+- (nullable NSString *)userCacheDirectory {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [paths[0] stringByAppendingPathComponent:fullNamespace];
+    return paths.firstObject;
 }
 
 @end

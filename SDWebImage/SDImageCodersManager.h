@@ -20,7 +20,7 @@
  - by default we internally set coders = `IOCoder`, `GIFCoder`
  - calling `coders` will return `@[IOCoder, GIFCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
- - calling `coders` now returns `@[MyCrazyCoder, IOCoder, GIFCoder]`
+ - calling `coders` now returns `@[IOCoder, GIFCoder, MyCrazyCoder]`
  
  Coders
  ------
@@ -29,7 +29,7 @@
  Those methods are called on each coder in the array (using the priority order) until one of them returns YES.
  That means that coder can decode that data / encode to that format
  */
-@interface SDImageCodersManager : NSObject<SDImageCoder>
+@interface SDImageCodersManager : NSObject <SDImageCoder>
 
 /**
  Returns the global shared coders manager instance.

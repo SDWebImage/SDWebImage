@@ -44,32 +44,32 @@
     if (![coder conformsToProtocol:@protocol(SDImageCoder)]) {
         return;
     }
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSMutableArray<id<SDImageCoder>> *mutableCoders = [self.coders mutableCopy];
     if (!mutableCoders) {
         mutableCoders = [NSMutableArray array];
     }
     [mutableCoders addObject:coder];
     self.coders = [mutableCoders copy];
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
 }
 
 - (void)removeCoder:(nonnull id<SDImageCoder>)coder {
     if (![coder conformsToProtocol:@protocol(SDImageCoder)]) {
         return;
     }
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSMutableArray<id<SDImageCoder>> *mutableCoders = [self.coders mutableCopy];
     [mutableCoders removeObject:coder];
     self.coders = [mutableCoders copy];
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
 }
 
 #pragma mark - SDImageCoder
 - (BOOL)canDecodeFromData:(NSData *)data {
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSArray<id<SDImageCoder>> *coders = self.coders;
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canDecodeFromData:data]) {
             return YES;
@@ -79,9 +79,9 @@
 }
 
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSArray<id<SDImageCoder>> *coders = self.coders;
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canEncodeToFormat:format]) {
             return YES;
@@ -95,9 +95,9 @@
         return nil;
     }
     UIImage *image;
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSArray<id<SDImageCoder>> *coders = self.coders;
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canDecodeFromData:data]) {
             image = [coder decodedImageWithData:data options:options];
@@ -112,12 +112,12 @@
     if (!image) {
         return nil;
     }
-    LOCK(self.codersLock);
+    SD_LOCK(self.codersLock);
     NSArray<id<SDImageCoder>> *coders = self.coders;
-    UNLOCK(self.codersLock);
+    SD_UNLOCK(self.codersLock);
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canEncodeToFormat:format]) {
-            return [coder encodedDataWithImage:image format:format options:nil];
+            return [coder encodedDataWithImage:image format:format options:options];
         }
     }
     return nil;

@@ -11,6 +11,8 @@
 #import "SDImageCoder.h"
 #import "SDImageCodersManager.h"
 #import "SDImageFrame.h"
+#import "UIImage+MemoryCacheCost.h"
+#import "objc/runtime.h"
 
 static CGFloat SDImageScaleFromPath(NSString *string) {
     if (string.length == 0 || [string hasSuffix:@"/"]) return 1;
@@ -104,9 +106,9 @@ static NSArray *SDBundlePreferredScales() {
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    LOCKBLOCK({
-        [self.imageTable removeAllObjects];
-    });
+    SD_LOCK(_lock);
+    [self.imageTable removeAllObjects];
+    SD_UNLOCK(_lock);
 }
 
 - (NSString *)getPathForName:(NSString *)name bundle:(NSBundle *)bundle preferredScale:(CGFloat *)scale {
@@ -174,18 +176,18 @@ static NSArray *SDBundlePreferredScales() {
 - (UIImage *)imageForName:(NSString *)name {
     NSParameterAssert(name);
     UIImage *image;
-    LOCKBLOCK({
-        image = [self.imageTable objectForKey:name];
-    });
+    SD_LOCK(_lock);
+    image = [self.imageTable objectForKey:name];
+    SD_UNLOCK(_lock);
     return image;
 }
 
 - (void)storeImage:(UIImage *)image forName:(NSString *)name {
     NSParameterAssert(image);
     NSParameterAssert(name);
-    LOCKBLOCK({
-        [self.imageTable setObject:image forKey:name];
-    });
+    SD_LOCK(_lock);
+    [self.imageTable setObject:image forKey:name];
+    SD_UNLOCK(_lock);
 }
 
 @end
@@ -423,6 +425,30 @@ static NSArray *SDBundlePreferredScales() {
         return frame.duration;
     }
     return [self.coder animatedImageDurationAtIndex:index];
+}
+
+@end
+
+@implementation SDAnimatedImage (MemoryCacheCost)
+
+- (NSUInteger)sd_memoryCost {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_memoryCost));
+    if (value != nil) {
+        return value.unsignedIntegerValue;
+    }
+    
+    CGImageRef imageRef = self.CGImage;
+    if (!imageRef) {
+        return 0;
+    }
+    NSUInteger bytesPerFrame = CGImageGetBytesPerRow(imageRef) * CGImageGetHeight(imageRef);
+    NSUInteger frameCount = 1;
+    if (self.isAllFramesLoaded) {
+        frameCount = self.animatedImageFrameCount;
+    }
+    frameCount = frameCount > 0 ? frameCount : 1;
+    NSUInteger cost = bytesPerFrame * frameCount;
+    return cost;
 }
 
 @end

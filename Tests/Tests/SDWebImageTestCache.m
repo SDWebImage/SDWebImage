@@ -77,7 +77,7 @@
 }
 
 - (void)removeExpiredData {
-    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxDiskAge];
     for (NSString *fileName in [self.fileManager enumeratorAtPath:self.cachePath]) {
         NSString *filePath = [self.cachePath stringByAppendingPathComponent:fileName];
         NSDate *modificationDate = [[self.fileManager attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileModificationDate];

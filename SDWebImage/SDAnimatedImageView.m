@@ -238,10 +238,10 @@ static NSUInteger SDDeviceFreeMemory() {
     self.animatedImageScale = 1;
     [_fetchQueue cancelAllOperations];
     _fetchQueue = nil;
-    LOCKBLOCK({
-        [_frameBuffer removeAllObjects];
-        _frameBuffer = nil;
-    });
+    SD_LOCK(self.lock);
+    [_frameBuffer removeAllObjects];
+    _frameBuffer = nil;
+    SD_UNLOCK(self.lock);
 }
 
 - (void)resetProgressiveImage
@@ -299,9 +299,9 @@ static NSUInteger SDDeviceFreeMemory() {
         self.animatedImageScale = image.scale;
         if (!self.isProgressive) {
             self.currentFrame = image;
-            LOCKBLOCK({
-                self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
-            });
+            SD_LOCK(self.lock);
+            self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
+            SD_UNLOCK(self.lock);
         }
         
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
@@ -420,15 +420,15 @@ static NSUInteger SDDeviceFreeMemory() {
     [_fetchQueue cancelAllOperations];
     [_fetchQueue addOperationWithBlock:^{
         NSNumber *currentFrameIndex = @(self.currentFrameIndex);
-        LOCKBLOCK({
-            NSArray *keys = self.frameBuffer.allKeys;
-            // only keep the next frame for later rendering
-            for (NSNumber * key in keys) {
-                if (![key isEqualToNumber:currentFrameIndex]) {
-                    [self.frameBuffer removeObjectForKey:key];
-                }
+        SD_LOCK(self.lock);
+        NSArray *keys = self.frameBuffer.allKeys;
+        // only keep the next frame for later rendering
+        for (NSNumber * key in keys) {
+            if (![key isEqualToNumber:currentFrameIndex]) {
+                [self.frameBuffer removeObjectForKey:key];
             }
-        });
+        }
+        SD_UNLOCK(self.lock);
     }];
 }
 
@@ -690,22 +690,22 @@ static NSUInteger SDDeviceFreeMemory() {
     // Update the current frame
     UIImage *currentFrame;
     UIImage *fetchFrame;
-    LOCKBLOCK({
-        currentFrame = self.frameBuffer[@(currentFrameIndex)];
-        fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
-    });
+    SD_LOCK(self.lock);
+    currentFrame = self.frameBuffer[@(currentFrameIndex)];
+    fetchFrame = currentFrame ? self.frameBuffer[@(nextFrameIndex)] : nil;
+    SD_UNLOCK(self.lock);
     BOOL bufferFull = NO;
     if (currentFrame) {
-        LOCKBLOCK({
-            // Remove the frame buffer if need
-            if (self.frameBuffer.count > self.maxBufferCount) {
-                self.frameBuffer[@(currentFrameIndex)] = nil;
-            }
-            // Check whether we can stop fetch
-            if (self.frameBuffer.count == totalFrameCount) {
-                bufferFull = YES;
-            }
-        });
+        SD_LOCK(self.lock);
+        // Remove the frame buffer if need
+        if (self.frameBuffer.count > self.maxBufferCount) {
+            self.frameBuffer[@(currentFrameIndex)] = nil;
+        }
+        // Check whether we can stop fetch
+        if (self.frameBuffer.count == totalFrameCount) {
+            bufferFull = YES;
+        }
+        SD_UNLOCK(self.lock);
         self.currentFrame = currentFrame;
         self.currentFrameIndex = nextFrameIndex;
         self.bufferMiss = NO;
@@ -720,9 +720,9 @@ static NSUInteger SDDeviceFreeMemory() {
         if (self.isProgressive) {
             // Recovery the current frame index and removed frame buffer (See above)
             self.currentFrameIndex = currentFrameIndex;
-            LOCKBLOCK({
-                self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
-            });
+            SD_LOCK(self.lock);
+            self.frameBuffer[@(currentFrameIndex)] = self.currentFrame;
+            SD_UNLOCK(self.lock);
             [self stopAnimating];
             return;
         }
@@ -751,9 +751,9 @@ static NSUInteger SDDeviceFreeMemory() {
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
-            LOCKBLOCK({
-                self.frameBuffer[@(fetchFrameIndex)] = frame;
-            });
+            SD_LOCK(self.lock);
+            self.frameBuffer[@(fetchFrameIndex)] = frame;
+            SD_UNLOCK(self.lock);
         }];
         [self.fetchQueue addOperation:operation];
     }

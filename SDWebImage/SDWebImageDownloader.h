@@ -171,7 +171,7 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.
  *
- * @param value The value for the header field. Use `nil` value to remove the header.
+ * @param value The value for the header field. Use `nil` value to remove the header field.
  * @param field The name of the header field to set.
  */
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field;

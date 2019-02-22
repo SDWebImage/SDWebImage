@@ -73,22 +73,23 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  * Setting this to zero means that all cached files would be removed when do expiration check.
  * Defaults to 1 weak.
  */
-@property (assign, nonatomic) NSTimeInterval maxCacheAge;
+@property (assign, nonatomic) NSTimeInterval maxDiskAge;
 
 /**
  * The maximum size of the disk cache, in bytes.
  * Defaults to 0. Which means there is no cache size limit.
  */
-@property (assign, nonatomic) NSUInteger maxCacheSize;
+@property (assign, nonatomic) NSUInteger maxDiskSize;
 
 /**
- * The maximum "total cost" of the in-memory image cache. The cost function is the number of pixels held in memory.
+ * The maximum "total cost" of the in-memory image cache. The cost function is the bytes size held in memory.
+ * @note The memory cost is bytes size in memory, but not simple pixels count. For common ARGB8888 image, one pixel is 4 bytes (32 bits).
  * Defaults to 0. Which means there is no memory cost limit.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCost;
 
 /**
- * The maximum number of objects the cache should hold.
+ * The maximum number of objects in-memory image cache should hold.
  * Defaults to 0. Which means there is no memory count limit.
  */
 @property (assign, nonatomic) NSUInteger maxMemoryCount;
@@ -98,12 +99,6 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  * Default is Modified Date
  */
 @property (assign, nonatomic) SDImageCacheConfigExpireType diskCacheExpireType;
-
-/**
- * The namespace prefix of cache. It's used to prefix the namespace you provide to the caches's initializer. You 'd better name it with reverse domain name notation and keep the final dot.
- * Defautls to `com.hackemist.SDImageCache.`, which will prefix your namespace such as `default` to final `com.hackemist.SDImageCache.default`. If you specify nil, it will be treated equals to an empty string.
- */
-@property (copy, nonatomic, nullable) NSString *namespacePrefix;
 
 /**
  * The custom file manager for disk cache. Pass nil to let disk cache choose the proper file manager.

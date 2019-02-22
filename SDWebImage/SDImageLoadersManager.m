@@ -42,33 +42,33 @@
     if (![loader conformsToProtocol:@protocol(SDImageLoader)]) {
         return;
     }
-    LOCK(self.loadersLock);
+    SD_LOCK(self.loadersLock);
     NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
     if (!mutableLoaders) {
         mutableLoaders = [NSMutableArray array];
     }
     [mutableLoaders addObject:loader];
     self.loaders = [mutableLoaders copy];
-    UNLOCK(self.loadersLock);
+    SD_UNLOCK(self.loadersLock);
 }
 
 - (void)removeLoader:(id<SDImageLoader>)loader {
     if (![loader conformsToProtocol:@protocol(SDImageLoader)]) {
         return;
     }
-    LOCK(self.loadersLock);
+    SD_LOCK(self.loadersLock);
     NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
     [mutableLoaders removeObject:loader];
     self.loaders = [mutableLoaders copy];
-    UNLOCK(self.loadersLock);
+    SD_UNLOCK(self.loadersLock);
 }
 
 #pragma mark - SDImageLoader
 
 - (BOOL)canLoadWithURL:(nullable NSURL *)url {
-    LOCK(self.loadersLock);
+    SD_LOCK(self.loadersLock);
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
-    UNLOCK(self.loadersLock);
+    SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canLoadWithURL:url]) {
             return YES;
@@ -81,9 +81,9 @@
     if (!url) {
         return nil;
     }
-    LOCK(self.loadersLock);
+    SD_LOCK(self.loadersLock);
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
-    UNLOCK(self.loadersLock);
+    SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canLoadWithURL:url]) {
             return [loader loadImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];

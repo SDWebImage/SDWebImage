@@ -8,97 +8,11 @@
 
 #import "UIImage+Transform.h"
 #import "NSImage+Compatibility.h"
+#import "SDImageGraphics.h"
 #import <Accelerate/Accelerate.h>
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
-#import "objc/runtime.h"
 #endif
-
-#if SD_MAC
-static void *kNSGraphicsContextScaleFactorKey;
-
-static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
-    size_t width = ceil(size.width * scale);
-    size_t height = ceil(size.height * scale);
-    if (width < 1 || height < 1) return NULL;
-    
-    //pre-multiplied BGRA for non-opaque, BGRX for opaque, 8-bits per component, as Apple's doc
-    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-    CGImageAlphaInfo alphaInfo = kCGBitmapByteOrder32Host | (opaque ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaPremultipliedFirst);
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, kCGBitmapByteOrderDefault | alphaInfo);
-    CGColorSpaceRelease(space);
-    if (!context) {
-        return NULL;
-    }
-    if (scale == 0) {
-        // Match `UIGraphicsBeginImageContextWithOptions`, reset to the scale factor of the device’s main screen if scale is 0.
-        scale = [NSScreen mainScreen].backingScaleFactor;
-    }
-    CGContextScaleCTM(context, scale, scale);
-    
-    return context;
-}
-#endif
-
-static void SDGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGFloat scale) {
-#if SD_UIKIT || SD_WATCH
-    UIGraphicsBeginImageContextWithOptions(size, opaque, scale);
-#else
-    CGContextRef context = SDCGContextCreateBitmapContext(size, opaque, scale);
-    if (!context) {
-        return;
-    }
-    NSGraphicsContext *graphicsContext = [NSGraphicsContext graphicsContextWithCGContext:context flipped:NO];
-    objc_setAssociatedObject(graphicsContext, &kNSGraphicsContextScaleFactorKey, @(scale), OBJC_ASSOCIATION_RETAIN);
-    CGContextRelease(context);
-    [NSGraphicsContext saveGraphicsState];
-    NSGraphicsContext.currentContext = graphicsContext;
-#endif
-}
-
-static CGContextRef SDGraphicsGetCurrentContext(void) {
-#if SD_UIKIT || SD_WATCH
-    return UIGraphicsGetCurrentContext();
-#else
-    return NSGraphicsContext.currentContext.CGContext;
-#endif
-}
-
-static void SDGraphicsEndImageContext(void) {
-#if SD_UIKIT || SD_WATCH
-    UIGraphicsEndImageContext();
-#else
-    [NSGraphicsContext restoreGraphicsState];
-#endif
-}
-
-static UIImage * SDGraphicsGetImageFromCurrentImageContext(void) {
-#if SD_UIKIT || SD_WATCH
-    return UIGraphicsGetImageFromCurrentImageContext();
-#else
-    NSGraphicsContext *context = NSGraphicsContext.currentContext;
-    CGContextRef contextRef = context.CGContext;
-    if (!contextRef) {
-        return nil;
-    }
-    CGImageRef imageRef = CGBitmapContextCreateImage(contextRef);
-    if (!imageRef) {
-        return nil;
-    }
-    CGFloat scale = 0;
-    NSNumber *scaleFactor = objc_getAssociatedObject(context, &kNSGraphicsContextScaleFactorKey);
-    if ([scaleFactor isKindOfClass:[NSNumber class]]) {
-        scale = scaleFactor.doubleValue;
-    }
-    if (!scale) {
-        // reset to the scale factor of the device’s main screen if scale is 0.
-        scale = [NSScreen mainScreen].backingScaleFactor;
-    }
-    NSImage *image = [[NSImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
-    CGImageRelease(imageRef);
-    return image;
-#endif
-}
 
 static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageScaleMode scaleMode) {
     rect = CGRectStandardize(rect);

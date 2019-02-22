@@ -135,7 +135,7 @@
                                                                   options:NSDirectoryEnumerationSkipsHiddenFiles
                                                              errorHandler:NULL];
     
-    NSDate *expirationDate = (self.config.maxCacheAge < 0) ? nil: [NSDate dateWithTimeIntervalSinceNow:-self.config.maxCacheAge];
+    NSDate *expirationDate = (self.config.maxDiskAge < 0) ? nil: [NSDate dateWithTimeIntervalSinceNow:-self.config.maxDiskAge];
     NSMutableDictionary<NSURL *, NSDictionary<NSString *, id> *> *cacheFiles = [NSMutableDictionary dictionary];
     NSUInteger currentCacheSize = 0;
     
@@ -172,10 +172,10 @@
     
     // If our remaining disk cache exceeds a configured maximum size, perform a second
     // size-based cleanup pass.  We delete the oldest files first.
-    NSUInteger maxCacheSize = self.config.maxCacheSize;
-    if (maxCacheSize > 0 && currentCacheSize > maxCacheSize) {
+    NSUInteger maxDiskSize = self.config.maxDiskSize;
+    if (maxDiskSize > 0 && currentCacheSize > maxDiskSize) {
         // Target half of our maximum cache size for this cleanup pass.
-        const NSUInteger desiredCacheSize = maxCacheSize / 2;
+        const NSUInteger desiredCacheSize = maxDiskSize / 2;
         
         // Sort the remaining cache files by their last modification time or last access time (oldest first).
         NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
@@ -267,15 +267,21 @@
 
 #pragma mark - Hash
 
-static inline NSString * _Nullable SDDiskCacheFileNameForKey(NSString * _Nullable key) {
+#define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_MD5_DIGEST_LENGTH * 2 - 1)
+
+static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable key) {
     const char *str = key.UTF8String;
     if (str == NULL) {
-        return nil;
+        str = "";
     }
     unsigned char r[CC_MD5_DIGEST_LENGTH];
     CC_MD5(str, (CC_LONG)strlen(str), r);
     NSURL *keyURL = [NSURL URLWithString:key];
     NSString *ext = keyURL ? keyURL.pathExtension : key.pathExtension;
+    // File system has file name length limit, we need to check if ext is too long, we don't add it to the filename
+    if (ext.length > SD_MAX_FILE_EXTENSION_LENGTH) {
+        ext = nil;
+    }
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
                           r[11], r[12], r[13], r[14], r[15], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];

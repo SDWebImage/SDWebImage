@@ -14,6 +14,7 @@
 #import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
+#import "UIImage+MemoryCacheCost.h"
 
 @interface SDImageCache ()
 
@@ -45,24 +46,19 @@
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns {
-    NSString *path = [self makeDiskCachePath:ns];
-    return [self initWithNamespace:ns diskCacheDirectory:path];
+    return [self initWithNamespace:ns diskCacheDirectory:nil];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory {
+                       diskCacheDirectory:(nullable NSString *)directory {
     return [self initWithNamespace:ns diskCacheDirectory:directory config:SDImageCacheConfig.defaultCacheConfig];
 }
 
 - (nonnull instancetype)initWithNamespace:(nonnull NSString *)ns
-                       diskCacheDirectory:(nonnull NSString *)directory
+                       diskCacheDirectory:(nullable NSString *)directory
                                    config:(nullable SDImageCacheConfig *)config {
     if ((self = [super init])) {
-        NSString *namespacePrefix = config.namespacePrefix;
-        if (!namespacePrefix) {
-            namespacePrefix = @"";
-        }
-        NSString *fullNamespace = [namespacePrefix stringByAppendingString:ns];
+        NSAssert(ns, @"Cache namespace should not be nil");
         
         // Create IO serial queue
         _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", DISPATCH_QUEUE_SERIAL);
@@ -78,9 +74,9 @@
         
         // Init the disk cache
         if (directory != nil) {
-            _diskCachePath = [directory stringByAppendingPathComponent:fullNamespace];
+            _diskCachePath = [directory stringByAppendingPathComponent:ns];
         } else {
-            NSString *path = [self makeDiskCachePath:ns];
+            NSString *path = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:ns];
             _diskCachePath = path;
         }
         
@@ -126,17 +122,19 @@
     return [self.diskCache cachePathForKey:key];
 }
 
-- (nullable NSString *)makeDiskCachePath:(nonnull NSString *)fullNamespace {
+- (nullable NSString *)userCacheDirectory {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [paths.firstObject stringByAppendingPathComponent:fullNamespace];
+    return paths.firstObject;
 }
 
 - (void)migrateDiskCacheDirectory {
     if ([self.diskCache isKindOfClass:[SDDiskCache class]]) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            NSString *newDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDImageCache.default"];
-            NSString *oldDefaultPath = [[self makeDiskCachePath:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+            // ~/Library/Caches/com.hackemist.SDImageCache/default/
+            NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
+            // ~/Library/Caches/default/com.hackemist.SDWebImageCache.default/
+            NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
             dispatch_async(self.ioQueue, ^{
                 [((SDDiskCache *)self.diskCache) moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
             });
@@ -181,7 +179,7 @@
     }
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(image);
+        NSUInteger cost = image.sd_memoryCost;
         [self.memCache setObject:image forKey:key cost:cost];
     }
     
@@ -219,7 +217,7 @@
     if (!image || !key) {
         return;
     }
-    NSUInteger cost = SDMemoryCacheCostForImage(image);
+    NSUInteger cost = image.sd_memoryCost;
     [self.memCache setObject:image forKey:key cost:cost];
 }
 
@@ -297,7 +295,7 @@
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+        NSUInteger cost = diskImage.sd_memoryCost;
         [self.memCache setObject:diskImage forKey:key cost:cost];
     }
 
@@ -404,16 +402,17 @@
         @autoreleasepool {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage;
-            SDImageCacheType cacheType = SDImageCacheTypeDisk;
+            SDImageCacheType cacheType = SDImageCacheTypeNone;
             if (image) {
                 // the image is from in-memory cache, but need image data
                 diskImage = image;
                 cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
+                cacheType = SDImageCacheTypeDisk;
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = SDMemoryCacheCostForImage(diskImage);
+                    NSUInteger cost = diskImage.sd_memoryCost;
                     [self.memCache setObject:diskImage forKey:key cost:cost];
                 }
             }
@@ -565,7 +564,7 @@
 
 #pragma mark - Cache Info
 
-- (NSUInteger)getSize {
+- (NSUInteger)totalDiskSize {
     __block NSUInteger size = 0;
     dispatch_sync(self.ioQueue, ^{
         size = [self.diskCache totalSize];
@@ -573,7 +572,7 @@
     return size;
 }
 
-- (NSUInteger)getDiskCount {
+- (NSUInteger)totalDiskCount {
     __block NSUInteger count = 0;
     dispatch_sync(self.ioQueue, ^{
         count = [self.diskCache totalCount];

@@ -72,7 +72,6 @@
     rotatedImage = [self.testImage sd_rotatedImageWithAngle:angle fitSize:YES];
     CGSize rotatedSize = CGSizeMake(floor(300 * 1.414), floor(300 * 1.414)); // 45º, square length * sqrt(2)
     expect(CGSizeEqualToSize(rotatedImage.size, rotatedSize)).beTruthy();
-    rotatedImage = [self.testImage sd_rotatedImageWithAngle:angle fitSize:NO];
 }
 
 - (void)test05UIImageTransformFlip {
