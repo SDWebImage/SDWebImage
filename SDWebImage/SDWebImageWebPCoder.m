@@ -347,6 +347,14 @@
             NSData *profileData = [NSData dataWithBytes:chunk_iter.chunk.bytes length:chunk_iter.chunk.size];
             colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
             WebPDemuxReleaseChunkIterator(&chunk_iter);
+            if (colorSpaceRef) {
+                // `CGImageCreate` does not support colorSpace other than RGB (such as Monochrome), we must filter the colorSpace mode
+                CGColorSpaceModel model = CGColorSpaceGetModel(colorSpaceRef);
+                if (model != kCGColorSpaceModelRGB) {
+                    CGColorSpaceRelease(colorSpaceRef);
+                    colorSpaceRef = NULL;
+                }
+            }
         }
     }
     
