@@ -348,7 +348,7 @@
             colorSpaceRef = CGColorSpaceCreateWithICCProfile((__bridge CFDataRef)profileData);
             WebPDemuxReleaseChunkIterator(&chunk_iter);
             if (colorSpaceRef) {
-                // `CGImageCreate` does not support colorSpace other than RGB (such as Monochrome), we must filter the colorSpace mode
+                // We use RGB color model to decode WebP images currently, so we must filter out other colorSpace
                 CGColorSpaceModel model = CGColorSpaceGetModel(colorSpaceRef);
                 if (model != kCGColorSpaceModelRGB) {
                     CGColorSpaceRelease(colorSpaceRef);
