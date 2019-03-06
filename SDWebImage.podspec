@@ -28,8 +28,9 @@ Pod::Spec.new do |s|
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |core|
-    core.source_files = 'SDWebImage/*.{h,m}', 'WebImage/SDWebImage.h'
+    core.source_files = 'SDWebImage/*.{h,m}', 'WebImage/SDWebImage.h', 'SDWebImage/Private/*.{h,m}'
     core.exclude_files = 'SDWebImage/MapKit/*.{h,m}'
+    core.private_header_files = 'SDWebImage/Private/*.h'
   end
 
   s.subspec 'MapKit' do |mk|
