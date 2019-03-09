@@ -91,6 +91,10 @@
 		329A185B1FFF5DFD008C9A2F /* UIImage+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329A185F1FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
 		329A18611FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
+		32B5CC60222F89C2005EB74E /* SDAsyncBlockOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		32B5CC61222F89C2005EB74E /* SDAsyncBlockOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */; };
+		32B5CC62222F89F6005EB74E /* SDAsyncBlockOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		32B5CC63222F8B70005EB74E /* SDAsyncBlockOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */; };
 		32B9B537206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9B535206ED4230026769D /* SDWebImageDownloaderConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32B9B539206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B9B535206ED4230026769D /* SDWebImageDownloaderConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32B9B53D206ED4230026769D /* SDWebImageDownloaderConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B9B536206ED4230026769D /* SDWebImageDownloaderConfig.m */; };
@@ -269,6 +273,8 @@
 		3290FA031FA478AF0047D20C /* SDImageFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageFrame.m; sourceTree = "<group>"; };
 		329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Metadata.h"; sourceTree = "<group>"; };
 		329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Metadata.m"; sourceTree = "<group>"; };
+		32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDAsyncBlockOperation.h; sourceTree = "<group>"; };
+		32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAsyncBlockOperation.m; sourceTree = "<group>"; };
 		32B9B535206ED4230026769D /* SDWebImageDownloaderConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageDownloaderConfig.h; sourceTree = "<group>"; };
 		32B9B536206ED4230026769D /* SDWebImageDownloaderConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderConfig.m; sourceTree = "<group>"; };
 		32C0FDDF2013426C001B8F2D /* SDWebImageIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageIndicator.h; sourceTree = "<group>"; };
@@ -438,6 +444,15 @@
 			name = Transformer;
 			sourceTree = "<group>";
 		};
+		32B5CC5D222F89C2005EB74E /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */,
+				32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */,
+			);
+			path = Private;
+			sourceTree = "<group>";
+		};
 		32FDE8792088871B008D7530 /* MapKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -530,6 +545,7 @@
 				53922DAC148C56DD0056699D /* Utils */,
 				53922DA9148C562D0056699D /* Categories */,
 				4369C2851D9811BB007E863A /* WebCache Categories */,
+				32B5CC5D222F89C2005EB74E /* Private */,
 				32FDE8792088871B008D7530 /* MapKit */,
 			);
 			path = SDWebImage;
@@ -633,6 +649,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B5CC60222F89C2005EB74E /* SDAsyncBlockOperation.h in Headers */,
 				32D122202080B2EB003685A3 /* SDImageCacheDefine.h in Headers */,
 				32B9B539206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
 				3257EAFA21898AED0097B271 /* SDImageGraphics.h in Headers */,
@@ -690,6 +707,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B5CC62222F89F6005EB74E /* SDAsyncBlockOperation.h in Headers */,
 				32CF1C071FA496B000004BD1 /* SDImageCoderHelper.h in Headers */,
 				32F7C0842030719600873181 /* UIImage+Transform.h in Headers */,
 				3257EAF921898AED0097B271 /* SDImageGraphics.h in Headers */,
@@ -896,6 +914,7 @@
 				32F7C0772030114C00873181 /* SDImageTransformer.m in Sources */,
 				3237F9E820161AE000A88143 /* NSImage+Compatibility.m in Sources */,
 				32C0FDE92013426C001B8F2D /* SDWebImageIndicator.m in Sources */,
+				32B5CC61222F89C2005EB74E /* SDAsyncBlockOperation.m in Sources */,
 				32F21B5920788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.m in Sources */,
 				321B37952083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				4A2CAE361AB4BB7500B6BC39 /* UIImageView+WebCache.m in Sources */,
@@ -951,6 +970,7 @@
 				32F7C0752030114C00873181 /* SDImageTransformer.m in Sources */,
 				3237F9EB20161AE000A88143 /* NSImage+Compatibility.m in Sources */,
 				32C0FDE72013426C001B8F2D /* SDWebImageIndicator.m in Sources */,
+				32B5CC63222F8B70005EB74E /* SDAsyncBlockOperation.m in Sources */,
 				32F21B5720788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.m in Sources */,
 				5376130B155AD0D5005750A4 /* SDWebImageDownloader.m in Sources */,
 				321B37932083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,

@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImagePrefetcher.h"
+#import "SDAsyncBlockOperation.h"
 #import <stdatomic.h>
 
 @interface SDWebImagePrefetchToken () {
@@ -32,6 +33,7 @@
 
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
 @property (strong, atomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
+@property (strong, nonatomic, nonnull) NSOperationQueue *prefetchQueue;
 
 @end
 
@@ -56,8 +58,18 @@
         _runningTokens = [NSMutableSet set];
         _options = SDWebImageLowPriority;
         _delegateQueue = dispatch_get_main_queue();
+        _prefetchQueue = [NSOperationQueue new];
+        self.maxConcurrentPrefetchCount = 3;
     }
     return self;
+}
+
+- (void)setMaxConcurrentPrefetchCount:(NSUInteger)maxConcurrentPrefetchCount {
+    self.prefetchQueue.maxConcurrentOperationCount = maxConcurrentPrefetchCount;
+}
+
+- (NSUInteger)maxConcurrentPrefetchCount {
+    return self.prefetchQueue.maxConcurrentOperationCount;
 }
 
 #pragma mark - Prefetch
@@ -85,41 +97,49 @@
     token.progressBlock = progressBlock;
     token.completionBlock = completionBlock;
     [self addRunningToken:token];
-    
-    NSPointerArray *operations = token.operations;
-    for (NSURL *url in urls) {
-        __weak typeof(self) wself = self;
-        id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-            __strong typeof(wself) sself = wself;
-            if (!sself) {
-                return;
-            }
-            if (!finished) {
-                return;
-            }
-            atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
-            if (error) {
-                // Add last failed
-                atomic_fetch_add_explicit(&(token->_skippedCount), 1, memory_order_relaxed);
-            }
-            
-            // Current operation finished
-            [sself callProgressBlockForToken:token imageURL:imageURL];
-            
-            if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) == token->_totalCount) {
-                // All finished
-                if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
-                    [sself callCompletionBlockForToken:token];
-                    [sself removeRunningToken:token];
-                }
-            }
-        }];
-        @synchronized (token) {
-            [operations addPointer:(__bridge void *)operation];
-        }
-    }
+    [self startPrefetchWithToken:token];
     
     return token;
+}
+
+- (void)startPrefetchWithToken:(SDWebImagePrefetchToken * _Nonnull)token {
+    NSPointerArray *operations = token.operations;
+    for (NSURL *url in token.urls) {
+        __weak typeof(self) wself = self;
+        SDAsyncBlockOperation *prefetchOperation = [SDAsyncBlockOperation blockOperationWithBlock:^(SDAsyncBlockOperation * _Nonnull asyncOperation) {
+             id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                 __strong typeof(wself) sself = wself;
+                 if (!sself) {
+                     return;
+                 }
+                 if (!finished) {
+                     return;
+                 }
+                 [asyncOperation complete];
+                 
+                 atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
+                 if (error) {
+                     // Add last failed
+                     atomic_fetch_add_explicit(&(token->_skippedCount), 1, memory_order_relaxed);
+                 }
+                 
+                 // Current operation finished
+                 [sself callProgressBlockForToken:token imageURL:imageURL];
+                 
+                 if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) == token->_totalCount) {
+                     // All finished
+                     if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
+                         [sself callCompletionBlockForToken:token];
+                         [sself removeRunningToken:token];
+                     }
+                 }
+             }];
+            @synchronized (token) {
+                [operations addPointer:(__bridge void *)operation];
+            }
+        }];
+        [self.prefetchQueue addOperation:prefetchOperation];
+    }
 }
 
 #pragma mark - Cancel
