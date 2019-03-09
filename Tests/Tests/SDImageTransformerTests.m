@@ -148,6 +148,42 @@
     expect(CGSizeEqualToSize(transformedImage.size, size)).beTruthy();
 }
 
+- (void)test10TransformerKeyForCacheKey {
+    NSString *transformerKey = @"SDImageFlippingTransformer(1,0)";
+    
+    // File path representation test cases
+    NSString *key = @"image.png";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"image-SDImageFlippingTransformer(1,0).png");
+    
+    key = @"image";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"image-SDImageFlippingTransformer(1,0)");
+    
+    key = @".image";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@".image-SDImageFlippingTransformer(1,0)");
+    
+    key = @"image.";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"image.-SDImageFlippingTransformer(1,0)");
+    
+    key = @"Test/image.png";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"Test/image-SDImageFlippingTransformer(1,0).png");
+    
+    // URL representation test cases
+    key = @"http://foo/image.png";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"http://foo/image-SDImageFlippingTransformer(1,0).png");
+    
+    key = @"http://foo/image";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"http://foo/image-SDImageFlippingTransformer(1,0)");
+    
+    key = @"http://foo/.image";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"http://foo/.image-SDImageFlippingTransformer(1,0)");
+    
+    key = @"http://foo/image.png?foo=bar#mark";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"http://foo/image-SDImageFlippingTransformer(1,0).png?foo=bar#mark");
+    
+    key = @"ftp://root:password@foo.com/image.png";
+    expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"ftp://root:password@foo.com/image-SDImageFlippingTransformer(1,0).png");
+}
+
 #pragma mark - Helper
 
 - (UIImage *)testImage {
