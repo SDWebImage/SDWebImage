@@ -10,21 +10,8 @@
 
 #if SD_MAC
 
-#import "SDImageGIFCoder.h"
-#import "SDImageAPNGCoder.h"
-
-@interface SDImageGIFCoder ()
-
-- (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source;
-
-@end
-
-@interface SDImageAPNGCoder ()
-
-- (float)sd_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source;
-- (NSUInteger)sd_imageLoopCountWithSource:(CGImageSourceRef)source;
-
-@end
+#import "SDImageGIFCoder+Private.h"
+#import "SDImageAPNGCoder+Private.h"
 
 @interface SDAnimatedImageRep ()
 

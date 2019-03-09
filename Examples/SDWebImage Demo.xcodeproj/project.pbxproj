@@ -634,7 +634,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-macOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-macOS/SDWebImageWebPCoder.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-macOS/libwebp.framework",
@@ -647,7 +647,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8425DD76050A8A49F8DAF736 /* [CP] Embed Pods Frameworks */ = {
@@ -656,7 +656,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-iOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-iOS/SDWebImageWebPCoder.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-iOS/libwebp.framework",
@@ -669,7 +669,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		85F5B7F46D00990FBEBF0377 /* [CP] Embed Pods Frameworks */ = {
@@ -678,7 +678,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-watchOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-watchOS/SDWebImageWebPCoder.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-watchOS/libwebp.framework",
@@ -691,7 +691,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SDWebImage Watch Demo Extension/Pods-SDWebImage Watch Demo Extension-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A50199B809E737E017D7DF1C /* [CP] Check Pods Manifest.lock */ = {
@@ -772,7 +772,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-tvOS/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-tvOS/SDWebImageWebPCoder.framework",
 				"${BUILT_PRODUCTS_DIR}/libwebp-tvOS/libwebp.framework",
@@ -785,7 +785,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

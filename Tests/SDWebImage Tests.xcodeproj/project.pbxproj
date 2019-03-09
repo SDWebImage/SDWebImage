@@ -408,7 +408,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Expecta-macOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-macOS/KVOController.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-macOS/SDWebImage.framework",
@@ -421,7 +421,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A07943B19E185DC24535F340 /* [CP] Embed Pods Frameworks */ = {
@@ -430,7 +430,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Expecta-iOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-iOS/KVOController.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-iOS/SDWebImage.framework",
@@ -443,7 +443,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests/Pods-Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
