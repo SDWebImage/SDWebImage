@@ -10,8 +10,8 @@
 
 #if SD_MAC
 
-#import "SDImageGIFCoder+Private.h"
-#import "SDImageAPNGCoder+Private.h"
+#import "SDImageGIFCoderInternal.h"
+#import "SDImageAPNGCoderInternal.h"
 
 @interface SDAnimatedImageRep ()
 
