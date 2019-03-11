@@ -7,6 +7,7 @@
  */
 
 #import "SDImageTransformer.h"
+#import "UIColor+HexString.h"
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
 #endif
@@ -20,48 +21,6 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
     }
     return [[key stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey];
 }
-
-@interface UIColor (HexString)
-
-/**
- Convenience way to get hex string from color. The output should always be 32-bit RGBA hex string like `#00000000`.
- */
-@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
-
-@end
-
-@implementation UIColor (HexString)
-
-- (NSString *)sd_hexString {
-    CGFloat red, green, blue, alpha;
-#if SD_UIKIT
-    if (![self getRed:&red green:&green blue:&blue alpha:&alpha]) {
-        [self getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#else
-    @try {
-        [self getRed:&red green:&green blue:&blue alpha:&alpha];
-    }
-    @catch (NSException *exception) {
-        [self getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#endif
-    
-    red = roundf(red * 255.f);
-    green = roundf(green * 255.f);
-    blue = roundf(blue * 255.f);
-    alpha = roundf(alpha * 255.f);
-    
-    uint hex = ((uint)alpha << 24) | ((uint)red << 16) | ((uint)green << 8) | ((uint)blue);
-    
-    return [NSString stringWithFormat:@"#%08x", hex];
-}
-
-@end
 
 @interface SDImagePipelineTransformer ()
 
