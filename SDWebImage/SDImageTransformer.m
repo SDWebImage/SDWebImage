@@ -19,7 +19,23 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
     if (!key || !transformerKey) {
         return nil;
     }
-    return [[key stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+    // Find the file extension
+    NSURL *keyURL = [NSURL URLWithString:key];
+    NSString *ext = keyURL ? keyURL.pathExtension : key.pathExtension;
+    if (ext.length > 0) {
+        // For non-file URL
+        if (keyURL && !keyURL.isFileURL) {
+            // keep anything except path (like URL query)
+            NSURLComponents *component = [NSURLComponents componentsWithURL:keyURL resolvingAgainstBaseURL:NO];
+            component.path = [[[component.path.stringByDeletingPathExtension stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey] stringByAppendingPathExtension:ext];
+            return component.URL.absoluteString;
+        } else {
+            // file URL
+            return [[[key.stringByDeletingPathExtension stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey] stringByAppendingPathExtension:ext];
+        }
+    } else {
+        return [[key stringByAppendingString:SDImageTransformerKeySeparator] stringByAppendingString:transformerKey];
+    }
 }
 
 @interface SDImagePipelineTransformer ()
