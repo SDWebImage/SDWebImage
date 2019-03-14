@@ -291,9 +291,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     }
         
     if ([operation respondsToSelector:@selector(setMinimumProgressInterval:)]) {
-        NSTimeInterval minimumProgressInterval = self.config.minimumProgressInterval;
-        minimumProgressInterval = MIN(MAX(minimumProgressInterval, 0), 1);
-        operation.minimumProgressInterval = minimumProgressInterval;
+        operation.minimumProgressInterval = MIN(MAX(self.config.minimumProgressInterval, 0), 1);
     }
     
     if (options & SDWebImageDownloaderHighPriority) {
