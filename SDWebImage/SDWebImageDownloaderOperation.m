@@ -206,7 +206,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadOperation userInfo:@{NSLocalizedDescriptionKey : @"Task can't be initialized"}]];
         [self done];
-        return;
     }
 }
 
@@ -413,6 +412,7 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             NSData *imageData = [self.imageData copy];
+            self.imageData = nil;
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data

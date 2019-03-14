@@ -1,3 +1,17 @@
+## [4.4.6 - 4.4 patch, on Feb 26th, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
+See [all tickets marked for the 4.4.6 release](https://github.com/SDWebImage/SDWebImage/milestone/33)
+
+#### Fixes
+- Fix the unused user header search path warning for CocoaPods 1.6.0. #2622
+- Fix that WebP with custom ICC Profile will randomly crash, because `CGColorSpaceCreateWithICCProfile` does not copy the ICC data pointer #2621
+- Fix the issue when WebP contains the ICC Profile with colorSpace other than RGB, which cause the CGImageCreate failed #2627
+
+#### Project
+- Update the libwebp dependency to support using 1.0 version and above #2625
+
+#### Performances
+- Nil imageData before decode process to free memory #2624
+
 ## [5.0.0-beta5 - Customizable SDWebImage, on Jan 31st, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta5)
 See [all tickets marked for the 5.0.0-beta5 release](https://github.com/rs/SDWebImage/milestone/32)
 
