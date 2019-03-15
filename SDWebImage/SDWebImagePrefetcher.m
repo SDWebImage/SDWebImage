@@ -107,7 +107,11 @@
     for (NSURL *url in token.urls) {
         __weak typeof(self) wself = self;
         SDAsyncBlockOperation *prefetchOperation = [SDAsyncBlockOperation blockOperationWithBlock:^(SDAsyncBlockOperation * _Nonnull asyncOperation) {
-             id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+             __strong typeof(wself) sself = wself;
+             if (!sself) {
+                 return;
+             }
+             id<SDWebImageOperation> operation = [sself.manager loadImageWithURL:url options:sself.options context:sself.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
                  __strong typeof(wself) sself = wself;
                  if (!sself) {
                      return;
