@@ -1,3 +1,13 @@
+## [5.0.0-beta6 - 5.0 Beta, on Mar 15th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta6)
+See [all tickets marked for the 5.0.0-beta6 release](https://github.com/rs/SDWebImage/milestone/30)
+
+#### Fixes
+- Fix the issue that SDWebImagePrefetch in 5.x, will submit all prefetch URLs to manager without any concurrent limit #2631
+- Fix the current transformer cache key generating rules, try to keep the image file extension #2635
+
+#### Project
+- Move some internal classes into private header files, make it easy to maintain the code #2634
+
 ## [4.4.6 - 4.4 patch, on Feb 26th, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
 See [all tickets marked for the 4.4.6 release](https://github.com/SDWebImage/SDWebImage/milestone/33)
 
