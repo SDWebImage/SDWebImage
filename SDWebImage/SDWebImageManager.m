@@ -188,15 +188,15 @@ static id<SDImageLoader> _defaultImageLoader;
     if (shouldQueryCache) {
         id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
         NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
-        __weak SDWebImageCombinedOperation *weakOperation = operation;
+        @weakify(operation);
         operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
-            __strong __typeof(weakOperation) strongOperation = weakOperation;
-            if (!strongOperation || strongOperation.isCancelled) {
-                [self safelyRemoveOperationFromRunning:strongOperation];
+            @strongify(operation);
+            if (!operation || operation.isCancelled) {
+                [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
             // Continue download process
-            [self callDownloadProcessForOperation:strongOperation url:url options:options context:context cachedImage:cachedImage cachedData:cachedData cacheType:cacheType progress:progressBlock completed:completedBlock];
+            [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:cachedImage cachedData:cachedData cacheType:cacheType progress:progressBlock completed:completedBlock];
         }];
     } else {
         // Continue download process
