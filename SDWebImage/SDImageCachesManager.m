@@ -8,6 +8,7 @@
 
 #import "SDImageCachesManager.h"
 #import "SDImageCachesManagerOperation.h"
+#import "SDInternalMacros.h"
 
 @implementation SDImageCachesManager
 
@@ -407,8 +408,9 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        @strongify(self);
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -427,7 +429,7 @@
             return;
         }
         // Next
-        [wself serialQueryImageForKey:key options:options context:context completion:completionBlock enumerator:enumerator operation:operation];
+        [self serialQueryImageForKey:key options:options context:context completion:completionBlock enumerator:enumerator operation:operation];
     }];
 }
 
@@ -441,10 +443,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 
@@ -458,10 +461,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache removeImageForKey:key cacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialRemoveImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialRemoveImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 
@@ -477,8 +481,9 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache containsImageForKey:key cacheType:cacheType completion:^(SDImageCacheType containsCacheType) {
+        @strongify(self);
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -497,7 +502,7 @@
             return;
         }
         // Next
-        [wself serialContainsImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator operation:operation];
+        [self serialContainsImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator operation:operation];
     }];
 }
 
@@ -511,10 +516,11 @@
         }
         return;
     }
-    __weak typeof(self) wself = self;
+    @weakify(self);
     [cache clearWithCacheType:cacheType completion:^{
+        @strongify(self);
         // Next
-        [wself serialClearWithCacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialClearWithCacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 

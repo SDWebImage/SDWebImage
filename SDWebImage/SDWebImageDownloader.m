@@ -203,15 +203,15 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             }
             return nil;
         }
-        __weak typeof(self) wself = self;
+        @weakify(self);
         operation.completionBlock = ^{
-            __strong typeof(wself) sself = wself;
-            if (!sself) {
+            @strongify(self);
+            if (!self) {
                 return;
             }
-            SD_LOCK(sself.operationsLock);
-            [sself.URLOperations removeObjectForKey:url];
-            SD_UNLOCK(sself.operationsLock);
+            SD_LOCK(self.operationsLock);
+            [self.URLOperations removeObjectForKey:url];
+            SD_UNLOCK(self.operationsLock);
         };
         self.URLOperations[url] = operation;
         // Add operation to operation queue only after all configuration done according to Apple's doc.

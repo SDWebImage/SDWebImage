@@ -189,15 +189,15 @@ static id<SDImageLoader> _defaultImageLoader;
     if (shouldQueryCache) {
         id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
         NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
-        __weak SDWebImageCombinedOperation *weakOperation = operation;
+        @weakify(operation);
         operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
-            __strong __typeof(weakOperation) strongOperation = weakOperation;
-            if (!strongOperation || strongOperation.isCancelled) {
-                [self safelyRemoveOperationFromRunning:strongOperation];
+            @strongify(operation);
+            if (!operation || operation.isCancelled) {
+                [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
             // Continue download process
-            [self callDownloadProcessForOperation:strongOperation url:url options:options context:context cachedImage:cachedImage cachedData:cachedData cacheType:cacheType progress:progressBlock completed:completedBlock];
+            [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:cachedImage cachedData:cachedData cacheType:cacheType progress:progressBlock completed:completedBlock];
         }];
     } else {
         // Continue download process
@@ -237,17 +237,17 @@ static id<SDImageLoader> _defaultImageLoader;
         }
         
         // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
-        __weak typeof(operation) weakOperation = operation;
+        @weakify(operation);
         operation.loaderOperation = [self.imageLoader loadImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
-            __strong typeof(weakOperation) strongOperation = weakOperation;
-            if (!strongOperation || strongOperation.isCancelled) {
+            @strongify(operation);
+            if (!operation || operation.isCancelled) {
                 // Do nothing if the operation was cancelled
                 // See #699 for more details
                 // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
             } else if (cachedImage && options & SDWebImageRefreshCached && [error.domain isEqualToString:SDWebImageErrorDomain] && error.code == SDWebImageErrorCacheNotModified) {
                 // Image refresh hit the NSURLCache cache, do not call the completion block
             } else if (error) {
-                [self callCompletionBlockForOperation:strongOperation completion:completedBlock error:error url:url];
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:error url:url];
                 BOOL shouldBlockFailedURL = [self shouldBlockFailedURLWithURL:url error:error];
                 
                 if (shouldBlockFailedURL) {
@@ -262,11 +262,11 @@ static id<SDImageLoader> _defaultImageLoader;
                     SD_UNLOCK(self.failedURLsLock);
                 }
                 
-                [self callStoreCacheProcessForOperation:strongOperation url:url options:options context:context downloadedImage:downloadedImage downloadedData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
+                [self callStoreCacheProcessForOperation:operation url:url options:options context:context downloadedImage:downloadedImage downloadedData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
             }
             
             if (finished) {
-                [self safelyRemoveOperationFromRunning:strongOperation];
+                [self safelyRemoveOperationFromRunning:operation];
             }
         }];
     } else if (cachedImage) {
