@@ -10,13 +10,16 @@
 
 @interface SDAsyncBlockOperation ()
 
-@property (nonatomic, assign) BOOL isExecuting;
-@property (nonatomic, assign) BOOL isFinished;
+@property (assign, nonatomic, getter = isExecuting) BOOL executing;
+@property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (nonatomic, copy, nonnull) SDAsyncBlock executionBlock;
 
 @end
 
 @implementation SDAsyncBlockOperation
+
+@synthesize executing = _executing;
+@synthesize finished = _finished;
 
 - (nonnull instancetype)initWithBlock:(nonnull SDAsyncBlock)block {
     self = [super init];
@@ -32,8 +35,12 @@
 }
 
 - (void)start {
+    if (self.isCancelled) {
+        return;
+    }
+    
     [self willChangeValueForKey:@"isExecuting"];
-    self.isExecuting = YES;
+    self.executing = YES;
     [self didChangeValueForKey:@"isExecuting"];
     
     if (self.executionBlock) {
@@ -43,11 +50,16 @@
     }
 }
 
+- (void)cancel {
+    [super cancel];
+    [self complete];
+}
+
 - (void)complete {
     [self willChangeValueForKey:@"isExecuting"];
     [self willChangeValueForKey:@"isFinished"];
-    self.isExecuting = NO;
-    self.isFinished = YES;
+    self.executing = NO;
+    self.finished = YES;
     [self didChangeValueForKey:@"isExecuting"];
     [self didChangeValueForKey:@"isFinished"];
 }
