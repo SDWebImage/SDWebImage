@@ -8,6 +8,7 @@
  */
 
 #import <TargetConditionals.h>
+#import "SDmetamacros.h"
 
 #ifdef __OBJC_GC__
     #error SDWebImage does not support Objective-C Garbage Collection
@@ -100,4 +101,35 @@
 
 #ifndef SD_UNLOCK
 #define SD_UNLOCK(lock) dispatch_semaphore_signal(lock);
+#endif
+
+#ifndef weakify
+#define weakify(...) \
+    SD_KEYWORDIFY \
+    metamacro_foreach_cxt(SD_WEAKIFY_,, __weak, __VA_ARGS__)
+#endif
+
+#ifndef strongify
+#define strongify(...) \
+    SD_KEYWORDIFY \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wshadow\"") \
+    metamacro_foreach(SD_STRONGIFY_,, __VA_ARGS__) \
+    _Pragma("clang diagnostic pop")
+#endif
+
+#ifndef SD_WEAKIFY_
+#define SD_WEAKIFY_(INDEX, CONTEXT, VAR) \
+    CONTEXT __typeof__(VAR) metamacro_concat(VAR, _weak_) = (VAR);
+#endif
+
+#ifndef SD_STRONGIFY_
+#define SD_STRONGIFY_(INDEX, VAR) \
+    __strong __typeof__(VAR) VAR = metamacro_concat(VAR, _weak_);
+#endif
+
+#if DEBUG
+#define SD_KEYWORDIFY autoreleasepool {}
+#else
+#define SD_KEYWORDIFY try {} @catch (...) {}
 #endif
