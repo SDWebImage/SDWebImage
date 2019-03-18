@@ -93,11 +93,3 @@
         dispatch_async(dispatch_get_main_queue(), block);\
     }
 #endif
-
-#ifndef SD_LOCK
-#define SD_LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-#endif
-
-#ifndef SD_UNLOCK
-#define SD_UNLOCK(lock) dispatch_semaphore_signal(lock);
-#endif

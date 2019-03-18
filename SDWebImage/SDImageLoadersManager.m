@@ -8,6 +8,7 @@
 
 #import "SDImageLoadersManager.h"
 #import "SDWebImageDownloader.h"
+#import "SDInternalMacros.h"
 
 @interface SDImageLoadersManager ()
 

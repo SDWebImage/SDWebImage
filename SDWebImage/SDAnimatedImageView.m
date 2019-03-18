@@ -13,6 +13,7 @@
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "SDWeakProxy.h"
+#import "SDInternalMacros.h"
 #import <mach/mach.h>
 #import <objc/runtime.h>
 
