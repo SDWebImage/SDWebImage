@@ -10,7 +10,6 @@
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
-#import "SDInternalMacros.h"
 
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 

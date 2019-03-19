@@ -8,7 +8,6 @@
 
 #import "SDImageCachesManager.h"
 #import "SDImageCachesManagerOperation.h"
-#import "SDInternalMacros.h"
 
 @implementation SDImageCachesManager
 
