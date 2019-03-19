@@ -263,8 +263,9 @@
     @synchronized (self) {
         [self.prefetchOperations compact];
         for (id operation in self.prefetchOperations) {
-            SDAsyncBlockOperation *asyncBlockOperation = operation;
-            [asyncBlockOperation cancel];
+            if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
+                [operation cancel];
+            }
         }
         self.prefetchOperations.count = 0;
         
