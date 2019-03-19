@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/SDWebImage_logo.png" title="SDWebImage logo" float=left>
+  <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/SDWebImage_logo.png" title="SDWebImage logo" float=left>
 </p>
 
 
