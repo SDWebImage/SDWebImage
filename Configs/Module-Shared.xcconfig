@@ -230,4 +230,4 @@ VERSIONING_SYSTEM = apple-generic
 WATCHOS_DEPLOYMENT_TARGET = 2.0
 
 // Implicitly include the named header. The path given should either be a project relative path or an absolute path.
-GCC_PREFIX_HEADER = WebImage/SDWebImage.pch
+GCC_PREFIX_HEADER = WebImage/SDWebImage-Prefix.pch
