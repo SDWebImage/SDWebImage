@@ -9,6 +9,15 @@
 #import <Foundation/Foundation.h>
 #import "metamacros.h"
 
+#ifndef dispatch_main_async_safe
+#define dispatch_main_async_safe(block)\
+if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {\
+    block();\
+} else {\
+    dispatch_async(dispatch_get_main_queue(), block);\
+}
+#endif
+
 #ifndef SD_LOCK
 #define SD_LOCK(lock) dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
 #endif

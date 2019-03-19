@@ -84,12 +84,3 @@
 #ifndef NS_OPTIONS
 #define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type
 #endif
-
-#ifndef dispatch_main_async_safe
-#define dispatch_main_async_safe(block)\
-    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {\
-        block();\
-    } else {\
-        dispatch_async(dispatch_get_main_queue(), block);\
-    }
-#endif
