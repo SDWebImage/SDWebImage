@@ -140,6 +140,7 @@
                  }
                  [asyncOperation complete];
              }];
+            NSAssert(operation != nil, @"Operation should not be nil, [SDWebImageManager loadImageWithURL:options:context:progress:completed:] break prefetch logic");
             @synchronized (token) {
                 [operations addPointer:(__bridge void *)operation];
             }
