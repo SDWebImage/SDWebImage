@@ -22,7 +22,8 @@
 }
 
 @property (nonatomic, copy, readwrite) NSArray<NSURL *> *urls;
-@property (nonatomic, strong) NSPointerArray *operations;
+@property (nonatomic, strong) NSPointerArray *loadOperations;
+@property (nonatomic, strong) NSPointerArray *prefetchOperations;
 @property (nonatomic, weak) SDWebImagePrefetcher *prefetcher;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherProgressBlock progressBlock;
@@ -93,7 +94,8 @@
     token->_finishedCount = 0;
     token->_totalCount = token.urls.count;
     atomic_flag_clear(&(token->_isAllFinished));
-    token.operations = [NSPointerArray weakObjectsPointerArray];
+    token.loadOperations = [NSPointerArray weakObjectsPointerArray];
+    token.prefetchOperations = [NSPointerArray weakObjectsPointerArray];
     token.progressBlock = progressBlock;
     token.completionBlock = completionBlock;
     [self addRunningToken:token];
@@ -103,12 +105,12 @@
 }
 
 - (void)startPrefetchWithToken:(SDWebImagePrefetchToken * _Nonnull)token {
-    NSPointerArray *operations = token.operations;
+    NSPointerArray *operations = token.loadOperations;
     for (NSURL *url in token.urls) {
         __weak typeof(self) wself = self;
         SDAsyncBlockOperation *prefetchOperation = [SDAsyncBlockOperation blockOperationWithBlock:^(SDAsyncBlockOperation * _Nonnull asyncOperation) {
              __strong typeof(wself) strongSelf = wself;
-             if (!strongSelf) {
+             if (!strongSelf || asyncOperation.isCancelled) {
                  return;
              }
              id<SDWebImageOperation> operation = [strongSelf.manager loadImageWithURL:url options:strongSelf.options context:strongSelf.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -119,7 +121,6 @@
                  if (!finished) {
                      return;
                  }
-                 [asyncOperation complete];
                  
                  atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
                  if (error) {
@@ -137,11 +138,16 @@
                          [sself removeRunningToken:token];
                      }
                  }
+                 [asyncOperation complete];
              }];
+            NSAssert(operation != nil, @"Operation should not be nil, [SDWebImageManager loadImageWithURL:options:context:progress:completed:] break prefetch logic");
             @synchronized (token) {
                 [operations addPointer:(__bridge void *)operation];
             }
         }];
+        @synchronized (token) {
+            [token.prefetchOperations addPointer:(__bridge void *)prefetchOperation];
+        }
         [self.prefetchQueue addOperation:prefetchOperation];
     }
 }
@@ -256,12 +262,21 @@
 
 - (void)cancel {
     @synchronized (self) {
-        for (id operation in self.operations) {
+        [self.prefetchOperations compact];
+        for (id operation in self.prefetchOperations) {
             if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
                 [operation cancel];
             }
         }
-        self.operations.count = 0;
+        self.prefetchOperations.count = 0;
+        
+        [self.loadOperations compact];
+        for (id operation in self.loadOperations) {
+            if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
+                [operation cancel];
+            }
+        }
+        self.loadOperations.count = 0;
     }
     self.completionBlock = nil;
     self.progressBlock = nil;
