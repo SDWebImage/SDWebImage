@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "metamacros.h"
+#import "SDmetamacros.h"
 
 #ifndef dispatch_main_async_safe
 #define dispatch_main_async_safe(block)\
