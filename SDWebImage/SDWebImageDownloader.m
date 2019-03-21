@@ -275,6 +275,11 @@
     UNLOCK(self.operationsLock);
 }
 
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
+                                                 completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+  return [self downloadImageWithURL:url options:0 progress:nil completed:completedBlock];
+}
+
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
                                                   progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
