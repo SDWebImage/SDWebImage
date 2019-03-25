@@ -104,13 +104,14 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
         mutableContext = [NSMutableDictionary dictionary];
     }
     mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
-    __weak typeof(self)weakSelf = self;
+    @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                           [weakSelf setImage:image forState:state];
+                           @strongify(self);
+                           [self setImage:image forState:state];
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -188,13 +189,14 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
         mutableContext = [NSMutableDictionary dictionary];
     }
     mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
-    __weak typeof(self)weakSelf = self;
+    @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                           [weakSelf setBackgroundImage:image forState:state];
+                           @strongify(self);
+                           [self setBackgroundImage:image forState:state];
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {

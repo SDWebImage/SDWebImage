@@ -54,13 +54,14 @@
                    context:(nullable SDWebImageContext *)context
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    __weak typeof(self)weakSelf = self;
+    @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                              context:context
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                           weakSelf.image = image;
+                           @strongify(self);
+                           self.image = image;
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {

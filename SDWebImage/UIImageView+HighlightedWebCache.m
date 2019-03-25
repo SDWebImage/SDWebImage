@@ -46,7 +46,7 @@ static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOpera
                               context:(nullable SDWebImageContext *)context
                              progress:(nullable SDImageLoaderProgressBlock)progressBlock
                             completed:(nullable SDExternalCompletionBlock)completedBlock {
-    __weak typeof(self)weakSelf = self;
+    @weakify(self);
     SDWebImageMutableContext *mutableContext;
     if (context) {
         mutableContext = [context mutableCopy];
@@ -59,7 +59,8 @@ static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOpera
                              options:options
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                           weakSelf.highlightedImage = image;
+                           @strongify(self);
+                           self.highlightedImage = image;
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
