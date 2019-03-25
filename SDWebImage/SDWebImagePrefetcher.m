@@ -107,39 +107,38 @@
 - (void)startPrefetchWithToken:(SDWebImagePrefetchToken * _Nonnull)token {
     NSPointerArray *operations = token.loadOperations;
     for (NSURL *url in token.urls) {
-        __weak typeof(self) wself = self;
+        @weakify(self);
         SDAsyncBlockOperation *prefetchOperation = [SDAsyncBlockOperation blockOperationWithBlock:^(SDAsyncBlockOperation * _Nonnull asyncOperation) {
-             __strong typeof(wself) strongSelf = wself;
-             if (!strongSelf || asyncOperation.isCancelled) {
-                 return;
-             }
-             id<SDWebImageOperation> operation = [strongSelf.manager loadImageWithURL:url options:strongSelf.options context:strongSelf.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-                 __strong typeof(wself) sself = wself;
-                 if (!sself) {
-                     return;
-                 }
-                 if (!finished) {
-                     return;
-                 }
-                 
-                 atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
-                 if (error) {
-                     // Add last failed
-                     atomic_fetch_add_explicit(&(token->_skippedCount), 1, memory_order_relaxed);
-                 }
-                 
-                 // Current operation finished
-                 [sself callProgressBlockForToken:token imageURL:imageURL];
-                 
-                 if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) == token->_totalCount) {
-                     // All finished
-                     if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
-                         [sself callCompletionBlockForToken:token];
-                         [sself removeRunningToken:token];
-                     }
-                 }
-                 [asyncOperation complete];
-             }];
+            @strongify(self);
+            if (!self || asyncOperation.isCancelled) {
+                return;
+            }
+            id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+                @strongify(self);
+                if (!self) {
+                    return;
+                }
+                if (!finished) {
+                    return;
+                }
+                atomic_fetch_add_explicit(&(token->_finishedCount), 1, memory_order_relaxed);
+                if (error) {
+                    // Add last failed
+                    atomic_fetch_add_explicit(&(token->_skippedCount), 1, memory_order_relaxed);
+                }
+                
+                // Current operation finished
+                [self callProgressBlockForToken:token imageURL:imageURL];
+                
+                if (atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed) == token->_totalCount) {
+                    // All finished
+                    if (!atomic_flag_test_and_set_explicit(&(token->_isAllFinished), memory_order_relaxed)) {
+                        [self callCompletionBlockForToken:token];
+                        [self removeRunningToken:token];
+                    }
+                }
+                [asyncOperation complete];
+            }];
             NSAssert(operation != nil, @"Operation should not be nil, [SDWebImageManager loadImageWithURL:options:context:progress:completed:] break prefetch logic");
             @synchronized (token) {
                 [operations addPointer:(__bridge void *)operation];

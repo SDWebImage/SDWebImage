@@ -115,6 +115,12 @@
 		329A185B1FFF5DFD008C9A2F /* UIImage+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329A185F1FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
 		329A18611FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
+		329F1236223FAA3B00B309FD /* SDmetamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 329F1235223FAA3B00B309FD /* SDmetamacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		329F1237223FAA3B00B309FD /* SDmetamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 329F1235223FAA3B00B309FD /* SDmetamacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		329F1240223FAD3400B309FD /* SDInternalMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F123E223FAD3400B309FD /* SDInternalMacros.m */; };
+		329F1241223FAD3400B309FD /* SDInternalMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F123E223FAD3400B309FD /* SDInternalMacros.m */; };
+		329F1242223FAD3400B309FD /* SDInternalMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 329F123F223FAD3400B309FD /* SDInternalMacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		329F1243223FAD3400B309FD /* SDInternalMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 329F123F223FAD3400B309FD /* SDInternalMacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		32B5CC60222F89C2005EB74E /* SDAsyncBlockOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		32B5CC61222F89C2005EB74E /* SDAsyncBlockOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */; };
 		32B5CC62222F89F6005EB74E /* SDAsyncBlockOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -309,6 +315,9 @@
 		3290FA031FA478AF0047D20C /* SDImageFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageFrame.m; sourceTree = "<group>"; };
 		329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Metadata.h"; sourceTree = "<group>"; };
 		329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Metadata.m"; sourceTree = "<group>"; };
+		329F1235223FAA3B00B309FD /* SDmetamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDmetamacros.h; sourceTree = "<group>"; };
+		329F123E223FAD3400B309FD /* SDInternalMacros.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDInternalMacros.m; sourceTree = "<group>"; };
+		329F123F223FAD3400B309FD /* SDInternalMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDInternalMacros.h; sourceTree = "<group>"; };
 		32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDAsyncBlockOperation.h; sourceTree = "<group>"; };
 		32B5CC5F222F89C2005EB74E /* SDAsyncBlockOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAsyncBlockOperation.m; sourceTree = "<group>"; };
 		32B9B535206ED4230026769D /* SDWebImageDownloaderConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageDownloaderConfig.h; sourceTree = "<group>"; };
@@ -497,6 +506,9 @@
 				325C461F2233A02E004CAE11 /* UIColor+HexString.m */,
 				325C46242233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h */,
 				325C46252233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m */,
+				329F123F223FAD3400B309FD /* SDInternalMacros.h */,
+				329F123E223FAD3400B309FD /* SDInternalMacros.m */,
+				329F1235223FAA3B00B309FD /* SDmetamacros.h */,
 			);
 			path = Private;
 			sourceTree = "<group>";
@@ -715,6 +727,7 @@
 				80B6DF842142B44600BCB334 /* NSButton+WebCache.h in Headers */,
 				43A918661D8308FE00B3925F /* SDImageCacheConfig.h in Headers */,
 				3290FA061FA478AF0047D20C /* SDImageFrame.h in Headers */,
+				329F1237223FAA3B00B309FD /* SDmetamacros.h in Headers */,
 				324DF4B6200A14DC008A84CC /* SDWebImageDefine.h in Headers */,
 				807A122A1F89636300EC2A9B /* SDImageCodersManager.h in Headers */,
 				4A2CAE211AB4BB7000B6BC39 /* SDWebImageManager.h in Headers */,
@@ -749,6 +762,7 @@
 				325C4615223399F7004CAE11 /* SDImageGIFCoderInternal.h in Headers */,
 				32F7C0862030719600873181 /* UIImage+Transform.h in Headers */,
 				321E60C01F38E91700405457 /* UIImage+ForceDecode.h in Headers */,
+				329F1243223FAD3400B309FD /* SDInternalMacros.h in Headers */,
 				80B6DF7F2142B43300BCB334 /* NSImage+Compatibility.h in Headers */,
 				32C0FDE32013426C001B8F2D /* SDWebImageIndicator.h in Headers */,
 				32F7C0712030114C00873181 /* SDImageTransformer.h in Headers */,
@@ -780,6 +794,7 @@
 				80B6DF852142B44700BCB334 /* NSButton+WebCache.h in Headers */,
 				807A12281F89636300EC2A9B /* SDImageCodersManager.h in Headers */,
 				32B9B537206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
+				329F1236223FAA3B00B309FD /* SDmetamacros.h in Headers */,
 				32484775201775F600AF9E5A /* SDAnimatedImage.h in Headers */,
 				321E60941F38E8ED00405457 /* SDImageIOCoder.h in Headers */,
 				329A18591FFF5DFD008C9A2F /* UIImage+Metadata.h in Headers */,
@@ -814,6 +829,7 @@
 				325C4614223399F7004CAE11 /* SDImageGIFCoderInternal.h in Headers */,
 				321E60861F38E8C800405457 /* SDImageCoder.h in Headers */,
 				32484763201775F600AF9E5A /* SDAnimatedImageView+WebCache.h in Headers */,
+				329F1242223FAD3400B309FD /* SDInternalMacros.h in Headers */,
 				80B6DF7E2142B43300BCB334 /* NSImage+Compatibility.h in Headers */,
 				32D1221E2080B2EB003685A3 /* SDImageCacheDefine.h in Headers */,
 				AB615303192DA24600A2D8E9 /* UIView+WebCacheOperation.h in Headers */,
@@ -971,6 +987,7 @@
 				4A2CAE2E1AB4BB7500B6BC39 /* UIImage+GIF.m in Sources */,
 				80B6DF822142B44400BCB334 /* NSButton+WebCache.m in Sources */,
 				32D3CDCF21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m in Sources */,
+				329F1241223FAD3400B309FD /* SDInternalMacros.m in Sources */,
 				320CAE1D2086F50500CFFC80 /* SDWebImageError.m in Sources */,
 				32CF1C0F1FA496B000004BD1 /* SDImageCoderHelper.m in Sources */,
 				328BB6D52082581100760D6C /* SDMemoryCache.m in Sources */,
@@ -1032,6 +1049,7 @@
 				53761309155AD0D5005750A4 /* SDImageCache.m in Sources */,
 				80B6DF832142B44500BCB334 /* NSButton+WebCache.m in Sources */,
 				32D3CDCE21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m in Sources */,
+				329F1240223FAD3400B309FD /* SDInternalMacros.m in Sources */,
 				320CAE1B2086F50500CFFC80 /* SDWebImageError.m in Sources */,
 				32CF1C0D1FA496B000004BD1 /* SDImageCoderHelper.m in Sources */,
 				328BB6D32082581100760D6C /* SDMemoryCache.m in Sources */,
