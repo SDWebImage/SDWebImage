@@ -65,19 +65,19 @@
 
 #pragma mark - SDImageLoader
 
-- (BOOL)canLoadWithURL:(nullable NSURL *)url {
+- (BOOL)canRequestImageForURL:(nullable NSURL *)url {
     SD_LOCK(self.loadersLock);
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
-        if ([loader canLoadWithURL:url]) {
+        if ([loader canRequestImageForURL:url]) {
             return YES;
         }
     }
     return NO;
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
+- (id<SDWebImageOperation>)requestImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
     if (!url) {
         return nil;
     }
@@ -85,8 +85,8 @@
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
-        if ([loader canLoadWithURL:url]) {
-            return [loader loadImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];
+        if ([loader canRequestImageForURL:url]) {
+            return [loader requestImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];
         }
     }
     return nil;
