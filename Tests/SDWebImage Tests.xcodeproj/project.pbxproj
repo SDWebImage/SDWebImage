@@ -327,10 +327,11 @@
 			};
 			buildConfigurationList = DA248D491954721A00390AB0 /* Build configuration list for PBXProject "SDWebImage Tests" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = DA248D451954721A00390AB0;
 			productRefGroup = DA248D54195472AA00390AB0 /* Products */;
