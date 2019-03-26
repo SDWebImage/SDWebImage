@@ -534,7 +534,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Tests Mac/Info.plist";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -550,7 +549,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "Tests Mac/Info.plist";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
