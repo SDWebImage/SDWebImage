@@ -26,7 +26,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextLoader
 
 /**
  This is the built-in decoding process for image download from network or local file.
- @note If you want to implement your custom loader with `loadImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
+ @note If you want to implement your custom loader with `requestImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
 
  @param imageData The image data from the network. Should not be nil
  @param imageURL The image URL from the input. Should not be nil
@@ -38,7 +38,7 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Non
 
 /**
  This is the built-in decoding process for image progressive download from network. It's used when `SDWebImageProgressiveLoad` option is set. (It's not required when your loader does not support progressive image loading)
- @note If you want to implement your custom loader with `loadImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
+ @note If you want to implement your custom loader with `requestImageWithURL:options:context:progress:completed:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
 
  @param imageData The image data from the network so far. Should not be nil
  @param imageURL The image URL from the input. Should not be nil
@@ -61,12 +61,12 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NS
 
 /**
  Whether current image loader supports to load the provide image URL.
- This will be checked everytime a new image request come for loader. If this return NO, we will mark this image load as failed. If return YES, we will start to call `loadImageWithURL:options:context:progress:completed:`.
+ This will be checked everytime a new image request come for loader. If this return NO, we will mark this image load as failed. If return YES, we will start to call `requestImageWithURL:options:context:progress:completed:`.
 
  @param url The image URL to be loaded.
  @return YES to continue download, NO to stop download.
  */
-- (BOOL)canLoadWithURL:(nullable NSURL *)url;
+- (BOOL)canRequestImageForURL:(nullable NSURL *)url;
 
 /**
  Load the image and image data with the given URL and return the image data. You're responsible for producing the image instance.
@@ -79,10 +79,10 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NS
  @param completedBlock A block called when operation has been completed.
  @return An operation which allow the user to cancel the current request.
  */
-- (nullable id<SDWebImageOperation>)loadImageWithURL:(nullable NSURL *)url
-                                             options:(SDWebImageOptions)options
-                                             context:(nullable SDWebImageContext *)context
-                                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
-                                           completed:(nullable SDImageLoaderCompletedBlock)completedBlock;
+- (nullable id<SDWebImageOperation>)requestImageWithURL:(nullable NSURL *)url
+                                                options:(SDWebImageOptions)options
+                                                context:(nullable SDWebImageContext *)context
+                                               progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                                              completed:(nullable SDImageLoaderCompletedBlock)completedBlock;
 
 @end

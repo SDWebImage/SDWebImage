@@ -218,7 +218,7 @@ static id<SDImageLoader> _defaultImageLoader;
     BOOL shouldDownload = (options & SDWebImageFromCacheOnly) == 0;
     shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
     shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
-    shouldDownload &= [self.imageLoader canLoadWithURL:url];
+    shouldDownload &= [self.imageLoader canRequestImageForURL:url];
     if (shouldDownload) {
         if (cachedImage && options & SDWebImageRefreshCached) {
             // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
@@ -237,7 +237,7 @@ static id<SDImageLoader> _defaultImageLoader;
         
         // `SDWebImageCombinedOperation` -> `SDWebImageDownloadToken` -> `downloadOperationCancelToken`, which is a `SDCallbacksDictionary` and retain the completed block below, so we need weak-strong again to avoid retain cycle
         @weakify(operation);
-        operation.loaderOperation = [self.imageLoader loadImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+        operation.loaderOperation = [self.imageLoader requestImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
                 // Do nothing if the operation was cancelled

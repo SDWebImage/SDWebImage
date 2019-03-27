@@ -499,7 +499,7 @@ didReceiveResponse:(NSURLResponse *)response
 
 @implementation SDWebImageDownloader (SDImageLoader)
 
-- (BOOL)canLoadWithURL:(NSURL *)url {
+- (BOOL)canRequestImageForURL:(NSURL *)url {
     if (!url) {
         return NO;
     }
@@ -507,7 +507,7 @@ didReceiveResponse:(NSURLResponse *)response
     return YES;
 }
 
-- (id<SDWebImageOperation>)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
+- (id<SDWebImageOperation>)requestImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
     UIImage *cachedImage = context[SDWebImageContextLoaderCachedImage];
     
     SDWebImageDownloaderOptions downloaderOptions = 0;
