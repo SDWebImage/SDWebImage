@@ -6,6 +6,3 @@
 
 // If enabled, only the active architecture is built.
 ONLY_ACTIVE_ARCH = YES
-
-// Activating this setting indicates that the target or project should generate bitcode during compilation for platforms and architectures that support it. For Archive builds, bitcode will be generated in the linked binary for submission to the App Store. For other builds, the compiler and linker will check whether the code complies with the requirements for bitcode generation, but will not generate actual bitcode.
-ENABLE_BITCODE = NO

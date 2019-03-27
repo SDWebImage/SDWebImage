@@ -15,9 +15,6 @@ ENABLE_NS_ASSERTIONS = YES
 // When this setting is activated, the product will be built with options appropriate for running automated tests, such as making private interfaces accessible to the tests.
 ENABLE_TESTABILITY = YES
 
-// Activating this setting indicates that the target or project should generate bitcode during compilation for platforms and architectures that support it. For Archive builds, bitcode will be generated in the linked binary for submission to the App Store. For other builds, the compiler and linker will check whether the code complies with the requirements for bitcode generation, but will not generate actual bitcode.
-ENABLE_BITCODE = NO
-
 // Specifies the degree to which the generated code is optimized for speed and binary size.
 GCC_OPTIMIZATION_LEVEL = 0
 

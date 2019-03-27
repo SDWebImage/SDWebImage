@@ -109,11 +109,6 @@ DYLIB_CURRENT_VERSION = 1
 // Sets the base value for the internal `install path` (`LC_ID_DYLIB`) in a dynamic library. This will be combined with the `EXECUTABLE_PATH` to form the full install path.
 DYLIB_INSTALL_NAME_BASE = @rpath
 
-// Activating this setting indicates that the target or project should generate bitcode during compilation for platforms and architectures that support it. For Archive builds, bitcode will be generated in the linked binary for submission to the App Store. For other builds, the compiler and linker will check whether the code complies with the requirements for bitcode generation, but will not generate actual bitcode.
-ENABLE_BITCODE = YES
-// Mac OS X does not support bitcode.
-ENABLE_BITCODE[sdk=macosx*] = NO
-
 // Controls whether `objc_msgSend` calls must be cast to the appropriate function pointer type before being called.
 ENABLE_STRICT_OBJC_MSGSEND = YES
 
