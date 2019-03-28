@@ -3,3 +3,6 @@
 
 #include "Module-Debug.xcconfig"
 #include "Test-Shared.xcconfig"
+
+// If enabled, only the active architecture is built.
+ONLY_ACTIVE_ARCH = YES
