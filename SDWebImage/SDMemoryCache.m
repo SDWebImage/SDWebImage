@@ -12,10 +12,10 @@
 
 static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 
-@interface SDMemoryCache <KeyType, ObjectType> ()
+@interface SDMemoryCache ()
 
 @property (nonatomic, strong, nullable) SDImageCacheConfig *config;
-@property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; // strong-weak cache
+
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
 
 @end
@@ -49,12 +49,8 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 }
 
 - (void)commonInit {
-    self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-    self.weakCacheLock = dispatch_semaphore_create(1);
-    
     SDImageCacheConfig *config = self.config;
-    self.totalCostLimit = config.maxMemoryCost;
-    self.countLimit = config.maxMemoryCount;
+
     
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
@@ -71,68 +67,30 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 #if SD_UIKIT
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
     // Only remove cache, but keep weak cache
-    [super removeAllObjects];
 }
 
 // `setObject:forKey:` just call this with 0 cost. Override this is enough
 - (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
-    [super setObject:obj forKey:key cost:g];
-    if (!self.config.shouldUseWeakMemoryCache) {
-        return;
-    }
-    if (key && obj) {
-        // Store weak cache
-        SD_LOCK(self.weakCacheLock);
-        [self.weakCache setObject:obj forKey:key];
-        SD_UNLOCK(self.weakCacheLock);
-    }
+    
 }
 
 - (id)objectForKey:(id)key {
-    id obj = [super objectForKey:key];
-    if (!self.config.shouldUseWeakMemoryCache) {
-        return obj;
-    }
-    if (key && !obj) {
-        // Check weak cache
-        SD_LOCK(self.weakCacheLock);
-        obj = [self.weakCache objectForKey:key];
-        SD_UNLOCK(self.weakCacheLock);
-        if (obj) {
-            // Sync cache
-            NSUInteger cost = 0;
-            if ([obj isKindOfClass:[UIImage class]]) {
-                cost = [(UIImage *)obj sd_memoryCost];
-            }
-            [super setObject:obj forKey:key cost:cost];
-        }
-    }
-    return obj;
+    
+    return nil;
 }
 
 - (void)removeObjectForKey:(id)key {
-    [super removeObjectForKey:key];
-    if (!self.config.shouldUseWeakMemoryCache) {
-        return;
-    }
-    if (key) {
-        // Remove weak cache
-        SD_LOCK(self.weakCacheLock);
-        [self.weakCache removeObjectForKey:key];
-        SD_UNLOCK(self.weakCacheLock);
-    }
+   
 }
 
 - (void)removeAllObjects {
-    [super removeAllObjects];
-    if (!self.config.shouldUseWeakMemoryCache) {
-        return;
-    }
-    // Manually remove should also remove weak cache
-    SD_LOCK(self.weakCacheLock);
-    [self.weakCache removeAllObjects];
-    SD_UNLOCK(self.weakCacheLock);
+    
 }
+
+- (void)setObject:(nullable id)object forKey:(nonnull id)key {
+    
+}
+
 #endif
 
 #pragma mark - KVO
@@ -140,9 +98,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
     if (context == SDMemoryCacheContext) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
-            self.totalCostLimit = self.config.maxMemoryCost;
+           
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
-            self.countLimit = self.config.maxMemoryCount;
+            
         }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
