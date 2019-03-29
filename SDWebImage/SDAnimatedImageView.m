@@ -742,8 +742,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *
     // Calculate refresh duration
     NSTimeInterval duration = (double)inOutputTime->videoRefreshPeriod / ((double)inOutputTime->videoTimeScale * inOutputTime->rateScalar);
     // CVDisplayLink callback is not on main queue
+    SDAnimatedImageView *imageView = (__bridge SDAnimatedImageView *)displayLinkContext;
+    __weak SDAnimatedImageView *weakImageView = imageView;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [(__bridge SDAnimatedImageView *)displayLinkContext displayDidRefresh:displayLink duration:duration];
+        [weakImageView displayDidRefresh:displayLink duration:duration];
     });
     return kCVReturnSuccess;
 }
