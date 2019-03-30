@@ -28,10 +28,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     id _key;
     id _val;
     NSUInteger _cost;
-    /**
-     * Auto check and trim cache cost time interval, default is 5.0.
-     */
-    NSTimeInterval _time;
+    
 }
 @end
 
@@ -175,11 +172,16 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 @end
 
-@interface SDMemoryCache ()
+@interface SDMemoryCache () {
+    pthread_mutex_t _lock;
+    SDMemoryCacheMap *_lru;
+    dispatch_queue_t _queue;
+    NSTimeInterval _autoTrimInterval;
+}
 
 @property (nonatomic, strong, nullable) SDImageCacheConfig *config;
-
-@property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
+@property (assign, nonatomic) NSUInteger maxMemoryCostLimit;
+@property (assign, nonatomic) NSUInteger maxMemoryCountLimit;
 
 @end
 
@@ -188,6 +190,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 - (void)dealloc {
     [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryCacheContext];
     [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
+    [_lru removeAll];
+    pthread_mutex_destroy(&_lock);
 #if SD_UIKIT
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -212,8 +216,16 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)commonInit {
+    
+    pthread_mutex_init(&_lock, NULL);
+    _lru = [SDMemoryCacheMap new];
+    _queue = dispatch_queue_create("com.hackemist.SDImageMemoryCache", DISPATCH_QUEUE_SERIAL);
+    // Default auto trim cache interval is 5.0.
+    _autoTrimInterval = 5.0;
+    
     SDImageCacheConfig *config = self.config;
-
+    _maxMemoryCountLimit = config.maxMemoryCount == 0 ? NSUIntegerMax : config.maxMemoryCount;
+    _maxMemoryCostLimit = config.maxMemoryCost == 0 ? NSUIntegerMax : config.maxMemoryCost;
     
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
@@ -229,29 +241,92 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 // Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
 #if SD_UIKIT
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    // Only remove cache, but keep weak cache
-}
-
-// `setObject:forKey:` just call this with 0 cost. Override this is enough
-- (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
-    
-}
-
-- (id)objectForKey:(id)key {
-    
-    return nil;
-}
-
-- (void)removeObjectForKey:(id)key {
-   
-}
-
-- (void)removeAllObjects {
-    
+    [self removeAllObjects];
 }
 
 - (void)setObject:(nullable id)object forKey:(nonnull id)key {
+    [self setObject:object forKey:key cost:0];
+}
+// `setObject:forKey:` just call this with 0 cost. Memory cache has totalCountLimit && totalCostLimit properties to guarantee it.
+- (void)setObject:(nullable id)object forKey:(nonnull id)key cost:(NSUInteger)cost {
+    if (!key) {
+        return;
+    }
+    if (!object) {
+        [self removeObjectForKey:key];
+        return;
+    }
     
+    pthread_mutex_lock(&_lock);
+    SDMemoryCacheMapNode *node = CFDictionaryGetValue(_lru->_dic, (__bridge const void*)(key));
+    if (node) {
+        _lru->_totalCost -= node->_cost;
+        _lru->_totalCost += cost;
+        node->_cost = cost;
+        node->_val = object;
+        [_lru bringToHeadWithNode:node];
+    } else {
+        node = [SDMemoryCacheMapNode new];
+        node->_key = key;
+        node->_val = object;
+        node->_cost = cost;
+        [_lru insertAtHeadWithNode:node];
+    }
+    
+    
+    if (_lru->_totalCost > _maxMemoryCostLimit) {
+        // Shrink the memory caache totalCost until under limit.
+        dispatch_async(_queue, ^{
+            [self trimCostUnderLimit];
+        });
+    }
+    
+    if (_lru->_totalCount > _maxMemoryCountLimit) {
+        // Only remove the tail node.
+        SDMemoryCacheMapNode *node = [_lru removeTailNode];
+        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            [node class];
+        });
+    }
+    pthread_mutex_unlock(&_lock);
+}
+
+
+- (id)objectForKey:(id)key {
+    if (!key) {
+        return nil;
+    }
+    
+    pthread_mutex_lock(&_lock);
+    SDMemoryCacheMapNode *node = CFDictionaryGetValue(_lru->_dic, (__bridge const void *)(key));
+    if (node) {
+        [_lru bringToHeadWithNode:node];
+    }
+    pthread_mutex_unlock(&_lock);
+    
+    return node ? node->_val : nil;
+}
+
+- (void)removeObjectForKey:(id)key {
+    if (!key) {
+        return;
+    }
+    
+    pthread_mutex_lock(&_lock);
+    SDMemoryCacheMapNode *node = CFDictionaryGetValue(_lru->_dic, (__bridge const void*)(key));
+    if (node) {
+        [_lru removeNode:node];
+        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            [node class];
+        });
+    }
+    pthread_mutex_unlock(&_lock);
+}
+
+- (void)removeAllObjects {
+    pthread_mutex_lock(&_lock);
+    [_lru removeAll];
+    pthread_mutex_unlock(&_lock);
 }
 
 #endif
@@ -261,12 +336,94 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
     if (context == SDMemoryCacheContext) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
-           
+            self.maxMemoryCostLimit = self.config.maxMemoryCost;
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
-            
+            self.maxMemoryCountLimit = self.config.maxMemoryCount;
         }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+#pragma mark - Trim
+
+- (void)trimRecursively{
+    @weakify(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_autoTrimInterval)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        @strongify(self);
+        if (!self) {
+            return;
+        }
+        [self trimInBackground];
+        [self trimRecursively];
+    });
+}
+
+- (void)trimInBackground {
+    dispatch_async(_queue, ^{
+        [self trimCostUnderLimit];
+        [self trimCountUnderLimit];
+    });
+}
+
+- (void)trimCostUnderLimit {
+    if (_lru->_totalCost <= _maxMemoryCostLimit) {
+        return;
+    }
+    
+    BOOL flag = false;
+    NSMutableArray <SDMemoryCacheMapNode *> *nodeMArray = [NSMutableArray new];
+    
+    while (!flag) {
+        if (pthread_mutex_trylock(&_lock) == 0) {
+            if (_lru->_totalCost > _maxMemoryCostLimit) {
+                SDMemoryCacheMapNode *node = [_lru removeTailNode];
+                if (node) {
+                    [nodeMArray addObject:node];
+                }
+            } else {
+                flag = true;
+            }
+            pthread_mutex_unlock(&_lock);
+        } else {
+            usleep(10 * 1000);
+        }
+    }
+    
+    if (nodeMArray.count > 0) {
+        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            // Async release in global queue
+            [nodeMArray count];
+        });
+    }
+}
+
+- (void)trimCountUnderLimit {
+    if (_lru->_totalCount <= _maxMemoryCountLimit) {
+        return;
+    }
+    
+    BOOL flag = false;
+    NSMutableArray <SDMemoryCacheMapNode *> *nodeMArray = [NSMutableArray new];
+    while (!flag) {
+        if (pthread_mutex_unlock(&_lock) == 0) {
+            if (_lru->_totalCount > _maxMemoryCountLimit) {
+                SDMemoryCacheMapNode * node = [_lru removeTailNode];
+                if (node) {
+                    [nodeMArray addObject:node];
+                }
+            } else {
+                flag = true;
+            }
+        } else {
+            usleep(10 * 1000);
+        }
+    }
+    
+    if (nodeMArray.count > 0) {
+        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            [nodeMArray count];
+        });
     }
 }
 
