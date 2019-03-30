@@ -192,9 +192,11 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 - (void)dealloc {
     [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryCacheContext];
     [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
+    
+#if SD_UIKIT
     [_lru removeAll];
     pthread_mutex_destroy(&_lock);
-#if SD_UIKIT
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
 }
@@ -223,6 +225,16 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     _maxMemoryCountLimit = config.maxMemoryCount == 0 ? NSUIntegerMax : config.maxMemoryCount;
     _maxMemoryCostLimit = config.maxMemoryCost == 0 ? NSUIntegerMax : config.maxMemoryCost;
     
+    // Using NSCache.
+    self.nsCache = [NSCache new];
+    _nsCache.totalCostLimit =_maxMemoryCostLimit;
+    _nsCache.countLimit = _maxMemoryCountLimit;
+    
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
+    
+#if SD_UIKIT
+    
     if (config.shouldUseLRUMemoryCache) {
         
         pthread_mutex_init(&_lock, NULL);
@@ -230,17 +242,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
         _queue = dispatch_queue_create("com.hackemist.SDImageMemoryCache", DISPATCH_QUEUE_SERIAL);
         // Default auto trim cache interval is 5.0.
         _autoTrimInterval = 5.0;
-    } else {
-        // Using NSCache.
-        self.nsCache = [NSCache new];
-        _nsCache.totalCostLimit =_maxMemoryCostLimit;
-        _nsCache.countLimit = _maxMemoryCountLimit;
     }
     
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
-    
-#if SD_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
@@ -368,6 +371,30 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     pthread_mutex_lock(&_lock);
     [_lru removeAll];
     pthread_mutex_unlock(&_lock);
+}
+#else
+- (nullable id)objectForKey:(nonnull id)key {
+    id obj = [_nsCache objectForKey:key];
+    return obj;
+}
+
+
+- (void)removeObjectForKey:(nonnull id)key {
+    [_nsCache removeObjectForKey:key];
+}
+
+
+- (void)setObject:(nullable id)object forKey:(nonnull id)key {
+    [_nsCache setObject:object forKey:key];
+}
+
+
+- (void)setObject:(nullable id)object forKey:(nonnull id)key cost:(NSUInteger)cost {
+    [_nsCache setObject:object forKey:key cost:cost];
+}
+
+- (void)removeAllObjects {
+    [_nsCache removeAllObjects];
 }
 
 #endif
