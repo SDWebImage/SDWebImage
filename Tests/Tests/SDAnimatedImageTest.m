@@ -129,6 +129,14 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(image1.animatedImageFrameCount).equal(image2.animatedImageFrameCount);
 }
 
+- (void)test11AnimatedImageViewIntrinsicContentSize {
+    // Test that SDAnimatedImageView.intrinsicContentSize return the correct value of image size
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.image = image;
+    expect(imageView.intrinsicContentSize).equal(image.size);
+}
+
 - (void)test20AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
