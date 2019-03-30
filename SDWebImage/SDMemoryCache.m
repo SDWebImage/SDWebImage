@@ -312,9 +312,9 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     
     if (_lru->_totalCount > _maxMemoryCountLimit) {
         // Only remove the tail node.
-        SDMemoryCacheMapNode *node = [_lru removeTailNode];
+        SDMemoryCacheMapNode *tailNode = [_lru removeTailNode];
         dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
-            [node class];
+            [tailNode class];
         });
     }
     pthread_mutex_unlock(&_lock);
