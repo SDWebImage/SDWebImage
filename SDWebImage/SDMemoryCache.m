@@ -179,10 +179,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     NSTimeInterval _autoTrimInterval;
 }
 
-@property (nonatomic, strong, nullable) SDImageCacheConfig *config;
+@property (strong, nonatomic, nullable) SDImageCacheConfig *config;
 @property (assign, nonatomic) NSUInteger maxMemoryCostLimit;
 @property (assign, nonatomic) NSUInteger maxMemoryCountLimit;
 
+// Config's property shouldUseLRUMemoryCache default is true, if it is false memory based on NSCache.
+@property (strong, nonatomic, nullable) NSCache *nsCache;
 @end
 
 @implementation SDMemoryCache
@@ -217,15 +219,23 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 - (void)commonInit {
     
-    pthread_mutex_init(&_lock, NULL);
-    _lru = [SDMemoryCacheMap new];
-    _queue = dispatch_queue_create("com.hackemist.SDImageMemoryCache", DISPATCH_QUEUE_SERIAL);
-    // Default auto trim cache interval is 5.0.
-    _autoTrimInterval = 5.0;
-    
     SDImageCacheConfig *config = self.config;
     _maxMemoryCountLimit = config.maxMemoryCount == 0 ? NSUIntegerMax : config.maxMemoryCount;
     _maxMemoryCostLimit = config.maxMemoryCost == 0 ? NSUIntegerMax : config.maxMemoryCost;
+    
+    if (config.shouldUseLRUMemoryCache) {
+        
+        pthread_mutex_init(&_lock, NULL);
+        _lru = [SDMemoryCacheMap new];
+        _queue = dispatch_queue_create("com.hackemist.SDImageMemoryCache", DISPATCH_QUEUE_SERIAL);
+        // Default auto trim cache interval is 5.0.
+        _autoTrimInterval = 5.0;
+    } else {
+        // Using NSCache.
+        self.nsCache = [NSCache new];
+        _nsCache.totalCostLimit =_maxMemoryCostLimit;
+        _nsCache.countLimit = _maxMemoryCountLimit;
+    }
     
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
@@ -241,17 +251,33 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 // Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
 #if SD_UIKIT
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache removeAllObjects];
+        return;
+    }
     [self removeAllObjects];
 }
 
 - (void)setObject:(nullable id)object forKey:(nonnull id)key {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache setObject:object forKey:key];
+        return;
+    }
+    
     [self setObject:object forKey:key cost:0];
 }
-// `setObject:forKey:` just call this with 0 cost. Memory cache has totalCountLimit && totalCostLimit properties to guarantee it.
+
+// `setObject:forKey:` just call this with 0 cost. LRU algorithm memory cache has totalCountLimit && totalCostLimit properties to guarantee it.
 - (void)setObject:(nullable id)object forKey:(nonnull id)key cost:(NSUInteger)cost {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache setObject:object forKey:key cost:cost];
+        return;
+    }
+    
     if (!key) {
         return;
     }
+    
     if (!object) {
         [self removeObjectForKey:key];
         return;
@@ -293,6 +319,11 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 
 - (id)objectForKey:(id)key {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        id obj = [_nsCache objectForKey:key];
+        return obj;
+    }
+    
     if (!key) {
         return nil;
     }
@@ -308,6 +339,11 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)removeObjectForKey:(id)key {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache removeObjectForKey:key];
+        return;
+    }
+    
     if (!key) {
         return;
     }
@@ -324,6 +360,11 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)removeAllObjects {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache removeAllObjects];
+        return;
+    }
+    
     pthread_mutex_lock(&_lock);
     [_lru removeAll];
     pthread_mutex_unlock(&_lock);
