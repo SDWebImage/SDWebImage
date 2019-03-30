@@ -281,8 +281,7 @@ static NSUInteger SDDeviceFreeMemory() {
 - (CVDisplayLinkRef)displayLink
 {
     if (!_displayLink) {
-        CGDirectDisplayID displayID = CGMainDisplayID();
-        CVReturn error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
+        CVReturn error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
         if (error) {
             return NULL;
         }
