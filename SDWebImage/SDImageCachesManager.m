@@ -75,7 +75,9 @@
     if (!key) {
         return nil;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = self.caches;
+    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return nil;
@@ -117,7 +119,9 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = self.caches;
+    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -155,7 +159,9 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = self.caches;
+    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -193,7 +199,9 @@
     if (!key) {
         return;
     }
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = self.caches;
+    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -230,7 +238,9 @@
 }
 
 - (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
-    NSArray<id<SDImageCache>> *caches = [self.caches copy];
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = self.caches;
+    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;

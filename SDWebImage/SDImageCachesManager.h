@@ -58,7 +58,7 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
 /**
  All caches in caches manager. The caches array is a priority queue, which means the later added cache will have the highest priority
  */
-@property (atomic, copy, readwrite, nullable) NSArray<id<SDImageCache>> *caches;
+@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDImageCache>> *caches;
 
 /**
  Add a new cache to the end of caches array. Which has the highest priority.
