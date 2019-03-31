@@ -61,18 +61,12 @@ static NSUInteger SDDeviceFreeMemory() {
 #else
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #endif
-// Layer-backed NSImageView use a subview of `NSImageViewContainerView` to do actual layer rendering. We use this layer instead of `self.layer` during animated image rendering.
-#if SD_MAC
-@property (nonatomic, strong, readonly) CALayer *imageViewLayer;
-#endif
 
 @end
 
 @implementation SDAnimatedImageView
 #if SD_UIKIT
-@dynamic animationRepeatCount;
-#else
-@dynamic imageViewLayer;
+@dynamic animationRepeatCount; // we re-use this property from `UIImageView` super class on iOS.
 #endif
 
 #pragma mark - Initializers
@@ -239,18 +233,9 @@ static NSUInteger SDDeviceFreeMemory() {
         
         [self.layer setNeedsDisplay];
 #if SD_MAC
-        [self.layer displayIfNeeded]; // macOS's imageViewLayer is not equal to self.layer. But `[super setImage:]` will impliedly mark it needsDisplay. We call `[self.layer displayIfNeeded]` to immediately refresh the imageViewLayer to avoid flashing
+        [self.layer displayIfNeeded]; // macOS's imageViewLayer may not equal to self.layer. But `[super setImage:]` will impliedly mark it needsDisplay. We call `[self.layer displayIfNeeded]` to immediately refresh the imageViewLayer to avoid flashing
 #endif
     }
-}
-
-- (void)setAnimationRepeatCount:(NSInteger)animationRepeatCount
-{
-#if SD_MAC
-    _animationRepeatCount = animationRepeatCount;
-#else
-    [super setAnimationRepeatCount:animationRepeatCount];
-#endif
 }
 
 #if SD_UIKIT
@@ -287,8 +272,7 @@ static NSUInteger SDDeviceFreeMemory() {
 - (CVDisplayLinkRef)displayLink
 {
     if (!_displayLink) {
-        CGDirectDisplayID displayID = CGMainDisplayID();
-        CVReturn error = CVDisplayLinkCreateWithCGDisplay(displayID, &_displayLink);
+        CVReturn error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
         if (error) {
             return NULL;
         }
@@ -309,13 +293,6 @@ static NSUInteger SDDeviceFreeMemory() {
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
     }
     return _displayLink;
-}
-#endif
-
-#if SD_MAC
-- (CALayer *)imageViewLayer {
-    NSView *imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
-    return imageView.layer;
 }
 #endif
 
@@ -681,6 +658,18 @@ static NSUInteger SDDeviceFreeMemory() {
 }
 
 #if SD_MAC
+// Layer-backed NSImageView optionally optimize to use a subview to do actual layer rendering.
+// When the optimization is turned on, it calls `updateLayer` instead of `displayLayer:` to update subview's layer.
+// When the optimization it turned off, this return nil and calls `displayLayer:` directly.
+- (CALayer *)imageViewLayer {
+    NSView *imageView = imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
+    if (!imageView) {
+        // macOS 10.14
+        imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageSubview"));
+    }
+    return imageView.layer;
+}
+
 - (void)updateLayer
 {
     if (_currentFrame) {
