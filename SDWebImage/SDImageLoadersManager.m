@@ -30,8 +30,8 @@
     self = [super init];
     if (self) {
         // initialize with default image loaders
-        self.loaders = @[[SDWebImageDownloader sharedDownloader]];
-        self.loadersLock = dispatch_semaphore_create(1);
+        _loaders = @[[SDWebImageDownloader sharedDownloader]];
+        _loadersLock = dispatch_semaphore_create(1);
     }
     return self;
 }

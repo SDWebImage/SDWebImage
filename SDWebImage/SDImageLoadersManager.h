@@ -10,6 +10,9 @@
 
 @interface SDImageLoadersManager : NSObject <SDImageLoader>
 
+/**
+ Returns the global shared loaders manager instance. By default we will set [`SDWebImageDownloader.sharedDownloader`] into the loaders array.
+ */
 @property (nonatomic, class, readonly, nonnull) SDImageLoadersManager *sharedManager;
 
 /**

@@ -27,14 +27,6 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 
 @implementation SDImageCacheTests
 
-+ (void)setUp {
-    [[SDImageCachesManager sharedManager] addCache:[SDImageCache sharedImageCache]];
-}
-
-+ (void)tearDown {
-    [[SDImageCachesManager sharedManager] removeCache:[SDImageCache sharedImageCache]];
-}
-
 - (void)test01SharedImageCache {
     expect([SDImageCache sharedImageCache]).toNot.beNil();
 }
@@ -452,8 +444,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCachesManager *cachesManager = [[SDImageCachesManager alloc] init];
     SDImageCache *cache1 = [[SDImageCache alloc] initWithNamespace:@"cache1"];
     SDImageCache *cache2 = [[SDImageCache alloc] initWithNamespace:@"cache2"];
-    [cachesManager addCache:cache1];
-    [cachesManager addCache:cache2];
+    cachesManager.caches = @[cache1, cache2];
     
     [[NSFileManager defaultManager] removeItemAtPath:cache1.diskCachePath error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:cache2.diskCachePath error:nil];
@@ -502,8 +493,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCachesManager *cachesManager = [[SDImageCachesManager alloc] init];
     SDImageCache *cache1 = [[SDImageCache alloc] initWithNamespace:@"cache1"];
     SDImageCache *cache2 = [[SDImageCache alloc] initWithNamespace:@"cache2"];
-    [cachesManager addCache:cache1];
-    [cachesManager addCache:cache2];
+    cachesManager.caches = @[cache1, cache2];
     
     [[NSFileManager defaultManager] removeItemAtPath:cache1.diskCachePath error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:cache2.diskCachePath error:nil];
@@ -543,8 +533,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCachesManager *cachesManager = [[SDImageCachesManager alloc] init];
     SDImageCache *cache1 = [[SDImageCache alloc] initWithNamespace:@"cache1"];
     SDImageCache *cache2 = [[SDImageCache alloc] initWithNamespace:@"cache2"];
-    [cachesManager addCache:cache1];
-    [cachesManager addCache:cache2];
+    cachesManager.caches = @[cache1, cache2];
     
     [[NSFileManager defaultManager] removeItemAtPath:cache1.diskCachePath error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:cache2.diskCachePath error:nil];

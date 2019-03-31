@@ -31,8 +31,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         // initialize with default coders
-        NSMutableArray<id<SDImageCoder>> *mutableCoders = [@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]] mutableCopy];
-        _coders = [mutableCoders copy];
+        _coders = @[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]];
         _codersLock = dispatch_semaphore_create(1);
     }
     return self;
