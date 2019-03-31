@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/SDWebImage_logo.png" title="SDWebImage logo" float=left>
+  <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/SDWebImage_logo.png" title="SDWebImage logo" float=left>
 </p>
 
 
@@ -87,7 +87,7 @@ You can check the latest [5.x branch](https://github.com/SDWebImage/SDWebImage/t
 - Read the [Documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Read the [Installation Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide)
-- Read the [SDWebImage 5.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
+- Read the [SDWebImage 5.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
 - Read the [SDWebImage 4.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 - Read the [Common Problems](https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems) to find the solution for common problems 
 - Go to the [Wiki Page](https://github.com/SDWebImage/SDWebImage/wiki) for more information such as [Advanced Usage](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage)
@@ -229,26 +229,26 @@ All source code is licensed under the [MIT License](https://raw.github.com/SDWeb
 
 #### High Level Diagram
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageHighLevelDiagram.jpeg" title="SDWebImage high level diagram">
+    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageHighLevelDiagram.jpeg" title="SDWebImage high level diagram">
 </p>
 
 #### Overall Class Diagram
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageClassDiagram.png" title="SDWebImage overall class diagram">
+    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageClassDiagram.png" title="SDWebImage overall class diagram">
 </p>
 
 #### Top Level API Diagram
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageTopLevelClassDiagram.png" title="SDWebImage top level API diagram">
+    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageTopLevelClassDiagram.png" title="SDWebImage top level API diagram">
 </p>
 
 #### Main Sequence Diagram
 <p align="center" >
-    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
+    <img src="https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageSequenceDiagram.png" title="SDWebImage sequence diagram">
 </p>
 
 #### More detailed diagrams
-- [Manager API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageManagerClassDiagram.png)
-- [Coders API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageCodersClassDiagram.png)
-- [Loader API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageLoaderClassDiagram.png)
-- [Cache API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/5.x/Docs/Diagrams/SDWebImageCacheClassDiagram.png)
+- [Manager API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageManagerClassDiagram.png)
+- [Coders API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageCodersClassDiagram.png)
+- [Loader API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageLoaderClassDiagram.png)
+- [Cache API Diagram](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/Diagrams/SDWebImageCacheClassDiagram.png)

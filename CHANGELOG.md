@@ -1,3 +1,68 @@
+## [5.0.0 Major release - Customizable SDWebImage, on Mar 31th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0)
+See [all tickets marked for the 5.0.0 release](https://github.com/SDWebImage/SDWebImage/milestone/15)
+
+### Features
+
+#### Animated Image
+- Introduce `SDAnimatedImageView` and `SDAnimatedImage` for full stack solution of animated images.
+- Supports custom coders for nearly every animated image format.
+- Supports progressive loading for animated images.
+- iOS/tvOS/macOS cross-platform support.
+
+#### Transformer
+- Using transformer to apply image processing after image was loaded.
+- Built-in transformer for common usage: Rounded Corner, Resize, Crop, Flip, Rotate, Tint Color, Blur Effect, Core Image Filter...
+- Convenient category methods for `UIImage`/`NSImage`
+
+#### Custom Loader
+- Using loader protocol to implements your own image loader.
+- Not limited on HTTP, you can even using SDWebImage with PhotoKit and third-party SDKs.
+- Supports multiple loaders at the same time using `SDImageLoadersManager`.
+
+#### Custom Cache
+- Using cache protocol to implements your own image cache.
+- Standalone disk cache and memory cache class for advanced usage and customization.
+- Supports multiple caches at the same time using `SDImageCachesManager`.
+
+#### Indicator
+- Use indicator to provide a loading view, customizable
+- Built-in Activity Indicator and Progress Indicator.
+- iOS/tvOS/macOS cross-platform support.
+
+#### Plugins
+- All external image format coders are plugins. Supports WebP, HEIF, BPG, FLIF, SVG, PDF... Choose what you need in: [Coder Plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+- PhotoKit loader as a plugin: [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin)
+- FLAnimatedImage integration as a plugin: [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin)
+- YYImage/YYCache integration as a plugin: [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin)
+
+### Improvements
+
+#### Swift
+- Better Swift support with some manual renaming APIs.
+- Full nullability annotation.
+- Using class property for shared instance.
+- Using `NS_TYPED_ENUM` and `NS_STRING_ENUM` for better generated APIs.
+
+#### API
+- Using context option to control detail behavior for each image request beyond the limit of enums.
+- Using prefetcher to manage token (list of URL requests) to avoid conflict.
+- Use request modifier to modify constructed URLRequest.
+
+### Project
+
+- Supports the latest Xcode 10.
+- Supports iOS 8.0+/tvOS 9.0+/watchOS 2.0+/macOS 10.10+.
+
+### Migration
+
+Check [5.0 migration guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) for the migration from 4.x to 5.x.
+
+## [4.0.0 - New platforms (Mac OS X and watchOS) + refactoring, on Jan 28th, 2017](https://github.com/SDWebImage/SDWebImage/releases/tag/4.0.0)
+
+See [all tickets marked for the 4.0.0 release](https://github.com/SDWebImage/SDWebImage/milestone/3)
+Versions 4.0.0-beta and 4.0.0-beta 2 list all the changes. 
+
+
 ## [5.0.0-beta6 - 5.0 Beta, on Mar 15th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta6)
 See [all tickets marked for the 5.0.0-beta6 release](https://github.com/rs/SDWebImage/milestone/30)
 
@@ -180,7 +245,7 @@ See [all tickets marked for the 5.0.0 release](https://github.com/rs/SDWebImage/
 
 #### Backwards incompatible changes
 
-See the [5.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/5.x/Docs/SDWebImage-5.0-Migration-guide.md) for a list of comprehensive changes and the way to update your code
+See the [5.0 Migration Guide](https://raw.githubusercontent.com/rs/SDWebImage/master/Docs/SDWebImage-5.0-Migration-guide.md) for a list of comprehensive changes and the way to update your code
 
 #### Features
 - Introduce `SDAnimatedImageView`, `SDAnimatedImage` and refactor the way we handle animated images #2140
