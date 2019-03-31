@@ -36,8 +36,8 @@
         self.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
         self.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
         // initialize with default image caches
-        self.caches = @[[SDImageCache sharedImageCache]];
-        self.cachesLock = dispatch_semaphore_create(1);
+        _caches = @[[SDImageCache sharedImageCache]];
+        _cachesLock = dispatch_semaphore_create(1);
     }
     return self;
 }
