@@ -515,8 +515,8 @@
 <div class="difference"><span class="status added">Added</span> SDImageLoaderDecodeImageData()</div>
 <div class="difference"><span class="status added">Added</span> SDImageLoaderDecodeProgressiveImageData()</div>
 <div class="difference"><span class="status added">Added</span> SDImageLoader</div>
-<div class="difference"><span class="status added">Added</span> -[SDImageLoader canLoadWithURL:]</div>
-<div class="difference"><span class="status added">Added</span> -[SDImageLoader loadImageWithURL:options:context:progress:completed:]</div>
+<div class="difference"><span class="status added">Added</span> -[SDImageLoader canRequestImageForURL:]</div>
+<div class="difference"><span class="status added">Added</span> -[SDImageLoader requestImageWithURL:options:context:progress:completed:]</div>
 </div>
 
 </div>
@@ -686,12 +686,6 @@
 <div class="difference"><span class="status removed">Removed</span> #def dispatch_queue_async_safe</div>
 </div>
 
-
-<div class="differenceGroup">
-<div class="difference"><span class="status added">Added</span> #def SD_LOCK</div>
-<div class="difference"><span class="status added">Added</span> #def SD_UNLOCK</div>
-</div>
-
 </div>
 
 <div class="headerFile">
@@ -770,6 +764,7 @@
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloader.config</div>
 <div class="difference"><span class="status added">Added</span> SDWebImageDownloader.requestModifier</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloader initWithConfig:]</div>
+<div class="difference"><span class="status added">Added</span> -[SDWebImageDownloader downloadImageWithURL:completed:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDWebImageDownloader downloadImageWithURL:options:context:progress:completed:]</div>
 </div>
 

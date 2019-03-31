@@ -58,15 +58,30 @@ In order to clean up things and make our core project do less things, we decided
 By taking the advantage of the [Custom Loader](https://github.com/rs/SDWebImage/wiki/Advanced-Usage#custom-loader-50) feature, we introduced a plugin to allow easy loading images from the Photos Library. See [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) for more detailed information.
 
 
-### Notable Behavior Changes
+### Notable Behavior Changes (without API breaking)
 
 #### Cache
+
+##### Cache Paths
 
 `SDImageCache` in 5.x, use `~/Library/Caches/com.hackemist.SDImageCache/default/` as default cache path. However, 4.x use `~/Library/Caches/default/com.hackemist.SDWebImageCache.default/`. And don't be worried, we will do the migration automatically once the shared cache initialized.
 
 However, if you have some other custom namespace cache instance, you should try to do migration by yourself. But typically, since the cache is designed to be invalid at any time, you'd better not to bind some important logic related on that cache path changes.
 
 And, if you're previously using any version from `5.0.0-beta` to `5.0.0-beta3`, please note that the cache folder has been temporarily moved to `~/Library/Caches/default/com.hackemist.SDImageCache.default/`, however, the final release version of 5.0.0 use the path above. If you upgrade from those beta version, you may need manually do migration, check `+[SDDiskCache moveCacheDirectoryFromPath:toPath:]` for detail information.
+
+##### Cache Cost Function
+
+`SDImageCacheConfig.maxMemoryCost` can be used to specify the memory cost limit. In the 4.x, the cost function is the **pixel count** of images. However, 5.x change it into the total **bytes size** of images. 
+
+Because for memory cache, we actually care about the memory usage about bytes, but not the count of pixels. And pixel count can not accurately represent the memory usage.
+
+The bytes of a image occupied in the memory, can use the simple formula below:
+
+**bytes size** = **pixel count** \* **bytes per pixel**
+
+The **bytes per pixel** is a constant depends on [image pixel format](https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html). For mostly used images (8 bits per channel with alpha), the value is 4. So you can simply migrate your previous pixel count value with 4 multiplied.
+
 
 #### Prefetcher
 
@@ -105,10 +120,14 @@ prefetcher.prefetchURLs([url1, url2])
 - `SDCacheQueryCompletedBlock` renamed to `SDImageCacheQueryCompletionBlock`
 - `SDWebImageCheckCacheCompletionBlock` renamed to `SDImageCacheCheckCompletionBlock`
 - `SDWebImageCalculateSizeBlock` renamed to `SDImageCacheCalculateSizeBlock`
+- `getSize` renamed to `totalDiskSize`
+- `getDiskCount` renamed to `totalDiskCount`
 
 #### SDImageCacheConfig
 
 - `shouldDecompressImages` removed. Use  `SDImageCacheAvoidDecodeImage` in cache options instead
+- `maxCacheAge` renamed to `maxDiskAge`
+- `maxCacheSize` renamed to `maxDiskSize`
 
 #### SDWebImageManager
 
@@ -183,7 +202,7 @@ prefetcher.prefetchURLs([url1, url2])
 
 - `prefetchURLs:` and `prefetchURLs:progress:completed:` return types changed from `void` to `SDWebImagePrefetchToken`
 - `prefetcherQueue` property renamed to `delegateQueue`
-- `maxConcurrentDownloads` property removed, use `SDWebImageManager.downloader` config instead
+- `maxConcurrentDownloads` replaced with `maxConcurrentPrefetchCount`
 
 #### SDImageCoder
 - `SDCGColorSpaceGetDeviceRGB()` moved to `+[SDImageCoderHelper colorSpaceGetDeviceRGB]` 
@@ -250,5 +269,7 @@ In SDWebImage 5.0 we did a clean up of the API. We are using many modern Objecti
 - `sd_currentAlternateImageURL()` changed to `sd_currentAlternateImageURL`
 
 ### Full API Diff
-For advanced user who need the detailed API diff, we provide the full diff in a HTML web page: [SDWebImage 5.0 API Diff](https://htmlpreview.github.io/?https://github.com/rs/SDWebImage/blob/5.x/Docs/API-Diff/5.0/apidiff.html)
+For advanced user who need the detailed API diff, we provide the full diff in a HTML web page (Currently based on 4.4.4 and 5.0.0-beta4):
+
+[SDWebImage 5.0 API Diff](https://htmlpreview.github.io/?https://github.com/rs/SDWebImage/blob/master/Docs/API-Diff/5.0/apidiff.html).
 
