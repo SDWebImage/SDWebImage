@@ -236,6 +236,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 #if SD_UIKIT
     
     if (config.shouldUseLRUMemoryCache) {
+        // Memory use LRU algorithm, release nsCache proerty.
+        _nsCache = nil;
         
         pthread_mutex_init(&_lock, NULL);
         _lru = [SDMemoryCacheMap new];
