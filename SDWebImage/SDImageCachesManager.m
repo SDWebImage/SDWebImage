@@ -8,6 +8,13 @@
 
 #import "SDImageCachesManager.h"
 #import "SDImageCachesManagerOperation.h"
+#import "SDImageCache.h"
+
+@interface SDImageCachesManager ()
+
+@property (nonatomic, strong, nonnull) dispatch_semaphore_t cachesLock;
+
+@end
 
 @implementation SDImageCachesManager
 
@@ -28,6 +35,9 @@
         self.removeOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
         self.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
         self.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
+        // initialize with default image caches
+        self.caches = @[[SDImageCache sharedImageCache]];
+        self.cachesLock = dispatch_semaphore_create(1);
     }
     return self;
 }
@@ -38,21 +48,25 @@
     if (![cache conformsToProtocol:@protocol(SDImageCache)]) {
         return;
     }
+    SD_LOCK(self.cachesLock);
     NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
     if (!mutableCaches) {
         mutableCaches = [NSMutableArray array];
     }
     [mutableCaches addObject:cache];
     self.caches = [mutableCaches copy];
+    SD_UNLOCK(self.cachesLock);
 }
 
 - (void)removeCache:(id<SDImageCache>)cache {
     if (![cache conformsToProtocol:@protocol(SDImageCache)]) {
         return;
     }
+    SD_LOCK(self.cachesLock);
     NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
     [mutableCaches removeObject:cache];
     self.caches = [mutableCaches copy];
+    SD_UNLOCK(self.cachesLock);
 }
 
 #pragma mark - SDImageCache

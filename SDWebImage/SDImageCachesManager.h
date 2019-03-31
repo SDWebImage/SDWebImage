@@ -19,7 +19,7 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
 @interface SDImageCachesManager : NSObject <SDImageCache>
 
 /**
- Returns the global shared caches manager instance.
+ Returns the global shared caches manager instance. By default we will set [`SDImageCache.sharedImageCache`] into the caches array.
  */
 @property (nonatomic, class, readonly, nonnull) SDImageCachesManager *sharedManager;
 
