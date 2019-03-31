@@ -171,7 +171,15 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     return value;
 }
 
-- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
+                                                 completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
+    return [self downloadImageWithURL:url options:0 progress:nil completed:completedBlock];
+}
+
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                  progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(SDWebImageDownloaderCompletedBlock)completedBlock {
     return [self downloadImageWithURL:url options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
