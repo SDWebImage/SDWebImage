@@ -17,6 +17,9 @@
 @end
 
 @implementation SDImageCachesManager
+{
+    NSMutableArray<id<SDImageCache>> *_imageCaches;
+}
 
 + (SDImageCachesManager *)sharedManager {
     static dispatch_once_t onceToken;
@@ -36,10 +39,26 @@
         self.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
         self.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
         // initialize with default image caches
-        _caches = @[[SDImageCache sharedImageCache]];
+        _imageCaches = [NSMutableArray arrayWithObject:[SDImageCache sharedImageCache]];
         _cachesLock = dispatch_semaphore_create(1);
     }
     return self;
+}
+
+- (NSArray<id<SDImageCache>> *)caches {
+    SD_LOCK(self.cachesLock);
+    NSArray<id<SDImageCache>> *caches = [_imageCaches copy];
+    SD_UNLOCK(self.cachesLock);
+    return caches;
+}
+
+- (void)setCaches:(NSArray<id<SDImageCache>> *)caches {
+    SD_LOCK(self.cachesLock);
+    [_imageCaches removeAllObjects];
+    if (caches.count) {
+        [_imageCaches addObjectsFromArray:caches];
+    }
+    SD_UNLOCK(self.cachesLock);
 }
 
 #pragma mark - Cache IO operations
@@ -49,12 +68,7 @@
         return;
     }
     SD_LOCK(self.cachesLock);
-    NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
-    if (!mutableCaches) {
-        mutableCaches = [NSMutableArray array];
-    }
-    [mutableCaches addObject:cache];
-    self.caches = [mutableCaches copy];
+    [_imageCaches addObject:cache];
     SD_UNLOCK(self.cachesLock);
 }
 
@@ -63,9 +77,7 @@
         return;
     }
     SD_LOCK(self.cachesLock);
-    NSMutableArray<id<SDImageCache>> *mutableCaches = [self.caches mutableCopy];
-    [mutableCaches removeObject:cache];
-    self.caches = [mutableCaches copy];
+    [_imageCaches removeObject:cache];
     SD_UNLOCK(self.cachesLock);
 }
 
@@ -75,9 +87,7 @@
     if (!key) {
         return nil;
     }
-    SD_LOCK(self.cachesLock);
     NSArray<id<SDImageCache>> *caches = self.caches;
-    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return nil;
@@ -119,9 +129,7 @@
     if (!key) {
         return;
     }
-    SD_LOCK(self.cachesLock);
     NSArray<id<SDImageCache>> *caches = self.caches;
-    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -159,9 +167,7 @@
     if (!key) {
         return;
     }
-    SD_LOCK(self.cachesLock);
     NSArray<id<SDImageCache>> *caches = self.caches;
-    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -199,9 +205,7 @@
     if (!key) {
         return;
     }
-    SD_LOCK(self.cachesLock);
     NSArray<id<SDImageCache>> *caches = self.caches;
-    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
@@ -238,9 +242,7 @@
 }
 
 - (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
-    SD_LOCK(self.cachesLock);
     NSArray<id<SDImageCache>> *caches = self.caches;
-    SD_UNLOCK(self.cachesLock);
     NSUInteger count = caches.count;
     if (count == 0) {
         return;
