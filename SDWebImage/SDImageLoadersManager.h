@@ -18,7 +18,7 @@
 /**
  All image loaders in manager. The loaders array is a priority queue, which means the later added loader will have the highest priority
  */
-@property (nonatomic, copy, readwrite, nullable) NSArray<id<SDImageLoader>>* loaders;
+@property (nonatomic, copy, nullable) NSArray<id<SDImageLoader>>* loaders;
 
 /**
  Add a new image loader to the end of loaders array. Which has the highest priority.

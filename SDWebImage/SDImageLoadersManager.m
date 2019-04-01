@@ -16,6 +16,9 @@
 @end
 
 @implementation SDImageLoadersManager
+{
+    NSMutableArray<id<SDImageLoader>>* _imageLoaders;
+}
 
 + (SDImageLoadersManager *)sharedManager {
     static dispatch_once_t onceToken;
@@ -30,10 +33,26 @@
     self = [super init];
     if (self) {
         // initialize with default image loaders
-        _loaders = @[[SDWebImageDownloader sharedDownloader]];
+        _imageLoaders = [NSMutableArray arrayWithObject:[SDWebImageDownloader sharedDownloader]];
         _loadersLock = dispatch_semaphore_create(1);
     }
     return self;
+}
+
+- (NSArray<id<SDImageLoader>> *)loaders {
+    SD_LOCK(self.loadersLock);
+    NSArray<id<SDImageLoader>>* loaders = [_imageLoaders copy];
+    SD_UNLOCK(self.loadersLock);
+    return loaders;
+}
+
+- (void)setLoaders:(NSArray<id<SDImageLoader>> *)loaders {
+    SD_LOCK(self.loadersLock);
+    [_imageLoaders removeAllObjects];
+    if (loaders.count) {
+        [_imageLoaders addObjectsFromArray:loaders];
+    }
+    SD_UNLOCK(self.loadersLock);
 }
 
 #pragma mark - Loader Property
@@ -43,12 +62,7 @@
         return;
     }
     SD_LOCK(self.loadersLock);
-    NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
-    if (!mutableLoaders) {
-        mutableLoaders = [NSMutableArray array];
-    }
-    [mutableLoaders addObject:loader];
-    self.loaders = [mutableLoaders copy];
+    [_imageLoaders addObject:loader];
     SD_UNLOCK(self.loadersLock);
 }
 
@@ -57,18 +71,14 @@
         return;
     }
     SD_LOCK(self.loadersLock);
-    NSMutableArray<id<SDImageLoader>> *mutableLoaders = [self.loaders mutableCopy];
-    [mutableLoaders removeObject:loader];
-    self.loaders = [mutableLoaders copy];
+    [_imageLoaders removeObject:loader];
     SD_UNLOCK(self.loadersLock);
 }
 
 #pragma mark - SDImageLoader
 
 - (BOOL)canRequestImageForURL:(nullable NSURL *)url {
-    SD_LOCK(self.loadersLock);
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
-    SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canRequestImageForURL:url]) {
             return YES;
@@ -81,9 +91,7 @@
     if (!url) {
         return nil;
     }
-    SD_LOCK(self.loadersLock);
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
-    SD_UNLOCK(self.loadersLock);
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canRequestImageForURL:url]) {
             return [loader requestImageWithURL:url options:options context:context progress:progressBlock completed:completedBlock];

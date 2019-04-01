@@ -18,7 +18,7 @@
 
 @implementation SDImageCachesManager
 {
-    NSMutableArray<id<SDImageCache>> *caches_;
+    NSMutableArray<id<SDImageCache>> *_imageCaches;
 }
 
 + (SDImageCachesManager *)sharedManager {
@@ -39,7 +39,7 @@
         self.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
         self.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
         // initialize with default image caches
-        caches_ = [NSMutableArray arrayWithObject:[SDImageCache sharedImageCache]];
+        _imageCaches = [NSMutableArray arrayWithObject:[SDImageCache sharedImageCache]];
         _cachesLock = dispatch_semaphore_create(1);
     }
     return self;
@@ -47,16 +47,16 @@
 
 - (NSArray<id<SDImageCache>> *)caches {
     SD_LOCK(self.cachesLock);
-    NSArray<id<SDImageCache>> *caches = [caches_ copy];
+    NSArray<id<SDImageCache>> *caches = [_imageCaches copy];
     SD_UNLOCK(self.cachesLock);
     return caches;
 }
 
 - (void)setCaches:(NSArray<id<SDImageCache>> *)caches {
     SD_LOCK(self.cachesLock);
-    [caches_ removeAllObjects];
+    [_imageCaches removeAllObjects];
     if (caches.count) {
-        [caches_ addObjectsFromArray:caches];
+        [_imageCaches addObjectsFromArray:caches];
     }
     SD_UNLOCK(self.cachesLock);
 }
@@ -68,7 +68,7 @@
         return;
     }
     SD_LOCK(self.cachesLock);
-    [caches_ addObject:cache];
+    [_imageCaches addObject:cache];
     SD_UNLOCK(self.cachesLock);
 }
 
@@ -77,7 +77,7 @@
         return;
     }
     SD_LOCK(self.cachesLock);
-    [caches_ removeObject:cache];
+    [_imageCaches removeObject:cache];
     SD_UNLOCK(self.cachesLock);
 }
 
