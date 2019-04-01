@@ -209,19 +209,14 @@
                     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
                         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
                     } else {
-                        // Filter the error domain and check error codes
-                        if ([error.domain isEqualToString:NSURLErrorDomain]) {
-                            shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
-                                                    && error.code != NSURLErrorCancelled
-                                                    && error.code != NSURLErrorTimedOut
-                                                    && error.code != NSURLErrorInternationalRoamingOff
-                                                    && error.code != NSURLErrorDataNotAllowed
-                                                    && error.code != NSURLErrorCannotFindHost
-                                                    && error.code != NSURLErrorCannotConnectToHost
-                                                    && error.code != NSURLErrorNetworkConnectionLost);
-                        } else {
-                            shouldBlockFailedURL = NO;
-                        }
+                        shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
+                                                && error.code != NSURLErrorCancelled
+                                                && error.code != NSURLErrorTimedOut
+                                                && error.code != NSURLErrorInternationalRoamingOff
+                                                && error.code != NSURLErrorDataNotAllowed
+                                                && error.code != NSURLErrorCannotFindHost
+                                                && error.code != NSURLErrorCannotConnectToHost
+                                                && error.code != NSURLErrorNetworkConnectionLost);
                     }
                     
                     if (shouldBlockFailedURL) {
