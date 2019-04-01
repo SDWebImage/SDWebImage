@@ -11,6 +11,11 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
 
+NSNotificationName const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
+NSNotificationName const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
+NSNotificationName const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNotification";
+NSNotificationName const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
+
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 
 @interface SDWebImageDownloadToken ()
