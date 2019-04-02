@@ -108,6 +108,15 @@ prefetcher.cancelPrefetching()
 prefetcher.prefetchURLs([url1, url2])
 ```
 
+#### Error codes and domain
+For image loading from network, if you don't pass `SDWebImageRetryFailed` option, we'll try to blocking some URLs which is indeed mark as failed.
+
+This check is done previously in a hard-coded logic for specify error codes. However, due to some compatible issue, we don't check the error domain. (Learn about [NSError's domain and codes](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ErrorHandlingCocoa/ErrorObjectsDomains/ErrorObjectsDomains.html)) And arbitrarily block some codes which may from custom download operation implementations.
+
+Since in 5.x, we supports custom loaders which can use any third-party SDKs, and have their own error domain and error codes. So we now only filter the error codes in [NSURLErrorDomain](https://developer.apple.com/documentation/foundation/nsurlerrordomain). If you have already using some error codes without error domain check, or you use [Custom Download Operation](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-download-operation-40), be sure to update it with the right way.
+
+At the same time, our framework errors, now using the formal `SDWebImageErrorDomain` with the pre-defined codes. Check `SDWebImageError.h` for details.
+
 ### API Changes
 
 #### SDImageCache

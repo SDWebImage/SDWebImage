@@ -517,6 +517,7 @@
 <div class="difference"><span class="status added">Added</span> SDImageLoader</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageLoader canRequestImageForURL:]</div>
 <div class="difference"><span class="status added">Added</span> -[SDImageLoader requestImageWithURL:options:context:progress:completed:]</div>
+<div class="difference"><span class="status added">Added</span> -[SDImageLoader shouldBlockFailedURLWithURL:error:]</div>
 </div>
 
 </div>
@@ -770,6 +771,34 @@
 
 
 <div class="differenceGroup">
+<div class="difference"><span class="status modified">Modified</span> SDWebImageDownloadStartNotification</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">NSString *const _Nonnull SDWebImageDownloadStartNotification</td></tr>
+<tr><th>To</th><td class="declaration">NSNotificationName  _Nonnull const SDWebImageDownloadStartNotification</td></tr>
+</table>
+<br>
+<div class="difference"><span class="status modified">Modified</span> SDWebImageDownloadReceiveResponseNotification</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">NSString *const _Nonnull SDWebImageDownloadReceiveResponseNotification</td></tr>
+<tr><th>To</th><td class="declaration">NSNotificationName  _Nonnull const SDWebImageDownloadReceiveResponseNotification</td></tr>
+</table>
+<br>
+<div class="difference"><span class="status modified">Modified</span> SDWebImageDownloadStopNotification</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">NSString *const _Nonnull SDWebImageDownloadStopNotification</td></tr>
+<tr><th>To</th><td class="declaration">NSNotificationName  _Nonnull const SDWebImageDownloadStopNotification</td></tr>
+</table>
+<br>
+<div class="difference"><span class="status modified">Modified</span> SDWebImageDownloadFinishNotification</div>
+<table>
+<tr><th></th><th>Declaration</th></tr>
+<tr><th>From</th><td class="declaration">NSString *const _Nonnull SDWebImageDownloadFinishNotification</td></tr>
+<tr><th>To</th><td class="declaration">NSNotificationName  _Nonnull const SDWebImageDownloadFinishNotification</td></tr>
+</table>
+<br>
 <div class="difference"><span class="status modified">Modified</span> SDWebImageDownloaderProgressBlock</div>
 <table>
 <tr><th></th><th>Declaration</th></tr>

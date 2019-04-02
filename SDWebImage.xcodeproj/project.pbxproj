@@ -59,10 +59,8 @@
 		325312D0200F09910046BF1E /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 325312C7200F09910046BF1E /* SDWebImageTransition.m */; };
 		3257EAF921898AED0097B271 /* SDImageGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 3257EAF721898AED0097B271 /* SDImageGraphics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3257EAFA21898AED0097B271 /* SDImageGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 3257EAF721898AED0097B271 /* SDImageGraphics.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3257EAFB21898AED0097B271 /* SDImageGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 3257EAF721898AED0097B271 /* SDImageGraphics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3257EAFC21898AED0097B271 /* SDImageGraphics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257EAF821898AED0097B271 /* SDImageGraphics.m */; };
 		3257EAFD21898AED0097B271 /* SDImageGraphics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257EAF821898AED0097B271 /* SDImageGraphics.m */; };
-		3257EAFE21898AED0097B271 /* SDImageGraphics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257EAF821898AED0097B271 /* SDImageGraphics.m */; };
 		325C460222339330004CAE11 /* SDImageAssetManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C460022339330004CAE11 /* SDImageAssetManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		325C460322339330004CAE11 /* SDImageAssetManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C460022339330004CAE11 /* SDImageAssetManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		325C460422339330004CAE11 /* SDImageAssetManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C460122339330004CAE11 /* SDImageAssetManager.m */; };
@@ -843,7 +841,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3257EAFB21898AED0097B271 /* SDImageGraphics.h in Headers */,
 				806BE07E2142C65200E02143 /* SDWebImageMapKit.h in Headers */,
 				80B6DFCD2142B71600BCB334 /* MKAnnotationView+WebCache.h in Headers */,
 			);
@@ -1105,7 +1102,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				80B6DFA72142B71600BCB334 /* MKAnnotationView+WebCache.m in Sources */,
-				3257EAFE21898AED0097B271 /* SDImageGraphics.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

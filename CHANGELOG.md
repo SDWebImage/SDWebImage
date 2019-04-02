@@ -1,4 +1,4 @@
-## [5.0.0 Major release - Customizable SDWebImage, on Mar 31th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0)
+## [5.0.0 Major release - Customizable SDWebImage, on Apr 2nd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0)
 See [all tickets marked for the 5.0.0 release](https://github.com/SDWebImage/SDWebImage/milestone/15)
 
 ### Features

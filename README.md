@@ -42,9 +42,10 @@ As such, we have moved/built new modules to [SDWebImage org](https://github.com/
 
 #### Coders for additional image formats
 - [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP image format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
-- [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`
-- [SDWebImageAPNGCoder](https://github.com/SDWebImage/SDWebImageAPNGCoder) - coder for APNG format (animated PNG)
+- [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`, iOS 8+/macOS 10.10+ support.
 - [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format
+- [SDWebImageFLIFCoder](https://github.com/SDWebImage/SDWebImageFLIFCoder) - coder for FLIF format
+- and more from community!
 
 #### Loaders
 - [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) - plugin to support loading images from Photos (using `Photos.framework`) 
@@ -58,12 +59,6 @@ As such, we have moved/built new modules to [SDWebImage org](https://github.com/
 - [libwebp-Xcode](https://github.com/SDWebImage/libwebp-Xcode) - A wrapper for [libwebp](https://chromium.googlesource.com/webm/libwebp) + an Xcode project.
 
 You can use those directly, or create similar components of your own.
-
-## Beta version
-
-SDWebImage's 5.0 version is nearing completion. Which introduce many new features like Animated ImageView and Transformer. We also provide a more modularized design used for advanced user customization.
-
-You can check the latest [5.x branch](https://github.com/SDWebImage/SDWebImage/tree/5.x) to know about the current status. We'd love you to have a try with the beta version and provide any feedback. If you'd love, check [SDWebImage 5.0 Migration Guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) and prepare for the migration.
 
 ## Requirements
 
@@ -108,7 +103,7 @@ You can check the latest [5.x branch](https://github.com/SDWebImage/SDWebImage/t
 * Objective-C
 
 ```objective-c
-#import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/SDWebImage.h>
 ...
 [imageView sd_setImageWithURL:[NSURL URLWithString:@"http://www.domain.com/path/to/image.jpg"]
              placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
@@ -200,10 +195,10 @@ If this is your first time using Carthage in the project, you'll need to go thro
 
 ### Import headers in your source files
 
-In the source files where you need to use the library, import the header file:
+In the source files where you need to use the library, import the umbrella header file:
 
 ```objective-c
-#import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/SDWebImage.h>
 ```
 
 ### Build Project
