@@ -103,11 +103,12 @@
 - (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
-        if (![loader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:)]) {
-            break;
-        }
         if ([loader canRequestImageForURL:url]) {
-            return [loader shouldBlockFailedURLWithURL:url error:error];
+            if ([loader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:)]) {
+                return [loader shouldBlockFailedURLWithURL:url error:error];
+            } else {
+                return NO;
+            }
         }
     }
     return NO;
