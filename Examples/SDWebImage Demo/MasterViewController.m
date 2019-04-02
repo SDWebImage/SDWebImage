@@ -112,7 +112,6 @@
     [cell.customImageView sd_setImageWithURL:[NSURL URLWithString:self.objects[indexPath.row]]
                             placeholderImage:placeholderImage
                                      options:indexPath.row == 0 ? SDWebImageRefreshCached : 0];
-    [cell.customImageView sd_cancelCurrentImageLoad];
     return cell;
 }
 
