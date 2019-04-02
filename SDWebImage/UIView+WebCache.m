@@ -56,7 +56,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     if (!validOperationKey) {
         validOperationKey = NSStringFromClass([self class]);
     }
-    [self setSd_latestOperationKey:validOperationKey];
+    self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
     self.sd_imageURL = url;
     
@@ -180,7 +180,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 }
 
 - (void)sd_cancelCurrentImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:[self sd_latestOperationKey]];
+    [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
