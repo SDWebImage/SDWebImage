@@ -104,11 +104,7 @@
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
         if ([loader canRequestImageForURL:url]) {
-            if ([loader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:)]) {
-                return [loader shouldBlockFailedURLWithURL:url error:error];
-            } else {
-                return NO;
-            }
+            return [loader shouldBlockFailedURLWithURL:url error:error];
         }
     }
     return NO;

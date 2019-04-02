@@ -374,11 +374,7 @@ static id<SDImageLoader> _defaultImageLoader;
     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
-        if ([self.imageLoader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:)]) {
-            shouldBlockFailedURL = [self.imageLoader shouldBlockFailedURLWithURL:url error:error];
-        } else {
-            shouldBlockFailedURL = NO;
-        }
+        shouldBlockFailedURL = [self.imageLoader shouldBlockFailedURLWithURL:url error:error];
     }
     
     return shouldBlockFailedURL;

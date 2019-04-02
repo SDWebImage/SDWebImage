@@ -86,11 +86,9 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NS
                                               completed:(nullable SDImageLoaderCompletedBlock)completedBlock;
 
 
-@optional
 /**
  Whether the error from image loader should be marked indded un-recoverable or not.
  If this return YES, failed URL which does not using `SDWebImageRetryFailed` will be blocked into black list. Else not.
- If does not implements this method, assume always return NO.
 
  @param url The URL represent the image. Note this may not be a HTTP URL
  @param error The URL's loading error, from previous `requestImageWithURL:options:context:progress:completed:` completedBlock's error.
