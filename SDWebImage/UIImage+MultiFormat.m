@@ -7,76 +7,27 @@
  */
 
 #import "UIImage+MultiFormat.h"
-#import "NSImage+WebCache.h"
-#import "SDWebImageCodersManager.h"
-#import "objc/runtime.h"
+#import "SDImageCodersManager.h"
 
 @implementation UIImage (MultiFormat)
 
-#if SD_MAC
-- (NSUInteger)sd_imageLoopCount {
-    NSUInteger imageLoopCount = 0;
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            imageLoopCount = [[bitmapRep valueForProperty:NSImageLoopCount] unsignedIntegerValue];
-            break;
-        }
-    }
-    return imageLoopCount;
-}
-
-- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    for (NSImageRep *rep in self.representations) {
-        if ([rep isKindOfClass:[NSBitmapImageRep class]]) {
-            NSBitmapImageRep *bitmapRep = (NSBitmapImageRep *)rep;
-            [bitmapRep setProperty:NSImageLoopCount withValue:@(sd_imageLoopCount)];
-            break;
-        }
-    }
-}
-
-#else
-
-- (NSUInteger)sd_imageLoopCount {
-    NSUInteger imageLoopCount = 0;
-    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageLoopCount));
-    if ([value isKindOfClass:[NSNumber class]]) {
-        imageLoopCount = value.unsignedIntegerValue;
-    }
-    return imageLoopCount;
-}
-
-- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
-    NSNumber *value = @(sd_imageLoopCount);
-    objc_setAssociatedObject(self, @selector(sd_imageLoopCount), value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-#endif
-
-- (SDImageFormat)sd_imageFormat {
-    SDImageFormat imageFormat = SDImageFormatUndefined;
-    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageFormat));
-    if ([value isKindOfClass:[NSNumber class]]) {
-        imageFormat = value.integerValue;
-        return imageFormat;
-    }
-    // Check CGImage's UTType, may return nil for non-Image/IO based image
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
-    if (&CGImageGetUTType != NULL) {
-        CFStringRef uttype = CGImageGetUTType(self.CGImage);
-        imageFormat = [NSData sd_imageFormatFromUTType:uttype];
-    }
-#pragma clang diagnostic pop
-    return imageFormat;
-}
-
-- (void)setSd_imageFormat:(SDImageFormat)sd_imageFormat {
-    objc_setAssociatedObject(self, @selector(sd_imageFormat), @(sd_imageFormat), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
-    return [[SDWebImageCodersManager sharedInstance] decodedImageWithData:data];
+    return [self sd_imageWithData:data scale:1];
+}
+
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale {
+    return [self sd_imageWithData:data scale:scale firstFrameOnly:NO];
+}
+
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale firstFrameOnly:(BOOL)firstFrameOnly {
+    if (!data) {
+        return nil;
+    }
+    if (scale < 1) {
+        scale = 1;
+    }
+    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale), SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
 - (nullable NSData *)sd_imageData {
@@ -84,12 +35,16 @@
 }
 
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat {
-    NSData *imageData = nil;
-    if (self) {
-        imageData = [[SDWebImageCodersManager sharedInstance] encodedDataWithImage:self format:imageFormat];
-    }
-    return imageData;
+    return [self sd_imageDataAsFormat:imageFormat compressionQuality:1];
 }
 
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality {
+    return [self sd_imageDataAsFormat:imageFormat compressionQuality:compressionQuality firstFrameOnly:NO];
+}
+
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality firstFrameOnly:(BOOL)firstFrameOnly {
+    SDImageCoderOptions *options = @{SDImageCoderEncodeCompressionQuality : @(compressionQuality), SDImageCoderEncodeFirstFrameOnly : @(firstFrameOnly)};
+    return [[SDImageCodersManager sharedManager] encodedDataWithImage:self format:imageFormat options:options];
+}
 
 @end

@@ -10,28 +10,67 @@
 #import "NSData+ImageContentType.h"
 
 @interface UIImage (MultiFormat)
-
+#pragma mark - Decode
 /**
- * UIKit:
- * For static image format, this value is always 0.
- * For animated image format, 0 means infinite looping.
- * @note Note that because of the limitations of categories this property can get out of sync if you create another instance with CGImage or other methods.
- * AppKit:
- * NSImage currently only support animated via GIF imageRep unlike UIImage.
- * The getter of this property will get the loop count from GIF imageRep
- * The setter of this property will set the loop count from GIF imageRep
- */
-@property (nonatomic, assign) NSUInteger sd_imageLoopCount;
+ Create and decode a image with the specify image data
 
-/**
- * The image format represent the original compressed image data format.
- * If you don't manually specify a format, this information is retrieve from CGImage using `CGImageGetUTType`, which may return nil for non-CG based image. At this time it will return `SDImageFormatUndefined` as default value.
- * @note Note that because of the limitations of categories this property can get out of sync if you create another instance with CGImage or other methods.
+ @param data The image data
+ @return The created image
  */
-@property (nonatomic, assign) SDImageFormat sd_imageFormat;
-
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
+
+/**
+ Create and decode a image with the specify image data and scale
+ 
+ @param data The image data
+ @param scale The image scale factor. Should be greater than or equal to 1.0.
+ @return The created image
+ */
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale;
+
+/**
+ Create and decode a image with the specify image data and scale, allow specify animate/static control
+ 
+ @param data The image data
+ @param scale The image scale factor. Should be greater than or equal to 1.0.
+ @param firstFrameOnly Even if the image data is animated image format, decode the first frame only as static image.
+ @return The created image
+ */
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data scale:(CGFloat)scale firstFrameOnly:(BOOL)firstFrameOnly;
+
+#pragma mark - Encode
+/**
+ Encode the current image to the data, the image format is unspecified
+
+ @return The encoded data. If can't encode, return nil
+ */
 - (nullable NSData *)sd_imageData;
-- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat;
+
+/**
+ Encode the current image to data with the specify image format
+
+ @param imageFormat The specify image format
+ @return The encoded data. If can't encode, return nil
+ */
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat NS_SWIFT_NAME(sd_imageData(as:));
+
+/**
+ Encode the current image to data with the specify image format and compression quality
+
+ @param imageFormat The specify image format
+ @param compressionQuality The quality of the resulting image data. Value between 0.0-1.0. Some coders may not support compression quality.
+ @return The encoded data. If can't encode, return nil
+ */
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality NS_SWIFT_NAME(sd_imageData(as:compressionQuality:));
+
+/**
+ Encode the current image to data with the specify image format and compression quality, allow specify animate/static control
+ 
+ @param imageFormat The specify image format
+ @param compressionQuality The quality of the resulting image data. Value between 0.0-1.0. Some coders may not support compression quality.
+ @param firstFrameOnly Even if the image is animated image, encode the first frame only as static image.
+ @return The encoded data. If can't encode, return nil
+ */
+- (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat compressionQuality:(double)compressionQuality firstFrameOnly:(BOOL)firstFrameOnly NS_SWIFT_NAME(sd_imageData(as:compressionQuality:firstFrameOnly:));
 
 @end

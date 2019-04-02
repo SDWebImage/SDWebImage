@@ -14,6 +14,14 @@
 @interface UIView (WebCacheOperation)
 
 /**
+ *  Get the image load operation for key
+ *
+ *  @param key key for identifying the operations
+ *  @return the image load operation
+ */
+- (nullable id<SDWebImageOperation>)sd_imageLoadOperationForKey:(nullable NSString *)key;
+
+/**
  *  Set the image load operation (storage in a UIView based weak map table)
  *
  *  @param operation the operation

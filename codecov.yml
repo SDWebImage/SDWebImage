@@ -1,0 +1,5 @@
+coverage:
+  ignore:
+    - "Examples"
+    - "Vendors"
+    - "Tests"

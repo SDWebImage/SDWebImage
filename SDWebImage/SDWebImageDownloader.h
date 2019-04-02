@@ -8,7 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
+#import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
+#import "SDWebImageDownloaderConfig.h"
+#import "SDWebImageDownloaderRequestModifier.h"
+#import "SDImageLoader.h"
 
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
@@ -19,7 +23,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * This flag enables progressive download, the image is displayed progressively during download as a browser would do.
      */
-    SDWebImageDownloaderProgressiveDownload = 1 << 1,
+    SDWebImageDownloaderProgressiveLoad = 1 << 1,
 
     /**
      * By default, request prevent the use of NSURLCache. With this flag, NSURLCache
@@ -29,7 +33,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
 
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
-     * (to be combined with `SDWebImageDownloaderUseNSURLCache`).
+     * And the error code is `SDWebImageErrorCacheNotModified`
+     * This flag should be combined with `SDWebImageDownloaderUseNSURLCache`.
      */
     SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
     
@@ -57,34 +62,36 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderHighPriority = 1 << 7,
     
     /**
-     * Scale down the image
+     * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
+     * images to a size compatible with the constrained memory of devices.
+     * This flag take no effect if `SDWebImageDownloaderAvoidDecodeImage` is set. And it will be ignored if `SDWebImageDownloaderProgressiveLoad` is set.
      */
     SDWebImageDownloaderScaleDownLargeImages = 1 << 8,
+    
+    /**
+     * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
+     * However, this process may increase the memory usage as well. If you are experiencing a issue due to excessive memory consumption, This flag can prevent decode the image.
+     */
+    SDWebImageDownloaderAvoidDecodeImage = 1 << 9,
+    
+    /**
+     * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
+     */
+    SDWebImageDownloaderDecodeFirstFrameOnly = 1 << 10,
+    
+    /**
+     * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from network
+     */
+    SDWebImageDownloaderPreloadAllFrames = 1 << 11
 };
 
-typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
-    /**
-     * Default value. All download operations will execute in queue style (first-in-first-out).
-     */
-    SDWebImageDownloaderFIFOExecutionOrder,
+FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadStartNotification;
+FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadReceiveResponseNotification;
+FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadStopNotification;
+FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadFinishNotification;
 
-    /**
-     * All download operations will execute in stack style (last-in-first-out).
-     */
-    SDWebImageDownloaderLIFOExecutionOrder
-};
-
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStartNotification;
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageDownloadStopNotification;
-
-typedef void(^SDWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
-
-typedef void(^SDWebImageDownloaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
-
-typedef NSDictionary<NSString *, NSString *> SDHTTPHeadersDictionary;
-typedef NSMutableDictionary<NSString *, NSString *> SDHTTPHeadersMutableDictionary;
-
-typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterBlock)(NSURL * _Nullable url, SDHTTPHeadersDictionary * _Nullable headers);
+typedef SDImageLoaderProgressBlock SDWebImageDownloaderProgressBlock;
+typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 /**
  *  A token associated with each download. Can be used to cancel a download
@@ -92,14 +99,24 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloadToken : NSObject <SDWebImageOperation>
 
 /**
- The download's URL. This should be readonly and you should not modify
+ Cancel the current download.
  */
-@property (nonatomic, strong, nullable) NSURL *url;
+- (void)cancel;
+
 /**
- The cancel token taken from `addHandlersForProgress:completed`. This should be readonly and you should not modify
- @note use `-[SDWebImageDownloadToken cancel]` to cancel the token
+ The download's URL.
  */
-@property (nonatomic, strong, nullable) id downloadOperationCancelToken;
+@property (nonatomic, strong, nullable, readonly) NSURL *url;
+
+/**
+ The download's request.
+ */
+@property (nonatomic, strong, nullable, readonly) NSURLRequest *request;
+
+/**
+ The download's response.
+ */
+@property (nonatomic, strong, nullable, readonly) NSURLResponse *response;
 
 @end
 
@@ -110,81 +127,53 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
 @interface SDWebImageDownloader : NSObject
 
 /**
- * Decompressing images that are downloaded and cached can improve performance but can consume lot of memory.
- * Defaults to YES. Set this to NO if you are experiencing a crash due to excessive memory consumption.
+ * Downloader Config object - storing all kind of settings.
+ * Most config properties support dynamic changes during download, except something like `sessionConfiguration`, see `SDWebImageDownloaderConfig` for more detail.
  */
-@property (assign, nonatomic) BOOL shouldDecompressImages;
+@property (nonatomic, copy, readonly, nonnull) SDWebImageDownloaderConfig *config;
 
 /**
- *  The maximum number of concurrent downloads
+ * Set the request modifier to modify the original download request before image load.
+ * This request modifier method will be called for each downloading image request. Return the original request means no modication. Return nil will cancel the download request.
+ * Defaults to nil, means does not modify the original download request.
+ * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
-@property (assign, nonatomic) NSInteger maxConcurrentDownloads;
+@property (nonatomic, strong, nullable) id<SDWebImageDownloaderRequestModifier> requestModifier;
+
+/**
+ * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.
+ @note This is immutable according to NSURLSession's documentation. Mutating this object directly has no effect.
+ */
+@property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *sessionConfiguration;
+
+/**
+ * Gets/Sets the download queue suspension state.
+ */
+@property (nonatomic, assign, getter=isSuspended) BOOL suspended;
 
 /**
  * Shows the current amount of downloads that still need to be downloaded
  */
-@property (readonly, nonatomic) NSUInteger currentDownloadCount;
+@property (nonatomic, assign, readonly) NSUInteger currentDownloadCount;
 
 /**
- *  The timeout value (in seconds) for the download operation. Default: 15.0.
+ *  Returns the global shared downloader instance. Which use the `SDWebImageDownloaderConfig.defaultDownloaderConfig` config.
  */
-@property (assign, nonatomic) NSTimeInterval downloadTimeout;
+@property (nonatomic, class, readonly, nonnull) SDWebImageDownloader *sharedDownloader;
 
 /**
- * The configuration in use by the internal NSURLSession.
- * Mutating this object directly has no effect.
- *
- * @see createNewSessionWithConfiguration:
- */
-@property (readonly, nonatomic, nonnull) NSURLSessionConfiguration *sessionConfiguration;
+ Creates an instance of a downloader with specified downloader config.
+ You can specify session configuration, timeout or operation class through downloader config.
 
-
-/**
- * Changes download operations execution order. Default value is `SDWebImageDownloaderFIFOExecutionOrder`.
+ @param config The downloader config. If you specify nil, the `defaultDownloaderConfig` will be used.
+ @return new instance of downloader class
  */
-@property (assign, nonatomic) SDWebImageDownloaderExecutionOrder executionOrder;
-
-/**
- *  Singleton method, returns the shared instance
- *
- *  @return global shared instance of downloader class
- */
-+ (nonnull instancetype)sharedDownloader;
-
-/**
- *  Set the default URL credential to be set for request operations.
- */
-@property (strong, nonatomic, nullable) NSURLCredential *urlCredential;
-
-/**
- * Set username
- */
-@property (strong, nonatomic, nullable) NSString *username;
-
-/**
- * Set password
- */
-@property (strong, nonatomic, nullable) NSString *password;
-
-/**
- * Set filter to pick headers for downloading image HTTP request.
- *
- * This block will be invoked for each downloading image request, returned
- * NSDictionary will be used as headers in corresponding HTTP request.
- */
-@property (nonatomic, copy, nullable) SDWebImageDownloaderHeadersFilterBlock headersFilter;
-
-/**
- * Creates an instance of a downloader with specified session configuration.
- * @note `timeoutIntervalForRequest` is going to be overwritten.
- * @return new instance of downloader class
- */
-- (nonnull instancetype)initWithSessionConfiguration:(nullable NSURLSessionConfiguration *)sessionConfiguration NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithConfig:(nullable SDWebImageDownloaderConfig *)config NS_DESIGNATED_INITIALIZER;
 
 /**
  * Set a value for a HTTP header to be appended to each download HTTP request.
  *
- * @param value The value for the header field. Use `nil` value to remove the header.
+ * @param value The value for the header field. Use `nil` value to remove the header field.
  * @param field The name of the header field to set.
  */
 - (void)setValue:(nullable NSString *)value forHTTPHeaderField:(nullable NSString *)field;
@@ -195,17 +184,6 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @return The value associated with the header field field, or `nil` if there is no corresponding header field.
  */
 - (nullable NSString *)valueForHTTPHeaderField:(nullable NSString *)field;
-
-/**
- * Sets a subclass of `NSOperation` and conforms to `SDWebImageDownloaderOperationInterface`.
- * Default is `SDWebImageDownloaderOperation`.
- * Can be used each time SDWebImage constructs a request
- * operation to download an image.
- *
- * @param operationClass The subclass of `NSOperation` and conforms to `SDWebImageDownloaderOperationInterface`.
- * Default is `SDWebImageDownloaderOperation`, Passing `nil` will revert to `SDWebImageDownloaderOperation`.
- */
-- (void)setOperationClass:(nullable Class)operationClass;
 
 /**
  * Creates a SDWebImageDownloader async downloader instance with a given URL
@@ -223,6 +201,8 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  *                       repeatedly with the partial image object and the finished argument set to NO
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.
+ *
+ * @return A token (SDWebImageDownloadToken) that can be used to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
@@ -241,13 +221,13 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @param completedBlock A block called once the download is completed.
  *                       If the download succeeded, the image parameter is set, in case of error,
  *                       error parameter is set with the error. The last parameter is always YES
- *                       if SDWebImageDownloaderProgressiveDownload isn't use. With the
- *                       SDWebImageDownloaderProgressiveDownload option, this block is called
+ *                       if SDWebImageDownloaderProgressiveLoad isn't use. With the
+ *                       SDWebImageDownloaderProgressiveLoad option, this block is called
  *                       repeatedly with the partial image object and the finished argument set to NO
  *                       before to be called a last time with the full image and finished argument
  *                       set to YES. In case of error, the finished argument is always YES.
  *
- * @return A token (SDWebImageDownloadToken) that can be passed to -cancel: to cancel this operation
+ * @return A token (SDWebImageDownloadToken) that can be used to cancel this operation
  */
 - (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
                                                    options:(SDWebImageDownloaderOptions)options
@@ -255,31 +235,31 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
                                                  completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
- * Cancels a download that was previously queued using -downloadImageWithURL:options:progress:completed:
+ * Creates a SDWebImageDownloader async downloader instance with a given URL
  *
- * @param token The token received from -downloadImageWithURL:options:progress:completed: that should be canceled.
+ * The delegate will be informed when the image is finish downloaded or an error has happen.
+ *
+ * @see SDWebImageDownloaderDelegate
+ *
+ * @param url            The URL to the image to download
+ * @param options        The options to be used for this download
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param progressBlock  A block called repeatedly while the image is downloading
+ *                       @note the progress block is executed on a background queue
+ * @param completedBlock A block called once the download is completed.
+ *
+ * @return A token (SDWebImageDownloadToken) that can be used to cancel this operation
  */
-- (void)cancel:(nullable SDWebImageDownloadToken *)token;
-
-/**
- * Sets the download queue suspension state
- */
-- (void)setSuspended:(BOOL)suspended;
+- (nullable SDWebImageDownloadToken *)downloadImageWithURL:(nullable NSURL *)url
+                                                   options:(SDWebImageDownloaderOptions)options
+                                                   context:(nullable SDWebImageContext *)context
+                                                  progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                                                 completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
 /**
  * Cancels all download operations in the queue
  */
 - (void)cancelAllDownloads;
-
-/**
- * Forces SDWebImageDownloader to create and use a new NSURLSession that is
- * initialized with the given configuration.
- * @note All existing download operations in the queue will be cancelled.
- * @note `timeoutIntervalForRequest` is going to be overwritten.
- *
- * @param sessionConfiguration The configuration to use for the new NSURLSession
- */
-- (void)createNewSessionWithConfiguration:(nonnull NSURLSessionConfiguration *)sessionConfiguration;
 
 /**
  * Invalidates the managed session, optionally canceling pending operations.
@@ -288,5 +268,15 @@ typedef SDHTTPHeadersDictionary * _Nullable (^SDWebImageDownloaderHeadersFilterB
  * @note Calling this method on the shared downloader has no effect.
  */
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations;
+
+@end
+
+
+/**
+ SDWebImageDownloader is the built-in image loader conform to `SDImageLoader`. Which provide the HTTP/HTTPS/FTP download, or local file URL using NSURLSession.
+ However, this downloader class itself also support customization for advanced users. You can specify `operationClass` in download config to custom download operation, See `SDWebImageDownloaderOperation`.
+ If you want to provide some image loader which beyond network or local file, consider to create your own custom class conform to `SDImageLoader`.
+ */
+@interface SDWebImageDownloader (SDImageLoader) <SDImageLoader>
 
 @end

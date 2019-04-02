@@ -1,0 +1,228 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// This setting is deprecated as of Xcode 8.3 and may not be supported in future versions. It is recommended that you disable the setting. If enabled, both `#include <header.h>`-style and `#include "header.h"`-style directives search the paths in `USER_HEADER_SEARCH_PATHS` before `HEADER_SEARCH_PATHS`
+ALWAYS_SEARCH_USER_PATHS = NO
+
+// Warn for missing nullability attributes
+CLANG_ANALYZER_NONNULL = YES
+
+// Warn when a number object, such as an instance of `NSNumber`, `CFNumberRef`, `OSNumber`, or `OSBoolean` is compared or converted to a primitive value instead of another object.
+CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE
+
+// Choose a standard or non-standard C++ language dialect. 
+CLANG_CXX_LANGUAGE_STANDARD = gnu++0x
+
+// Choose a version of the C++ standard library to use.
+CLANG_CXX_LIBRARY = libc++
+
+// Enables the use of modules for system APIs. System headers are imported as semantic modules instead of raw headers.
+CLANG_ENABLE_MODULES = YES
+
+// Compiles reference-counted Objective-C code (when garbage collection is not enabled) to use Automatic Reference Counting.
+CLANG_ENABLE_OBJC_ARC = YES
+
+// Warn about block captures of implicitly autoreleasing parameters.
+CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES
+
+// Warn about implicit conversions to boolean values that are suspicious. For example, writing `if (foo)` where `foo` is the name a function will trigger a warning.
+CLANG_WARN_BOOL_CONVERSION = YES
+
+// Warn about suspicious uses of the comma operator.
+CLANG_WARN_COMMA = YES
+
+// Warn about implicit conversions of constant values that cause the constant value to change, either through a loss of precision, or entirely in its meaning.
+CLANG_WARN_CONSTANT_CONVERSION = YES
+
+// Warn if an Objective-C class either subclasses a deprecated class or overrides a method that has been marked deprecated or unavailable.
+CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES
+
+// Warn about direct accesses to the Objective-C `isa` pointer instead of using a runtime API.
+CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR
+
+// Warns about issues in documentation comments (`doxygen`-style) such as missing or incorrect documentation tags.
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+
+// Warn about declaring the same method more than once within the same `@interface`.
+CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
+
+// Warn about loop bodies that are suspiciously empty.
+CLANG_WARN_EMPTY_BODY = YES
+
+// Warn about implicit conversions between different kinds of enum values. For example, this can catch issues when using the wrong enum flag as an argument to a function or method.
+CLANG_WARN_ENUM_CONVERSION = YES
+
+// Warn if all paths through a function call itself.
+CLANG_WARN_INFINITE_RECURSION = YES
+
+// Warn about implicit conversions between pointers and integers. For example, this can catch issues when one incorrectly intermixes using `NSNumber*`'s and raw integers.
+CLANG_WARN_INT_CONVERSION = YES
+
+// Warn about non-literal expressions that evaluate to zero being treated as a null pointer.
+CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES
+
+// Warn about `@property` declarations that are implicitly atomic.
+CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = NO
+
+// Warn about implicit retains of `self` within blocks, which can create a retain-cycle.
+CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+
+// Warn about implicit conversions from Objective-C literals to values of incompatible type.
+CLANG_WARN_OBJC_LITERAL_CONVERSION = YES
+
+// Warn about classes that unintentionally do not subclass a root class, such as `NSObject`.
+CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR
+
+// Warn about ranged-based for loops.
+CLANG_WARN_RANGE_LOOP_ANALYSIS = YES
+
+// Warn about non-prototype declarations.
+CLANG_WARN_STRICT_PROTOTYPES = YES
+
+// Warn about suspicious uses of `std::move`.
+CLANG_WARN_SUSPICIOUS_MOVE = YES
+
+// Warn if an API that is newer than the deployment target is used without "if (@available(...))" guards.
+CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE
+
+// Warns about potentially unreachable code.
+CLANG_WARN_UNREACHABLE_CODE = YES
+
+// The path to a file specifying code-signing entitlements.
+CODE_SIGN_ENTITLEMENTS =
+
+// The name, also known as the *common name*, of a valid code-signing certificate in a keychain within your keychain path. A missing or invalid certificate will cause a build error.
+CODE_SIGN_IDENTITY =
+
+// This setting defines the current version of the project. The value must be a integer or floating point number, such as `57` or `365.8`.
+CURRENT_PROJECT_VERSION = 1
+
+// If enabled, the product will be treated as defining its own module. This enables automatic production of LLVM module map files when appropriate, and allows the product to be imported as a module.
+DEFINES_MODULE = YES
+
+// Determines the compatibility version of the resulting library, bundle, or framework binary.
+DYLIB_COMPATIBILITY_VERSION = 1
+
+// This setting defines the current version of any framework built by the project. As with `CURRENT_PROJECT_VERSION`, the value must be an integer or floating point number, such as `57` or `365.8`.
+DYLIB_CURRENT_VERSION = 1
+
+// Sets the base value for the internal `install path` (`LC_ID_DYLIB`) in a dynamic library. This will be combined with the `EXECUTABLE_PATH` to form the full install path.
+DYLIB_INSTALL_NAME_BASE = @rpath
+
+// Controls whether `objc_msgSend` calls must be cast to the appropriate function pointer type before being called.
+ENABLE_STRICT_OBJC_MSGSEND = YES
+
+// This is a list of paths to folders containing frameworks to be searched by the compiler for both included or imported header files when compiling C, Objective-C, C++, or Objective-C++, and by the linker for frameworks used by the product. Paths are delimited by whitespace, so any paths with spaces in them must be properly quoted.
+FRAMEWORK_SEARCH_PATHS = $(inherited)
+
+// Choose a standard or non-standard C language dialect.
+GCC_C_LANGUAGE_STANDARD = gnu99
+
+// Faster function calls for applications. Not appropriate for shared libraries, which need to be position-independent.
+GCC_DYNAMIC_NO_PIC = NO
+
+// In C, allocate even uninitialized global variables in the data section of the object file, rather than generating them as common blocks. 
+GCC_NO_COMMON_BLOCKS = YES
+
+// When enabled, all symbols are declared `private extern` unless explicitly marked to be exported using `\_\_attribute\_\_((visibility("default")))` in code. If not enabled, all symbols are exported unless explicitly marked as `private extern`.
+GCC_SYMBOLS_PRIVATE_EXTERN = NO
+
+// Enabling this option causes all warnings to be treated as errors.
+GCC_TREAT_WARNINGS_AS_ERRORS = NO
+
+// Warn if a value is implicitly converted from a 64-bit type to a 32-bit type. This is a subset of the warnings provided by -Wconversion.
+GCC_WARN_64_TO_32_BIT_CONVERSION = YES
+
+// Warn if a structure's initializer has some fields missing.
+GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES
+
+// Warn when a source file does not end with a newline.
+GCC_WARN_ABOUT_MISSING_NEWLINE = YES
+
+// Causes warnings to be emitted about missing prototypes.
+GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES
+
+// Causes warnings to be emitted when a function with a defined return type (not `void`) contains a return statement without a return-value. Also emits a warning when a function is defined without specifying a return type.
+GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR
+
+// Warn if an aggregate or union initializer is not fully bracketed.
+GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES
+
+// Warn whenever a local variable shadows another local variable, parameter or global variable or whenever a builtin function is shadowed.
+GCC_WARN_SHADOW = YES
+
+// Warn when a comparison between signed and unsigned values could produce an incorrect result when the signed value is converted to unsigned.
+GCC_WARN_SIGN_COMPARE = YES
+
+// Warn if a `@selector(...)` expression referring to an undeclared selector is found. A selector is considered undeclared if no method with that name has been declared before the `@selector(...)` expression, either explicitly in an `@interface` or `@protocol` declaration, or implicitly in an `@implementation` section.
+GCC_WARN_UNDECLARED_SELECTOR = YES
+
+// Warn if a variable might be clobbered by a `setjmp` call or if an automatic variable is used without prior initialization. The compiler may not detect all cases where an automatic variable is initialized or all usage patterns that may lead to use prior to initialization.
+GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE
+
+// Warn whenever a static function is declared but not defined or a noninline static function is unused.
+GCC_WARN_UNUSED_FUNCTION = YES
+
+// Warn whenever a label is declared but not used.
+GCC_WARN_UNUSED_LABEL = YES
+
+// Warn whenever a function parameter is unused aside from its declaration.
+GCC_WARN_UNUSED_PARAMETER = NO
+
+// Warn whenever a local variable or nonconstant static variable is unused aside from its declaration.
+GCC_WARN_UNUSED_VARIABLE = YES
+
+// This is a list of paths to folders to be searched by the compiler for included or imported header files when compiling C, Objective-C, C++, or Objective-C++. Paths are delimited by whitespace, so any paths with spaces in them need to be properly quoted.
+HEADER_SEARCH_PATHS = $(inherited)
+
+// Code will load on this and later versions of iOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
+IPHONEOS_DEPLOYMENT_TARGET = 8.0
+
+// This is a list of paths to be added to the `runpath` search path list for the image being created. At runtime, `dyld` uses the `runpath` when searching for dylibs whose load path begins with `@rpath/`. 
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
+
+// This is a list of paths to folders to be searched by the linker for libraries used by the product. Paths are delimited by whitespace, so any paths with spaces in them need to be properly quoted.
+LIBRARY_SEARCH_PATHS = $(inherited)
+
+// Code will load on this and later versions of macOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
+MACOSX_DEPLOYMENT_TARGET = 10.10
+
+// Options defined in this setting are passed to invocations of the linker.
+OTHER_LDFLAGS = -ObjC
+
+// A string that uniquely identifies the bundle. The string should be in reverse DNS format using only alphanumeric characters (`A-Z`, `a-z`, `0-9`), the dot (`.`), and the hyphen (`-`). This value is used as the `CFBundleIdentifier` in the `Info.plist` of the built bundle.
+PRODUCT_BUNDLE_IDENTIFIER_PREFIX = com.dailymotion
+PRODUCT_BUNDLE_IDENTIFIER = $(PRODUCT_BUNDLE_IDENTIFIER_PREFIX).${PRODUCT_NAME:rfc1034identifier}
+
+// This is the basename of the product generated by the target.
+PRODUCT_NAME = $(TARGET_NAME)
+
+// Must contain a profile name (or UUID). A missing or invalid profile will cause a build error. Use in conjunction with [DEVELOPMENT_TEAM] to fully specify provisioning profile.
+PROVISIONING_PROFILE_SPECIFIER =
+
+// Activating this setting will cause Xcode to run the `Clang` static analysis tool on qualifying source files during every build.
+RUN_CLANG_STATIC_ANALYZER = YES
+
+// The name or path of the base SDK being used during the build. The product will be built against the headers and libraries located inside the indicated SDK. This path will be prepended to all search paths, and will be passed through the environment to the compiler and linker. Additional SDKs can be specified in the `ADDITIONAL_SDKS` setting.
+SDKROOT = macosx
+
+// If enabled, don't install built products even if deployment locations are active.
+SKIP_INSTALL = YES
+
+// The list of supported platforms from which a base SDK can be used. This setting is used if the product can be built for multiple platforms using different SDKs.
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchsimulator watchos appletvsimulator appletvos
+
+// The build system uses the selected device to set the correct value for the `UIDeviceFamily` key it adds to the target's `Info.plist` file. This also drives the --target-device flag to actool, which determines the idioms selected during catalog compilation for iOS platforms.
+TARGETED_DEVICE_FAMILY = 1,2,3,4
+
+// Code will load on this and later versions of tvOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
+TVOS_DEPLOYMENT_TARGET = 9.0
+
+// Selects the process used for version-stamping generated files. * *None:* Use no versioning system. * *Apple Generic:* Use the current project version setting. [apple-generic]
+VERSIONING_SYSTEM = apple-generic
+
+// Code will load on this and later versions of watchOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
+WATCHOS_DEPLOYMENT_TARGET = 2.0
+
+// Implicitly include the named header. The path given should either be a project relative path or an absolute path.
+GCC_PREFIX_HEADER = WebImage/SDWebImage-Prefix.pch

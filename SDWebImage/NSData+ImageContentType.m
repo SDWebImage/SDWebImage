@@ -60,6 +60,7 @@
                     || [testString isEqualToString:@"ftyphevx"]) {
                     return SDImageFormatHEIC;
                 }
+                //....ftypmif1 ....ftypmsf1
                 if ([testString isEqualToString:@"ftypmif1"] || [testString isEqualToString:@"ftypmsf1"]) {
                     return SDImageFormatHEIF;
                 }
@@ -70,7 +71,7 @@
     return SDImageFormatUndefined;
 }
 
-+ (nonnull CFStringRef)sd_UTTypeFromSDImageFormat:(SDImageFormat)format {
++ (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format {
     CFStringRef UTType;
     switch (format) {
         case SDImageFormatJPEG:

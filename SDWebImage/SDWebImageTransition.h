@@ -41,7 +41,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 /**
  The timing function used for all animations within this transition animation (macOS).
  */
-@property (nonatomic, strong, nullable) CAMediaTimingFunction *timingFunction NS_AVAILABLE_MAC(10_7);
+@property (nonatomic, strong, nullable) CAMediaTimingFunction *timingFunction API_UNAVAILABLE(ios, tvos, watchos);
 /**
  A mask of options indicating how you want to perform the animations.
  */
@@ -67,8 +67,6 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 
 @interface SDWebImageTransition (Conveniences)
 
-// class property is available in Xcode 8. We will drop the Xcode 7.3 support in 5.x
-#if __has_feature(objc_class_property)
 /// Fade transition.
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *fadeTransition;
 /// Flip from left transition.
@@ -83,15 +81,6 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *curlUpTransition;
 /// Curl down transition.
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *curlDownTransition;
-#else
-+ (nonnull instancetype)fadeTransition;
-+ (nonnull instancetype)flipFromLeftTransition;
-+ (nonnull instancetype)flipFromRightTransition;
-+ (nonnull instancetype)flipFromTopTransition;
-+ (nonnull instancetype)flipFromBottomTransition;
-+ (nonnull instancetype)curlUpTransition;
-+ (nonnull instancetype)curlDownTransition;
-#endif
 
 @end
 

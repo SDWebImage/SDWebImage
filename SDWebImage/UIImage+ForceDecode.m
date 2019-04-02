@@ -7,24 +7,36 @@
  */
 
 #import "UIImage+ForceDecode.h"
-#import "SDWebImageCodersManager.h"
+#import "SDImageCoderHelper.h"
+#import "objc/runtime.h"
 
 @implementation UIImage (ForceDecode)
 
-+ (UIImage *)decodedImageWithImage:(UIImage *)image {
-    if (!image) {
-        return nil;
-    }
-    NSData *tempData;
-    return [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&tempData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(NO)}];
+- (BOOL)sd_isDecoded {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isDecoded));
+    return value.boolValue;
 }
 
-+ (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image {
+- (void)setSd_isDecoded:(BOOL)sd_isDecoded {
+    objc_setAssociatedObject(self, @selector(sd_isDecoded), @(sd_isDecoded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
++ (UIImage *)sd_decodedImageWithImage:(UIImage *)image {
     if (!image) {
         return nil;
     }
-    NSData *tempData;
-    return [[SDWebImageCodersManager sharedInstance] decompressedImageWithImage:image data:&tempData options:@{SDWebImageCoderScaleDownLargeImagesKey: @(YES)}];
+    return [SDImageCoderHelper decodedImageWithImage:image];
+}
+
++ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image {
+    return [self sd_decodedAndScaledDownImageWithImage:image limitBytes:0];
+}
+
++ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
+    if (!image) {
+        return nil;
+    }
+    return [SDImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:bytes];
 }
 
 @end

@@ -7,24 +7,17 @@
  */
 
 #import "SDWebImageCompat.h"
+#import "SDWebImageDefine.h"
 #import "SDWebImageManager.h"
 #import "SDWebImageTransition.h"
+#import "SDWebImageIndicator.h"
 
-/**
- A Dispatch group to maintain setImageBlock and completionBlock. This key should be used only internally and may be changed in the future. (dispatch_group_t)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageInternalSetImageGroupKey;
-/**
- A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager)
- */
-FOUNDATION_EXPORT NSString * _Nonnull const SDWebImageExternalCustomManagerKey;
 /**
  The value specify that the image progress unit count cannot be determined because the progressBlock is not been called.
  */
 FOUNDATION_EXPORT const int64_t SDWebImageProgressUnitCountUnknown; /* 1LL */
 
-typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData);
-typedef void(^SDInternalSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
+typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
 @interface UIView (WebCache)
 
@@ -33,7 +26,7 @@ typedef void(^SDInternalSetImageBlock)(UIImage * _Nullable image, NSData * _Null
  *
  * @note Note that because of the limitations of categories this property can get out of sync if you use setImage: directly.
  */
-- (nullable NSURL *)sd_imageURL;
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_imageURL;
 
 /**
  * The current image loading progress associated to the view. The unit count is the received size and excepted size of download.
@@ -52,51 +45,29 @@ typedef void(^SDInternalSetImageBlock)(UIImage * _Nullable image, NSData * _Null
  * @param url            The url for the image.
  * @param placeholder    The image to be set initially, until the image request finishes.
  * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param operationKey   A string to be used as the operation key. If nil, will use the class name
- * @param setImageBlock  Block used for custom set image code
+ * @param context        A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param setImageBlock  Block used for custom set image code. If not provide, use the built-in set image code (supports `UIImageView/NSImageView` and `UIButton/NSButton` currently)
  * @param progressBlock  A block called while image is downloading
  *                       @note the progress block is executed on a background queue
- * @param completedBlock A block called when operation has been completed. This block has no return value
- *                       and takes the requested UIImage as first parameter. In case of error the image parameter
- *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
- *                       indicating if the image was retrieved from the local cache or from the network.
- *                       The fourth parameter is the original image url.
+ * @param completedBlock A block called when operation has been completed.
+ *   This block has no return value and takes the requested UIImage as first parameter and the NSData representation as second parameter.
+ *   In case of error the image parameter is nil and the third parameter may contain an NSError.
+ *
+ *   The forth parameter is an `SDImageCacheType` enum indicating if the image was retrieved from the local cache
+ *   or from the memory cache or from the network.
+ *
+ *   The fith parameter normally is always YES. However, if you provide SDWebImageAvoidAutoSetImage with SDWebImageProgressiveLoad options to enable progressive downloading and set the image yourself. This block is thus called repeatedly with a partial image. When image is fully downloaded, the
+ *   block is called a last time with the full image and the last parameter set to YES.
+ *
+ *   The last parameter is the original image URL
  */
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
-                      operationKey:(nullable NSString *)operationKey
+                           context:(nullable SDWebImageContext *)context
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                         completed:(nullable SDExternalCompletionBlock)completedBlock;
-
-/**
- * Set the imageView `image` with an `url` and optionally a placeholder image.
- *
- * The download is asynchronous and cached.
- *
- * @param url            The url for the image.
- * @param placeholder    The image to be set initially, until the image request finishes.
- * @param options        The options to use when downloading the image. @see SDWebImageOptions for the possible values.
- * @param operationKey   A string to be used as the operation key. If nil, will use the class name
- * @param setImageBlock  Block used for custom set image code
- * @param progressBlock  A block called while image is downloading
- *                       @note the progress block is executed on a background queue
- * @param completedBlock A block called when operation has been completed. This block has no return value
- *                       and takes the requested UIImage as first parameter. In case of error the image parameter
- *                       is nil and the second parameter may contain an NSError. The third parameter is a Boolean
- *                       indicating if the image was retrieved from the local cache or from the network.
- *                       The fourth parameter is the original image url.
- * @param context        A context with extra information to perform specify changes or processes.
- */
-- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
-                  placeholderImage:(nullable UIImage *)placeholder
-                           options:(SDWebImageOptions)options
-                      operationKey:(nullable NSString *)operationKey
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
-                         completed:(nullable SDExternalCompletionBlock)completedBlock
-                           context:(nullable NSDictionary<NSString *, id> *)context;
+                          progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                         completed:(nullable SDInternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current image load
@@ -113,27 +84,14 @@ typedef void(^SDInternalSetImageBlock)(UIImage * _Nullable image, NSData * _Null
  */
 @property (nonatomic, strong, nullable) SDWebImageTransition *sd_imageTransition;
 
-#if SD_UIKIT
-
-#pragma mark - Activity indicator
+#pragma mark - Image Indicator
 
 /**
- *  Show activity UIActivityIndicatorView
+ The image indicator during the image loading. If you do not need indicator, specify nil. Defaults to nil
+ The setter will remove the old indicator view and add new indicator view to current view's subview.
+ @note Because this is UI related, you should access only from the main queue.
  */
-- (void)sd_setShowActivityIndicatorView:(BOOL)show;
-
-/**
- *  set desired UIActivityIndicatorViewStyle
- *
- *  @param style The style of the UIActivityIndicatorView
- */
-- (void)sd_setIndicatorStyle:(UIActivityIndicatorViewStyle)style;
-
-- (BOOL)sd_showActivityIndicatorView;
-- (void)sd_addActivityIndicator;
-- (void)sd_removeActivityIndicator;
-
-#endif
+@property (nonatomic, strong, nullable) id<SDWebImageIndicator> sd_imageIndicator;
 
 #endif
 

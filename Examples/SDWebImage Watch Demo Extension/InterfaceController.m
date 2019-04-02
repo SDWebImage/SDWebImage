@@ -7,7 +7,8 @@
  */
 
 #import "InterfaceController.h"
-#import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/SDWebImage.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 
 @interface InterfaceController()
@@ -23,15 +24,19 @@
     [super awakeWithContext:context];
 
     // Configure interface objects here.
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
 }
 
 - (void)willActivate {
     // This method is called when watch view controller is about to be visible to user
     [super willActivate];
     
-    NSString *urlString = @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png";
+    NSString *urlString = @"http://apng.onevcat.com/assets/elephant.png";
     WKInterfaceImage *imageInterface = self.imageInterface;
-    [imageInterface sd_setImageWithURL:[NSURL URLWithString:urlString]];
+    [imageInterface sd_setImageWithURL:[NSURL URLWithString:urlString] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        // `WKInterfaceImage` unlike `UIImageView`. Even the image is animated image, you should explicitly call `startAnimating` to play animation.
+        [imageInterface startAnimating];
+    }];
 }
 
 - (void)didDeactivate {

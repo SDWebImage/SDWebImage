@@ -11,10 +11,11 @@
 
 const int64_t kAsyncTestTimeout = 5;
 const int64_t kMinDelayNanosecond = NSEC_PER_MSEC * 100; // 0.1s
-NSString *const kTestJpegURL = @"http://via.placeholder.com/50x50.jpg";
+NSString *const kTestJPEGURL = @"http://via.placeholder.com/50x50.jpg";
+NSString *const kTestProgressiveJPEGURL = @"https://raw.githubusercontent.com/ibireme/YYImage/master/Demo/YYImageDemo/mew_progressive.jpg";
 NSString *const kTestPNGURL = @"http://via.placeholder.com/50x50.png";
 NSString *const kTestGIFURL = @"https://media.giphy.com/media/UEsrLdv7ugRTq/giphy.gif";
-NSString *const kTestWebPURL = @"http://littlesvr.ca/apng/images/SteamEngine.webp";
+NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons/1/14/Animated_PNG_example_bouncing_beach_ball.png";
 
 @implementation SDTestCase
 

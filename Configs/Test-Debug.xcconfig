@@ -1,0 +1,8 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Module-Debug.xcconfig"
+#include "Test-Shared.xcconfig"
+
+// If enabled, only the active architecture is built.
+ONLY_ACTIVE_ARCH = YES

@@ -12,13 +12,20 @@
 
 #import <XCTest/XCTest.h>
 #import <Expecta/Expecta.h>
+#import <SDWebImage/SDWebImage.h>
+
+#if SD_MAC
+#define UIWindow NSWindow
+#define UIScreen NSScreen
+#endif
 
 FOUNDATION_EXPORT const int64_t kAsyncTestTimeout;
 FOUNDATION_EXPORT const int64_t kMinDelayNanosecond;
-FOUNDATION_EXPORT NSString * _Nonnull const kTestJpegURL;
+FOUNDATION_EXPORT NSString * _Nonnull const kTestJPEGURL;
+FOUNDATION_EXPORT NSString * _Nonnull const kTestProgressiveJPEGURL;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestPNGURL;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestGIFURL;
-FOUNDATION_EXPORT NSString * _Nonnull const kTestWebPURL;
+FOUNDATION_EXPORT NSString * _Nonnull const kTestAPNGPURL;
 
 @interface SDTestCase : XCTestCase
 

@@ -7,10 +7,9 @@
  */
 
 #import "AppDelegate.h"
-
 #import "MasterViewController.h"
 
-#import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/SDWebImage.h>
 
 @implementation AppDelegate
 
@@ -21,7 +20,10 @@
 {
     //Add a custom read-only cache path
     NSString *bundledPath = [[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"CustomPathImages"];
-    [[SDImageCache sharedImageCache] addReadOnlyCachePath:bundledPath];
+    [SDImageCache sharedImageCache].additionalCachePathBlock = ^NSString * _Nullable(NSString * _Nonnull key) {
+        NSString *fileName = [[SDImageCache sharedImageCache] cachePathForKey:key].lastPathComponent;
+        return [bundledPath stringByAppendingPathComponent:fileName.stringByDeletingPathExtension];
+    };
 
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     // Override point for customization after application launch.

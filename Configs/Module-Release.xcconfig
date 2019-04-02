@@ -1,0 +1,28 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Module-Shared.xcconfig"
+
+// Specifies whether binary files that are copied during the build, such as in a Copy Bundle Resources or Copy Files build phase, should be stripped of debugging symbols.
+COPY_PHASE_STRIP = YES
+
+// The type of debug information to produce.
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+
+// Controls whether assertion logic provided by `NSAssert` is included in the preprocessed source code or is elided during preprocessing.
+ENABLE_NS_ASSERTIONS = NO
+
+// When this setting is activated, the product will be built with options appropriate for running automated tests, such as making private interfaces accessible to the tests.
+ENABLE_TESTABILITY = NO
+
+// Specifies the degree to which the generated code is optimized for speed and binary size.
+GCC_OPTIMIZATION_LEVEL = s
+
+// Metal debug info
+MTL_ENABLE_DEBUG_INFO = NO
+
+// If enabled, only the active architecture is built.
+ONLY_ACTIVE_ARCH = NO
+
+// If enabled, perform validation checks on the product as part of the build process.
+VALIDATE_PRODUCT = YES

@@ -1,0 +1,7 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Module-Shared.xcconfig"
+
+// Implicitly include the named header. The path given should either be a project relative path or an absolute path.
+GCC_PREFIX_HEADER =
