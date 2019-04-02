@@ -15,17 +15,17 @@ See [all tickets marked for the 5.0.0 release](https://github.com/SDWebImage/SDW
 - Convenient category methods for `UIImage`/`NSImage`
 
 #### Custom Loader
-- Using loader protocol to implements your own image loader.
+- Using `SDImageLoader` protocol to implements your own image loader.
 - Not limited on HTTP, you can even using SDWebImage with PhotoKit and third-party SDKs.
-- Supports multiple loaders at the same time using `SDImageLoadersManager`.
+- Supports multiple loaders at the same time when using `SDImageLoadersManager`.
 
 #### Custom Cache
-- Using cache protocol to implements your own image cache.
+- Using `SDImageCache` protocol to implement your own image cache.
 - Standalone disk cache and memory cache class for advanced usage and customization.
-- Supports multiple caches at the same time using `SDImageCachesManager`.
+- Supports multiple caches at the same time when using `SDImageCachesManager`.
 
 #### Indicator
-- Use indicator to provide a loading view, customizable
+- Use indicator to provide a loading view, customizable.
 - Built-in Activity Indicator and Progress Indicator.
 - iOS/tvOS/macOS cross-platform support.
 
@@ -52,15 +52,12 @@ See [all tickets marked for the 5.0.0 release](https://github.com/SDWebImage/SDW
 
 - Supports the latest Xcode 10.
 - Supports iOS 8.0+/tvOS 9.0+/watchOS 2.0+/macOS 10.10+.
+- MapKit support for Carthage moved the standalone `SDWebImageMapKit` target.
+- Using module map and umbrella headers.
 
 ### Migration
 
 Check [5.0 migration guide](https://github.com/SDWebImage/SDWebImage/wiki/5.0-Migration-guide) for the migration from 4.x to 5.x.
-
-## [4.0.0 - New platforms (Mac OS X and watchOS) + refactoring, on Jan 28th, 2017](https://github.com/SDWebImage/SDWebImage/releases/tag/4.0.0)
-
-See [all tickets marked for the 4.0.0 release](https://github.com/SDWebImage/SDWebImage/milestone/3)
-Versions 4.0.0-beta and 4.0.0-beta 2 list all the changes. 
 
 
 ## [5.0.0-beta6 - 5.0 Beta, on Mar 15th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0-beta6)
