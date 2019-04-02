@@ -178,7 +178,7 @@ static id<SDImageLoader> _defaultImageLoader;
 
 // Query cache process
 - (void)callCacheProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
-                                 url:(nullable NSURL *)url
+                                 url:(nonnull NSURL *)url
                              options:(SDWebImageOptions)options
                              context:(nullable SDWebImageContext *)context
                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
@@ -206,7 +206,7 @@ static id<SDImageLoader> _defaultImageLoader;
 
 // Download process
 - (void)callDownloadProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
-                                    url:(nullable NSURL *)url
+                                    url:(nonnull NSURL *)url
                                 options:(SDWebImageOptions)options
                                 context:(SDWebImageContext *)context
                             cachedImage:(nullable UIImage *)cachedImage
@@ -280,7 +280,7 @@ static id<SDImageLoader> _defaultImageLoader;
 
 // Store cache process
 - (void)callStoreCacheProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
-                                      url:(nullable NSURL *)url
+                                      url:(nonnull NSURL *)url
                                   options:(SDWebImageOptions)options
                                   context:(SDWebImageContext *)context
                           downloadedImage:(nullable UIImage *)downloadedImage
@@ -375,7 +375,10 @@ static id<SDImageLoader> _defaultImageLoader;
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
         // Filter the error domain and check error codes
-        if ([error.domain isEqualToString:NSURLErrorDomain]) {
+        if ([error.domain isEqualToString:SDWebImageErrorDomain]) {
+            shouldBlockFailedURL = (   error.code == SDWebImageErrorInvalidURL
+                                    || error.code == SDWebImageErrorBadImageData);
+        } else if ([error.domain isEqualToString:NSURLErrorDomain]) {
             shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
                                     && error.code != NSURLErrorCancelled
                                     && error.code != NSURLErrorTimedOut
