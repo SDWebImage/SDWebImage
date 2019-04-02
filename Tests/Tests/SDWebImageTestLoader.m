@@ -50,4 +50,8 @@
     return task;
 }
 
+- (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
+    return NO;
+}
+
 @end
