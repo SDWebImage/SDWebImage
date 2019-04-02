@@ -374,19 +374,8 @@ static id<SDImageLoader> _defaultImageLoader;
     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
-        // Filter the error domain and check error codes
-        if ([error.domain isEqualToString:SDWebImageErrorDomain]) {
-            shouldBlockFailedURL = (   error.code == SDWebImageErrorInvalidURL
-                                    || error.code == SDWebImageErrorBadImageData);
-        } else if ([error.domain isEqualToString:NSURLErrorDomain]) {
-            shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
-                                    && error.code != NSURLErrorCancelled
-                                    && error.code != NSURLErrorTimedOut
-                                    && error.code != NSURLErrorInternationalRoamingOff
-                                    && error.code != NSURLErrorDataNotAllowed
-                                    && error.code != NSURLErrorCannotFindHost
-                                    && error.code != NSURLErrorCannotConnectToHost
-                                    && error.code != NSURLErrorNetworkConnectionLost);
+        if ([self.imageLoader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:)]) {
+            shouldBlockFailedURL = [self.imageLoader shouldBlockFailedURLWithURL:url error:error];
         } else {
             shouldBlockFailedURL = NO;
         }

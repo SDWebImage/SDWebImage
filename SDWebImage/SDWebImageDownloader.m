@@ -546,4 +546,25 @@ didReceiveResponse:(NSURLResponse *)response
     return [self downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:completedBlock];
 }
 
+- (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
+    BOOL shouldBlockFailedURL;
+    // Filter the error domain and check error codes
+    if ([error.domain isEqualToString:SDWebImageErrorDomain]) {
+        shouldBlockFailedURL = (   error.code == SDWebImageErrorInvalidURL
+                                || error.code == SDWebImageErrorBadImageData);
+    } else if ([error.domain isEqualToString:NSURLErrorDomain]) {
+        shouldBlockFailedURL = (   error.code != NSURLErrorNotConnectedToInternet
+                                && error.code != NSURLErrorCancelled
+                                && error.code != NSURLErrorTimedOut
+                                && error.code != NSURLErrorInternationalRoamingOff
+                                && error.code != NSURLErrorDataNotAllowed
+                                && error.code != NSURLErrorCannotFindHost
+                                && error.code != NSURLErrorCannotConnectToHost
+                                && error.code != NSURLErrorNetworkConnectionLost);
+    } else {
+        shouldBlockFailedURL = NO;
+    }
+    return shouldBlockFailedURL;
+}
+
 @end
