@@ -228,7 +228,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         
         CGContextSaveGState(context);
         [path addClip];
-        CGContextDrawImage(context, rect, self.CGImage);
+        [self drawInRect:rect];
         CGContextRestoreGState(context);
     }
     
