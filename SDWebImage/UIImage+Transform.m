@@ -349,7 +349,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     
     SDGraphicsBeginImageContextWithOptions(size, NO, scale);
     CGContextRef context = SDGraphicsGetCurrentContext();
-    CGContextDrawImage(context, rect, self.CGImage);
+    [self drawInRect:rect];
     CGContextSetBlendMode(context, blendMode);
     CGContextSetFillColorWithColor(context, tintColor.CGColor);
     CGContextFillRect(context, rect);
