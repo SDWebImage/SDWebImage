@@ -67,6 +67,9 @@
     // Check the left center pixel, should be border :)
     UIColor *checkBorderColor = [roundedCornerImage sd_colorAtPoint:CGPointMake(1, 150)];
     expect([checkBorderColor.sd_hexString isEqualToString:borderColor.sd_hexString]).beTruthy();
+    // Check rounded corner operation not inversion the image
+    UIColor *topCenterColor = [roundedCornerImage sd_colorAtPoint:CGPointMake(150, 20)];
+    expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
 - (void)test04UIImageTransformRotate {
