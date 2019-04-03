@@ -240,13 +240,12 @@
 }
 
 + (BOOL)canDecodeFromFormat:(SDImageFormat)format {
-    BOOL canDecode = NO;
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
     NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
     if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-        canDecode = YES;
+        return YES;
     }
-    return canDecode;
+    return NO;
 }
 
 + (BOOL)canDecodeFromHEICFormat {
@@ -268,7 +267,6 @@
 }
 
 + (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    BOOL canEncode = NO;
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
     
@@ -276,13 +274,12 @@
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
     if (!imageDestination) {
         // Can't encode to HEIC
-        canEncode = NO;
+        return NO;
     } else {
         // Can encode to HEIC
         CFRelease(imageDestination);
-        canEncode = YES;
+        return YES;
     }
-    return canEncode;
 }
 
 + (BOOL)canEncodeToHEICFormat {
