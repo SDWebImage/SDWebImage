@@ -84,19 +84,7 @@
 #pragma mark - Progressive Decode
 
 - (BOOL)canIncrementalDecodeFromData:(NSData *)data {
-    switch ([NSData sd_imageFormatForImageData:data]) {
-        case SDImageFormatWebP:
-            // Do not support WebP progressive decoding
-            return NO;
-        case SDImageFormatHEIC:
-            // Check HEIC decoding compatibility
-            return [[self class] canDecodeFromHEICFormat];
-        case SDImageFormatHEIF:
-            // Check HEIF decoding compatibility
-            return [[self class] canDecodeFromHEIFFormat];
-        default:
-            return YES;
-    }
+    return [self canDecodeFromData:data];
 }
 
 - (instancetype)initIncrementalWithOptions:(nullable SDImageCoderOptions *)options {
@@ -251,15 +239,20 @@
     return [imageData copy];
 }
 
++ (BOOL)canDecodeFromFormat:(SDImageFormat)format {
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
+    NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
+    if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
+        return YES;
+    }
+    return NO;
+}
+
 + (BOOL)canDecodeFromHEICFormat {
     static BOOL canDecode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIC];
-        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-            canDecode = YES;
-        }
+        canDecode = [self canDecodeFromFormat:SDImageFormatHEIC];
     });
     return canDecode;
 }
@@ -268,32 +261,32 @@
     static BOOL canDecode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIF];
-        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-        if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-            canDecode = YES;
-        }
+        canDecode = [self canDecodeFromFormat:SDImageFormatHEIF];
     });
     return canDecode;
+}
+
++ (BOOL)canEncodeToFormat:(SDImageFormat)format {
+    NSMutableData *imageData = [NSMutableData data];
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
+    
+    // Create an image destination.
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
+    if (!imageDestination) {
+        // Can't encode to HEIC
+        return NO;
+    } else {
+        // Can encode to HEIC
+        CFRelease(imageDestination);
+        return YES;
+    }
 }
 
 + (BOOL)canEncodeToHEICFormat {
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSMutableData *imageData = [NSMutableData data];
-        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIC];
-        
-        // Create an image destination.
-        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-        if (!imageDestination) {
-            // Can't encode to HEIC
-            canEncode = NO;
-        } else {
-            // Can encode to HEIC
-            CFRelease(imageDestination);
-            canEncode = YES;
-        }
+        canEncode = [self canEncodeToFormat:SDImageFormatHEIC];
     });
     return canEncode;
 }
@@ -302,19 +295,7 @@
     static BOOL canEncode = NO;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSMutableData *imageData = [NSMutableData data];
-        CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:SDImageFormatHEIF];
-        
-        // Create an image destination.
-        CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-        if (!imageDestination) {
-            // Can't encode to HEIF
-            canEncode = NO;
-        } else {
-            // Can encode to HEIF
-            CFRelease(imageDestination);
-            canEncode = YES;
-        }
+        canEncode = [self canEncodeToFormat:SDImageFormatHEIF];
     });
     return canEncode;
 }
