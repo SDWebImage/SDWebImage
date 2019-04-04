@@ -48,6 +48,8 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -configuration Debug -destination 'name=iPhone XS' | xcpretty -c
 
+    - echo Clean DerivedData
+    - rm -rf ~/Library/Developer/Xcode/DerivedData/
     - mkdir DerivedData
 
     - echo Run the tests
@@ -58,5 +60,5 @@ script:
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -F 'iOS'
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -F 'macOS'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -F 'macos'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -F 'ios'

@@ -3,3 +3,10 @@ coverage:
     - "Examples"
     - "Vendors"
     - "Tests"
+  status:
+    project:
+      default: off
+      ios:
+        flags: ios
+      macos:
+        flags: macos
