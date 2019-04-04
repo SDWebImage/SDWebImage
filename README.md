@@ -57,6 +57,8 @@ As such, we have moved/built new modules to [SDWebImage org](https://github.com/
 
 #### Make our lives easier
 - [libwebp-Xcode](https://github.com/SDWebImage/libwebp-Xcode) - A wrapper for [libwebp](https://chromium.googlesource.com/webm/libwebp) + an Xcode project.
+- [libheif-Xcode](https://github.com/SDWebImage/libheif-Xcode) - A wrapper for [libheif](https://github.com/strukturag/libheif) + an Xcode project.
+- and more third-party C/C++ image codec libraries with CocoaPods/Carthage support.
 
 You can use those directly, or create similar components of your own.
 
@@ -79,7 +81,7 @@ You can use those directly, or create similar components of your own.
 
 - Read this Readme doc
 - Read the [How to use section](https://github.com/SDWebImage/SDWebImage#how-to-use)
-- Read the [Documentation @ CocoaDocs](http://cocoadocs.org/docsets/SDWebImage/)
+- Read the [Latest Documentation](https://sdwebimage.github.io/) and [CocoaDocs for old version](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Read the [Installation Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide)
 - Read the [SDWebImage 5.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
