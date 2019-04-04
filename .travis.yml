@@ -60,5 +60,5 @@ script:
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -F 'macOS'
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -F 'iOS'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -F 'macos'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -F 'ios'
