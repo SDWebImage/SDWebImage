@@ -8,7 +8,6 @@
 
 #import "SDMemoryCache.h"
 #import "SDImageCacheConfig.h"
-#import "UIImage+MemoryCacheCost.h"
 #import <CoreFoundation/CoreFoundation.h>
 #import <pthread.h>
 
@@ -250,12 +249,24 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
 #endif
 }
 
 // Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
 #if SD_UIKIT
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
+    if (!self.config.shouldUseLRUMemoryCache) {
+        [_nsCache removeAllObjects];
+        return;
+    }
+    [self removeAllObjects];
+}
+
+- (void)didEnterBackground:(NSNotification *)notification {
     if (!self.config.shouldUseLRUMemoryCache) {
         [_nsCache removeAllObjects];
         return;
