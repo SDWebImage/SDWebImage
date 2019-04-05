@@ -9,10 +9,10 @@
  Info                    | Value                               |
 -------------------------|-------------------------------------|
  Platform Name           | e.g. ios / macos / tvos / watchos
- Platform Version        | e.g. 11.0 / 10.13.0 / 11.0 / 4.0
- SDWebImage Version      | e.g. 4.2.0 / 4.1.0
+ Platform Version        | e.g. 12.0 / 10.14.0 / 12.0 / 5.0
+ SDWebImage Version      | e.g. 5.0.0 / 4.4.0
  Integration Method      | e.g. carthage / cocoapods / manually
- Xcode Version           | e.g. Xcode 9 / Xcode 8
+ Xcode Version           | e.g. Xcode 10 / Xcode 9
  Repro rate              | e.g. all the time (100%) / sometimes x% / only once
  Repro with our demo prj | e.g. does it happen with our demo project?
  Demo project link       | e.g. link to a demo project that highlights the issue
