@@ -1,33 +1,26 @@
-### Installation by cloning the repository
+### Manual Installation Guide
 
-In order to gain access to all the files from the repository, you should clone it.
-```
-git clone --recursive https://github.com/SDWebImage/SDWebImage.git
-```
+#### Clone the repository:
 
-... TO BE CHECKED AND DESCRIBED IN DETAIL
+`git clone https://github.com/SDWebImage/SDWebImage.git`
 
-### Add dependencies
+#### Open the `SDWebImage.xcodeproj`, Select the framework target you need
 
-- In you application project app’s target settings, find the "Build Phases" section and open the "Link Binary With Libraries" block:
-- Click the "+" button again and select the "ImageIO.framework", this is needed by the progressive download feature:
+- `SDWebImage` for dynamic framework. You can also change the `Mach-O Type` to `Static Library` to build static framework in `Build Settings`.
+- `SDWebImage Static` for static library.
+- `SDWebImageMapKit` for MapKit sub component only.
 
-### Add Linker Flag
+#### Select platform what you need
 
-Open the "Build Settings" tab, in the "Linking" section, locate the "Other Linker Flags" setting and add the "-ObjC" flag:
+- `My Mac` for macOS platform.
+- `Generic iOS Device` for iOS platform.
+- `Generic tvOS Device` for tvOS platform.
+- `Generic watchOS Device` for watchOS platform.
 
-![Other Linker Flags](https://user-images.githubusercontent.com/6919743/30030628-be2daf6a-91c0-11e7-8b5c-e0ac92d16b80.png)
+#### Generate `SDWebImage.framework` or `libSDWebImage.a`
 
-Alternatively, if this causes compilation problems with frameworks that extend optional libraries, such as Parse,  RestKit or opencv2, instead of the -ObjC flag use:
-```
--force_load SDWebImage.framework/Versions/Current/SDWebImage
-```
+Click *Archive* button, then export it. Or you can change Build Configuration to *Release* and run project, There are a `SDWebImage.framework` or `libSDWebImage.a` in the build folder. (If you don't see it, change `Skip Install` to YES in build settings and re-try).
 
-If you're using Cocoa Pods and have any frameworks that extend optional libraries, such as Parsen RestKit or opencv2, instead of the -ObjC flag use:
-```
--force_load $(TARGET_BUILD_DIR)/libPods.a
-```
-and this:
-```
-$(inherited)
-```
+#### Apply the framwork or static library to your project
+
+Open your application project, then click `Linkced Frameworks and Libraries` to add the framwork or static library.
