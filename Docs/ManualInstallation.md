@@ -30,14 +30,17 @@ Then open the `SDWebImage.xcodeproj`.
 - `Generic iOS Device` for iOS platform.
 - `Generic tvOS Device` for tvOS platform.
 - `Generic watchOS Device` for watchOS platform.
+- Simulator Device for Simulator platform.
 
 #### Prepare for archive
 
-Don't try to click `Build` (Command + R). Because by default it will produce the `DEBUG` configuration, which it not suitable for production.
+If you want to build framework for Real Device, don't try to click `Build` (Command + R). Because by default it will use the `DEBUG` configuration, which is not suitable for production. It's mostly used for Simulator.
 
-Instead, we use `Archive`. But before we click the button. You have to change the `Skip Install` in `Build Settings`. Or the archived product will not contains any framework.
+Instead, you can use `Archive`. But before we click the button, you need some prepare in the `Build Settings`.
 
-You can do this by modify the xcconfig file `Module-Shared.xcconfig`. Or you can change it using Xcode GUI of Build Settings.
+Change the `Skip Install` to `NO`. Or the archived product will not contains any framework.
+
+You can do this by modify the xcconfig file `Module-Shared.xcconfig`. Or you can change it using Xcode GUI.
 
 ```
 SKIP_INSTALL = NO
@@ -53,15 +56,37 @@ You can find a `SDWebImage.framework`, or `libSDWebImage.a` and the Headers File
 
 ![](https://user-images.githubusercontent.com/6919743/55800822-2bd83880-5b07-11e9-8d72-0d57a848aaf4.png)
 
+##### Note for Universal (Fat) Framework
+
+If you need to build Universal Framework (for Simulator and Real Device). You need some command line to combine the framework.
+
+For example, if you already built two frameworks, `iOS/SDWebImage.framework` for iOS Real Device, `Simulator/SDWebImage.framework` for Simulator.
+
+```
+mkdir Universal/
+cp -R iOS/SDWebImage.framework Universal/SDWebImage.framework
+lipo -create Simulator/SDWebImage.framework/SDWebImage iOS/SDWebImage.framework/SDWebImage -output Universal/SDWebImage.framework/SDWebImage
+```
+
+For Static Library, just do the same thing.
+
+```
+mkdir Universal/
+lipo -create Simulator/libSDWebImage.a iOS/libSDWebImage.a -output Universal/libSDWebImage.a
+```
+
 #### Link the Framework or Static Library to your project
 
 Under your Project folder. You can create a `Vendor` folder to place the Framework or Static Library.
 
-##### For Framework
+##### For Framework (Dynamic or Static)
 
 For Framework (Dynamic or Static), the Headers are inside the framework. Just copy the `SDWebImage.framework` into the `Vendor` folder.
 
-Open your application Xcode Project, click `Linked Frameworks and Libraries`. Select `Add Other...` and select the `SDWebImage.framework`.
+If your project is App project and using Dynamic Framework. You need to click `Embedded Binaries`. Select `Add Other...` and select the `SDWebImage.framework`. Xcode automatically add it into the `Linked Frameworks and Libraries` as well.
+
+If not (Framework project or using Static Framework). Click
+click `Linked Frameworks and Libraries`. Select `Add Other...` and select the `SDWebImage.framework`.
 
 Then all things done if you use Framework.
 
@@ -85,9 +110,14 @@ $(SRCROOT)/Vendor
 
 Then all things done if you use Static Library.
 
+
+#### Reference
+
+[Technical Note TN2435 - Embedding Frameworks In An App](https://developer.apple.com/library/archive/technotes/tn2435/_index.html)
+
 ### Using SDWebImage as Sub Xcode Project
 
-You can also embed SDWebImage as a Sub Xcode Project using in your Xcode Workspace. This can be used for some specify environment which does not support external dependency manager.
+You can also embed SDWebImage as a Sub Xcode Project using in your Xcode Project/Workspace. This can be used for some specify environment which does not support external dependency manager.
 
 #### Clone the repository as submodule
 
@@ -98,15 +128,13 @@ cd Vendor/
 git submodule add https://github.com/SDWebImage/SDWebImage.git
 ```
 
-#### Ensure you have a Workspace
+#### Add `SDWebImage.xcodeproj` into your Workspace/Project
 
-If you don't have a Xcode Workspace, you can simply create one.
+Just drag the `SDWebImage.xcodeproj` you cloned, into your Xcode Workspace/Project 's Project Navigator.
 
-Open your exist Xcode Project. Click `File -> Save As Workspace...`. You can save it to the same directory of your original Project.
+For Xcode Workspace, you can put it the same level of your App Project.
 
-#### Add `SDWebImage.xcodeproj` into your Workspace
-
-Just drag the `SDWebImage.xcodeproj` you cloned, into your Xcode Workspace's Project Navigator. Put it the same level of your original Project.
+For Xcode Project, you can put it inside your App Project.
 
 ![](https://user-images.githubusercontent.com/6919743/55799669-802de900-5b04-11e9-84c0-08d4d9452549.png)
 
@@ -119,5 +147,4 @@ Go to your App/Framework target's `General` page. Then click `Lined Frameworks a
 Then all things done.
 
 ![](https://user-images.githubusercontent.com/6919743/55799628-68eefb80-5b04-11e9-8f0b-4b7818c5d1fd.png)
-
 
