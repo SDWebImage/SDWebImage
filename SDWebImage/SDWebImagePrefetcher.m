@@ -36,7 +36,7 @@
 
 @property (assign, nonatomic) BOOL hasOwnedImageManager;
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
-@property (strong, atomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
+@property (strong, nonatomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
 @property (strong, nonatomic, nonnull) NSOperationQueue *prefetchQueue;
 
 @end
