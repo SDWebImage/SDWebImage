@@ -8,6 +8,8 @@
 
 #import "SDWebImagePrefetcher.h"
 #import "SDAsyncBlockOperation.h"
+#import "SDImageCache.h"
+#import "SDWebImageDownloader.h"
 #import <stdatomic.h>
 
 @interface SDWebImagePrefetchToken () {
@@ -32,6 +34,7 @@
 
 @interface SDWebImagePrefetcher ()
 
+@property (assign, nonatomic) BOOL hasOwnedImageManager;
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
 @property (strong, atomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
 @property (strong, nonatomic, nonnull) NSOperationQueue *prefetchQueue;
@@ -49,8 +52,18 @@
     return instance;
 }
 
+- (void)dealloc {
+    if (_hasOwnedImageManager) {
+        [_manager cancelAll];
+        [(SDWebImageDownloader *)_manager.imageLoader invalidateSessionAndCancel:YES];
+    }
+}
+
 - (nonnull instancetype)init {
-    return [self initWithImageManager:[SDWebImageManager new]];
+    // Using individual WebManager and ImageDownloader to do prefetch operations.
+    SDWebImageManager *ownedImageManager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[[SDWebImageDownloader alloc] initWithConfig:nil]];
+    _hasOwnedImageManager = YES;
+    return [self initWithImageManager:ownedImageManager];
 }
 
 - (nonnull instancetype)initWithImageManager:(SDWebImageManager *)manager {
