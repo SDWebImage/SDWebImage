@@ -154,6 +154,9 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     float frameDuration = 0.1f;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
     NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
+    if (!frameProperties) {
+        return frameDuration;
+    }
     NSDictionary *pngProperties = frameProperties[(NSString *)kCGImagePropertyPNGDictionary];
     
     NSNumber *delayTimeUnclampedProp = pngProperties[(__bridge NSString *)kCGImagePropertyAPNGUnclampedDelayTime];
