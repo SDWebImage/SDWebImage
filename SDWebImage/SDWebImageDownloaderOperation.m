@@ -225,6 +225,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         // maintain the isFinished and isExecuting flags.
         if (self.isExecuting) self.executing = NO;
         if (!self.isFinished) self.finished = YES;
+    } else {
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorDownloadCancelled userInfo:nil]];
     }
 
     [self reset];
