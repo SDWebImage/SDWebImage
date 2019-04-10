@@ -128,6 +128,10 @@ cd Vendor/
 git submodule add https://github.com/SDWebImage/SDWebImage.git
 ```
 
+Note: If your project don't using Git Submodule, just copy the entire repo of SDWebImage to that Vendor folder, and you can add to your own Version Control tools.
+
+However, using Git Submodule can make it easy to upgrade framework version and reduce Git repo size.
+
 #### Add `SDWebImage.xcodeproj` into your Workspace/Project
 
 Just drag the `SDWebImage.xcodeproj` you cloned, into your Xcode Workspace/Project 's Project Navigator.
