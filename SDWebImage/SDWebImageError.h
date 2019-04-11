@@ -19,5 +19,5 @@ typedef NS_ERROR_ENUM(SDWebImageErrorDomain, SDWebImageError) {
     SDWebImageErrorCacheNotModified = 1002, // The remote location specify that the cached image is not modified, such as the HTTP response 304 code. It's useful for `SDWebImageRefreshCached`
     SDWebImageErrorInvalidDownloadOperation = 2000, // The image download operation is invalid, such as nil operation or unexpected error occur when operation initialized
     SDWebImageErrorInvalidDownloadStatusCode = 2001, // The image download response a invalid status code. You can check the status code in error's userInfo under `SDWebImageErrorDownloadStatusCodeKey`
-    SDWebImageErrorDownloadCancelled = 2002, // The image download operation is cancelled by user.
+    SDWebImageErrorDownloadCancelled = 2002, // The image download operation is cancelled by user before sending the request
 };
