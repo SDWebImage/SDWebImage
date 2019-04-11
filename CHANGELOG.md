@@ -1,3 +1,14 @@
+## [5.0 Patch, on Apr 11th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.1)
+See [all tickets marked for the 5.0.1 release](https://github.com/SDWebImage/SDWebImage/milestone/36)
+
+#### Fixes
+- Fixes crash for apng coder when properties are nil #2691
+- Fix rounded corner bug which leads to image upside down #2673
+- Fix tint image bug which leads to image upside down #2674
+
+#### Project
+- Fix the Travis-CI script about code coverage submit #2676
+
 ## [5.0.0 Major release - Customizable SDWebImage, on Apr 2nd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.0)
 See [all tickets marked for the 5.0.0 release](https://github.com/SDWebImage/SDWebImage/milestone/15)
 
