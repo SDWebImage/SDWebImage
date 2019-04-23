@@ -71,7 +71,7 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  * The maximum length of time to keep an image in the disk cache, in seconds.
  * Setting this to a negative value means no expiring.
  * Setting this to zero means that all cached files would be removed when do expiration check.
- * Defaults to 1 weak.
+ * Defaults to 1 week.
  */
 @property (assign, nonatomic) NSTimeInterval maxDiskAge;
 
