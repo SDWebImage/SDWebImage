@@ -236,6 +236,20 @@ static NSUInteger SDDeviceFreeMemory() {
         [self.layer displayIfNeeded]; // macOS's imageViewLayer may not equal to self.layer. But `[super setImage:]` will impliedly mark it needsDisplay. We call `[self.layer displayIfNeeded]` to immediately refresh the imageViewLayer to avoid flashing
 #endif
     }
+#if SD_MAC
+    else {
+        // Set wantLayer to YES turns NSView into a layer-backed view
+        // super setIamge won't show the image, so need set image as layer's contents
+        // check https://developer.apple.com/documentation/appkit/nsview/1483695-wantslayer?language=objc
+        CGFloat desiredScaleFactor = [self.window backingScaleFactor];
+        CGFloat actualScaleFactor = [image recommendedLayerContentsScale:desiredScaleFactor];
+        
+        id layerContents = [image layerContentsForContentsScale:actualScaleFactor];
+        
+        [self.layer setContents:layerContents];
+        [self.layer setContentsScale:actualScaleFactor];
+    }
+#endif
 }
 
 #if SD_UIKIT
