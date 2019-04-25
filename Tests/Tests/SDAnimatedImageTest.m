@@ -137,6 +137,18 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(imageView.intrinsicContentSize).equal(image.size);
 }
 
+- (void)test12AnimatedImageViewLayerContents {
+    // Test that SDAnimatedImageView with built-in UIImage/NSImage will actually setup the layer for display
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.image = image;
+#if SD_MAC
+    expect(imageView.wantsUpdateLayer).beTruthy();
+#else
+    expect(imageView.layer.contents).notTo.beNil();
+#endif
+}
+
 - (void)test20AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
