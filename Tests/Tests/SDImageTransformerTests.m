@@ -208,18 +208,65 @@
     expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"ftp://root:password@foo.com/image-SDImageFlippingTransformer(1,0).png");
 }
 
+- (void)test20CGImageCreateDecodedWithOrientation {
+    // Test EXIF orientation tag, you can open this image with `Preview.app`, open inspector (Command+I) and rotate (Command+L/R) to check
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestEXIF"]];
+    CGImageRef originalCGImage = image.CGImage;
+    expect(image).notTo.beNil();
+    
+    CGImageRef upCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUp];
+    UIImage *upImage = [[UIImage alloc] initWithCGImage:upCGImage];
+    expect([[upImage sd_colorAtPoint:CGPointMake(60, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(upCGImage);
+    
+    CGImageRef upMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUpMirrored];
+    UIImage *upMirroredImage = [[UIImage alloc] initWithCGImage:upMirroredCGImage];
+    expect([[upMirroredImage sd_colorAtPoint:CGPointMake(130, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(upMirroredCGImage);
+    
+    CGImageRef downCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDown];
+    UIImage *downImage = [[UIImage alloc] initWithCGImage:downCGImage];
+    expect([[downImage sd_colorAtPoint:CGPointMake(130, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(downCGImage);
+    
+    CGImageRef downMirrorerdCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDownMirrored];
+    UIImage *downMirroredImage = [[UIImage alloc] initWithCGImage:downMirrorerdCGImage];
+    expect([[downMirroredImage sd_colorAtPoint:CGPointMake(60, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(downMirrorerdCGImage);
+    
+    CGImageRef leftMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeftMirrored];
+    UIImage *leftMirroredImage = [[UIImage alloc] initWithCGImage:leftMirroredCGImage];
+    expect([[leftMirroredImage sd_colorAtPoint:CGPointMake(160, 60)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(leftMirroredCGImage);
+    
+    CGImageRef rightCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRight];
+    UIImage *rightImage = [[UIImage alloc] initWithCGImage:rightCGImage];
+    expect([[rightImage sd_colorAtPoint:CGPointMake(30, 60)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(rightCGImage);
+    
+    CGImageRef rightMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRightMirrored];
+    UIImage *rightMirroredImage = [[UIImage alloc] initWithCGImage:rightMirroredCGImage];
+    expect([[rightMirroredImage sd_colorAtPoint:CGPointMake(30, 130)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(rightMirroredCGImage);
+    
+    CGImageRef leftCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeft];
+    UIImage *leftImage = [[UIImage alloc] initWithCGImage:leftCGImage];
+    expect([[leftImage sd_colorAtPoint:CGPointMake(160, 130)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    CGImageRelease(leftCGImage);
+}
+
 #pragma mark - Helper
 
 - (UIImage *)testImage {
     if (!_testImage) {
-        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPath]];
+        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestImage"]];
     }
     return _testImage;
 }
 
-- (NSString *)testPNGPath {
+- (NSString *)testPNGPathForName:(NSString *)name {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    return [testBundle pathForResource:@"TestImage" ofType:@"png"];
+    return [testBundle pathForResource:name ofType:@"png"];
 }
 
 @end
