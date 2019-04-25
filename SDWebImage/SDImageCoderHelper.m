@@ -239,36 +239,40 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     size_t width = CGImageGetWidth(cgImage);
     size_t height = CGImageGetHeight(cgImage);
     if (width == 0 || height == 0) return NULL;
-    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
-    // Though you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
-    // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
-    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
-    if (!context) {
-        return NULL;
-    }
-    
-    // Apply transform
-    CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(width, height));
-    CGRect rect;
+    size_t newWidth;
+    size_t newHeight;
     switch (orientation) {
         case kCGImagePropertyOrientationLeft:
         case kCGImagePropertyOrientationLeftMirrored:
         case kCGImagePropertyOrientationRight:
         case kCGImagePropertyOrientationRightMirrored: {
             // These orientation should swap width & height
-            rect = CGRectMake(0, 0, height, width);
+            newWidth = height;
+            newHeight = width;
         }
             break;
         default: {
-            rect = CGRectMake(0, 0, width, height);
+            newWidth = width;
+            newHeight = height;
         }
             break;
     }
+    
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
+    // Though you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
+    // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+    CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
+    if (!context) {
+        return NULL;
+    }
+    
+    // Apply transform
+    CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(newWidth, newHeight));
     CGContextConcatCTM(context, transform);
-    CGContextDrawImage(context, rect, cgImage);
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage); // The rect is bounding box of CGImage, don't swap width & height
     CGImageRef newImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     

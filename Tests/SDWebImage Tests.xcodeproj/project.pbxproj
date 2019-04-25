@@ -14,6 +14,8 @@
 		3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
+		324047442271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
+		324047452271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
 		3254C32020641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
 		3254C32120641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
 		3264FF2F205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
@@ -79,6 +81,7 @@
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
 		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
 		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
+		324047432271956F007C53E1 /* TestEXIF.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestEXIF.png; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
 		3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestTransformer.m; sourceTree = "<group>"; };
@@ -170,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
+				324047432271956F007C53E1 /* TestEXIF.png */,
 				433BBBB61D7EF8200086B6E9 /* TestImage.gif */,
 				5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */,
 				43828A441DA67F9900000E62 /* TestImageLarge.jpg */,
@@ -352,6 +356,7 @@
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				328BAF2C2240C08E00FC70DD /* Test-Release.xcconfig in Resources */,
+				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
 				328BAF2E2240C08E00FC70DD /* Test-Debug.xcconfig in Resources */,
 				32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */,
 				32B99EA6203B31360017FD66 /* TestImage.png in Resources */,
@@ -379,6 +384,7 @@
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				327054E2206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */,
+				324047442271956F007C53E1 /* TestEXIF.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
