@@ -214,44 +214,53 @@
     CGImageRef originalCGImage = image.CGImage;
     expect(image).notTo.beNil();
     
+    // Check the longest side of "F"
     CGImageRef upCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUp];
     UIImage *upImage = [[UIImage alloc] initWithCGImage:upCGImage];
-    expect([[upImage sd_colorAtPoint:CGPointMake(60, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[upImage sd_colorAtPoint:CGPointMake(40, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(upImage.size).equal(CGSizeMake(150, 200));
     CGImageRelease(upCGImage);
     
     CGImageRef upMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUpMirrored];
     UIImage *upMirroredImage = [[UIImage alloc] initWithCGImage:upMirroredCGImage];
-    expect([[upMirroredImage sd_colorAtPoint:CGPointMake(130, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[upMirroredImage sd_colorAtPoint:CGPointMake(110, 160)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(upMirroredImage.size).equal(CGSizeMake(150, 200));
     CGImageRelease(upMirroredCGImage);
     
     CGImageRef downCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDown];
     UIImage *downImage = [[UIImage alloc] initWithCGImage:downCGImage];
-    expect([[downImage sd_colorAtPoint:CGPointMake(130, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[downImage sd_colorAtPoint:CGPointMake(110, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(downImage.size).equal(CGSizeMake(150, 200));
     CGImageRelease(downCGImage);
     
     CGImageRef downMirrorerdCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDownMirrored];
     UIImage *downMirroredImage = [[UIImage alloc] initWithCGImage:downMirrorerdCGImage];
-    expect([[downMirroredImage sd_colorAtPoint:CGPointMake(60, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[downMirroredImage sd_colorAtPoint:CGPointMake(40, 30)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(downMirroredImage.size).equal(CGSizeMake(150, 200));
     CGImageRelease(downMirrorerdCGImage);
     
     CGImageRef leftMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeftMirrored];
     UIImage *leftMirroredImage = [[UIImage alloc] initWithCGImage:leftMirroredCGImage];
-    expect([[leftMirroredImage sd_colorAtPoint:CGPointMake(160, 60)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[leftMirroredImage sd_colorAtPoint:CGPointMake(160, 40)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(leftMirroredImage.size).equal(CGSizeMake(200, 150));
     CGImageRelease(leftMirroredCGImage);
     
     CGImageRef rightCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRight];
     UIImage *rightImage = [[UIImage alloc] initWithCGImage:rightCGImage];
-    expect([[rightImage sd_colorAtPoint:CGPointMake(30, 60)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[rightImage sd_colorAtPoint:CGPointMake(30, 40)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(rightImage.size).equal(CGSizeMake(200, 150));
     CGImageRelease(rightCGImage);
     
     CGImageRef rightMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRightMirrored];
     UIImage *rightMirroredImage = [[UIImage alloc] initWithCGImage:rightMirroredCGImage];
-    expect([[rightMirroredImage sd_colorAtPoint:CGPointMake(30, 130)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[rightMirroredImage sd_colorAtPoint:CGPointMake(30, 110)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(rightMirroredImage.size).equal(CGSizeMake(200, 150));
     CGImageRelease(rightMirroredCGImage);
     
     CGImageRef leftCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeft];
     UIImage *leftImage = [[UIImage alloc] initWithCGImage:leftCGImage];
-    expect([[leftImage sd_colorAtPoint:CGPointMake(160, 130)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect([[leftImage sd_colorAtPoint:CGPointMake(160, 110)].sd_hexString isEqualToString:UIColor.blackColor.sd_hexString]).beTruthy();
+    expect(leftImage.size).equal(CGSizeMake(200, 150));
     CGImageRelease(leftCGImage);
 }
 
