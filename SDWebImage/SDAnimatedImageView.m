@@ -678,6 +678,17 @@ static NSUInteger SDDeviceFreeMemory() {
         [super updateLayer];
     }
 }
+
+- (BOOL)wantsUpdateLayer {
+    // AppKit is different from UIKit, it need extra check before the layer is updated
+    // When we use the custom animation, the layer.setNeedsDisplay is directly called from display link (See `displayDidRefresh:`). However, for normal image rendering, we must implements and return YES to mark it need display
+    if (_currentFrame) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
 #endif
 
 
