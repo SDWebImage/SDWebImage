@@ -1,3 +1,14 @@
+## [5.0 Patch, on Apr 25th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.2)
+See [all tickets marked for the 5.0.2 release](https://github.com/SDWebImage/SDWebImage/milestone/37)
+
+#### Fixes
+- Fix the bug of SDAnimatedImageView on macOS, which can only render `SDAnimatedImage` but not normal NSImage (including animated image) #2706
+- Fix that `CGImageCreateDecoded:orientation:` use the wrong aspect ratio when orientation is left/leftMirrored/right/rightMirrored #2708
+- Fix one bug of sd_colorAtPoint:, which set the alpha value default to 255 and should be 1. #2708
+
+#### Documentation
+- Fixes typo in SDImageCacheConfig maxDiskAge info #2699
+
 ## [5.0 Patch, on Apr 11th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.1)
 See [all tickets marked for the 5.0.1 release](https://github.com/SDWebImage/SDWebImage/milestone/36)
 
