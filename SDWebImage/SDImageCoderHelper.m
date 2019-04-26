@@ -104,10 +104,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return nil;
     }
     CFRelease(imageDestination);
-    CGFloat scale = frames.firstObject.image.scale;
-    if (scale < 1) {
-        scale = 1;
-    }
+    CGFloat scale = MAX(frames.firstObject.image.scale, 1);
+    
     SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:imageData];
     NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
     imageRep.size = size;

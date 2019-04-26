@@ -146,17 +146,14 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     if (!animatedCoder) {
         return nil;
     }
-    if (scale <= 0) {
-        scale = 1;
-    }
     UIImage *image = [animatedCoder animatedImageFrameAtIndex:0];
     if (!image) {
         return nil;
     }
 #if SD_MAC
-    self = [super initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
+    self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:kCGImagePropertyOrientationUp];
 #else
-    self = [super initWithCGImage:image.CGImage scale:scale orientation:image.imageOrientation];
+    self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:image.imageOrientation];
 #endif
     if (self) {
         _coder = animatedCoder;
