@@ -23,10 +23,7 @@
     if (!data) {
         return nil;
     }
-    if (scale < 1) {
-        scale = 1;
-    }
-    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(scale), SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
+    SDImageCoderOptions *options = @{SDImageCoderDecodeScaleFactor : @(MAX(scale, 1)), SDImageCoderDecodeFirstFrameOnly : @(firstFrameOnly)};
     return [[SDImageCodersManager sharedManager] decodedImageWithData:data options:options];
 }
 
