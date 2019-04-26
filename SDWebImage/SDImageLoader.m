@@ -31,7 +31,7 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
-    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(MAX(scale, 1))};
+    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
     if (context) {
         SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
         [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
@@ -90,7 +90,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     BOOL decodeFirstFrame = options & SDWebImageDecodeFirstFrameOnly;
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
-    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(MAX(scale, 1))};
+    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
     if (context) {
         SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
         [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
