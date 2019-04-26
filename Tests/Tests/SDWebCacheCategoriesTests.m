@@ -31,6 +31,7 @@
                             expect(imageView.image).to.equal(image);
                             [expectation fulfill];
                         }];
+    expect(imageView.sd_imageURL).equal(originalImageURL);
     [self waitForExpectationsWithCommonTimeout];
 }
 
@@ -187,6 +188,16 @@
                                [expectation fulfill];
                            }];
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)testUIViewCancelCurrentImageLoad {
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
+    [imageView sd_cancelCurrentImageLoad];
+    NSString *operationKey = NSStringFromClass(UIView.class);
+    expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
+    [imageView sd_cancelImageLoadOperationWithKey:operationKey];
 }
 
 - (void)testUIViewImageProgressKVOWork {

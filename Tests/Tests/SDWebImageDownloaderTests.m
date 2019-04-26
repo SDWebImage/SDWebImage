@@ -443,6 +443,10 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    expect([loader canRequestImageForURL:imageURL]).beTruthy();
+    NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    expect([loader shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
+    
     [loader requestImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
@@ -456,7 +460,15 @@
 
 - (void)test31ThatLoadersManagerWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
+    SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
+    [[SDImageLoadersManager sharedManager] addLoader:loader];
+    [[SDImageLoadersManager sharedManager] removeLoader:loader];
+    [SDImageLoadersManager sharedManager].loaders = @[SDWebImageDownloader.sharedDownloader, loader];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    expect([[SDImageLoadersManager sharedManager] canRequestImageForURL:imageURL]).beTruthy();
+    NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    expect([loader shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
+    
     [[SDImageLoadersManager sharedManager] requestImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {

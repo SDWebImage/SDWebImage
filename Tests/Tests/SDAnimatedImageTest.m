@@ -64,6 +64,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test04AnimatedImageImageNamed {
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    expect([SDAnimatedImage imageNamed:@"TestImage.gif"]).beNil(); // Not in main bundle
 #if SD_UIKIT
     SDAnimatedImage *image = [SDAnimatedImage imageNamed:@"TestImage.gif" inBundle:bundle compatibleWithTraitCollection:nil];
 #else
@@ -86,6 +87,9 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     // Test one frame
     UIImage *frame = [image animatedImageFrameAtIndex:0];
     expect(frame).notTo.beNil();
+    
+    // Unload all frames
+    [image unloadAllFrames];
 }
 
 - (void)test06AnimatedImageViewSetImage {
@@ -117,7 +121,9 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(image1).notTo.beNil();
     NSData *encodedData = [NSKeyedArchiver archivedDataWithRootObject:image1];
     expect(encodedData).notTo.beNil();
-    SDAnimatedImage *image2 = [NSKeyedUnarchiver unarchiveObjectWithData:encodedData];
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
+    unarchiver.requiresSecureCoding = YES;
+    SDAnimatedImage *image2 = [unarchiver decodeObjectOfClass:SDAnimatedImage.class forKey:NSKeyedArchiveRootObjectKey];
     expect(image2).notTo.beNil();
     
     // Check each property

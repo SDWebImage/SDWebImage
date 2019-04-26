@@ -17,6 +17,7 @@
 
 - (void)test01ThatDecodedImageWithNilImageReturnsNil {
     expect([UIImage sd_decodedImageWithImage:nil]).to.beNil();
+    expect([UIImage sd_decodedAndScaledDownImageWithImage:nil]).to.beNil();
 }
 
 #if SD_UIKIT
@@ -118,6 +119,14 @@
          supportsEncoding:NO
           isAnimatedImage:NO];
     }
+}
+
+- (void)test15ThatCodersManagerWorks {
+    SDImageCodersManager.sharedManager.coders = @[SDImageIOCoder.sharedCoder];
+    expect([SDImageCodersManager.sharedManager canDecodeFromData:nil]).beTruthy(); // Image/IO will return YES for future format
+    expect([SDImageCodersManager.sharedManager decodedImageWithData:nil options:nil]).beNil();
+    expect([SDImageCodersManager.sharedManager canEncodeToFormat:SDImageFormatWebP]).beFalsy();
+    expect([SDImageCodersManager.sharedManager encodedDataWithImage:nil format:SDImageFormatUndefined options:nil]).beNil();
 }
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

@@ -186,6 +186,18 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test13DeleteOldFiles {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"deleteOldFiles"];
+    [SDImageCache sharedImageCache].config.maxDiskAge = 1; // 1 second to mark all as out-dated
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [[SDImageCache sharedImageCache] deleteOldFilesWithCompletionBlock:^{
+            expect(SDImageCache.sharedImageCache.totalDiskCount).equal(0);
+            [expectation fulfill];
+        }];
+    });
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test20InitialCacheSize{
     expect([[SDImageCache sharedImageCache] totalDiskSize]).to.equal(0);
 }
@@ -380,6 +392,68 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     BOOL exist = [fileManager fileExistsAtPath:[newDefaultPath stringByAppendingPathComponent:@"a.png"]];
     expect(exist).beTruthy();
 }
+
+- (void)test45DiskCacheRemoveExpiredData {
+    NSString *cachePath = [[self userCacheDirectory] stringByAppendingPathComponent:@"disk"];
+    SDImageCacheConfig *config = SDImageCacheConfig.defaultCacheConfig;
+    config.maxDiskAge = 1; // 1 second
+    config.maxDiskSize = 10; // 10 KB
+    SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:cachePath config:config];
+    [diskCache removeAllData];
+    expect(diskCache.totalSize).equal(0);
+    expect(diskCache.totalCount).equal(0);
+    // 20KB -> maxDiskSize
+    NSUInteger length = 20;
+    void *bytes = malloc(length);
+    NSData *data = [NSData dataWithBytes:bytes length:length];
+    free(bytes);
+    [diskCache setData:data forKey:@"20KB"];
+    expect(diskCache.totalSize).equal(length);
+    expect(diskCache.totalCount).equal(1);
+    [diskCache removeExpiredData];
+    expect(diskCache.totalSize).equal(0);
+    expect(diskCache.totalCount).equal(0);
+    // 1KB with 5s -> maxDiskAge
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDDiskCache removeExpireData timeout"];
+    length = 1;
+    bytes = malloc(length);
+    data = [NSData dataWithBytes:bytes length:length];
+    free(bytes);
+    [diskCache setData:data forKey:@"1KB"];
+    expect(diskCache.totalSize).equal(length);
+    expect(diskCache.totalCount).equal(1);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [diskCache removeExpiredData];
+        expect(diskCache.totalSize).equal(0);
+        expect(diskCache.totalCount).equal(0);
+        [expectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+#if SD_UIKIT
+- (void)test46MemoryCacheWeakCache {
+    SDMemoryCache *memoryCache = [[SDMemoryCache alloc] init];
+    memoryCache.config.shouldUseWeakMemoryCache = NO;
+    memoryCache.config.maxMemoryCost = 10;
+    memoryCache.config.maxMemoryCount = 5;
+    expect(memoryCache.countLimit).equal(5);
+    expect(memoryCache.totalCostLimit).equal(10);
+    // Don't use weak cache
+    NSObject *object = [NSObject new];
+    [memoryCache setObject:object forKey:@"1"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    NSObject *cachedObject = [memoryCache objectForKey:@"1"];
+    expect(cachedObject).beNil();
+    // Use weak cache
+    memoryCache.config.shouldUseWeakMemoryCache = YES;
+    object = [NSObject new];
+    [memoryCache setObject:object forKey:@"1"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    cachedObject = [memoryCache objectForKey:@"1"];
+    expect(object).equal(cachedObject);
+}
+#endif
 
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test50SDImageCacheQueryOp {
