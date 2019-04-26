@@ -133,6 +133,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
             XCTFail(@"Image should not be in cache");
         }
     }];
+    [[SDImageCache sharedImageCache] storeImageToMemory:image forKey:kTestImageKeyJPEG];
     [[SDImageCache sharedImageCache] clearMemory];
     expect([[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG]).to.beNil();
     [self waitForExpectationsWithCommonTimeout];
@@ -269,6 +270,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     NSData *imageData = [image sd_imageDataAsFormat:SDImageFormatJPEG];
     [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kTestImageKeyJPEG];
     
+    expect([[SDImageCache sharedImageCache] diskImageDataExistsWithKey:kTestImageKeyJPEG]).beTruthy();
     UIImage *storedImageFromMemory = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG];
     expect(storedImageFromMemory).to.equal(nil);
     

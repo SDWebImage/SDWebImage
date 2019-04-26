@@ -122,11 +122,12 @@
 }
 
 - (void)test15ThatCodersManagerWorks {
-    SDImageCodersManager.sharedManager.coders = @[SDImageIOCoder.sharedCoder];
-    expect([SDImageCodersManager.sharedManager canDecodeFromData:nil]).beTruthy(); // Image/IO will return YES for future format
-    expect([SDImageCodersManager.sharedManager decodedImageWithData:nil options:nil]).beNil();
-    expect([SDImageCodersManager.sharedManager canEncodeToFormat:SDImageFormatWebP]).beFalsy();
-    expect([SDImageCodersManager.sharedManager encodedDataWithImage:nil format:SDImageFormatUndefined options:nil]).beNil();
+    SDImageCodersManager *manager = [[SDImageCodersManager alloc] init];
+    manager.coders = @[SDImageIOCoder.sharedCoder];
+    expect([manager canDecodeFromData:nil]).beTruthy(); // Image/IO will return YES for future format
+    expect([manager decodedImageWithData:nil options:nil]).beNil();
+    expect([manager canEncodeToFormat:SDImageFormatWebP]).beFalsy();
+    expect([manager encodedDataWithImage:nil format:SDImageFormatUndefined options:nil]).beNil();
 }
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

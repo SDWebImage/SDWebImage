@@ -8,14 +8,8 @@
  */
 
 #import "SDTestCase.h"
+#import "UIColor+HexString.h"
 #import <CoreImage/CoreImage.h>
-
-// Internal header
-@interface UIColor (HexString)
-
-@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
-
-@end
 
 @interface SDImageTransformerTests : SDTestCase
 
