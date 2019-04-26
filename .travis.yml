@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode10
+osx_image: xcode10.1
 
 env:
   global:
@@ -60,5 +60,5 @@ script:
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -F 'macos'
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -F 'ios'
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
