@@ -39,14 +39,14 @@ inline CGFloat SDImageScaleFactorForKey(NSString * _Nullable key) {
                 NSString *fileScale = [NSString stringWithFormat:@"@%@x.", scaleFactor];
                 if ([key containsString:fileScale]) {
                     scale = scaleFactor.doubleValue;
-                    return MAX(scale, 1);
+                    return scale;
                 }
                 if (isURL) {
                     // %402x. for url encode
                     NSString *urlScale = [NSString stringWithFormat:@"%%40%@x.", scaleFactor];
                     if ([key containsString:urlScale]) {
                         scale = scaleFactor.doubleValue;
-                        return MAX(scale, 1);
+                        return scale;
                     }
                 }
             }
