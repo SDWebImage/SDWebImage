@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode10
+osx_image: xcode10.1
 
 env:
   global:
@@ -10,13 +10,20 @@ env:
 notifications:
   email: false
 
+addons:
+  homebrew:
+    packages:
+    - curl # Fix the codecov upload issue
+
+cache: cocoapods
+podfile: Examples/Podfile
+
 before_install:
     - env
     - locale
     - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - pod --version
-    - pod setup --silent > /dev/null
     - pod repo update --silent
     - xcpretty --version
     - xcodebuild -version
@@ -26,20 +33,20 @@ script:
     - set -o pipefail
 
     - echo Check if the library described by the podspec can be built
-    - pod lib lint --allow-warnings
+    - pod lib lint --allow-warnings --skip-tests # Will run test below
 
     - echo Build as static library
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Build as dynamic frameworks
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk watchsimulator -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild build clean -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk macosx -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk appletvsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk watchsimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk macosx -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImageMapKit' -sdk appletvsimulator -configuration Debug | xcpretty -c
 
     - echo Build the Demo apps
     - pod install --project-directory=Examples
@@ -60,5 +67,7 @@ script:
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -F 'macos'
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -F 'ios'
+    - export PATH="/usr/local/opt/curl/bin:$PATH"
+    - curl --version
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
