@@ -10,6 +10,11 @@ env:
 notifications:
   email: false
 
+addons:
+  homebrew:
+    packages:
+    - curl # Fix the codecov upload issue
+
 before_install:
     - env
     - locale
@@ -60,5 +65,7 @@ script:
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
 
 after_success:
+    - export PATH="/usr/local/opt/curl/bin:$PATH"
+    - curl --version
     - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos -v
     - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios -v
