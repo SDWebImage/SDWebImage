@@ -21,6 +21,7 @@ podfile: Examples/Podfile
 before_install:
     - env
     - locale
+    - gem install cocoapods --no-rdoc --no-ri --no-document --quiet
     - gem install xcpretty --no-rdoc --no-ri --no-document --quiet
     - pod --version
     - pod repo update --silent
@@ -32,7 +33,7 @@ script:
     - set -o pipefail
 
     - echo Check if the library described by the podspec can be built
-    - pod lib lint --allow-warnings
+    - pod lib lint --allow-warnings --skip-tests # Will run test below
 
     - echo Build as static library
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
