@@ -69,5 +69,5 @@ script:
 after_success:
     - export PATH="/usr/local/opt/curl/bin:$PATH"
     - curl --version
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos -v
-    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios -v
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
