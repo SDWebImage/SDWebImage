@@ -26,6 +26,7 @@
     // Test invalid format
     CFStringRef type = [NSData sd_UTTypeFromImageFormat:SDImageFormatUndefined];
     expect(CFStringCompare(kUTTypePNG, type, 0)).equal(kCFCompareEqualTo);
+    expect([NSData sd_imageFormatFromUTType:kUTTypeImage]).equal(SDImageFormatUndefined);
 }
 
 - (void)test02UIImageMultiFormatCategory {
@@ -39,6 +40,8 @@
     // Test image encode PNG
     data = [image sd_imageDataAsFormat:SDImageFormatPNG];
     expect(data).notTo.beNil();
+    // Test image decode PNG
+    expect([UIImage sd_imageWithData:data scale:1 firstFrameOnly:YES]).notTo.beNil();
     // Test image encode JPEG with compressionQuality
     NSData *jpegData1 = [image sd_imageDataAsFormat:SDImageFormatJPEG compressionQuality:1];
     NSData *jpegData2 = [image sd_imageDataAsFormat:SDImageFormatJPEG compressionQuality:0.5];

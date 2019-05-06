@@ -179,6 +179,24 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test11ThatCancelAllDownloadWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"CancelAllDownloads"];
+    
+    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL completed:nil];
+    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
+    
+    [[SDWebImageDownloader sharedDownloader] cancelAllDownloads];
+    
+    // doesn't cancel immediately - since it uses dispatch async
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
+        expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(0);
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test12ThatWeCanUseAnotherSessionForEachDownloadOperation {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Owned session"];
     NSURL *url = [NSURL URLWithString:kTestJPEGURL];
@@ -443,6 +461,10 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    expect([loader canRequestImageForURL:imageURL]).beTruthy();
+    NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    expect([loader shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
+    
     [loader requestImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
@@ -456,8 +478,17 @@
 
 - (void)test31ThatLoadersManagerWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
+    SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
+    SDImageLoadersManager *manager = [[SDImageLoadersManager alloc] init];
+    [manager addLoader:loader];
+    [manager removeLoader:loader];
+    manager.loaders = @[SDWebImageDownloader.sharedDownloader, loader];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
-    [[SDImageLoadersManager sharedManager] requestImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+    expect([manager canRequestImageForURL:imageURL]).beTruthy();
+    NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    expect([manager shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
+    
+    [manager requestImageWithURL:imageURL options:0 context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         expect(targetURL).notTo.beNil();
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         expect(error).to.beNil();
