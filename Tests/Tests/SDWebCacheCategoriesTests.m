@@ -197,7 +197,6 @@
     [imageView sd_cancelCurrentImageLoad];
     NSString *operationKey = NSStringFromClass(UIView.class);
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
-    [imageView sd_cancelImageLoadOperationWithKey:operationKey];
 }
 
 - (void)testUIViewImageProgressKVOWork {
