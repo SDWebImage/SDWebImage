@@ -259,6 +259,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
         expect(error).to.beNil();
         expect(image).notTo.beNil();
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
+        expect(cacheType).equal(SDImageCacheTypeNone);
         [expectation fulfill];
     }];
     [self waitForExpectationsWithCommonTimeout];
@@ -272,6 +273,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [imageView sd_setImageWithURL:testURL placeholderImage:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
+        expect(cacheType).equal(SDImageCacheTypeDisk);
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
         [expectation fulfill];
     }];
