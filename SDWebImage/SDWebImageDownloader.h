@@ -14,6 +14,7 @@
 #import "SDWebImageDownloaderRequestModifier.h"
 #import "SDImageLoader.h"
 
+/// Downloader options
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Put the download in the low queue priority and task priority.
