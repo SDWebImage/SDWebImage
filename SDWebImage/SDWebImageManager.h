@@ -44,7 +44,7 @@ typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nu
 @class SDWebImageManager;
 
 /**
- The manager delegate protocol
+ The manager delegate protocol.
  */
 @protocol SDWebImageManagerDelegate <NSObject>
 

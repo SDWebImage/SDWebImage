@@ -11,7 +11,7 @@
 
 /**
  This class is used for creating animated images via `animatedImageWithFrames` in `SDImageCoderHelper`.
- @note Attention if you need to specify animated images loop count, use `sd_imageLoopCount` property in `UIImage+Metadata.h`.
+ @note If you need to specify animated images loop count, use `sd_imageLoopCount` property in `UIImage+Metadata.h`.
  */
 @interface SDImageFrame : NSObject
 

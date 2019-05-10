@@ -11,8 +11,8 @@
 #if SD_UIKIT || SD_MAC
 
 /**
- A protocol to custom the indicator during the image loading
- All of these methods are called from main queue
+ A protocol to custom the indicator during the image loading.
+ All of these methods are called from main queue.
  */
 @protocol SDWebImageIndicator <NSObject>
 
@@ -23,10 +23,12 @@
  @return The indicator view
  */
 @property (nonatomic, strong, readonly, nonnull) UIView *indicatorView;
+
 /**
  Start the animating for indicator.
  */
 - (void)startAnimatingIndicator;
+
 /**
  Stop the animating for indicator.
  */
@@ -45,9 +47,9 @@
 #pragma mark - Activity Indicator
 
 /**
- Activity indicator class
- for UIKit(macOS), it use a `UIActivityIndicatorView`
- for AppKit(macOS), it use a `NSProgressIndicator` with the spinning style
+ Activity indicator class.
+ for UIKit(macOS), it use a `UIActivityIndicatorView`.
+ for AppKit(macOS), it use a `NSProgressIndicator` with the spinning style.
  */
 @interface SDWebImageActivityIndicator : NSObject <SDWebImageIndicator>
 
@@ -78,9 +80,9 @@
 #pragma mark - Progress Indicator
 
 /**
- Progress indicator class
- for UIKit(macOS), it use a `UIProgressView`
- for AppKit(macOS), it use a `NSProgressIndicator` with the bar style
+ Progress indicator class.
+ for UIKit(macOS), it use a `UIProgressView`.
+ for AppKit(macOS), it use a `NSProgressIndicator` with the bar style.
  */
 @interface SDWebImageProgressIndicator : NSObject <SDWebImageIndicator>
 

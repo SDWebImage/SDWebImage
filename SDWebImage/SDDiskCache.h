@@ -100,7 +100,7 @@
 @end
 
 /**
- The built-in disk cache
+ The built-in disk cache.
  */
 @interface SDDiskCache : NSObject <SDDiskCache>
 /**

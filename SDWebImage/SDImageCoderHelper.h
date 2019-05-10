@@ -11,7 +11,7 @@
 #import "SDImageFrame.h"
 
 /**
- Provide some common helper methods for building the image decoder/encoder
+ Provide some common helper methods for building the image decoder/encoder.
  */
 @interface SDImageCoderHelper : NSObject
 

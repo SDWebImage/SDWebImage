@@ -78,18 +78,21 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  half the width or height.
  */
 @property (nonatomic, assign, readonly) CGFloat cornerRadius;
+
 /**
  A bitmask value that identifies the corners that you want
  rounded. You can use this parameter to round only a subset
  of the corners of the rectangle.
  */
 @property (nonatomic, assign, readonly) SDRectCorner corners;
+
 /**
  The inset border line width. Values larger than half the rectangle's
  width or height are clamped appropriately to half the width
  or height.
  */
 @property (nonatomic, assign, readonly) CGFloat borderWidth;
+
 /**
  The border stroke color. nil means clear color.
  */
@@ -109,6 +112,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  The new size to be resized, values should be positive.
  */
 @property (nonatomic, assign, readonly) CGSize size;
+
 /**
  The scale mode for image content.
  */
@@ -143,6 +147,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  YES to flip the image horizontally. ⇋
  */
 @property (nonatomic, assign, readonly) BOOL horizontal;
+
 /**
  YES to flip the image vertically. ⥯
  */
@@ -162,6 +167,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  Rotated radians in counterclockwise.⟲
  */
 @property (nonatomic, assign, readonly) CGFloat angle;
+
 /**
  YES: new image's size is extend to fit all content.
  NO: image's size will not change, content may be clipped.

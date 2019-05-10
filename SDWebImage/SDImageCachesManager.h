@@ -18,7 +18,7 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
 };
 
 /**
- A caches manager to manage multiple caches
+ A caches manager to manage multiple caches.
  */
 @interface SDImageCachesManager : NSObject <SDImageCache>
 

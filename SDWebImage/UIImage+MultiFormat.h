@@ -10,7 +10,7 @@
 #import "NSData+ImageContentType.h"
 
 /**
- UIImage category for convenient image format decoding/encoding
+ UIImage category for convenient image format decoding/encoding.
  */
 @interface UIImage (MultiFormat)
 #pragma mark - Decode
