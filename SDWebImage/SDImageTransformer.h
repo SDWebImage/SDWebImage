@@ -47,10 +47,15 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 #pragma mark - Pipeline
 
-// Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
-// Because transformers are lightweight, if you want to append or arrange transfomers, create another pipeline transformer instead. This class is considered as immutable.
+/**
+ Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
+ @note Because transformers are lightweight, if you want to append or arrange transfomers, create another pipeline transformer instead. This class is considered as immutable.
+ */
 @interface SDImagePipelineTransformer : NSObject <SDImageTransformer>
 
+/**
+ All transformers in pipeline
+ */
 @property (nonatomic, copy, readonly, nonnull) NSArray<id<SDImageTransformer>> *transformers;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -62,12 +67,35 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 // Because transformers are lightweight, these class are considered as immutable.
 #pragma mark - Image Geometry
 
-// Image round corner transformer
+/**
+ Image round corner transformer
+ */
 @interface SDImageRoundCornerTransformer: NSObject <SDImageTransformer>
 
+/**
+ The radius of each corner oval. Values larger than half the
+ rectangle's width or height are clamped appropriately to
+ half the width or height.
+ */
 @property (nonatomic, assign, readonly) CGFloat cornerRadius;
+
+/**
+ A bitmask value that identifies the corners that you want
+ rounded. You can use this parameter to round only a subset
+ of the corners of the rectangle.
+ */
 @property (nonatomic, assign, readonly) SDRectCorner corners;
+
+/**
+ The inset border line width. Values larger than half the rectangle's
+ width or height are clamped appropriately to half the width
+ or height.
+ */
 @property (nonatomic, assign, readonly) CGFloat borderWidth;
+
+/**
+ The border stroke color. nil means clear color.
+ */
 @property (nonatomic, strong, readonly, nullable) UIColor *borderColor;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -75,10 +103,19 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @end
 
-// Image resizing transformer
+/**
+ Image resizing transformer
+ */
 @interface SDImageResizingTransformer : NSObject <SDImageTransformer>
 
+/**
+ The new size to be resized, values should be positive.
+ */
 @property (nonatomic, assign, readonly) CGSize size;
+
+/**
+ The scale mode for image content.
+ */
 @property (nonatomic, assign, readonly) SDImageScaleMode scaleMode;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -86,9 +123,14 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @end
 
-// Image cropping transformer
+/**
+ Image cropping transformer
+ */
 @interface SDImageCroppingTransformer : NSObject <SDImageTransformer>
 
+/**
+ Image's inner rect.
+ */
 @property (nonatomic, assign, readonly) CGRect rect;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -96,10 +138,19 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @end
 
-// Image flipping transformer
+/**
+ Image flipping transformer
+ */
 @interface SDImageFlippingTransformer : NSObject <SDImageTransformer>
 
+/**
+ YES to flip the image horizontally. ⇋
+ */
 @property (nonatomic, assign, readonly) BOOL horizontal;
+
+/**
+ YES to flip the image vertically. ⥯
+ */
 @property (nonatomic, assign, readonly) BOOL vertical;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -107,10 +158,20 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 @end
 
-// Image rotation transformer
+/**
+ Image rotation transformer
+ */
 @interface SDImageRotationTransformer : NSObject <SDImageTransformer>
 
+/**
+ Rotated radians in counterclockwise.⟲
+ */
 @property (nonatomic, assign, readonly) CGFloat angle;
+
+/**
+ YES: new image's size is extend to fit all content.
+ NO: image's size will not change, content may be clipped.
+ */
 @property (nonatomic, assign, readonly) BOOL fitSize;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -120,9 +181,14 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 #pragma mark - Image Blending
 
-// Image tint color transformer
+/**
+ Image tint color transformer
+ */
 @interface SDImageTintTransformer : NSObject <SDImageTransformer>
 
+/**
+ The tint color.
+ */
 @property (nonatomic, strong, readonly, nonnull) UIColor *tintColor;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -132,9 +198,14 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 
 #pragma mark - Image Effect
 
-// Image blur effect transformer
+/**
+ Image blur effect transformer
+ */
 @interface SDImageBlurTransformer : NSObject <SDImageTransformer>
 
+/**
+ The radius of the blur in points, 0 means no blur effect.
+ */
 @property (nonatomic, assign, readonly) CGFloat blurRadius;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
@@ -143,9 +214,14 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
 @end
 
 #if SD_UIKIT || SD_MAC
-// Core Image filter transformer
+/**
+ Core Image filter transformer
+ */
 @interface SDImageFilterTransformer: NSObject <SDImageTransformer>
 
+/**
+ The CIFilter to be applied to the image.
+ */
 @property (nonatomic, strong, readonly, nonnull) CIFilter *filter;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;

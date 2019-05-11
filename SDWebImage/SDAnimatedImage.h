@@ -59,6 +59,9 @@
 
 @end
 
+/**
+ The image class which supports animating on `SDAnimatedImageView`. You can also use it on normal UIImageView/NSImageView.
+ */
 @interface SDAnimatedImage : UIImage <SDAnimatedImage>
 
 // This class override these methods from UIImage(NSImage), and it supports NSSecureCoding.

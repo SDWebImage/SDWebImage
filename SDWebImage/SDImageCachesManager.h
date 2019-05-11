@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "SDImageCacheDefine.h"
 
+/// Policy for cache operation
 typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
     SDImageCachesManagerOperationPolicySerial, // process all caches serially (from the highest priority to the lowest priority cache by order)
     SDImageCachesManagerOperationPolicyConcurrent, // process all caches concurrently
@@ -16,6 +17,9 @@ typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {
     SDImageCachesManagerOperationPolicyLowestOnly // process the lowest priority cache only
 };
 
+/**
+ A caches manager to manage multiple caches.
+ */
 @interface SDImageCachesManager : NSObject <SDImageCache>
 
 /**

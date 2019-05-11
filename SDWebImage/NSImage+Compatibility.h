@@ -8,10 +8,11 @@
 
 #import "SDWebImageCompat.h"
 
-// This category is provided to easily write cross-platform(AppKit/UIKit) code. For common usage, see `UIImage+Metadata.h`.
-
 #if SD_MAC
 
+/**
+ This category is provided to easily write cross-platform(AppKit/UIKit) code. For common usage, see `UIImage+Metadata.h`.
+ */
 @interface NSImage (Compatibility)
 
 /**

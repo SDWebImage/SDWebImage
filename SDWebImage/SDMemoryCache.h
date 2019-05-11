@@ -9,7 +9,9 @@
 #import "SDWebImageCompat.h"
 
 @class SDImageCacheConfig;
-// A protocol to allow custom memory cache used in SDImageCache.
+/**
+ A protocol to allow custom memory cache used in SDImageCache.
+ */
 @protocol SDMemoryCache <NSObject>
 
 @required
@@ -65,7 +67,9 @@
 
 @end
 
-// A memory cache which auto purge the cache on memory warning and support weak cache.
+/**
+ A memory cache which auto purge the cache on memory warning and support weak cache.
+ */
 @interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType> <SDMemoryCache>
 
 @property (nonatomic, strong, nonnull, readonly) SDImageCacheConfig *config;

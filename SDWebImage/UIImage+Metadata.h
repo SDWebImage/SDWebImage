@@ -9,6 +9,9 @@
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
 
+/**
+ UIImage category for image metadata, including animation, loop count, format, incremental, etc.
+ */
 @interface UIImage (Metadata)
 
 /**
