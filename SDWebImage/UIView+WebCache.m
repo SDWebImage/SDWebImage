@@ -10,6 +10,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "SDWebImageError.h"
+#import "SDInternalMacros.h"
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
