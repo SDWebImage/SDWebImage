@@ -11,6 +11,7 @@
 #import "SDWebImageDownloader.h"
 #import "UIImage+Metadata.h"
 #import "SDWebImageError.h"
+#import "SDInternalMacros.h"
 
 static id<SDImageCache> _defaultImageCache;
 static id<SDImageLoader> _defaultImageLoader;
