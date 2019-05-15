@@ -156,7 +156,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #endif
 }
 
-- (void)test12AnimatedImageViewInitWithImage {
+- (void)test13AnimatedImageViewInitWithImage {
     // Test that -[SDAnimatedImageView initWithImage:] this convenience initializer not crash
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     SDAnimatedImageView *imageView;
