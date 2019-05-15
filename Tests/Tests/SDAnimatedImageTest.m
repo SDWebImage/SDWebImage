@@ -156,6 +156,20 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #endif
 }
 
+- (void)test12AnimatedImageViewInitWithImage {
+    // Test that -[SDAnimatedImageView initWithImage:] this convenience initializer not crash
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    SDAnimatedImageView *imageView;
+#if SD_UIKIT
+    imageView = [[SDAnimatedImageView alloc] initWithImage:image];
+#else
+    if (@available(macOS 10.12, *)) {
+        imageView = [SDAnimatedImageView imageViewWithImage:image];
+    }
+#endif
+    expect(imageView.image).equal(image);
+}
+
 - (void)test20AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];

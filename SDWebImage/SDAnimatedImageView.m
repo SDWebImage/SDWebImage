@@ -62,6 +62,7 @@ static NSUInteger SDDeviceFreeMemory() {
 #else
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #endif
+@property (nonatomic, assign) BOOL hasInitialized;
 
 @end
 
@@ -123,6 +124,11 @@ static NSUInteger SDDeviceFreeMemory() {
 
 - (void)commonInit
 {
+    if (self.hasInitialized) {
+        return;
+    }
+    self.hasInitialized = YES;
+    
     self.shouldCustomLoopCount = NO;
     self.shouldIncrementalLoad = YES;
     self.lock = dispatch_semaphore_create(1);
@@ -181,6 +187,11 @@ static NSUInteger SDDeviceFreeMemory() {
 {
     if (self.image == image) {
         return;
+    }
+    
+    // Check has initlized
+    if (!self.hasInitialized) {
+        [self commonInit];
     }
     
     // Check Progressive rendering
