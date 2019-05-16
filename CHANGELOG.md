@@ -1,3 +1,20 @@
+## [5.0 Patch, on May 16th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.3)
+See [all tickets marked for the 5.0.3 release](https://github.com/SDWebImage/SDWebImage/milestone/39)
+
+#### Fixes
+- Fix SDWebImageDecodeFirstFrameOnly flag is ignored when image loaded from cache #2725
+- Fix that SDAnimatedImageView initWithImage will skip the initialize logic and crash #2728
+- Replace if judge with MAX() function in scale less than 1 #2710
+
+#### Project
+- Replace the private prefix header files with the manually import for each implementation files #2723
+
+#### Tests
+- Added many test case to ensure the code behavior and coverage #2711
+
+#### Documentation
+- Update the documentation coverage for jazzy. Use the correct format to provide class/protocol/type API Documentation #2722
+
 ## [5.0 Patch, on Apr 25th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.2)
 See [all tickets marked for the 5.0.2 release](https://github.com/SDWebImage/SDWebImage/milestone/37)
 
