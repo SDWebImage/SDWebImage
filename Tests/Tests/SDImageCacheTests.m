@@ -199,6 +199,23 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test14QueryCacheFirstFrameOnlyHitMemoryCache {
+    NSString *key = kTestGIFURL;
+    UIImage *animatedImage = [self testGIFImage];
+    [[SDImageCache sharedImageCache] storeImageToMemory:animatedImage forKey:key];
+    [[SDImageCache sharedImageCache] queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(cacheType).equal(SDImageCacheTypeMemory);
+        expect(image.sd_isAnimated).beTruthy();
+        expect(image == animatedImage).beTruthy();
+    }];
+    [[SDImageCache sharedImageCache] queryCacheOperationForKey:key options:SDImageCacheDecodeFirstFrameOnly done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(cacheType).equal(SDImageCacheTypeMemory);
+        expect(image.sd_isAnimated).beFalsy();
+        expect(image == animatedImage).beFalsy();
+    }];
+    [[SDImageCache sharedImageCache] removeImageFromMemoryForKey:kTestGIFURL];
+}
+
 - (void)test20InitialCacheSize{
     expect([[SDImageCache sharedImageCache] totalDiskSize]).to.equal(0);
 }
@@ -662,6 +679,15 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     return reusableImage;
 }
 
+- (UIImage *)testGIFImage {
+    static UIImage *reusableImage = nil;
+    if (!reusableImage) {
+        NSData *data = [NSData dataWithContentsOfFile:[self testGIFPath]];
+        reusableImage = [UIImage sd_imageWithData:data];
+    }
+    return reusableImage;
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
@@ -670,6 +696,12 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 - (NSString *)testPNGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"png"];
+}
+
+- (NSString *)testGIFPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestImage" ofType:@"gif"];
+    return testPath;
 }
 
 - (nullable NSString *)userCacheDirectory {
