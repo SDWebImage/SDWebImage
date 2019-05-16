@@ -247,14 +247,14 @@ static NSUInteger SDDeviceFreeMemory() {
 #if SD_UIKIT
 - (void)setRunLoopMode:(NSRunLoopMode)runLoopMode
 {
-    if ([_runLoopMode isEqualToString:runLoopMode]) {
+    if ([_runLoopMode isEqual:runLoopMode]) {
         return;
     }
     if (_displayLink) {
         if (_runLoopMode) {
             [_displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:_runLoopMode];
         }
-        if (runLoopMode) {
+        if (runLoopMode.length > 0) {
             [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:runLoopMode];
         }
     }
