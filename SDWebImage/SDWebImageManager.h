@@ -13,6 +13,7 @@
 #import "SDImageTransformer.h"
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDWebImageCacheSerializer.h"
+#import "SDWebImageOptionsProcessor.h"
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 
@@ -152,6 +153,32 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  * The default value is nil. Means we just store the source downloaded data to disk cache.
  */
 @property (nonatomic, strong, nullable) id<SDWebImageCacheSerializer> cacheSerializer;
+
+/**
+ The options processor is used, to have a global control for all the image request options and context option for current manager.
+ @note If you use `transformer`, `cacheKeyFilter` or `cacheSerializer` property of manager, the input context option already apply those properties before passed. This options processor is a better replacement for those property in common usage.
+ For example, you can control the global options, based on the URL or original context option like the below code.
+ 
+ @code
+ SDWebImageManager.sharedManager.optionsProcessor = [SDWebImageOptionsProcessor optionsProcessorWithBlock:^SDWebImageOptionsResult * _Nullable(NSURL * _Nullable url, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+     // Only do animation on `SDAnimatedImageView`
+     if (!context[SDWebImageContextAnimatedImageClass]) {
+        options |= SDWebImageDecodeFirstFrameOnly;
+     }
+     // Do not force decode for png url
+     if ([url.lastPathComponent isEqualToString:@"png"]) {
+        options |= SDWebImageAvoidDecodeImage;
+     }
+     // Always use screen scale factor
+     SDWebImageMutableContext *mutableContext = [NSDictionary dictionaryWithDictionary:context];
+     mutableContext[SDWebImageContextImageScaleFactor] = @(UIScreen.mainScreen.scale);
+     context = [mutableContext copy];
+ 
+     return [[SDWebImageOptionsResult alloc] initWithOptions:options context:context];
+ }];
+ @endcode
+ */
+@property (nonatomic, strong, nullable) id<SDWebImageOptionsProcessor> optionsProcessor;
 
 /**
  * Check one or more operations running
