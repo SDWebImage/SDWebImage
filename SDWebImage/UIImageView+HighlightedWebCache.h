@@ -18,6 +18,11 @@
 @interface UIImageView (HighlightedWebCache)
 
 /**
+ * Get the current highlighted image URL.
+ */
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentHighlightedImageURL;
+
+/**
  * Set the imageView `highlightedImage` with an `url`.
  *
  * The download is asynchronous and cached.

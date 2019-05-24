@@ -12,20 +12,9 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+WebCacheStorage.h"
 #import "UIView+WebCache.h"
 #import "SDInternalMacros.h"
-
-static char imageURLStorageKey;
-
-typedef NSMutableDictionary<NSString *, NSURL *> SDStateImageURLDictionary;
-
-static inline NSString * imageURLKeyForState(UIControlState state) {
-    return [NSString stringWithFormat:@"image_%lu", (unsigned long)state];
-}
-
-static inline NSString * backgroundImageURLKeyForState(UIControlState state) {
-    return [NSString stringWithFormat:@"backgroundImage_%lu", (unsigned long)state];
-}
 
 static inline NSString * imageOperationKeyForState(UIControlState state) {
     return [NSString stringWithFormat:@"UIButtonImageOperation%lu", (unsigned long)state];
@@ -40,17 +29,18 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 #pragma mark - Image
 
 - (nullable NSURL *)sd_currentImageURL {
-    NSURL *url = self.sd_imageURLStorage[imageURLKeyForState(self.state)];
-
+    NSURL *url = [self sd_imageURLForState:self.state];
+    
     if (!url) {
-        url = self.sd_imageURLStorage[imageURLKeyForState(UIControlStateNormal)];
+        [self sd_imageURLForState:UIControlStateNormal];
     }
 
     return url;
 }
 
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state {
-    return self.sd_imageURLStorage[imageURLKeyForState(state)];
+    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:imageOperationKeyForState(state)];
+    return storage[SDWebImageLoadingStorageURL];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
@@ -92,12 +82,6 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                    context:(nullable SDWebImageContext *)context
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    if (!url) {
-        [self.sd_imageURLStorage removeObjectForKey:imageURLKeyForState(state)];
-    } else {
-        self.sd_imageURLStorage[imageURLKeyForState(state)] = url;
-    }
-    
     SDWebImageMutableContext *mutableContext;
     if (context) {
         mutableContext = [context mutableCopy];
@@ -125,17 +109,18 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 #pragma mark - Background Image
 
 - (nullable NSURL *)sd_currentBackgroundImageURL {
-    NSURL *url = self.sd_imageURLStorage[backgroundImageURLKeyForState(self.state)];
+    NSURL *url = [self sd_backgroundImageURLForState:self.state];
     
     if (!url) {
-        url = self.sd_imageURLStorage[backgroundImageURLKeyForState(UIControlStateNormal)];
+        url = [self sd_backgroundImageURLForState:UIControlStateNormal];
     }
     
     return url;
 }
 
 - (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
-    return self.sd_imageURLStorage[backgroundImageURLKeyForState(state)];
+    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:backgroundImageOperationKeyForState(state)];
+    return storage[SDWebImageLoadingStorageURL];
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
@@ -177,19 +162,13 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                              context:(nullable SDWebImageContext *)context
                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDExternalCompletionBlock)completedBlock {
-    if (!url) {
-        [self.sd_imageURLStorage removeObjectForKey:backgroundImageURLKeyForState(state)];
-    } else {
-        self.sd_imageURLStorage[backgroundImageURLKeyForState(state)] = url;
-    }
-    
     SDWebImageMutableContext *mutableContext;
     if (context) {
         mutableContext = [context mutableCopy];
     } else {
         mutableContext = [NSMutableDictionary dictionary];
     }
-    mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
+    mutableContext[SDWebImageContextSetImageOperationKey] = backgroundImageOperationKeyForState(state);
     @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -215,18 +194,6 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state {
     [self sd_cancelImageLoadOperationWithKey:backgroundImageOperationKeyForState(state)];
-}
-
-#pragma mark - Private
-
-- (SDStateImageURLDictionary *)sd_imageURLStorage {
-    SDStateImageURLDictionary *storage = objc_getAssociatedObject(self, &imageURLStorageKey);
-    if (!storage) {
-        storage = [NSMutableDictionary dictionary];
-        objc_setAssociatedObject(self, &imageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-
-    return storage;
 }
 
 @end

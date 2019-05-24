@@ -8,6 +8,7 @@
 
 #import "UIView+WebCache.h"
 #import "objc/runtime.h"
+#import "UIView+WebCacheStorage.h"
 #import "UIView+WebCacheOperation.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
@@ -32,19 +33,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     objc_setAssociatedObject(self, @selector(sd_latestOperationKey), sd_latestOperationKey, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (NSProgress *)sd_imageProgress {
-    NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
-    if (!progress) {
-        progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
-        self.sd_imageProgress = progress;
-    }
-    return progress;
-}
-
-- (void)setSd_imageProgress:(NSProgress *)sd_imageProgress {
-    objc_setAssociatedObject(self, @selector(sd_imageProgress), sd_imageProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
@@ -59,7 +47,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     }
     self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
-    self.sd_imageURL = url;
+    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:validOperationKey];
+    SDWebImageMutableLoadingStorage *mutableStorage = [storage mutableCopy];
+    if (!url) {
+        [mutableStorage removeObjectForKey:SDWebImageLoadingStorageURL];
+    } else {
+        [mutableStorage setValue:url forKey:SDWebImageLoadingStorageURL];
+    }
+    [self sd_setImageLoadStorage:[mutableStorage copy] forKey:validOperationKey];
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         dispatch_main_async_safe(^{
@@ -69,8 +64,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        self.sd_imageProgress.totalUnitCount = 0;
-        self.sd_imageProgress.completedUnitCount = 0;
+        NSProgress *imageProgress = storage[SDWebImageLoadingStorageProgress];
+        imageProgress.totalUnitCount = 0;
+        imageProgress.completedUnitCount = 0;
         
 #if SD_UIKIT || SD_MAC
         // check and start image indicator
@@ -83,10 +79,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             manager = [SDWebImageManager sharedManager];
         }
         
-        @weakify(self);
         SDImageLoaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            @strongify(self);
-            NSProgress *imageProgress = self.sd_imageProgress;
             imageProgress.totalUnitCount = expectedSize;
             imageProgress.completedUnitCount = receivedSize;
 #if SD_UIKIT || SD_MAC
@@ -101,13 +94,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
         };
+        @weakify(self);
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             @strongify(self);
             if (!self) { return; }
             // if the progress not been updated, mark it to complete state
-            if (finished && !error && self.sd_imageProgress.totalUnitCount == 0 && self.sd_imageProgress.completedUnitCount == 0) {
-                self.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
-                self.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
+            if (finished && !error && imageProgress.totalUnitCount == 0 && imageProgress.completedUnitCount == 0) {
+                imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
+                imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
             
 #if SD_UIKIT || SD_MAC

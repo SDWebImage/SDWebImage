@@ -46,6 +46,11 @@
 @interface UIImageView (WebCache)
 
 /**
+ * Get the current image URL.
+ */
+@property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
+
+/**
  * Set the imageView `image` with an `url`.
  *
  * The download is asynchronous and cached.
