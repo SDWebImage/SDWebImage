@@ -120,6 +120,16 @@
                                }];
     [self waitForExpectationsWithCommonTimeout];
 }
+
+- (void)testUIButtonBackgroundImageCancelCurrentImageLoad {
+    UIButton *button = [[UIButton alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [button sd_setBackgroundImageWithURL:originalImageURL forState:UIControlStateNormal];
+    [button sd_cancelBackgroundImageLoadForState:UIControlStateNormal];
+    NSString *backgroundImageOperationKey = [self testBackgroundImageOperationKeyForState:UIControlStateNormal];
+    expect([button sd_imageLoadOperationForKey:backgroundImageOperationKey]).beNil();
+}
+
 #endif
 
 #if SD_MAC
@@ -337,6 +347,10 @@
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
+}
+
+- (NSString *)testBackgroundImageOperationKeyForState:(UIControlState)state {
+    return [NSString stringWithFormat:@"UIButtonBackgroundImageOperation%lu", (unsigned long)state];
 }
 
 @end
