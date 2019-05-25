@@ -8,6 +8,13 @@
 
 #import "SDWebImageOptionsProcessor.h"
 
+@interface SDWebImageOptionsResult ()
+
+@property (nonatomic, assign) SDWebImageOptions options;
+@property (nonatomic, copy, nullable) SDWebImageContext *context;
+
+@end
+
 @implementation SDWebImageOptionsResult
 
 - (instancetype)initWithOptions:(SDWebImageOptions)options context:(SDWebImageContext *)context {

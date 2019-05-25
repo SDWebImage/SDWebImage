@@ -19,9 +19,23 @@ typedef SDWebImageOptionsResult * _Nullable(^SDWebImageOptionsProcessorBlock)(NS
  */
 @interface SDWebImageOptionsResult : NSObject
 
-@property (nonatomic, assign) SDWebImageOptions options;
-@property (nonatomic, copy, nullable) SDWebImageContext *context;
+/**
+ WebCache options.
+ */
+@property (nonatomic, assign, readonly) SDWebImageOptions options;
 
+/**
+ Context options.
+ */
+@property (nonatomic, copy, readonly, nullable) SDWebImageContext *context;
+
+/**
+ Create a new options result.
+
+ @param options options
+ @param context context
+ @return The options result contains both options and context.
+ */
 - (nonnull instancetype)initWithOptions:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context;
 
 @end
@@ -47,6 +61,9 @@ typedef SDWebImageOptionsResult * _Nullable(^SDWebImageOptionsProcessorBlock)(NS
 
 @end
 
+/**
+ A options processor class with block.
+ */
 @interface SDWebImageOptionsProcessor : NSObject<SDWebImageOptionsProcessor>
 
 - (nonnull instancetype)initWithBlock:(nonnull SDWebImageOptionsProcessorBlock)block;
