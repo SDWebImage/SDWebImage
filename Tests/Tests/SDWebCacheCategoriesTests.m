@@ -349,8 +349,10 @@
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
 }
 
+#if SD_UIKIT
 - (NSString *)testBackgroundImageOperationKeyForState:(UIControlState)state {
     return [NSString stringWithFormat:@"UIButtonBackgroundImageOperation%lu", (unsigned long)state];
 }
+#endif
 
 @end
