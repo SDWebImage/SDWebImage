@@ -171,10 +171,9 @@
     SDImageTintTransformer *transformer6 = [SDImageTintTransformer transformerWithColor:tintColor];
     SDImageBlurTransformer *transformer7 = [SDImageBlurTransformer transformerWithRadius:blurRadius];
     
-#if SD_UIKIT || SD_MAC
     CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
     SDImageFilterTransformer *transformer8 = [SDImageFilterTransformer transformerWithFilter:filter];
-#endif
+    
     // Chain all built-in transformers for test case
     SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[
                                                                                                                 transformer1,
@@ -184,9 +183,7 @@
                                                                                                                 transformer5,
                                                                                                                 transformer6,
                                                                                                                 transformer7,
-#if SD_UIKIT || SD_MAC
-                                                                                                                transformer8,
-#endif
+                                                                                                                transformer8
                                                                                                                 ]];
     NSArray *transformerKeys = @[
                       @"SDImageResizingTransformer({100.000000,100.000000},2)",
@@ -196,9 +193,7 @@
                       @"SDImageCroppingTransformer({0.000000,0.000000,50.000000,50.000000})",
                       @"SDImageTintTransformer(#00000000)",
                       @"SDImageBlurTransformer(5.000000)",
-#if SD_UIKIT || SD_MAC
-                      @"SDImageFilterTransformer(CIColorInvert)",
-#endif
+                      @"SDImageFilterTransformer(CIColorInvert)"
                       ];
     NSString *transformerKey = [transformerKeys componentsJoinedByString:@"-"]; // SDImageTransformerKeySeparator
     expect([pipelineTransformer.transformerKey isEqualToString:transformerKey]).beTruthy();
