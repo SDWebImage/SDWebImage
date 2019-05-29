@@ -76,8 +76,9 @@
                     @"http://via.placeholder.com/200x200.jpg",
                     nil];
 
-        for (int i=0; i<100; i++) {
-            [self.objects addObject:[NSString stringWithFormat:@"https://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage%03d.jpg", i]];
+        for (int i=1; i<25; i++) {
+            // From http://r0k.us/graphics/kodak/, 768x512 resolution, 24 bit depth PNG
+            [self.objects addObject:[NSString stringWithFormat:@"http://r0k.us/graphics/kodak/kodak/kodim%02d.png", i]];
         }
     }
     return self;
