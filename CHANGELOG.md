@@ -1,3 +1,13 @@
+## [5.0 Patch, on May 29th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.4)
+See [all tickets marked for the 5.0.4 release](https://github.com/SDWebImage/SDWebImage/milestone/40)
+
+#### Fixes
+- Fix get button background image operation key bug #2737
+- Fix that `CGImageDestinationCreateWithData` 0 count arg will log a warning #2739
+
+#### Tests
+- Fix the example NSLog issue, and replace the unavailable test image dataset #2740
+
 ## [5.0 Patch, on May 16th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.3)
 See [all tickets marked for the 5.0.3 release](https://github.com/SDWebImage/SDWebImage/milestone/39)
 
