@@ -20,7 +20,10 @@
 #ifndef weakify
 #define weakify(...) \
 sd_keywordify \
-metamacro_foreach_cxt(sd_weakify_,, __weak, __VA_ARGS__)
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Wshadow\"") \
+metamacro_foreach_cxt(sd_weakify_,, __weak, __VA_ARGS__) \
+_Pragma("clang diagnostic pop")
 #endif
 
 #ifndef strongify
