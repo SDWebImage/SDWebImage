@@ -39,6 +39,9 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk watchsimulator -configuration Debug | xcpretty -c
 
+    - echo Clean DerivedData
+    - rm -rf ~/Library/Developer/Xcode/DerivedData/
+
     - echo Build as dynamic frameworks
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
