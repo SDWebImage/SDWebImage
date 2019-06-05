@@ -1,3 +1,16 @@
+## [4.4.7 - 4.4 patch, on Jun 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/4.4.7)
+See [all tickets marked for the 4.4.7 release](https://github.com/SDWebImage/SDWebImage/milestone/34)
+
+#### Fixes
+- Fix compatability for Xcode 11 #2744
+- Fix the SDAnimatedImageRep which use the deprecated API and cause compile issue on Xcode 11 #2745
+
+#### Feature
+- Define SDWebImageDownloader convenience method #2633
+
+#### Project
+- Update libwebp constraint to lower 2.0 #2628
+
 ## [4.4.6 - 4.4 patch, on Feb 26th, 2019](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
 See [all tickets marked for the 4.4.6 release](https://github.com/SDWebImage/SDWebImage/milestone/33)
 
