@@ -1,3 +1,9 @@
+## [3.8.3 Patch release for 3.8.0 on Jun 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/3.8.3)
+
+#### Fixes:
+
+- fix compatability for Xcode 11 #2744
+
 ## [3.8.2 Patch release for 3.8.0 on Sep 5th, 2016](https://github.com/rs/SDWebImage/releases/tag/3.8.2)
 
 #### Fixes:
