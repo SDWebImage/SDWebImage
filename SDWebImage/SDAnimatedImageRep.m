@@ -13,9 +13,9 @@
 #import "SDImageGIFCoderInternal.h"
 #import "SDImageAPNGCoderInternal.h"
 
-@interface SDAnimatedImageRep ()
-
-@property (nonatomic, assign, readonly, nullable) CGImageSourceRef imageSource;
+@interface SDAnimatedImageRep () {
+    CGImageSourceRef _imageSource;
+}
 
 @end
 
@@ -31,7 +31,7 @@
 - (instancetype)initWithData:(NSData *)data {
     self = [super initWithData:data];
     if (self) {
-        CGImageSourceRef imageSource = self.imageSource;
+        CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef) data, NULL);
         if (!imageSource) {
             return self;
         }
@@ -43,6 +43,8 @@
         if (!type) {
             return self;
         }
+        // Valid CGImageSource for Animated Image
+        _imageSource = imageSource;
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
             // Do nothing because NSBitmapImageRep support it
@@ -63,7 +65,7 @@
     [super setProperty:property withValue:value];
     if ([property isEqualToString:NSImageCurrentFrame]) {
         // Access the image source
-        CGImageSourceRef imageSource = self.imageSource;
+        CGImageSourceRef imageSource = _imageSource;
         if (!imageSource) {
             return;
         }
@@ -87,16 +89,6 @@
         // Reset super frame duration with the actual frame duration
         [super setProperty:NSImageCurrentFrameDuration withValue:@(frameDuration)];
     }
-}
-
-- (CGImageSourceRef)imageSource {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    if (_tiffData) {
-        return (__bridge CGImageSourceRef)(_tiffData);
-    }
-#pragma GCC diagnostic pop
-    return NULL;
 }
 
 @end
