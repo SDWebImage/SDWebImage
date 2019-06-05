@@ -13,13 +13,16 @@
 #import "SDImageGIFCoderInternal.h"
 #import "SDImageAPNGCoderInternal.h"
 
-@interface SDAnimatedImageRep () {
+@implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
 }
 
-@end
-
-@implementation SDAnimatedImageRep
+- (void)dealloc {
+    if (_imageSource) {
+        CFRelease(_imageSource);
+        _imageSource = NULL;
+    }
+}
 
 // `NSBitmapImageRep`'s `imageRepWithData:` is not designed initlizer
 + (instancetype)imageRepWithData:(NSData *)data {
@@ -35,6 +38,7 @@
         if (!imageSource) {
             return self;
         }
+        _imageSource = imageSource;
         NSUInteger frameCount = CGImageSourceGetCount(imageSource);
         if (frameCount <= 1) {
             return self;
@@ -43,8 +47,6 @@
         if (!type) {
             return self;
         }
-        // Valid CGImageSource for Animated Image
-        _imageSource = imageSource;
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
             // Do nothing because NSBitmapImageRep support it
