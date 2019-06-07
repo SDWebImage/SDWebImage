@@ -1,5 +1,18 @@
 framework module SDWebImage {
   umbrella header "SDWebImage.h"
+  
+  // until CocoaPods fix the bug when using modular headers in #8879
+  // we have to exclude Private Headers manually even we use Podspec `private_header_files` syntax
+  exclude header "SDWeakProxy.h"
+  exclude header "SDInternalMacros.h"
+  exclude header "SDmetamacros.h"
+  exclude header "NSBezierPath+RoundedCorners.h"
+  exclude header "UIColor+HexString.h"
+  exclude header "SDAsyncBlockOperation.h"
+  exclude header "SDImageAPNGCoderInternal.h"
+  exclude header "SDImageGIFCoderInternal.h"
+  exclude header "SDImageCachesManagerOperation.h"
+  exclude header "SDImageAssetManager.h"
 
   export *
   module * { export * }
