@@ -74,6 +74,10 @@
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteIndicator;
 /// large white-style activity indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteLargeIndicator;
+/// large activity indicator, supports dark mode if available
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *largeIndicator;
+/// medium activity indicator, supports dark mode if available
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *mediumIndicator;
 
 @end
 
