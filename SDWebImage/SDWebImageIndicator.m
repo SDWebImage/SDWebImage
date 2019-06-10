@@ -93,6 +93,8 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 #else
     indicator.indicatorView.color = [UIColor colorWithWhite:0 alpha:0.45]; // Color from `UIActivityIndicatorViewStyleGray`
 #endif
+#else
+    indicator.indicatorView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua]; // Disable dark mode support
 #endif
     return indicator;
 }
@@ -104,6 +106,7 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
     indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
     indicator.indicatorView.color = grayColor;
 #else
+    indicator.indicatorView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua]; // Disable dark mode support
     indicator.indicatorView.controlSize = NSControlSizeRegular;
 #endif
     [indicator.indicatorView sizeToFit];
@@ -115,6 +118,7 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 #if SD_UIKIT
     indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
 #else
+    indicator.indicatorView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua]; // Disable dark mode support
     CIFilter *lighten = [CIFilter filterWithName:@"CIColorControls"];
     [lighten setDefaults];
     [lighten setValue:@(1) forKey:kCIInputBrightnessKey];
@@ -128,6 +132,7 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 #if SD_UIKIT
     indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
 #else
+    indicator.indicatorView.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua]; // Disable dark mode support
     indicator.indicatorView.controlSize = NSControlSizeRegular;
     [indicator.indicatorView sizeToFit];
 #endif

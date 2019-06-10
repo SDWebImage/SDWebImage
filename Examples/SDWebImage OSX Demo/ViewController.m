@@ -35,6 +35,7 @@
     self.imageView1.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
     [self.imageView1 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"] placeholderImage:nil options:SDWebImageProgressiveLoad];
     // NSImageView + Animated Image
+    self.imageView2.sd_imageIndicator = SDWebImageActivityIndicator.largeIndicator;
     [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"https:raw.githubusercontent.com/onevcat/APNGKit/master/TestImages/APNG-cube.apng"]];
     // SDAnimatedImageView + Static Image
     [self.imageView3 sd_setImageWithURL:[NSURL URLWithString:@"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png"]];
