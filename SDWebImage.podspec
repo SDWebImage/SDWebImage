@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
-  s.module_map = 'WebImage/SDWebImage.modulemap'
   
   s.default_subspec = 'Core'
 
