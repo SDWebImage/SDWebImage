@@ -185,7 +185,34 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test11ThatStoreCacheTypeWork {
+- (void)test11ThatOptionsProcessorWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Options processor work"];
+    __block BOOL optionsProcessorCalled = NO;
+    
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
+    manager.optionsProcessor = [SDWebImageOptionsProcessor optionsProcessorWithBlock:^SDWebImageOptionsResult * _Nullable(NSURL * _Nonnull url, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+        if ([url.absoluteString isEqualToString:kTestPNGURL]) {
+            optionsProcessorCalled = YES;
+            return [[SDWebImageOptionsResult alloc] initWithOptions:0 context:@{SDWebImageContextImageScaleFactor : @(3)}];
+        } else {
+            return nil;
+        }
+    }];
+    
+    NSURL *url = [NSURL URLWithString:kTestPNGURL];
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestPNGURL withCompletion:^{
+        [manager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(image.scale).equal(3);
+            expect(optionsProcessorCalled).beTruthy();
+            
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test12ThatStoreCacheTypeWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image store cache type (including transformer) work"];
     
     // Use a fresh manager && cache to avoid get effected by other test cases

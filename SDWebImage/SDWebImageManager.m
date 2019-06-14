@@ -151,11 +151,11 @@ static id<SDImageLoader> _defaultImageLoader;
     [self.runningOperations addObject:operation];
     SD_UNLOCK(self.runningOperationsLock);
     
-    // Preprocess the context arg to provide the default value from manager
-    context = [self processedContextWithContext:context];
+    // Preprocess the options and context arg to decide the final the result for manager
+    SDWebImageOptionsResult *result = [self processedResultForURL:url options:options context:context];
     
     // Start the entry to load image from cache
-    [self callCacheProcessForOperation:operation url:url options:options context:context progress:progressBlock completed:completedBlock];
+    [self callCacheProcessForOperation:operation url:url options:result.options context:result.context progress:progressBlock completed:completedBlock];
 
     return operation;
 }
@@ -395,7 +395,8 @@ static id<SDImageLoader> _defaultImageLoader;
     return shouldBlockFailedURL;
 }
 
-- (SDWebImageContext *)processedContextWithContext:(SDWebImageContext *)context {
+- (SDWebImageOptionsResult *)processedResultForURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
+    SDWebImageOptionsResult *result;
     SDWebImageMutableContext *mutableContext = [SDWebImageMutableContext dictionary];
     
     // Image Transformer from manager
@@ -414,12 +415,21 @@ static id<SDImageLoader> _defaultImageLoader;
         [mutableContext setValue:cacheSerializer forKey:SDWebImageContextCacheSerializer];
     }
     
-    if (mutableContext.count == 0) {
-        return context;
-    } else {
+    if (mutableContext.count > 0) {
         [mutableContext addEntriesFromDictionary:context];
-        return [mutableContext copy];
+        context = [mutableContext copy];
     }
+    
+    // Apply options processor
+    if (self.optionsProcessor) {
+        result = [self.optionsProcessor processedResultForURL:url options:options context:context];
+    }
+    if (!result) {
+        // Use default options result
+        result = [[SDWebImageOptionsResult alloc] initWithOptions:options context:context];
+    }
+    
+    return result;
 }
 
 @end

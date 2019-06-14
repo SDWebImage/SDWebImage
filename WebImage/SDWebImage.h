@@ -66,6 +66,7 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #import <SDWebImage/NSData+ImageContentType.h>
 #import <SDWebImage/SDWebImageDefine.h>
 #import <SDWebImage/SDWebImageError.h>
+#import <SDWebImage/SDWebImageOptionsProcessor.h>
 
 // Mac
 #if __has_include(<SDWebImage/NSImage+Compatibility.h>)
