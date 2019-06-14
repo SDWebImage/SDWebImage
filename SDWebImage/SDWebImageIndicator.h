@@ -66,6 +66,7 @@
  */
 @interface SDWebImageActivityIndicator (Conveniences)
 
+/// These indicator use the fixed color without dark mode support
 /// gray-style activity indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *grayIndicator;
 /// large gray-style activity indicator
@@ -74,6 +75,11 @@
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteIndicator;
 /// large white-style activity indicator
 @property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *whiteLargeIndicator;
+/// These indicator use the system style, supports dark mode if available (iOS 13+/macOS 10.14+)
+/// large activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *largeIndicator;
+/// medium activity indicator
+@property (nonatomic, class, nonnull, readonly) SDWebImageActivityIndicator *mediumIndicator;
 
 @end
 
