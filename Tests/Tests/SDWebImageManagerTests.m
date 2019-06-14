@@ -212,6 +212,40 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test12ThatStoreCacheTypeWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image store cache type (including transformer) work"];
+    
+    // Use a fresh manager && cache to avoid get effected by other test cases
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"SDWebImageStoreCacheType"];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    manager.transformer = transformer;
+    
+    // test: original image -> disk only, transformed image -> memory only
+    SDWebImageContext *context = @{SDWebImageContextOriginalStoreCacheType : @(SDImageCacheTypeDisk), SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)};
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
+    NSString *originalKey = [manager cacheKeyForURL:url];
+    NSString *transformedKey = SDTransformedKeyForKey(originalKey, transformer.transformerKey);
+    
+    [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).equal(transformer.testImage);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2*kMinDelayNanosecond), dispatch_get_main_queue(), ^{
+            // original -> disk only
+            [manager.imageCache containsImageForKey:originalKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType originalCacheType) {
+                expect(originalCacheType).equal(SDImageCacheTypeDisk);
+                // transformed -> memory only
+                [manager.imageCache containsImageForKey:transformedKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType transformedCacheType) {
+                    expect(transformedCacheType).equal(SDImageCacheTypeMemory);
+                    [expectation fulfill];
+                }];
+            }];
+        });
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
