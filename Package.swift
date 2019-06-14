@@ -41,7 +41,7 @@ let package = Package(
             name: "SDWebImageMapKit",
             dependencies: ["SDWebImage"],
             path: "SDWebImage",
-            sources: ["MapKit/MKAnnotationView+WebCache.h", "MapKit/MKAnnotationView+WebCache.m"],
+            sources: ["MapKit"],
             publicHeadersPath: "MapKit",
             cSettings: [
                 .headerSearchPath("."),
