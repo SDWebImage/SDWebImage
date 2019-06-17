@@ -416,7 +416,9 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     if (mutableContext.count > 0) {
-        [mutableContext addEntriesFromDictionary:context];
+        if (context) {
+            [mutableContext addEntriesFromDictionary:context];
+        }
         context = [mutableContext copy];
     }
     
