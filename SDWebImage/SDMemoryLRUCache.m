@@ -35,7 +35,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 @implementation SDMemoryCacheMapNode
 @end
 
-
 @interface SDMemoryCacheMap : NSObject {
     @package
     CFMutableDictionaryRef _dic;
@@ -44,7 +43,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     SDMemoryCacheMapNode *_head;
     SDMemoryCacheMapNode *_tail;
 }
-
 /**
  * Insert a node at the head of reference dictionary then update the total cost.
  */
@@ -194,10 +192,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
     
 #if SD_UIKIT
+
     [_lru removeAll];
     pthread_mutex_destroy(&_lock);
-    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidEnterBackgroundNotification object:nil];
 #endif
 }
 
@@ -221,7 +221,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)commonInit {
-    
     SDImageCacheConfig *config = self.config;
     _maxMemoryCountLimit = config.maxMemoryCount;
     _maxMemoryCostLimit = config.maxMemoryCost;
@@ -241,14 +240,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
                                                object:nil];
-    
-#endif
-
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+    
+#endif
 }
-
 
 // Current this seems no use on macOS (macOS use virtual memory and do not clear cache when memory warning). So we only override on iOS/tvOS platform.
 #if SD_UIKIT
@@ -256,12 +253,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
     [self removeAllObjects];
 }
-#endif
 
 - (void)didEnterBackground:(NSNotification *)notification {
     [self removeAllObjects];
 }
 
+#endif
 
 - (void)setObject:(nullable id)object forKey:(nonnull id)key {
     [self setObject:object forKey:key cost:0];
@@ -269,7 +266,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 // `setObject:forKey:` just call this with 0 cost. LRU algorithm memory cache has totalCountLimit && totalCostLimit properties to guarantee it.
 - (void)setObject:(nullable id)object forKey:(nonnull id)key cost:(NSUInteger)cost {
-    
     if (!key) {
         return;
     }
@@ -295,7 +291,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
         [_lru insertAtHeadWithNode:node];
     }
     
-    
     if (_lru->_totalCost > _maxMemoryCostLimit) {
         // Shrink the memory caache totalCost until under limit.
         dispatch_async(_queue, ^{
@@ -315,7 +310,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 
 - (id)objectForKey:(id)key {
-    
     if (!key) {
         return nil;
     }
@@ -331,7 +325,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)removeObjectForKey:(id)key {
-    
     if (!key) {
         return;
     }
@@ -348,7 +341,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)removeAllObjects {
-    
     pthread_mutex_lock(&_lock);
     [_lru removeAll];
     pthread_mutex_unlock(&_lock);
