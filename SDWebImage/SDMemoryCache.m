@@ -13,22 +13,14 @@
 #import "SDMemoryNSCache.h"
 #import "SDMemoryLRUCache.h"
 
-static void * SDMemoryCacheContext = &SDMemoryCacheContext;
-
-@interface SDMemoryCache <KeyType, ObjectType> ()
+@interface SDMemoryCache ()
 
 @property (nonatomic, strong, nullable) SDImageCacheConfig *config;
-
 @property (nonatomic, strong) id<SDMemoryCache> memCache;
 
 @end
 
 @implementation SDMemoryCache
-
-- (void)dealloc {
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryCacheContext];
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
-}
 
 - (instancetype)init {
     self = [super init];
@@ -54,15 +46,11 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     } else {
         self.memCache = [[SDMemoryNSCache alloc] initWithConfig:self.config];
     }
-    
-    SDImageCacheConfig *config = self.config;
-    self.totalCostLimit = config.maxMemoryCost;
-    self.countLimit = config.maxMemoryCount;
-    
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
 }
 
+- (void)setObject:(nullable id)object forKey:(nonnull id)key {
+    [self.memCache setObject:object forKey:key cost:0];
+}
 
 - (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g {
     [self.memCache setObject:obj forKey:key cost:(NSUInteger)g];
@@ -78,20 +66,6 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 
 - (void)removeAllObjects {
     [self.memCache removeAllObjects];
-}
-
-#pragma mark - KVO
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context == SDMemoryCacheContext) {
-        if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
-            self.totalCostLimit = self.config.maxMemoryCost;
-        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
-            self.countLimit = self.config.maxMemoryCount;
-        }
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
 }
 
 @end

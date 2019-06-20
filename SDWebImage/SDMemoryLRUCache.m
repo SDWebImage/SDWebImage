@@ -13,12 +13,11 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <pthread.h>
 
-static void * SDMemoryCacheContext = &SDMemoryCacheContext;
+static void *SDMemoryLRUCacheContext = &SDMemoryLRUCacheContext;
 
 static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
 }
-
 /**
  * A node in deque map.
  */
@@ -29,11 +28,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     id _key;
     id _val;
     NSUInteger _cost;
-    
 }
+
 @end
 
 @implementation SDMemoryCacheMapNode
+
 @end
 
 @interface SDMemoryCacheMap : NSObject {
@@ -44,6 +44,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     SDMemoryCacheMapNode *_head;
     SDMemoryCacheMapNode *_tail;
 }
+
 /**
  * Insert a node at the head of reference dictionary then update the total cost.
  */
@@ -189,16 +190,19 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 @implementation SDMemoryLRUCache 
 
 - (void)dealloc {
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryCacheContext];
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryLRUCacheContext];
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryLRUCacheContext];
+    
+    pthread_mutex_destroy(&_lock);
+    [_lru removeAll];
     
 #if SD_UIKIT
-
-    [_lru removeAll];
-    pthread_mutex_destroy(&_lock);
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidEnterBackgroundNotification object:nil];
+                                                    name:UIApplicationDidReceiveMemoryWarningNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidEnterBackgroundNotification
+                                                  object:nil];
 #endif
 }
 
@@ -228,21 +232,21 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     
     pthread_mutex_init(&_lock, NULL);
     _lru = [SDMemoryCacheMap new];
-    _queue = dispatch_queue_create("com.hackemist.SDImageMemoryCache", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("com.hackemist.SDImageMemoryLRUCache", DISPATCH_QUEUE_SERIAL);
     // Default auto trim cache interval is 5.0.
     _autoTrimInterval = 5.0;
     
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryLRUCacheContext];
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryLRUCacheContext];
     
 #if SD_UIKIT
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification
+                                             selector:@selector(didEnterBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
 #endif
@@ -350,7 +354,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 #pragma mark - KVO
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context == SDMemoryCacheContext) {
+    if (context == SDMemoryLRUCacheContext) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
             self.maxMemoryCostLimit = self.config.maxMemoryCost;
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {

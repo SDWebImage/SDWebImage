@@ -11,6 +11,7 @@
 #import "SDMemoryCache.h"
 
 @interface SDMemoryLRUCache : NSObject <SDMemoryCache>
+
 @property (assign, nonatomic) NSUInteger totalCostLimit;
 
 @end

@@ -10,6 +10,6 @@
 #import <Foundation/Foundation.h>
 #import "SDMemoryCache.h"
 
-
 @interface SDMemoryNSCache <KeyType, ObjectType> : NSCache <SDMemoryCache>
+
 @end

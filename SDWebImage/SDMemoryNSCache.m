@@ -12,8 +12,7 @@
 #import "UIImage+MemoryCacheCost.h"
 #import "SDInternalMacros.h"
 
-static void * SDMemoryCacheContext = &SDMemoryCacheContext;
-
+static void *SDMemoryNSCacheContext = &SDMemoryNSCacheContext;
 
 @interface SDMemoryNSCache <KeyType, ObjectType>()<SDMemoryCache>
 
@@ -25,8 +24,8 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 @implementation SDMemoryNSCache
 
 - (void)dealloc {
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryCacheContext];
-    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryCacheContext];
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) context:SDMemoryNSCacheContext];
+    [_config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) context:SDMemoryNSCacheContext];
 #if SD_UIKIT
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -51,17 +50,16 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 }
 
 - (void)commonInit {
-    self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-    self.weakCacheLock = dispatch_semaphore_create(1);
-    
     SDImageCacheConfig *config = self.config;
     self.totalCostLimit = config.maxMemoryCost;
     self.countLimit = config.maxMemoryCount;
     
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryCacheContext];
-    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryNSCacheContext];
+    [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryNSCacheContext];
     
 #if SD_UIKIT
+    self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
+    self.weakCacheLock = dispatch_semaphore_create(1);
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
@@ -140,7 +138,7 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 #pragma mark - KVO
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context == SDMemoryCacheContext) {
+    if (context == SDMemoryNSCacheContext) {
         if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCost))]) {
             self.totalCostLimit = self.config.maxMemoryCost;
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(maxMemoryCount))]) {
