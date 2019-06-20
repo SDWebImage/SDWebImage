@@ -42,6 +42,9 @@
 }
 
 - (void)commonInit {
+    SDImageCacheConfig *config = self.config;
+    self.totalCostLimit = config.maxMemoryCost;
+    self.countLimit = config.maxMemoryCount;
     if (self.config.shouldUseLRUMemoryCache) {
         self.memCache = [[SDMemoryLRUCache alloc] initWithConfig:self.config];
     } else {
