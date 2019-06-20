@@ -53,6 +53,12 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
  */
 @property (assign, nonatomic) BOOL shouldUseWeakMemoryCache;
 
+/*
+ * The option to control follow LRU memory cache replacement algorithm. When enable, `SDImageCache`'s memory cache will use LRU algorithm to store the image at the same time when it stored to memory, and get removed at the same time.
+ * Defautls to NO. You can change this option dynamically.
+ */
+@property (assign, nonatomic) BOOL shouldUseLRUMemoryCache;
+
 /**
  * Whether or not to remove the expired disk data when application entering the background. (Not works for macOS)
  * Defaults to YES.
