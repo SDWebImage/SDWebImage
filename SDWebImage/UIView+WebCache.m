@@ -69,8 +69,11 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        self.sd_imageProgress.totalUnitCount = 0;
-        self.sd_imageProgress.completedUnitCount = 0;
+        NSProgress *imageProgress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+        if (imageProgress) {
+            imageProgress.totalUnitCount = 0;
+            imageProgress.completedUnitCount = 0;
+        }
         
 #if SD_UIKIT || SD_MAC
         // check and start image indicator
@@ -83,15 +86,18 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             manager = [SDWebImageManager sharedManager];
         }
         
-        @weakify(self);
         SDImageLoaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            @strongify(self);
-            NSProgress *imageProgress = self.sd_imageProgress;
-            imageProgress.totalUnitCount = expectedSize;
-            imageProgress.completedUnitCount = receivedSize;
+            if (imageProgress) {
+                imageProgress.totalUnitCount = expectedSize;
+                imageProgress.completedUnitCount = receivedSize;
+            }
 #if SD_UIKIT || SD_MAC
             if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
-                double progress = imageProgress.fractionCompleted;
+                double progress = 0;
+                if (expectedSize != 0) {
+                    progress = (double)receivedSize / expectedSize;
+                }
+                progress = MAX(MIN(progress, 1), 0); // 0.0 - 1.0
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [imageIndicator updateIndicatorProgress:progress];
                 });
@@ -101,13 +107,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 progressBlock(receivedSize, expectedSize, targetURL);
             }
         };
+        @weakify(self);
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             @strongify(self);
             if (!self) { return; }
             // if the progress not been updated, mark it to complete state
-            if (finished && !error && self.sd_imageProgress.totalUnitCount == 0 && self.sd_imageProgress.completedUnitCount == 0) {
-                self.sd_imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
-                self.sd_imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
+            if (imageProgress && finished && !error && imageProgress.totalUnitCount == 0 && imageProgress.completedUnitCount == 0) {
+                imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
+                imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
             
 #if SD_UIKIT || SD_MAC
