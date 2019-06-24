@@ -28,3 +28,6 @@ DerivedData
 #
 Pods/
 Podfile.lock
+
+# SwiftPM
+.build

@@ -35,6 +35,10 @@ script:
     - echo Check if the library described by the podspec can be built
     - pod lib lint --allow-warnings --skip-tests # Will run test below
 
+    - echo Build the SwiftPM
+    - swift build
+    - rm -rf ~/.build
+
     - echo Build as static library
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage static' -sdk watchsimulator -configuration Debug | xcpretty -c
