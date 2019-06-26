@@ -1018,7 +1018,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')\nXCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')\nif [ $XCODE_VERSION_MAJOR -lt 11 ]\nthen\necho \"Xcode 10 does not support xcframework. You can still use the individual framework for each platform.\"\nexit 0\nfi\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\")\nCOMMAND_ARGS=\"\"\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\nCOMMAND_ARGS=\"${COMMAND_ARGS} -framework ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework\"\ndone\nxcodebuild -create-xcframework $COMMAND_ARGS -output \"${SRCROOT}/build/SDWebImage.xcframework\"\nopen -a Finder \"${SRCROOT}/build/SDWebImage.xcframework\"\n";
+			shellScript = "XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')\nXCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')\nif [ $XCODE_VERSION_MAJOR -lt 11 ]\nthen\necho \"Xcode 10 does not support xcframework. You can still use the individual framework for each platform.\"\nopen -a Finder \"${SRCROOT}/build/\"\nexit 0\nfi\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\")\nCOMMAND_ARGS=\"\"\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\nCOMMAND_ARGS=\"${COMMAND_ARGS} -framework ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework\"\ndone\nxcodebuild -create-xcframework $COMMAND_ARGS -output \"${SRCROOT}/build/SDWebImage.xcframework\"\nopen -a Finder \"${SRCROOT}/build/SDWebImage.xcframework\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
