@@ -37,7 +37,7 @@
 }
 
 - (void)test02ThatByDefaultDownloaderSetsTheAcceptHTTPHeader {
-    expect([[SDWebImageDownloader sharedDownloader] valueForHTTPHeaderField:@"Accept"]).to.match(@"image/\\*");
+    expect([[SDWebImageDownloader sharedDownloader] valueForHTTPHeaderField:@"Accept"]).to.match(@"image/\\*,\\*/\\*;q=0.8");
 }
 
 - (void)test03ThatSetAndGetValueForHTTPHeaderFieldWork {
