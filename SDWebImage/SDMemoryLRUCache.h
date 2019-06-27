@@ -10,9 +10,9 @@
 #import <Foundation/Foundation.h>
 #import "SDMemoryCache.h"
 
-@interface SDMemoryLRUCache : NSObject <SDMemoryCache>
+@interface SDMemoryLRUCache <KeyType, ObjectType>: NSObject <SDMemoryCache>
 
-@property (assign, nonatomic) NSUInteger totalCostLimit;
+@property (nonatomic, strong, nonnull, readonly) SDImageCacheConfig *config;
 
 @end
 

@@ -17,7 +17,6 @@
 @required
 /**
  Create a new memory cache instance with the specify cache config. You can check `maxMemoryCost` and `maxMemoryCount` used for memory cache.
-
  @param config The cache config to be used to create the cache.
  @return The new memory cache instance.
  */
@@ -70,7 +69,7 @@
 /**
  A memory cache which auto purge the cache on memory warning and support weak cache.
  */
-@interface SDMemoryCache : NSObject <SDMemoryCache>
+@interface SDMemoryCache <KeyType, ObjectType> : NSCache <KeyType, ObjectType> <SDMemoryCache>
 
 @property (nonatomic, strong, nonnull, readonly) SDImageCacheConfig *config;
 
