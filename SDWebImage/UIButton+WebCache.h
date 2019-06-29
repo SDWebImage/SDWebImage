@@ -12,10 +12,18 @@
 
 #import "SDWebImageManager.h"
 
+@protocol SDButtonInterface <NSObject>
+
+@optional
+- (void)setImage:(UIImage *_Nullable)image forState:(UIControlState)state;
+- (void)setBackgroundImage:(UIImage *_Nullable)image forState:(UIControlState)state;
+
+@end
+
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIButton.
  */
-@interface UIButton (WebCache)
+@interface UIControl (WebCache) <SDButtonInterface>
 
 #pragma mark - Image
 

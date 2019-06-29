@@ -35,7 +35,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     return [NSString stringWithFormat:@"UIButtonBackgroundImageOperation%lu", (unsigned long)state];
 }
 
-@implementation UIButton (WebCache)
+@implementation UIControl (WebCache)
 
 #pragma mark - Image
 
@@ -112,7 +112,9 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            @strongify(self);
-                           [self setImage:image forState:state];
+                           if ([self respondsToSelector:@selector(setImage:forState:)]) {
+                               [self setImage:image forState:state];
+                           }
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -197,7 +199,9 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            @strongify(self);
-                           [self setBackgroundImage:image forState:state];
+                           if ([self respondsToSelector:@selector(setBackgroundImage:forState:)]) {
+                               [self setBackgroundImage:image forState:state];
+                           }
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
