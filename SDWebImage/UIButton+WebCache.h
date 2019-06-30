@@ -13,7 +13,7 @@
 #import "SDWebImageManager.h"
 
 /**
- * Integrates SDWebImage async downloading and caching of remote images with UIButtonView.
+ * Integrates SDWebImage async downloading and caching of remote images with UIButton.
  */
 @interface UIButton (WebCache)
 

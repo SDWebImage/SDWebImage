@@ -9,6 +9,12 @@
 
 #import "SDTestCase.h"
 
+@interface SDWebImagePrefetcher ()
+
+@property (strong, atomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
+
+@end
+
 @interface SDWebImagePrefetcherTests : SDTestCase <SDWebImagePrefetcherDelegate>
 
 @property (nonatomic, strong) SDWebImagePrefetcher *prefetcher;
@@ -132,6 +138,17 @@
     }];
     
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 20 handler:nil];
+}
+
+- (void)test06PrefetchCancelToken {
+    NSArray *imageURLs = @[@"http://via.placeholder.com/20x20.jpg",
+                           @"http://via.placeholder.com/30x30.jpg",
+                           @"http://via.placeholder.com/40x40.jpg"];
+    SDWebImagePrefetcher *prefetcher = [[SDWebImagePrefetcher alloc] init];
+    SDWebImagePrefetchToken *token = [prefetcher prefetchURLs:imageURLs];
+    expect(prefetcher.runningTokens.count).equal(1);
+    [token cancel];
+    expect(prefetcher.runningTokens.count).equal(0);
 }
 
 - (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount {

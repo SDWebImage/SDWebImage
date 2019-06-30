@@ -8,14 +8,8 @@
  */
 
 #import "SDTestCase.h"
+#import "UIColor+HexString.h"
 #import <CoreImage/CoreImage.h>
-
-// Internal header
-@interface UIColor (HexString)
-
-@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
-
-@end
 
 @interface SDImageTransformerTests : SDTestCase
 
@@ -163,13 +157,50 @@
 #endif
     CGFloat borderWidth = 1;
     UIColor *borderCoder = [UIColor blackColor];
+    BOOL horizontal = YES;
+    BOOL vertical = YES;
+    CGRect cropRect = CGRectMake(0, 0, 50, 50);
+    UIColor *tintColor = [UIColor clearColor];
+    CGFloat blurRadius = 5;
+    
     SDImageResizingTransformer *transformer1 = [SDImageResizingTransformer transformerWithSize:size scaleMode:scaleMode];
     SDImageRotationTransformer *transformer2 = [SDImageRotationTransformer transformerWithAngle:angle fitSize:fitSize];
     SDImageRoundCornerTransformer *transformer3 = [SDImageRoundCornerTransformer transformerWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
-    SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[transformer1, transformer2, transformer3]];
+    SDImageFlippingTransformer *transformer4 = [SDImageFlippingTransformer transformerWithHorizontal:horizontal vertical:vertical];
+    SDImageCroppingTransformer *transformer5 = [SDImageCroppingTransformer transformerWithRect:cropRect];
+    SDImageTintTransformer *transformer6 = [SDImageTintTransformer transformerWithColor:tintColor];
+    SDImageBlurTransformer *transformer7 = [SDImageBlurTransformer transformerWithRadius:blurRadius];
+    
+    CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
+    SDImageFilterTransformer *transformer8 = [SDImageFilterTransformer transformerWithFilter:filter];
+    
+    // Chain all built-in transformers for test case
+    SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[
+                                                                                                                transformer1,
+                                                                                                                transformer2,
+                                                                                                                transformer3,
+                                                                                                                transformer4,
+                                                                                                                transformer5,
+                                                                                                                transformer6,
+                                                                                                                transformer7,
+                                                                                                                transformer8
+                                                                                                                ]];
+    NSArray *transformerKeys = @[
+                      @"SDImageResizingTransformer({100.000000,100.000000},2)",
+                      @"SDImageRotationTransformer(0.785398,0)",
+                      @"SDImageRoundCornerTransformer(50.000000,18446744073709551615,1.000000,#ff000000)",
+                      @"SDImageFlippingTransformer(1,1)",
+                      @"SDImageCroppingTransformer({0.000000,0.000000,50.000000,50.000000})",
+                      @"SDImageTintTransformer(#00000000)",
+                      @"SDImageBlurTransformer(5.000000)",
+                      @"SDImageFilterTransformer(CIColorInvert)"
+                      ];
+    NSString *transformerKey = [transformerKeys componentsJoinedByString:@"-"]; // SDImageTransformerKeySeparator
+    expect([pipelineTransformer.transformerKey isEqualToString:transformerKey]).beTruthy();
     
     UIImage *transformedImage = [pipelineTransformer transformedImageWithImage:self.testImage forKey:@"Test"];
-    expect(CGSizeEqualToSize(transformedImage.size, size)).beTruthy();
+    expect(transformedImage).notTo.beNil();
+    expect(CGSizeEqualToSize(transformedImage.size, cropRect.size)).beTruthy();
 }
 
 - (void)test10TransformerKeyForCacheKey {

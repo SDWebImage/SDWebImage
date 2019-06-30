@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 
+/// Operation execution order
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     /**
      * Default value. All download operations will execute in queue style (first-in-first-out).
@@ -21,6 +22,10 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
     SDWebImageDownloaderLIFOExecutionOrder
 };
 
+/**
+ The class contains all the config for image downloader
+ @note This class conform to NSCopying, make sure to add the property in `copyWithZone:` as well.
+ */
 @interface SDWebImageDownloaderConfig : NSObject <NSCopying>
 
 /**

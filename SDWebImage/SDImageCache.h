@@ -12,6 +12,7 @@
 #import "SDImageCacheConfig.h"
 #import "SDImageCacheDefine.h"
 
+/// Image Cache Options
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
      * By default, we do not query image data when the image is already cached in memory. This mask can force to query image data at the same time. However, this query is asynchronously unless you specify `SDImageCacheQueryMemoryDataSync`

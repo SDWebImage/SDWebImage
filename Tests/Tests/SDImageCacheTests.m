@@ -133,6 +133,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
             XCTFail(@"Image should not be in cache");
         }
     }];
+    [[SDImageCache sharedImageCache] storeImageToMemory:image forKey:kTestImageKeyJPEG];
     [[SDImageCache sharedImageCache] clearMemory];
     expect([[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG]).to.beNil();
     [self waitForExpectationsWithCommonTimeout];
@@ -184,6 +185,35 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         [expectation fulfill];
     }];
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test13DeleteOldFiles {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"deleteOldFiles"];
+    [SDImageCache sharedImageCache].config.maxDiskAge = 1; // 1 second to mark all as out-dated
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [[SDImageCache sharedImageCache] deleteOldFilesWithCompletionBlock:^{
+            expect(SDImageCache.sharedImageCache.totalDiskCount).equal(0);
+            [expectation fulfill];
+        }];
+    });
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test14QueryCacheFirstFrameOnlyHitMemoryCache {
+    NSString *key = kTestGIFURL;
+    UIImage *animatedImage = [self testGIFImage];
+    [[SDImageCache sharedImageCache] storeImageToMemory:animatedImage forKey:key];
+    [[SDImageCache sharedImageCache] queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(cacheType).equal(SDImageCacheTypeMemory);
+        expect(image.sd_isAnimated).beTruthy();
+        expect(image == animatedImage).beTruthy();
+    }];
+    [[SDImageCache sharedImageCache] queryCacheOperationForKey:key options:SDImageCacheDecodeFirstFrameOnly done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(cacheType).equal(SDImageCacheTypeMemory);
+        expect(image.sd_isAnimated).beFalsy();
+        expect(image == animatedImage).beFalsy();
+    }];
+    [[SDImageCache sharedImageCache] removeImageFromMemoryForKey:kTestGIFURL];
 }
 
 - (void)test20InitialCacheSize{
@@ -257,6 +287,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     NSData *imageData = [image sd_imageDataAsFormat:SDImageFormatJPEG];
     [[SDImageCache sharedImageCache] storeImageDataToDisk:imageData forKey:kTestImageKeyJPEG];
     
+    expect([[SDImageCache sharedImageCache] diskImageDataExistsWithKey:kTestImageKeyJPEG]).beTruthy();
     UIImage *storedImageFromMemory = [[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG];
     expect(storedImageFromMemory).to.equal(nil);
     
@@ -380,6 +411,68 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     BOOL exist = [fileManager fileExistsAtPath:[newDefaultPath stringByAppendingPathComponent:@"a.png"]];
     expect(exist).beTruthy();
 }
+
+- (void)test45DiskCacheRemoveExpiredData {
+    NSString *cachePath = [[self userCacheDirectory] stringByAppendingPathComponent:@"disk"];
+    SDImageCacheConfig *config = SDImageCacheConfig.defaultCacheConfig;
+    config.maxDiskAge = 1; // 1 second
+    config.maxDiskSize = 10; // 10 KB
+    SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:cachePath config:config];
+    [diskCache removeAllData];
+    expect(diskCache.totalSize).equal(0);
+    expect(diskCache.totalCount).equal(0);
+    // 20KB -> maxDiskSize
+    NSUInteger length = 20;
+    void *bytes = malloc(length);
+    NSData *data = [NSData dataWithBytes:bytes length:length];
+    free(bytes);
+    [diskCache setData:data forKey:@"20KB"];
+    expect(diskCache.totalSize).equal(length);
+    expect(diskCache.totalCount).equal(1);
+    [diskCache removeExpiredData];
+    expect(diskCache.totalSize).equal(0);
+    expect(diskCache.totalCount).equal(0);
+    // 1KB with 5s -> maxDiskAge
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDDiskCache removeExpireData timeout"];
+    length = 1;
+    bytes = malloc(length);
+    data = [NSData dataWithBytes:bytes length:length];
+    free(bytes);
+    [diskCache setData:data forKey:@"1KB"];
+    expect(diskCache.totalSize).equal(length);
+    expect(diskCache.totalCount).equal(1);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [diskCache removeExpiredData];
+        expect(diskCache.totalSize).equal(0);
+        expect(diskCache.totalCount).equal(0);
+        [expectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+#if SD_UIKIT
+- (void)test46MemoryCacheWeakCache {
+    SDMemoryCache *memoryCache = [[SDMemoryCache alloc] init];
+    memoryCache.config.shouldUseWeakMemoryCache = NO;
+    memoryCache.config.maxMemoryCost = 10;
+    memoryCache.config.maxMemoryCount = 5;
+    expect(memoryCache.countLimit).equal(5);
+    expect(memoryCache.totalCostLimit).equal(10);
+    // Don't use weak cache
+    NSObject *object = [NSObject new];
+    [memoryCache setObject:object forKey:@"1"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    NSObject *cachedObject = [memoryCache objectForKey:@"1"];
+    expect(cachedObject).beNil();
+    // Use weak cache
+    memoryCache.config.shouldUseWeakMemoryCache = YES;
+    object = [NSObject new];
+    [memoryCache setObject:object forKey:@"1"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    cachedObject = [memoryCache objectForKey:@"1"];
+    expect(object).equal(cachedObject);
+}
+#endif
 
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test50SDImageCacheQueryOp {
@@ -586,6 +679,15 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     return reusableImage;
 }
 
+- (UIImage *)testGIFImage {
+    static UIImage *reusableImage = nil;
+    if (!reusableImage) {
+        NSData *data = [NSData dataWithContentsOfFile:[self testGIFPath]];
+        reusableImage = [UIImage sd_imageWithData:data];
+    }
+    return reusableImage;
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
@@ -594,6 +696,12 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 - (NSString *)testPNGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"png"];
+}
+
+- (NSString *)testGIFPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestImage" ofType:@"gif"];
+    return testPath;
 }
 
 - (nullable NSString *)userCacheDirectory {

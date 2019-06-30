@@ -13,6 +13,7 @@
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "SDWeakProxy.h"
+#import "SDInternalMacros.h"
 #import <mach/mach.h>
 #import <objc/runtime.h>
 
@@ -39,7 +40,10 @@ static NSUInteger SDDeviceFreeMemory() {
     return vm_stat.free_count * page_size;
 }
 
-@interface SDAnimatedImageView () <CALayerDelegate>
+@interface SDAnimatedImageView () <CALayerDelegate> {
+    NSRunLoopMode _runLoopMode;
+    BOOL _initFinished; // Extra flag to mark the `commonInit` is called
+}
 
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
 @property (nonatomic, assign, readwrite) NSUInteger currentFrameIndex;
@@ -122,9 +126,10 @@ static NSUInteger SDDeviceFreeMemory() {
 
 - (void)commonInit
 {
+    // Pay attention that UIKit's `initWithImage:` will trigger a `setImage:` during initialization before this `commonInit`.
+    // So the properties which rely on this order, should using lazy-evaluation or do extra check in `setImage:`.
     self.shouldCustomLoopCount = NO;
     self.shouldIncrementalLoad = YES;
-    self.lock = dispatch_semaphore_create(1);
 #if SD_MAC
     self.wantsLayer = YES;
     // Default value from `NSImageView`
@@ -133,9 +138,10 @@ static NSUInteger SDDeviceFreeMemory() {
     self.imageAlignment = NSImageAlignCenter;
 #endif
 #if SD_UIKIT
-    self.runLoopMode = [[self class] defaultRunLoopMode];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
+    // Mark commonInit finished
+    _initFinished = YES;
 }
 
 - (void)resetAnimatedImage
@@ -239,16 +245,37 @@ static NSUInteger SDDeviceFreeMemory() {
 }
 
 #if SD_UIKIT
-- (void)setRunLoopMode:(NSString *)runLoopMode
+- (void)setRunLoopMode:(NSRunLoopMode)runLoopMode
 {
-    if (![@[NSDefaultRunLoopMode, NSRunLoopCommonModes] containsObject:runLoopMode]) {
-        NSAssert(NO, @"Invalid run loop mode: %@", runLoopMode);
-        _runLoopMode = [[self class] defaultRunLoopMode];
-    } else {
-        _runLoopMode = runLoopMode;
+    if ([_runLoopMode isEqual:runLoopMode]) {
+        return;
     }
+    if (_displayLink) {
+        if (_runLoopMode) {
+            [_displayLink removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:_runLoopMode];
+        }
+        if (runLoopMode.length > 0) {
+            [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:runLoopMode];
+        }
+    }
+    _runLoopMode = [runLoopMode copy];
+}
+
+- (NSRunLoopMode)runLoopMode
+{
+    if (!_runLoopMode) {
+        _runLoopMode = [[self class] defaultRunLoopMode];
+    }
+    return _runLoopMode;
 }
 #endif
+
+- (BOOL)shouldIncrementalLoad {
+    if (!_initFinished) {
+        return YES; // Defaults to YES
+    }
+    return _initFinished;
+}
 
 #pragma mark - Private
 - (NSOperationQueue *)fetchQueue
@@ -266,6 +293,13 @@ static NSUInteger SDDeviceFreeMemory() {
         _frameBuffer = [NSMutableDictionary dictionary];
     }
     return _frameBuffer;
+}
+
+- (dispatch_semaphore_t)lock {
+    if (!_lock) {
+        _lock = dispatch_semaphore_create(1);
+    }
+    return _lock;
 }
 
 #if SD_MAC

@@ -13,6 +13,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
+#import "SDInternalMacros.h"
 
 static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageOperation";
 

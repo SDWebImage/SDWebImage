@@ -8,6 +8,9 @@
 
 #import "SDImageLoader.h"
 
+/**
+ A loaders manager to manage multiple loaders
+ */
 @interface SDImageLoadersManager : NSObject <SDImageLoader>
 
 /**
