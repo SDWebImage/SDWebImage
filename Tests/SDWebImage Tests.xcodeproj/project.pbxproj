@@ -574,8 +574,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 328BAF282240C08E00FC70DD /* Test-Debug.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 			};
 			name = Debug;
 		};
@@ -583,8 +581,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 328BAF272240C08E00FC70DD /* Test-Release.xcconfig */;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 			};
 			name = Release;
 		};
