@@ -26,12 +26,6 @@
 		327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */ = {isa = PBXBuildFile; fileRef = 327054E1206CEFF3006EA328 /* TestImageAnimated.apng */; };
 		327A418C211D660600495442 /* TestImage.heic in Resources */ = {isa = PBXBuildFile; fileRef = 327A418B211D660600495442 /* TestImage.heic */; };
 		327A418D211D660600495442 /* TestImage.heic in Resources */ = {isa = PBXBuildFile; fileRef = 327A418B211D660600495442 /* TestImage.heic */; };
-		328BAF292240C08E00FC70DD /* Test-Shared.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF262240C08E00FC70DD /* Test-Shared.xcconfig */; };
-		328BAF2A2240C08E00FC70DD /* Test-Shared.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF262240C08E00FC70DD /* Test-Shared.xcconfig */; };
-		328BAF2B2240C08E00FC70DD /* Test-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF272240C08E00FC70DD /* Test-Release.xcconfig */; };
-		328BAF2C2240C08E00FC70DD /* Test-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF272240C08E00FC70DD /* Test-Release.xcconfig */; };
-		328BAF2D2240C08E00FC70DD /* Test-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF282240C08E00FC70DD /* Test-Debug.xcconfig */; };
-		328BAF2E2240C08E00FC70DD /* Test-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 328BAF282240C08E00FC70DD /* Test-Debug.xcconfig */; };
 		328BB6DD20825E9800760D6C /* SDWebImageTestCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 328BB6DC20825E9800760D6C /* SDWebImageTestCache.m */; };
 		328BB6DE20825E9800760D6C /* SDWebImageTestCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 328BB6DC20825E9800760D6C /* SDWebImageTestCache.m */; };
 		32905E64211D786E00460FCF /* TestImage.heif in Resources */ = {isa = PBXBuildFile; fileRef = 32905E63211D786E00460FCF /* TestImage.heif */; };
@@ -325,7 +319,7 @@
 		DA248D461954721A00390AB0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					32B99E91203B2DF90017FD66 = {
 						CreatedOnToolsVersion = 9.2;
@@ -359,16 +353,13 @@
 			files = (
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
-				328BAF2C2240C08E00FC70DD /* Test-Release.xcconfig in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
-				328BAF2E2240C08E00FC70DD /* Test-Debug.xcconfig in Resources */,
 				32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */,
 				32B99EA6203B31360017FD66 /* TestImage.png in Resources */,
 				32B99EA2203B31360017FD66 /* MonochromeTestImage.jpg in Resources */,
 				32905E65211D786E00460FCF /* TestImage.heif in Resources */,
 				327A418D211D660600495442 /* TestImage.heic in Resources */,
 				32B99EA5203B31360017FD66 /* TestImageLarge.jpg in Resources */,
-				328BAF2A2240C08E00FC70DD /* Test-Shared.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,13 +367,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				328BAF2B2240C08E00FC70DD /* Test-Release.xcconfig in Resources */,
 				327A418C211D660600495442 /* TestImage.heic in Resources */,
-				328BAF292240C08E00FC70DD /* Test-Shared.xcconfig in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,
-				328BAF2D2240C08E00FC70DD /* Test-Debug.xcconfig in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
 				DA248D61195472AA00390AB0 /* InfoPlist.strings in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
