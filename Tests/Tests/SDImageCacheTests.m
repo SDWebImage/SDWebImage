@@ -14,13 +14,6 @@
 static NSString *kTestImageKeyJPEG = @"TestImageKey.jpg";
 static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 
-@interface SDImageCache ()
-
-@property (nonatomic, strong, nonnull) id<SDMemoryCache> memCache;
-@property (nonatomic, strong, nonnull) id<SDDiskCache> diskCache;
-
-@end
-
 @interface SDImageCacheTests : SDTestCase <NSFileManagerDelegate>
 
 @end
@@ -380,7 +373,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     config.memoryCacheClass = [SDWebImageTestMemoryCache class];
     NSString *nameSpace = @"SDWebImageTestMemoryCache";
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:nameSpace diskCacheDirectory:nil config:config];
-    SDWebImageTestMemoryCache *memCache = cache.memCache;
+    SDWebImageTestMemoryCache *memCache = cache.memoryCache;
     expect([memCache isKindOfClass:[SDWebImageTestMemoryCache class]]).to.beTruthy();
 }
 
