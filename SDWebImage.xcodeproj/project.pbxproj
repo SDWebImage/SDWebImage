@@ -6,6 +6,21 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		326CA50C22BA14EF0033A92F /* SDWebImage XCFramework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 326CA50F22BA14EF0033A92F /* Build configuration list for PBXAggregateTarget "SDWebImage XCFramework" */;
+			buildPhases = (
+				326CA51322BA1A270033A92F /* Build Frameworks */,
+				326CA51422BA25F70033A92F /* Create XCFramework */,
+			);
+			dependencies = (
+			);
+			name = "SDWebImage XCFramework";
+			productName = "SDWebImage XCFramework";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		320CAE172086F50500CFFC80 /* SDWebImageError.h in Headers */ = {isa = PBXBuildFile; fileRef = 320CAE132086F50500CFFC80 /* SDWebImageError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		320CAE1B2086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
@@ -906,6 +921,10 @@
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = Dailymotion;
 				TargetAttributes = {
+					326CA50C22BA14EF0033A92F = {
+						CreatedOnToolsVersion = 11.0;
+						ProvisioningStyle = Automatic;
+					};
 					4A2CADFE1AB4BB5300B6BC39 = {
 						CreatedOnToolsVersion = 6.3;
 					};
@@ -927,6 +946,7 @@
 				53761307155AD0D5005750A4 /* SDWebImage static */,
 				4A2CADFE1AB4BB5300B6BC39 /* SDWebImage */,
 				80B6DF862142B71600BCB334 /* SDWebImageMapKit */,
+				326CA50C22BA14EF0033A92F /* SDWebImage XCFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -947,6 +967,60 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		326CA51322BA1A270033A92F /* Build Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
+				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
+				"$(SRCROOT)/build/macosx/SDWebImage.framework",
+				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
+				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
+				"$(SRCROOT)/build/watchos/SDWebImage.framework",
+				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p $(SRCROOT)/build\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\")\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\nCONFIGURATION=\"Release\"\nif [[ $CURRENT_PLATFORM == *\"simulator\" ]]; then\nCONFIGURATION=\"Debug\"\nfi\nxcodebuild -sdk \"${CURRENT_PLATFORM}\" -scheme SDWebImage -configuration $CONFIGURATION CONFIGURATION_BUILD_DIR=\"${SRCROOT}/build/${CURRENT_PLATFORM}/\" SKIP_INSTALL=NO\ndone\n";
+		};
+		326CA51422BA25F70033A92F /* Create XCFramework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
+				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
+				"$(SRCROOT)/build/macosx/SDWebImage.framework",
+				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
+				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
+				"$(SRCROOT)/build/watchos/SDWebImage.framework",
+				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
+			);
+			name = "Create XCFramework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/build/SDWebImage.xcframework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')\nXCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')\nif [ $XCODE_VERSION_MAJOR -lt 11 ]\nthen\necho \"Xcode 10 does not support xcframework. You can still use the individual framework for each platform.\"\nopen -a Finder \"${SRCROOT}/build/\"\nexit 0\nfi\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\")\nCOMMAND_ARGS=\"\"\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\nCOMMAND_ARGS=\"${COMMAND_ARGS} -framework ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework\"\ndone\nxcodebuild -create-xcframework $COMMAND_ARGS -output \"${SRCROOT}/build/SDWebImage.xcframework\"\nopen -a Finder \"${SRCROOT}/build/SDWebImage.xcframework\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4A2CADFA1AB4BB5300B6BC39 /* Sources */ = {
@@ -1094,6 +1168,22 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		326CA50D22BA14EF0033A92F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		326CA50E22BA14EF0033A92F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4A2CAE131AB4BB5400B6BC39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1163,6 +1253,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		326CA50F22BA14EF0033A92F /* Build configuration list for PBXAggregateTarget "SDWebImage XCFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				326CA50D22BA14EF0033A92F /* Debug */,
+				326CA50E22BA14EF0033A92F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4A2CAE121AB4BB5400B6BC39 /* Build configuration list for PBXNativeTarget "SDWebImage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
