@@ -24,8 +24,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
  */
 @interface SDMemoryCacheMapNode : NSObject {
     @package
-    __unsafe_unretained SDMemoryCacheMapNode *_pre;
-    __unsafe_unretained SDMemoryCacheMapNode *_next;
+    SDMemoryCacheMapNode *_pre;
+    SDMemoryCacheMapNode *_next;
     id _key;
     id _val;
     NSUInteger _cost;
@@ -42,8 +42,9 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     CFMutableDictionaryRef _dic;
     NSUInteger _totalCost;
     NSUInteger _totalCount;
-    SDMemoryCacheMapNode *_head;
-    SDMemoryCacheMapNode *_tail;
+    SDMemoryCacheMapNode *_headNode;
+    SDMemoryCacheMapNode *_tailNode;
+    BOOL _releaseAsynchronously;
 }
 
 /**
@@ -80,6 +81,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     
     if (self) {
         _dic = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        _releaseAsynchronously = YES;
     }
     
     return self;
@@ -167,9 +169,14 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     if (CFDictionaryGetCount(_dic) > 0) {
         CFMutableDictionaryRef dic = _dic;
         _dic = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+        
+        if (_releaseAsynchronously) {
+            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+                CFRelease(dic);
+            });
+        } else {
             CFRelease(dic);
-        });
+        }
     }
 }
 
@@ -202,12 +209,14 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     pthread_mutex_destroy(&_lock);
     [_lru removeAll];
     
+#if SD_UIKIT
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidReceiveMemoryWarningNotification
                                                   object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidEnterBackgroundNotification
                                                   object:nil];
+#endif
 }
 
 - (instancetype)init {
@@ -230,6 +239,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)commonInit {
+    self.releaseAsynchronously = true;
     self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
     self.weakCacheLock = dispatch_semaphore_create(1);
     
@@ -246,6 +256,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryLRUCacheContext];
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryLRUCacheContext];
     
+#if SD_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
@@ -254,8 +265,23 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
                                              selector:@selector(didEnterBackground:)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+#endif
 }
 
+- (void)setReleaseAsynchronously:(BOOL)releaseAsynchronously {
+    pthread_mutex_lock(&_lock);
+    _lru->_releaseAsynchronously = releaseAsynchronously;
+    pthread_mutex_unlock(&_lock);
+}
+
+- (BOOL)releaseAsynchronously {
+    pthread_mutex_lock(&_lock);
+    BOOL releaseAsynchronously = _lru->_releaseAsynchronously;
+    pthread_mutex_unlock(&_lock);
+    return releaseAsynchronously;
+}
+
+#if SD_UIKIT
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
     [self removeAllObjects];
 }
@@ -263,6 +289,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 - (void)didEnterBackground:(NSNotification *)notification {
     [self removeAllObjects];
 }
+#endif
 
 - (void)setObject:(nullable id)object forKey:(nonnull id)key {
     [self setObject:object forKey:key cost:0];
@@ -305,9 +332,14 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     if (_lru->_totalCount > _countLimit) {
         // Only remove the tail node.
         SDMemoryCacheMapNode *tailNode = [_lru removeTailNode];
-        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+        if (_lru->_releaseAsynchronously) {
+            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+                [tailNode class];
+            });
+        } else {
             [tailNode class];
-        });
+        }
+       
     }
     pthread_mutex_unlock(&_lock);
     
@@ -365,9 +397,13 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     SDMemoryCacheMapNode *node = CFDictionaryGetValue(_lru->_dic, (__bridge const void*)(key));
     if (node) {
         [_lru removeNode:node];
-        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+        if (_lru->_releaseAsynchronously) {
+            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+                [node class];
+            });
+        } else {
             [node class];
-        });
+        }
     }
     pthread_mutex_unlock(&_lock);
     
