@@ -459,11 +459,13 @@ static NSUInteger SDDeviceFreeMemory() {
 - (void)stopAnimating
 {
     if (self.animatedImage) {
+        SD_LOCK(self.lock);
 #if SD_MAC
         CVDisplayLinkStop(_displayLink);
 #else
         _displayLink.paused = YES;
 #endif
+        SD_UNLOCK(self.lock);
     } else {
 #if SD_UIKIT
         [super stopAnimating];
@@ -665,8 +667,17 @@ static NSUInteger SDDeviceFreeMemory() {
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
+            
+            BOOL displayLinkIsPaused = NO;
             SD_LOCK(self.lock);
-            self.frameBuffer[@(fetchFrameIndex)] = frame;
+#if SD_MAC
+            displayLinkIsPaused = !CVDisplayLinkIsRunning(_displayLink);
+#else
+            displayLinkIsPaused = _displayLink.isPaused;
+#endif
+            if (!displayLinkIsPaused) {
+                self.frameBuffer[@(fetchFrameIndex)] = frame;
+            }
             SD_UNLOCK(self.lock);
         }];
         [self.fetchQueue addOperation:operation];
