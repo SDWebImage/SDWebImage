@@ -459,6 +459,8 @@ static NSUInteger SDDeviceFreeMemory() {
 - (void)stopAnimating
 {
     if (self.animatedImage) {
+        [_fetchQueue cancelAllOperations];
+        // Using `_displayLink` here because when UIImageView dealloc, it may trigger `[self stopAnimating]`, we already release the display link in SDAnimatedImageView's dealloc method.
 #if SD_MAC
         CVDisplayLinkStop(_displayLink);
 #else
@@ -665,9 +667,18 @@ static NSUInteger SDDeviceFreeMemory() {
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
-            SD_LOCK(self.lock);
-            self.frameBuffer[@(fetchFrameIndex)] = frame;
-            SD_UNLOCK(self.lock);
+
+            BOOL isAnimating = NO;
+#if SD_MAC
+            isAnimating = CVDisplayLinkIsRunning(self.displayLink);
+#else
+            isAnimating = !self.displayLink.isPaused;
+#endif
+            if (isAnimating) {
+                SD_LOCK(self.lock);
+                self.frameBuffer[@(fetchFrameIndex)] = frame;
+                SD_UNLOCK(self.lock);
+            }
         }];
         [self.fetchQueue addOperation:operation];
     }
