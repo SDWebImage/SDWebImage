@@ -45,6 +45,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     SDMemoryCacheMapNode *_headNode;
     SDMemoryCacheMapNode *_tailNode;
     BOOL _releaseAsynchronously;
+    BOOL _releaseOnMainThread;
 }
 
 /**
@@ -82,6 +83,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     if (self) {
         _dic = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         _releaseAsynchronously = YES;
+        _releaseOnMainThread = NO;
     }
     
     return self;
@@ -171,7 +173,12 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
         _dic = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         
         if (_releaseAsynchronously) {
-            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            dispatch_queue_t queue = _releaseOnMainThread ? dispatch_get_main_queue() : SDMemoryCacheGetReleaseQueue();
+            dispatch_async(queue, ^{
+                CFRelease(dic);
+            });
+        } else if (_releaseOnMainThread && !pthread_main_np()) {
+            dispatch_async(dispatch_get_main_queue(), ^{
                 CFRelease(dic);
             });
         } else {
@@ -240,6 +247,7 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
 - (void)commonInit {
     self.releaseAsynchronously = true;
+    self.releaseOnMainThread = NO;
     self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
     self.weakCacheLock = dispatch_semaphore_create(1);
     
@@ -279,6 +287,19 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     BOOL releaseAsynchronously = _lru->_releaseAsynchronously;
     pthread_mutex_unlock(&_lock);
     return releaseAsynchronously;
+}
+
+- (BOOL)releaseOnMainThread {
+    pthread_mutex_lock(&_lock);
+    BOOL releaseOnMainThread = _lru->_releaseOnMainThread;
+    pthread_mutex_unlock(&_lock);
+    return releaseOnMainThread;
+}
+
+- (void)setReleaseOnMainThread:(BOOL)releaseOnMainThread {
+    pthread_mutex_lock(&_lock);
+    _lru->_releaseOnMainThread = releaseOnMainThread;
+    pthread_mutex_unlock(&_lock);
 }
 
 #if SD_UIKIT
@@ -333,11 +354,14 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
         // Only remove the tail node.
         SDMemoryCacheMapNode *tailNode = [_lru removeTailNode];
         if (_lru->_releaseAsynchronously) {
-            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            dispatch_queue_t queue = _lru->_releaseOnMainThread ? dispatch_get_main_queue() : SDMemoryCacheGetReleaseQueue();
+            dispatch_async(queue, ^{
                 [tailNode class];
             });
-        } else {
-            [tailNode class];
+        } else if (_lru->_releaseOnMainThread && !pthread_main_np()) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [tailNode class];
+            });
         }
        
     }
@@ -398,11 +422,14 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     if (node) {
         [_lru removeNode:node];
         if (_lru->_releaseAsynchronously) {
-            dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+            dispatch_queue_t queue = _lru->_releaseOnMainThread ? dispatch_get_main_queue() : SDMemoryCacheGetReleaseQueue();
+            dispatch_async(queue, ^{
                 [node class];
             });
-        } else {
-            [node class];
+        } else if (_lru->_releaseOnMainThread && !pthread_main_np()) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [node class];
+            });
         }
     }
     pthread_mutex_unlock(&_lock);
@@ -492,8 +519,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     }
     
     if (nodeMArray.count > 0) {
-        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
-            // Async release in global queue
+        dispatch_queue_t queue = _lru->_releaseOnMainThread ? dispatch_get_main_queue() : SDMemoryCacheGetReleaseQueue();
+        dispatch_async(queue, ^{
             [nodeMArray count];
         });
     }
@@ -522,7 +549,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     }
     
     if (nodeMArray.count > 0) {
-        dispatch_async(SDMemoryCacheGetReleaseQueue(), ^{
+        dispatch_queue_t queue = _lru->_releaseOnMainThread ? dispatch_get_main_queue() : SDMemoryCacheGetReleaseQueue();
+        dispatch_async(queue, ^{
             [nodeMArray count];
         });
     }
