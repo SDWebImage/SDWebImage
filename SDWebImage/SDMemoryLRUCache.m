@@ -246,8 +246,6 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 }
 
 - (void)commonInit {
-    self.releaseAsynchronously = true;
-    self.releaseOnMainThread = NO;
     self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
     self.weakCacheLock = dispatch_semaphore_create(1);
     
@@ -257,9 +255,11 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
 
     pthread_mutex_init(&_lock, NULL);
     _lru = [SDMemoryCacheMap new];
-    _queue = dispatch_queue_create("com.hackemist.SDImageMemoryLRUCache", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("com.hackemist.SDMemoryLRUCache", DISPATCH_QUEUE_SERIAL);
     // Default auto trim cache interval is 5.0.
     _autoTrimInterval = 5.0;
+    _lru->_releaseAsynchronously = YES;
+    _lru->_releaseOnMainThread = NO;
     
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCost)) options:0 context:SDMemoryLRUCacheContext];
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryLRUCacheContext];
