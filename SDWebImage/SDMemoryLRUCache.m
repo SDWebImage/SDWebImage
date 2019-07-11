@@ -42,8 +42,8 @@ static inline dispatch_queue_t SDMemoryCacheGetReleaseQueue() {
     CFMutableDictionaryRef _dic;
     NSUInteger _totalCost;
     NSUInteger _totalCount;
-    SDMemoryCacheMapNode *_headNode;
-    SDMemoryCacheMapNode *_tailNode;
+    SDMemoryCacheMapNode *_head;
+    SDMemoryCacheMapNode *_tail;
     BOOL _releaseAsynchronously;
     BOOL _releaseOnMainThread;
 }
