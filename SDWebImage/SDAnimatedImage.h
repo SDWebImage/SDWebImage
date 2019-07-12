@@ -85,8 +85,8 @@
 @property (nonatomic, assign, readonly) SDImageFormat animatedImageFormat;
 
 /**
- Current animated image data, you can use this instead of CGImage to create another instance.
- If the current image is not animated image, this value is nil.
+ Current animated image data, you can use this to grab the compressed format data and create another animated image instance.
+ If this image instance is an animated image created by using animated image coder (which means using the API listed above or using `initWithAnimatedCoder:scale:`), this property is non-nil.
  */
 @property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
 

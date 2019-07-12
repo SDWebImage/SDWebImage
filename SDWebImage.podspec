@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'SDWebImage'
-  s.version = '5.0.3'
+  s.version = '5.0.6'
 
   s.osx.deployment_target = '10.10'
   s.ios.deployment_target = '8.0'
@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
-  s.module_map = 'WebImage/SDWebImage.modulemap'
   
   s.default_subspec = 'Core'
 

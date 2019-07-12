@@ -64,9 +64,11 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        NSProgress *imageProgress = storage[SDWebImageLoadingStorageProgress];
-        imageProgress.totalUnitCount = 0;
-        imageProgress.completedUnitCount = 0;
+        NSProgress *imageProgress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+        if (imageProgress) {
+            imageProgress.totalUnitCount = 0;
+            imageProgress.completedUnitCount = 0;
+        }
         
 #if SD_UIKIT || SD_MAC
         // check and start image indicator
@@ -80,11 +82,17 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         }
         
         SDImageLoaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-            imageProgress.totalUnitCount = expectedSize;
-            imageProgress.completedUnitCount = receivedSize;
+            if (imageProgress) {
+                imageProgress.totalUnitCount = expectedSize;
+                imageProgress.completedUnitCount = receivedSize;
+            }
 #if SD_UIKIT || SD_MAC
             if ([imageIndicator respondsToSelector:@selector(updateIndicatorProgress:)]) {
-                double progress = imageProgress.fractionCompleted;
+                double progress = 0;
+                if (expectedSize != 0) {
+                    progress = (double)receivedSize / expectedSize;
+                }
+                progress = MAX(MIN(progress, 1), 0); // 0.0 - 1.0
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [imageIndicator updateIndicatorProgress:progress];
                 });
@@ -99,7 +107,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             @strongify(self);
             if (!self) { return; }
             // if the progress not been updated, mark it to complete state
-            if (finished && !error && imageProgress.totalUnitCount == 0 && imageProgress.completedUnitCount == 0) {
+            if (imageProgress && finished && !error && imageProgress.totalUnitCount == 0 && imageProgress.completedUnitCount == 0) {
                 imageProgress.totalUnitCount = SDWebImageProgressUnitCountUnknown;
                 imageProgress.completedUnitCount = SDWebImageProgressUnitCountUnknown;
             }
