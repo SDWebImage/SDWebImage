@@ -85,7 +85,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        NSProgress *imageProgress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+        NSProgress *imageProgress = mutableState[SDWebImageStateContainerProgress];
         if (imageProgress) {
             imageProgress.totalUnitCount = 0;
             imageProgress.completedUnitCount = 0;
@@ -177,7 +177,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             // check whether we should use the image transition
             SDWebImageTransition *transition = nil;
             if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
-                transition = self.sd_imageTransition;
+                transition = mutableState[SDWebImageStateContainerTransition];
             }
 #endif
             dispatch_main_async_safe(^{

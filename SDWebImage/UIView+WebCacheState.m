@@ -14,14 +14,14 @@ SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerProgress = @"
 SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerTransition = @"transition";
 
 static char loadStateKey;
-typedef NSMapTable<NSString *, SDWebImageStateContainer *> SDStateContainerTable;
+typedef NSMutableDictionary<NSString *, SDWebImageStateContainer *> SDStatesDictionary;
 
 @implementation UIView (WebCacheState)
 
-- (SDStateContainerTable *)sd_imageLoadStateTable {
-    SDStateContainerTable *states = objc_getAssociatedObject(self, &loadStateKey);
+- (SDStatesDictionary *)sd_imageLoadStateDictionary {
+    SDStatesDictionary *states = objc_getAssociatedObject(self, &loadStateKey);
     if (!states) {
-        states = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
+        states = [NSMutableDictionary dictionary];
         objc_setAssociatedObject(self, &loadStateKey, states, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return states;
@@ -31,21 +31,27 @@ typedef NSMapTable<NSString *, SDWebImageStateContainer *> SDStateContainerTable
     if (!key) {
         key = NSStringFromClass(self.class);
     }
-    return [self.sd_imageLoadStateTable objectForKey:key];
+    @synchronized(self) {
+        return [self.sd_imageLoadStateDictionary objectForKey:key];
+    }
 }
 
 - (void)sd_setImageLoadState:(SDWebImageStateContainer *)state forKey:(NSString *)key {
     if (!key) {
         key = NSStringFromClass(self.class);
     }
-    [self.sd_imageLoadStateTable setObject:state forKey:key];
+    @synchronized(self) {
+        self.sd_imageLoadStateDictionary[key] = state;
+    }
 }
 
 - (void)sd_removeImageLoadStateForKey:(NSString *)key {
     if (!key) {
         key = NSStringFromClass(self.class);
     }
-    [self.sd_imageLoadStateTable removeObjectForKey:key];
+    @synchronized(self) {
+        self.sd_imageLoadStateDictionary[key] = nil;
+    }
 }
 
 @end
