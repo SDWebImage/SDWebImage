@@ -30,13 +30,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #pragma mark - State
 
 - (nullable NSURL *)sd_imageURL {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
-    return state[SDWebImageStateContainerURL];
+    return [self sd_imageLoadStateForKey:self.sd_latestOperationKey].url;
 }
 
 - (NSProgress *)sd_imageProgress {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
-    NSProgress *progress = state[SDWebImageStateContainerProgress];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
+    NSProgress *progress = stateContainer.progress;
     if (!progress) {
         progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
         self.sd_imageProgress = progress;
@@ -48,12 +47,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     if (!sd_imageProgress) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:self.sd_latestOperationKey] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerProgress] = sd_imageProgress;
-    [self sd_setImageLoadState:[mutableState copy] forKey:self.sd_latestOperationKey];
+    stateContainer.progress = sd_imageProgress;
+    [self sd_setImageLoadState:stateContainer forKey:self.sd_latestOperationKey];
 }
 
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
@@ -70,12 +69,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     }
     self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:validOperationKey] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:validOperationKey];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    [mutableState setValue:url forKey:SDWebImageStateContainerURL];
-    [self sd_setImageLoadState:[mutableState copy] forKey:validOperationKey];
+    stateContainer.url = url;
+    [self sd_setImageLoadState:stateContainer forKey:validOperationKey];
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         dispatch_main_async_safe(^{
@@ -85,7 +84,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        NSProgress *imageProgress = mutableState[SDWebImageStateContainerProgress];
+        NSProgress *imageProgress = stateContainer.progress;
         if (imageProgress) {
             imageProgress.totalUnitCount = 0;
             imageProgress.completedUnitCount = 0;
@@ -177,7 +176,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             // check whether we should use the image transition
             SDWebImageTransition *transition = nil;
             if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
-                transition = mutableState[SDWebImageStateContainerTransition];
+                transition = stateContainer.transition;
             }
 #endif
             dispatch_main_async_safe(^{
@@ -315,20 +314,19 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #pragma mark - Image Transition
 
 - (SDWebImageTransition *)sd_imageTransition {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
-    return state[SDWebImageStateContainerTransition];
+    return [self sd_imageLoadStateForKey:self.sd_latestOperationKey].transition;
 }
 
 - (void)setSd_imageTransition:(SDWebImageTransition *)sd_imageTransition {
     if (!sd_imageTransition) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:self.sd_latestOperationKey] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerTransition] = sd_imageTransition;
-    [self sd_setImageLoadState:[mutableState copy] forKey:self.sd_latestOperationKey];
+    stateContainer.transition = sd_imageTransition;
+    [self sd_setImageLoadState:stateContainer forKey:self.sd_latestOperationKey];
 }
 
 #pragma mark - Indicator

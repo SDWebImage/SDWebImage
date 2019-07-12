@@ -177,43 +177,40 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 - (NSURL *)sd_imageURLForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerURL];
+    return [self sd_imageLoadStateForKey:imageOperationKeyForState(state)].url;
 }
 
 - (NSProgress *)sd_imageProgressForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerProgress];
+    return [self sd_imageLoadStateForKey:imageOperationKeyForState(state)].progress;
 }
 
 - (void)sd_setImageProgress:(NSProgress *)progress forState:(UIControlState)state {
     if (!progress) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:imageOperationKeyForState(state)] mutableCopy];
-    if (!mutableStateContainer) {
-        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableStateContainer[SDWebImageStateContainerProgress] = progress;
-    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    stateContainer.progress = progress;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
     
 }
 
 - (SDWebImageTransition *)sd_imageTransitionForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerTransition];
+    return [self sd_imageLoadStateForKey:imageOperationKeyForState(state)].transition;
 }
 
 - (void)sd_setImageTransition:(SDWebImageTransition *)transition forState:(UIControlState)state {
     if (!transition) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:imageOperationKeyForState(state)] mutableCopy];
-    if (!mutableStateContainer) {
-        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableStateContainer[SDWebImageStateContainerTransition] = transition;
-    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    stateContainer.transition = transition;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
 }
 
 #pragma mark - Background State
@@ -227,43 +224,40 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 - (NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerURL];
+    return [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)].url;
 }
 
 - (NSProgress *)sd_backgroundImageProgressForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerProgress];
+    return [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)].progress;
 }
 
 - (void)sd_setBackgroundImageProgress:(NSProgress *)progress forState:(UIControlState)state {
     if (!progress) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)] mutableCopy];
-    if (!mutableStateContainer) {
-        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableStateContainer[SDWebImageStateContainerProgress] = progress;
-    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    stateContainer.progress = progress;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
     
 }
 
 - (SDWebImageTransition *)sd_backgroundImageTransitionForState:(UIControlState)state {
-    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
-    return stateContainer[SDWebImageStateContainerTransition];
+    return [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)].transition;
 }
 
 - (void)sd_setBackgroundImageTransition:(SDWebImageTransition *)transition forState:(UIControlState)state {
     if (!transition) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)] mutableCopy];
-    if (!mutableStateContainer) {
-        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableStateContainer[SDWebImageStateContainerTransition] = transition;
-    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    stateContainer.transition = transition;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
 }
 
 @end

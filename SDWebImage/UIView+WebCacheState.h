@@ -8,22 +8,24 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
+#import "SDWebImageTransition.h"
 
-typedef NSString * SDWebImageStateContainerKey NS_EXTENSIBLE_STRING_ENUM;
-typedef NSDictionary<SDWebImageStateContainerKey, id> SDWebImageStateContainer;
-typedef NSMutableDictionary<SDWebImageStateContainerKey, id> SDWebImageMutableStateContainer;
+@interface SDWebImageStateContainer : NSObject
+
 /**
- Key for current loading URL (NSURL *)
+ Image loading URL
  */
-FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerURL;
+@property (nonatomic, strong, nullable) NSURL *url;
 /**
- Key for current loading progress (NSProgress *)
+ Image loading progress. The unit count is the received size and excepted size of download.
  */
-FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerProgress;
+@property (nonatomic, strong, nullable) NSProgress *progress;
 /**
- Key for current image transition animation (SDWebImageTransition *)
+ Image transition animation, see more in `SDWebImageTransition.h`
  */
-FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerTransition;
+@property (nonatomic, strong, nullable) SDWebImageTransition *transition;
+
+@end
 
 /**
  These methods are used for WebCache view which have multiple states for image loading, for example, `UIButton` or `UIImageView.highlightedImage`

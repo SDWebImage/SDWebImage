@@ -75,42 +75,39 @@ static NSString * const SDHighlightedImageOperationKey = @"UIImageViewImageOpera
 #pragma mark - Highlighted State
 
 - (NSURL *)sd_currentHighlightedImageURL {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey];
-    return state[SDWebImageStateContainerURL];
+    return [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey].url;
 }
 
 - (NSProgress *)sd_currentHighlightedImageProgress {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey];
-    return state[SDWebImageStateContainerProgress];
+    return [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey].progress;
 }
 
 - (void)setsd_currentHighlightedImageProgress:(NSProgress *)sd_currentHighlightedImageProgress {
     if (!sd_currentHighlightedImageProgress) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:SDHighlightedImageOperationKey] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerProgress] = sd_currentHighlightedImageProgress;
-    [self sd_setImageLoadState:[mutableState copy] forKey:SDHighlightedImageOperationKey];
+    stateContainer.progress = sd_currentHighlightedImageProgress;
+    [self sd_setImageLoadState:stateContainer forKey:SDHighlightedImageOperationKey];
 }
 
 - (SDWebImageTransition *)sd_currentHighlightedImageTransition {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey];
-    return state[SDWebImageStateContainerTransition];
+    return [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey].transition;
 }
 
 - (void)setsd_currentHighlightedImageTransition:(SDWebImageTransition *)sd_currentHighlightedImageTransition {
     if (!sd_currentHighlightedImageTransition) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:SDHighlightedImageOperationKey] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:SDHighlightedImageOperationKey];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerTransition] = sd_currentHighlightedImageTransition;
-    [self sd_setImageLoadState:[mutableState copy] forKey:SDHighlightedImageOperationKey];
+    stateContainer.transition = sd_currentHighlightedImageTransition;
+    [self sd_setImageLoadState:stateContainer forKey:SDHighlightedImageOperationKey];
 }
 
 @end

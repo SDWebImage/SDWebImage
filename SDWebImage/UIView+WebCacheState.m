@@ -9,12 +9,12 @@
 #import "UIView+WebCacheState.h"
 #import "objc/runtime.h"
 
-SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerURL = @"url";
-SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerProgress = @"progress";
-SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerTransition = @"transition";
-
 static char loadStateKey;
 typedef NSMutableDictionary<NSString *, SDWebImageStateContainer *> SDStatesDictionary;
+
+@implementation SDWebImageStateContainer
+
+@end
 
 @implementation UIView (WebCacheState)
 

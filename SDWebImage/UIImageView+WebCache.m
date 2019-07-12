@@ -68,42 +68,39 @@
 #pragma mark - State
 
 - (NSURL *)sd_currentImageURL {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
-    return state[SDWebImageStateContainerURL];
+    return [self sd_imageLoadStateForKey:nil].url;
 }
 
 - (NSProgress *)sd_currentImageProgress {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
-    return state[SDWebImageStateContainerProgress];
+    return [self sd_imageLoadStateForKey:nil].progress;
 }
 
 - (void)setSd_currentImageProgress:(NSProgress *)sd_currentImageProgress {
     if (!sd_currentImageProgress) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:nil];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerProgress] = sd_currentImageProgress;
-    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
+    stateContainer.progress = sd_currentImageProgress;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
 }
 
 - (SDWebImageTransition *)sd_currentImageTransition {
-    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
-    return state[SDWebImageStateContainerTransition];
+    return [self sd_imageLoadStateForKey:nil].transition;
 }
 
 - (void)setSd_currentImageTransition:(SDWebImageTransition *)sd_currentImageTransition {
     if (!sd_currentImageTransition) {
         return;
     }
-    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
-    if (!mutableState) {
-        mutableState = [SDWebImageMutableStateContainer dictionary];
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:nil];
+    if (!stateContainer) {
+        stateContainer = [SDWebImageStateContainer new];
     }
-    mutableState[SDWebImageStateContainerTransition] = sd_currentImageTransition;
-    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
+    stateContainer.transition = sd_currentImageTransition;
+    [self sd_setImageLoadState:stateContainer forKey:nil];
 }
 
 @end
