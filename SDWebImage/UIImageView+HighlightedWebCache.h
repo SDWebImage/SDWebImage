@@ -11,16 +11,31 @@
 #if SD_UIKIT
 
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIImageView for highlighted state.
  */
 @interface UIImageView (HighlightedWebCache)
 
+#pragma mark - Highlighted Image State
+
 /**
  * Get the current highlighted image URL.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentHighlightedImageURL;
+
+/**
+ * Get the current highlighted image progress.
+ */
+@property (nonatomic, strong, readonly, nullable) NSProgress *sd_currentHighlightedImageProgress;
+
+/**
+ * Get the current highlighted image transition.
+ */
+@property (nonatomic, strong, readonly, nullable) SDWebImageTransition *sd_currentHighlightedImageTransition;
+
+#pragma mark - Highlighted Image Loading
 
 /**
  * Set the imageView `highlightedImage` with an `url`.

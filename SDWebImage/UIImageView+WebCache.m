@@ -9,6 +9,7 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCache.h"
 
 @implementation UIImageView (WebCache)
@@ -62,6 +63,47 @@
                                    completedBlock(image, error, cacheType, imageURL);
                                }
                            }];
+}
+
+#pragma mark - State
+
+- (NSURL *)sd_currentImageURL {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerURL];
+}
+
+- (NSProgress *)sd_currentImageProgress {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerProgress];
+}
+
+- (void)setSd_currentImageProgress:(NSProgress *)sd_currentImageProgress {
+    if (!sd_currentImageProgress) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerProgress] = sd_currentImageProgress;
+    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
+}
+
+- (SDWebImageTransition *)sd_currentImageTransition {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerTransition];
+}
+
+- (void)setSd_currentImageTransition:(SDWebImageTransition *)sd_currentImageTransition {
+    if (!sd_currentImageTransition) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerTransition] = sd_currentImageTransition;
+    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
 }
 
 @end

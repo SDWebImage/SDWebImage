@@ -12,6 +12,7 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCache.h"
 #import "SDInternalMacros.h"
 
@@ -59,7 +60,6 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
                    context:(nullable SDWebImageContext *)context
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    self.sd_currentImageURL = url;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
@@ -113,8 +113,6 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
                             context:(nullable SDWebImageContext *)context
                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                           completed:(nullable SDExternalCompletionBlock)completedBlock {
-    self.sd_currentAlternateImageURL = url;
-    
     SDWebImageMutableContext *mutableContext;
     if (context) {
         mutableContext = [context mutableCopy];
@@ -149,22 +147,86 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
     [self sd_cancelImageLoadOperationWithKey:SDAlternateImageOperationKey];
 }
 
-#pragma mar - Private
+#pragma mark - State
 
 - (NSURL *)sd_currentImageURL {
-    return objc_getAssociatedObject(self, @selector(sd_currentImageURL));
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerURL];
 }
 
-- (void)setSd_currentImageURL:(NSURL *)sd_currentImageURL {
-    objc_setAssociatedObject(self, @selector(sd_currentImageURL), sd_currentImageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (NSProgress *)sd_currentImageProgress {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerProgress];
 }
+
+- (void)setSd_currentImageProgress:(NSProgress *)sd_currentImageProgress {
+    if (!sd_currentImageProgress) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerProgress] = sd_currentImageProgress;
+    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
+}
+
+- (SDWebImageTransition *)sd_currentImageTransition {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:nil];
+    return state[SDWebImageStateContainerTransition];
+}
+
+- (void)setSd_currentImageTransition:(SDWebImageTransition *)sd_currentImageTransition {
+    if (!sd_currentImageTransition) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:nil] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerTransition] = sd_currentImageTransition;
+    [self sd_setImageLoadState:[mutableState copy] forKey:nil];
+}
+
+#pragma mark - Alternate State
 
 - (NSURL *)sd_currentAlternateImageURL {
-    return objc_getAssociatedObject(self, @selector(sd_currentAlternateImageURL));
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDAlternateImageOperationKey];
+    return state[SDWebImageStateContainerURL];
 }
 
-- (void)setSd_currentAlternateImageURL:(NSURL *)sd_currentAlternateImageURL {
-    objc_setAssociatedObject(self, @selector(sd_currentAlternateImageURL), sd_currentAlternateImageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (NSProgress *)sd_currentAlternateImageProgress {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDAlternateImageOperationKey];
+    return state[SDWebImageStateContainerProgress];
+}
+
+- (void)setsd_currentAlternateImageProgress:(NSProgress *)sd_currentAlternateImageProgress {
+    if (!sd_currentAlternateImageProgress) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:SDAlternateImageOperationKey] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerProgress] = sd_currentAlternateImageProgress;
+    [self sd_setImageLoadState:[mutableState copy] forKey:SDAlternateImageOperationKey];
+}
+
+- (SDWebImageTransition *)sd_currentAlternateImageTransition {
+    SDWebImageStateContainer *state = [self sd_imageLoadStateForKey:SDAlternateImageOperationKey];
+    return state[SDWebImageStateContainerTransition];
+}
+
+- (void)setsd_currentAlternateImageTransition:(SDWebImageTransition *)sd_currentAlternateImageTransition {
+    if (!sd_currentAlternateImageTransition) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableState = [[self sd_imageLoadStateForKey:SDAlternateImageOperationKey] mutableCopy];
+    if (!mutableState) {
+        mutableState = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableState[SDWebImageStateContainerTransition] = sd_currentAlternateImageTransition;
+    [self sd_setImageLoadState:[mutableState copy] forKey:SDAlternateImageOperationKey];
 }
 
 @end

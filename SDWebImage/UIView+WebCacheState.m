@@ -11,6 +11,7 @@
 
 SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerURL = @"url";
 SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerProgress = @"progress";
+SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerTransition = @"transition";
 
 static char loadStateKey;
 typedef NSMapTable<NSString *, SDWebImageStateContainer *> SDStateContainerTable;

@@ -11,13 +11,14 @@
 #if SD_UIKIT
 
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with UIButton.
  */
 @interface UIButton (WebCache)
 
-#pragma mark - Image
+#pragma mark - Image State
 
 /**
  * Get the current image URL.
@@ -30,6 +31,38 @@
  * @param state Which state you want to know the URL for. The values are described in UIControlState.
  */
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state;
+
+/**
+ * Get the image progress for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nullable NSProgress *)sd_imageProgressForState:(UIControlState)state;
+
+/**
+ * Set the image transition for a control state.
+ *
+ * @param progress The current image loading progress associated to the view, you can use Key-Value Observing on the progress, see more on `UIView+WebCache.h`
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (void)sd_setImageProgress:(nullable NSProgress *)progress forState:(UIControlState)state;
+
+/**
+ * Get the image transition for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nullable SDWebImageTransition *)sd_imageTransitionForState:(UIControlState)state;
+
+/**
+ * Set the image transition for a control state.
+ *
+ * @param transition The image transition when image load finished. See `SDWebImageTransition.h`.
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (void)sd_setImageTransition:(nullable SDWebImageTransition *)transition forState:(UIControlState)state;
+
+#pragma mark - Image Loading
 
 /**
  * Set the button `image` with an `url`.
@@ -195,7 +228,7 @@
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
-#pragma mark - Background Image
+#pragma mark - Background Image State
 
 /**
  * Get the current background image URL.
@@ -208,6 +241,38 @@
  * @param state Which state you want to know the URL for. The values are described in UIControlState.
  */
 - (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state;
+
+/**
+ * Get the background image progress for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nullable NSProgress *)sd_backgroundImageProgressForState:(UIControlState)state;
+
+/**
+ * Set the image transition for a control state.
+ *
+ * @param progress The current image loading progress associated to the view, you can use Key-Value Observing on the progress, see more on `UIView+WebCache.h`
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (void)sd_setBackgroundImageProgress:(nullable NSProgress *)progress forState:(UIControlState)state;
+
+/**
+ * Get the background image transition for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nullable SDWebImageTransition *)sd_backgroundImageTransitionForState:(UIControlState)state;
+
+/**
+ * Set the image transition for a control state.
+ *
+ * @param transition The image transition when image load finished. See `SDWebImageTransition.h`.
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (void)sd_setBackgroundImageTransition:(nullable SDWebImageTransition *)transition forState:(UIControlState)state;
+
+#pragma mark - Background Image Loading
 
 /**
  * Set the button `backgroundImage` with an `url`.

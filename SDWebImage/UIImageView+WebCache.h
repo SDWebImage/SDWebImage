@@ -8,6 +8,7 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  * Usage with a UITableViewCell sub-class:
@@ -45,10 +46,24 @@
  */
 @interface UIImageView (WebCache)
 
+#pragma mark - Image State
+
 /**
  * Get the current image URL.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
+
+/**
+ * Get/Set the current image progress.
+ */
+@property (nonatomic, strong, readwrite, nullable) NSProgress *sd_currentImageProgress;
+
+/**
+ * Get/Set the current image transition.
+ */
+@property (nonatomic, strong, readwrite, nullable) SDWebImageTransition *sd_currentImageTransition;
+
+#pragma mark - Image Loading
 
 /**
  * Set the imageView `image` with an `url`.

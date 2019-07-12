@@ -14,6 +14,7 @@ typedef NSDictionary<SDWebImageStateContainerKey, id> SDWebImageStateContainer;
 typedef NSMutableDictionary<SDWebImageStateContainerKey, id> SDWebImageMutableStateContainer;
 FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerURL;
 FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerProgress;
+FOUNDATION_EXPORT SDWebImageStateContainerKey _Nonnull const SDWebImageStateContainerTransition;
 
 @interface UIView (WebCacheState)
 

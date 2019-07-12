@@ -84,7 +84,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 #pragma mark - Image Transition
 
 /**
- The image transition when image load finished. See `SDWebImageTransition`.
+ The image transition when image load finished. See `SDWebImageTransition.h`.
  If you specify nil, do not do transition. Defautls to nil.
  @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
@@ -96,7 +96,6 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  The image indicator during the image loading. If you do not need indicator, specify nil. Defaults to nil
  The setter will remove the old indicator view and add new indicator view to current view's subview.
  @note Because this is UI related, you should access only from the main queue.
- @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
 @property (nonatomic, strong, nullable) id<SDWebImageIndicator> sd_imageIndicator;
 

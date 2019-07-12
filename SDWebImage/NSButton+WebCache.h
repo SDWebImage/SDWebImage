@@ -11,18 +11,31 @@
 #if SD_MAC
 
 #import "SDWebImageManager.h"
+#import "SDWebImageTransition.h"
 
 /**
  * Integrates SDWebImage async downloading and caching of remote images with NSButton.
  */
 @interface NSButton (WebCache)
 
-#pragma mark - Image
+#pragma mark - Image State
 
 /**
  * Get the current image URL.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
+
+/**
+ * Get the current image progress.
+ */
+@property (nonatomic, strong, readonly, nullable) NSProgress *sd_currentImageProgress;
+
+/**
+ * Get the current image transition.
+ */
+@property (nonatomic, strong, readonly, nullable) SDWebImageTransition *sd_currentImageTransition;
+
+#pragma mark - Image Loading
 
 /**
  * Set the button `image` with an `url`.
@@ -170,12 +183,24 @@
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock;
 
-#pragma mark - Alternate Image
+#pragma mark - Alternate Image State
 
 /**
  * Get the current alternateImage URL.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentAlternateImageURL;
+
+/**
+ * Get the current alternateImage progress.
+ */
+@property (nonatomic, strong, readonly, nullable) NSProgress *sd_currentAlternateImageProgress;
+
+/**
+ * Get the current alternateImage transition.
+ */
+@property (nonatomic, strong, readonly, nullable) SDWebImageTransition *sd_currentAlternateImageTransition;
+
+#pragma mark - Alternate Image Loading
 
 /**
  * Set the button `alternateImage` with an `url`.

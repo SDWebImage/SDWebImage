@@ -28,21 +28,6 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 
 #pragma mark - Image
 
-- (nullable NSURL *)sd_currentImageURL {
-    NSURL *url = [self sd_imageURLForState:self.state];
-    
-    if (!url) {
-        [self sd_imageURLForState:UIControlStateNormal];
-    }
-
-    return url;
-}
-
-- (nullable NSURL *)sd_imageURLForState:(UIControlState)state {
-    SDWebImageStateContainer *storage = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
-    return storage[SDWebImageStateContainerURL];
-}
-
 - (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
     [self sd_setImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
 }
@@ -107,21 +92,6 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 #pragma mark - Background Image
-
-- (nullable NSURL *)sd_currentBackgroundImageURL {
-    NSURL *url = [self sd_backgroundImageURLForState:self.state];
-    
-    if (!url) {
-        url = [self sd_backgroundImageURLForState:UIControlStateNormal];
-    }
-    
-    return url;
-}
-
-- (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
-    SDWebImageStateContainer *storage = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
-    return storage[SDWebImageStateContainerURL];
-}
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:nil];
@@ -194,6 +164,106 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 
 - (void)sd_cancelBackgroundImageLoadForState:(UIControlState)state {
     [self sd_cancelImageLoadOperationWithKey:backgroundImageOperationKeyForState(state)];
+}
+
+#pragma mark - State
+
+- (NSURL *)sd_currentImageURL {
+    NSURL *url = [self sd_imageURLForState:self.state];
+    if (!url) {
+        [self sd_imageURLForState:UIControlStateNormal];
+    }
+    return url;
+}
+
+- (NSURL *)sd_imageURLForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerURL];
+}
+
+- (NSProgress *)sd_imageProgressForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerProgress];
+}
+
+- (void)sd_setImageProgress:(NSProgress *)progress forState:(UIControlState)state {
+    if (!progress) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:imageOperationKeyForState(state)] mutableCopy];
+    if (!mutableStateContainer) {
+        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableStateContainer[SDWebImageStateContainerProgress] = progress;
+    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    
+}
+
+- (SDWebImageTransition *)sd_imageTransitionForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerTransition];
+}
+
+- (void)sd_setImageTransition:(SDWebImageTransition *)transition forState:(UIControlState)state {
+    if (!transition) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:imageOperationKeyForState(state)] mutableCopy];
+    if (!mutableStateContainer) {
+        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableStateContainer[SDWebImageStateContainerTransition] = transition;
+    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+}
+
+#pragma mark - Background State
+
+- (NSURL *)sd_currentBackgroundImageURL {
+    NSURL *url = [self sd_backgroundImageURLForState:self.state];
+    if (!url) {
+        url = [self sd_backgroundImageURLForState:UIControlStateNormal];
+    }
+    return url;
+}
+
+- (NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerURL];
+}
+
+- (NSProgress *)sd_backgroundImageProgressForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerProgress];
+}
+
+- (void)sd_setBackgroundImageProgress:(NSProgress *)progress forState:(UIControlState)state {
+    if (!progress) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)] mutableCopy];
+    if (!mutableStateContainer) {
+        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableStateContainer[SDWebImageStateContainerProgress] = progress;
+    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
+    
+}
+
+- (SDWebImageTransition *)sd_backgroundImageTransitionForState:(UIControlState)state {
+    SDWebImageStateContainer *stateContainer = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    return stateContainer[SDWebImageStateContainerTransition];
+}
+
+- (void)sd_setBackgroundImageTransition:(SDWebImageTransition *)transition forState:(UIControlState)state {
+    if (!transition) {
+        return;
+    }
+    SDWebImageMutableStateContainer *mutableStateContainer = [[self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)] mutableCopy];
+    if (!mutableStateContainer) {
+        mutableStateContainer = [SDWebImageMutableStateContainer dictionary];
+    }
+    mutableStateContainer[SDWebImageStateContainerTransition] = transition;
+    [self sd_setImageLoadState:[mutableStateContainer copy] forKey:nil];
 }
 
 @end
