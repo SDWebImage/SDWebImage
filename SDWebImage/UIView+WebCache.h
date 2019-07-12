@@ -28,6 +28,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  * Get the current image URL.
  *
  * @note Note that because of the limitations of categories this property can get out of sync if you use setImage: directly.
+ * @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_imageURL;
 
@@ -37,6 +38,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  * @note You can use Key-Value Observing on the progress, but you should take care that the change to progress is from a background queue during download(the same as progressBlock). If you want to using KVO and update the UI, make sure to dispatch on the main queue. And it's recommand to use some KVO libs like KVOController because it's more safe and easy to use.
  * @note The getter will create a progress instance if the value is nil. But by default, we don't create one. If you need to use Key-Value Observing, you must trigger the getter or set a custom progresss instance before the loading start. The default value is nil.
  * @note Note that because of the limitations of categories this property can get out of sync if you update the progress directly.
+ * @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
 @property (nonatomic, strong, null_resettable) NSProgress *sd_imageProgress;
 
@@ -84,6 +86,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 /**
  The image transition when image load finished. See `SDWebImageTransition`.
  If you specify nil, do not do transition. Defautls to nil.
+ @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
 @property (nonatomic, strong, nullable) SDWebImageTransition *sd_imageTransition;
 
@@ -93,6 +96,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  The image indicator during the image loading. If you do not need indicator, specify nil. Defaults to nil
  The setter will remove the old indicator view and add new indicator view to current view's subview.
  @note Because this is UI related, you should access only from the main queue.
+ @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
  */
 @property (nonatomic, strong, nullable) id<SDWebImageIndicator> sd_imageIndicator;
 

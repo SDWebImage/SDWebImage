@@ -12,7 +12,7 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
-#import "UIView+WebCacheStorage.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCache.h"
 #import "SDInternalMacros.h"
 
@@ -39,8 +39,8 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state {
-    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:imageOperationKeyForState(state)];
-    return storage[SDWebImageLoadingStorageURL];
+    SDWebImageStateContainer *storage = [self sd_imageLoadStateForKey:imageOperationKeyForState(state)];
+    return storage[SDWebImageStateContainerURL];
 }
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {
@@ -119,8 +119,8 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 - (nullable NSURL *)sd_backgroundImageURLForState:(UIControlState)state {
-    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:backgroundImageOperationKeyForState(state)];
-    return storage[SDWebImageLoadingStorageURL];
+    SDWebImageStateContainer *storage = [self sd_imageLoadStateForKey:backgroundImageOperationKeyForState(state)];
+    return storage[SDWebImageStateContainerURL];
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state {

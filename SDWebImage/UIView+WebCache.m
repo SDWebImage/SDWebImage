@@ -8,7 +8,7 @@
 
 #import "UIView+WebCache.h"
 #import "objc/runtime.h"
-#import "UIView+WebCacheStorage.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCacheOperation.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
@@ -33,6 +33,19 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     objc_setAssociatedObject(self, @selector(sd_latestOperationKey), sd_latestOperationKey, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSProgress *)sd_imageProgress {
+    NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+    if (!progress) {
+        progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
+        self.sd_imageProgress = progress;
+    }
+    return progress;
+}
+
+- (void)setSd_imageProgress:(NSProgress *)sd_imageProgress {
+    objc_setAssociatedObject(self, @selector(sd_imageProgress), sd_imageProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 - (void)sd_internalSetImageWithURL:(nullable NSURL *)url
                   placeholderImage:(nullable UIImage *)placeholder
                            options:(SDWebImageOptions)options
@@ -47,14 +60,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     }
     self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
-    SDWebImageLoadingStorage *storage = [self sd_imageLoadStorageForKey:validOperationKey];
-    SDWebImageMutableLoadingStorage *mutableStorage = [storage mutableCopy];
+    SDWebImageStateContainer *storage = [self sd_imageLoadStateForKey:validOperationKey];
+    SDWebImageMutableStateContainer *mutableStorage = [storage mutableCopy];
     if (!url) {
-        [mutableStorage removeObjectForKey:SDWebImageLoadingStorageURL];
+        [mutableStorage removeObjectForKey:SDWebImageStateContainerURL];
     } else {
-        [mutableStorage setValue:url forKey:SDWebImageLoadingStorageURL];
+        [mutableStorage setValue:url forKey:SDWebImageStateContainerURL];
     }
-    [self sd_setImageLoadStorage:[mutableStorage copy] forKey:validOperationKey];
+    [self sd_setImageLoadState:[mutableStorage copy] forKey:validOperationKey];
     
     if (!(options & SDWebImageDelayPlaceholder)) {
         dispatch_main_async_safe(^{
