@@ -20,10 +20,12 @@
  Image loading progress. The unit count is the received size and excepted size of download.
  */
 @property (nonatomic, strong, nullable) NSProgress *progress;
+#if SD_UIKIT || SD_MAC
 /**
  Image transition animation, see more in `SDWebImageTransition.h`
  */
 @property (nonatomic, strong, nullable) SDWebImageTransition *transition;
+#endif
 
 @end
 

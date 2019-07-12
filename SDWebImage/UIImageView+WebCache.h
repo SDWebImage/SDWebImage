@@ -57,11 +57,12 @@
  * Get/Set the current image progress.
  */
 @property (nonatomic, strong, readwrite, nullable) NSProgress *sd_currentImageProgress;
-
+#if SD_UIKIT || SD_MAC
 /**
  * Get/Set the current image transition.
  */
 @property (nonatomic, strong, readwrite, nullable) SDWebImageTransition *sd_currentImageTransition;
+#endif
 
 #pragma mark - Image Loading
 

@@ -86,7 +86,7 @@
     stateContainer.progress = sd_currentImageProgress;
     [self sd_setImageLoadState:stateContainer forKey:nil];
 }
-
+#if SD_UIKIT || SD_MAC
 - (SDWebImageTransition *)sd_currentImageTransition {
     return [self sd_imageLoadStateForKey:nil].transition;
 }
@@ -102,5 +102,6 @@
     stateContainer.transition = sd_currentImageTransition;
     [self sd_setImageLoadState:stateContainer forKey:nil];
 }
+#endif
 
 @end
