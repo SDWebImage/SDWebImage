@@ -204,6 +204,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     }
     
     SD_LOCK(self.operationsLock);
+    id downloadOperationCancelToken;
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     // There is a case that the operation may be marked as finished or cancelled, but not been removed from `self.URLOperations`.
     if (!operation || operation.isFinished || operation.isCancelled) {
@@ -230,19 +231,24 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         // Add operation to operation queue only after all configuration done according to Apple's doc.
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
-    }
-    else if (!operation.isExecuting) {
-        if (options & SDWebImageDownloaderHighPriority) {
-            operation.queuePriority = NSOperationQueuePriorityHigh;
-        } else if (options & SDWebImageDownloaderLowPriority) {
-            operation.queuePriority = NSOperationQueuePriorityLow;
-        } else {
-            operation.queuePriority = NSOperationQueuePriorityNormal;
+        downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+    } else {
+        // When we reuse the download operation to attach more callbacks, there may be thread safe issue because the getter of callbacks may in another queue (decoding queue or delegate queue)
+        // So we lock the operation here, and in `SDWebImageDownloaderOperation`, we use `@synchonzied (self)`, to ensure the thread safe between these two classes.
+        @synchronized (operation) {
+            downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
+        }
+        if (!operation.isExecuting) {
+            if (options & SDWebImageDownloaderHighPriority) {
+                operation.queuePriority = NSOperationQueuePriorityHigh;
+            } else if (options & SDWebImageDownloaderLowPriority) {
+                operation.queuePriority = NSOperationQueuePriorityLow;
+            } else {
+                operation.queuePriority = NSOperationQueuePriorityNormal;
+            }
         }
     }
     SD_UNLOCK(self.operationsLock);
-    
-    id downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     
     SDWebImageDownloadToken *token = [[SDWebImageDownloadToken alloc] initWithDownloadOperation:operation];
     token.url = url;
