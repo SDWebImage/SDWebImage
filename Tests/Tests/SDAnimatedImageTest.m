@@ -27,10 +27,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 @implementation SDAnimatedImageTest
 
-- (void)tearDown {
-    [[SDImageCache sharedImageCache] removeImageForKey:kTestGIFURL fromDisk:YES withCompletion:nil];
-}
-
 - (void)test01AnimatedImageInitWithData {
     NSData *invalidData = [@"invalid data" dataUsingEncoding:NSUTF8StringEncoding];
     SDAnimatedImage *image = [[SDAnimatedImage alloc] initWithData:invalidData];
@@ -64,6 +60,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 - (void)test04AnimatedImageImageNamed {
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    expect([SDAnimatedImage imageNamed:@"TestImage.gif"]).beNil(); // Not in main bundle
 #if SD_UIKIT
     SDAnimatedImage *image = [SDAnimatedImage imageNamed:@"TestImage.gif" inBundle:bundle compatibleWithTraitCollection:nil];
 #else
@@ -86,6 +83,9 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     // Test one frame
     UIImage *frame = [image animatedImageFrameAtIndex:0];
     expect(frame).notTo.beNil();
+    
+    // Unload all frames
+    [image unloadAllFrames];
 }
 
 - (void)test06AnimatedImageViewSetImage {
@@ -115,9 +115,16 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 - (void)test10AnimatedImageInitWithCoder {
     SDAnimatedImage *image1 = [SDAnimatedImage imageWithContentsOfFile:[self testGIFPath]];
     expect(image1).notTo.beNil();
-    NSData *encodedData = [NSKeyedArchiver archivedDataWithRootObject:image1];
+    NSMutableData *encodedData = [NSMutableData data];
+    NSKeyedArchiver *archiver  = [[NSKeyedArchiver alloc] initForWritingWithMutableData:encodedData];
+    archiver.requiresSecureCoding = YES;
+    [archiver encodeObject:image1 forKey:NSKeyedArchiveRootObjectKey];
+    [archiver finishEncoding];
     expect(encodedData).notTo.beNil();
-    SDAnimatedImage *image2 = [NSKeyedUnarchiver unarchiveObjectWithData:encodedData];
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:encodedData];
+    unarchiver.requiresSecureCoding = YES;
+    SDAnimatedImage *image2 = [unarchiver decodeObjectOfClass:SDAnimatedImage.class forKey:NSKeyedArchiveRootObjectKey];
+    [unarchiver finishDecoding];
     expect(image2).notTo.beNil();
     
     // Check each property
@@ -135,6 +142,32 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     imageView.image = image;
     expect(imageView.intrinsicContentSize).equal(image.size);
+}
+
+- (void)test12AnimatedImageViewLayerContents {
+    // Test that SDAnimatedImageView with built-in UIImage/NSImage will actually setup the layer for display
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.image = image;
+#if SD_MAC
+    expect(imageView.wantsUpdateLayer).beTruthy();
+#else
+    expect(imageView.layer.contents).notTo.beNil();
+#endif
+}
+
+- (void)test13AnimatedImageViewInitWithImage {
+    // Test that -[SDAnimatedImageView initWithImage:] this convenience initializer not crash
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    SDAnimatedImageView *imageView;
+#if SD_UIKIT
+    imageView = [[SDAnimatedImageView alloc] initWithImage:image];
+#else
+    if (@available(macOS 10.12, *)) {
+        imageView = [SDAnimatedImageView imageViewWithImage:image];
+    }
+#endif
+    expect(imageView.image).equal(image);
 }
 
 - (void)test20AnimatedImageViewRendering {
@@ -220,9 +253,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 }
 
 - (void)test23AnimatedImageViewCategoryProgressive {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category progressive"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:testURL.absoluteString];
     [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageProgressiveLoad progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         dispatch_async(dispatch_get_main_queue(), ^{
             UIImage *image = imageView.image;
@@ -237,6 +272,22 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     } completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
+        expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
+        expect(cacheType).equal(SDImageCacheTypeNone);
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test24AnimatedImageViewCategoryDiskCache {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category disk cache"];
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
+    [imageView sd_setImageWithURL:testURL placeholderImage:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        expect(error).to.beNil();
+        expect(image).notTo.beNil();
+        expect(cacheType).equal(SDImageCacheTypeDisk);
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
         [expectation fulfill];
     }];

@@ -52,11 +52,12 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NS
 
 #pragma mark - SDImageLoader
 
-// This is the protocol to specify custom image load process. You can create your own class to conform this protocol and use as a image loader to load image from network or any avaiable remote resources defined by yourself.
-// If you want to implement custom loader for image download from network or local file, you just need to concentrate on image data download only. After the download finish, call `SDImageLoaderDecodeImageData` or `SDImageLoaderDecodeProgressiveImageData` to use the built-in decoding process and produce image (Remember to call in the global queue). And finally callback the completion block.
-// If you directlly get the image instance using some third-party SDKs, such as image directlly from Photos framework. You can process the image data and image instance by yourself without that built-in decoding process. And finally callback the completion block.
-// @note It's your responsibility to load the image in the desired global queue(to avoid block main queue). We do not dispatch these method call in a global queue but just from the call queue (For `SDWebImageManager`, it typically call from the main queue).
-
+/**
+ This is the protocol to specify custom image load process. You can create your own class to conform this protocol and use as a image loader to load image from network or any avaiable remote resources defined by yourself.
+ If you want to implement custom loader for image download from network or local file, you just need to concentrate on image data download only. After the download finish, call `SDImageLoaderDecodeImageData` or `SDImageLoaderDecodeProgressiveImageData` to use the built-in decoding process and produce image (Remember to call in the global queue). And finally callback the completion block.
+ If you directlly get the image instance using some third-party SDKs, such as image directlly from Photos framework. You can process the image data and image instance by yourself without that built-in decoding process. And finally callback the completion block.
+ @note It's your responsibility to load the image in the desired global queue(to avoid block main queue). We do not dispatch these method call in a global queue but just from the call queue (For `SDWebImageManager`, it typically call from the main queue).
+*/
 @protocol SDImageLoader <NSObject>
 
 /**

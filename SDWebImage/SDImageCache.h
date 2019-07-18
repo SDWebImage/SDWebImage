@@ -11,7 +11,10 @@
 #import "SDWebImageDefine.h"
 #import "SDImageCacheConfig.h"
 #import "SDImageCacheDefine.h"
+#import "SDMemoryCache.h"
+#import "SDDiskCache.h"
 
+/// Image Cache Options
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     /**
      * By default, we do not query image data when the image is already cached in memory. This mask can force to query image data at the same time. However, this query is asynchronously unless you specify `SDImageCacheQueryMemoryDataSync`
@@ -59,6 +62,21 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  *  The property is copy so change of currrent config will not accidentally affect other cache's config.
  */
 @property (nonatomic, copy, nonnull, readonly) SDImageCacheConfig *config;
+
+/**
+ * The memory cache implementation object used for current image cache.
+ * By default we use `SDMemoryCache` class, you can also use this to call your own implementation class method.
+ * @note To customize this class, check `SDImageCacheConfig.memoryCacheClass` property.
+ */
+@property (nonatomic, strong, readonly, nonnull) id<SDMemoryCache> memoryCache;
+
+/**
+ * The disk cache implementation object used for current image cache.
+ * By default we use `SDMemoryCache` class, you can also use this to call your own implementation class method.
+ * @note To customize this class, check `SDImageCacheConfig.diskCacheClass` property.
+ * @warning When calling method about read/write in disk cache, be sure to either make your disk cache implementation IO-safe or using the same access queue to avoid issues.
+ */
+@property (nonatomic, strong, readonly, nonnull) id<SDDiskCache> diskCache;
 
 /**
  *  The disk cache's root path

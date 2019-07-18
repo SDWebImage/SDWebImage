@@ -9,15 +9,17 @@
 #import "SDMemoryCache.h"
 #import "SDImageCacheConfig.h"
 #import "UIImage+MemoryCacheCost.h"
+#import "SDInternalMacros.h"
 
 static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 
 @interface SDMemoryCache <KeyType, ObjectType> ()
 
 @property (nonatomic, strong, nullable) SDImageCacheConfig *config;
+#if SD_UIKIT
 @property (nonatomic, strong, nonnull) NSMapTable<KeyType, ObjectType> *weakCache; // strong-weak cache
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t weakCacheLock; // a lock to keep the access to `weakCache` thread-safe
-
+#endif
 @end
 
 @implementation SDMemoryCache
@@ -49,9 +51,6 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
 }
 
 - (void)commonInit {
-    self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-    self.weakCacheLock = dispatch_semaphore_create(1);
-    
     SDImageCacheConfig *config = self.config;
     self.totalCostLimit = config.maxMemoryCost;
     self.countLimit = config.maxMemoryCount;
@@ -60,6 +59,9 @@ static void * SDMemoryCacheContext = &SDMemoryCacheContext;
     [config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxMemoryCount)) options:0 context:SDMemoryCacheContext];
     
 #if SD_UIKIT
+    self.weakCache = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
+    self.weakCacheLock = dispatch_semaphore_create(1);
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification

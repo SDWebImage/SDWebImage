@@ -8,6 +8,9 @@
 
 #import "SDWebImageCompat.h"
 
+/**
+ UIImage category about force decode feature (avoid Image/IO's lazy decoding during rendering behavior).
+ */
 @interface UIImage (ForceDecode)
 
 /**

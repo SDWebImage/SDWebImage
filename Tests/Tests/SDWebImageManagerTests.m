@@ -66,7 +66,7 @@
     
     // need a bigger image here, that is why we don't use kTestJPEGURL
     // if the image is too small, it will get downloaded before we can cancel :)
-    NSURL *url = [NSURL URLWithString:@"https://s3.amazonaws.com/fast-image-cache/demo-images/FICDDemoImage001.jpg"];
+    NSURL *url = [NSURL URLWithString:@"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif"];
     [[SDWebImageManager sharedManager] loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         XCTFail(@"Should not get here");
     }];
@@ -180,6 +180,67 @@
                 [expectation fulfill];
             });
         }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test11ThatOptionsProcessorWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Options processor work"];
+    __block BOOL optionsProcessorCalled = NO;
+    
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
+    manager.optionsProcessor = [SDWebImageOptionsProcessor optionsProcessorWithBlock:^SDWebImageOptionsResult * _Nullable(NSURL * _Nonnull url, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+        if ([url.absoluteString isEqualToString:kTestPNGURL]) {
+            optionsProcessorCalled = YES;
+            return [[SDWebImageOptionsResult alloc] initWithOptions:0 context:@{SDWebImageContextImageScaleFactor : @(3)}];
+        } else {
+            return nil;
+        }
+    }];
+    
+    NSURL *url = [NSURL URLWithString:kTestPNGURL];
+    [[SDImageCache sharedImageCache] removeImageForKey:kTestPNGURL withCompletion:^{
+        [manager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(image.scale).equal(3);
+            expect(optionsProcessorCalled).beTruthy();
+            
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test12ThatStoreCacheTypeWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image store cache type (including transformer) work"];
+    
+    // Use a fresh manager && cache to avoid get effected by other test cases
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"SDWebImageStoreCacheType"];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    manager.transformer = transformer;
+    
+    // test: original image -> disk only, transformed image -> memory only
+    SDWebImageContext *context = @{SDWebImageContextOriginalStoreCacheType : @(SDImageCacheTypeDisk), SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)};
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
+    NSString *originalKey = [manager cacheKeyForURL:url];
+    NSString *transformedKey = SDTransformedKeyForKey(originalKey, transformer.transformerKey);
+    
+    [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).equal(transformer.testImage);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2*kMinDelayNanosecond), dispatch_get_main_queue(), ^{
+            // original -> disk only
+            [manager.imageCache containsImageForKey:originalKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType originalCacheType) {
+                expect(originalCacheType).equal(SDImageCacheTypeDisk);
+                // transformed -> memory only
+                [manager.imageCache containsImageForKey:transformedKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType transformedCacheType) {
+                    expect(transformedCacheType).equal(SDImageCacheTypeMemory);
+                    [expectation fulfill];
+                }];
+            }];
+        });
     }];
     
     [self waitForExpectationsWithCommonTimeout];

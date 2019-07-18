@@ -10,6 +10,7 @@
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
+#import "SDInternalMacros.h"
 
 NSNotificationName const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSNotificationName const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
@@ -118,7 +119,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             }
             headerDictionary[@"User-Agent"] = userAgent;
         }
-        headerDictionary[@"Accept"] = @"image/*;q=0.8";
+        headerDictionary[@"Accept"] = @"image/*,*/*;q=0.8";
         _HTTPHeaders = headerDictionary;
         _HTTPHeadersLock = dispatch_semaphore_create(1);
         _operationsLock = dispatch_semaphore_create(1);

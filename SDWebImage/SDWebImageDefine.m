@@ -98,6 +98,7 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         if (bitmapImageRep) {
             NSSize size = NSMakeSize(image.size.width / scale, image.size.height / scale);
             animatedImage = [[NSImage alloc] initWithSize:size];
+            bitmapImageRep.size = size;
             [animatedImage addRepresentation:bitmapImageRep];
         }
 #endif
@@ -122,6 +123,7 @@ SDWebImageContextOption const SDWebImageContextCustomManager = @"customManager";
 SDWebImageContextOption const SDWebImageContextImageTransformer = @"imageTransformer";
 SDWebImageContextOption const SDWebImageContextImageScaleFactor = @"imageScaleFactor";
 SDWebImageContextOption const SDWebImageContextStoreCacheType = @"storeCacheType";
+SDWebImageContextOption const SDWebImageContextOriginalStoreCacheType = @"originalStoreCacheType";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";
 SDWebImageContextOption const SDWebImageContextDownloadRequestModifier = @"downloadRequestModifier";
 SDWebImageContextOption const SDWebImageContextCacheKeyFilter = @"cacheKeyFilter";

@@ -7,20 +7,19 @@
  */
 
 #import "SDImageCache.h"
-#import "SDMemoryCache.h"
-#import "SDDiskCache.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageCodersManager.h"
 #import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
+#import "UIImage+Metadata.h"
 
 @interface SDImageCache ()
 
 #pragma mark - Properties
-@property (nonatomic, strong, nonnull) id<SDMemoryCache> memCache;
-@property (nonatomic, strong, nonnull) id<SDDiskCache> diskCache;
+@property (nonatomic, strong, readwrite, nonnull) id<SDMemoryCache> memoryCache;
+@property (nonatomic, strong, readwrite, nonnull) id<SDDiskCache> diskCache;
 @property (nonatomic, copy, readwrite, nonnull) SDImageCacheConfig *config;
 @property (nonatomic, copy, readwrite, nonnull) NSString *diskCachePath;
 @property (nonatomic, strong, nullable) dispatch_queue_t ioQueue;
@@ -70,7 +69,7 @@
         
         // Init the memory cache
         NSAssert([config.memoryCacheClass conformsToProtocol:@protocol(SDMemoryCache)], @"Custom memory cache class must conform to `SDMemoryCache` protocol");
-        _memCache = [[config.memoryCacheClass alloc] initWithConfig:_config];
+        _memoryCache = [[config.memoryCacheClass alloc] initWithConfig:_config];
         
         // Init the disk cache
         if (directory != nil) {
@@ -180,7 +179,7 @@
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = image.sd_memoryCost;
-        [self.memCache setObject:image forKey:key cost:cost];
+        [self.memoryCache setObject:image forKey:key cost:cost];
     }
     
     if (toDisk) {
@@ -218,7 +217,7 @@
         return;
     }
     NSUInteger cost = image.sd_memoryCost;
-    [self.memCache setObject:image forKey:key cost:cost];
+    [self.memoryCache setObject:image forKey:key cost:cost];
 }
 
 - (void)storeImageDataToDisk:(nullable NSData *)imageData
@@ -289,14 +288,14 @@
 }
 
 - (nullable UIImage *)imageFromMemoryCacheForKey:(nullable NSString *)key {
-    return [self.memCache objectForKey:key];
+    return [self.memoryCache objectForKey:key];
 }
 
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
     UIImage *diskImage = [self diskImageForKey:key];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = diskImage.sd_memoryCost;
-        [self.memCache setObject:diskImage forKey:key cost:cost];
+        [self.memoryCache setObject:diskImage forKey:key cost:cost];
     }
 
     return diskImage;
@@ -378,6 +377,15 @@
     
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
+
+    if ((options & SDImageCacheDecodeFirstFrameOnly) && image.sd_isAnimated) {
+#if SD_MAC
+        image = [[NSImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
+        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
+#endif
+    }
+
     BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryMemoryData));
     if (shouldQueryMemoryOnly) {
         if (doneBlock) {
@@ -413,7 +421,7 @@
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
                     NSUInteger cost = diskImage.sd_memoryCost;
-                    [self.memCache setObject:diskImage forKey:key cost:cost];
+                    [self.memoryCache setObject:diskImage forKey:key cost:cost];
                 }
             }
             
@@ -455,7 +463,7 @@
     }
 
     if (fromMemory && self.config.shouldCacheImagesInMemory) {
-        [self.memCache removeObjectForKey:key];
+        [self.memoryCache removeObjectForKey:key];
     }
 
     if (fromDisk) {
@@ -478,7 +486,7 @@
         return;
     }
     
-    [self.memCache removeObjectForKey:key];
+    [self.memoryCache removeObjectForKey:key];
 }
 
 - (void)removeImageFromDiskForKey:(NSString *)key {
@@ -502,7 +510,7 @@
 #pragma mark - Cache clean Ops
 
 - (void)clearMemory {
-    [self.memCache removeAllObjects];
+    [self.memoryCache removeAllObjects];
 }
 
 - (void)clearDiskOnCompletion:(nullable SDWebImageNoParamsBlock)completion {

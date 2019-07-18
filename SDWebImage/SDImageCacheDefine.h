@@ -11,6 +11,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDefine.h"
 
+/// Image Cache Type
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * For query and contains op in response, means the image isn't available in the image cache

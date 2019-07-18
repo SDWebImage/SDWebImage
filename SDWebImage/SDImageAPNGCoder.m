@@ -83,10 +83,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     CGFloat scale = 1;
     NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
     if (scaleFactor != nil) {
-        scale = [scaleFactor doubleValue];
-        if (scale < 1) {
-            scale = 1;
-        }
+        scale = MAX([scaleFactor doubleValue], 1);
     }
     
 #if SD_MAC
@@ -196,7 +193,8 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
     NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. APNG does not support EXIF image orientation
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count, NULL);
+    // The `CGImageDestinationCreateWithData` will log a warning when count is 0, use 1 instead.
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count ?: 1, NULL);
     if (!imageDestination) {
         // Handle failure.
         return nil;
@@ -252,10 +250,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGFloat scale = 1;
         NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
         if (scaleFactor != nil) {
-            scale = [scaleFactor doubleValue];
-            if (scale < 1) {
-                scale = 1;
-            }
+            scale = MAX([scaleFactor doubleValue], 1);
         }
         _scale = scale;
 #if SD_UIKIT
@@ -304,10 +299,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
             CGFloat scale = _scale;
             NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
             if (scaleFactor != nil) {
-                scale = [scaleFactor doubleValue];
-                if (scale < 1) {
-                    scale = 1;
-                }
+                scale = MAX([scaleFactor doubleValue], 1);
             }
 #if SD_UIKIT || SD_WATCH
             image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:UIImageOrientationUp];
@@ -341,10 +333,7 @@ const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime = (__bridge CFStringRef
         CGFloat scale = 1;
         NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
         if (scaleFactor != nil) {
-            scale = [scaleFactor doubleValue];
-            if (scale < 1) {
-                scale = 1;
-            }
+            scale = MAX([scaleFactor doubleValue], 1);
         }
         _scale = scale;
         _imageSource = imageSource;

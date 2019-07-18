@@ -8,6 +8,7 @@
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
+#import "SDInternalMacros.h"
 
 // iOS 8 Foundation.framework extern these symbol but the define is in CFNetwork.framework. We just fix this without import CFNetwork.framework
 #if (__IPHONE_OS_VERSION_MIN_REQUIRED && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
@@ -182,16 +183,11 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     }
 
     if (self.dataTask) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
-        if ([self.dataTask respondsToSelector:@selector(setPriority:)]) {
-            if (self.options & SDWebImageDownloaderHighPriority) {
-                self.dataTask.priority = NSURLSessionTaskPriorityHigh;
-            } else if (self.options & SDWebImageDownloaderLowPriority) {
-                self.dataTask.priority = NSURLSessionTaskPriorityLow;
-            }
+        if (self.options & SDWebImageDownloaderHighPriority) {
+            self.dataTask.priority = NSURLSessionTaskPriorityHigh;
+        } else if (self.options & SDWebImageDownloaderLowPriority) {
+            self.dataTask.priority = NSURLSessionTaskPriorityLow;
         }
-#pragma clang diagnostic pop
         [self.dataTask resume];
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);

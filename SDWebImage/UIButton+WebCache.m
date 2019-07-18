@@ -13,6 +13,7 @@
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
+#import "SDInternalMacros.h"
 
 static char imageURLStorageKey;
 
@@ -162,11 +163,11 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url forState:(UIControlState)state placeholderImage:(nullable UIImage *)placeholder options:(SDWebImageOptions)options progress:(nullable SDImageLoaderProgressBlock)progressBlock completed:(nullable SDExternalCompletionBlock)completedBlock {
-    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 context:nil progress:progressBlock completed:completedBlock];
+    [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options context:nil progress:progressBlock completed:completedBlock];
 }
 
 - (void)sd_setBackgroundImageWithURL:(nullable NSURL *)url
@@ -188,7 +189,7 @@ static inline NSString * backgroundImageOperationKeyForState(UIControlState stat
     } else {
         mutableContext = [NSMutableDictionary dictionary];
     }
-    mutableContext[SDWebImageContextSetImageOperationKey] = imageOperationKeyForState(state);
+    mutableContext[SDWebImageContextSetImageOperationKey] = backgroundImageOperationKeyForState(state);
     @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder

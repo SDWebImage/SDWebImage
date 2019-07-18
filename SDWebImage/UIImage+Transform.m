@@ -60,7 +60,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     // Get alpha info, byteOrder info
     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
     CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
-    CGFloat r = 0, g = 0, b = 0, a = 255.0;
+    CGFloat r = 0, g = 0, b = 0, a = 1;
     
     BOOL byteOrderNormal = NO;
     switch (byteOrderInfo) {
@@ -153,7 +153,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
             break;
         case kCGImageAlphaOnly: {
             // A
-            a = pixel[0];
+            a = pixel[0] / 255.0;
         }
             break;
         default:

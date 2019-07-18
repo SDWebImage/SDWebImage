@@ -10,8 +10,6 @@
 #import "SDWebImageManager.h"
 
 /**
- * Integrates SDWebImage async downloading and caching of remote images with UIImageView.
- *
  * Usage with a UITableViewCell sub-class:
  *
  * @code
@@ -40,6 +38,10 @@
 }
 
  * @endcode
+ */
+
+/**
+ * Integrates SDWebImage async downloading and caching of remote images with UIImageView.
  */
 @interface UIImageView (WebCache)
 

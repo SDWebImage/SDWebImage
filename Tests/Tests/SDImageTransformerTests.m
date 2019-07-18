@@ -8,14 +8,8 @@
  */
 
 #import "SDTestCase.h"
+#import "UIColor+HexString.h"
 #import <CoreImage/CoreImage.h>
-
-// Internal header
-@interface UIColor (HexString)
-
-@property (nonatomic, copy, readonly, nonnull) NSString *sd_hexString;
-
-@end
 
 @interface SDImageTransformerTests : SDTestCase
 
@@ -163,13 +157,50 @@
 #endif
     CGFloat borderWidth = 1;
     UIColor *borderCoder = [UIColor blackColor];
+    BOOL horizontal = YES;
+    BOOL vertical = YES;
+    CGRect cropRect = CGRectMake(0, 0, 50, 50);
+    UIColor *tintColor = [UIColor clearColor];
+    CGFloat blurRadius = 5;
+    
     SDImageResizingTransformer *transformer1 = [SDImageResizingTransformer transformerWithSize:size scaleMode:scaleMode];
     SDImageRotationTransformer *transformer2 = [SDImageRotationTransformer transformerWithAngle:angle fitSize:fitSize];
     SDImageRoundCornerTransformer *transformer3 = [SDImageRoundCornerTransformer transformerWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderCoder];
-    SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[transformer1, transformer2, transformer3]];
+    SDImageFlippingTransformer *transformer4 = [SDImageFlippingTransformer transformerWithHorizontal:horizontal vertical:vertical];
+    SDImageCroppingTransformer *transformer5 = [SDImageCroppingTransformer transformerWithRect:cropRect];
+    SDImageTintTransformer *transformer6 = [SDImageTintTransformer transformerWithColor:tintColor];
+    SDImageBlurTransformer *transformer7 = [SDImageBlurTransformer transformerWithRadius:blurRadius];
+    
+    CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
+    SDImageFilterTransformer *transformer8 = [SDImageFilterTransformer transformerWithFilter:filter];
+    
+    // Chain all built-in transformers for test case
+    SDImagePipelineTransformer *pipelineTransformer = [SDImagePipelineTransformer transformerWithTransformers:@[
+                                                                                                                transformer1,
+                                                                                                                transformer2,
+                                                                                                                transformer3,
+                                                                                                                transformer4,
+                                                                                                                transformer5,
+                                                                                                                transformer6,
+                                                                                                                transformer7,
+                                                                                                                transformer8
+                                                                                                                ]];
+    NSArray *transformerKeys = @[
+                      @"SDImageResizingTransformer({100.000000,100.000000},2)",
+                      @"SDImageRotationTransformer(0.785398,0)",
+                      @"SDImageRoundCornerTransformer(50.000000,18446744073709551615,1.000000,#ff000000)",
+                      @"SDImageFlippingTransformer(1,1)",
+                      @"SDImageCroppingTransformer({0.000000,0.000000,50.000000,50.000000})",
+                      @"SDImageTintTransformer(#00000000)",
+                      @"SDImageBlurTransformer(5.000000)",
+                      @"SDImageFilterTransformer(CIColorInvert)"
+                      ];
+    NSString *transformerKey = [transformerKeys componentsJoinedByString:@"-"]; // SDImageTransformerKeySeparator
+    expect([pipelineTransformer.transformerKey isEqualToString:transformerKey]).beTruthy();
     
     UIImage *transformedImage = [pipelineTransformer transformedImageWithImage:self.testImage forKey:@"Test"];
-    expect(CGSizeEqualToSize(transformedImage.size, size)).beTruthy();
+    expect(transformedImage).notTo.beNil();
+    expect(CGSizeEqualToSize(transformedImage.size, cropRect.size)).beTruthy();
 }
 
 - (void)test10TransformerKeyForCacheKey {
@@ -208,18 +239,108 @@
     expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"ftp://root:password@foo.com/image-SDImageFlippingTransformer(1,0).png");
 }
 
+- (void)test20CGImageCreateDecodedWithOrientation {
+    // Test EXIF orientation tag, you can open this image with `Preview.app`, open inspector (Command+I) and rotate (Command+L/R) to check
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestEXIF"]];
+    CGImageRef originalCGImage = image.CGImage;
+    expect(image).notTo.beNil();
+    
+    // Check the longest side of "F" point color
+    UIColor *pointColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:1];
+    
+    CGImageRef upCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUp];
+#if SD_UIKIT
+    UIImage *upImage = [[UIImage alloc] initWithCGImage:upCGImage];
+#else
+    UIImage *upImage = [[UIImage alloc] initWithCGImage:upCGImage size:NSZeroSize];
+#endif
+    expect([[upImage sd_colorAtPoint:CGPointMake(40, 160)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(upImage.size).equal(CGSizeMake(150, 200));
+    CGImageRelease(upCGImage);
+    
+    CGImageRef upMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationUpMirrored];
+#if SD_UIKIT
+    UIImage *upMirroredImage = [[UIImage alloc] initWithCGImage:upMirroredCGImage];
+#else
+    UIImage *upMirroredImage = [[UIImage alloc] initWithCGImage:upMirroredCGImage size:NSZeroSize];
+#endif
+    expect([[upMirroredImage sd_colorAtPoint:CGPointMake(110, 160)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(upMirroredImage.size).equal(CGSizeMake(150, 200));
+    CGImageRelease(upMirroredCGImage);
+    
+    CGImageRef downCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDown];
+#if SD_UIKIT
+    UIImage *downImage = [[UIImage alloc] initWithCGImage:downCGImage];
+#else
+    UIImage *downImage = [[UIImage alloc] initWithCGImage:downCGImage size:NSZeroSize];
+#endif
+    expect([[downImage sd_colorAtPoint:CGPointMake(110, 30)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(downImage.size).equal(CGSizeMake(150, 200));
+    CGImageRelease(downCGImage);
+    
+    CGImageRef downMirrorerdCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationDownMirrored];
+#if SD_UIKIT
+    UIImage *downMirroredImage = [[UIImage alloc] initWithCGImage:downMirrorerdCGImage];
+#else
+    UIImage *downMirroredImage = [[UIImage alloc] initWithCGImage:downMirrorerdCGImage size:NSZeroSize];
+#endif
+    expect([[downMirroredImage sd_colorAtPoint:CGPointMake(40, 30)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(downMirroredImage.size).equal(CGSizeMake(150, 200));
+    CGImageRelease(downMirrorerdCGImage);
+    
+    CGImageRef leftMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeftMirrored];
+#if SD_UIKIT
+    UIImage *leftMirroredImage = [[UIImage alloc] initWithCGImage:leftMirroredCGImage];
+#else
+    UIImage *leftMirroredImage = [[UIImage alloc] initWithCGImage:leftMirroredCGImage size:NSZeroSize];
+#endif
+    expect([[leftMirroredImage sd_colorAtPoint:CGPointMake(160, 40)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(leftMirroredImage.size).equal(CGSizeMake(200, 150));
+    CGImageRelease(leftMirroredCGImage);
+    
+    CGImageRef rightCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRight];
+#if SD_UIKIT
+    UIImage *rightImage = [[UIImage alloc] initWithCGImage:rightCGImage];
+#else
+    UIImage *rightImage = [[UIImage alloc] initWithCGImage:rightCGImage size:NSZeroSize];
+#endif
+    expect([[rightImage sd_colorAtPoint:CGPointMake(30, 40)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(rightImage.size).equal(CGSizeMake(200, 150));
+    CGImageRelease(rightCGImage);
+    
+    CGImageRef rightMirroredCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationRightMirrored];
+#if SD_UIKIT
+    UIImage *rightMirroredImage = [[UIImage alloc] initWithCGImage:rightMirroredCGImage];
+#else
+    UIImage *rightMirroredImage = [[UIImage alloc] initWithCGImage:rightMirroredCGImage size:NSZeroSize];
+#endif
+    expect([[rightMirroredImage sd_colorAtPoint:CGPointMake(30, 110)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(rightMirroredImage.size).equal(CGSizeMake(200, 150));
+    CGImageRelease(rightMirroredCGImage);
+    
+    CGImageRef leftCGImage = [SDImageCoderHelper CGImageCreateDecoded:originalCGImage orientation:kCGImagePropertyOrientationLeft];
+#if SD_UIKIT
+    UIImage *leftImage = [[UIImage alloc] initWithCGImage:leftCGImage];
+#else
+    UIImage *leftImage = [[UIImage alloc] initWithCGImage:leftCGImage size:NSZeroSize];
+#endif
+    expect([[leftImage sd_colorAtPoint:CGPointMake(160, 110)].sd_hexString isEqualToString:pointColor.sd_hexString]).beTruthy();
+    expect(leftImage.size).equal(CGSizeMake(200, 150));
+    CGImageRelease(leftCGImage);
+}
+
 #pragma mark - Helper
 
 - (UIImage *)testImage {
     if (!_testImage) {
-        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPath]];
+        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestImage"]];
     }
     return _testImage;
 }
 
-- (NSString *)testPNGPath {
+- (NSString *)testPNGPathForName:(NSString *)name {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
-    return [testBundle pathForResource:@"TestImage" ofType:@"png"];
+    return [testBundle pathForResource:name ofType:@"png"];
 }
 
 @end

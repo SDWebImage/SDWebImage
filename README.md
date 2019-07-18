@@ -68,7 +68,7 @@ You can use those directly, or create similar components of your own.
 - tvOS 9.0 or later
 - watchOS 2.0 or later
 - macOS 10.10 or later
-- Xcode 9.0 or later
+- Xcode 10.0 or later
 
 #### Backwards compatibility
 

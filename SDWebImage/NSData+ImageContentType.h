@@ -24,6 +24,9 @@ static const SDImageFormat SDImageFormatWebP      = 4;
 static const SDImageFormat SDImageFormatHEIC      = 5;
 static const SDImageFormat SDImageFormatHEIF      = 6;
 
+/**
+ NSData category about the image content type and UTI.
+ */
 @interface NSData (ImageContentType)
 
 /**

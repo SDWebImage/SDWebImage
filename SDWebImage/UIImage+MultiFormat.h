@@ -9,6 +9,9 @@
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
 
+/**
+ UIImage category for convenient image format decoding/encoding.
+ */
 @interface UIImage (MultiFormat)
 #pragma mark - Decode
 /**

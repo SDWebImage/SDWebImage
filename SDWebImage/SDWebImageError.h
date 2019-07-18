@@ -11,8 +11,10 @@
 
 FOUNDATION_EXPORT NSErrorDomain const _Nonnull SDWebImageErrorDomain;
 
+/// The HTTP status code for invalid download response (NSNumber *)
 FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadStatusCodeKey;
 
+/// SDWebImage error domain and codes
 typedef NS_ERROR_ENUM(SDWebImageErrorDomain, SDWebImageError) {
     SDWebImageErrorInvalidURL = 1000, // The URL is invalid, such as nil URL or corrupted URL
     SDWebImageErrorBadImageData = 1001, // The image data can not be decoded to image, or the image data is empty
