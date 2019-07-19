@@ -128,7 +128,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         if (self.isCancelled) {
             self.finished = YES;
             // Operation cancelled by user before sending the request
-            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorDownloadCancelled userInfo:nil]];
+            [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil]];
             [self reset];
             return;
         }
@@ -223,7 +223,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         if (!self.isFinished) self.finished = YES;
     } else {
         // Operation cancelled by user before sending the request
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorDownloadCancelled userInfo:nil]];
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil]];
     }
 
     [self reset];

@@ -403,7 +403,9 @@
                                 (!image && options & SDImageCacheQueryDiskDataSync));
     void(^queryDiskBlock)(void) =  ^{
         if (operation.isCancelled) {
-            // do not call the completion if cancelled
+            if (doneBlock) {
+                doneBlock(nil, nil, SDImageCacheTypeNone);
+            }
             return;
         }
         
