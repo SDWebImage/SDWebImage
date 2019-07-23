@@ -31,7 +31,7 @@ let package = Package(
             name: "SDWebImage",
             dependencies: [],
             path: "SDWebImage",
-            exclude: ["Private", "MapKit"],
+            exclude: ["MapKit"],
             cSettings: [
                 .headerSearchPath("."),
                 .headerSearchPath("Private")
@@ -42,7 +42,6 @@ let package = Package(
             dependencies: ["SDWebImage"],
             path: "SDWebImage",
             sources: ["MapKit"],
-            publicHeadersPath: "MapKit",
             cSettings: [
                 .headerSearchPath("."),
                 .headerSearchPath("Private")
