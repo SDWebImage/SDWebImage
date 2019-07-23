@@ -30,21 +30,23 @@ let package = Package(
         .target(
             name: "SDWebImage",
             dependencies: [],
-            path: "SDWebImage",
-            exclude: ["MapKit"],
+            path: ".",
+            sources: ["SDWebImage/Core", "SDWebImage/Private"],
+            publicHeadersPath: "SDWebImage/Core",
             cSettings: [
-                .headerSearchPath("."),
-                .headerSearchPath("Private")
+                .headerSearchPath("SDWebImage/Core"),
+                .headerSearchPath("SDWebImage/Private")
             ]
         ),
         .target(
             name: "SDWebImageMapKit",
             dependencies: ["SDWebImage"],
-            path: "SDWebImage",
-            sources: ["MapKit"],
+            path: ".",
+            sources: ["SDWebImage/MapKit"],
+            publicHeadersPath: "SDWebImage/MapKit",
             cSettings: [
-                .headerSearchPath("."),
-                .headerSearchPath("Private")
+                .headerSearchPath("SDWebImage/Core"),
+                .headerSearchPath("SDWebImage/Private")
             ]
         )
     ]
