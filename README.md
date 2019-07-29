@@ -136,7 +136,7 @@ There are four ways to use SDWebImage in your project:
 - using CocoaPods
 - using Carthage
 - using Swift Package Manager
-- manual install (XCFramework, build-only or embed Xcode Project)
+- manual install (build frameworks or embed Xcode Project)
 
 ### Installation with CocoaPods
 
