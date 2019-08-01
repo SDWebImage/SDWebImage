@@ -83,7 +83,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * By default, for `SDAnimatedImage`, we decode the animated image frame during rendering to reduce memory usage. This flag actually trigger `preloadAllAnimatedImageFrames = YES` after image load from network
      */
-    SDWebImageDownloaderPreloadAllFrames = 1 << 11
+    SDWebImageDownloaderPreloadAllFrames = 1 << 11,
+    
+    /**
+     * By default, when you use `SDWebImageContextAnimatedImageClass` context option (like using `SDAnimatedImageView` which designed to use `SDAnimatedImage`), we may still use `UIImage` when the memory cache hit, or image decoder is not available, to behave as a fallback solution.
+     * Using this option, can ensure we always produce image with your provided class. If failed, a error with code `SDWebImageErrorBadImageData` will been used.
+     * Note this options is not compatible with `SDWebImageDownloaderDecodeFirstFrameOnly`, which always produce a UIImage/NSImage.
+     */
+    SDWebImageDownloaderMatchAnimatedImageClass = 1 << 12,
 };
 
 FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadStartNotification;

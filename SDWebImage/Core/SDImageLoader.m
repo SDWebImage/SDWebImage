@@ -43,8 +43,16 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)]) {
             image = [[animatedImageClass alloc] initWithData:imageData scale:scale options:coderOptions];
-            if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                [((id<SDAnimatedImage>)image) preloadAllFrames];
+            if (image) {
+                // Preload frames if supported
+                if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
+                    [((id<SDAnimatedImage>)image) preloadAllFrames];
+                }
+            } else {
+                // Check image class matching
+                if (options & SDWebImageMatchAnimatedImageClass) {
+                    return nil;
+                }
             }
         }
     }
@@ -120,6 +128,14 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
             image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDAnimatedImageCoder>)progressiveCoder scale:scale];
+            if (image) {
+                // Progressive decoding does not preload frames
+            } else {
+                // Check image class matching
+                if (options & SDWebImageMatchAnimatedImageClass) {
+                    return nil;
+                }
+            }
         }
     }
     if (!image) {

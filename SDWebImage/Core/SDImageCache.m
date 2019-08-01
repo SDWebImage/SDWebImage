@@ -377,13 +377,26 @@
     
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
-
-    if ((options & SDImageCacheDecodeFirstFrameOnly) && image.sd_isAnimated) {
+    
+    if (image) {
+        if (options & SDImageCacheDecodeFirstFrameOnly) {
+            // Ensure static image
+            Class animatedImageClass = image.class;
+            if (image.sd_isAnimated || ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)])) {
 #if SD_MAC
-        image = [[NSImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:kCGImagePropertyOrientationUp];
+                image = [[NSImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:kCGImagePropertyOrientationUp];
 #else
-        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
+                image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
 #endif
+            }
+        } else if (options & SDImageCacheMatchAnimatedImageClass) {
+            // Check image class matching
+            Class animatedImageClass = image.class;
+            Class desiredImageClass = context[SDWebImageContextAnimatedImageClass];
+            if (desiredImageClass && animatedImageClass && desiredImageClass != animatedImageClass) {
+                image = nil;
+            }
+        }
     }
 
     BOOL shouldQueryMemoryOnly = (image && !(options & SDImageCacheQueryMemoryData));
@@ -607,6 +620,7 @@
     if (cacheOptions & SDImageCacheDecodeFirstFrameOnly) options |= SDWebImageDecodeFirstFrameOnly;
     if (cacheOptions & SDImageCachePreloadAllFrames) options |= SDWebImagePreloadAllFrames;
     if (cacheOptions & SDImageCacheAvoidDecodeImage) options |= SDWebImageAvoidDecodeImage;
+    if (cacheOptions & SDImageCacheMatchAnimatedImageClass) options |= SDWebImageMatchAnimatedImageClass;
     
     return options;
 }
@@ -626,6 +640,8 @@
     if (options & SDWebImageAvoidDecodeImage) cacheOptions |= SDImageCacheAvoidDecodeImage;
     if (options & SDWebImageDecodeFirstFrameOnly) cacheOptions |= SDImageCacheDecodeFirstFrameOnly;
     if (options & SDWebImagePreloadAllFrames) cacheOptions |= SDImageCachePreloadAllFrames;
+    if (options & SDWebImageMatchAnimatedImageClass) cacheOptions |= SDImageCacheMatchAnimatedImageClass;
+    
     return [self queryCacheOperationForKey:key options:cacheOptions context:context done:completionBlock];
 }
 
