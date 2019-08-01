@@ -8,6 +8,7 @@
 [![Pod Platform](http://img.shields.io/cocoapods/p/SDWebImage.svg?style=flat)](http://cocoadocs.org/docsets/SDWebImage/)
 [![Pod License](http://img.shields.io/cocoapods/l/SDWebImage.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/SDWebImage/SDWebImage)
+[![SwiftPM compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://swift.org/package-manager/)
 [![codecov](https://codecov.io/gh/SDWebImage/SDWebImage/branch/master/graph/badge.svg)](https://codecov.io/gh/SDWebImage/SDWebImage)
 
 This library provides an async image downloader with cache support. For convenience, we added categories for UI elements like `UIImageView`, `UIButton`, `MKAnnotationView`.
@@ -131,10 +132,11 @@ In order to clean up things and make our core project do less things, we decided
 
 ## Installation
 
-There are three ways to use SDWebImage in your project:
+There are four ways to use SDWebImage in your project:
 - using CocoaPods
 - using Carthage
-- by cloning the project into your repository
+- using Swift Package Manager
+- manual install (build frameworks or embed Xcode Project)
 
 ### Installation with CocoaPods
 
@@ -174,6 +176,7 @@ pod 'SDWebImage'
 There are 2 subspecs available now: `Core` and `MapKit` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `MapKit`, you need to specify it). 
 
 Podfile example:
+
 ```
 pod 'SDWebImage/MapKit'
 ```
@@ -192,8 +195,29 @@ If this is your first time using Carthage in the project, you'll need to go thro
 
 > NOTE: At this time, Carthage does not provide a way to build only specific repository subcomponents (or equivalent of CocoaPods's subspecs). All components and their dependencies will be built with the above command. However, you don't need to copy frameworks you aren't using into your project. For instance, if you aren't using `SDWebImageMapKit`, feel free to delete that framework from the Carthage Build directory after `carthage update` completes.
 
-### Installation by cloning the repository
-- see [Manual install](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/ManualInstallation.md)
+### Installation with Swift Package Manager (Xcode 11+)
+
+[Swift Package Manager](https://swift.org/package-manager/) (SwiftPM) is a tool for managing the distribution of Swift code as well as C-family dependency. From Xcode 11, SwiftPM got natively integrated with Xcode.
+
+SDWebImage support SwiftPM from version 5.1.0. To use SwiftPM, you should use Xcode 11 to open your project. Click `File` -> `Swift Packages` -> `Add Package Dependency`, enter [SDWebImage repo's URL](https://github.com/SDWebImage/SDWebImage.git). Or you can login Xcode with your GitHub account and just type `SDWebImage` to search.
+
+After select the package, you can choose the dependency type (tagged version, branch or commit). Then Xcode will setup all the stuff for you.
+
+If you're a framework author and use SDWebImage as a dependency, update your `Package.swift` file:
+
+```swift
+let package = Package(
+    // 5.1.0 ..< 6.0.0
+    dependencies: [
+        .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.1.0")
+    ],
+    // ...
+)
+```
+
+### Manual Installation Guide
+
+See more on [Manual install Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide#manual-installation-guide)
 
 ### Import headers in your source files
 
