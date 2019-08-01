@@ -14,7 +14,7 @@
 
 @implementation NSImage (Compatibility)
 
-- (CGImageRef)CGImage {
+- (nullable CGImageRef)CGImage {
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
     CGImageRef cgImage = [self CGImageForProposedRect:&imageRect context:nil hints:nil];
     return cgImage;
@@ -40,7 +40,7 @@
     return scale;
 }
 
-- (instancetype)initWithCGImage:(CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
+- (instancetype)initWithCGImage:(nonnull CGImageRef)cgImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
     NSBitmapImageRep *imageRep;
     if (orientation != kCGImagePropertyOrientationUp) {
         // AppKit design is different from UIKit. Where CGImage based image rep does not respect to any orientation. Only data based image rep which contains the EXIF metadata can automatically detect orientation.
@@ -65,7 +65,7 @@
     return self;
 }
 
-- (instancetype)initWithData:(NSData *)data scale:(CGFloat)scale {
+- (instancetype)initWithData:(nonnull NSData *)data scale:(CGFloat)scale {
     NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc] initWithData:data];
     if (!imageRep) {
         return nil;
