@@ -561,7 +561,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 #if SD_UIKIT || SD_MAC
-- (nullable UIImage *)sd_filteredImageWithFilter:(CIFilter *)filter {
+- (nullable UIImage *)sd_filteredImageWithFilter:(nonnull CIFilter *)filter {
     if (!self.CGImage) return nil;
     
     CIContext *context = [CIContext context];
