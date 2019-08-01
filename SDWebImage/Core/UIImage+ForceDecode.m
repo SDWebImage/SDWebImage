@@ -21,18 +21,18 @@
     objc_setAssociatedObject(self, @selector(sd_isDecoded), @(sd_isDecoded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-+ (UIImage *)sd_decodedImageWithImage:(UIImage *)image {
++ (nullable UIImage *)sd_decodedImageWithImage:(nullable UIImage *)image {
     if (!image) {
         return nil;
     }
     return [SDImageCoderHelper decodedImageWithImage:image];
 }
 
-+ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image {
++ (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image {
     return [self sd_decodedAndScaledDownImageWithImage:image limitBytes:0];
 }
 
-+ (UIImage *)sd_decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
++ (nullable UIImage *)sd_decodedAndScaledDownImageWithImage:(nullable UIImage *)image limitBytes:(NSUInteger)bytes {
     if (!image) {
         return nil;
     }
