@@ -130,7 +130,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         }
         SDWebImageDownloaderCompletedBlock completedBlock = [token valueForKey:kCompletedCallbackKey];
         dispatch_main_async_safe(^{
-            completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil], YES);
+            if (completedBlock) {
+                completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil], YES);
+            }
         });
     }
     return shouldCancel;
