@@ -182,7 +182,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     }
 }
 
-- (UIImage *)sd_resizedImageWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode {
+- (nullable UIImage *)sd_resizedImageWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode {
     if (size.width <= 0 || size.height <= 0) return nil;
     SDGraphicsBeginImageContextWithOptions(size, NO, self.scale);
     [self sd_drawInRect:CGRectMake(0, 0, size.width, size.height) withScaleMode:scaleMode clipsToBounds:NO];
@@ -191,7 +191,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return image;
 }
 
-- (UIImage *)sd_croppedImageWithRect:(CGRect)rect {
+- (nullable UIImage *)sd_croppedImageWithRect:(CGRect)rect {
     if (!self.CGImage) return nil;
     rect.origin.x *= self.scale;
     rect.origin.y *= self.scale;
@@ -211,7 +211,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return image;
 }
 
-- (UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(UIColor *)borderColor {
+- (nullable UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor {
     if (!self.CGImage) return nil;
     SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
     CGContextRef context = SDGraphicsGetCurrentContext();
@@ -253,7 +253,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return image;
 }
 
-- (UIImage *)sd_rotatedImageWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
+- (nullable UIImage *)sd_rotatedImageWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
     if (!self.CGImage) return nil;
     size_t width = (size_t)CGImageGetWidth(self.CGImage);
     size_t height = (size_t)CGImageGetHeight(self.CGImage);
@@ -290,7 +290,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return img;
 }
 
-- (UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
+- (nullable UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
     if (!self.CGImage) return nil;
     size_t width = (size_t)CGImageGetWidth(self.CGImage);
     size_t height = (size_t)CGImageGetHeight(self.CGImage);
@@ -327,7 +327,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 #pragma mark - Image Blending
 
-- (UIImage *)sd_tintedImageWithColor:(UIColor *)tintColor {
+- (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
     if (!self.CGImage) return nil;
     if (!tintColor.CGColor) return nil;
     
@@ -359,7 +359,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return image;
 }
 
-- (UIColor *)sd_colorAtPoint:(CGPoint)point {
+- (nullable UIColor *)sd_colorAtPoint:(CGPoint)point {
     if (!self) {
         return nil;
     }
@@ -403,7 +403,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return SDGetColorFromPixel(pixel, bitmapInfo);
 }
 
-- (NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
+- (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
     if (!self) {
         return nil;
     }
@@ -467,7 +467,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #pragma mark - Image Effect
 
 // We use vImage to do box convolve for performance and support for watchOS. However, you can just use `CIFilter.CIBoxBlur`. For other blur effect, use any filter in `CICategoryBlur`
-- (UIImage *)sd_blurredImageWithRadius:(CGFloat)blurRadius {
+- (nullable UIImage *)sd_blurredImageWithRadius:(CGFloat)blurRadius {
     if (self.size.width < 1 || self.size.height < 1) {
         return nil;
     }
@@ -561,7 +561,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 #if SD_UIKIT || SD_MAC
-- (UIImage *)sd_filteredImageWithFilter:(CIFilter *)filter {
+- (nullable UIImage *)sd_filteredImageWithFilter:(nonnull CIFilter *)filter {
     if (!self.CGImage) return nil;
     
     CIContext *context = [CIContext context];
