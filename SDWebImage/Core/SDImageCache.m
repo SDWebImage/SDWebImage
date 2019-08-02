@@ -393,7 +393,7 @@
             // Check image class matching
             Class animatedImageClass = image.class;
             Class desiredImageClass = context[SDWebImageContextAnimatedImageClass];
-            if (desiredImageClass && animatedImageClass && desiredImageClass != animatedImageClass) {
+            if (desiredImageClass && ![animatedImageClass isSubclassOfClass:desiredImageClass]) {
                 image = nil;
             }
         }
