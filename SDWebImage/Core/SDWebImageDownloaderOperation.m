@@ -110,15 +110,28 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (BOOL)cancel:(nullable id)token {
+    if (!token) return NO;
+    
     BOOL shouldCancel = NO;
     @synchronized (self) {
-        [self.callbackBlocks removeObjectIdenticalTo:token];
-        if (self.callbackBlocks.count == 0) {
+        NSMutableArray *tempCallbackBlocks = [self.callbackBlocks mutableCopy];
+        [tempCallbackBlocks removeObjectIdenticalTo:token];
+        if (tempCallbackBlocks.count == 0) {
             shouldCancel = YES;
         }
     }
     if (shouldCancel) {
+        // Cancel operation running and callback last token's completion block
         [self cancel];
+    } else {
+        // Only callback this token's completion block
+        @synchronized (self) {
+            [self.callbackBlocks removeObjectIdenticalTo:token];
+        }
+        SDWebImageDownloaderCompletedBlock completedBlock = [token valueForKey:kCompletedCallbackKey];
+        dispatch_main_async_safe(^{
+            completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil], YES);
+        });
     }
     return shouldCancel;
 }
@@ -221,10 +234,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         // maintain the isFinished and isExecuting flags.
         if (self.isExecuting) self.executing = NO;
         if (!self.isFinished) self.finished = YES;
-    } else {
-        // Operation cancelled by user before sending the request
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil]];
     }
+    // Operation cancelled by user before sending the request
+    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil]];
 
     [self reset];
 }
@@ -381,6 +393,9 @@ didReceiveResponse:(NSURLResponse *)response
 #pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
+    // If we already cancel the operation or anything mark the operation finished, don't callback twice
+    if (self.isFinished) return;
+    
     @synchronized(self) {
         self.dataTask = nil;
         __block typeof(self) strongSelf = self;
