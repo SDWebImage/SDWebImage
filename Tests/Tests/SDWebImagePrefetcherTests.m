@@ -154,9 +154,9 @@
 - (void)test07DownloaderCancelDuringPrefetching {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader cancel during prefetch should not hung up"];
     
-    NSArray *imageURLs = @[@"http://via.placeholder.com/3000x3000.jpg",
-                           @"http://via.placeholder.com/4000x4000.jpg",
-                           @"http://via.placeholder.com/5000x5000.jpg"];
+    NSArray *imageURLs = @[@"http://via.placeholder.com/5000x5000.jpg",
+                           @"http://via.placeholder.com/6000x6000.jpg",
+                           @"http://via.placeholder.com/7000x7000.jpg"];
     for (NSString *url in imageURLs) {
         [SDImageCache.sharedImageCache removeImageFromDiskForKey:url];
     }
