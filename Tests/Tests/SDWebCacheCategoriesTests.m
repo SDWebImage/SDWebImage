@@ -203,10 +203,29 @@
 - (void)testUIViewCancelCurrentImageLoad {
     UIView *imageView = [[UIView alloc] init];
     NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
     [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
     [imageView sd_cancelCurrentImageLoad];
     NSString *operationKey = NSStringFromClass(UIView.class);
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
+}
+
+- (void)testUIViewCancelCallbackWithError {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView internalSetImageWithURL cancel callback error"];
+    
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+    [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorCancelled);
+        [expectation fulfill];
+    }];
+    [imageView sd_cancelCurrentImageLoad];
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)testUIViewImageProgressKVOWork {

@@ -161,10 +161,11 @@
 - (void)test11ThatCancelWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel"];
     
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *imageURL = [NSURL URLWithString:@"http://via.placeholder.com/1000x1000.png"];
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-                                          XCTFail(@"Should not get here");
+                                          expect(error).notTo.beNil();
+                                          expect(error.code).equal(SDWebImageErrorCancelled);
                                       }];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     
@@ -182,7 +183,7 @@
 - (void)test11ThatCancelAllDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"CancelAllDownloads"];
     
-    NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *imageURL = [NSURL URLWithString:@"http://via.placeholder.com/1100x1100.png"];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL completed:nil];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
     
@@ -323,7 +324,8 @@
                                        options:0
                                        progress:nil
                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                           XCTFail(@"Shouldn't have completed here.");
+                                           expect(error).notTo.beNil();
+                                           expect(error.code).equal(SDWebImageErrorCancelled);
                                        }];
     expect(token1).toNot.beNil();
     
@@ -361,7 +363,8 @@
                                        options:0
                                        progress:nil
                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                           XCTFail(@"Shouldn't have completed here.");
+                                           expect(error).notTo.beNil();
+                                           expect(error.code).equal(SDWebImageErrorCancelled);
                                        }];
     expect(token1).toNot.beNil();
     

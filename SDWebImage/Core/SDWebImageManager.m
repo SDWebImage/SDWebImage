@@ -193,6 +193,8 @@ static id<SDImageLoader> _defaultImageLoader;
         operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
+                // Image combined operation cancelled by user
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil] url:url];
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
@@ -241,11 +243,13 @@ static id<SDImageLoader> _defaultImageLoader;
         operation.loaderOperation = [self.imageLoader requestImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
-                // Do nothing if the operation was cancelled
-                // See #699 for more details
-                // if we would call the completedBlock, there could be a race condition between this block and another completedBlock for the same object, so if this one is called second, we will overwrite the new data
+                // Image combined operation cancelled by user
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil] url:url];
             } else if (cachedImage && options & SDWebImageRefreshCached && [error.domain isEqualToString:SDWebImageErrorDomain] && error.code == SDWebImageErrorCacheNotModified) {
                 // Image refresh hit the NSURLCache cache, do not call the completion block
+            } else if ([error.domain isEqualToString:SDWebImageErrorDomain] && error.code == SDWebImageErrorCancelled) {
+                // Download operation cancelled by user before sending the request, don't block failed URL
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:error url:url];
             } else if (error) {
                 [self callCompletionBlockForOperation:operation completion:completedBlock error:error url:url];
                 BOOL shouldBlockFailedURL = [self shouldBlockFailedURLWithURL:url error:error];
@@ -376,7 +380,7 @@ static id<SDImageLoader> _defaultImageLoader;
                                finished:(BOOL)finished
                                     url:(nullable NSURL *)url {
     dispatch_main_async_safe(^{
-        if (operation && !operation.isCancelled && completionBlock) {
+        if (completionBlock) {
             completionBlock(image, data, error, cacheType, finished, url);
         }
     });

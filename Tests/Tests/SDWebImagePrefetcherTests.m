@@ -151,6 +151,31 @@
     expect(prefetcher.runningTokens.count).equal(0);
 }
 
+- (void)test07DownloaderCancelDuringPrefetching {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader cancel during prefetch should not hung up"];
+    
+    NSArray *imageURLs = @[@"http://via.placeholder.com/5000x5000.jpg",
+                           @"http://via.placeholder.com/6000x6000.jpg",
+                           @"http://via.placeholder.com/7000x7000.jpg"];
+    for (NSString *url in imageURLs) {
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:url];
+    }
+    SDWebImagePrefetcher *prefetcher = [[SDWebImagePrefetcher alloc] init];
+    prefetcher.maxConcurrentPrefetchCount = 3;
+    [prefetcher prefetchURLs:imageURLs progress:nil completed:^(NSUInteger noOfFinishedUrls, NSUInteger noOfSkippedUrls) {
+        expect(noOfSkippedUrls).equal(3);
+        [expectation fulfill];
+    }];
+    
+    // Cancel all download, should not effect the prefetcher logic or cause hung up
+    // Prefetch is not sync, so using wait for testing
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMinDelayNanosecond), dispatch_get_main_queue(), ^{
+        [SDWebImageDownloader.sharedDownloader cancelAllDownloads];
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)imagePrefetcher:(SDWebImagePrefetcher *)imagePrefetcher didFinishWithTotalCount:(NSUInteger)totalCount skippedCount:(NSUInteger)skippedCount {
     expect(imagePrefetcher).to.equal(self.prefetcher);
     self.skippedCount = skippedCount;
