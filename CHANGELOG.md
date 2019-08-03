@@ -1,3 +1,56 @@
+## [5.1.0 - SwiftPM and more, on Aug 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.1.0)
+See [all tickets marked for the 5.1.0 release](https://github.com/SDWebImage/SDWebImage/milestone/38)
+
+### Features
+
+#### Swift Package Manager
+
+- Add support for Swift Package Manager #2756
+
+#### Options Processor
+
+- Supports global control on options and context for individual image request #2736
+
+#### Context Option
+
+- Supports store original image to cache for transformer via `SDWebImageContextOriginalStoreCacheType` #2590
+- Add a new option `SDWebImageMatchAnimatedImageClass`, to ensure we always match the custom image class instead of UIImage/NSImage class #2801
+
+#### Cache
+
+- Expose the memoryCache and diskCache object on `SDImageCache`, Make it useful for user who have custom property beyond `SDImageCacheConfig` #2779
+
+### Fixes
+
+- Fix SDAnimatedImageView's frame buffer bug when display link is pause #2782
+- Fix the bug that UIButton setBackgroundImage convenient method does not pass the options arg to next function call #2785
+- Add a autoreleasepool when prefetch many images #2792
+- Feature supports dynamic style indicator for iOS 13, fix indicator color on macOS 10.14+ #2753
+- Fix for CocoaPods modular headers warning by removing the custom modulemap #2749
+
+### Project
+
+- Follow App Store submit rule, upgrade the minimum Xcode version to Xcode 10.0 #2780
+- Provide a script target to directly build all SDWebImage framework and generate all in one XCFramework from Xcode 11 #2764
+
+### Notable Behavior Changes
+
+- Ensure we always callback user's completion block even when cancelled with `SDWebImageErrorCancelled` error code #2692
+
+This may effect some users. In previous 4.0~5.0 version, we will not callback completion block when we receive `cancel` call. (including all View Category/Cache/Manager/Downloader APIs)
+
+But from 5.1, we always callback on this case with error code `SDWebImageErrorCancelled`. You can filter this error code if you don't care about cancel.
+
+This change makes usages like Dispatch Group, observer, or any logic which relay on the completion's callback become acceptable, which is not reliable and will cause issue in previous versions.
+
+- Change that the `sd_imageProgress` property to not auto-create instance by framework #2763
+
+Now, we don't create the NSProgress object from internal method call, this does not affect user's KVO usage.
+
+- Change the default value of accept request header #2772
+
+Now, the default HTTP header filed `Accept`, use `image/*,*/*;q=0.8`, instead of `image/*;q=0.8`.
+
 ## [5.0 Patch, on Jun 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.0.6)
 See [all tickets marked for the 5.0.6 release](https://github.com/SDWebImage/SDWebImage/milestone/42)
 
