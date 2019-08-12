@@ -264,7 +264,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
             // Progressive image may be nil when download data is not enough
             if (image) {
                 expect(image.sd_isIncremental).beTruthy();
-                expect([image conformsToProtocol:@protocol(SDAnimatedImage)]).beTruthy();
+                expect([image.class conformsToProtocol:@protocol(SDAnimatedImage)]).beTruthy();
                 BOOL isProgressive = imageView.isProgressive;
                 expect(isProgressive).equal(YES);
             }
