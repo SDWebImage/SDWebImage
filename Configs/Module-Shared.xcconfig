@@ -223,3 +223,9 @@ VERSIONING_SYSTEM = apple-generic
 
 // Code will load on this and later versions of watchOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
 WATCHOS_DEPLOYMENT_TARGET = 2.0
+
+// macOS Catalyst support
+SUPPORTS_MACCATALYST = YES
+
+// macOS Catalyst support
+DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO

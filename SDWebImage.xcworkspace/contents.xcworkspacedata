@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:SDWebImage.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:Examples/SDWebImage Demo.xcodeproj">
    </FileRef>
    <FileRef

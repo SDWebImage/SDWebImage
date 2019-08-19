@@ -47,7 +47,7 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     }
     if (image) {
         BOOL shouldDecode = (options & SDWebImageAvoidDecodeImage) == 0;
-        if ([image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+        if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
         } else if (image.sd_isAnimated) {
