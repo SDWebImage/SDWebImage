@@ -58,6 +58,20 @@
  */
 @property (nonatomic, assign) BOOL shouldIncrementalLoad;
 
+/**
+ Whether or not to clear the frame buffer cache when animation stopped. See `maxBufferSize`
+ This is useful when you want to limit the memory usage during frequently visibility changes (such as image view inside a list view, then push and pop)
+ Default is NO.
+ */
+@property (nonatomic, assign) BOOL clearBufferWhenStopped;
+
+/**
+ Whether or not to reset the current frame index when animation stopped.
+ For some of use case, you may want to reset the frame index to 0 when stop, but some other want to keep the current frame index.
+ Default is NO.
+ */
+@property (nonatomic, assign) BOOL resetFrameIndexWhenStopped;
+
 #if SD_UIKIT
 /**
  You can specify a runloop mode to let it rendering.
