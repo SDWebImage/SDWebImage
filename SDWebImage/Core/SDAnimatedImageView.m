@@ -186,7 +186,6 @@ static NSUInteger SDDeviceFreeMemory() {
 {
     SD_LOCK(self.lock);
     [_frameBuffer removeAllObjects];
-    _frameBuffer = nil;
     SD_UNLOCK(self.lock);
 }
 
