@@ -498,7 +498,7 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 - (BOOL)shouldContinueWhenAppEntersBackground {
-    return self.options & SDWebImageDownloaderContinueInBackground;
+    return SD_OPTIONS_CONTAINS(self.options, SDWebImageDownloaderContinueInBackground);
 }
 
 - (void)callCompletionBlocksWithError:(nullable NSError *)error {
