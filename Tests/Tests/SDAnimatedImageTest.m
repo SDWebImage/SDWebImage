@@ -321,7 +321,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     });
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+#if SD_UIKIT
         [imageView stopAnimating];
+#else
+        imageView.animates = NO;
+#endif
         expect(imageView.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
         
@@ -355,7 +359,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     });
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+#if SD_UIKIT
         [imageView stopAnimating];
+#else
+        imageView.animates = NO;
+#endif
         expect(imageView.frameBuffer.count).equal(0);
         expect(imageView.currentFrameIndex).equal(0);
         
