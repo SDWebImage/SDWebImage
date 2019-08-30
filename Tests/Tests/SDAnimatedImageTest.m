@@ -16,6 +16,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 @interface SDAnimatedImageView ()
 
 @property (nonatomic, assign) BOOL isProgressive;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIImage *> *frameBuffer;
 
 @end
 
@@ -206,6 +207,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #else
             imageView.animates = NO;
 #endif
+            [imageView removeFromSuperview];
             [expectation fulfill];
         }
     }];
@@ -295,6 +297,80 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
         [expectation fulfill];
     }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test25AnimatedImageStopAnimatingNormal {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView stopAnimating normal behavior"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    // This APNG duration is 2s
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.image = image;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 0.5s is not finished, frame index should not be 0
+        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.currentFrameIndex).beGreaterThan(0);
+    });
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+#if SD_UIKIT
+        [imageView stopAnimating];
+#else
+        imageView.animates = NO;
+#endif
+        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.currentFrameIndex).beGreaterThan(0);
+        
+        [imageView removeFromSuperview];
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test25AnimatedImageStopAnimatingClearBuffer {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView stopAnimating clear buffer when stopped"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    imageView.clearBufferWhenStopped = YES;
+    imageView.resetFrameIndexWhenStopped = YES;
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    // This APNG duration is 2s
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.image = image;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 0.5s is not finished, frame index should not be 0
+        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.currentFrameIndex).beGreaterThan(0);
+    });
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+#if SD_UIKIT
+        [imageView stopAnimating];
+#else
+        imageView.animates = NO;
+#endif
+        expect(imageView.frameBuffer.count).equal(0);
+        expect(imageView.currentFrameIndex).equal(0);
+        
+        [imageView removeFromSuperview];
+        [expectation fulfill];
+    });
+    
     [self waitForExpectationsWithCommonTimeout];
 }
 

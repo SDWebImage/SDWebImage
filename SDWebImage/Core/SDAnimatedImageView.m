@@ -149,21 +149,15 @@ static NSUInteger SDDeviceFreeMemory() {
     self.animatedImage = nil;
     self.totalFrameCount = 0;
     self.totalLoopCount = 0;
-    self.currentFrame = nil;
-    self.currentFrameIndex = 0;
-    self.currentLoopCount = 0;
-    self.currentTime = 0;
-    self.bufferMiss = NO;
+    // reset current state
+    [self resetCurrentFrameIndex];
     self.shouldAnimate = NO;
     self.isProgressive = NO;
     self.maxBufferCount = 0;
     self.animatedImageScale = 1;
     [_fetchQueue cancelAllOperations];
-    _fetchQueue = nil;
-    SD_LOCK(self.lock);
-    [_frameBuffer removeAllObjects];
-    _frameBuffer = nil;
-    SD_UNLOCK(self.lock);
+    // clear buffer cache
+    [self clearFrameBuffer];
 }
 
 - (void)resetProgressiveImage
@@ -177,6 +171,22 @@ static NSUInteger SDDeviceFreeMemory() {
     self.maxBufferCount = 0;
     self.animatedImageScale = 1;
     // preserve buffer cache
+}
+
+- (void)resetCurrentFrameIndex
+{
+    self.currentFrame = nil;
+    self.currentFrameIndex = 0;
+    self.currentLoopCount = 0;
+    self.currentTime = 0;
+    self.bufferMiss = NO;
+}
+
+- (void)clearFrameBuffer
+{
+    SD_LOCK(self.lock);
+    [_frameBuffer removeAllObjects];
+    SD_UNLOCK(self.lock);
 }
 
 #pragma mark - Accessors
@@ -466,6 +476,12 @@ static NSUInteger SDDeviceFreeMemory() {
 #else
         _displayLink.paused = YES;
 #endif
+        if (self.resetFrameIndexWhenStopped) {
+            [self resetCurrentFrameIndex];
+        }
+        if (self.clearBufferWhenStopped) {
+            [self clearFrameBuffer];
+        }
     } else {
 #if SD_UIKIT
         [super stopAnimating];
