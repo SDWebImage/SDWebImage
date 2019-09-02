@@ -8,6 +8,7 @@
  */
 
 #import "SDTestCase.h"
+#import "SDInternalMacros.h"
 #import <KVOController/KVOController.h>
 
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
@@ -17,6 +18,8 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 
 @property (nonatomic, assign) BOOL isProgressive;
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIImage *> *frameBuffer;
+@property (nonatomic, strong) dispatch_semaphore_t lock;
+
 
 @end
 
@@ -316,8 +319,10 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
+        SD_LOCK(imageView.lock);
         expect(imageView.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
+        SD_UNLOCK(imageView.lock);
     });
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -326,8 +331,10 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #else
         imageView.animates = NO;
 #endif
+        SD_LOCK(imageView.lock);
         expect(imageView.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
+        SD_UNLOCK(imageView.lock);
         
         [imageView removeFromSuperview];
         [expectation fulfill];
@@ -354,8 +361,10 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
+        SD_LOCK(imageView.lock);
         expect(imageView.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
+        SD_UNLOCK(imageView.lock);
     });
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -364,8 +373,10 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #else
         imageView.animates = NO;
 #endif
+        SD_LOCK(imageView.lock);
         expect(imageView.frameBuffer.count).equal(0);
         expect(imageView.currentFrameIndex).equal(0);
+        SD_UNLOCK(imageView.lock);
         
         [imageView removeFromSuperview];
         [expectation fulfill];
