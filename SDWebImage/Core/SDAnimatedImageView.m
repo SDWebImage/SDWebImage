@@ -65,6 +65,7 @@ static NSUInteger SDDeviceFreeMemory() {
 #else
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #endif
+@property (nonatomic) CALayer *imageViewLayer; // The actual rendering layer.
 
 @end
 
@@ -132,10 +133,6 @@ static NSUInteger SDDeviceFreeMemory() {
     self.shouldIncrementalLoad = YES;
 #if SD_MAC
     self.wantsLayer = YES;
-    // Default value from `NSImageView`
-    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    self.imageScaling = NSImageScaleProportionallyDown;
-    self.imageAlignment = NSImageAlignCenter;
 #endif
 #if SD_UIKIT
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -236,11 +233,8 @@ static NSUInteger SDDeviceFreeMemory() {
         if (self.shouldAnimate) {
             [self startAnimating];
         }
-        
-        [self.layer setNeedsDisplay];
-#if SD_MAC
-        [self.layer displayIfNeeded]; // macOS's imageViewLayer may not equal to self.layer. But `[super setImage:]` will impliedly mark it needsDisplay. We call `[self.layer displayIfNeeded]` to immediately refresh the imageViewLayer to avoid flashing
-#endif
+
+        [self.imageViewLayer setNeedsDisplay];
     }
 }
 
@@ -625,7 +619,7 @@ static NSUInteger SDDeviceFreeMemory() {
         self.currentFrame = currentFrame;
         self.currentFrameIndex = nextFrameIndex;
         self.bufferMiss = NO;
-        [self.layer setNeedsDisplay];
+        [self.imageViewLayer setNeedsDisplay];
     } else {
         self.bufferMiss = YES;
     }
@@ -705,42 +699,42 @@ static NSUInteger SDDeviceFreeMemory() {
 
 - (void)displayLayer:(CALayer *)layer
 {
-    if (_currentFrame) {
+    if (self.currentFrame) {
         layer.contentsScale = self.animatedImageScale;
-        layer.contents = (__bridge id)_currentFrame.CGImage;
+        layer.contents = (__bridge id)self.currentFrame.CGImage;
     }
 }
 
 #if SD_MAC
-// Layer-backed NSImageView optionally optimize to use a subview to do actual layer rendering.
-// When the optimization is turned on, it calls `updateLayer` instead of `displayLayer:` to update subview's layer.
-// When the optimization it turned off, this return nil and calls `displayLayer:` directly.
-- (CALayer *)imageViewLayer {
-    NSView *imageView = imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
+// NSImageView use a subview. We need this subview's layer for actual rendering.
+// Why using this design may because of properties like `imageAlignment` and `imageScaling`, which it's not available for UIImageView.contentMode (it's impossible to align left and keep aspect ratio at the same time)
+- (NSView *)imageView {
+    NSImageView *imageView = imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
     if (!imageView) {
         // macOS 10.14
         imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageSubview"));
     }
-    return imageView.layer;
+    return imageView;
 }
 
-- (void)updateLayer
-{
-    if (_currentFrame) {
-        [self displayLayer:self.imageViewLayer];
-    } else {
-        [super updateLayer];
+// on macOS, it's the imageView subview's layer (we use layer-hosting view to let CALayerDelegate works)
+- (CALayer *)imageViewLayer {
+    NSView *imageView = self.imageView;
+    if (!imageView) {
+        return nil;
     }
+    if (!_imageViewLayer) {
+        _imageViewLayer = [CALayer new];
+        _imageViewLayer.delegate = self;
+        imageView.layer = _imageViewLayer;
+        imageView.wantsLayer = YES;
+    }
+    return _imageViewLayer;
 }
-
-- (BOOL)wantsUpdateLayer {
-    // AppKit is different from UIKit, it need extra check before the layer is updated
-    // When we use the custom animation, the layer.setNeedsDisplay is directly called from display link (See `displayDidRefresh:`). However, for normal image rendering, we must implements and return YES to mark it need display
-    if (_currentFrame) {
-        return NO;
-    } else {
-        return YES;
-    }
+#else
+// on iOS, it's the imageView itself's layer
+- (CALayer *)imageViewLayer {
+    return self.layer;
 }
 
 #endif
