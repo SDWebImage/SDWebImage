@@ -677,7 +677,12 @@ static NSUInteger SDDeviceFreeMemory() {
     if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
         UIImage<SDAnimatedImage> *animatedImage = self.animatedImage;
+        @weakify(self);
         NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
+            @strongify(self);
+            if (!self) {
+                return;
+            }
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
 
             BOOL isAnimating = NO;
@@ -691,6 +696,10 @@ static NSUInteger SDDeviceFreeMemory() {
                 self.frameBuffer[@(fetchFrameIndex)] = frame;
                 SD_UNLOCK(self.lock);
             }
+            // Ensure when self dealloc, it dealloced on the main queue (UIKit/AppKit rule)
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self class];
+            });
         }];
         [self.fetchQueue addOperation:operation];
     }
