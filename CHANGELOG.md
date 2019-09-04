@@ -1,3 +1,12 @@
+## [5.1 Patch, on Sep 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.1.1)
+See [all tickets marked for the 5.1.1 release](https://github.com/SDWebImage/SDWebImage/milestone/44)
+
+### Fixes
+
+- Fix that some option mask check with local BOOL variable, error result on 32 bit device. #2819 #2817
+- Fix the macOS that SDAnimatedImageView does not works for imageScaling and imageAlignment properties #2820
+- Fix the case when SDAnimatedImageView dealloc on the fetch queue, will cause it trigger the UIKit/AppKit method on non-main queue and captured by UI Main Thread Checker #2825
+
 ## [5.1.0 - SwiftPM and more, on Aug 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.1.0)
 See [all tickets marked for the 5.1.0 release](https://github.com/SDWebImage/SDWebImage/milestone/38)
 
