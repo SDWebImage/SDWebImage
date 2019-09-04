@@ -191,7 +191,7 @@ static NSUInteger SDDeviceFreeMemory() {
 
 - (void)setImage:(UIImage *)image
 {
-    if (super.image == image) {
+    if (self.image == image) {
         return;
     }
     
@@ -549,7 +549,7 @@ static NSUInteger SDDeviceFreeMemory() {
     // We must use `image.class conformsToProtocol:` instead of `image conformsToProtocol:` here
     // Because UIKit on macOS, using internal hard-coded override method, which returns NO
     if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental) {
-        UIImage *previousImage = super.image;
+        UIImage *previousImage = self.image;
         if ([previousImage.class conformsToProtocol:@protocol(SDAnimatedImage)] && previousImage.sd_isIncremental) {
             NSData *previousData = [((UIImage<SDAnimatedImage> *)previousImage) animatedImageData];
             NSData *currentData = [((UIImage<SDAnimatedImage> *)image) animatedImageData];
