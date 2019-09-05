@@ -77,9 +77,9 @@
 		325C4611223394D8004CAE11 /* SDImageCachesManagerOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C460D223394D8004CAE11 /* SDImageCachesManagerOperation.m */; };
 		325C4615223399F7004CAE11 /* SDImageGIFCoderInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C4612223399F7004CAE11 /* SDImageGIFCoderInternal.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		325C461B22339B5F004CAE11 /* SDImageAPNGCoderInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C461822339B5F004CAE11 /* SDImageAPNGCoderInternal.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		325C46212233A02E004CAE11 /* UIColor+HexString.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C461E2233A02E004CAE11 /* UIColor+HexString.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		325C46222233A02E004CAE11 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C461F2233A02E004CAE11 /* UIColor+HexString.m */; };
-		325C46232233A02E004CAE11 /* UIColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C461F2233A02E004CAE11 /* UIColor+HexString.m */; };
+		325C46212233A02E004CAE11 /* UIColor+SDHexString.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C461E2233A02E004CAE11 /* UIColor+SDHexString.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		325C46222233A02E004CAE11 /* UIColor+SDHexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C461F2233A02E004CAE11 /* UIColor+SDHexString.m */; };
+		325C46232233A02E004CAE11 /* UIColor+SDHexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C461F2233A02E004CAE11 /* UIColor+SDHexString.m */; };
 		325C46272233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h in Headers */ = {isa = PBXBuildFile; fileRef = 325C46242233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		325C46282233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C46252233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m */; };
 		325C46292233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m in Sources */ = {isa = PBXBuildFile; fileRef = 325C46252233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m */; };
@@ -370,8 +370,8 @@
 		325C460D223394D8004CAE11 /* SDImageCachesManagerOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageCachesManagerOperation.m; sourceTree = "<group>"; };
 		325C4612223399F7004CAE11 /* SDImageGIFCoderInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDImageGIFCoderInternal.h; sourceTree = "<group>"; };
 		325C461822339B5F004CAE11 /* SDImageAPNGCoderInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDImageAPNGCoderInternal.h; sourceTree = "<group>"; };
-		325C461E2233A02E004CAE11 /* UIColor+HexString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIColor+HexString.h"; sourceTree = "<group>"; };
-		325C461F2233A02E004CAE11 /* UIColor+HexString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HexString.m"; sourceTree = "<group>"; };
+		325C461E2233A02E004CAE11 /* UIColor+SDHexString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIColor+SDHexString.h"; sourceTree = "<group>"; };
+		325C461F2233A02E004CAE11 /* UIColor+SDHexString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIColor+SDHexString.m"; sourceTree = "<group>"; };
 		325C46242233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+RoundedCorners.h"; sourceTree = "<group>"; };
 		325C46252233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+RoundedCorners.m"; sourceTree = "<group>"; };
 		327054D2206CD8B3006EA328 /* SDImageAPNGCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDImageAPNGCoder.h; path = Core/SDImageAPNGCoder.h; sourceTree = "<group>"; };
@@ -576,8 +576,8 @@
 				325C460D223394D8004CAE11 /* SDImageCachesManagerOperation.m */,
 				325C4612223399F7004CAE11 /* SDImageGIFCoderInternal.h */,
 				325C461822339B5F004CAE11 /* SDImageAPNGCoderInternal.h */,
-				325C461E2233A02E004CAE11 /* UIColor+HexString.h */,
-				325C461F2233A02E004CAE11 /* UIColor+HexString.m */,
+				325C461E2233A02E004CAE11 /* UIColor+SDHexString.h */,
+				325C461F2233A02E004CAE11 /* UIColor+SDHexString.m */,
 				325C46242233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h */,
 				325C46252233A0A8004CAE11 /* NSBezierPath+RoundedCorners.m */,
 				329F123F223FAD3400B309FD /* SDInternalMacros.h */,
@@ -824,7 +824,7 @@
 				325C460922339426004CAE11 /* SDWeakProxy.h in Headers */,
 				80B6DF812142B43B00BCB334 /* SDAnimatedImageRep.h in Headers */,
 				4A2CAE2F1AB4BB7500B6BC39 /* UIImage+MultiFormat.h in Headers */,
-				325C46212233A02E004CAE11 /* UIColor+HexString.h in Headers */,
+				325C46212233A02E004CAE11 /* UIColor+SDHexString.h in Headers */,
 				325312CA200F09910046BF1E /* SDWebImageTransition.h in Headers */,
 				4A2CAE1A1AB4BB6400B6BC39 /* SDWebImageOperation.h in Headers */,
 				32484765201775F600AF9E5A /* SDAnimatedImageView+WebCache.h in Headers */,
@@ -1031,7 +1031,7 @@
 			files = (
 				3257EAFD21898AED0097B271 /* SDImageGraphics.m in Sources */,
 				3290FA0C1FA478AF0047D20C /* SDImageFrame.m in Sources */,
-				325C46232233A02E004CAE11 /* UIColor+HexString.m in Sources */,
+				325C46232233A02E004CAE11 /* UIColor+SDHexString.m in Sources */,
 				321E60C61F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
 				3244062E2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */,
 				328BB6A42081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
@@ -1094,7 +1094,7 @@
 			files = (
 				3257EAFC21898AED0097B271 /* SDImageGraphics.m in Sources */,
 				3290FA0A1FA478AF0047D20C /* SDImageFrame.m in Sources */,
-				325C46222233A02E004CAE11 /* UIColor+HexString.m in Sources */,
+				325C46222233A02E004CAE11 /* UIColor+SDHexString.m in Sources */,
 				321E60C41F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
 				3244062D2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */,
 				328BB6A22081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
