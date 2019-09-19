@@ -91,7 +91,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     for (size_t i = 0; i < frameCount; i++) {
         @autoreleasepool {
             SDImageFrame *frame = frames[i];
-            float frameDuration = frame.duration;
+            NSTimeInterval frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
             NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyGIFDictionary : @{(__bridge NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
@@ -181,7 +181,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         @autoreleasepool {
             // NSBitmapImageRep need to manually change frame. "Good taste" API
             [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
-            float frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] floatValue];
+            NSTimeInterval frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] doubleValue];
             NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
             SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
             [frames addObject:frame];
