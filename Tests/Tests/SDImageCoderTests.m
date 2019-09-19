@@ -177,4 +177,22 @@
     }
 }
 
+- (void)test16ThatImageIOAnimatedCoderAbstractClass {
+    SDImageIOAnimatedCoder *coder = [[SDImageIOAnimatedCoder alloc] init];
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    @try {
+        [coder canEncodeToFormat:SDImageFormatPNG];
+        XCTFail("Should throw exception");
+    } @catch (NSException *exception) {
+        expect(exception);
+    }
+    @try {
+        [coder decodedImageWithData:testImageData options:nil];
+        XCTFail("Should throw exception");
+    } @catch (NSException *exception) {
+        expect(exception);
+    }
+}
+
 @end
