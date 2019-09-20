@@ -50,7 +50,10 @@
         }
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
-            // Do nothing because NSBitmapImageRep support it
+            // Fix the `NSBitmapImageRep` GIF loop count calculation issue
+            // Which will use 0 when there are no loop count information metadata in GIF data
+            NSUInteger loopCount = [SDImageGIFCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
             // Do initilize about frame count, current frame/duration and loop count

@@ -103,12 +103,7 @@
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestLoopCount" ofType:@"gif"];
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
     UIImage *image = [SDImageGIFCoder.sharedCoder decodedImageWithData:testImageData options:nil];
-#if SD_MAC
-    // TODO, macOS's `NSBitmapImageRep` treate this loop count as 0, this need to be fixed in next PR.
-    expect(image.sd_imageLoopCount).equal(0);
-#else
     expect(image.sd_imageLoopCount).equal(1);
-#endif
 }
 
 - (void)test13ThatHEICWorks {
