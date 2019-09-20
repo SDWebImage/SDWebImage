@@ -101,7 +101,7 @@
 #pragma mark - Utils
 
 + (NSUInteger)imageLoopCountWithSource:(CGImageSourceRef)source {
-    NSUInteger loopCount = 1;
+    NSUInteger loopCount = self.defaultLoopCount;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
     NSDictionary *containerProperties = imageProperties[self.dictionaryProperty];
     if (containerProperties) {
