@@ -96,6 +96,21 @@
       isAnimatedImage:YES];
 }
 
+- (void)test12ThatGIFWithoutLoopCountPlayOnce {
+    // When GIF metadata does not contains any loop count information (`kCGImagePropertyGIFLoopCount`'s value nil)
+    // The standard says it should just play once. See: http://www6.uniovi.es/gifanim/gifabout.htm
+    // This behavior is different from other modern animated image format like APNG/WebP. Which will play infinitely
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestLoopCount" ofType:@"gif"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    UIImage *image = [SDImageGIFCoder.sharedCoder decodedImageWithData:testImageData options:nil];
+#if SD_MAC
+    // TODO, macOS's `NSBitmapImageRep` treate this loop count as 0, this need to be fixed in next PR.
+    expect(image.sd_imageLoopCount).equal(0);
+#else
+    expect(image.sd_imageLoopCount).equal(1);
+#endif
+}
+
 - (void)test13ThatHEICWorks {
     if (@available(iOS 11, macOS 10.13, *)) {
         NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heic"];
@@ -174,6 +189,18 @@
 #if SD_UIKIT
         expect(outputImage.images.count).to.equal(inputImage.images.count);
 #endif
+    }
+}
+
+- (void)test16ThatImageIOAnimatedCoderAbstractClass {
+    SDImageIOAnimatedCoder *coder = [[SDImageIOAnimatedCoder alloc] init];
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    @try {
+        [coder canEncodeToFormat:SDImageFormatPNG];
+        XCTFail("Should throw exception");
+    } @catch (NSException *exception) {
+        expect(exception);
     }
 }
 

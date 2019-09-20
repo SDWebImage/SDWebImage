@@ -10,8 +10,9 @@
 
 #if SD_MAC
 
-#import "SDImageGIFCoderInternal.h"
-#import "SDImageAPNGCoderInternal.h"
+#import "SDImageIOAnimatedCoderInternal.h"
+#import "SDImageGIFCoder.h"
+#import "SDImageAPNGCoder.h"
 
 @implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
@@ -55,7 +56,7 @@
             // Do initilize about frame count, current frame/duration and loop count
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
-            NSUInteger loopCount = [[SDImageAPNGCoder sharedCoder] sd_imageLoopCountWithSource:imageSource];
+            NSUInteger loopCount = [SDImageAPNGCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         }
     }
@@ -77,13 +78,13 @@
             return;
         }
         NSUInteger index = [value unsignedIntegerValue];
-        float frameDuration = 0;
+        NSTimeInterval frameDuration = 0;
         if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
-            frameDuration = [[SDImageGIFCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
+            frameDuration = [SDImageGIFCoder frameDurationAtIndex:index source:imageSource];
         } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
-            frameDuration = [[SDImageAPNGCoder sharedCoder] sd_frameDurationAtIndex:index source:imageSource];
+            frameDuration = [SDImageAPNGCoder frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
             return;
