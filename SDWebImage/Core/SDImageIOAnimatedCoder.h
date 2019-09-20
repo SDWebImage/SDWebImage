@@ -50,7 +50,7 @@
 @property (class, readonly, nonnull) NSString *loopCountProperty;
 /**
  The default loop count when there are no any loop count information inside image container metadata.
- For example, for GIF format, the standard use 1 (treat as static image). For APNG format, the standard use 0 (infinity loop).
+ For example, for GIF format, the standard use 1 (play once). For APNG format, the standard use 0 (infinity loop).
  @note Subclass override.
  */
 @property (class, readonly) NSUInteger defaultLoopCount;
