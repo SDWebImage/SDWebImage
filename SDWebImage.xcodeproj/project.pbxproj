@@ -156,7 +156,7 @@
 		329F1240223FAD3400B309FD /* SDInternalMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F123E223FAD3400B309FD /* SDInternalMacros.m */; };
 		329F1241223FAD3400B309FD /* SDInternalMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F123E223FAD3400B309FD /* SDInternalMacros.m */; };
 		329F1243223FAD3400B309FD /* SDInternalMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 329F123F223FAD3400B309FD /* SDInternalMacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		32A09E3F233358B700339F9D /* SDImageIOAnimatedCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 32A09E3D233358B700339F9D /* SDImageIOAnimatedCoder.h */; };
+		32A09E3F233358B700339F9D /* SDImageIOAnimatedCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 32A09E3D233358B700339F9D /* SDImageIOAnimatedCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32A09E41233358B700339F9D /* SDImageIOAnimatedCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A09E3E233358B700339F9D /* SDImageIOAnimatedCoder.m */; };
 		32A09E42233358B700339F9D /* SDImageIOAnimatedCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A09E3E233358B700339F9D /* SDImageIOAnimatedCoder.m */; };
 		32B5CC60222F89C2005EB74E /* SDAsyncBlockOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32B5CC5E222F89C2005EB74E /* SDAsyncBlockOperation.h */; settings = {ATTRIBUTES = (Private, ); }; };
