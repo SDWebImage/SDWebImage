@@ -58,43 +58,43 @@
 
 + (SDImageFormat)imageFormat {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSString *)imageUTType {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSString *)dictionaryProperty {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSString *)unclampedDelayTimeProperty {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSString *)delayTimeProperty {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSString *)loopCountProperty {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
 + (NSUInteger)defaultLoopCount {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"Must override %@ in subclass", NSStringFromSelector(_cmd)]
+                                   reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
 }
 
