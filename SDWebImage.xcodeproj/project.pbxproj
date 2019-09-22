@@ -149,6 +149,11 @@
 		32935D2D22A4FEDE0049C068 /* UIImageView+WebCache.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 53922D95148C56230056699D /* UIImageView+WebCache.h */; };
 		32935D2E22A4FEDE0049C068 /* UIView+WebCache.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 4369C2751D9807EC007E863A /* UIView+WebCache.h */; };
 		32935D2F22A4FEE50049C068 /* SDWebImage.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 4A2CAE031AB4BB5400B6BC39 /* SDWebImage.h */; };
+		3298655C2337230C0071958B /* SDImageHEICCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 3298655A2337230C0071958B /* SDImageHEICCoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3298655D2337230C0071958B /* SDImageHEICCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298655B2337230C0071958B /* SDImageHEICCoder.m */; };
+		3298655E2337230C0071958B /* SDImageHEICCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298655B2337230C0071958B /* SDImageHEICCoder.m */; };
+		3298655F233723220071958B /* SDImageHEICCoder.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 3298655A2337230C0071958B /* SDImageHEICCoder.h */; };
+		32986562233737C70071958B /* SDImageHEICCoderInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 32986560233737C70071958B /* SDImageHEICCoderInternal.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		329A185B1FFF5DFD008C9A2F /* UIImage+Metadata.h in Headers */ = {isa = PBXBuildFile; fileRef = 329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329A185F1FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
 		329A18611FFF5DFD008C9A2F /* UIImage+Metadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */; };
@@ -275,6 +280,7 @@
 			dstPath = include/SDWebImage;
 			dstSubfolderSpec = 16;
 			files = (
+				3298655F233723220071958B /* SDImageHEICCoder.h in Copy Headers */,
 				32C78E3823336FC800C6B7F8 /* SDImageIOAnimatedCoder.h in Copy Headers */,
 				32E5690822B1FFCA00CBABC6 /* SDWebImageOptionsProcessor.h in Copy Headers */,
 				32935D2F22A4FEE50049C068 /* SDWebImage.h in Copy Headers */,
@@ -388,6 +394,9 @@
 		328BB6C02082581100760D6C /* SDMemoryCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDMemoryCache.m; path = Core/SDMemoryCache.m; sourceTree = "<group>"; };
 		3290FA021FA478AF0047D20C /* SDImageFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDImageFrame.h; path = Core/SDImageFrame.h; sourceTree = "<group>"; };
 		3290FA031FA478AF0047D20C /* SDImageFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDImageFrame.m; path = Core/SDImageFrame.m; sourceTree = "<group>"; };
+		3298655A2337230C0071958B /* SDImageHEICCoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDImageHEICCoder.h; path = Core/SDImageHEICCoder.h; sourceTree = "<group>"; };
+		3298655B2337230C0071958B /* SDImageHEICCoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDImageHEICCoder.m; path = Core/SDImageHEICCoder.m; sourceTree = "<group>"; };
+		32986560233737C70071958B /* SDImageHEICCoderInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDImageHEICCoderInternal.h; sourceTree = "<group>"; };
 		329A18571FFF5DFD008C9A2F /* UIImage+Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Metadata.h"; path = "Core/UIImage+Metadata.h"; sourceTree = "<group>"; };
 		329A18581FFF5DFD008C9A2F /* UIImage+Metadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Metadata.m"; path = "Core/UIImage+Metadata.m"; sourceTree = "<group>"; };
 		329F1235223FAA3B00B309FD /* SDmetamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDmetamacros.h; sourceTree = "<group>"; };
@@ -512,6 +521,8 @@
 				321E60A11F38E8F600405457 /* SDImageGIFCoder.m */,
 				327054D2206CD8B3006EA328 /* SDImageAPNGCoder.h */,
 				327054D3206CD8B3006EA328 /* SDImageAPNGCoder.m */,
+				3298655A2337230C0071958B /* SDImageHEICCoder.h */,
+				3298655B2337230C0071958B /* SDImageHEICCoder.m */,
 				3290FA021FA478AF0047D20C /* SDImageFrame.h */,
 				3290FA031FA478AF0047D20C /* SDImageFrame.m */,
 				32CF1C051FA496B000004BD1 /* SDImageCoderHelper.h */,
@@ -582,6 +593,7 @@
 				325C460C223394D8004CAE11 /* SDImageCachesManagerOperation.h */,
 				325C460D223394D8004CAE11 /* SDImageCachesManagerOperation.m */,
 				32C78E39233371AD00C6B7F8 /* SDImageIOAnimatedCoderInternal.h */,
+				32986560233737C70071958B /* SDImageHEICCoderInternal.h */,
 				325C461E2233A02E004CAE11 /* UIColor+HexString.h */,
 				325C461F2233A02E004CAE11 /* UIColor+HexString.m */,
 				325C46242233A0A8004CAE11 /* NSBezierPath+RoundedCorners.h */,
@@ -789,7 +801,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				32B5CC60222F89C2005EB74E /* SDAsyncBlockOperation.h in Headers */,
+				32986562233737C70071958B /* SDImageHEICCoderInternal.h in Headers */,
 				32D122202080B2EB003685A3 /* SDImageCacheDefine.h in Headers */,
+				3298655C2337230C0071958B /* SDImageHEICCoder.h in Headers */,
 				32B9B539206ED4230026769D /* SDWebImageDownloaderConfig.h in Headers */,
 				3257EAFA21898AED0097B271 /* SDImageGraphics.h in Headers */,
 				32D3CDD121DDE87300C4DB49 /* UIImage+MemoryCacheCost.h in Headers */,
@@ -1056,6 +1070,7 @@
 				321B37952083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				4A2CAE361AB4BB7500B6BC39 /* UIImageView+WebCache.m in Sources */,
 				4A2CAE1E1AB4BB6800B6BC39 /* SDWebImageDownloaderOperation.m in Sources */,
+				3298655E2337230C0071958B /* SDImageHEICCoder.m in Sources */,
 				32F7C0802030719600873181 /* UIImage+Transform.m in Sources */,
 				327054DC206CD8B3006EA328 /* SDImageAPNGCoder.m in Sources */,
 				325312D0200F09910046BF1E /* SDWebImageTransition.m in Sources */,
@@ -1120,6 +1135,7 @@
 				5376130B155AD0D5005750A4 /* SDWebImageDownloader.m in Sources */,
 				321B37932083290E00C0EA77 /* SDImageLoadersManager.m in Sources */,
 				32F7C07E2030719600873181 /* UIImage+Transform.m in Sources */,
+				3298655D2337230C0071958B /* SDImageHEICCoder.m in Sources */,
 				321E609A1F38E8ED00405457 /* SDImageIOCoder.m in Sources */,
 				327054DA206CD8B3006EA328 /* SDImageAPNGCoder.m in Sources */,
 				325312CE200F09910046BF1E /* SDWebImageTransition.m in Sources */,
