@@ -13,6 +13,8 @@
 #import "SDImageIOAnimatedCoderInternal.h"
 #import "SDImageGIFCoder.h"
 #import "SDImageAPNGCoder.h"
+#import "SDImageHEICCoder.h"
+#import "SDImageHEICCoderInternal.h"
 
 @implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
@@ -61,6 +63,13 @@
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
             NSUInteger loopCount = [SDImageAPNGCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
+            // HEIC
+            // Do initilize about frame count, current frame/duration and loop count
+            [self setProperty:NSImageFrameCount withValue:@(frameCount)];
+            [self setProperty:NSImageCurrentFrame withValue:@(0)];
+            NSUInteger loopCount = [SDImageHEICCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         }
     }
     return self;
@@ -88,6 +97,9 @@
         } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
             frameDuration = [SDImageAPNGCoder frameDurationAtIndex:index source:imageSource];
+        } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
+            // HEIC
+            frameDuration = [SDImageHEICCoder frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
             return;

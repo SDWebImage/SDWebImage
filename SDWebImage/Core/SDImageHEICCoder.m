@@ -1,7 +1,13 @@
-#import "SDImageHEICCoder.h"
+/*
+* This file is part of the SDWebImage package.
+* (c) Olivier Poitrey <rs@dailymotion.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 
-// AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation
-#define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
+#import "SDImageHEICCoder.h"
+#import "SDImageHEICCoderInternal.h"
 
 // These constantce are available from iOS 13+ and Xcode 11. This raw value is used for toolchain and firmware compatiblitiy
 static CFStringRef kSDCGImagePropertyHEICSDictionary = (__bridge CFStringRef)@"{HEICS}";
