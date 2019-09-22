@@ -144,15 +144,17 @@
     if (@available(iOS 11, macOS 10.13, *)) {
         NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"heic"];
 #if SD_UIKIT
+        BOOL isAnimatedImage = YES;
         BOOL supportsEncoding = YES; // iPhone Simulator after Xcode 9.3 support HEIC encoding
 #else
+        BOOL isAnimatedImage = NO; // Travis-CI Mac env does not upgrade to macOS 10.15
         BOOL supportsEncoding = NO; // Travis-CI Mac env currently does not support HEIC encoding
 #endif
         [self verifyCoder:[SDImageHEICCoder sharedCoder]
         withLocalImageURL:heicURL
          supportsEncoding:supportsEncoding
            encodingFormat:SDImageFormatHEIC
-          isAnimatedImage:YES];
+          isAnimatedImage:isAnimatedImage];
     }
 }
 
