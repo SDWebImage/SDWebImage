@@ -10,10 +10,10 @@
 #import "SDImageHEICCoderInternal.h"
 
 // These constantce are available from iOS 13+ and Xcode 11. This raw value is used for toolchain and firmware compatiblitiy
-static CFStringRef kSDCGImagePropertyHEICSDictionary = (__bridge CFStringRef)@"{HEICS}";
-static CFStringRef kSDCGImagePropertyHEICSLoopCount = (__bridge CFStringRef)@"LoopCount";
-static CFStringRef kSDCGImagePropertyHEICSDelayTime = (__bridge CFStringRef)@"DelayTime";
-static CFStringRef kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge CFStringRef)@"UnclampedDelayTime";
+static NSString * kSDCGImagePropertyHEICSDictionary = @"{HEICS}";
+static NSString * kSDCGImagePropertyHEICSLoopCount = @"LoopCount";
+static NSString * kSDCGImagePropertyHEICSDelayTime = @"DelayTime";
+static NSString * kSDCGImagePropertyHEICSUnclampedDelayTime = @"UnclampedDelayTime";
 
 @implementation SDImageHEICCoder
 
@@ -22,10 +22,10 @@ static CFStringRef kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge CFStrin
     // Xcode 11
     if (@available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)) {
         // Use SDK instead of raw value
-        kSDCGImagePropertyHEICSDictionary = kCGImagePropertyHEICSDictionary;
-        kSDCGImagePropertyHEICSLoopCount = kCGImagePropertyHEICSLoopCount;
-        kSDCGImagePropertyHEICSDelayTime = kCGImagePropertyHEICSDelayTime;
-        kSDCGImagePropertyHEICSUnclampedDelayTime = kCGImagePropertyHEICSUnclampedDelayTime;
+        kSDCGImagePropertyHEICSDictionary = (__bridge NSString *)kCGImagePropertyHEICSDictionary;
+        kSDCGImagePropertyHEICSLoopCount = (__bridge NSString *)kCGImagePropertyHEICSLoopCount;
+        kSDCGImagePropertyHEICSDelayTime = (__bridge NSString *)kCGImagePropertyHEICSDelayTime;
+        kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge NSString *)kCGImagePropertyHEICSUnclampedDelayTime;
     }
 #endif
 }
@@ -45,10 +45,10 @@ static CFStringRef kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge CFStrin
     switch ([NSData sd_imageFormatForImageData:data]) {
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
-            return [SDImageHEICCoder canDecodeFromHEICFormat];
+            return [self.class canDecodeFromHEICFormat];
         case SDImageFormatHEIF:
             // Check HEIF decoding compatibility
-            return [SDImageHEICCoder canDecodeFromHEIFFormat];
+            return [self.class canDecodeFromHEIFFormat];
         default:
             return NO;
     }
@@ -62,10 +62,10 @@ static CFStringRef kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge CFStrin
     switch (format) {
         case SDImageFormatHEIC:
             // Check HEIC encoding compatibility
-            return [SDImageHEICCoder canEncodeToHEICFormat];
+            return [self.class canEncodeToHEICFormat];
         case SDImageFormatHEIF:
             // Check HEIF encoding compatibility
-            return [SDImageHEICCoder canEncodeToHEIFFormat];
+            return [self.class canEncodeToHEIFFormat];
         default:
             return NO;
     }
@@ -145,19 +145,19 @@ static CFStringRef kSDCGImagePropertyHEICSUnclampedDelayTime = (__bridge CFStrin
 }
 
 + (NSString *)dictionaryProperty {
-    return (__bridge NSString *)kSDCGImagePropertyHEICSDictionary;
+    return kSDCGImagePropertyHEICSDictionary;
 }
 
 + (NSString *)unclampedDelayTimeProperty {
-    return (__bridge NSString *)kSDCGImagePropertyHEICSUnclampedDelayTime;
+    return kSDCGImagePropertyHEICSUnclampedDelayTime;
 }
 
 + (NSString *)delayTimeProperty {
-    return (__bridge NSString *)kSDCGImagePropertyHEICSDelayTime;
+    return kSDCGImagePropertyHEICSDelayTime;
 }
 
 + (NSString *)loopCountProperty {
-    return (__bridge NSString *)kSDCGImagePropertyHEICSLoopCount;
+    return kSDCGImagePropertyHEICSLoopCount;
 }
 
 + (NSUInteger)defaultLoopCount {
