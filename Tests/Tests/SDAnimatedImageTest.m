@@ -153,11 +153,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #if SD_MAC
     expect(imageView.wantsUpdateLayer).beTruthy();
 #else
-#if TARGET_OS_MACCATALYST
-    // macOS's UIImageView seems does not setup layer.contents until render on screen
-#else
-    expect(imageView.layer.contents).notTo.beNil();
-#endif
+    expect(imageView.layer).notTo.beNil();
 #endif
 }
 

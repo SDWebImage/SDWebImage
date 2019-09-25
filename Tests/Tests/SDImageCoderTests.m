@@ -140,9 +140,35 @@
     expect([manager encodedDataWithImage:nil format:SDImageFormatUndefined options:nil]).beNil();
 }
 
+- (void)test16ThatHEICAnimatedWorks {
+    if (@available(iOS 11, macOS 10.13, *)) {
+        NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"heic"];
+#if SD_UIKIT
+        BOOL isAnimatedImage = YES;
+        BOOL supportsEncoding = YES; // iPhone Simulator after Xcode 9.3 support HEIC encoding
+#else
+        BOOL isAnimatedImage = NO; // Travis-CI Mac env does not upgrade to macOS 10.15
+        BOOL supportsEncoding = NO; // Travis-CI Mac env currently does not support HEIC encoding
+#endif
+        [self verifyCoder:[SDImageHEICCoder sharedCoder]
+        withLocalImageURL:heicURL
+         supportsEncoding:supportsEncoding
+           encodingFormat:SDImageFormatHEIC
+          isAnimatedImage:isAnimatedImage];
+    }
+}
+
+- (void)verifyCoder:(id<SDImageCoder>)coder
+withLocalImageURL:(NSURL *)imageUrl
+ supportsEncoding:(BOOL)supportsEncoding
+  isAnimatedImage:(BOOL)isAnimated {
+    [self verifyCoder:coder withLocalImageURL:imageUrl supportsEncoding:supportsEncoding encodingFormat:SDImageFormatUndefined isAnimatedImage:isAnimated];
+}
+
 - (void)verifyCoder:(id<SDImageCoder>)coder
   withLocalImageURL:(NSURL *)imageUrl
    supportsEncoding:(BOOL)supportsEncoding
+     encodingFormat:(SDImageFormat)encodingFormat
     isAnimatedImage:(BOOL)isAnimated {
     NSData *inputImageData = [NSData dataWithContentsOfURL:imageUrl];
     expect(inputImageData).toNot.beNil();
@@ -173,10 +199,13 @@
     
     if (supportsEncoding) {
         // 3 - check if we can encode to the original format
-        expect([coder canEncodeToFormat:inputImageFormat]).to.beTruthy();
+        if (encodingFormat == SDImageFormatUndefined) {
+            encodingFormat = inputImageFormat;
+        }
+        expect([coder canEncodeToFormat:encodingFormat]).to.beTruthy();
         
         // 4 - encode from UIImage to NSData using the inputImageFormat and check it
-        NSData *outputImageData = [coder encodedDataWithImage:inputImage format:inputImageFormat options:nil];
+        NSData *outputImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:nil];
         expect(outputImageData).toNot.beNil();
         UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
         expect(outputImage.size).to.equal(inputImage.size);

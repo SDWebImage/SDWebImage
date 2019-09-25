@@ -13,12 +13,10 @@
 #else
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
+#import "SDImageHEICCoderInternal.h"
 
 // Currently Image/IO does not support WebP
 #define kSDUTTypeWebP ((__bridge CFStringRef)@"public.webp")
-// AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation
-#define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
-#define kSDUTTypeHEIF ((__bridge CFStringRef)@"public.heif")
 
 @implementation NSData (ImageContentType)
 

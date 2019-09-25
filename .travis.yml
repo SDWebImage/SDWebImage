@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode10.3
+osx_image: xcode11
 
 env:
   global:
@@ -63,9 +63,9 @@ script:
     - echo Build the Demo apps
     - pod install
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage OSX Demo' -destination 'platform=macOS,arch=x86_64' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=iOS Simulator,name=iPhone XS' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -destination 'platform=tvOS Simulator,name=Apple TV 4K' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
-    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -destination 'platform=iOS Simulator,name=iPhone XS' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     # - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
 
     - echo Clean DerivedData
@@ -73,7 +73,7 @@ script:
     - mkdir DerivedData
 
     - echo Run the tests
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests' -destination 'platform=iOS Simulator,name=iPhone XS' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
     - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS

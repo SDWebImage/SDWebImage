@@ -17,10 +17,10 @@
  
  Note: the `coders` getter will return the coders in their reversed order
  Example:
- - by default we internally set coders = `IOCoder`, `GIFCoder`, `APNGCoder`
- - calling `coders` will return `@[IOCoder, GIFCoder, APNGCoder]`
+ - by default we internally set coders = `IOCoder`, `GIFCoder`, `APNGCoder`, 'HEICCoder' (iOS 11+)
+ - calling `coders` will return `@[IOCoder, GIFCoder, APNGCoder, HEICCoder]`
  - call `[addCoder:[MyCrazyCoder new]]`
- - calling `coders` now returns `@[IOCoder, GIFCoder, APNGCoder, MyCrazyCoder]`
+ - calling `coders` now returns `@[IOCoder, GIFCoder, APNGCoder, HEICCoder, MyCrazyCoder]`
  
  Coders
  ------

@@ -11,6 +11,7 @@
 #import "NSImage+Compatibility.h"
 #import <ImageIO/ImageIO.h>
 #import "UIImage+Metadata.h"
+#import "SDImageHEICCoderInternal.h"
 
 @implementation SDImageIOCoder {
     size_t _width, _height;
@@ -54,10 +55,10 @@
             return NO;
         case SDImageFormatHEIC:
             // Check HEIC decoding compatibility
-            return [[self class] canDecodeFromHEICFormat];
+            return [SDImageHEICCoder canDecodeFromHEICFormat];
         case SDImageFormatHEIF:
             // Check HEIF decoding compatibility
-            return [[self class] canDecodeFromHEIFFormat];
+            return [SDImageHEICCoder canDecodeFromHEIFFormat];
         default:
             return YES;
     }
@@ -170,10 +171,10 @@
             return NO;
         case SDImageFormatHEIC:
             // Check HEIC encoding compatibility
-            return [[self class] canEncodeToHEICFormat];
+            return [SDImageHEICCoder canEncodeToHEICFormat];
         case SDImageFormatHEIF:
             // Check HEIF encoding compatibility
-            return [[self class] canEncodeToHEIFFormat];
+            return [SDImageHEICCoder canEncodeToHEIFFormat];
         default:
             return YES;
     }
@@ -228,67 +229,6 @@
     CFRelease(imageDestination);
     
     return [imageData copy];
-}
-
-+ (BOOL)canDecodeFromFormat:(SDImageFormat)format {
-    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
-    NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-    if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
-        return YES;
-    }
-    return NO;
-}
-
-+ (BOOL)canDecodeFromHEICFormat {
-    static BOOL canDecode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canDecode = [self canDecodeFromFormat:SDImageFormatHEIC];
-    });
-    return canDecode;
-}
-
-+ (BOOL)canDecodeFromHEIFFormat {
-    static BOOL canDecode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canDecode = [self canDecodeFromFormat:SDImageFormatHEIF];
-    });
-    return canDecode;
-}
-
-+ (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
-    
-    // Create an image destination.
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-    if (!imageDestination) {
-        // Can't encode to HEIC
-        return NO;
-    } else {
-        // Can encode to HEIC
-        CFRelease(imageDestination);
-        return YES;
-    }
-}
-
-+ (BOOL)canEncodeToHEICFormat {
-    static BOOL canEncode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canEncode = [self canEncodeToFormat:SDImageFormatHEIC];
-    });
-    return canEncode;
-}
-
-+ (BOOL)canEncodeToHEIFFormat {
-    static BOOL canEncode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canEncode = [self canEncodeToFormat:SDImageFormatHEIF];
-    });
-    return canEncode;
 }
 
 @end
