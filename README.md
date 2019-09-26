@@ -85,8 +85,8 @@ You can use those directly, or create similar components of your own.
 - Read the [Latest Documentation](https://sdwebimage.github.io/) and [CocoaDocs for old version](http://cocoadocs.org/docsets/SDWebImage/)
 - Try the example by downloading the project from Github or even easier using CocoaPods try `pod try SDWebImage`
 - Read the [Installation Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide)
-- Read the [SDWebImage 5.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
-- Read the [SDWebImage 4.0 Migration Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
+- Read the [SDWebImage 5.0 Migration Guide](https://github.com/SDWebImage/SDWebImage/blob/master/Docs/SDWebImage-5.0-Migration-guide.md) to get an idea of the changes from 4.x to 5.x
+- Read the [SDWebImage 4.0 Migration Guide](https://github.com/SDWebImage/SDWebImage/blob/master/Docs/SDWebImage-4.0-Migration-guide.md) to get an idea of the changes from 3.x to 4.x
 - Read the [Common Problems](https://github.com/SDWebImage/SDWebImage/wiki/Common-Problems) to find the solution for common problems 
 - Go to the [Wiki Page](https://github.com/SDWebImage/SDWebImage/wiki) for more information such as [Advanced Usage](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage)
 
@@ -102,7 +102,7 @@ You can use those directly, or create similar components of your own.
 
 ## Contribution
 
-- If you **want to contribute**, read the [Contributing Guide](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/.github/CONTRIBUTING.md)
+- If you **want to contribute**, read the [Contributing Guide](https://github.com/SDWebImage/SDWebImage/blob/master/.github/CONTRIBUTING.md)
 - For **development contribution guide**, read the [How-To-Contribute](https://github.com/SDWebImage/SDWebImage/wiki/How-to-Contribute)
 
 ## How To Use
@@ -124,7 +124,7 @@ import SDWebImage
 imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg"), placeholderImage: UIImage(named: "placeholder.png"))
 ```
 
-- For details about how to use the library and clear examples, see [The detailed How to use](https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/Docs/HowToUse.md)
+- For details about how to use the library and clear examples, see [The detailed How to use](https://github.com/SDWebImage/SDWebImage/blob/master/Docs/HowToUse.md)
 
 ## Animated Images (GIF) support
 
@@ -248,7 +248,7 @@ community can help you solve it.
 
 ## Licenses
 
-All source code is licensed under the [MIT License](https://raw.github.com/SDWebImage/SDWebImage/master/LICENSE).
+All source code is licensed under the [MIT License](https://github.com/SDWebImage/SDWebImage/blob/master/LICENSE).
 
 ## Architecture
 
