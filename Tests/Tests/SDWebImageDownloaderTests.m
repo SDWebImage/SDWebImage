@@ -26,6 +26,8 @@
 
 @interface SDWebImageDownloaderTests : SDTestCase
 
+@property (nonatomic, strong) NSMutableArray<NSURL *> *executionOrderURLs;
+
 @end
 
 @implementation SDWebImageDownloaderTests
@@ -249,6 +251,91 @@
     }];
     [self waitForExpectationsWithCommonTimeout];
 }
+
+- (void)test15DownloaderLIFOExecutionOrder {
+    SDWebImageDownloaderConfig *config = [[SDWebImageDownloaderConfig alloc] init];
+    config.executionOrder = SDWebImageDownloaderLIFOExecutionOrder; // Last In First Out
+    config.maxConcurrentDownloads = 1; // 1
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
+    self.executionOrderURLs = [NSMutableArray array];
+    
+    // Input order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 (wait for 7 finished and immediately) -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
+    // Expected result: 1 (first one has no dependency) -> 7 -> 14 -> 13 -> 12 -> 11 -> 10 -> 9 -> 8 -> 6 -> 5 -> 4 -> 3 -> 2
+    int waitIndex = 7;
+    int maxIndex = 14;
+    NSMutableArray<XCTestExpectation *> *expectations = [NSMutableArray array];
+    for (int i = 1; i <= maxIndex; i++) {
+        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"URL %d order wrong", i]];
+        [expectations addObject:expectation];
+    }
+    
+    for (int i = 1; i <= waitIndex; i++) {
+        [self createLIFOOperationWithDownloader:downloader expectation:expectations[i-1] index:i];
+    }
+    [[NSNotificationCenter defaultCenter] addObserverForName:SDWebImageDownloadFinishNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        SDWebImageDownloaderOperation *operation = note.object;
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", waitIndex]];
+        if (![operation.request.URL isEqual:url]) {
+            return;
+        }
+        for (int i = waitIndex + 1; i <= maxIndex; i++) {
+            [self createLIFOOperationWithDownloader:downloader expectation:expectations[i-1] index:i];
+        }
+    }];
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * maxIndex handler:nil];
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+- (void)createLIFOOperationWithDownloader:(SDWebImageDownloader *)downloader expectation:(XCTestExpectation *)expectation index:(int)index {
+    int waitIndex = 7;
+    int maxIndex = 14;
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", index]];
+    [self.executionOrderURLs addObject:url];
+    [downloader downloadImageWithURL:url options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", waitIndex]];
+        if ([self.executionOrderURLs containsObject:url]) {
+            return;
+        }
+        
+    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        printf("URL%d finished\n", index);
+        NSMutableArray *pendingArray = [NSMutableArray array];
+        if (index == 1) {
+            // 1
+            for (int j = 1; j <= waitIndex; j++) {
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                [pendingArray addObject:url];
+            }
+        } else if (index == waitIndex) {
+            // 7
+            for (int j = 2; j <= maxIndex; j++) {
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                [pendingArray addObject:url];
+            }
+        } else if (index > waitIndex) {
+            // 8-14
+            for (int j = 2; j <= index; j++) {
+                if (j == waitIndex) continue;
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                [pendingArray addObject:url];
+            }
+        } else if (index < waitIndex) {
+            // 2-6
+            for (int j = 2; j <= index; j++) {
+                if (j == waitIndex) continue;
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                [pendingArray addObject:url];
+            }
+        }
+        expect(self.executionOrderURLs).equal(pendingArray);
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", index]];
+        [self.executionOrderURLs removeObject:url];
+        [expectation fulfill];
+    }];
+}
+#pragma clang diagnostic pop
 
 - (void)test17ThatMinimumProgressIntervalWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Minimum progress interval"];
