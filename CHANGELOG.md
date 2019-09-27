@@ -1,3 +1,26 @@
+## [5.2.0 - Mac Catalyst && HEIC Animation, on Sep 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.0)
+See [all tickets marked for the 5.2.0 release](https://github.com/SDWebImage/SDWebImage/milestone/43)
+
+### Features
+
+#### Mac Catalyst
+- Full compatible with Catalyst (UIKit for macOS)
+- Supports CococaPods and SwiftPM only. Carthage need their own toolchain upgrade in the future
+- Provide the build script to build xcframework contains Mac Catalyst variant, see [Installation Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide).
+
+#### Image Coder
+- Supports HEIC sequence (animated) image on iOS 13/macOS 10.15+ #2849
+    - Note the HEIC animated coder does not enable by default. Add `SDImageHEICCoder` if you need the animation.
+- Refactor APNG and GIF coder implementation with abstract base class #2846
+    - Now we use `SDImageIOAnimatedCoder` base class for all animated Image/IO coder implementation. Developer can get use of this as well.
+
+#### Animated Image
+- Support to clear frame buffer or reset frame index when stopped for SDAnimatedImageView #2815
+
+### Fixes
+- Fix the downloader LIFO order inverse issue when adding new urls during previous url query #2852 #2823
+- Fix the macOS SDAnimatedImageRep to match Netscape standard of GIF loop count, which should use 1 when there are no loop count information #2847 #2155
+
 ## [5.1 Patch, on Sep 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.1.1)
 See [all tickets marked for the 5.1.1 release](https://github.com/SDWebImage/SDWebImage/milestone/44)
 
