@@ -52,7 +52,8 @@
                                                                                target:self
                                                                                action:@selector(flushCache)];
         
-        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]]; // For WebP static/animated image
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageHEICCoder sharedCoder]]; // For HEIC static/animated image. Animated image is new introduced in iOS 13, but it contains performance issue for now.
         
         // HTTP NTLM auth example
         // Add your NTLM image url to the array below and replace the credentials

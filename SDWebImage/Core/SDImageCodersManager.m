@@ -37,9 +37,6 @@
     if (self = [super init]) {
         // initialize with default coders
         _imageCoders = [NSMutableArray arrayWithArray:@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]]];
-        if (@available(iOS 11, macOS 10.14, tvOS 11, watchOS 4, *)) {
-            [_imageCoders addObject:[SDImageHEICCoder sharedCoder]];
-        }
         _codersLock = dispatch_semaphore_create(1);
     }
     return self;
