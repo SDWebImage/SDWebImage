@@ -38,7 +38,6 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @interface SDWebImageDownloader () <NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 
 @property (strong, nonatomic, nonnull) NSOperationQueue *downloadQueue;
-@property (weak, nonatomic, nullable) NSOperation *lastAddedOperation;
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSURL *, NSOperation<SDWebImageDownloaderOperation> *> *URLOperations;
 @property (strong, nonatomic, nullable) NSMutableDictionary<NSString *, NSString *> *HTTPHeaders;
 @property (strong, nonatomic, nonnull) dispatch_semaphore_t HTTPHeadersLock; // A lock to keep the access to `HTTPHeaders` thread-safe
@@ -321,9 +320,12 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     }
     
     if (self.config.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) {
-        // Emulate LIFO execution order by systematically adding new operations as last operation's dependency
-        [self.lastAddedOperation addDependency:operation];
-        self.lastAddedOperation = operation;
+        // Emulate LIFO execution order by systematically, each previous adding operation can dependency the new operation
+        // This can gurantee the new operation to be execulated firstly, even if when some operations finished, meanwhile you appending new operations
+        // Just make last added operation dependents new operation can not solve this problem. See test case #test15DownloaderLIFOExecutionOrder
+        for (NSOperation *pendingOperation in self.downloadQueue.operations) {
+            [pendingOperation addDependency:operation];
+        }
     }
     
     return operation;
