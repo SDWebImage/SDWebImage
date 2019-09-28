@@ -246,6 +246,12 @@ community can help you solve it.
 - [DreamPiggy](https://github.com/dreampiggy)
 - [Wu Zhong](https://github.com/zhongwuzw)
 
+## Credits
+
+Thank you to all the people who have already contributed to SDWebImage.
+
+[![Contributors](https://opencollective.com/SDWebImage/contributors.svg?width=890)](https://github.com/SDWebImage/SDWebImage/graphs/contributors)
+
 ## Licenses
 
 All source code is licensed under the [MIT License](https://github.com/SDWebImage/SDWebImage/blob/master/LICENSE).
