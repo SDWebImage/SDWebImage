@@ -12,6 +12,8 @@
 #import "SDWebImageTestCoder.h"
 #import "SDWebImageTestLoader.h"
 
+#define kPlaceholderTestURLTemplate @"https://via.placeholder.com/10000x%d.png"
+
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
  */
@@ -259,7 +261,7 @@
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
     self.executionOrderURLs = [NSMutableArray array];
     
-    // Input order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 (wait for 7 finished and immediately) -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
+    // Input order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 (wait for 7 started and immediately) -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
     // Expected result: 1 (first one has no dependency) -> 7 -> 14 -> 13 -> 12 -> 11 -> 10 -> 9 -> 8 -> 6 -> 5 -> 4 -> 3 -> 2
     int waitIndex = 7;
     int maxIndex = 14;
@@ -272,9 +274,9 @@
     for (int i = 1; i <= waitIndex; i++) {
         [self createLIFOOperationWithDownloader:downloader expectation:expectations[i-1] index:i];
     }
-    [[NSNotificationCenter defaultCenter] addObserverForName:SDWebImageDownloadFinishNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:SDWebImageDownloadStartNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
         SDWebImageDownloaderOperation *operation = note.object;
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", waitIndex]];
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, waitIndex]];
         if (![operation.request.URL isEqual:url]) {
             return;
         }
@@ -291,46 +293,40 @@
 - (void)createLIFOOperationWithDownloader:(SDWebImageDownloader *)downloader expectation:(XCTestExpectation *)expectation index:(int)index {
     int waitIndex = 7;
     int maxIndex = 14;
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", index]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, index]];
     [self.executionOrderURLs addObject:url];
-    [downloader downloadImageWithURL:url options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", waitIndex]];
-        if ([self.executionOrderURLs containsObject:url]) {
-            return;
-        }
-        
-    } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         printf("URL%d finished\n", index);
         NSMutableArray *pendingArray = [NSMutableArray array];
         if (index == 1) {
             // 1
             for (int j = 1; j <= waitIndex; j++) {
-                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, j]];
                 [pendingArray addObject:url];
             }
         } else if (index == waitIndex) {
             // 7
             for (int j = 2; j <= maxIndex; j++) {
-                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, j]];
                 [pendingArray addObject:url];
             }
         } else if (index > waitIndex) {
             // 8-14
             for (int j = 2; j <= index; j++) {
                 if (j == waitIndex) continue;
-                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, j]];
                 [pendingArray addObject:url];
             }
         } else if (index < waitIndex) {
             // 2-6
             for (int j = 2; j <= index; j++) {
                 if (j == waitIndex) continue;
-                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", j]];
+                NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, j]];
                 [pendingArray addObject:url];
             }
         }
         expect(self.executionOrderURLs).equal(pendingArray);
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://via.placeholder.com/1000x%d.png", index]];
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:kPlaceholderTestURLTemplate, index]];
         [self.executionOrderURLs removeObject:url];
         [expectation fulfill];
     }];
