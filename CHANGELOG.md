@@ -1,3 +1,12 @@
+## [5.2 Patch, on Oct 1st, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.1)
+See [all tickets marked for the 5.2.1 release](https://github.com/SDWebImage/SDWebImage/milestone/46)
+
+### Fixes
+- Make the SDWebImageDownloadToken to not retain the completion block so that user don't need weak-strong dance #2856 #2855
+
+### Tests
+- Try to fix the test case `test15DownloaderLIFOExecutionOrder` #2857
+
 ## [5.2.0 - Mac Catalyst && HEIC Animation, on Sep 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.0)
 See [all tickets marked for the 5.2.0 release](https://github.com/SDWebImage/SDWebImage/milestone/43)
 
