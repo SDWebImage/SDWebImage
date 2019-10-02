@@ -19,7 +19,7 @@
 
 #if SD_MAC
 #import <CoreVideo/CoreVideo.h>
-static CVReturn renderCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
+static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
 #endif
 
 static NSUInteger SDDeviceTotalMemory() {
@@ -314,7 +314,7 @@ static NSUInteger SDDeviceFreeMemory() {
         if (error) {
             return NULL;
         }
-        CVDisplayLinkSetOutputCallback(_displayLink, renderCallback, (__bridge void *)self);
+        CVDisplayLinkSetOutputCallback(_displayLink, DisplayLinkCallback, (__bridge void *)self);
     }
     return _displayLink;
 }
@@ -792,7 +792,7 @@ static NSUInteger SDDeviceFreeMemory() {
 @end
 
 #if SD_MAC
-static CVReturn renderCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
+static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
     // CVDisplayLink callback is not on main queue
     SDAnimatedImageView *imageView = (__bridge SDAnimatedImageView *)displayLinkContext;
     __weak SDAnimatedImageView *weakImageView = imageView;
