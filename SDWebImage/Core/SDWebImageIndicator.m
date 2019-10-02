@@ -47,10 +47,13 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 }
 
 #if SD_UIKIT
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)commonInit {
     self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     self.indicatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 }
+#pragma clang diagnostic pop
 #endif
 
 #if SD_MAC
@@ -85,6 +88,8 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 
 @implementation SDWebImageActivityIndicator (Conveniences)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + (SDWebImageActivityIndicator *)grayIndicator {
     SDWebImageActivityIndicator *indicator = [SDWebImageActivityIndicator new];
 #if SD_UIKIT
@@ -168,6 +173,7 @@ static NSInteger UIActivityIndicatorViewStyleLarge = 101;
 #endif
     return indicator;
 }
+#pragma clang diagnostic pop
 
 @end
 

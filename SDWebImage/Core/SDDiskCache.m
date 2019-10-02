@@ -269,6 +269,8 @@
 
 #define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_MD5_DIGEST_LENGTH * 2 - 1)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable key) {
     const char *str = key.UTF8String;
     if (str == NULL) {
@@ -287,5 +289,6 @@ static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable
                           r[11], r[12], r[13], r[14], r[15], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
     return filename;
 }
+#pragma clang diagnostic pop
 
 @end
