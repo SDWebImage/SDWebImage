@@ -1,3 +1,9 @@
+## [5.2 Patch, on Oct 2rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.2)
+See [all tickets marked for the 5.2.2 release](https://github.com/SDWebImage/SDWebImage/milestone/47)
+
+### Fixes
+- Fix warnings when deployment target version set to iOS 13+ #2860 #2859
+
 ## [5.2 Patch, on Oct 1st, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.1)
 See [all tickets marked for the 5.2.1 release](https://github.com/SDWebImage/SDWebImage/milestone/46)
 
