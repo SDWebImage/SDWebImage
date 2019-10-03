@@ -42,6 +42,11 @@ This library provides an async image downloader with cache support. For convenie
 In order to keep SDWebImage focused and limited to the core features, but also allow extensibility and custom behaviors, during the 5.0 refactoring we focused on modularizing the library.
 As such, we have moved/built new modules to [SDWebImage org](https://github.com/SDWebImage).
 
+#### SwiftUI
+[SwiftUI](https://developer.apple.com/xcode/swiftui/) is an innovative UI framework written in Swift to build user interfaces across all Apple platforms.
+
+We support SwiftUI by building with the functions (caching, loading and animation) powered by SDWebImage. You can have a try with [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
+
 #### Coders for additional image formats
 - [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP image format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
 - [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`, iOS 8+/macOS 10.10+ support.
