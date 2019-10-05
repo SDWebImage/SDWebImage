@@ -20,16 +20,19 @@ This library provides an async image downloader with cache support. For convenie
 - [x] An asynchronous image downloader
 - [x] An asynchronous memory + disk image caching with automatic cache expiration handling
 - [x] A background image decompression
-- [x] Improved [support for animated images](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50)
+- [x] Progressive image loading (including animated image, like GIF showing in Web browser)
+- [x] [Extendable image coder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-coder-420) to support massive image format, like WebP
+- [x] [Full-stack solution for animated images](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) which keep a balance between CPU && Memory
 - [x] [Customizable and composable transformations](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#transformer-50) can be applied to the images right after download
-- [x] [Custom cache control](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-cache-50)
-- [x] Expand the image loading capabilites by adding your [own custom loaders](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-loader-50) or using prebuilt loaders like [FLAnimatedImage plugin](https://github.com/SDWebImage/SDWebImageFLPlugin) or [Photos Library plugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin)
-- [x] [Loading indicators](https://github.com/SDWebImage/SDWebImage/wiki/How-to-use#use-view-indicator-50)
+- [x] [Customizable and multiple caches system](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-cache-50)
+- [x] [Customizable and multiple loaders system](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-loader-50) to expand the capabilities, like [Photos Library](https://github.com/SDWebImage/SDWebImagePhotosPlugin)
+- [x] [Image loading indicators](https://github.com/SDWebImage/SDWebImage/wiki/How-to-use#use-view-indicator-50)
+- [x] [Image loading transition animation](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#image-transition-430)
 - [x] A guarantee that the same URL won't be downloaded several times
 - [x] A guarantee that bogus URLs won't be retried again and again
 - [x] A guarantee that main thread will never be blocked
+- [x] Modern Objective-C and better Swift support 
 - [x] Performances!
-- [x] Use GCD and ARC
 
 ## Supported Image Formats
 
