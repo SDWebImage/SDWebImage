@@ -55,6 +55,7 @@ We support SwiftUI by building with the functions (caching, loading and animatio
 - [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`, iOS 8+/macOS 10.10+ support.
 - [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format
 - [SDWebImageFLIFCoder](https://github.com/SDWebImage/SDWebImageFLIFCoder) - coder for FLIF format
+- [SDWebImageAVIFCoder](https://github.com/SDWebImage/SDWebImageAVIFCoder) - coder for AVIF (AV1-based) format
 - and more from community!
 
 #### Loaders
