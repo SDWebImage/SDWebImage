@@ -1,3 +1,9 @@
+## [5.2 Patch, on Oct 9th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.3)
+See [all tickets marked for the 5.2.3 release](https://github.com/SDWebImage/SDWebImage/milestone/48)
+
+### Fixes
+- Revert the change for APNG constants fix for iOS 8 devices which cause crash #2863
+
 ## [5.2 Patch, on Oct 2rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.2)
 See [all tickets marked for the 5.2.2 release](https://github.com/SDWebImage/SDWebImage/milestone/47)
 
