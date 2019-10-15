@@ -12,6 +12,7 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderRequestModifier.h"
+#import "SDWebImageDownloaderResponseModifier.h"
 #import "SDImageLoader.h"
 
 /// Downloader options
@@ -147,6 +148,14 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
  * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
 @property (nonatomic, strong, nullable) id<SDWebImageDownloaderRequestModifier> requestModifier;
+
+/**
+ * Set the response modifier to modify the original download response or download data before decoding.  This can be used for image data decryption, such as Gzipped image.
+ * This request modifier method will be called for each downloading image response. Return the original response or data means no modication. Return nil from either response or data, will mark this download failed, pay attention to this.
+ * Defaults to nil, means does not modify the original download response or download data.
+ * @note If you want to modify single response, consider using `SDWebImageContextDownloadResponseModifier` context option.
+ */
+@property (nonatomic, strong, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier;
 
 /**
  * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.

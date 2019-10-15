@@ -272,6 +272,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     SD_LOCK(self.HTTPHeadersLock);
     mutableRequest.allHTTPHeaderFields = self.HTTPHeaders;
     SD_UNLOCK(self.HTTPHeadersLock);
+    // Request Modifier
     id<SDWebImageDownloaderRequestModifier> requestModifier;
     if ([context valueForKey:SDWebImageContextDownloadRequestModifier]) {
         requestModifier = [context valueForKey:SDWebImageContextDownloadRequestModifier];
@@ -291,6 +292,25 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     } else {
         request = [mutableRequest copy];
     }
+    // Response Modifier
+    id<SDWebImageDownloaderResponseModifier> responseModifier;
+    if ([context valueForKey:SDWebImageContextDownloadResponseModifier]) {
+        responseModifier = [context valueForKey:SDWebImageContextDownloadResponseModifier];
+    } else {
+        responseModifier = self.responseModifier;
+    }
+    
+    if (responseModifier) {
+        SDWebImageMutableContext *mutableContext;
+        if (context) {
+            mutableContext = [context mutableCopy];
+        } else {
+            mutableContext = [NSMutableDictionary dictionary];
+        }
+        mutableContext[SDWebImageContextDownloadResponseModifier] = responseModifier;
+        context = [mutableContext copy];
+    }
+    // Operation Class
     Class operationClass = self.config.operationClass;
     if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperation)]) {
         // Custom operation class

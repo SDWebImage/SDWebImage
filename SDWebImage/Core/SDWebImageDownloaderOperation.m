@@ -9,6 +9,7 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
+#import "SDWebImageDownloaderResponseModifier.h"
 
 // iOS 8 Foundation.framework extern these symbol but the define is in CFNetwork.framework. We just fix this without import CFNetwork.framework
 #if ((__IPHONE_OS_VERSION_MIN_REQUIRED && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0) || (__MAC_OS_X_VERSION_MIN_REQUIRED && __MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_10_11))
@@ -37,6 +38,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic) NSUInteger receivedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 @property (strong, nonatomic, nullable) NSError *responseError;
+@property (strong, nonatomic, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier; // modifiy original URLResponse and Data
 @property (assign, nonatomic) double previousProgress; // previous progress percent
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
@@ -293,13 +295,27 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
+    
+    // Check response modifier, if return nil, will marked as cancelled.
+    BOOL valid = YES;
+    if (self.responseModifier && response) {
+        response = [self.responseModifier modifiedResponseWithResponse:response];
+        if (!response) {
+            valid = NO;
+            self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadResponse userInfo:nil];
+        }
+    }
+    
     NSInteger expected = (NSInteger)response.expectedContentLength;
     expected = expected > 0 ? expected : 0;
     self.expectedSize = expected;
     self.response = response;
+    
     NSInteger statusCode = [response respondsToSelector:@selector(statusCode)] ? ((NSHTTPURLResponse *)response).statusCode : 200;
-    BOOL valid = statusCode >= 200 && statusCode < 400;
-    if (!valid) {
+    // Status code should between [200,400)
+    BOOL statusCodeValid = statusCode >= 200 && statusCode < 400;
+    if (!statusCodeValid) {
+        valid = NO;
         self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadStatusCode userInfo:@{SDWebImageErrorDownloadStatusCodeKey : @(statusCode)}];
     }
     //'304 Not Modified' is an exceptional one
@@ -353,8 +369,10 @@ didReceiveResponse:(NSURLResponse *)response
         return;
     }
     self.previousProgress = currentProgress;
-
-    if (self.options & SDWebImageDownloaderProgressiveLoad) {
+    
+    // Response Modifier disable the progressive decoding, no supporting for progressive data modification
+    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.responseModifier;
+    if (supportProgressive) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
         
@@ -421,6 +439,10 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             NSData *imageData = [self.imageData copy];
             self.imageData = nil;
+            // response modifier
+            if (imageData && self.responseModifier) {
+                imageData = [self.responseModifier modifiedDataWithData:imageData response:self.response];
+            }
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data

@@ -234,6 +234,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextAnimat
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextDownloadRequestModifier;
 
 /**
+ A id<SDWebImageDownloaderResponseModifier> instance to modify the image download response and download data. It's used for downloader to modify the original response and data from URL and options. This can be used for image data decryption, such as Gzipped image. If you provide one, it will ignore the `responseModifier` in downloader and use provided one instead. (id<SDWebImageDownloaderResponseModifier>)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextDownloadResponseModifier;
+
+/**
  A id<SDWebImageCacheKeyFilter> instance to convert an URL into a cache key. It's used when manager need cache key to use image cache. If you provide one, it will ignore the `cacheKeyFilter` in manager and use provided one instead. (id<SDWebImageCacheKeyFilter>)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCacheKeyFilter;
