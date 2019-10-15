@@ -18,7 +18,15 @@ typedef NSData * _Nullable (^SDWebImageDownloaderResponseModifierDataBlock)(NSDa
  */
 @protocol SDWebImageDownloaderResponseModifier <NSObject>
 
+/// Modify the original download data and return a new data. You can use this to decrypt the data using your perfereed algorithm.
+/// @param data The original download data
+/// @param response The URL response for data. If you modifiy the original URL response via the method below, the modified version will be here . This arg is nullable.
+/// @note If nil is returned, the image download will marked as failed with error `SDWebImageErrorBadImageData`
 - (nullable NSData *)modifiedDataWithData:(nonnull NSData *)data response:(nullable NSURLResponse *)response;
+
+/// Modify the original URL response and return a new response. You can use this to check MIME-Type, mock server response, etc.
+/// @param response The original URL response, note for HTTP request it's actually a `NSHTTPURLResponse` instance
+/// @note If nil is returned, the image download will marked as cancelled with error `SDWebImageErrorInvalidDownloadResponse`
 - (nullable NSURLResponse *)modifiedResponseWithResponse:(nonnull NSURLResponse *)response;
 
 @end
@@ -37,7 +45,7 @@ typedef NSData * _Nullable (^SDWebImageDownloaderResponseModifierDataBlock)(NSDa
 /// Convenience way to create response modifier for common data encryption.
 @interface SDWebImageDownloaderResponseModifier (Conveniences)
 
-/// Base64 Encoded image data
+/// Base64 Encoded image data decrypter
 @property (class, readonly, nonnull) SDWebImageDownloaderResponseModifier *base64ResponseModifier;
 
 @end
