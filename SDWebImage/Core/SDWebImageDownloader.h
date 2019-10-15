@@ -143,7 +143,7 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 /**
  * Set the request modifier to modify the original download request before image load.
- * This request modifier method will be called for each downloading image request. Return the original request means no modication. Return nil will cancel the download request.
+ * This request modifier method will be called for each downloading image request. Return the original request means no modification. Return nil will cancel the download request.
  * Defaults to nil, means does not modify the original download request.
  * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
@@ -151,7 +151,7 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 /**
  * Set the response modifier to modify the original download response or download data before decoding.  This can be used for image data decryption, such as Base64 encoded image.
- * This request modifier method will be called for each downloading image response. Return the original response or data means no modication. Return nil from either response or data, will mark this download failed, pay attention to this.
+ * This request modifier method will be called for each downloading image response. Return the original response or data means no modification. Return nil from either response or data, will mark this download failed.
  * Defaults to nil, means does not modify the original download response or download data.
  * @note If you want to modify single response, consider using `SDWebImageContextDownloadResponseModifier` context option.
  */
