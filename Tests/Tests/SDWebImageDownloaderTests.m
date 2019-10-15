@@ -544,13 +544,54 @@
 }
 
 - (void)test24ThatDownloadRequestModifierWorks {
-    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download response modifier for fileURL"];
-    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Download response modifier for webURL"];
-    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Download response modifier invalid response"];
-    XCTestExpectation *expectation4 = [self expectationWithDescription:@"Download response modifier invalid data"];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download response modifier for webURL"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Download response modifier invalid response"];
     
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
-    downloader.responseModifier = SDWebImageDownloaderResponseModifier.base64ResponseModifier;
+    
+    // 1. Test webURL to response custom status code and header
+    SDWebImageDownloaderResponseModifier *responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        NSMutableDictionary *mutableHeaderFields = [httpResponse.allHeaderFields mutableCopy];
+        mutableHeaderFields[@"Foo"] = @"Bar";
+        NSHTTPURLResponse *modifiedResponse = [[NSHTTPURLResponse alloc] initWithURL:response.URL statusCode:404 HTTPVersion:nil headerFields:[mutableHeaderFields copy]];
+        return [modifiedResponse copy];
+    }];
+    downloader.responseModifier = responseModifier;
+    
+    __block SDWebImageDownloadToken *token;
+    token = [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadStatusCode);
+        expect(error.userInfo[SDWebImageErrorDownloadStatusCodeKey]).equal(404);
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)token.response;
+        expect(httpResponse).notTo.beNil();
+        expect(httpResponse.allHeaderFields[@"Foo"]).equal(@"Bar");
+        [expectation1 fulfill];
+    }];
+    
+    // 2. Test nil response will cancel the download
+    responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        return nil;
+    }];
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestPNGURL] options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadResponse);
+        [expectation2 fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
+    }];
+}
+
+- (void)test25ThatDownloadDecryptorWorks {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download decryptor for fileURL"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Download decryptor for webURL"];
+    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Download decryptor invalid data"];
+    
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    downloader.decryptor = SDWebImageDownloaderDecryptor.base64Decryptor;
     
     // 1. Test fileURL with Base64 encoded data works
     NSData *PNGData = [NSData dataWithContentsOfFile:[self testPNGPath]];
@@ -565,9 +606,7 @@
     }];
     
     // 2. Test webURL with Zip encoded data works
-    SDWebImageDownloaderResponseModifier *responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
-        return response;
-    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
+    SDWebImageDownloaderDecryptor *decryptor = [SDWebImageDownloaderDecryptor decryptorWithBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
         if (@available(iOS 13, macOS 10.15, *)) {
             return [data decompressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:nil];
         } else if (@available (iOS 9, macOS 10.11, *)) {
@@ -582,37 +621,25 @@
     // Note this is not a Zip Archive, just PNG raw buffer data using zlib compression
     NSURL *zipURL = [NSURL URLWithString:@"https://github.com/SDWebImage/SDWebImage/files/3728087/SDWebImage_logo_small.png.zip"];
     
-    [downloader downloadImageWithURL:zipURL options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:zipURL options:0 context:@{SDWebImageContextDownloadDecryptor : decryptor} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
         [expectation2 fulfill];
     }];
     
-    // 3. Test nil response will cancel the download
-    responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+    // 3. Test nil data will mark download failed
+    decryptor = [SDWebImageDownloaderDecryptor decryptorWithBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
         return nil;
-    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
-        return data;
     }];
-    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 context:@{SDWebImageContextDownloadDecryptor : decryptor} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         expect(error).notTo.beNil();
-        expect(error.code).equal(SDWebImageErrorInvalidDownloadResponse);
+        expect(error.code).equal(SDWebImageErrorBadImageData);
         [expectation3 fulfill];
     }];
     
-    // 4. Test nil data will mark download failed
-    responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
-        return response;
-    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
-        return nil;
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
     }];
-    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        expect(error).notTo.beNil();
-        expect(error.code).equal(SDWebImageErrorInvalidDownloadResponse);
-        [expectation4 fulfill];
-    }];
-    
-    [self waitForExpectationsWithCommonTimeout];
 }
 
 #pragma mark - SDWebImageLoader

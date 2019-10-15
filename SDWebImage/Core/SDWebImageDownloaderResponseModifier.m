@@ -11,58 +11,30 @@
 
 @interface SDWebImageDownloaderResponseModifier ()
 
-@property (nonatomic, copy, nonnull) SDWebImageDownloaderResponseModifierBlock responseBlock;
-@property (nonatomic, copy, nonnull) SDWebImageDownloaderResponseModifierDataBlock dataBlock;
+@property (nonatomic, copy, nonnull) SDWebImageDownloaderResponseModifierBlock block;
 
 @end
 
 @implementation SDWebImageDownloaderResponseModifier
 
-- (instancetype)initWithResponseBlock:(SDWebImageDownloaderResponseModifierBlock)responseBlock dataBlock:(SDWebImageDownloaderResponseModifierDataBlock)dataBlock {
+- (instancetype)initWithBlock:(SDWebImageDownloaderResponseModifierBlock)block {
     self = [super init];
     if (self) {
-        self.responseBlock = responseBlock;
-        self.dataBlock = dataBlock;
+        self.block = block;
     }
     return self;
 }
 
-+ (instancetype)responseModifierWithResponseBlock:(SDWebImageDownloaderResponseModifierBlock)responseBlock dataBlock:(SDWebImageDownloaderResponseModifierDataBlock)dataBlock {
-    SDWebImageDownloaderResponseModifier *responseModifier = [[SDWebImageDownloaderResponseModifier alloc] initWithResponseBlock:responseBlock dataBlock:dataBlock];
++ (instancetype)responseModifierWithBlock:(SDWebImageDownloaderResponseModifierBlock)block {
+    SDWebImageDownloaderResponseModifier *responseModifier = [[SDWebImageDownloaderResponseModifier alloc] initWithBlock:block];
     return responseModifier;
-}
-
-- (nullable NSData *)modifiedDataWithData:(nonnull NSData *)data response:(nullable NSURLResponse *)response {
-    if (!self.dataBlock) {
-        return nil;
-    }
-    return self.dataBlock(data, response);
 }
 
 - (nullable NSURLResponse *)modifiedResponseWithResponse:(nonnull NSURLResponse *)response {
-    if (!self.responseBlock) {
+    if (!self.block) {
         return nil;
     }
-    return self.responseBlock(response);
-}
-
-@end
-
-
-@implementation SDWebImageDownloaderResponseModifier (Conveniences)
-
-+ (SDWebImageDownloaderResponseModifier *)base64ResponseModifier {
-    static SDWebImageDownloaderResponseModifier *responseModifier;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
-            return response;
-        } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
-            NSData *modifiedData = [[NSData alloc] initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            return modifiedData;
-        }];
-    });
-    return responseModifier;
+    return self.block(response);
 }
 
 @end

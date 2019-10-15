@@ -10,6 +10,7 @@
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
 #import "SDWebImageDownloaderResponseModifier.h"
+#import "SDWebImageDownloaderDecryptor.h"
 
 // iOS 8 Foundation.framework extern these symbol but the define is in CFNetwork.framework. We just fix this without import CFNetwork.framework
 #if ((__IPHONE_OS_VERSION_MIN_REQUIRED && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0) || (__MAC_OS_X_VERSION_MIN_REQUIRED && __MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_10_11))
@@ -38,8 +39,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (assign, nonatomic) NSUInteger receivedSize;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 @property (strong, nonatomic, nullable) NSError *responseError;
-@property (strong, nonatomic, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier; // modifiy original URLResponse and Data
 @property (assign, nonatomic) double previousProgress; // previous progress percent
+
+@property (strong, nonatomic, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier; // modifiy original URLResponse
+@property (strong, nonatomic, nullable) id<SDWebImageDownloaderDecryptor> decryptor; // decrypt image data
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -77,8 +80,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _request = [request copy];
         _options = options;
         _context = [context copy];
-        _responseModifier = context[SDWebImageContextDownloadResponseModifier];
         _callbackBlocks = [NSMutableArray new];
+        _responseModifier = context[SDWebImageContextDownloadResponseModifier];
+        _decryptor = context[SDWebImageContextDownloadDecryptor];
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
@@ -371,8 +375,8 @@ didReceiveResponse:(NSURLResponse *)response
     }
     self.previousProgress = currentProgress;
     
-    // Response Modifier disable the progressive decoding, no supporting for progressive data modification
-    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.responseModifier;
+    // Using data decryptor will disable the progressive decoding, since there are no support for progressive decrypt
+    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.decryptor;
     if (supportProgressive) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
@@ -440,9 +444,9 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             NSData *imageData = [self.imageData copy];
             self.imageData = nil;
-            // response modifier
-            if (imageData && self.responseModifier) {
-                imageData = [self.responseModifier modifiedDataWithData:imageData response:self.response];
+            // data decryptor
+            if (imageData && self.decryptor) {
+                imageData = [self.decryptor decryptedDataWithData:imageData response:self.response];
             }
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,

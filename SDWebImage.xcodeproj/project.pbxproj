@@ -60,6 +60,10 @@
 		324DF4B6200A14DC008A84CC /* SDWebImageDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = 324DF4B2200A14DC008A84CC /* SDWebImageDefine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		324DF4BA200A14DC008A84CC /* SDWebImageDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 324DF4B3200A14DC008A84CC /* SDWebImageDefine.m */; };
 		324DF4BC200A14DC008A84CC /* SDWebImageDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 324DF4B3200A14DC008A84CC /* SDWebImageDefine.m */; };
+		3250C9EE2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 3250C9EC2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3250C9EF2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */; };
+		3250C9F02355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */; };
+		3250C9F12355E3DF0093A896 /* SDWebImageDownloaderDecryptor.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 3250C9EC2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h */; };
 		325312CA200F09910046BF1E /* SDWebImageTransition.h in Headers */ = {isa = PBXBuildFile; fileRef = 325312C6200F09910046BF1E /* SDWebImageTransition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		325312CE200F09910046BF1E /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 325312C7200F09910046BF1E /* SDWebImageTransition.m */; };
 		325312D0200F09910046BF1E /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 325312C7200F09910046BF1E /* SDWebImageTransition.m */; };
@@ -284,6 +288,7 @@
 			dstPath = include/SDWebImage;
 			dstSubfolderSpec = 16;
 			files = (
+				3250C9F12355E3DF0093A896 /* SDWebImageDownloaderDecryptor.h in Copy Headers */,
 				325427662355783C0042BAA4 /* SDWebImageDownloaderResponseModifier.h in Copy Headers */,
 				3298655F233723220071958B /* SDImageHEICCoder.h in Copy Headers */,
 				32C78E3823336FC800C6B7F8 /* SDImageIOAnimatedCoder.h in Copy Headers */,
@@ -373,6 +378,8 @@
 		3248475C201775F600AF9E5A /* SDAnimatedImageView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "SDAnimatedImageView+WebCache.m"; path = "Core/SDAnimatedImageView+WebCache.m"; sourceTree = "<group>"; };
 		324DF4B2200A14DC008A84CC /* SDWebImageDefine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDWebImageDefine.h; path = Core/SDWebImageDefine.h; sourceTree = "<group>"; };
 		324DF4B3200A14DC008A84CC /* SDWebImageDefine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDWebImageDefine.m; path = Core/SDWebImageDefine.m; sourceTree = "<group>"; };
+		3250C9EC2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDWebImageDownloaderDecryptor.h; path = Core/SDWebImageDownloaderDecryptor.h; sourceTree = "<group>"; };
+		3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDWebImageDownloaderDecryptor.m; path = Core/SDWebImageDownloaderDecryptor.m; sourceTree = "<group>"; };
 		325312C6200F09910046BF1E /* SDWebImageTransition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDWebImageTransition.h; path = Core/SDWebImageTransition.h; sourceTree = "<group>"; };
 		325312C7200F09910046BF1E /* SDWebImageTransition.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDWebImageTransition.m; path = Core/SDWebImageTransition.m; sourceTree = "<group>"; };
 		32542761235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDWebImageDownloaderResponseModifier.h; path = Core/SDWebImageDownloaderResponseModifier.h; sourceTree = "<group>"; };
@@ -766,6 +773,8 @@
 				32F21B5020788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.m */,
 				32542761235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h */,
 				32542762235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.m */,
+				3250C9EC2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h */,
+				3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */,
 				321B377D2083290D00C0EA77 /* SDImageLoader.h */,
 				321B377E2083290D00C0EA77 /* SDImageLoader.m */,
 				321B377F2083290E00C0EA77 /* SDImageLoadersManager.h */,
@@ -864,6 +873,7 @@
 				4A2CAE1B1AB4BB6800B6BC39 /* SDWebImageDownloader.h in Headers */,
 				3248476B201775F600AF9E5A /* SDAnimatedImageView.h in Headers */,
 				32D122322080B2EB003685A3 /* SDImageCachesManager.h in Headers */,
+				3250C9EE2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h in Headers */,
 				32F7C0862030719600873181 /* UIImage+Transform.h in Headers */,
 				321E60C01F38E91700405457 /* UIImage+ForceDecode.h in Headers */,
 				329F1243223FAD3400B309FD /* SDInternalMacros.h in Headers */,
@@ -1064,6 +1074,7 @@
 				325C46232233A02E004CAE11 /* UIColor+HexString.m in Sources */,
 				321E60C61F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
 				3244062E2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */,
+				3250C9F02355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */,
 				328BB6A42081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
 				4A2CAE2E1AB4BB7500B6BC39 /* UIImage+GIF.m in Sources */,
 				80B6DF822142B44400BCB334 /* NSButton+WebCache.m in Sources */,
@@ -1130,6 +1141,7 @@
 				325C46222233A02E004CAE11 /* UIColor+HexString.m in Sources */,
 				321E60C41F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
 				3244062D2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */,
+				3250C9EF2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */,
 				328BB6A22081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
 				53761309155AD0D5005750A4 /* SDImageCache.m in Sources */,
 				80B6DF832142B44500BCB334 /* NSButton+WebCache.m in Sources */,

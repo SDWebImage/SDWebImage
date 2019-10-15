@@ -10,19 +10,12 @@
 #import "SDWebImageCompat.h"
 
 typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(NSURLResponse * _Nonnull response);
-typedef NSData * _Nullable (^SDWebImageDownloaderResponseModifierDataBlock)(NSData * _Nonnull data, NSURLResponse * _Nullable response);
 
 /**
  This is the protocol for downloader response modifier.
  We can use a block to specify the downloader response modifier. But Using protocol can make this extensible, and allow Swift user to use it easily instead of using `@convention(block)` to store a block into context options.
  */
 @protocol SDWebImageDownloaderResponseModifier <NSObject>
-
-/// Modify the original download data and return a new data. You can use this to decrypt the data using your perfereed algorithm.
-/// @param data The original download data
-/// @param response The URL response for data. If you modifiy the original URL response via the method below, the modified version will be here . This arg is nullable.
-/// @note If nil is returned, the image download will marked as failed with error `SDWebImageErrorBadImageData`
-- (nullable NSData *)modifiedDataWithData:(nonnull NSData *)data response:(nullable NSURLResponse *)response;
 
 /// Modify the original URL response and return a new response. You can use this to check MIME-Type, mock server response, etc.
 /// @param response The original URL response, note for HTTP request it's actually a `NSHTTPURLResponse` instance
@@ -36,16 +29,7 @@ typedef NSData * _Nullable (^SDWebImageDownloaderResponseModifierDataBlock)(NSDa
  */
 @interface SDWebImageDownloaderResponseModifier : NSObject <SDWebImageDownloaderResponseModifier>
 
-- (nonnull instancetype)initWithResponseBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)responseBlock dataBlock:(nonnull SDWebImageDownloaderResponseModifierDataBlock)dataBlock;
-+ (nonnull instancetype)responseModifierWithResponseBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)responseBlock dataBlock:(nonnull SDWebImageDownloaderResponseModifierDataBlock)dataBlock;
-
-@end
-
-
-/// Convenience way to create response modifier for common data encryption.
-@interface SDWebImageDownloaderResponseModifier (Conveniences)
-
-/// Base64 Encoded image data decrypter
-@property (class, readonly, nonnull) SDWebImageDownloaderResponseModifier *base64ResponseModifier;
+- (nonnull instancetype)initWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
++ (nonnull instancetype)responseModifierWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
 
 @end
