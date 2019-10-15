@@ -63,7 +63,7 @@
 		325312CA200F09910046BF1E /* SDWebImageTransition.h in Headers */ = {isa = PBXBuildFile; fileRef = 325312C6200F09910046BF1E /* SDWebImageTransition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		325312CE200F09910046BF1E /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 325312C7200F09910046BF1E /* SDWebImageTransition.m */; };
 		325312D0200F09910046BF1E /* SDWebImageTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 325312C7200F09910046BF1E /* SDWebImageTransition.m */; };
-		32542763235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 32542761235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h */; };
+		32542763235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 32542761235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32542764235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 32542762235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.m */; };
 		32542765235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 32542762235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.m */; };
 		325427662355783C0042BAA4 /* SDWebImageDownloaderResponseModifier.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 32542761235576E20042BAA4 /* SDWebImageDownloaderResponseModifier.h */; };

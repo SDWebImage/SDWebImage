@@ -58,7 +58,8 @@
         responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
             return response;
         } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
-            return [[NSData alloc] initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            NSData *modifiedData = [[NSData alloc] initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            return modifiedData;
         }];
     });
     return responseModifier;

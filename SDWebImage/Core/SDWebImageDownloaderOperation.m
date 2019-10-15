@@ -77,6 +77,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _request = [request copy];
         _options = options;
         _context = [context copy];
+        _responseModifier = context[SDWebImageContextDownloadResponseModifier];
         _callbackBlocks = [NSMutableArray new];
         _executing = NO;
         _finished = NO;
