@@ -11,6 +11,7 @@
 #import "SDWebImageTestDownloadOperation.h"
 #import "SDWebImageTestCoder.h"
 #import "SDWebImageTestLoader.h"
+#import <compression.h>
 
 #define kPlaceholderTestURLTemplate @"https://via.placeholder.com/10000x%d.png"
 
@@ -542,6 +543,78 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test24ThatDownloadRequestModifierWorks {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download response modifier for fileURL"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Download response modifier for webURL"];
+    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Download response modifier invalid response"];
+    XCTestExpectation *expectation4 = [self expectationWithDescription:@"Download response modifier invalid data"];
+    
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    downloader.responseModifier = SDWebImageDownloaderResponseModifier.base64ResponseModifier;
+    
+    // 1. Test fileURL with Base64 encoded data works
+    NSData *PNGData = [NSData dataWithContentsOfFile:[self testPNGPath]];
+    NSData *base64PNGData = [PNGData base64EncodedDataWithOptions:0];
+    expect(base64PNGData).notTo.beNil();
+    NSURL *base64FileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"TestBase64.png"]];
+    [base64PNGData writeToURL:base64FileURL atomically:YES];
+    [downloader downloadImageWithURL:base64FileURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).to.beNil();
+        expect(image).notTo.beNil();
+        [expectation1 fulfill];
+    }];
+    
+    // 2. Test webURL with Zip encoded data works
+    SDWebImageDownloaderResponseModifier *responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        return response;
+    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
+        if (@available(iOS 13, macOS 10.15, *)) {
+            return [data decompressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:nil];
+        } else if (@available (iOS 9, macOS 10.11, *)) {
+            NSMutableData *decodedData = [NSMutableData dataWithLength:10 * data.length];
+            compression_decode_buffer((uint8_t *)decodedData.bytes, decodedData.length, data.bytes, data.length, nil, COMPRESSION_ZLIB);
+            return [decodedData copy];
+        } else {
+            // iOS 8 does not have built-in Zlib support, just mock the data
+            return base64PNGData;
+        }
+    }];
+    // Note this is not a Zip Archive, just PNG raw buffer data using zlib compression
+    NSURL *zipURL = [NSURL URLWithString:@"https://github.com/SDWebImage/SDWebImage/files/3728087/SDWebImage_logo_small.png.zip"];
+    
+    [downloader downloadImageWithURL:zipURL options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).to.beNil();
+        expect(image).notTo.beNil();
+        [expectation2 fulfill];
+    }];
+    
+    // 3. Test nil response will cancel the download
+    responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        return nil;
+    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
+        return data;
+    }];
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadResponse);
+        [expectation3 fulfill];
+    }];
+    
+    // 4. Test nil data will mark download failed
+    responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        return response;
+    } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
+        return nil;
+    }];
+    [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] options:0 context:@{SDWebImageContextDownloadResponseModifier : responseModifier} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadResponse);
+        [expectation4 fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
@@ -583,6 +656,13 @@
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+}
+
+#pragma mark - Helper
+
+- (NSString *)testPNGPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    return [testBundle pathForResource:@"TestImage" ofType:@"png"];
 }
 
 @end
