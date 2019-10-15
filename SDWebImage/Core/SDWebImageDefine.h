@@ -234,7 +234,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextAnimat
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextDownloadRequestModifier;
 
 /**
- A id<SDWebImageDownloaderResponseModifier> instance to modify the image download response and download data. It's used for downloader to modify the original response and data from URL and options. This can be used for image data decryption, such as Gzipped image. If you provide one, it will ignore the `responseModifier` in downloader and use provided one instead. (id<SDWebImageDownloaderResponseModifier>)
+ A id<SDWebImageDownloaderResponseModifier> instance to modify the image download response and download data. It's used for downloader to modify the original response and data from URL and options. This can be used for image data decryption, such as Base64 encoded image. If you provide one, it will ignore the `responseModifier` in downloader and use provided one instead. (id<SDWebImageDownloaderResponseModifier>)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextDownloadResponseModifier;
 

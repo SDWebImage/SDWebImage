@@ -47,3 +47,21 @@
 }
 
 @end
+
+
+@implementation SDWebImageDownloaderResponseModifier (Conveniences)
+
++ (SDWebImageDownloaderResponseModifier *)base64ResponseModifier {
+    static SDWebImageDownloaderResponseModifier *responseModifier;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        responseModifier = [SDWebImageDownloaderResponseModifier responseModifierWithResponseBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+            return response;
+        } dataBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
+            return [[NSData alloc] initWithBase64EncodedData:data options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        }];
+    });
+    return responseModifier;
+}
+
+@end

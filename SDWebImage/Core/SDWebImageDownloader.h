@@ -150,7 +150,7 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 @property (nonatomic, strong, nullable) id<SDWebImageDownloaderRequestModifier> requestModifier;
 
 /**
- * Set the response modifier to modify the original download response or download data before decoding.  This can be used for image data decryption, such as Gzipped image.
+ * Set the response modifier to modify the original download response or download data before decoding.  This can be used for image data decryption, such as Base64 encoded image.
  * This request modifier method will be called for each downloading image response. Return the original response or data means no modication. Return nil from either response or data, will mark this download failed, pay attention to this.
  * Defaults to nil, means does not modify the original download response or download data.
  * @note If you want to modify single response, consider using `SDWebImageContextDownloadResponseModifier` context option.

@@ -32,3 +32,12 @@ typedef NSData * _Nullable (^SDWebImageDownloaderResponseModifierDataBlock)(NSDa
 + (nonnull instancetype)responseModifierWithResponseBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)responseBlock dataBlock:(nonnull SDWebImageDownloaderResponseModifierDataBlock)dataBlock;
 
 @end
+
+
+/// Convenience way to create response modifier for common data encryption.
+@interface SDWebImageDownloaderResponseModifier (Conveniences)
+
+/// Base64 Encoded image data
+@property (class, readonly, nonnull) SDWebImageDownloaderResponseModifier *base64ResponseModifier;
+
+@end
