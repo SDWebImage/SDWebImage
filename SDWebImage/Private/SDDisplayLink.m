@@ -30,6 +30,9 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #else
 @property (nonatomic, strong) NSTimer *displayLink;
+@property (nonatomic, strong) NSRunLoop *runloop;
+@property (nonatomic, strong) NSRunLoopMode runloopMode;
+@property (nonatomic, assign) NSTimeInterval currentFireDate;
 #endif
 
 @end
@@ -81,12 +84,18 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     CVDisplayLinkGetCurrentTime(_displayLink, &nowTime);
     NSTimeInterval duration = (double)nowTime.videoRefreshPeriod / ((double)nowTime.videoTimeScale * nowTime.rateScalar);
 #elif SD_IOS || SD_TV
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSTimeInterval duration = self.displayLink.duration * self.displayLink.frameInterval;
-    #pragma clang diagnostic pop
+#pragma clang diagnostic pop
 #else
-    NSTimeInterval duration = 1.0 / 60;
+    NSTimeInterval duration;
+    if (!self.displayLink.isValid || self.currentFireDate == 0) {
+        duration = kSDDisplayLinkInterval;
+    } else {
+        NSTimeInterval nextFireDate = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
+        duration = nextFireDate - self.currentFireDate;
+    }
 #endif
     return duration;
 }
@@ -110,6 +119,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #elif SD_IOS || SD_TV
     [self.displayLink addToRunLoop:runloop forMode:mode];
 #else
+    self.runloop = runloop;
+    self.runloopMode = mode;
     CFRunLoopMode cfMode;
     if ([mode isEqualToString:NSDefaultRunLoopMode]) {
         cfMode = kCFRunLoopDefaultMode;
@@ -131,6 +142,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #elif SD_IOS || SD_TV
     [self.displayLink removeFromRunLoop:runloop forMode:mode];
 #else
+    self.runloop = nil;
+    self.runloopMode = nil;
     CFRunLoopMode cfMode;
     if ([mode isEqualToString:NSDefaultRunLoopMode]) {
         cfMode = kCFRunLoopDefaultMode;
@@ -154,6 +167,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     } else {
         SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
         self.displayLink = [NSTimer timerWithTimeInterval:kSDDisplayLinkInterval target:weakProxy selector:@selector(displayLinkDidRefresh:) userInfo:nil repeats:YES];
+        [self addToRunLoop:self.runloop forMode:self.runloopMode];
     }
 #endif
 }
@@ -173,6 +187,9 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [_target performSelector:_selector withObject:self];
 #pragma clang diagnostic pop
+#if SD_WATCH
+    self.currentFireDate = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
+#endif
 }
 
 @end
