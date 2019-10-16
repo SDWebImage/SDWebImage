@@ -12,6 +12,8 @@
 #import "SDWebImageOperation.h"
 #import "SDWebImageDownloaderConfig.h"
 #import "SDWebImageDownloaderRequestModifier.h"
+#import "SDWebImageDownloaderResponseModifier.h"
+#import "SDWebImageDownloaderDecryptor.h"
 #import "SDImageLoader.h"
 
 /// Downloader options
@@ -142,11 +144,28 @@ typedef SDImageLoaderCompletedBlock SDWebImageDownloaderCompletedBlock;
 
 /**
  * Set the request modifier to modify the original download request before image load.
- * This request modifier method will be called for each downloading image request. Return the original request means no modication. Return nil will cancel the download request.
+ * This request modifier method will be called for each downloading image request. Return the original request means no modification. Return nil will cancel the download request.
  * Defaults to nil, means does not modify the original download request.
  * @note If you want to modify single request, consider using `SDWebImageContextDownloadRequestModifier` context option.
  */
 @property (nonatomic, strong, nullable) id<SDWebImageDownloaderRequestModifier> requestModifier;
+
+/**
+ * Set the response modifier to modify the original download response during image load.
+ * This request modifier method will be called for each downloading image response. Return the original response means no modification. Return nil will mark current download as cancelled.
+ * Defaults to nil, means does not modify the original download response.
+ * @note If you want to modify single response, consider using `SDWebImageContextDownloadResponseModifier` context option.
+ */
+@property (nonatomic, strong, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier;
+
+/**
+ * Set the decryptor to decrypt the original download data before image decoding. This can be used for encrypted image data, like Base64.
+ * This decryptor method will be called for each downloading image data. Return the original data means no modification. Return nil will mark this download failed.
+ * Defaults to nil, means does not modify the original download data.
+ * @note When using decryptor, progressive decoding will be disabled, to avoid data corrupt issue.
+ * @note If you want to decrypt single download data, consider using `SDWebImageContextDownloadDecryptor` context option.
+ */
+@property (nonatomic, strong, nullable) id<SDWebImageDownloaderDecryptor> decryptor;
 
 /**
  * The configuration in use by the internal NSURLSession. If you want to provide a custom sessionConfiguration, use `SDWebImageDownloaderConfig.sessionConfiguration` and create a new downloader instance.

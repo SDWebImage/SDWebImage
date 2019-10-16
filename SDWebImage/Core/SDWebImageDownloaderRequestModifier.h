@@ -17,6 +17,9 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  */
 @protocol SDWebImageDownloaderRequestModifier <NSObject>
 
+/// Modify the original URL request and return a new one instead. You can modify the HTTP header, cachePolicy, etc for this URL.
+/// @param request The original URL request for image loading
+/// @note If return nil, the URL request will be cancelled.
 - (nullable NSURLRequest *)modifiedRequestWithRequest:(nonnull NSURLRequest *)request;
 
 @end

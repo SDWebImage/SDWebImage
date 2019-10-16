@@ -126,5 +126,7 @@ SDWebImageContextOption const SDWebImageContextStoreCacheType = @"storeCacheType
 SDWebImageContextOption const SDWebImageContextOriginalStoreCacheType = @"originalStoreCacheType";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";
 SDWebImageContextOption const SDWebImageContextDownloadRequestModifier = @"downloadRequestModifier";
+SDWebImageContextOption const SDWebImageContextDownloadResponseModifier = @"downloadResponseModifier";
+SDWebImageContextOption const SDWebImageContextDownloadDecryptor = @"downloadDecryptor";
 SDWebImageContextOption const SDWebImageContextCacheKeyFilter = @"cacheKeyFilter";
 SDWebImageContextOption const SDWebImageContextCacheSerializer = @"cacheSerializer";

@@ -9,6 +9,8 @@
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
+#import "SDWebImageDownloaderResponseModifier.h"
+#import "SDWebImageDownloaderDecryptor.h"
 
 // iOS 8 Foundation.framework extern these symbol but the define is in CFNetwork.framework. We just fix this without import CFNetwork.framework
 #if ((__IPHONE_OS_VERSION_MIN_REQUIRED && __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0) || (__MAC_OS_X_VERSION_MIN_REQUIRED && __MAC_OS_X_VERSION_MIN_REQUIRED < __MAC_10_11))
@@ -38,6 +40,9 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 @property (strong, nonatomic, nullable, readwrite) NSURLResponse *response;
 @property (strong, nonatomic, nullable) NSError *responseError;
 @property (assign, nonatomic) double previousProgress; // previous progress percent
+
+@property (strong, nonatomic, nullable) id<SDWebImageDownloaderResponseModifier> responseModifier; // modifiy original URLResponse
+@property (strong, nonatomic, nullable) id<SDWebImageDownloaderDecryptor> decryptor; // decrypt image data
 
 // This is weak because it is injected by whoever manages this session. If this gets nil-ed out, we won't be able to run
 // the task associated with this operation
@@ -76,6 +81,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _options = options;
         _context = [context copy];
         _callbackBlocks = [NSMutableArray new];
+        _responseModifier = context[SDWebImageContextDownloadResponseModifier];
+        _decryptor = context[SDWebImageContextDownloadDecryptor];
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
@@ -293,13 +300,27 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
     NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
+    
+    // Check response modifier, if return nil, will marked as cancelled.
+    BOOL valid = YES;
+    if (self.responseModifier && response) {
+        response = [self.responseModifier modifiedResponseWithResponse:response];
+        if (!response) {
+            valid = NO;
+            self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadResponse userInfo:nil];
+        }
+    }
+    
     NSInteger expected = (NSInteger)response.expectedContentLength;
     expected = expected > 0 ? expected : 0;
     self.expectedSize = expected;
     self.response = response;
+    
     NSInteger statusCode = [response respondsToSelector:@selector(statusCode)] ? ((NSHTTPURLResponse *)response).statusCode : 200;
-    BOOL valid = statusCode >= 200 && statusCode < 400;
-    if (!valid) {
+    // Status code should between [200,400)
+    BOOL statusCodeValid = statusCode >= 200 && statusCode < 400;
+    if (!statusCodeValid) {
+        valid = NO;
         self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadStatusCode userInfo:@{SDWebImageErrorDownloadStatusCodeKey : @(statusCode)}];
     }
     //'304 Not Modified' is an exceptional one
@@ -353,8 +374,10 @@ didReceiveResponse:(NSURLResponse *)response
         return;
     }
     self.previousProgress = currentProgress;
-
-    if (self.options & SDWebImageDownloaderProgressiveLoad) {
+    
+    // Using data decryptor will disable the progressive decoding, since there are no support for progressive decrypt
+    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.decryptor;
+    if (supportProgressive) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
         
@@ -421,6 +444,10 @@ didReceiveResponse:(NSURLResponse *)response
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             NSData *imageData = [self.imageData copy];
             self.imageData = nil;
+            // data decryptor
+            if (imageData && self.decryptor) {
+                imageData = [self.decryptor decryptedDataWithData:imageData response:self.response];
+            }
             if (imageData) {
                 /**  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
                  *  then we should check if the cached data is equal to image data
