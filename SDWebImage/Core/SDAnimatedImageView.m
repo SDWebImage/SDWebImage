@@ -12,15 +12,10 @@
 
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
-#import "SDWeakProxy.h"
+#import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
 #import <mach/mach.h>
 #import <objc/runtime.h>
-
-#if SD_MAC
-#import <CoreVideo/CoreVideo.h>
-static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
-#endif
 
 static NSUInteger SDDeviceTotalMemory() {
     return (NSUInteger)[[NSProcessInfo processInfo] physicalMemory];
@@ -60,11 +55,7 @@ static NSUInteger SDDeviceFreeMemory() {
 @property (nonatomic, strong) NSOperationQueue *fetchQueue;
 @property (nonatomic, strong) dispatch_semaphore_t lock;
 @property (nonatomic, assign) CGFloat animatedImageScale;
-#if SD_MAC
-@property (nonatomic, assign) CVDisplayLinkRef displayLink;
-#else
-@property (nonatomic, strong) CADisplayLink *displayLink;
-#endif
+@property (nonatomic, strong) SDDisplayLink *displayLink;
 @property (nonatomic) CALayer *imageViewLayer; // The actual rendering layer.
 
 @end
@@ -248,7 +239,6 @@ static NSUInteger SDDeviceFreeMemory() {
     }
 }
 
-#if SD_UIKIT
 - (void)setRunLoopMode:(NSRunLoopMode)runLoopMode
 {
     if ([_runLoopMode isEqual:runLoopMode]) {
@@ -272,7 +262,6 @@ static NSUInteger SDDeviceFreeMemory() {
     }
     return _runLoopMode;
 }
-#endif
 
 - (BOOL)shouldIncrementalLoad {
     if (!_initFinished) {
@@ -306,47 +295,19 @@ static NSUInteger SDDeviceFreeMemory() {
     return _lock;
 }
 
-#if SD_MAC
-- (CVDisplayLinkRef)displayLink
-{
+- (SDDisplayLink *)displayLink {
     if (!_displayLink) {
-        CVReturn error = CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-        if (error) {
-            return NULL;
-        }
-        CVDisplayLinkSetOutputCallback(_displayLink, DisplayLinkCallback, (__bridge void *)self);
-    }
-    return _displayLink;
-}
-#else
-- (CADisplayLink *)displayLink
-{
-    if (!_displayLink) {
-        // It is important to note the use of a weak proxy here to avoid a retain cycle. `-displayLinkWithTarget:selector:`
-        // will retain its target until it is invalidated. We use a weak proxy so that the image view will get deallocated
-        // independent of the display link's lifetime. Upon image view deallocation, we invalidate the display
-        // link which will lead to the deallocation of both the display link and the weak proxy.
-        SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
-        _displayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(displayDidRefresh:)];
+        _displayLink = [SDDisplayLink displayLinkWithTarget:self selector:@selector(displayDidRefresh:)];
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
     }
     return _displayLink;
 }
-#endif
 
 #pragma mark - Life Cycle
 
 - (void)dealloc
 {
-    // Removes the display link from all run loop modes.
-#if SD_MAC
-    if (_displayLink) {
-        CVDisplayLinkRelease(_displayLink);
-        _displayLink = NULL;
-    }
-#else
-    [_displayLink invalidate];
-    _displayLink = nil;
+#if SD_UIKIT
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
 }
@@ -448,11 +409,7 @@ static NSUInteger SDDeviceFreeMemory() {
 - (void)startAnimating
 {
     if (self.animatedImage) {
-#if SD_MAC
-        CVDisplayLinkStart(self.displayLink);
-#else
-        self.displayLink.paused = NO;
-#endif
+        [self.displayLink start];
     } else {
 #if SD_UIKIT
         [super startAnimating];
@@ -465,11 +422,7 @@ static NSUInteger SDDeviceFreeMemory() {
     if (self.animatedImage) {
         [_fetchQueue cancelAllOperations];
         // Using `_displayLink` here because when UIImageView dealloc, it may trigger `[self stopAnimating]`, we already release the display link in SDAnimatedImageView's dealloc method.
-#if SD_MAC
-        CVDisplayLinkStop(_displayLink);
-#else
-        _displayLink.paused = YES;
-#endif
+        [_displayLink stop];
         if (self.resetFrameIndexWhenStopped) {
             [self resetCurrentFrameIndex];
         }
@@ -487,11 +440,7 @@ static NSUInteger SDDeviceFreeMemory() {
 {
     BOOL isAnimating = NO;
     if (self.animatedImage) {
-#if SD_MAC
-        isAnimating = CVDisplayLinkIsRunning(self.displayLink);
-#else
-        isAnimating = !self.displayLink.isPaused;
-#endif
+        isAnimating = self.displayLink.isRunning;
     } else {
 #if SD_UIKIT
         isAnimating = [super isAnimating];
@@ -579,11 +528,7 @@ static NSUInteger SDDeviceFreeMemory() {
     }
 }
 
-#if SD_MAC
-- (void)displayDidRefresh:(CVDisplayLinkRef)displayLink
-#else
-- (void)displayDidRefresh:(CADisplayLink *)displayLink
-#endif
+- (void)displayDidRefresh:(SDDisplayLink *)displayLink
 {
     // If for some reason a wild call makes it through when we shouldn't be animating, bail.
     // Early return!
@@ -591,16 +536,8 @@ static NSUInteger SDDeviceFreeMemory() {
         return;
     }
     // Calculate refresh duration
-#if SD_MAC
-    CVTimeStamp nowTime;
-    CVDisplayLinkGetCurrentTime(displayLink, &nowTime);
-    NSTimeInterval duration = (double)nowTime.videoRefreshPeriod / ((double)nowTime.videoTimeScale * nowTime.rateScalar);
-#else
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSTimeInterval duration = displayLink.duration * displayLink.frameInterval;
-#pragma clang diagnostic pop
-#endif
+    NSTimeInterval duration = self.displayLink.duration;
+    
     NSUInteger totalFrameCount = self.totalFrameCount;
     NSUInteger currentFrameIndex = self.currentFrameIndex;
     NSUInteger nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
@@ -692,12 +629,7 @@ static NSUInteger SDDeviceFreeMemory() {
             }
             UIImage *frame = [animatedImage animatedImageFrameAtIndex:fetchFrameIndex];
 
-            BOOL isAnimating = NO;
-#if SD_MAC
-            isAnimating = CVDisplayLinkIsRunning(self.displayLink);
-#else
-            isAnimating = !self.displayLink.isPaused;
-#endif
+            BOOL isAnimating = self.displayLink.isRunning;
             if (isAnimating) {
                 SD_LOCK(self.lock);
                 self.frameBuffer[@(fetchFrameIndex)] = frame;
@@ -790,17 +722,5 @@ static NSUInteger SDDeviceFreeMemory() {
 }
 
 @end
-
-#if SD_MAC
-static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
-    // CVDisplayLink callback is not on main queue
-    SDAnimatedImageView *imageView = (__bridge SDAnimatedImageView *)displayLinkContext;
-    __weak SDAnimatedImageView *weakImageView = imageView;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [weakImageView displayDidRefresh:displayLink];
-    });
-    return kCVReturnSuccess;
-}
-#endif
 
 #endif
