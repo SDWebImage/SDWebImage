@@ -543,7 +543,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test24ThatDownloadRequestModifierWorks {
+- (void)test24ThatDownloadResponseModifierWorks {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download response modifier for webURL"];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Download response modifier invalid response"];
     
