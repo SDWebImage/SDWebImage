@@ -580,7 +580,7 @@ static NSUInteger SDDeviceFreeMemory() {
 }
 
 #if SD_MAC
-- (void)displayDidRefresh:(CVDisplayLinkRef)displayLink
+- (void)displayDidRefresh:(CVDisplayLinkRef)displayLink duration:(NSTimeInterval)duration
 #else
 - (void)displayDidRefresh:(CADisplayLink *)displayLink
 #endif
@@ -591,11 +591,7 @@ static NSUInteger SDDeviceFreeMemory() {
         return;
     }
     // Calculate refresh duration
-#if SD_MAC
-    CVTimeStamp nowTime;
-    CVDisplayLinkGetCurrentTime(displayLink, &nowTime);
-    NSTimeInterval duration = (double)nowTime.videoRefreshPeriod / ((double)nowTime.videoTimeScale * nowTime.rateScalar);
-#else
+#if SD_UIKIT
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSTimeInterval duration = displayLink.duration * displayLink.frameInterval;
@@ -793,11 +789,13 @@ static NSUInteger SDDeviceFreeMemory() {
 
 #if SD_MAC
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
+    // Calculate refresh duration
+    NSTimeInterval duration = (double)inOutputTime->videoRefreshPeriod / ((double)inOutputTime->videoTimeScale * inOutputTime->rateScalar);
     // CVDisplayLink callback is not on main queue
     SDAnimatedImageView *imageView = (__bridge SDAnimatedImageView *)displayLinkContext;
     __weak SDAnimatedImageView *weakImageView = imageView;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [weakImageView displayDidRefresh:displayLink];
+        [weakImageView displayDidRefresh:displayLink duration:duration];
     });
     return kCVReturnSuccess;
 }
