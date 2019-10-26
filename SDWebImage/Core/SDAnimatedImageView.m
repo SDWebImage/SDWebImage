@@ -531,7 +531,7 @@ static NSUInteger SDDeviceFreeMemory() {
 - (void)updateShouldAnimate
 {
 #if SD_MAC
-    BOOL isVisible = self.window && self.superview && ![self isHidden] && self.alphaValue > 0.0 && self.animates;
+    BOOL isVisible = self.window && self.superview && ![self isHidden] && self.alphaValue > 0.0;
 #else
     BOOL isVisible = self.window && self.superview && ![self isHidden] && self.alpha > 0.0;
 #endif
