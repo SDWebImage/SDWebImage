@@ -11,7 +11,7 @@ CLANG_ANALYZER_NONNULL = YES
 CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE
 
 // Choose a standard or non-standard C++ language dialect. 
-CLANG_CXX_LANGUAGE_STANDARD = gnu++0x
+CLANG_CXX_LANGUAGE_STANDARD = gnu++14
 
 // Choose a version of the C++ standard library to use.
 CLANG_CXX_LIBRARY = libc++
@@ -116,7 +116,7 @@ ENABLE_STRICT_OBJC_MSGSEND = YES
 FRAMEWORK_SEARCH_PATHS = $(inherited)
 
 // Choose a standard or non-standard C language dialect.
-GCC_C_LANGUAGE_STANDARD = gnu99
+GCC_C_LANGUAGE_STANDARD = gnu11
 
 // Faster function calls for applications. Not appropriate for shared libraries, which need to be position-independent.
 GCC_DYNAMIC_NO_PIC = NO

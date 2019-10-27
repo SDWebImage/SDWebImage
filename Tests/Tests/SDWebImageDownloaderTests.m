@@ -607,7 +607,7 @@
     
     // 2. Test webURL with Zip encoded data works
     SDWebImageDownloaderDecryptor *decryptor = [SDWebImageDownloaderDecryptor decryptorWithBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
-        if (@available(iOS 13, macOS 10.15, *)) {
+        if (@available(iOS 13, macOS 10.15, tvOS 13, *)) {
             return [data decompressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:nil];
         } else if (@available (iOS 9, macOS 10.11, *)) {
             NSMutableData *decodedData = [NSMutableData dataWithLength:10 * data.length];

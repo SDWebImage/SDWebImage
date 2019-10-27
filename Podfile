@@ -59,3 +59,9 @@ target 'Tests Mac' do
   platform :osx, '10.10'
   all_test_pods
 end
+
+target 'Tests TV' do
+  project test_project_path
+  platform :tvos, '9.2'
+  all_test_pods
+end
