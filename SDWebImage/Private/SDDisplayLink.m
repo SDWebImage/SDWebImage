@@ -80,14 +80,18 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (CFTimeInterval)duration {
 #if SD_MAC
     CVTimeStamp outputTime = self.outputTime;
-    NSTimeInterval duration = (double)outputTime.videoRefreshPeriod / ((double)outputTime.videoTimeScale * outputTime.rateScalar);
+    NSTimeInterval duration = 0;
+    double periodPerSecond = (double)outputTime.videoTimeScale * outputTime.rateScalar;
+    if (periodPerSecond > 0) {
+        duration = (double)outputTime.videoRefreshPeriod / periodPerSecond;
+    }
 #elif SD_IOS || SD_TV
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSTimeInterval duration = self.displayLink.duration * self.displayLink.frameInterval;
 #pragma clang diagnostic pop
 #else
-    NSTimeInterval duration;
+    NSTimeInterval duration = 0;
     if (self.displayLink.isValid && self.currentFireDate != 0) {
         NSTimeInterval nextFireDate = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
         duration = nextFireDate - self.currentFireDate;
