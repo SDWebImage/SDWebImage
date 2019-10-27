@@ -1,3 +1,10 @@
+## [5.2 Patch, on Oct 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.4)
+See [all tickets marked for the 5.2.4 release](https://github.com/SDWebImage/SDWebImage/milestone/49)
+
+### Fixes
+- Fix the regression issue that SDAnimatedImageView on macOS will change the wrong duration speed when pause and resume again #2873
+- Fix SDAnimatedImage on macOS use extra animates property check, which is not intuitive and cause extra setup before usage #2874
+
 ## [5.2 Patch, on Oct 9th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.3)
 See [all tickets marked for the 5.2.3 release](https://github.com/SDWebImage/SDWebImage/milestone/48)
 
