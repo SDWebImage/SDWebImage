@@ -9,6 +9,7 @@
 
 #import "SDTestCase.h"
 #import "SDWeakProxy.h"
+#import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
 
 @interface SDUtilsTests : SDTestCase
@@ -39,6 +40,37 @@
     expect([proxy conformsToProtocol:@protocol(NSObject)]).equal([object conformsToProtocol:@protocol(NSObject)]);
     expect([proxy.description isEqualToString:object.description]).beTruthy();
     expect([proxy.debugDescription isEqualToString:object.debugDescription]).beTruthy();
+}
+
+- (void)testSDDisplayLink {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Display Link Stop"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Display Link Start"];
+    SDDisplayLink *displayLink = [SDDisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidRefresh:)];
+    NSTimeInterval duration = displayLink.duration; // Initial value
+    expect(duration).equal(1.0 / 60);
+    [displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
+    [displayLink start];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(displayLink.isRunning).beTruthy();
+        [displayLink stop];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(displayLink.isRunning).beFalsy();
+        [displayLink start];
+        [expectation1 fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(displayLink.isRunning).beTruthy();
+        [displayLink stop];
+        [expectation2 fulfill];
+    });
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)displayLinkDidRefresh:(SDDisplayLink *)displayLink {
+    NSTimeInterval duration = displayLink.duration; // Running value
+    expect(duration).beGreaterThan(0.01);
+    expect(duration).beLessThan(0.02);
 }
 
 - (void)testSDScaledImageForKey {
