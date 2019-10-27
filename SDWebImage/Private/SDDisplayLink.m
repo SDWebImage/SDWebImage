@@ -18,14 +18,13 @@
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
 #endif
 
-#if SD_WATCH
 #define kSDDisplayLinkInterval 1.0 / 60
-#endif
 
 @interface SDDisplayLink ()
 
 #if SD_MAC
 @property (nonatomic, assign) CVDisplayLinkRef displayLink;
+@property (nonatomic, assign) CVTimeStamp outputTime;
 #elif SD_IOS || SD_TV
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #else
@@ -80,9 +79,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (CFTimeInterval)duration {
 #if SD_MAC
-    CVTimeStamp nowTime;
-    CVDisplayLinkGetCurrentTime(_displayLink, &nowTime);
-    NSTimeInterval duration = (double)nowTime.videoRefreshPeriod / ((double)nowTime.videoTimeScale * nowTime.rateScalar);
+    CVTimeStamp outputTime = self.outputTime;
+    NSTimeInterval duration = (double)outputTime.videoRefreshPeriod / ((double)outputTime.videoTimeScale * outputTime.rateScalar);
 #elif SD_IOS || SD_TV
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -90,13 +88,14 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #pragma clang diagnostic pop
 #else
     NSTimeInterval duration;
-    if (!self.displayLink.isValid || self.currentFireDate == 0) {
-        duration = kSDDisplayLinkInterval;
-    } else {
+    if (self.displayLink.isValid && self.currentFireDate != 0) {
         NSTimeInterval nextFireDate = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
         duration = nextFireDate - self.currentFireDate;
     }
 #endif
+    if (duration == 0) {
+        duration = kSDDisplayLinkInterval;
+    }
     return duration;
 }
 
@@ -198,6 +197,9 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
     // CVDisplayLink callback is not on main queue
     SDDisplayLink *object = (__bridge SDDisplayLink *)displayLinkContext;
+    if (inOutputTime) {
+        object.outputTime = *inOutputTime;
+    }
     __weak SDDisplayLink *weakObject = object;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakObject displayLinkDidRefresh:(__bridge id)(displayLink)];
