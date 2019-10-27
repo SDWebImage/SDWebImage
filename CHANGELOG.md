@@ -1,3 +1,9 @@
+## [5.2 Patch, on Oct 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.5)
+See [all tickets marked for the 5.2.5 release](https://github.com/SDWebImage/SDWebImage/milestone/50)
+
+### Fixes
+- Fix macOS SDWebImageIndicator center layout issue when indicator was initialized with 0 frame #2875
+
 ## [5.2 Patch, on Oct 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.4)
 See [all tickets marked for the 5.2.4 release](https://github.com/SDWebImage/SDWebImage/milestone/49)
 
