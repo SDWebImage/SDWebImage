@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "32B99E91203B2DF90017FD66"
-               BuildableName = "Tests Mac.xctest"
-               BlueprintName = "Tests Mac"
+               BlueprintIdentifier = "DA248D52195472AA00390AB0"
+               BuildableName = "Tests iOS.xctest"
+               BlueprintName = "Tests iOS"
                ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,23 +28,14 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       codeCoverageEnabled = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "32B99E91203B2DF90017FD66"
-            BuildableName = "Tests Mac.xctest"
-            BlueprintName = "Tests Mac"
-            ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "32B99E91203B2DF90017FD66"
-               BuildableName = "Tests Mac.xctest"
-               BlueprintName = "Tests Mac"
+               BlueprintIdentifier = "DA248D52195472AA00390AB0"
+               BuildableName = "Tests iOS.xctest"
+               BlueprintName = "Tests iOS"
                ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -63,9 +54,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "32B99E91203B2DF90017FD66"
-            BuildableName = "Tests Mac.xctest"
-            BlueprintName = "Tests Mac"
+            BlueprintIdentifier = "DA248D52195472AA00390AB0"
+            BuildableName = "Tests iOS.xctest"
+            BlueprintName = "Tests iOS"
             ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -76,15 +67,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "32B99E91203B2DF90017FD66"
-            BuildableName = "Tests Mac.xctest"
-            BlueprintName = "Tests Mac"
-            ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

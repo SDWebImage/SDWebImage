@@ -10,3 +10,5 @@ coverage:
         flags: ios
       macos:
         flags: macos
+      tvos:
+        flags: tvos

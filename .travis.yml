@@ -73,13 +73,16 @@ script:
     - mkdir DerivedData
 
     - echo Run the tests
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
     - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
+    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
 
 after_success:
     - export PATH="/usr/local/opt/curl/bin:$PATH"
     - curl --version
     - bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
     - bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
+    - bash <(curl -s https://codecov.io/bash) -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
