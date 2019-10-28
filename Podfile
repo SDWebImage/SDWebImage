@@ -48,7 +48,7 @@ target 'SDWebImage Watch Demo Extension' do
 end
 
 # Test Project
-target 'Tests' do
+target 'Tests iOS' do
   project test_project_path
   platform :ios, '8.0'
   all_test_pods

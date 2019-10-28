@@ -73,7 +73,7 @@ script:
     - mkdir DerivedData
 
     - echo Run the tests
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
     - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS

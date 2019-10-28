@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DA248D52195472AA00390AB0"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BuildableName = "Tests iOS.xctest"
+               BlueprintName = "Tests iOS"
                ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,8 +34,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DA248D52195472AA00390AB0"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BuildableName = "Tests iOS.xctest"
+               BlueprintName = "Tests iOS"
                ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -55,8 +55,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DA248D52195472AA00390AB0"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BuildableName = "Tests iOS.xctest"
+            BlueprintName = "Tests iOS"
             ReferencedContainer = "container:SDWebImage Tests.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
