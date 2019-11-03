@@ -57,6 +57,12 @@
  */
 @property (nonatomic, assign, readonly, getter=isAllFramesLoaded) BOOL allFramesLoaded;
 
+/**
+ Return the animated image coder if the image is created with `initWithAnimatedCoder:scale:` method.
+ @note We use this with animated coder which conforms to `SDProgressiveImageCoder` for progressive animation decoding.
+ */
+@property (nonatomic, strong, readonly, nullable) id<SDAnimatedImageCoder> animatedCoder;
+
 @end
 
 /**
