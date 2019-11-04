@@ -44,7 +44,6 @@
         // Get the current frame and loop count.
         self.totalLoopCount = provider.animatedImageLoopCount;
         self.animatedProvider = provider;
-        [self setupCurrentFrame];
         #if SD_UIKIT
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         #endif
@@ -139,6 +138,9 @@
 #pragma mark - State Control
 
 - (void)setupCurrentFrame {
+    if (self.currentFrameIndex != 0) {
+        return;
+    }
     if ([self.animatedProvider isKindOfClass:[UIImage class]]) {
         UIImage *image = (UIImage *)self.animatedProvider;
         // Use the poster image if available
@@ -149,7 +151,10 @@
         #endif
         if (posterFrame) {
             self.currentFrame = posterFrame;
+            SD_LOCK(self.lock);
             self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
+            SD_UNLOCK(self.lock);
+            [self handleFrameChange];
         }
     }
 }
@@ -170,9 +175,16 @@
 
 #pragma mark - Animation Control
 - (void)startPlaying {
+    if (self.isPlaying) {
+        return;
+    }
     [self.displayLink start];
     // Calculate max buffer size
     [self calculateMaxBufferCount];
+    // Setup frame
+    if (self.currentFrameIndex == 0 && !self.currentFrame) {
+        [self setupCurrentFrame];
+    }
 }
 
 - (void)stopPlaying {
