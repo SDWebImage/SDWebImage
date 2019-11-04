@@ -204,6 +204,9 @@
 }
 
 - (void)seekToFrameAtIndex:(NSUInteger)index loopCount:(NSUInteger)loopCount {
+    if (index >= self.totalFrameCount) {
+        return;
+    }
     self.currentFrameIndex = index;
     self.currentLoopCount = loopCount;
 }
@@ -219,6 +222,11 @@
     NSTimeInterval duration = self.displayLink.duration;
     
     NSUInteger totalFrameCount = self.totalFrameCount;
+    if (totalFrameCount == 0) {
+        // Total frame count is 0, wrong configuration
+        [self stopPlaying];
+        return;
+    }
     NSUInteger currentFrameIndex = self.currentFrameIndex;
     NSUInteger nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
     
