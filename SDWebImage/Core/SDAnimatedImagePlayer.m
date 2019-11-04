@@ -165,6 +165,7 @@
     self.currentLoopCount = 0;
     self.currentTime = 0;
     self.bufferMiss = NO;
+    [self handleFrameChange];
 }
 
 - (void)clearFrameBuffer {
@@ -175,9 +176,6 @@
 
 #pragma mark - Animation Control
 - (void)startPlaying {
-    if (self.isPlaying) {
-        return;
-    }
     [self.displayLink start];
     // Calculate max buffer size
     [self calculateMaxBufferCount];
@@ -209,6 +207,7 @@
     }
     self.currentFrameIndex = index;
     self.currentLoopCount = loopCount;
+    [self handleFrameChange];
 }
 
 #pragma mark - Core Render
