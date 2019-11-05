@@ -221,8 +221,8 @@
     NSTimeInterval duration = self.displayLink.duration;
     
     NSUInteger totalFrameCount = self.totalFrameCount;
-    if (totalFrameCount == 0) {
-        // Total frame count is 0, wrong configuration
+    if (totalFrameCount <= 1) {
+        // Total frame count less than 1, wrong configuration and stop animating
         [self stopPlaying];
         return;
     }
