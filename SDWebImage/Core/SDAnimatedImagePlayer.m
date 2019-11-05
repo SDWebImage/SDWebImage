@@ -44,9 +44,9 @@
         // Get the current frame and loop count.
         self.totalLoopCount = provider.animatedImageLoopCount;
         self.animatedProvider = provider;
-        #if SD_UIKIT
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-        #endif
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
     }
     return self;
 }
@@ -111,8 +111,7 @@
     return _displayLink;
 }
 
-- (void)setRunLoopMode:(NSRunLoopMode)runLoopMode
-{
+- (void)setRunLoopMode:(NSRunLoopMode)runLoopMode {
     if ([_runLoopMode isEqual:runLoopMode]) {
         return;
     }
@@ -127,8 +126,7 @@
     _runLoopMode = [runLoopMode copy];
 }
 
-- (NSRunLoopMode)runLoopMode
-{
+- (NSRunLoopMode)runLoopMode {
     if (!_runLoopMode) {
         _runLoopMode = [[self class] defaultRunLoopMode];
     }

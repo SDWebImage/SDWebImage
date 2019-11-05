@@ -382,7 +382,8 @@
 }
 
 // Check if image can represent a `Progressive Animated Image` during loading
-- (id<SDAnimatedImageCoder, SDProgressiveImageCoder>)progressiveAnimatedCoderForImage:(UIImage *)image {
+- (id<SDAnimatedImageCoder, SDProgressiveImageCoder>)progressiveAnimatedCoderForImage:(UIImage *)image
+{
     if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)] && image.sd_isIncremental && [image respondsToSelector:@selector(animatedCoder)]) {
         id<SDAnimatedImageCoder> animatedCoder = [(id<SDAnimatedImage>)image animatedCoder];
         if ([animatedCoder conformsToProtocol:@protocol(SDProgressiveImageCoder)]) {
