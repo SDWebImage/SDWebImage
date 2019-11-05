@@ -29,6 +29,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self configureView];
+    self.navigationItem.rightBarButtonItem = [UIBarButtonItem.alloc initWithTitle:@"Toggle Animation"
+                                                                            style:UIBarButtonItemStylePlain
+                                                                           target:self
+                                                                           action:@selector(toggleAnimation:)];
+}
+
+- (void)toggleAnimation:(UIResponder *)sender {
+    self.imageView.isAnimating ? [self.imageView stopAnimating] : [self.imageView startAnimating];
 }
 
 @end
