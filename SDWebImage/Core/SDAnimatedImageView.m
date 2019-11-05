@@ -18,7 +18,7 @@
 
 @interface SDAnimatedImageView () <CALayerDelegate> {
     BOOL _initFinished; // Extra flag to mark the `commonInit` is called
-    double _playRate;
+    double _playbackRate;
 }
 
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
@@ -93,7 +93,7 @@
     // So the properties which rely on this order, should using lazy-evaluation or do extra check in `setImage:`.
     self.shouldCustomLoopCount = NO;
     self.shouldIncrementalLoad = YES;
-    self.playRate = 1.0;
+    self.playbackRate = 1.0;
 #if SD_MAC
     self.wantsLayer = YES;
 #endif
@@ -150,7 +150,7 @@
         }
         
         // Play Rate
-        self.player.playRate = self.playRate;
+        self.player.playbackRate = self.playbackRate;
         
         // Setup handler
         @weakify(self);
@@ -196,18 +196,18 @@
     return self.player.runLoopMode;
 }
 
-- (void)setPlayRate:(double)playRate
+- (void)setPlaybackRate:(double)playbackRate
 {
-    _playRate = playRate;
-    self.player.playRate = playRate;
+    _playbackRate = playbackRate;
+    self.player.playbackRate = playbackRate;
 }
 
-- (double)playRate
+- (double)playbackRate
 {
     if (!_initFinished) {
         return 1.0; // Defaults to 1.0
     }
-    return _playRate;
+    return _playbackRate;
 }
 
 - (BOOL)shouldIncrementalLoad
