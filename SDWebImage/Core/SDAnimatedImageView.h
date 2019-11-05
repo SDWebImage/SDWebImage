@@ -44,6 +44,15 @@
  */
 @property (nonatomic, assign) NSInteger animationRepeatCount;
 /**
+ The animation playback rate. Default is 1.0.
+ `1.0` means the normal speed.
+ `0.0` means stopping the animation.
+ `0.0-1.0` means the slow speed.
+ `> 1.0` means the fast speed.
+ `< 0.0` is not supported currently and stop animation. (may support reverse playback in the future)
+ */
+@property (nonatomic, assign) double playRate;
+/**
  Provide a max buffer size by bytes. This is used to adjust frame buffer count and can be useful when the decoding cost is expensive (such as Animated WebP software decoding). Default is 0.
  `0` means automatically adjust by calculating current memory usage.
  `1` means without any buffer cache, each of frames will be decoded and then be freed after rendering. (Lowest Memory and Highest CPU)

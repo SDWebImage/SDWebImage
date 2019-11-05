@@ -44,6 +44,7 @@
         // Get the current frame and loop count.
         self.totalLoopCount = provider.animatedImageLoopCount;
         self.animatedProvider = provider;
+        self.playRate = 1.0;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -232,12 +233,20 @@
         // Then check if timestamp is reached
         self.currentTime += duration;
         NSTimeInterval currentDuration = [self.animatedProvider animatedImageDurationAtIndex:currentFrameIndex];
+        NSTimeInterval playRate = self.playRate;
+        if (playRate <= 0) {
+            // Does not support <= 0 play rate
+            [self stopPlaying];
+            return;
+        }
+        currentDuration = currentDuration / playRate;
         if (self.currentTime < currentDuration) {
             // Current frame timestamp not reached, return
             return;
         }
         self.currentTime -= currentDuration;
         NSTimeInterval nextDuration = [self.animatedProvider animatedImageDurationAtIndex:nextFrameIndex];
+        nextDuration = nextDuration / playRate;
         if (self.currentTime > nextDuration) {
             // Do not skip frame
             self.currentTime = nextDuration;
