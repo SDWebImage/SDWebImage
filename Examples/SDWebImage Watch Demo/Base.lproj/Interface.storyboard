@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
-    <device id="watch38" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15505" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14490.21"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15509"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
         <!--Interface Controller-->
@@ -14,10 +12,14 @@
             <objects>
                 <controller id="AgC-eL-Hgc" customClass="InterfaceController">
                     <items>
-                        <imageView height="150" alignment="left" id="tBV-Mv-OtJ"/>
+                        <imageView alignment="left" contentMode="scaleAspectFit" id="Tox-Rh-1mN"/>
+                        <imageView alignment="left" contentMode="scaleAspectFit" id="tBV-Mv-OtJ"/>
+                        <imageView alignment="left" contentMode="scaleAspectFit" id="7dg-wI-usi"/>
                     </items>
                     <connections>
-                        <outlet property="imageInterface" destination="tBV-Mv-OtJ" id="uId-u2-it3"/>
+                        <outlet property="animatedImageInterface" destination="7dg-wI-usi" id="eDq-ra-x9k"/>
+                        <outlet property="simpleAnimatedImageInterface" destination="tBV-Mv-OtJ" id="Wzc-db-ghd"/>
+                        <outlet property="staticImageInterface" destination="Tox-Rh-1mN" id="M4p-h5-1ld"/>
                     </connections>
                 </controller>
             </objects>

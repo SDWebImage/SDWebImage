@@ -16,6 +16,12 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 @interface SDAnimatedImageView ()
 
 @property (nonatomic, assign) BOOL isProgressive;
+@property (nonatomic, strong) SDAnimatedImagePlayer *player;
+
+@end
+
+@interface SDAnimatedImagePlayer ()
+
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIImage *> *frameBuffer;
 
 @end
@@ -102,6 +108,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
+#if SD_MAC
+    imageView.animates = YES;
+#else
+    [imageView startAnimating];
+#endif
     expect(imageView.currentFrame).notTo.beNil(); // current frame
 }
 
@@ -110,6 +121,11 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
+    #if SD_MAC
+        imageView.animates = YES;
+    #else
+        [imageView startAnimating];
+    #endif
     expect(imageView.currentFrame).notTo.beNil(); // current frame
 }
 
@@ -312,7 +328,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
-        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
     });
     
@@ -322,7 +338,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #else
         imageView.animates = NO;
 #endif
-        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
         
         [imageView removeFromSuperview];
@@ -350,7 +366,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
-        expect(imageView.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
     });
     
@@ -360,7 +376,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
 #else
         imageView.animates = NO;
 #endif
-        expect(imageView.frameBuffer.count).equal(0);
+        expect(imageView.player.frameBuffer.count).equal(0);
         expect(imageView.currentFrameIndex).equal(0);
         
         [imageView removeFromSuperview];

@@ -50,6 +50,7 @@
     expect(duration).equal(1.0 / 60);
     [displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
     [displayLink start];
+    expect(displayLink.isRunning).beTruthy();
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         expect(displayLink.isRunning).beTruthy();
         [displayLink stop];

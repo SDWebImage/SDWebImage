@@ -21,7 +21,7 @@
 @interface SDAnimatedImageView : UIImageView
 
 /**
- Current display frame image.
+ Current display frame image. This value is KVO Compliance.
  */
 @property (nonatomic, strong, readonly, nullable) UIImage *currentFrame;
 /**
