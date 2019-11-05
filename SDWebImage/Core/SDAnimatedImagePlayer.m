@@ -228,17 +228,18 @@
     NSUInteger currentFrameIndex = self.currentFrameIndex;
     NSUInteger nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
     
+    NSTimeInterval playRate = self.playRate;
+    if (playRate <= 0) {
+        // Does not support <= 0 play rate
+        [self stopPlaying];
+        return;
+    }
+    
     // Check if we have the frame buffer firstly to improve performance
     if (!self.bufferMiss) {
         // Then check if timestamp is reached
         self.currentTime += duration;
         NSTimeInterval currentDuration = [self.animatedProvider animatedImageDurationAtIndex:currentFrameIndex];
-        NSTimeInterval playRate = self.playRate;
-        if (playRate <= 0) {
-            // Does not support <= 0 play rate
-            [self stopPlaying];
-            return;
-        }
         currentDuration = currentDuration / playRate;
         if (self.currentTime < currentDuration) {
             // Current frame timestamp not reached, return
