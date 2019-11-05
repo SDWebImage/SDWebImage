@@ -1,5 +1,3 @@
-source 'https://github.com/CocoaPods/Specs.git'
-
 use_frameworks!
 
 def all_example_pods
