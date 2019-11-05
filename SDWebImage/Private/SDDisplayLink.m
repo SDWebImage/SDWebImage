@@ -25,13 +25,13 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #if SD_MAC
 @property (nonatomic, assign) CVDisplayLinkRef displayLink;
 @property (nonatomic, assign) CVTimeStamp outputTime;
-@property (nonatomic, strong) NSRunLoopMode runloopMode;
+@property (nonatomic, copy) NSRunLoopMode runloopMode;
 #elif SD_IOS || SD_TV
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #else
 @property (nonatomic, strong) NSTimer *displayLink;
 @property (nonatomic, strong) NSRunLoop *runloop;
-@property (nonatomic, strong) NSRunLoopMode runloopMode;
+@property (nonatomic, copy) NSRunLoopMode runloopMode;
 @property (nonatomic, assign) NSTimeInterval currentFireDate;
 #endif
 
@@ -190,7 +190,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #if SD_MAC
     // CVDisplayLink does not use runloop, but we can provide similar behavior for modes
     // May use `default` runloop to avoid extra callback when in `eventTracking` (mouse drag, scroll) or `modalPanel` (modal panel)
-    if (self.runloopMode && self.runloopMode != NSRunLoopCommonModes && ![self.runloopMode isEqualToString:NSRunLoop.mainRunLoop.currentMode]) {
+    NSString *runloopMode = self.runloopMode;
+    if (![runloopMode isEqualToString:NSRunLoopCommonModes] && ![runloopMode isEqualToString:NSRunLoop.mainRunLoop.currentMode]) {
         return;
     }
 #endif
