@@ -1,3 +1,22 @@
+## [5.3.0 Animated Player & Data Decryptor, on Nov 6th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.0)
+See [all tickets marked for the 5.3.0 release](https://github.com/SDWebImage/SDWebImage/milestone/45)
+
+### Features
+
+#### Animated Image
+- Refactoring the SDAnimatedImageView with player backend called `SDAnimatedImagePlayer`, make it easier for common usage. #2882
+- The player use protocol based implementation, which can be used for many scenarios, like WatchKit, CALayer, or even SwiftUI. See [wiki](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-player-530)
+- Supports the control of AnimatedImage View/Player 's play rate #2885
+- Supports the runloop mode control for macOS. Which can be useful when user want to pause animation when drag the mouse, or presenting modal window #2886
+
+#### Data Decryptor
+- Decrypt the encrypted image data after download and just before decoding. #2866
+- Provide a built-in convenience for Base64-encoded image data. See [wiki](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#data-decryptor-530)
+
+#### Response Modifier
+- Modify the HTTP response after download, paired with request modifier #2866
+- Can be used for custom HTTP header check, mock data, etc. See [wiki](https://github.com/SDWebImage/SDWebImage/wiki/How-to-use#use-response-modifier-530)
+
 ## [5.2 Patch, on Oct 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.2.5)
 See [all tickets marked for the 5.2.5 release](https://github.com/SDWebImage/SDWebImage/milestone/50)
 
