@@ -81,13 +81,12 @@
  */
 @property (nonatomic, assign) BOOL resetFrameIndexWhenStopped;
 
-#if SD_UIKIT
 /**
  You can specify a runloop mode to let it rendering.
- Default is NSRunLoopCommonModes on multi-core iOS device, NSDefaultRunLoopMode on single-core iOS device
+ Default is NSRunLoopCommonModes on multi-core device, NSDefaultRunLoopMode on single-core device
+ @note This is useful for some cases, for example, always specify NSDefaultRunLoopMode, if you want to pause the animation when user scroll (for Mac user, drag the mouse or touchpad)
  */
 @property (nonatomic, copy, nonnull) NSRunLoopMode runLoopMode;
-#endif
 @end
 
 #endif

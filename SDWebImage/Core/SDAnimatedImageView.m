@@ -18,6 +18,7 @@
 
 @interface SDAnimatedImageView () <CALayerDelegate> {
     BOOL _initFinished; // Extra flag to mark the `commonInit` is called
+    NSRunLoopMode _runLoopMode;
     double _playbackRate;
 }
 
@@ -149,6 +150,9 @@
             self.player.totalLoopCount = self.animationRepeatCount;
         }
         
+        // RunLoop Mode
+        self.player.runLoopMode = self.runLoopMode;
+        
         // Play Rate
         self.player.playbackRate = self.playbackRate;
         
@@ -188,12 +192,21 @@
 
 - (void)setRunLoopMode:(NSRunLoopMode)runLoopMode
 {
+    _runLoopMode = [runLoopMode copy];
     self.player.runLoopMode = runLoopMode;
 }
 
 - (NSRunLoopMode)runLoopMode
 {
-    return self.player.runLoopMode;
+    if (!_runLoopMode) {
+        _runLoopMode = [[self class] defaultRunLoopMode];
+    }
+    return _runLoopMode;
+}
+
++ (NSString *)defaultRunLoopMode {
+    // Key off `activeProcessorCount` (as opposed to `processorCount`) since the system could shut down cores in certain situations.
+    return [NSProcessInfo processInfo].activeProcessorCount > 1 ? NSRunLoopCommonModes : NSDefaultRunLoopMode;
 }
 
 - (void)setPlaybackRate:(double)playbackRate
