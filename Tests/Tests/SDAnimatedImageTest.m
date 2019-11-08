@@ -108,12 +108,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
-#if SD_MAC
-    imageView.animates = YES;
-#else
-    [imageView startAnimating];
-#endif
-    expect(imageView.currentFrame).notTo.beNil(); // current frame
+    expect(imageView.player).notTo.beNil();
 }
 
 - (void)test09AnimatedImageViewSetAnimatedImageAPNG {
@@ -121,12 +116,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
-    #if SD_MAC
-        imageView.animates = YES;
-    #else
-        [imageView startAnimating];
-    #endif
-    expect(imageView.currentFrame).notTo.beNil(); // current frame
+    expect(imageView.player).notTo.beNil();
 }
 
 - (void)test10AnimatedImageInitWithCoder {
