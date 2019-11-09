@@ -108,12 +108,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
-#if SD_MAC
-    imageView.animates = YES;
-#else
-    [imageView startAnimating];
-#endif
-    expect(imageView.currentFrame).notTo.beNil(); // current frame
+    expect(imageView.player).notTo.beNil();
 }
 
 - (void)test09AnimatedImageViewSetAnimatedImageAPNG {
@@ -121,12 +116,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     imageView.image = image;
     expect(imageView.image).notTo.beNil();
-    #if SD_MAC
-        imageView.animates = YES;
-    #else
-        [imageView startAnimating];
-    #endif
-    expect(imageView.currentFrame).notTo.beNil(); // current frame
+    expect(imageView.player).notTo.beNil();
 }
 
 - (void)test10AnimatedImageInitWithCoder {
@@ -185,6 +175,27 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     }
 #endif
     expect(imageView.image).equal(image);
+}
+
+- (void)test14AnimatedImageViewStopPlayingWhenHidden {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
+    imageView.image = image;
+#if SD_UIKIT
+    [imageView startAnimating];
+#else
+    imageView.animates = YES;
+#endif
+    SDAnimatedImagePlayer *player = imageView.player;
+    expect(player).notTo.beNil();
+    expect(player.isPlaying).beTruthy();
+    imageView.hidden = YES;
+    expect(player.isPlaying).beFalsy();
 }
 
 - (void)test20AnimatedImageViewRendering {
@@ -348,7 +359,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test25AnimatedImageStopAnimatingClearBuffer {
+- (void)test26AnimatedImageStopAnimatingClearBuffer {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView stopAnimating clear buffer when stopped"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];

@@ -178,11 +178,8 @@
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
         super.highlighted = NO;
         
-        // Update should animate
-        [self updateShouldAnimate];
-        if (self.shouldAnimate) {
-            [self startAnimating];
-        }
+        // Start animating
+        [self startAnimating];
 
         [self.imageViewLayer setNeedsDisplay];
     }
@@ -312,7 +309,10 @@
 - (void)startAnimating
 {
     if (self.player) {
-        [self.player startPlaying];
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self.player startPlaying];
+        }
     } else {
 #if SD_UIKIT
         [super startAnimating];

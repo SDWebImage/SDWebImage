@@ -108,6 +108,7 @@
     if (!_displayLink) {
         _displayLink = [SDDisplayLink displayLinkWithTarget:self selector:@selector(displayDidRefresh:)];
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
+        [_displayLink stop];
     }
     return _displayLink;
 }
@@ -197,7 +198,7 @@
 }
 
 - (BOOL)isPlaying {
-    return self.displayLink.isRunning;
+    return _displayLink.isRunning;
 }
 
 - (void)seekToFrameAtIndex:(NSUInteger)index loopCount:(NSUInteger)loopCount {
