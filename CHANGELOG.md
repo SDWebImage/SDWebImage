@@ -1,3 +1,9 @@
+## [5.3 Patch, on Nov 9th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.1)
+See [all tickets marked for the 5.3.1 release](https://github.com/SDWebImage/SDWebImage/milestone/52)
+
+### Fixes
+- Fix the case even when Animated Image View is not visible, user call startAnimating can still do animation #2888
+
 ## [5.3.0 Animated Player & Data Decryptor, on Nov 6th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.0)
 See [all tickets marked for the 5.3.0 release](https://github.com/SDWebImage/SDWebImage/milestone/45)
 
