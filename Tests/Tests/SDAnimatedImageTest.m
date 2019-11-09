@@ -177,6 +177,27 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     expect(imageView.image).equal(image);
 }
 
+- (void)test14AnimatedImageViewStopPlayingWhenHidden {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
+    imageView.image = image;
+#if SD_UIKIT
+    [imageView startAnimating];
+#else
+    imageView.animates = YES;
+#endif
+    SDAnimatedImagePlayer *player = imageView.player;
+    expect(player).notTo.beNil();
+    expect(player.isPlaying).beTruthy();
+    imageView.hidden = YES;
+    expect(player.isPlaying).beFalsy();
+}
+
 - (void)test20AnimatedImageViewRendering {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView rendering"];
     SDAnimatedImageView *imageView = [[SDAnimatedImageView alloc] init];
@@ -338,7 +359,7 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test25AnimatedImageStopAnimatingClearBuffer {
+- (void)test26AnimatedImageStopAnimatingClearBuffer {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView stopAnimating clear buffer when stopped"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
