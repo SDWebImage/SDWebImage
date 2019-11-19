@@ -53,7 +53,7 @@
 
 extern UIImage *SDScaledImageForKey(NSString *key, UIImage *image);
 
-typedef void(^SDWebImageNoParamsBlock)();
+typedef void(^SDWebImageNoParamsBlock)(void);
 
 extern NSString *const SDWebImageErrorDomain;
 
