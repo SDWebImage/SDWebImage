@@ -1,3 +1,9 @@
+## [5.3 Patch, on Nov 22nd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.2)
+See [all tickets marked for the 5.3.2 release](https://github.com/SDWebImage/SDWebImage/milestone/53)
+
+### Fixes
+- Fix animated image playback bugs that cause rendering frame is previous frame index #2895. Thanks @ZXIOU 
+
 ## [5.3 Patch, on Nov 9th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.1)
 See [all tickets marked for the 5.3.1 release](https://github.com/SDWebImage/SDWebImage/milestone/52)
 
