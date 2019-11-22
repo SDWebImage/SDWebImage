@@ -25,7 +25,7 @@
                       placeholderImage:nil
                                options:SDWebImageProgressiveLoad];
     self.imageView.shouldCustomLoopCount = YES;
-    self.imageView.animationRepeatCount = NSIntegerMax;
+    self.imageView.animationRepeatCount = 0;
 }
 
 - (void)viewDidLoad {
