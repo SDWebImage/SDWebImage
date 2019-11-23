@@ -7,10 +7,10 @@
 * file that was distributed with this source code.
 */
 
-#import "NSData+ExtendedData.h"
+#import "UIImage+ExtendedData.h"
 #import <objc/runtime.h>
 
-@implementation NSData (ExtendedData)
+@implementation UIImage (ExtendedData)
 
 - (NSData *)sd_extendedData {
     return objc_getAssociatedObject(self, @selector(sd_extendedData));

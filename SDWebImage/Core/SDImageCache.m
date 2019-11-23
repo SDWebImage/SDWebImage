@@ -14,7 +14,7 @@
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
 #import "UIImage+Metadata.h"
-#import "NSData+ExtendedData.h"
+#import "UIImage+ExtendedData.h"
 
 @interface SDImageCache ()
 
@@ -198,6 +198,13 @@
                     data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
                 [self _storeImageDataToDisk:data forKey:key];
+                if (image) {
+                    // Check extended data
+                    NSData *extendedData = image.sd_extendedData;
+                    if (extendedData) {
+                        [self.diskCache setExtendedData:extendedData forKey:key];
+                    }
+                }
             }
             
             if (completionBlock) {
@@ -239,10 +246,6 @@
     }
     
     [self.diskCache setData:imageData forKey:key];
-    NSData *extendedData = imageData.sd_extendedData;
-    if (extendedData) {
-        [self.diskCache setExtendedData:extendedData forKey:key];
-    }
 }
 
 #pragma mark - Query and Retrieve Ops
@@ -325,11 +328,6 @@
     
     NSData *data = [self.diskCache dataForKey:key];
     if (data) {
-        // Check extended data
-        NSData *extendedData = [self.diskCache extendedDataForKey:key];
-        if (extendedData) {
-            data.sd_extendedData = extendedData;
-        }
         return data;
     }
     
@@ -356,6 +354,10 @@
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data options:(SDImageCacheOptions)options context:(SDWebImageContext *)context {
     if (data) {
         UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
+        if (image) {
+            // Check extended data
+            image.sd_extendedData = [self.diskCache extendedDataForKey:key];
+        }
         return image;
     } else {
         return nil;
