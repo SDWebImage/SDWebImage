@@ -8,7 +8,10 @@
 
 #import "SDDiskCache.h"
 #import "SDImageCacheConfig.h"
+#import "NSFileManager+ExtendedAttributes.h"
 #import <CommonCrypto/CommonDigest.h>
+
+static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDiskCache";
 
 @interface SDDiskCache ()
 
@@ -92,6 +95,31 @@
     if (self.config.shouldDisableiCloud) {
         // ignore iCloud backup resource value error
         [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
+    }
+}
+
+- (NSData *)extendedDataForKey:(NSString *)key {
+    NSParameterAssert(key);
+    
+    // get cache Path for image key
+    NSString *cachePathForKey = [self cachePathForKey:key];
+    
+    NSData *extendedData = [self.fileManager extendedAttribute:SDDiskCacheExtendedAttributeName atPath:cachePathForKey traverseLink:NO error:nil];
+    
+    return extendedData;
+}
+
+- (void)setExtendedData:(NSData *)extendedData forKey:(NSString *)key {
+    NSParameterAssert(key);
+    // get cache Path for image key
+    NSString *cachePathForKey = [self cachePathForKey:key];
+    
+    if (!extendedData) {
+        // Remove
+        [self.fileManager removeExtendedAttribute:SDDiskCacheExtendedAttributeName atPath:cachePathForKey traverseLink:NO error:nil];
+    } else {
+        // Override
+        [self.fileManager setExtendedAttribute:SDDiskCacheExtendedAttributeName value:extendedData atPath:cachePathForKey traverseLink:NO overwrite:YES error:nil];
     }
 }
 

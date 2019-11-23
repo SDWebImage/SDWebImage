@@ -14,6 +14,7 @@
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
 #import "UIImage+Metadata.h"
+#import "NSData+ExtendedData.h"
 
 @interface SDImageCache ()
 
@@ -238,6 +239,10 @@
     }
     
     [self.diskCache setData:imageData forKey:key];
+    NSData *extendedData = imageData.sd_extendedData;
+    if (extendedData) {
+        [self.diskCache setExtendedData:extendedData forKey:key];
+    }
 }
 
 #pragma mark - Query and Retrieve Ops
@@ -320,6 +325,11 @@
     
     NSData *data = [self.diskCache dataForKey:key];
     if (data) {
+        // Check extended data
+        NSData *extendedData = [self.diskCache extendedDataForKey:key];
+        if (extendedData) {
+            data.sd_extendedData = extendedData;
+        }
         return data;
     }
     
