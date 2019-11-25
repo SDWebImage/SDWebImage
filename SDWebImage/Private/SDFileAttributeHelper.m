@@ -1,17 +1,16 @@
 //
-//  NSFileManager+ExtendedAttributes.m
-//  NSFileManager+ExtendedAttributes
+//  This file is from https://gist.github.com/zydeco/6292773
 //
 //  Created by Jesús A. Álvarez on 2008-12-17.
 //  Copyright 2008-2009 namedfork.net. All rights reserved.
 //
 
-#import "NSFileManager+ExtendedAttributes.h"
+#import "SDFileAttributeHelper.h"
 #import <sys/xattr.h>
 
-@implementation NSFileManager (ExtendedAttributes)
+@implementation SDFileAttributeHelper
 
-- (NSArray*)extendedAttributeNamesAtPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
++ (NSArray*)extendedAttributeNamesAtPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
     int flags = follow? 0 : XATTR_NOFOLLOW;
     
     // get size of name list
@@ -40,7 +39,7 @@
     return [NSArray arrayWithArray:names];
 }
 
-- (BOOL)hasExtendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
++ (BOOL)hasExtendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
     int flags = follow? 0 : XATTR_NOFOLLOW;
     
     // get size of name list
@@ -68,7 +67,7 @@
     return NO;
 }
 
-- (NSData*)extendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
++ (NSData*)extendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
     int flags = follow? 0 : XATTR_NOFOLLOW;
     // get length
     ssize_t attrLen = getxattr([path fileSystemRepresentation], [name UTF8String], NULL, 0, 0, flags);
@@ -91,7 +90,7 @@
     return attrData;
 }
 
-- (BOOL)setExtendedAttribute:(NSString*)name value:(NSData*)value atPath:(NSString*)path traverseLink:(BOOL)follow overwrite:(BOOL)overwrite error:(NSError**)err {
++ (BOOL)setExtendedAttribute:(NSString*)name value:(NSData*)value atPath:(NSString*)path traverseLink:(BOOL)follow overwrite:(BOOL)overwrite error:(NSError**)err {
     int flags = (follow? 0 : XATTR_NOFOLLOW) | (overwrite? 0 : XATTR_CREATE);
     if (0 == setxattr([path fileSystemRepresentation], [name UTF8String], [value bytes], [value length], 0, flags)) return YES;
     // error
@@ -109,7 +108,7 @@
     return NO;
 }
 
-- (BOOL)removeExtendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
++ (BOOL)removeExtendedAttribute:(NSString*)name atPath:(NSString*)path traverseLink:(BOOL)follow error:(NSError**)err {
     int flags = (follow? 0 : XATTR_NOFOLLOW);
     if (0 == removexattr([path fileSystemRepresentation], [name UTF8String], flags)) return YES;
     // error
