@@ -202,7 +202,20 @@
                     // Check extended data
                     id extendedObject = image.sd_extendedObject;
                     if ([extendedObject conformsToProtocol:@protocol(NSCoding)]) {
-                        NSData *extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
+                        NSData *extendedData;
+                        if (@available(iOS 11, tvOS 11, macOS 10.13, watchOS 4, *)) {
+                            NSError *error;
+                            extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject requiringSecureCoding:NO error:&error];
+                            if (error) {
+                                NSLog(@"NSKeyedArchiver archive failed with error: %@", error);
+                            }
+                        } else {
+                            @try {
+                                extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
+                            } @catch (NSException *exception) {
+                                NSLog(@"NSKeyedArchiver archive failed with exception: %@", exception);
+                            }
+                        }
                         if (extendedData) {
                             [self.diskCache setExtendedData:extendedData forKey:key];
                         }
@@ -361,7 +374,23 @@
             // Check extended data
             NSData *extendedData = [self.diskCache extendedDataForKey:key];
             if (extendedData) {
-                image.sd_extendedObject = [NSKeyedUnarchiver unarchiveObjectWithData:extendedData];
+                id extendedObject;
+                if (@available(iOS 11, tvOS 11, macOS 10.13, watchOS 4, *)) {
+                    NSError *error;
+                    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:extendedData error:&error];
+                    unarchiver.requiresSecureCoding = NO;
+                    extendedObject = [unarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:&error];
+                    if (error) {
+                        NSLog(@"NSKeyedUnarchiver unarchive failed with error: %@", error);
+                    }
+                } else {
+                    @try {
+                        extendedObject = [NSKeyedUnarchiver unarchiveObjectWithData:extendedData];
+                    } @catch (NSException *exception) {
+                        NSLog(@"NSKeyedUnarchiver unarchive failed with exception: %@", exception);
+                    }
+                }
+                image.sd_extendedObject = extendedObject;
             }
         }
         return image;
