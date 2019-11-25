@@ -10,6 +10,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDownloader.h"
 #import "UIImage+Metadata.h"
+#import "UIImage+ExtendedCacheData.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
 
@@ -341,6 +342,9 @@ static id<SDImageLoader> _defaultImageLoader;
                     } else {
                         cacheData = (imageWasTransformed ? nil : downloadedData);
                     }
+                    // keep the original image format and extended data
+                    transformedImage.sd_imageFormat = downloadedImage.sd_imageFormat;
+                    transformedImage.sd_extendedObject = downloadedImage.sd_extendedObject;
                     [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
                 }
                 

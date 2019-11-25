@@ -14,7 +14,7 @@
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
 #import "UIImage+Metadata.h"
-#import "UIImage+ExtendedData.h"
+#import "UIImage+ExtendedCacheData.h"
 
 @interface SDImageCache ()
 
@@ -200,9 +200,12 @@
                 [self _storeImageDataToDisk:data forKey:key];
                 if (image) {
                     // Check extended data
-                    NSData *extendedData = image.sd_extendedData;
-                    if (extendedData) {
-                        [self.diskCache setExtendedData:extendedData forKey:key];
+                    id<NSCoding> extendedObject = image.sd_extendedObject;
+                    if (extendedObject) {
+                        NSData *extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
+                        if (extendedData) {
+                            [self.diskCache setExtendedData:extendedData forKey:key];
+                        }
                     }
                 }
             }
@@ -356,7 +359,10 @@
         UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
         if (image) {
             // Check extended data
-            image.sd_extendedData = [self.diskCache extendedDataForKey:key];
+            NSData *extendedData = [self.diskCache extendedDataForKey:key];
+            if (extendedData) {
+                image.sd_extendedObject = [NSKeyedUnarchiver unarchiveObjectWithData:extendedData];
+            }
         }
         return image;
     } else {
