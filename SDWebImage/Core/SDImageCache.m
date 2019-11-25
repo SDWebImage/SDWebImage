@@ -200,8 +200,8 @@
                 [self _storeImageDataToDisk:data forKey:key];
                 if (image) {
                     // Check extended data
-                    id<NSCoding> extendedObject = image.sd_extendedObject;
-                    if (extendedObject) {
+                    id extendedObject = image.sd_extendedObject;
+                    if ([extendedObject conformsToProtocol:@protocol(NSCoding)]) {
                         NSData *extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
                         if (extendedData) {
                             [self.diskCache setExtendedData:extendedData forKey:key];

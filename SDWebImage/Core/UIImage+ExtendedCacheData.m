@@ -12,11 +12,11 @@
 
 @implementation UIImage (ExtendedCacheData)
 
-- (id<NSCoding>)sd_extendedObject {
+- (id<NSObject, NSCoding>)sd_extendedObject {
     return objc_getAssociatedObject(self, @selector(sd_extendedObject));
 }
 
-- (void)setSd_extendedObject:(id<NSCoding>)sd_extendedObject {
+- (void)setSd_extendedObject:(id<NSObject, NSCoding>)sd_extendedObject {
     objc_setAssociatedObject(self, @selector(sd_extendedObject), sd_extendedObject, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
