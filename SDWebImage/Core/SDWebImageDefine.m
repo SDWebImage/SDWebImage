@@ -9,6 +9,7 @@
 #import "SDWebImageDefine.h"
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
+#import "UIImage+ExtendedCacheData.h"
 
 #pragma mark - Image scale
 
@@ -112,6 +113,7 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
     }
     scaledImage.sd_isIncremental = image.sd_isIncremental;
     scaledImage.sd_imageFormat = image.sd_imageFormat;
+    scaledImage.sd_extendedObject = image.sd_extendedObject;
     
     return scaledImage;
 }

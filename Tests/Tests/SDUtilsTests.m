@@ -11,6 +11,7 @@
 #import "SDWeakProxy.h"
 #import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
+#import "SDFileAttributeHelper.h"
 
 @interface SDUtilsTests : SDTestCase
 
@@ -72,6 +73,34 @@
     NSTimeInterval duration = displayLink.duration; // Running value
     expect(duration).beGreaterThan(0.01);
     expect(duration).beLessThan(0.02);
+}
+
+- (void)testSDFileAttributeHelper {
+    NSData *fileData = [@"File Data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *extendedData = [@"Extended Data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *filePath = @"/tmp/file.dat";
+    [NSFileManager.defaultManager removeItemAtPath:filePath error:nil];
+    [fileData writeToFile:filePath atomically:YES];
+    BOOL exist = [NSFileManager.defaultManager fileExistsAtPath:filePath];
+    expect(exist).beTruthy();
+    
+    NSArray *names = [SDFileAttributeHelper extendedAttributeNamesAtPath:filePath traverseLink:NO error:nil];
+    expect(names.count).equal(0);
+    
+    NSString *attr = @"com.com.hackemist.test";
+    [SDFileAttributeHelper setExtendedAttribute:@"com.com.hackemist.test" value:extendedData atPath:filePath traverseLink:NO overwrite:YES error:nil];
+    
+    BOOL hasAttr =[SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(hasAttr).beTruthy();
+    
+    NSData *queriedData = [SDFileAttributeHelper extendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(extendedData).equal(queriedData);
+    
+    BOOL removed = [SDFileAttributeHelper removeExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(removed).beTruthy();
+    
+    hasAttr = [SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(hasAttr).beFalsy();
 }
 
 - (void)testSDScaledImageForKey {

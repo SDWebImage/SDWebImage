@@ -343,6 +343,7 @@ static id<SDImageLoader> _defaultImageLoader;
                         cacheData = (imageWasTransformed ? nil : downloadedData);
                     }
                     // keep the original image format and extended data
+                    transformedImage.sd_isIncremental = downloadedImage.sd_isIncremental;
                     transformedImage.sd_imageFormat = downloadedImage.sd_imageFormat;
                     transformedImage.sd_extendedObject = downloadedImage.sd_extendedObject;
                     [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
