@@ -87,11 +87,15 @@
     NSArray *names = [SDFileAttributeHelper extendedAttributeNamesAtPath:filePath traverseLink:NO error:nil];
     expect(names.count).equal(0);
     
-    NSString *attr = @"com.com.hackemist.test";
-    [SDFileAttributeHelper setExtendedAttribute:@"com.com.hackemist.test" value:extendedData atPath:filePath traverseLink:NO overwrite:YES error:nil];
+    NSString *attr = @"com.hackemist.test";
+    [SDFileAttributeHelper setExtendedAttribute:attr value:extendedData atPath:filePath traverseLink:NO overwrite:YES error:nil];
     
     BOOL hasAttr =[SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
     expect(hasAttr).beTruthy();
+    
+    names = [SDFileAttributeHelper extendedAttributeNamesAtPath:filePath traverseLink:NO error:nil];
+    expect(names.count).equal(1);
+    expect(names.firstObject).equal(attr);
     
     NSData *queriedData = [SDFileAttributeHelper extendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
     expect(extendedData).equal(queriedData);
