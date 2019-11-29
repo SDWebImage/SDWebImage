@@ -491,6 +491,28 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 #endif
 
+- (void)test47DiskCacheExtendedData {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache extended data read/write works"];
+    UIImage *image = [self testPNGImage];
+    NSDictionary *extendedObject = @{@"Test" : @"Object"};
+    image.sd_extendedObject = extendedObject;
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestImageKeyPNG];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestImageKeyPNG];
+    // Write extended data
+    [SDImageCache.sharedImageCache storeImage:image forKey:kTestImageKeyPNG completion:^{
+        NSData *extendedData = [SDImageCache.sharedImageCache.diskCache extendedDataForKey:kTestImageKeyPNG];
+        expect(extendedData).toNot.beNil();
+        // Read extended data
+        UIImage *newImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kTestImageKeyPNG];
+        id newExtendedObject = newImage.sd_extendedObject;
+        expect(extendedObject).equal(newExtendedObject);
+        // Remove extended data
+        [SDImageCache.sharedImageCache.diskCache setExtendedData:nil forKey:kTestImageKeyPNG];
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test50SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
