@@ -184,6 +184,14 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Note this options is not compatible with `SDWebImageDecodeFirstFrameOnly`, which always produce a UIImage/NSImage.
      */
     SDWebImageMatchAnimatedImageClass = 1 << 21,
+    
+    /**
+     * By default, when we load the image from network, the image will be written to the cache (memory and disk, controlled by your `storeCacheType` context option)
+     * This maybe an asynchronously operation and the final `SDInternalCompletionBlock` callback does not gurantee the disk cache written is finished and may cause logic error. (For example, you modify the disk data just in completion block, however, the disk cache is not ready)
+     * If you need to process with the disk cache in the completion block, you should use this option to ensure the disk cache already been written when callback.
+     * Note if you use this when using the custom cache serializer, or using the transformer, we will also wait until the output image data written is finished.
+     */
+    SDWebImageWaitStoreCache = 1 << 22,
 };
 
 
