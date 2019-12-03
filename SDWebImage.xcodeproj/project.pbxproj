@@ -45,6 +45,7 @@
 		321E60C61F38E91700405457 /* UIImage+ForceDecode.m in Sources */ = {isa = PBXBuildFile; fileRef = 321E60BD1F38E91700405457 /* UIImage+ForceDecode.m */; };
 		3237F9E820161AE000A88143 /* NSImage+Compatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4397D2F51D0DE2DF00BB2784 /* NSImage+Compatibility.m */; };
 		3237F9EB20161AE000A88143 /* NSImage+Compatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4397D2F51D0DE2DF00BB2784 /* NSImage+Compatibility.m */; };
+		3240BB6523968FA1003BA07D /* SDFileAttributeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 325F7CC523893B2E00AEDFCC /* SDFileAttributeHelper.m */; };
 		3244062C2296C5F400A36084 /* SDWebImageOptionsProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 324406292296C5F400A36084 /* SDWebImageOptionsProcessor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3244062D2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244062A2296C5F400A36084 /* SDWebImageOptionsProcessor.m */; };
 		3244062E2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244062A2296C5F400A36084 /* SDWebImageOptionsProcessor.m */; };
@@ -1190,6 +1191,7 @@
 				321E60C41F38E91700405457 /* UIImage+ForceDecode.m in Sources */,
 				3244062D2296C5F400A36084 /* SDWebImageOptionsProcessor.m in Sources */,
 				3250C9EF2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */,
+				3240BB6523968FA1003BA07D /* SDFileAttributeHelper.m in Sources */,
 				328BB6A22081FED200760D6C /* SDWebImageCacheKeyFilter.m in Sources */,
 				32E67312235765B500DB4987 /* SDDisplayLink.m in Sources */,
 				53761309155AD0D5005750A4 /* SDImageCache.m in Sources */,
