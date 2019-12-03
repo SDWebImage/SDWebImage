@@ -1,3 +1,9 @@
+## [5.3 Patch, on Dec 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.3)
+See [all tickets marked for the 5.3.3 release](https://github.com/SDWebImage/SDWebImage/milestone/54)
+
+### Fixes
+- Fix the crash when using NSCache delegate with SDMemoryCache default implementation on dealloc #2899
+
 ## [5.3 Patch, on Nov 22nd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.2)
 See [all tickets marked for the 5.3.2 release](https://github.com/SDWebImage/SDWebImage/milestone/53)
 
