@@ -24,6 +24,4 @@ void SDImageCopyAssociatedObject(UIImage * _Nullable source, UIImage * _Nullable
     target.sd_isDecoded = source.sd_isDecoded;
     // Extended Cache Data
     target.sd_extendedObject = source.sd_extendedObject;
-    // Memory Cache Cost
-    target.sd_memoryCost = source.sd_memoryCost;
 }
