@@ -1,3 +1,18 @@
+## [5.4.0 Extended Cache Metadata, on Dec 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.0)
+See [all tickets marked for the 5.4.0 release](https://github.com/SDWebImage/SDWebImage/milestone/51)
+
+### Features
+
+#### Cache
+- Allows advanced user to read/write extended metadata associated with image data from disk cache #2898
+- This metadata will be processed at the same time when store or query the image. The metadata should conforms to `NSCoding` for archive and unarchive.
+
+#### Manager
+- Add `SDWebImageWaitStoreCache`, which wait for all the async disk cache written finished and then callback, useful for advanced user who want to touch the cache right in completion block #2900
+
+### Fixes
+- Using one global function to ensure we always sync all the UIImage category associated object status correctly inside our framework #2902
+
 ## [5.3 Patch, on Dec 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.3)
 See [all tickets marked for the 5.3.3 release](https://github.com/SDWebImage/SDWebImage/milestone/54)
 
