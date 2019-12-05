@@ -12,7 +12,7 @@
 #import "NSData+ImageContentType.h"
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
-#import "UIImage+Metadata.h"
+#import "SDAssociatedObject.h"
 
 #if SD_UIKIT || SD_WATCH
 static const size_t kBytesPerPixel = 4;
@@ -291,8 +291,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
     CGImageRelease(imageRef);
+    SDImageCopyAssociatedObject(image, decodedImage);
     decodedImage.sd_isDecoded = YES;
-    decodedImage.sd_imageFormat = image.sd_imageFormat;
     return decodedImage;
 #endif
 }
@@ -425,8 +425,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImage == nil) {
             return image;
         }
+        SDImageCopyAssociatedObject(image, destImage);
         destImage.sd_isDecoded = YES;
-        destImage.sd_imageFormat = image.sd_imageFormat;
         return destImage;
     }
 #endif

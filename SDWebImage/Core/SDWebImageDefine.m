@@ -10,6 +10,7 @@
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+ExtendedCacheData.h"
+#import "SDAssociatedObject.h"
 
 #pragma mark - Image scale
 
@@ -111,9 +112,7 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
     }
-    scaledImage.sd_isIncremental = image.sd_isIncremental;
-    scaledImage.sd_imageFormat = image.sd_imageFormat;
-    scaledImage.sd_extendedObject = image.sd_extendedObject;
+    SDImageCopyAssociatedObject(image, scaledImage);
     
     return scaledImage;
 }
