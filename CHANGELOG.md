@@ -1,4 +1,4 @@
-## [5.4.0 Extended Cache Metadata, on Dec 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.0)
+## [5.4.0 Extended Cache Metadata, on Dec 6th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.0)
 See [all tickets marked for the 5.4.0 release](https://github.com/SDWebImage/SDWebImage/milestone/51)
 
 ### Features
@@ -12,6 +12,7 @@ See [all tickets marked for the 5.4.0 release](https://github.com/SDWebImage/SDW
 
 ### Fixes
 - Using one global function to ensure we always sync all the UIImage category associated object status correctly inside our framework #2902
+- Fix the thread safe issue with Downloader and DownloaderOperation during cancel #2903
 
 ## [5.3 Patch, on Dec 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.3)
 See [all tickets marked for the 5.3.3 release](https://github.com/SDWebImage/SDWebImage/milestone/54)
