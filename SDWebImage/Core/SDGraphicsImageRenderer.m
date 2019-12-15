@@ -10,7 +10,9 @@
 #import "SDImageGraphics.h"
 
 @interface SDGraphicsImageRendererFormat ()
-@property (nonatomic, strong) UIGraphicsImageRendererFormat *uiformat API_AVAILABLE(ios(10.0));
+#if SD_UIKIT
+@property (nonatomic, strong) UIGraphicsImageRendererFormat *uiformat API_AVAILABLE(ios(10.0), tvos(10.0));
+#endif
 @end
 
 @implementation SDGraphicsImageRendererFormat
@@ -18,12 +20,13 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        if (@available(iOS 10.0, *)) {
+#if SD_UIKIT
+        if (@available(iOS 10.0, tvOS 10.10, *)) {
             UIGraphicsImageRendererFormat *uiformat = [[UIGraphicsImageRendererFormat alloc] init];
             self.uiformat = uiformat;
             self.scale = uiformat.scale;
             self.opaque = uiformat.opaque;
-            if (@available(iOS 12.0, *)) {
+            if (@available(iOS 12.0, tvOS 12.0, *)) {
                 self.preferredRange = (SDGraphicsImageRendererFormatRange)uiformat.preferredRange;
             } else {
                 if (uiformat.prefersExtendedRange) {
@@ -33,21 +36,25 @@
                 }
             }
         } else {
+#endif
             self.scale = 1.0;
             self.opaque = NO;
             self.preferredRange = SDGraphicsImageRendererFormatRangeUnspecified;
+#if SD_UIKIT
         }
+#endif
     }
     return self;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (instancetype)initForMainScreen {
     self = [super init];
     if (self) {
-        if (@available(iOS 10.0, *)) {
+#if SD_UIKIT
+        if (@available(iOS 10.0, tvOS 10.0, *)) {
             UIGraphicsImageRendererFormat *uiformat;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability"
             // iOS 11.0.0 GM does have `preferredFormat`, but iOS 11 betas did not (argh!)
             if ([UIGraphicsImageRenderer respondsToSelector:@selector(preferredFormat)]) {
                 uiformat = [UIGraphicsImageRendererFormat preferredFormat];
@@ -57,7 +64,7 @@
             self.uiformat = uiformat;
             self.scale = uiformat.scale;
             self.opaque = uiformat.opaque;
-            if (@available(iOS 12.0, *)) {
+            if (@available(iOS 12.0, tvOS 12.0, *)) {
                 self.preferredRange = (SDGraphicsImageRendererFormatRange)uiformat.preferredRange;
             } else {
                 if (uiformat.prefersExtendedRange) {
@@ -66,8 +73,8 @@
                     self.preferredRange = SDGraphicsImageRendererFormatRangeStandard;
                 }
             }
-#pragma clang diagnostic pop
         } else {
+#endif
 #if SD_WATCH
             CGFloat screenScale = [WKInterfaceDevice currentDevice].screenScale;
 #elif SD_UIKIT
@@ -78,10 +85,13 @@
             self.scale = screenScale;
             self.opaque = NO;
             self.preferredRange = SDGraphicsImageRendererFormatRangeUnspecified;
+#if SD_UIKIT
         }
+#endif
     }
     return self;
 }
+#pragma clang diagnostic pop
 
 + (instancetype)preferredFormat {
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] initForMainScreen];
@@ -93,7 +103,9 @@
 @interface SDGraphicsImageRenderer ()
 @property (nonatomic, assign) CGSize size;
 @property (nonatomic, strong) SDGraphicsImageRendererFormat *format;
-@property (nonatomic, strong) UIGraphicsImageRenderer *uirenderer API_AVAILABLE(ios(10.0));
+#if SD_UIKIT
+@property (nonatomic, strong) UIGraphicsImageRenderer *uirenderer API_AVAILABLE(ios(10.0), tvos(10.0));
+#endif
 @end
 
 @implementation SDGraphicsImageRenderer
@@ -108,17 +120,20 @@
     if (self) {
         self.size = size;
         self.format = format;
-        if (@available(iOS 10.0, *)) {
+#if SD_UIKIT
+        if (@available(iOS 10.0, tvOS 10.0, *)) {
             UIGraphicsImageRendererFormat *uiformat = format.uiformat;
             self.uirenderer = [[UIGraphicsImageRenderer alloc] initWithSize:size format:uiformat];
         }
+#endif
     }
     return self;
 }
 
 - (UIImage *)imageWithActions:(NS_NOESCAPE SDGraphicsImageDrawingActions)actions {
     NSParameterAssert(actions);
-    if (@available(iOS 10.0, *)) {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
         UIGraphicsImageDrawingActions uiactions = ^(UIGraphicsImageRendererContext *rendererContext) {
             if (actions) {
                 actions(rendererContext.CGContext);
@@ -126,6 +141,7 @@
         };
         return [self.uirenderer imageWithActions:uiactions];
     } else {
+#endif
         SDGraphicsBeginImageContextWithOptions(self.size, self.format.opaque, self.format.scale);
         CGContextRef context = SDGraphicsGetCurrentContext();
         if (actions) {
@@ -134,7 +150,9 @@
         UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
         SDGraphicsEndImageContext();
         return image;
+#if SD_UIKIT
     }
+#endif
 }
 
 @end
