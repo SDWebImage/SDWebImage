@@ -16,6 +16,104 @@
 @end
 
 @implementation SDGraphicsImageRendererFormat
+@synthesize scale = _scale;
+@synthesize opaque = _opaque;
+@synthesize preferredRange = _preferredRange;
+
+#pragma mark - Property
+- (CGFloat)scale {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        return self.uiformat.scale;
+    } else {
+        return _scale;
+    }
+#else
+    return _scale;
+#endif
+}
+
+- (void)setScale:(CGFloat)scale {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        self.uiformat.scale = scale;
+    } else {
+        _scale = scale;
+    }
+#else
+    _scale = scale;
+#endif
+}
+
+- (BOOL)opaque {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        return self.uiformat.opaque;
+    } else {
+        return _opaque;
+    }
+#else
+    return _opaque;
+#endif
+}
+
+- (void)setOpaque:(BOOL)opaque {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        self.uiformat.opaque = opaque;
+    } else {
+        _opaque = opaque;
+    }
+#else
+    _opaque = opaque;
+#endif
+}
+
+- (SDGraphicsImageRendererFormatRange)preferredRange {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        if (@available(iOS 12.0, tvOS 12.0, *)) {
+            return (SDGraphicsImageRendererFormatRange)self.uiformat.preferredRange;
+        } else {
+            BOOL prefersExtendedRange = self.uiformat.prefersExtendedRange;
+            if (prefersExtendedRange) {
+                return SDGraphicsImageRendererFormatRangeExtended;
+            } else {
+                return SDGraphicsImageRendererFormatRangeStandard;
+            }
+        }
+    } else {
+        return _preferredRange;
+    }
+#else
+    return _preferredRange;
+#endif
+}
+
+- (void)setPreferredRange:(SDGraphicsImageRendererFormatRange)preferredRange {
+#if SD_UIKIT
+    if (@available(iOS 10.0, tvOS 10.10, *)) {
+        if (@available(iOS 12.0, tvOS 12.0, *)) {
+            self.uiformat.preferredRange = (UIGraphicsImageRendererFormatRange)preferredRange;
+        } else {
+            switch (preferredRange) {
+                case SDGraphicsImageRendererFormatRangeExtended:
+                    self.uiformat.prefersExtendedRange = YES;
+                    break;
+                case SDGraphicsImageRendererFormatRangeStandard:
+                    self.uiformat.prefersExtendedRange = NO;
+                default:
+                    // Automatic means default
+                    break;
+            }
+        }
+    } else {
+        _preferredRange = preferredRange;
+    }
+#else
+    _preferredRange = preferredRange;
+#endif
+}
 
 - (instancetype)init {
     self = [super init];
@@ -24,17 +122,6 @@
         if (@available(iOS 10.0, tvOS 10.10, *)) {
             UIGraphicsImageRendererFormat *uiformat = [[UIGraphicsImageRendererFormat alloc] init];
             self.uiformat = uiformat;
-            self.scale = uiformat.scale;
-            self.opaque = uiformat.opaque;
-            if (@available(iOS 12.0, tvOS 12.0, *)) {
-                self.preferredRange = (SDGraphicsImageRendererFormatRange)uiformat.preferredRange;
-            } else {
-                if (uiformat.prefersExtendedRange) {
-                    self.preferredRange = SDGraphicsImageRendererFormatRangeExtended;
-                } else {
-                    self.preferredRange = SDGraphicsImageRendererFormatRangeStandard;
-                }
-            }
         } else {
 #endif
             self.scale = 1.0;
@@ -62,17 +149,6 @@
                 uiformat = [UIGraphicsImageRendererFormat defaultFormat];
             }
             self.uiformat = uiformat;
-            self.scale = uiformat.scale;
-            self.opaque = uiformat.opaque;
-            if (@available(iOS 12.0, tvOS 12.0, *)) {
-                self.preferredRange = (SDGraphicsImageRendererFormatRange)uiformat.preferredRange;
-            } else {
-                if (uiformat.prefersExtendedRange) {
-                    self.preferredRange = SDGraphicsImageRendererFormatRangeExtended;
-                } else {
-                    self.preferredRange = SDGraphicsImageRendererFormatRangeStandard;
-                }
-            }
         } else {
 #endif
 #if SD_WATCH
