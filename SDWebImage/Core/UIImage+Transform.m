@@ -9,6 +9,7 @@
 #import "UIImage+Transform.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageGraphics.h"
+#import "SDGraphicsImageRenderer.h"
 #import "NSBezierPath+RoundedCorners.h"
 #import <Accelerate/Accelerate.h>
 #if SD_UIKIT || SD_MAC
@@ -165,11 +166,10 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 @implementation UIImage (Transform)
 
-- (void)sd_drawInRect:(CGRect)rect withScaleMode:(SDImageScaleMode)scaleMode clipsToBounds:(BOOL)clips {
+- (void)sd_drawInRect:(CGRect)rect context:(CGContextRef)context scaleMode:(SDImageScaleMode)scaleMode clipsToBounds:(BOOL)clips {
     CGRect drawRect = SDCGRectFitWithScaleMode(rect, self.size, scaleMode);
     if (drawRect.size.width == 0 || drawRect.size.height == 0) return;
     if (clips) {
-        CGContextRef context = SDGraphicsGetCurrentContext();
         if (context) {
             CGContextSaveGState(context);
             CGContextAddRect(context, rect);
@@ -184,10 +184,12 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 - (nullable UIImage *)sd_resizedImageWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode {
     if (size.width <= 0 || size.height <= 0) return nil;
-    SDGraphicsBeginImageContextWithOptions(size, NO, self.scale);
-    [self sd_drawInRect:CGRectMake(0, 0, size.width, size.height) withScaleMode:scaleMode clipsToBounds:NO];
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [self sd_drawInRect:CGRectMake(0, 0, size.width, size.height) context:context scaleMode:scaleMode clipsToBounds:NO];
+    }];
     return image;
 }
 
@@ -213,43 +215,43 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 - (nullable UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor {
     if (!self.CGImage) return nil;
-    SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
-    
-    CGFloat minSize = MIN(self.size.width, self.size.height);
-    if (borderWidth < minSize / 2) {
-#if SD_UIKIT || SD_WATCH
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadii:CGSizeMake(cornerRadius, cornerRadius)];
-#else
-        NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadius:cornerRadius];
-#endif
-        [path closePath];
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
         
-        CGContextSaveGState(context);
-        [path addClip];
-        [self drawInRect:rect];
-        CGContextRestoreGState(context);
-    }
-    
-    if (borderColor && borderWidth < minSize / 2 && borderWidth > 0) {
-        CGFloat strokeInset = (floor(borderWidth * self.scale) + 0.5) / self.scale;
-        CGRect strokeRect = CGRectInset(rect, strokeInset, strokeInset);
-        CGFloat strokeRadius = cornerRadius > self.scale / 2 ? cornerRadius - self.scale / 2 : 0;
+        CGFloat minSize = MIN(self.size.width, self.size.height);
+        if (borderWidth < minSize / 2) {
 #if SD_UIKIT || SD_WATCH
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadii:CGSizeMake(strokeRadius, strokeRadius)];
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadii:CGSizeMake(cornerRadius, cornerRadius)];
 #else
-        NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadius:strokeRadius];
+            NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadius:cornerRadius];
 #endif
-        [path closePath];
+            [path closePath];
+            
+            CGContextSaveGState(context);
+            [path addClip];
+            [self drawInRect:rect];
+            CGContextRestoreGState(context);
+        }
         
-        path.lineWidth = borderWidth;
-        [borderColor setStroke];
-        [path stroke];
-    }
-    
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
+        if (borderColor && borderWidth < minSize / 2 && borderWidth > 0) {
+            CGFloat strokeInset = (floor(borderWidth * self.scale) + 0.5) / self.scale;
+            CGRect strokeRect = CGRectInset(rect, strokeInset, strokeInset);
+            CGFloat strokeRadius = cornerRadius > self.scale / 2 ? cornerRadius - self.scale / 2 : 0;
+#if SD_UIKIT || SD_WATCH
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadii:CGSizeMake(strokeRadius, strokeRadius)];
+#else
+            NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadius:strokeRadius];
+#endif
+            [path closePath];
+            
+            path.lineWidth = borderWidth;
+            [borderColor setStroke];
+            [path stroke];
+        }
+    }];
     return image;
 }
 
@@ -347,15 +349,15 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
     CGBlendMode blendMode = kCGBlendModeSourceAtop;
     
-    SDGraphicsBeginImageContextWithOptions(size, NO, scale);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    [self drawInRect:rect];
-    CGContextSetBlendMode(context, blendMode);
-    CGContextSetFillColorWithColor(context, tintColor.CGColor);
-    CGContextFillRect(context, rect);
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
-    
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [self drawInRect:rect];
+        CGContextSetBlendMode(context, blendMode);
+        CGContextSetFillColorWithColor(context, tintColor.CGColor);
+        CGContextFillRect(context, rect);
+    }];
     return image;
 }
 
