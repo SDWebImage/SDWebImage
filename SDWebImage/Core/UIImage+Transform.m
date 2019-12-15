@@ -280,37 +280,25 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 - (nullable UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
     if (!self.CGImage) return nil;
-    size_t width = (size_t)CGImageGetWidth(self.CGImage);
-    size_t height = (size_t)CGImageGetHeight(self.CGImage);
-    size_t bytesPerRow = width * 4;
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, bytesPerRow, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
+    size_t width = self.size.width;
+    size_t height = self.size.height;
     
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), self.CGImage);
-    UInt8 *data = (UInt8 *)CGBitmapContextGetData(context);
-    if (!data) {
-        CGContextRelease(context);
-        return nil;
-    }
-    vImage_Buffer src = { data, height, width, bytesPerRow };
-    vImage_Buffer dest = { data, height, width, bytesPerRow };
-    if (vertical) {
-        vImageVerticalReflect_ARGB8888(&src, &dest, kvImageBackgroundColorFill);
-    }
-    if (horizontal) {
-        vImageHorizontalReflect_ARGB8888(&src, &dest, kvImageBackgroundColorFill);
-    }
-    CGImageRef imgRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-#if SD_UIKIT || SD_WATCH
-    UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
-#else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
-#endif
-    CGImageRelease(imgRef);
-    return img;
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        // Use UIKit coordinate system
+        if (horizontal) {
+            CGAffineTransform flipHorizontal = CGAffineTransformMake(-1, 0, 0, 1, width, 0);
+            CGContextConcatCTM(context, flipHorizontal);
+        }
+        if (vertical) {
+            CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, height);
+            CGContextConcatCTM(context, flipVertical);
+        }
+        [self drawInRect:CGRectMake(0, 0, width, height)];
+    }];
+    return image;
 }
 
 #pragma mark - Image Blending
