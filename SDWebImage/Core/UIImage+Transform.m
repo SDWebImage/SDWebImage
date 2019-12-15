@@ -257,8 +257,8 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 - (nullable UIImage *)sd_rotatedImageWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
     if (!self.CGImage) return nil;
-    size_t width = (size_t)CGImageGetWidth(self.CGImage);
-    size_t height = (size_t)CGImageGetHeight(self.CGImage);
+    size_t width = self.size.width;
+    size_t height = self.size.height;
     CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0, 0, width, height),
                                                 fitSize ? CGAffineTransformMakeRotation(angle) : CGAffineTransformIdentity);
     
