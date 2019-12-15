@@ -259,37 +259,23 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     if (!self.CGImage) return nil;
     size_t width = (size_t)CGImageGetWidth(self.CGImage);
     size_t height = (size_t)CGImageGetHeight(self.CGImage);
-    CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0., 0., width, height),
+    CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0, 0, width, height),
                                                 fitSize ? CGAffineTransformMakeRotation(angle) : CGAffineTransformIdentity);
     
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 (size_t)newRect.size.width,
-                                                 (size_t)newRect.size.height,
-                                                 8,
-                                                 (size_t)newRect.size.width * 4,
-                                                 colorSpace,
-                                                 kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
-    
-    CGContextSetShouldAntialias(context, true);
-    CGContextSetAllowsAntialiasing(context, true);
-    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
-    
-    CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
-    CGContextRotateCTM(context, angle);
-    
-    CGContextDrawImage(context, CGRectMake(-(width * 0.5), -(height * 0.5), width, height), self.CGImage);
-    CGImageRef imgRef = CGBitmapContextCreateImage(context);
-#if SD_UIKIT || SD_WATCH
-    UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
-#else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
-#endif
-    CGImageRelease(imgRef);
-    CGContextRelease(context);
-    return img;
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:newRect.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetShouldAntialias(context, true);
+        CGContextSetAllowsAntialiasing(context, true);
+        CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+        // Use UIKit coordinate counterclockwise (⟲)
+        CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
+        CGContextRotateCTM(context, -angle);
+        
+        [self drawInRect:CGRectMake(-(width * 0.5), -(height * 0.5), width, height)];
+    }];
+    return image;
 }
 
 - (nullable UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
