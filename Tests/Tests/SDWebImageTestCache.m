@@ -9,6 +9,9 @@
 
 #import "SDWebImageTestCache.h"
 #import <SDWebImage/SDImageCacheConfig.h>
+#import "SDFileAttributeHelper.h"
+
+static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hackemist.SDWebImageTestDiskCache";
 
 @implementation SDWebImageTestMemoryCache
 
@@ -102,6 +105,20 @@
         size += [[[self.fileManager attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileSize] unsignedIntegerValue];
     }
     return size;
+}
+
+- (nullable NSData *)extendedDataForKey:(nonnull NSString *)key {
+    NSString *cachePathForKey = [self cachePathForKey:key];
+    return [SDFileAttributeHelper extendedAttribute:SDWebImageTestDiskCacheExtendedAttributeName atPath:cachePathForKey traverseLink:NO error:nil];
+}
+
+- (void)setExtendedData:(nullable NSData *)extendedData forKey:(nonnull NSString *)key {
+    NSString *cachePathForKey = [self cachePathForKey:key];
+    if (!extendedData) {
+        [SDFileAttributeHelper removeExtendedAttribute:SDWebImageTestDiskCacheExtendedAttributeName atPath:cachePathForKey traverseLink:NO error:nil];
+    } else {
+        [SDFileAttributeHelper setExtendedAttribute:SDWebImageTestDiskCacheExtendedAttributeName value:extendedData atPath:cachePathForKey traverseLink:NO overwrite:YES error:nil];
+    }
 }
 
 @end
