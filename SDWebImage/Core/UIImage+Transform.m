@@ -269,9 +269,13 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         CGContextSetShouldAntialias(context, true);
         CGContextSetAllowsAntialiasing(context, true);
         CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
-        // Use UIKit coordinate counterclockwise (⟲)
         CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
+#if SD_UIKIT
+        // Use UIKit coordinate system counterclockwise (⟲)
         CGContextRotateCTM(context, -angle);
+#else
+        CGContextRotateCTM(context, angle);
+#endif
         
         [self drawInRect:CGRectMake(-(width * 0.5), -(height * 0.5), width, height)];
     }];
