@@ -124,9 +124,16 @@
             self.uiformat = uiformat;
         } else {
 #endif
-            self.scale = 1.0;
+#if SD_WATCH
+            CGFloat screenScale = [WKInterfaceDevice currentDevice].screenScale;
+#elif SD_UIKIT
+            CGFloat screenScale = [UIScreen mainScreen].scale;
+#elif SD_MAC
+            CGFloat screenScale = [NSScreen mainScreen].backingScaleFactor;
+#endif
+            self.scale = screenScale;
             self.opaque = NO;
-            self.preferredRange = SDGraphicsImageRendererFormatRangeUnspecified;
+            self.preferredRange = SDGraphicsImageRendererFormatRangeStandard;
 #if SD_UIKIT
         }
 #endif
@@ -160,7 +167,7 @@
 #endif
             self.scale = screenScale;
             self.opaque = NO;
-            self.preferredRange = SDGraphicsImageRendererFormatRangeUnspecified;
+            self.preferredRange = SDGraphicsImageRendererFormatRangeStandard;
 #if SD_UIKIT
         }
 #endif
