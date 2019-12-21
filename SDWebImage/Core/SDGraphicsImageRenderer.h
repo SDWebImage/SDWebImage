@@ -10,10 +10,11 @@
 
 /**
  These following class are provided to use `UIGraphicsImageRenderer` with polyfill, which allows write cross-platform(AppKit/UIKit) code and avoid runtime version check.
- Compared to `UIGraphicsBeginImageContext`, `UIGraphicsImageRenderer` use dynamic bitmap info from your draw code to generate CGContext, not always use ARGB8888, which is more performant on RAM usage.
+ Compared to `UIGraphicsBeginImageContext`, `UIGraphicsImageRenderer` use dynamic bitmap from your draw code to generate CGContext, not always use ARGB8888, which is more performant on RAM usage.
+ Which means, if you draw CGImage/CIImage which contains grayscale only, the underlaying bitmap context use grayscale, it's managed by system and not a fixed type. (actually, the `kCGContextTypeAutomatic`)
  For usage, See more in Apple's documentation: https://developer.apple.com/documentation/uikit/uigraphicsimagerenderer
  For UIKit on iOS/tvOS 10+, these method just use the same `UIGraphicsImageRenderer` API.
- For others (macOS/watchOS or iOS/tvOS 10-), these method use the `SDImageGraphics.h` to implements the same behavior.
+ For others (macOS/watchOS or iOS/tvOS 10-), these method use the `SDImageGraphics.h` to implements the same behavior (but without dynamic bitmap support)
 */
 
 typedef void (^SDGraphicsImageDrawingActions)(CGContextRef _Nonnull context);
