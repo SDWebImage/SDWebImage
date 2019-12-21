@@ -12,7 +12,6 @@
 #import "NSData+ImageContentType.h"
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
-#import "SDGraphicsImageRenderer.h"
 #import "SDAssociatedObject.h"
 
 #if SD_UIKIT || SD_WATCH
@@ -258,26 +257,22 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
+    // Though you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
+    // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+    CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
+    if (!context) {
+        return NULL;
+    }
     
-    // Using UIGraphicsRenderer on supported platforms, and use the main screeen's perferred format (like Wide Color)
-    SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
-    format.scale = 1; // use pixel instead of point
-    format.opaque = !hasAlpha;
-    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:CGSizeMake(newWidth, newHeight) format:format];
-    UIImage *newImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
-        // Apply transform
-        CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(newWidth, newHeight));
-        CGContextConcatCTM(context, transform);
-#if SD_MAC
-        UIImage *drawImage = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:kCGImagePropertyOrientationUp];
-#else
-        UIImage *drawImage = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
-#endif
-        [drawImage drawInRect:CGRectMake(0, 0, width, height)]; // The rect is bounding box of CGImage, don't swap width & height
-    }];
-    CGImageRef newImageRef = newImage.CGImage;
-    // Retain the CGImage because this temp `newImage` will release after function return
-    CGImageRetain(newImageRef);
+    // Apply transform
+    CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(newWidth, newHeight));
+    CGContextConcatCTM(context, transform);
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage); // The rect is bounding box of CGImage, don't swap width & height
+    CGImageRef newImageRef = CGBitmapContextCreateImage(context);
+    CGContextRelease(context);
     
     return newImageRef;
 }
