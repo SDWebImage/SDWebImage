@@ -13,6 +13,7 @@
  These following graphics context method are provided to easily write cross-platform(AppKit/UIKit) code.
  For UIKit, these methods just call the same method in `UIGraphics.h`. See the documentation for usage.
  For AppKit, these methods use `NSGraphicsContext` to create image context and match the behavior like UIKit.
+ @note If you don't care bitmap format (ARGB8888) and just draw image, use `SDGraphicsImageRenderer` instead. It's more performant on RAM usage.`
  */
 
 /// Returns the current graphics context.

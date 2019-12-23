@@ -12,6 +12,7 @@
 #import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
 #import "SDFileAttributeHelper.h"
+#import "UIColor+HexString.h"
 
 @interface SDUtilsTests : SDTestCase
 
@@ -105,6 +106,32 @@
     
     hasAttr = [SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
     expect(hasAttr).beFalsy();
+}
+
+- (void)testSDGraphicsImageRenderer {
+    // Main Screen
+    SDGraphicsImageRendererFormat *format = SDGraphicsImageRendererFormat.preferredFormat;
+#if SD_UIKIT
+    CGFloat screenScale = [UIScreen mainScreen].scale;
+#elif SD_MAC
+    CGFloat screenScale = [NSScreen mainScreen].backingScaleFactor;
+#endif
+    expect(format.scale).equal(screenScale);
+    expect(format.opaque).beFalsy();
+#if SD_UIKIT
+    expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeAutomatic);
+#elif SD_MAC
+    expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeStandard);
+#endif
+    CGSize size = CGSizeMake(100, 100);
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIColor *color = UIColor.redColor;
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [color setFill];
+        CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+    }];
+    expect(image.scale).equal(format.scale);
+    expect([[image sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString isEqualToString:color.sd_hexString]).beTruthy();
 }
 
 - (void)testSDScaledImageForKey {

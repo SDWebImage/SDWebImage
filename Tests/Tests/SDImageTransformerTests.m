@@ -73,7 +73,7 @@
     expect(CGSizeEqualToSize(rotatedImage.size, self.testImage.size)).beTruthy();
     // Fit size, may change size
     rotatedImage = [self.testImage sd_rotatedImageWithAngle:angle fitSize:YES];
-    CGSize rotatedSize = CGSizeMake(floor(300 * 1.414), floor(300 * 1.414)); // 45º, square length * sqrt(2)
+    CGSize rotatedSize = CGSizeMake(ceil(300 * 1.414), ceil(300 * 1.414)); // 45º, square length * sqrt(2)
     expect(CGSizeEqualToSize(rotatedImage.size, rotatedSize)).beTruthy();
     // Check image not inversion
     UIColor *leftCenterColor = [rotatedImage sd_colorAtPoint:CGPointMake(60, 175)];
