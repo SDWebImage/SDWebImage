@@ -146,11 +146,15 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         case SDImageCacheConfigExpireTypeAccessDate:
             cacheContentDateKey = NSURLContentAccessDateKey;
             break;
-            
         case SDImageCacheConfigExpireTypeModificationDate:
             cacheContentDateKey = NSURLContentModificationDateKey;
             break;
-            
+        case SDImageCacheConfigExpireTypeCreationDate:
+            cacheContentDateKey = NSURLCreationDateKey;
+            break;
+        case SDImageCacheConfigExpireTypeChangeDate:
+            cacheContentDateKey = NSURLAttributeModificationDateKey;
+            break;
         default:
             break;
     }
