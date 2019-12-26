@@ -226,10 +226,11 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
             SD_UNLOCK(self.operationsLock);
         };
         self.URLOperations[url] = operation;
+        // Add the handlers before submitting to operation queue, avoid the race condition that operation finished before setting handlers.
+        downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
         // Add operation to operation queue only after all configuration done according to Apple's doc.
         // `addOperation:` does not synchronously execute the `operation.completionBlock` so this will not cause deadlock.
         [self.downloadQueue addOperation:operation];
-        downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock];
     } else {
         // When we reuse the download operation to attach more callbacks, there may be thread safe issue because the getter of callbacks may in another queue (decoding queue or delegate queue)
         // So we lock the operation here, and in `SDWebImageDownloaderOperation`, we use `@synchonzied (self)`, to ensure the thread safe between these two classes.
