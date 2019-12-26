@@ -42,6 +42,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+    self.delegate = nil;
 }
 
 - (instancetype)initWithConfig:(SDImageCacheConfig *)config {
