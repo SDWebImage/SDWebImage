@@ -354,7 +354,12 @@
     NSOperation<SDWebImageDownloaderOperationInterface> *returnOperation = nil;
     for (NSOperation<SDWebImageDownloaderOperationInterface> *operation in self.downloadQueue.operations) {
         if ([operation respondsToSelector:@selector(dataTask)]) {
-            if (operation.dataTask.taskIdentifier == task.taskIdentifier) {
+            // So we lock the operation here, and in `SDWebImageDownloaderOperation`, we use `@synchonzied (self)`, to ensure the thread safe between these two classes.
+            NSURLSessionTask *operationTask;
+            @synchronized (operation) {
+                operationTask = operation.dataTask;
+            }
+            if (operationTask.taskIdentifier == task.taskIdentifier) {
                 returnOperation = operation;
                 break;
             }
