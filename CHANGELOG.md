@@ -1,3 +1,11 @@
+## [4.4.8 - 4.4 patch, on Dec 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/4.4.8)
+See [all tickets marked for the 4.4.8 release](https://github.com/SDWebImage/SDWebImage/milestone/57)
+
+#### Fixes
+- Fix the issue that "There may be no complete callback when download the picture of the local path" #2916
+- Fix the crash when using NSCache delegate with SDMemoryCache default implementation on dealloc #2899
+- Fix the thread safe issue with Downloader and DownloaderOperation during cancel #2903
+
 ## [4.4.7 - 4.4 patch, on Jun 5th, 2019](https://github.com/rs/SDWebImage/releases/tag/4.4.7)
 See [all tickets marked for the 4.4.7 release](https://github.com/SDWebImage/SDWebImage/milestone/34)
 
