@@ -270,7 +270,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         CGContextSetAllowsAntialiasing(context, true);
         CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
         CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
-#if SD_UIKIT
+#if SD_UIKIT || SD_WATCH
         // Use UIKit coordinate system counterclockwise (⟲)
         CGContextRotateCTM(context, -angle);
 #else
