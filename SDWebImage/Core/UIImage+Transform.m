@@ -203,7 +203,8 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_MAC
     // CIImage shortcut
     if (self.CIImage) {
-        CIImage *ciImage = [self.CIImage imageByCroppingToRect:rect];
+        CGRect croppingRect = CGRectMake(rect.origin.x, self.size.height - CGRectGetMaxY(rect), rect.size.width, rect.size.height);
+        CIImage *ciImage = [self.CIImage imageByCroppingToRect:croppingRect];
 #if SD_UIKIT
         UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
@@ -281,9 +282,16 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #if SD_UIKIT || SD_MAC
     // CIImage shortcut
     if (self.CIImage) {
-        CGAffineTransform transform = CGAffineTransformMakeRotation(angle);
-        transform = CGAffineTransformTranslate(transform, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
-        CIImage *ciImage = [self.CIImage imageByApplyingTransform:transform];
+        CIImage *ciImage = self.CIImage;
+        if (fitSize) {
+            CGAffineTransform transform = CGAffineTransformMakeRotation(angle);
+            ciImage = [ciImage imageByApplyingTransform:transform];
+        } else {
+            CIFilter *filter = [CIFilter filterWithName:@"CIStraightenFilter"];
+            [filter setValue:ciImage forKey:kCIInputImageKey];
+            [filter setValue:@(angle) forKey:kCIInputAngleKey];
+            ciImage = filter.outputImage;
+        }
 #if SD_UIKIT || SD_WATCH
         UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
@@ -361,36 +369,9 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 #pragma mark - Image Blending
 
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
-#if SD_UIKIT || SD_MAC
-    // CIImage shortcut
-    if (self.CIImage) {
-        CIImage *colorImage = [CIImage imageWithColor:tintColor.CIColor];
-        CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-        [filter setValue:colorImage forKey:kCIInputImageKey];
-        [filter setValue:self.CIImage forKey:kCIInputBackgroundImageKey];
-        CIImage *ciImage = filter.outputImage;
-//        CIImage *ciImage = [self.CIImage imageByCompositingOverImage:colorImage];
-#if SD_UIKIT
-        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
-#else
-        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
-#endif
-        return image;
-    }
-#endif
-    
-    CGImageRef imageRef = self.CGImage;
-    if (!imageRef) {
-        return nil;
-    }
-    
     BOOL hasTint = CGColorGetAlpha(tintColor.CGColor) > __FLT_EPSILON__;
     if (!hasTint) {
-#if SD_UIKIT || SD_WATCH
-        return [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
-#else
-        return [[UIImage alloc] initWithCGImage:imageRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
-#endif
+        return self;
     }
     
     CGSize size = self.size;
@@ -398,7 +379,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     CGFloat scale = self.scale;
     
     // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
-    CGBlendMode blendMode = kCGBlendModeSourceAtop;
+    CGBlendMode blendMode = kCGBlendModeNormal;
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = scale;
@@ -413,10 +394,19 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable UIColor *)sd_colorAtPoint:(CGPoint)point {
-    if (!self) {
-        return nil;
+    CGImageRef imageRef;
+    // CIImage compatible
+    if (self.CIImage) {
+        CIImage *ciImage = self.CIImage;
+        imageRef = ciImage.CGImage;
+        if (!imageRef) {
+            CIContext *context = [CIContext context];
+            imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
+        }
+    } else {
+        imageRef = self.CGImage;
     }
-    CGImageRef imageRef = self.CGImage;
+    
     if (!imageRef) {
         return nil;
     }
@@ -457,10 +447,19 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
-    if (!self) {
-        return nil;
+    CGImageRef imageRef;
+    // CIImage shortcut
+    if (self.CIImage) {
+        CIImage *ciImage = self.CIImage;
+        imageRef = ciImage.CGImage;
+        if (!imageRef) {
+            CIContext *context = [CIContext context];
+            imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
+        }
+    } else {
+        imageRef = self.CGImage;
     }
-    CGImageRef imageRef = self.CGImage;
+    
     if (!imageRef) {
         return nil;
     }
@@ -524,14 +523,25 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     if (self.size.width < 1 || self.size.height < 1) {
         return nil;
     }
-    if (!self.CGImage) {
-        return nil;
-    }
-    
     BOOL hasBlur = blurRadius > __FLT_EPSILON__;
     if (!hasBlur) {
         return self;
     }
+    
+#if SD_UIKIT || SD_MAC
+    if (self.CIImage) {
+        CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+        [filter setValue:self.CIImage forKey:kCIInputImageKey];
+        [filter setValue:@(blurRadius) forKey:kCIInputRadiusKey];
+        CIImage *ciImage = filter.outputImage;
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
     
     CGFloat scale = self.scale;
     CGImageRef imageRef = self.CGImage;
@@ -615,12 +625,19 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 #if SD_UIKIT || SD_MAC
 - (nullable UIImage *)sd_filteredImageWithFilter:(nonnull CIFilter *)filter {
-    if (!self.CGImage) return nil;
-    
-    CIContext *context = [CIContext context];
-    CIImage *inputImage = [CIImage imageWithCGImage:self.CGImage];
+    CIImage *inputImage;
+    if (self.CIImage) {
+        inputImage = self.CIImage;
+    } else {
+        CGImageRef imageRef = self.CGImage;
+        if (!imageRef) {
+            return nil;
+        }
+        inputImage = [CIImage imageWithCGImage:imageRef];
+    }
     if (!inputImage) return nil;
     
+    CIContext *context = [CIContext context];
     [filter setValue:inputImage forKey:kCIInputImageKey];
     CIImage *outputImage = filter.outputImage;
     if (!outputImage) return nil;
