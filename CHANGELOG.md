@@ -1,3 +1,9 @@
+## [5.4.1 - 5.4 Patch, on Dec 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.1)
+See [all tickets marked for the 5.4.1 release](https://github.com/SDWebImage/SDWebImage/milestone/56)
+
+### Fixes
+- Fix the issue that "There may be no complete callback when download the picture of the local path" #2917
+
 ## [5.4.0 Extended Cache Metadata, on Dec 6th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.0)
 See [all tickets marked for the 5.4.0 release](https://github.com/SDWebImage/SDWebImage/milestone/51)
 
