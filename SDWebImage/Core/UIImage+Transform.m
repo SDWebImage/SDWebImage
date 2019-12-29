@@ -194,13 +194,30 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable UIImage *)sd_croppedImageWithRect:(CGRect)rect {
-    if (!self.CGImage) return nil;
     rect.origin.x *= self.scale;
     rect.origin.y *= self.scale;
     rect.size.width *= self.scale;
     rect.size.height *= self.scale;
     if (rect.size.width <= 0 || rect.size.height <= 0) return nil;
-    CGImageRef imageRef = CGImageCreateWithImageInRect(self.CGImage, rect);
+    
+# SD_UIKIT || SD_MAC
+    if (self.CIImage) {
+        CIImage *ciImage = [self.CIImage imageByCroppingToRect:rect];
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
+    
+    CGImageRef cgImage = self.CGImage;
+    if (!cgImage) {
+        return nil;
+    }
+    
+    CGImageRef imageRef = CGImageCreateWithImageInRect(cgImage, rect);
     if (!imageRef) {
         return nil;
     }
@@ -214,7 +231,6 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor {
-    if (!self.CGImage) return nil;
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = self.scale;
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
@@ -256,11 +272,22 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable UIImage *)sd_rotatedImageWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
-    if (!self.CGImage) return nil;
     size_t width = self.size.width;
     size_t height = self.size.height;
     CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0, 0, width, height),
                                                 fitSize ? CGAffineTransformMakeRotation(angle) : CGAffineTransformIdentity);
+    
+    if (self.CIImage) {
+        CGAffineTransform transform = CGAffineTransformMakeRotation(angle);
+        transform = CGAffineTransformTranslate(transform, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
+        CIImage *ciImage = [self.CIImage imageByApplyingTransform:transform];
+#if SD_UIKIT || SD_WATCH
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = self.scale;
@@ -283,9 +310,28 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 - (nullable UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
-    if (!self.CGImage) return nil;
     size_t width = self.size.width;
     size_t height = self.size.height;
+    
+    if (self.CIImage) {
+        CGAffineTransform transform = CGAffineTransformIdentity;
+        // Use UIKit coordinate system
+        if (horizontal) {
+            CGAffineTransform flipHorizontal = CGAffineTransformMake(-1, 0, 0, 1, width, 0);
+            transform = CGAffineTransformConcat(transform, flipHorizontal);
+        }
+        if (vertical) {
+            CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, height);
+            transform = CGAffineTransformConcat(transform, flipVertical);
+        }
+        CIImage *ciImage = [self.CIImage imageByApplyingTransform:transform];
+#if SD_UIKIT || SD_WATCH
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = self.scale;
