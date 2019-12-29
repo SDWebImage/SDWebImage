@@ -164,6 +164,28 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
+static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
+    CGFloat red, green, blue, alpha;
+#if SD_UIKIT
+    if (![color getRed:&red green:&green blue:&blue alpha:&alpha]) {
+        [color getWhite:&red alpha:&alpha];
+        green = red;
+        blue = red;
+    }
+#else
+    @try {
+        [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    }
+    @catch (NSException *exception) {
+        [color getWhite:&red alpha:&alpha];
+        green = red;
+        blue = red;
+    }
+#endif
+    CIColor *ciColor = [CIColor colorWithRed:red green:green blue:blue alpha:alpha];
+    return ciColor;
+}
+
 @implementation UIImage (Transform)
 
 - (void)sd_drawInRect:(CGRect)rect context:(CGContextRef)context scaleMode:(SDImageScaleMode)scaleMode clipsToBounds:(BOOL)clips {
@@ -374,12 +396,31 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         return self;
     }
     
+#if SD_UIKIT || SD_MAC
+    // CIImage shortcut
+    if (self.CIImage) {
+        CIImage *ciImage = self.CIImage;
+        CIImage *colorImage = [CIImage imageWithColor:SDCIColorConvertFromUIColor(tintColor)];
+        colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
+        CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+        [filter setValue:colorImage forKey:kCIInputImageKey];
+        [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
+        ciImage = filter.outputImage;
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
+    
     CGSize size = self.size;
     CGRect rect = { CGPointZero, size };
     CGFloat scale = self.scale;
     
     // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
-    CGBlendMode blendMode = kCGBlendModeNormal;
+    CGBlendMode blendMode = kCGBlendModeSourceAtop;
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = scale;
