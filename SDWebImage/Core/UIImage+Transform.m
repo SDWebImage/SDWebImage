@@ -164,7 +164,9 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
-static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
+#if SD_UIKIT || SD_MAC
+// Core Image Support
+static inline CIColor *SDCIColorFromUIColor(UIColor * _Nonnull color) {
     CGFloat red, green, blue, alpha;
 #if SD_UIKIT
     if (![color getRed:&red green:&green blue:&blue alpha:&alpha]) {
@@ -185,6 +187,19 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
     CIColor *ciColor = [CIColor colorWithRed:red green:green blue:blue alpha:alpha];
     return ciColor;
 }
+
+static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciImage) {
+    CGImageRef imageRef = NULL;
+    if (@available(iOS 10, macOS 10.12, tvOS 10, *)) {
+        imageRef = ciImage.CGImage;
+    }
+    if (!imageRef) {
+        CIContext *context = [CIContext context];
+        imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
+    }
+    return imageRef;
+}
+#endif
 
 @implementation UIImage (Transform)
 
@@ -400,7 +415,7 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
     // CIImage shortcut
     if (self.CIImage) {
         CIImage *ciImage = self.CIImage;
-        CIImage *colorImage = [CIImage imageWithColor:SDCIColorConvertFromUIColor(tintColor)];
+        CIImage *colorImage = [CIImage imageWithColor:SDCIColorFromUIColor(tintColor)];
         colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
         CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
         [filter setValue:colorImage forKey:kCIInputImageKey];
@@ -435,19 +450,16 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
 }
 
 - (nullable UIColor *)sd_colorAtPoint:(CGPoint)point {
-    CGImageRef imageRef;
+    CGImageRef imageRef = NULL;
     // CIImage compatible
+#if SD_UIKIT || SD_MAC
     if (self.CIImage) {
-        CIImage *ciImage = self.CIImage;
-        imageRef = ciImage.CGImage;
-        if (!imageRef) {
-            CIContext *context = [CIContext context];
-            imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
-        }
-    } else {
+        imageRef = SDCGImageFromCIImage(self.CIImage);
+    }
+#endif
+    if (!imageRef) {
         imageRef = self.CGImage;
     }
-    
     if (!imageRef) {
         return nil;
     }
@@ -488,19 +500,16 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
 }
 
 - (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
-    CGImageRef imageRef;
-    // CIImage shortcut
+    CGImageRef imageRef = NULL;
+    // CIImage compatible
+#if SD_UIKIT || SD_MAC
     if (self.CIImage) {
-        CIImage *ciImage = self.CIImage;
-        imageRef = ciImage.CGImage;
-        if (!imageRef) {
-            CIContext *context = [CIContext context];
-            imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
-        }
-    } else {
+        imageRef = SDCGImageFromCIImage(self.CIImage);
+    }
+#endif
+    if (!imageRef) {
         imageRef = self.CGImage;
     }
-    
     if (!imageRef) {
         return nil;
     }
