@@ -588,6 +588,18 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
     CGFloat scale = self.scale;
     CGImageRef imageRef = self.CGImage;
     
+    //convert to BGRA if it isn't
+    if (CGImageGetBitsPerPixel(imageRef) != 32 ||
+        CGImageGetBitsPerComponent(imageRef) != 8 ||
+        !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
+        SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
+        [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+        imageRef = SDGraphicsGetImageFromCurrentImageContext().CGImage;
+        SDGraphicsEndImageContext();
+    } else {
+        CGImageRetain(imageRef);
+    }
+    
     vImage_Buffer effect = {}, scratch = {};
     vImage_Buffer *input = NULL, *output = NULL;
     
@@ -602,7 +614,7 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
     };
     
     vImage_Error err;
-    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImagePrintDiagnosticsToConsole);
+    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImageNoFlags);
     if (err != kvImageNoError) {
         NSLog(@"UIImage+Transform error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@", err, self);
         return nil;
