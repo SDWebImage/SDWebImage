@@ -575,6 +575,7 @@ static inline CIColor *SDCIColorConvertFromUIColor(UIColor * _Nonnull color) {
         [filter setValue:self.CIImage forKey:kCIInputImageKey];
         [filter setValue:@(blurRadius) forKey:kCIInputRadiusKey];
         CIImage *ciImage = filter.outputImage;
+        ciImage = [ciImage imageByCroppingToRect:CGRectMake(0, 0, self.size.width, self.size.height)];
 #if SD_UIKIT
         UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
