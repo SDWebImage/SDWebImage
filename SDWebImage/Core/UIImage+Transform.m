@@ -605,8 +605,6 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
         [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
         imageRef = SDGraphicsGetImageFromCurrentImageContext().CGImage;
         SDGraphicsEndImageContext();
-    } else {
-        CGImageRetain(imageRef);
     }
     
     vImage_Buffer effect = {}, scratch = {};
