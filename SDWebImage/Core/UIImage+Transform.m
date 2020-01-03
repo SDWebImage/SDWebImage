@@ -582,7 +582,8 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     if (self.CIImage) {
         CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
         [filter setValue:self.CIImage forKey:kCIInputImageKey];
-        [filter setValue:@(blurRadius) forKey:kCIInputRadiusKey];
+        // Blur Radius use pixel count
+        [filter setValue:@(blurRadius / 2) forKey:kCIInputRadiusKey];
         CIImage *ciImage = filter.outputImage;
         ciImage = [ciImage imageByCroppingToRect:CGRectMake(0, 0, self.size.width, self.size.height)];
 #if SD_UIKIT

@@ -182,7 +182,8 @@
     expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]);
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 20)];
-    expect([topCenterColor.sd_hexString isEqualToString:@"#9a430d06"]).beTruthy();
+    UIColor *bottomCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 280)];
+    expect([topCenterColor.sd_hexString isEqualToString:bottomCenterColor.sd_hexString]).beFalsy();
 }
 
 - (void)test08UIImageTransformFilterCG {
