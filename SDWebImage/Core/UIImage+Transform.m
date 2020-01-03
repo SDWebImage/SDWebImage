@@ -166,28 +166,6 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 #if SD_UIKIT || SD_MAC
 // Core Image Support
-static inline CIColor *SDCIColorFromUIColor(UIColor * _Nonnull color) {
-    CGFloat red, green, blue, alpha;
-#if SD_UIKIT
-    if (![color getRed:&red green:&green blue:&blue alpha:&alpha]) {
-        [color getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#else
-    @try {
-        [color getRed:&red green:&green blue:&blue alpha:&alpha];
-    }
-    @catch (NSException *exception) {
-        [color getWhite:&red alpha:&alpha];
-        green = red;
-        blue = red;
-    }
-#endif
-    CIColor *ciColor = [CIColor colorWithRed:red green:green blue:blue alpha:alpha];
-    return ciColor;
-}
-
 static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciImage) {
     CGImageRef imageRef = NULL;
     if (@available(iOS 10, macOS 10.12, tvOS 10, *)) {
@@ -415,7 +393,7 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     // CIImage shortcut
     if (self.CIImage) {
         CIImage *ciImage = self.CIImage;
-        CIImage *colorImage = [CIImage imageWithColor:SDCIColorFromUIColor(tintColor)];
+        CIImage *colorImage = [CIImage imageWithColor:[[CIColor alloc] initWithColor:tintColor]];
         colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
         CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
         [filter setValue:colorImage forKey:kCIInputImageKey];
