@@ -165,8 +165,8 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 }
 
 #if SD_UIKIT || SD_MAC
-// Core Image Support
-static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciImage) {
+// Create-Rule, caller should call CGImageRelease
+static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull ciImage) {
     CGImageRef imageRef = NULL;
     if (@available(iOS 10, macOS 10.12, tvOS 10, *)) {
         imageRef = ciImage.CGImage;
@@ -174,6 +174,8 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     if (!imageRef) {
         CIContext *context = [CIContext context];
         imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
+    } else {
+        CGImageRetain(imageRef);
     }
     return imageRef;
 }
@@ -432,11 +434,12 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     // CIImage compatible
 #if SD_UIKIT || SD_MAC
     if (self.CIImage) {
-        imageRef = SDCGImageFromCIImage(self.CIImage);
+        imageRef = SDCreateCGImageFromCIImage(self.CIImage);
     }
 #endif
     if (!imageRef) {
         imageRef = self.CGImage;
+        CGImageRetain(imageRef);
     }
     if (!imageRef) {
         return nil;
@@ -446,34 +449,38 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     CGFloat width = CGImageGetWidth(imageRef);
     CGFloat height = CGImageGetHeight(imageRef);
     if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixels
     CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
     if (!provider) {
+        CGImageRelease(imageRef);
         return nil;
     }
     CFDataRef data = CGDataProviderCopyData(provider);
     if (!data) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixel at point
     size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
     size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     
     CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, 4);
     if (CFDataGetLength(data) < range.location + range.length) {
         CFRelease(data);
+        CGImageRelease(imageRef);
         return nil;
     }
     Pixel_8888 pixel = {0};
     CFDataGetBytes(data, range, pixel);
     CFRelease(data);
-    
+    CGImageRelease(imageRef);
     // Convert to color
-    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     return SDGetColorFromPixel(pixel, bitmapInfo);
 }
 
@@ -482,11 +489,12 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     // CIImage compatible
 #if SD_UIKIT || SD_MAC
     if (self.CIImage) {
-        imageRef = SDCGImageFromCIImage(self.CIImage);
+        imageRef = SDCreateCGImageFromCIImage(self.CIImage);
     }
 #endif
     if (!imageRef) {
         imageRef = self.CGImage;
+        CGImageRetain(imageRef);
     }
     if (!imageRef) {
         return nil;
@@ -496,16 +504,19 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     CGFloat width = CGImageGetWidth(imageRef);
     CGFloat height = CGImageGetHeight(imageRef);
     if (CGRectGetWidth(rect) <= 0 || CGRectGetHeight(rect) <= 0 || CGRectGetMinX(rect) < 0 || CGRectGetMinY(rect) < 0 || CGRectGetMaxX(rect) > width || CGRectGetMaxY(rect) > height) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixels
     CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
     if (!provider) {
+        CGImageRelease(imageRef);
         return nil;
     }
     CFDataRef data = CGDataProviderCopyData(provider);
     if (!data) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
@@ -517,6 +528,7 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
     size_t end = bytesPerRow * (CGRectGetMaxY(rect) - 1) + components * CGRectGetMaxX(rect);
     if (CFDataGetLength(data) < (CFIndex)end) {
         CFRelease(data);
+        CGImageRelease(imageRef);
         return nil;
     }
     
@@ -540,6 +552,7 @@ static inline CGImageRef _Nullable SDCGImageFromCIImage(CIImage * _Nonnull ciIma
         [colors addObject:color];
     }
     CFRelease(data);
+    CGImageRelease(imageRef);
     
     return [colors copy];
 }
