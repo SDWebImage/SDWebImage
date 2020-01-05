@@ -32,6 +32,8 @@
     NSUInteger _frameCount;
     NSArray<SDImageIOCoderFrame *> *_frames;
     BOOL _finished;
+    BOOL _preserveAspectRatio;
+    CGSize _thumbnailSize;
 }
 
 - (void)dealloc
@@ -164,6 +166,10 @@
         thumbnailOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = preserveAspectRatio ? @(MAX(thumbnailSize.width, thumbnailSize.height)) : @(MIN(thumbnailSize.width, thumbnailSize.height));
         thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)thumbnailOptions);
+        if (preserveAspectRatio) {
+            // kCGImageSourceCreateThumbnailWithTransform will apply EXIF transform as well, we should not apply twice
+            exifOrientation = kCGImagePropertyOrientationUp;
+        }
     }
     if (!imageRef) {
         return nil;
@@ -276,6 +282,22 @@
             scale = MAX([scaleFactor doubleValue], 1);
         }
         _scale = scale;
+        CGSize thumbnailSize = CGSizeZero;
+        NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+        if (thumbnailSizeValue != nil) {
+    #if SD_MAC
+            thumbnailSize = thumbnailSizeValue.sizeValue;
+    #else
+            thumbnailSize = thumbnailSizeValue.CGSizeValue;
+    #endif
+        }
+        _thumbnailSize = thumbnailSize;
+        BOOL preserveAspectRatio = NO;
+        NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+        if (preserveAspectRatioValue != nil) {
+            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        }
+        _preserveAspectRatio = preserveAspectRatio;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -316,20 +338,8 @@
     
     if (_width + _height > 0) {
         // Create the image
-        CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
-        
-        if (partialImageRef) {
-            CGFloat scale = _scale;
-            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
-            if (scaleFactor != nil) {
-                scale = MAX([scaleFactor doubleValue], 1);
-            }
-#if SD_UIKIT || SD_WATCH
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:UIImageOrientationUp];
-#else
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:kCGImagePropertyOrientationUp];
-#endif
-            CGImageRelease(partialImageRef);
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+        if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
     }
