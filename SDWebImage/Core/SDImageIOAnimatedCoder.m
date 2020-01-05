@@ -12,6 +12,7 @@
 #import "NSData+ImageContentType.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
+#import "UIImage+ForceDecode.h"
 
 @interface SDImageIOCoderFrame : NSObject
 
@@ -502,11 +503,19 @@
     if (!image) {
         return nil;
     }
+    image.sd_imageFormat = self.class.imageFormat;
     // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:image];
-    if (decodedImage) {
-        image = decodedImage;
+    CGImageRef imageRef = [SDImageCoderHelper CGImageCreateDecoded:image.CGImage];
+    if (!imageRef) {
+        return image;
     }
+#if SD_MAC
+    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
+#else
+    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:image.imageOrientation];
+#endif
+    CGImageRelease(imageRef);
+    image.sd_isDecoded = YES;
     image.sd_imageFormat = self.class.imageFormat;
     return image;
 }
