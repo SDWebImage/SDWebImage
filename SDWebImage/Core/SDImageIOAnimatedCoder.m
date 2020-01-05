@@ -499,12 +499,16 @@
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
     UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+    if (!image) {
+        return nil;
+    }
     // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
     UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:image];
-    if (!decodedImage) {
-        return image;
+    if (decodedImage) {
+        image = decodedImage;
     }
-    return decodedImage;
+    image.sd_imageFormat = self.class.imageFormat;
+    return image;
 }
 
 @end
