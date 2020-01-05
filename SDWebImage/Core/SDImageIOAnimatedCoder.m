@@ -431,6 +431,22 @@
             scale = MAX([scaleFactor doubleValue], 1);
         }
         _scale = scale;
+        CGSize thumbnailSize = CGSizeZero;
+        NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+        if (thumbnailSizeValue != nil) {
+    #if SD_MAC
+            thumbnailSize = thumbnailSizeValue.sizeValue;
+    #else
+            thumbnailSize = thumbnailSizeValue.CGSizeValue;
+    #endif
+        }
+        _thumbnailSize = thumbnailSize;
+        BOOL preserveAspectRatio = NO;
+        NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+        if (preserveAspectRatioValue != nil) {
+            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        }
+        _preserveAspectRatio = preserveAspectRatio;
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -482,24 +498,13 @@
 }
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
-    CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
-    if (!imageRef) {
-        return nil;
-    }
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
     // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef newImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
-    if (!newImageRef) {
-        newImageRef = imageRef;
-    } else {
-        CGImageRelease(imageRef);
+    UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:image];
+    if (!decodedImage) {
+        return image;
     }
-#if SD_MAC
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
-#else
-    UIImage *image = [[UIImage alloc] initWithCGImage:newImageRef scale:_scale orientation:UIImageOrientationUp];
-#endif
-    CGImageRelease(newImageRef);
-    return image;
+    return decodedImage;
 }
 
 @end
