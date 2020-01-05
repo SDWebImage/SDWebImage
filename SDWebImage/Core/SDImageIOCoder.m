@@ -12,6 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "UIImage+Metadata.h"
 #import "SDImageHEICCoderInternal.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 
 @implementation SDImageIOCoder {
     size_t _width, _height;
@@ -74,7 +75,33 @@
         scale = MAX([scaleFactor doubleValue], 1) ;
     }
     
-    UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
+    CGSize thumbnailSize = CGSizeZero;
+    NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
+#if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+#else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+    }
+    
+    BOOL preserveAspectRatio = NO;
+    NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+    if (preserveAspectRatioValue != nil) {
+        preserveAspectRatio = preserveAspectRatioValue.boolValue;
+    }
+    
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    if (!source) {
+        return nil;
+    }
+    
+    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
+    CFRelease(source);
+    if (!image) {
+        return nil;
+    }
+    
     image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
     return image;
 }

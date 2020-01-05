@@ -145,6 +145,40 @@
     return frameDuration;
 }
 
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize {
+    // Parse the image properties
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, NULL);
+    NSUInteger pixelWidth = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] unsignedIntegerValue];
+    NSUInteger pixelHeight = [properties[(__bridge NSString *)kCGImagePropertyPixelHeight] unsignedIntegerValue];
+    CGImagePropertyOrientation exifOrientation = (CGImagePropertyOrientation)[properties[(__bridge NSString *)kCGImagePropertyOrientation] unsignedIntegerValue];
+    if (!exifOrientation) {
+        exifOrientation = kCGImagePropertyOrientationUp;
+    }
+    
+    CGImageRef imageRef;
+    if (CGSizeEqualToSize(thumbnailSize, CGSizeZero) || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height)) {
+        imageRef = CGImageSourceCreateImageAtIndex(source, index, NULL);
+    } else {
+        NSMutableDictionary *thumbnailOptions = [NSMutableDictionary dictionary];
+        thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
+        thumbnailOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = preserveAspectRatio ? @(MAX(thumbnailSize.width, thumbnailSize.height)) : @(MIN(thumbnailSize.width, thumbnailSize.height));
+        thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
+        imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)thumbnailOptions);
+    }
+    if (!imageRef) {
+        return nil;
+    }
+    
+#if SD_UIKIT || SD_WATCH
+    UIImageOrientation imageOrientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:exifOrientation];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:imageOrientation];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
+#endif
+    CGImageRelease(imageRef);
+    return image;
+}
+
 #pragma mark - Decode
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
     return ([NSData sd_imageFormatForImageData:data] == self.class.imageFormat);
@@ -160,14 +194,34 @@
         scale = MAX([scaleFactor doubleValue], 1);
     }
     
+    CGSize thumbnailSize = CGSizeZero;
+    NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
 #if SD_MAC
-    SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
-    NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
-    imageRep.size = size;
-    NSImage *animatedImage = [[NSImage alloc] initWithSize:size];
-    [animatedImage addRepresentation:imageRep];
-    return animatedImage;
+        thumbnailSize = thumbnailSizeValue.sizeValue;
 #else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+    }
+    
+    BOOL preserveAspectRatio = NO;
+    NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+    if (preserveAspectRatioValue != nil) {
+        preserveAspectRatio = preserveAspectRatioValue.boolValue;
+    }
+    
+#if SD_MAC
+    // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
+    // Which decode frames in time and reduce memory usage
+    if (CGSizeEqualToSize(thumbnailSize, CGSizeZero)) {
+        SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
+        NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
+        imageRep.size = size;
+        NSImage *animatedImage = [[NSImage alloc] initWithSize:size];
+        [animatedImage addRepresentation:imageRep];
+        return animatedImage;
+    }
+#endif
     
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
     if (!source) {
@@ -178,19 +232,17 @@
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
-        animatedImage = [[UIImage alloc] initWithData:data scale:scale];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
         
         for (size_t i = 0; i < count; i++) {
-            CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, i, NULL);
-            if (!imageRef) {
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
+            if (!image) {
                 continue;
             }
             
             NSTimeInterval duration = [self.class frameDurationAtIndex:i source:source];
-            UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
-            CGImageRelease(imageRef);
             
             SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:duration];
             [frames addObject:frame];
@@ -205,7 +257,6 @@
     CFRelease(source);
     
     return animatedImage;
-#endif
 }
 
 #pragma mark - Progressive Decode
