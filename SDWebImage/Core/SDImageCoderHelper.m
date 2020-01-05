@@ -18,26 +18,15 @@
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
 
+static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
+static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
 /*
  * Defines the maximum size in MB of the decoded image when the flag `SDWebImageScaleDownLargeImages` is set
  * Suggested value for iPad1 and iPhone 3GS: 60.
  * Suggested value for iPad2 and iPhone 4: 120.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 30.
  */
-static const CGFloat kDestImageSizeMB = 60.f;
-
-/*
- * Defines the maximum size in MB of a tile used to decode image when the flag `SDWebImageScaleDownLargeImages` is set
- * Suggested value for iPad1 and iPhone 3GS: 20.
- * Suggested value for iPad2 and iPhone 4: 40.
- * Suggested value for iPhone 3G and iPod 2 and earlier devices: 10.
- */
-static const CGFloat kSourceImageTileSizeMB = 20.f;
-
-static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
-static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
-static const CGFloat kDestTotalPixels = kDestImageSizeMB * kPixelsPerMB;
-static const CGFloat kTileTotalPixels = kSourceImageTileSizeMB * kPixelsPerMB;
+static CGFloat kDestImageLimitBytes = 60.f * kBytesPerMB;
 
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
 #endif
@@ -311,13 +300,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     CGFloat destTotalPixels;
     CGFloat tileTotalPixels;
-    if (bytes > 0) {
-        destTotalPixels = bytes / kBytesPerPixel;
-        tileTotalPixels = destTotalPixels / 3;
-    } else {
-        destTotalPixels = kDestTotalPixels;
-        tileTotalPixels = kTileTotalPixels;
+    if (bytes == 0) {
+        bytes = kDestImageLimitBytes;
     }
+    destTotalPixels = bytes / kBytesPerPixel;
+    tileTotalPixels = destTotalPixels / 3;
     CGContextRef destContext;
     
     // autorelease the bitmap context and all vars to help system to free memory when there are memory warning.
@@ -433,6 +420,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 #if SD_UIKIT || SD_WATCH
++ (NSUInteger)defaultScaleDownLimitBytes {
+    return kDestImageLimitBytes;
+}
+
++ (void)setDefaultScaleDownLimitBytes:(NSUInteger)defaultScaleDownLimitBytes {
+    if (defaultScaleDownLimitBytes < kBytesPerMB) {
+        return;
+    }
+    kDestImageLimitBytes = defaultScaleDownLimitBytes;
+}
+
 // Convert an EXIF image orientation to an iOS one.
 + (UIImageOrientation)imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation {
     UIImageOrientation imageOrientation = UIImageOrientationUp;
@@ -533,11 +531,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     CGFloat destTotalPixels;
-    if (bytes > 0) {
-        destTotalPixels = bytes / kBytesPerPixel;
-    } else {
-        destTotalPixels = kDestTotalPixels;
+    if (bytes == 0) {
+        bytes = kDestImageLimitBytes;
     }
+    destTotalPixels = bytes / kBytesPerPixel;
     if (destTotalPixels <= kPixelsPerMB) {
         // Too small to scale down
         return NO;

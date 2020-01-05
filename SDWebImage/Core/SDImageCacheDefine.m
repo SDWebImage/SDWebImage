@@ -19,7 +19,16 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
-    NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+    NSValue *thumbnailSizeValue;
+    BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
+    if (shouldScaleDown) {
+        CGFloat thumbnailPixels = SDImageCoderHelper.defaultScaleDownLimitBytes / 4;
+        CGFloat dimension = ceil(sqrt(thumbnailPixels));
+        thumbnailSizeValue = @(CGSizeMake(dimension, dimension));
+    }
+    if (context[SDWebImageContextImageThumbnailPixelSize]) {
+        thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+    }
     
     SDImageCoderMutableOptions *mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:2];
     mutableCoderOptions[SDImageCoderDecodeFirstFrameOnly] = @(decodeFirstFrame);

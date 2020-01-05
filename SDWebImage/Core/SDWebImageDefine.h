@@ -122,9 +122,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageAvoidAutoSetImage = 1 << 10,
     
     /**
-     * By default, images are decoded respecting their original size. On iOS, this flag will scale down the
-     * images to a size compatible with the constrained memory of devices.
-     * This flag take no effect if `SDWebImageAvoidDecodeImage` is set. And it will be ignored if `SDWebImageProgressiveLoad` is set.
+     * By default, images are decoded respecting their original size.
+     * On iOS/tvOS/watchOS, this flag will scale down the images to a size compatible with the constrained memory of devices. On macOS, this does nothing.
+     * To control the limit bytes, check `SDImageCoderHelper.defaultScaleDownLimitBytes` (Defaults to 60MB)
+     * This will actually translate to use context option `.imageThumbnailPixelSize` from v5.5.0 (Defaults to (3966, 3966)). Previously does not.
+     * This flags effect the progressive and animated images as well from v5.5.0. Previously does not.
+     * @note If you need detail controls, it's better to use context option `imageThumbnailPixelSize` and `imagePreserveAspectRatio` instead.
      */
     SDWebImageScaleDownLargeImages = 1 << 11,
     

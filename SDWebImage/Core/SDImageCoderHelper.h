@@ -91,6 +91,12 @@
 
 #if SD_UIKIT || SD_WATCH
 /**
+ Control the default limit bytes to scale down larget images.
+ This value must be larger than or equal to 1MB. Defaults to 60MB.
+ */
+@property (class, readwrite) NSUInteger defaultScaleDownLimitBytes;
+
+/**
  Convert an EXIF image orientation to an iOS one.
 
  @param exifOrientation EXIF orientation
