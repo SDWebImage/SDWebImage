@@ -35,7 +35,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleFacto
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodePreserveAspectRatio;
 
 /**
- A CGSize value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.generationRule`) the value size.
+ A CGSize value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.preserveAspectRatio`) the value size.
  Defaults to CGSizeZero, which means no thumbnail generation at all.
  @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
  */
