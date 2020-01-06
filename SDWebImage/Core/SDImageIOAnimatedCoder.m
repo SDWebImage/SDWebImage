@@ -339,7 +339,12 @@
     
     if (_width + _height > 0) {
         // Create the image
-        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+        CGFloat scale = _scale;
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = MAX([scaleFactor doubleValue], 1);
+        }
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
