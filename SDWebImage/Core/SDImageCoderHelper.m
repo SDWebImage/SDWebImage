@@ -26,7 +26,13 @@ static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
  * Suggested value for iPad2 and iPhone 4: 120.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 30.
  */
+#if SD_MAC
+static CGFloat kDestImageLimitBytes = 90.f * kBytesPerMB;
+#elif SD_UIKIT
 static CGFloat kDestImageLimitBytes = 60.f * kBytesPerMB;
+#elif SD_WATCH
+static CGFloat kDestImageLimitBytes = 30.f * kBytesPerMB;
+#endif
 
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
 

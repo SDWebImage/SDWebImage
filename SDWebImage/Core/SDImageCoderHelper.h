@@ -91,7 +91,7 @@
 
 /**
  Control the default limit bytes to scale down larget images.
- This value must be larger than or equal to 1MB. Defaults to 60MB.
+ This value must be larger than or equal to 1MB. Defaults to 60MB on iOS/tvOS, 90MB on macOS, 30MB on watchOS.
  */
 @property (class, readwrite) NSUInteger defaultScaleDownLimitBytes;
 
