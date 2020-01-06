@@ -13,8 +13,8 @@
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
 #import "SDAssociatedObject.h"
+#import "UIImage+Metadata.h"
 
-#if SD_UIKIT || SD_WATCH
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
 
@@ -29,7 +29,6 @@ static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
 static CGFloat kDestImageLimitBytes = 60.f * kBytesPerMB;
 
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
-#endif
 
 @implementation SDImageCoderHelper
 
@@ -267,9 +266,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
-#if SD_MAC
-    return image;
-#else
     if (![self shouldDecodeImage:image]) {
         return image;
     }
@@ -278,18 +274,18 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!imageRef) {
         return image;
     }
+#if SD_MAC
+    UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
     UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
+#endif
     CGImageRelease(imageRef);
     SDImageCopyAssociatedObject(image, decodedImage);
     decodedImage.sd_isDecoded = YES;
     return decodedImage;
-#endif
 }
 
 + (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
-#if SD_MAC
-    return image;
-#else
     if (![self shouldDecodeImage:image]) {
         return image;
     }
@@ -407,7 +403,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImageRef == NULL) {
             return image;
         }
+#if SD_MAC
+        UIImage *destImage = [[UIImage alloc] initWithCGImage:destImageRef scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
         UIImage *destImage = [[UIImage alloc] initWithCGImage:destImageRef scale:image.scale orientation:image.imageOrientation];
+#endif
         CGImageRelease(destImageRef);
         if (destImage == nil) {
             return image;
@@ -416,10 +416,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         destImage.sd_isDecoded = YES;
         return destImage;
     }
-#endif
 }
 
-#if SD_UIKIT || SD_WATCH
 + (NSUInteger)defaultScaleDownLimitBytes {
     return kDestImageLimitBytes;
 }
@@ -431,6 +429,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     kDestImageLimitBytes = defaultScaleDownLimitBytes;
 }
 
+#if SD_UIKIT || SD_WATCH
 // Convert an EXIF image orientation to an iOS one.
 + (UIImageOrientation)imageOrientationFromEXIFOrientation:(CGImagePropertyOrientation)exifOrientation {
     UIImageOrientation imageOrientation = UIImageOrientationUp;
@@ -501,7 +500,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
 
 #pragma mark - Helper Fuction
-#if SD_UIKIT || SD_WATCH
 + (BOOL)shouldDecodeImage:(nullable UIImage *)image {
     // Avoid extra decode
     if (image.sd_isDecoded) {
@@ -512,7 +510,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     // do not decode animated images
-    if (image.images != nil) {
+    if (image.sd_isAnimated) {
         return NO;
     }
     
@@ -548,7 +546,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     return shouldScaleDown;
 }
-#endif
 
 static inline CGAffineTransform SDCGContextTransformFromOrientation(CGImagePropertyOrientation orientation, CGSize size) {
     // Inspiration from @libfeihu

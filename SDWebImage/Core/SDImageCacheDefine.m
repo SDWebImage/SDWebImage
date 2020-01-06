@@ -20,14 +20,12 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
     NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
     NSValue *thumbnailSizeValue;
-#if SD_UIKIT || SD_WATCH
     BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
     if (shouldScaleDown) {
         CGFloat thumbnailPixels = SDImageCoderHelper.defaultScaleDownLimitBytes / 4;
         CGFloat dimension = ceil(sqrt(thumbnailPixels));
         thumbnailSizeValue = @(CGSizeMake(dimension, dimension));
     }
-#endif
     if (context[SDWebImageContextImageThumbnailPixelSize]) {
         thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     }
@@ -71,12 +69,7 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
             shouldDecode = NO;
         }
         if (shouldDecode) {
-            BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
-            if (shouldScaleDown) {
-                image = [SDImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
-            } else {
-                image = [SDImageCoderHelper decodedImageWithImage:image];
-            }
+            image = [SDImageCoderHelper decodedImageWithImage:image];
         }
     }
     
