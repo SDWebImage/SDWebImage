@@ -156,7 +156,10 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:image.imageOrientation];
 #endif
     if (self) {
-        _animatedCoder = animatedCoder;
+        // Only keep the animated coder if frame count > 1, save RAM usage for non-animated image format (APNG/WebP)
+        if (animatedCoder.animatedImageFrameCount > 1) {
+            _animatedCoder = animatedCoder;
+        }
         NSData *data = [animatedCoder animatedImageData];
         SDImageFormat format = [NSData sd_imageFormatForImageData:data];
         _animatedImageFormat = format;
@@ -166,6 +169,9 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 
 #pragma mark - Preload
 - (void)preloadAllFrames {
+    if (!_animatedCoder) {
+        return;
+    }
     if (!self.isAllFramesLoaded) {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:self.animatedImageFrameCount];
         for (size_t i = 0; i < self.animatedImageFrameCount; i++) {
@@ -180,6 +186,9 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 }
 
 - (void)unloadAllFrames {
+    if (!_animatedCoder) {
+        return;
+    }
     if (self.isAllFramesLoaded) {
         self.loadedAnimatedImageFrames = nil;
         self.allFramesLoaded = NO;
@@ -190,11 +199,12 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
+        _animatedImageFormat = [aDecoder decodeIntegerForKey:NSStringFromSelector(@selector(animatedImageFormat))];
         NSData *animatedImageData = [aDecoder decodeObjectOfClass:[NSData class] forKey:NSStringFromSelector(@selector(animatedImageData))];
-        CGFloat scale = self.scale;
         if (!animatedImageData) {
             return self;
         }
+        CGFloat scale = self.scale;
         id<SDAnimatedImageCoder> animatedCoder = nil;
         for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders) {
             if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
@@ -207,15 +217,16 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
         if (!animatedCoder) {
             return self;
         }
-        _animatedCoder = animatedCoder;
-        SDImageFormat format = [NSData sd_imageFormatForImageData:animatedImageData];
-        _animatedImageFormat = format;
+        if (animatedCoder.animatedImageFrameCount > 1) {
+            _animatedCoder = animatedCoder;
+        }
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];
+    [aCoder encodeInteger:self.animatedImageFormat forKey:NSStringFromSelector(@selector(animatedImageFormat))];
     NSData *animatedImageData = self.animatedImageData;
     if (animatedImageData) {
         [aCoder encodeObject:animatedImageData forKey:NSStringFromSelector(@selector(animatedImageData))];
