@@ -1,3 +1,9 @@
+## [5.4.2 - 5.4 Patch, on Jan 7th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.4.2)
+See [all tickets marked for the 5.4.2 release](https://github.com/SDWebImage/SDWebImage/milestone/58)
+
+### Fixes
+- SDAnimatedImage now only keep the animated coder when frame count >=1 , else we will behave like UIImage to save RAM usage #2924
+
 ## [5.4.1 - 5.4 Patch, on Dec 27th, 2019](https://github.com/rs/SDWebImage/releases/tag/5.4.1)
 See [all tickets marked for the 5.4.1 release](https://github.com/SDWebImage/SDWebImage/milestone/56)
 
