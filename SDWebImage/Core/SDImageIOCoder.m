@@ -87,7 +87,7 @@
 #endif
     }
     
-    BOOL preserveAspectRatio = NO;
+    BOOL preserveAspectRatio = YES;
     NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
     if (preserveAspectRatioValue != nil) {
         preserveAspectRatio = preserveAspectRatioValue.boolValue;
@@ -134,7 +134,7 @@
     #endif
         }
         _thumbnailSize = thumbnailSize;
-        BOOL preserveAspectRatio = NO;
+        BOOL preserveAspectRatio = YES;
         NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
             preserveAspectRatio = preserveAspectRatioValue.boolValue;
