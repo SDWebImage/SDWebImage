@@ -164,12 +164,29 @@
     } else {
         NSMutableDictionary *thumbnailOptions = [NSMutableDictionary dictionary];
         thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
-        thumbnailOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = preserveAspectRatio ? @(MAX(thumbnailSize.width, thumbnailSize.height)) : @(MIN(thumbnailSize.width, thumbnailSize.height));
+        CGFloat maxPixelSize;
+        if (preserveAspectRatio) {
+            if (pixelWidth > pixelHeight) {
+                maxPixelSize = thumbnailSize.width;
+            } else {
+                maxPixelSize = thumbnailSize.height;
+            }
+        } else {
+            maxPixelSize = MAX(thumbnailSize.width, thumbnailSize.height);
+        }
+        thumbnailOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = @(maxPixelSize);
         thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)thumbnailOptions);
         if (preserveAspectRatio) {
             // kCGImageSourceCreateThumbnailWithTransform will apply EXIF transform as well, we should not apply twice
             exifOrientation = kCGImagePropertyOrientationUp;
+        } else {
+            // `CGImageSourceCreateThumbnailAtIndex` take only pixel dimension, if not `preserveAspectRatio`, we should manual scale to the target size
+            if (imageRef) {
+                CGImageRef scaledImageRef = [SDImageCoderHelper CGImageCreateScaled:imageRef size:thumbnailSize];
+                CGImageRelease(imageRef);
+                imageRef = scaledImageRef;
+            }
         }
     }
     if (!imageRef) {

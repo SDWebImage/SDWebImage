@@ -199,14 +199,42 @@ withLocalImageURL:(NSURL *)imageUrl
 #endif
     }
     
+    // 3 - check thumbnail decoding
+    CGFloat pixelWidth = inputImage.size.width;
+    CGFloat pixelHeight = inputImage.size.height;
+    expect(pixelWidth).beGreaterThan(0);
+    expect(pixelHeight).beGreaterThan(0);
+    // check thumnail with scratch
+    UIImage *thumbImage = [coder decodedImageWithData:inputImageData options:@{
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(100, 100)),
+        SDImageCoderDecodePreserveAspectRatio : @(NO)
+    }];
+    expect(thumbImage).toNot.beNil();
+    expect(thumbImage.size).equal(CGSizeMake(100, 100));
+    // check thumnail with aspect ratio limit
+    thumbImage = [coder decodedImageWithData:inputImageData options:@{
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(100, 100)),
+        SDImageCoderDecodePreserveAspectRatio : @(YES)
+    }];
+    expect(thumbImage).toNot.beNil();
+    CGFloat ratio = pixelWidth / pixelHeight;
+    CGSize thumbnailPixelSize;
+    if (pixelWidth > pixelHeight) {
+        thumbnailPixelSize = CGSizeMake(100, floor(100 / ratio));
+    } else {
+        thumbnailPixelSize = CGSizeMake(floor(100 * ratio), 100);
+    }
+    expect(thumbImage.size).equal(thumbnailPixelSize);
+    
+    
     if (supportsEncoding) {
-        // 3 - check if we can encode to the original format
+        // 4 - check if we can encode to the original format
         if (encodingFormat == SDImageFormatUndefined) {
             encodingFormat = inputImageFormat;
         }
         expect([coder canEncodeToFormat:encodingFormat]).to.beTruthy();
         
-        // 4 - encode from UIImage to NSData using the inputImageFormat and check it
+        // 5 - encode from UIImage to NSData using the inputImageFormat and check it
         NSData *outputImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:nil];
         expect(outputImageData).toNot.beNil();
         UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];

@@ -14,6 +14,12 @@
 #import "UIImage+ForceDecode.h"
 #import "SDAssociatedObject.h"
 #import "UIImage+Metadata.h"
+#import "SDInternalMacros.h"
+#import <Accelerate/Accelerate.h>
+
+static inline size_t SDByteAlign(size_t size, size_t alignment) {
+    return ((size + (alignment - 1)) / alignment) * alignment;
+}
 
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
@@ -269,6 +275,53 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     CGContextRelease(context);
     
     return newImageRef;
+}
+
++ (CGImageRef)CGImageCreateScaled:(CGImageRef)cgImage size:(CGSize)size {
+    if (!cgImage) {
+        return NULL;
+    }
+    size_t width = CGImageGetWidth(cgImage);
+    size_t height = CGImageGetHeight(cgImage);
+    if (width == size.width && height == size.height) {
+        CGImageRetain(cgImage);
+        return cgImage;
+    }
+    
+    __block vImage_Buffer input_buffer = {}, output_buffer = {};
+    @onExit {
+        if (input_buffer.data) free(input_buffer.data);
+        if (output_buffer.data) free(output_buffer.data);
+    };
+    
+    vImage_CGImageFormat format = (vImage_CGImageFormat) {
+        .bitsPerComponent = 8,
+        .bitsPerPixel = 32,
+        .colorSpace = NULL,
+        .bitmapInfo = kCGImageAlphaFirst | kCGBitmapByteOrderDefault,
+        .version = 0,
+        .decode = NULL,
+        .renderingIntent = kCGRenderingIntentDefault,
+    };
+    
+    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
+    if (a_ret != kvImageNoError) return NULL;
+    output_buffer.width = MAX(size.width, 0);
+    output_buffer.height = MAX(size.height, 0);
+    output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
+    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
+    if (!output_buffer.data) return NULL;
+    
+    vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+    if (ret != kvImageNoError) return NULL;
+    
+    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoFlags, &ret);
+    if (ret != kvImageNoError) {
+        CGImageRelease(outputImage);
+        return NULL;
+    }
+    
+    return outputImage;
 }
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image {

@@ -74,6 +74,16 @@
 + (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation CF_RETURNS_RETAINED;
 
 /**
+ Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.
+ It will detect whether the image size matching the scale size, if not, stretch the image to the target size.
+ 
+ @param cgImage The CGImage
+ @param size The scale size in pixel.
+ @return A new created scaled image
+ */
++ (CGImageRef _Nullable)CGImageCreateScaled:(_Nonnull CGImageRef)cgImage size:(CGSize)size CF_RETURNS_RETAINED;
+
+/**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image
  @param image The image to be decoded
  @return The decoded image
