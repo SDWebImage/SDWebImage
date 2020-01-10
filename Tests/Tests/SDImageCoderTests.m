@@ -20,7 +20,6 @@
     expect([UIImage sd_decodedAndScaledDownImageWithImage:nil]).to.beNil();
 }
 
-#if SD_UIKIT
 - (void)test02ThatDecodedImageWithImageWorksWithARegularJPGImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
@@ -34,7 +33,11 @@
 - (void)test03ThatDecodedImageWithImageDoesNotDecodeAnimatedImages {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+#if SD_MAC
+    UIImage *animatedImage = image;
+#else
     UIImage *animatedImage = [UIImage animatedImageWithImages:@[image] duration:0];
+#endif
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:animatedImage];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).to.equal(animatedImage);
@@ -61,7 +64,7 @@
 - (void)test06ThatDecodeAndScaleDownImageWorks {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:(60 * 1024 * 1024)];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).toNot.equal(image.size.width);
@@ -78,7 +81,6 @@
     expect(decodedImage.size.width).to.equal(image.size.width);
     expect(decodedImage.size.height).to.equal(image.size.height);
 }
-#endif
 
 - (void)test11ThatAPNGPCoderWorks {
     NSURL *APNGURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
