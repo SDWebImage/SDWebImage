@@ -159,14 +159,16 @@
     }
     
     CGImageRef imageRef;
-    if (CGSizeEqualToSize(thumbnailSize, CGSizeZero) || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height)) {
+    if (thumbnailSize.width == 0 || thumbnailSize.height == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height)) {
         imageRef = CGImageSourceCreateImageAtIndex(source, index, NULL);
     } else {
         NSMutableDictionary *thumbnailOptions = [NSMutableDictionary dictionary];
         thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
         CGFloat maxPixelSize;
         if (preserveAspectRatio) {
-            if (pixelWidth > pixelHeight) {
+            CGFloat pixelRatio = pixelWidth / pixelHeight;
+            CGFloat thumbnailRatio = thumbnailSize.width / thumbnailSize.height;
+            if (pixelRatio > thumbnailRatio) {
                 maxPixelSize = thumbnailSize.width;
             } else {
                 maxPixelSize = thumbnailSize.height;
@@ -237,7 +239,7 @@
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
     // Which decode frames in time and reduce memory usage
-    if (CGSizeEqualToSize(thumbnailSize, CGSizeZero)) {
+    if (thumbnailSize.width == 0 || thumbnailSize.height == 0) {
         SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
         NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
         imageRep.size = size;
