@@ -205,26 +205,31 @@ withLocalImageURL:(NSURL *)imageUrl
     expect(pixelWidth).beGreaterThan(0);
     expect(pixelHeight).beGreaterThan(0);
     // check thumnail with scratch
+    CGFloat thumbnailWidth = 50;
+    CGFloat thumbnailHeight = 50;
     UIImage *thumbImage = [coder decodedImageWithData:inputImageData options:@{
-        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(50, 50)),
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(thumbnailWidth, thumbnailHeight)),
         SDImageCoderDecodePreserveAspectRatio : @(NO)
     }];
     expect(thumbImage).toNot.beNil();
-    expect(thumbImage.size).equal(CGSizeMake(50, 50));
+    expect(thumbImage.size).equal(CGSizeMake(thumbnailWidth, thumbnailHeight));
     // check thumnail with aspect ratio limit
     thumbImage = [coder decodedImageWithData:inputImageData options:@{
-        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(50, 50)),
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(thumbnailWidth, thumbnailHeight)),
         SDImageCoderDecodePreserveAspectRatio : @(YES)
     }];
     expect(thumbImage).toNot.beNil();
     CGFloat ratio = pixelWidth / pixelHeight;
+    CGFloat thumbnailRatio = thumbnailWidth / thumbnailHeight;
     CGSize thumbnailPixelSize;
-    if (pixelWidth > pixelHeight) {
-        thumbnailPixelSize = CGSizeMake(50, floor(50 / ratio));
+    if (ratio > thumbnailRatio) {
+        thumbnailPixelSize = CGSizeMake(thumbnailWidth, round(thumbnailWidth / ratio));
     } else {
-        thumbnailPixelSize = CGSizeMake(floor(50 * ratio), 50);
+        thumbnailPixelSize = CGSizeMake(round(thumbnailHeight * ratio), thumbnailHeight);
     }
-    expect(thumbImage.size).equal(thumbnailPixelSize);
+    // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
+    expect(ABS(thumbImage.size.width - thumbnailPixelSize.width) <= 1);
+    expect(ABS(thumbImage.size.height - thumbnailPixelSize.height) <= 1);
     
     
     if (supportsEncoding) {
