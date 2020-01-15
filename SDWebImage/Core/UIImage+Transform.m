@@ -569,12 +569,13 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         return self;
     }
     
+    CGFloat scale = self.scale;
+    CGFloat inputRadius = blurRadius * scale;
 #if SD_UIKIT || SD_MAC
     if (self.CIImage) {
         CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
         [filter setValue:self.CIImage forKey:kCIInputImageKey];
-        // Blur Radius use pixel count
-        [filter setValue:@(blurRadius / 2) forKey:kCIInputRadiusKey];
+        [filter setValue:@(inputRadius) forKey:kCIInputRadiusKey];
         CIImage *ciImage = filter.outputImage;
         ciImage = [ciImage imageByCroppingToRect:CGRectMake(0, 0, self.size.width, self.size.height)];
 #if SD_UIKIT
@@ -586,7 +587,6 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     }
 #endif
     
-    CGFloat scale = self.scale;
     CGImageRef imageRef = self.CGImage;
     
     //convert to BGRA if it isn't
@@ -640,9 +640,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         //
         // ... if d is odd, use three box-blurs of size 'd', centered on the output pixel.
         //
-        CGFloat inputRadius = blurRadius * scale;
         if (inputRadius - 2.0 < __FLT_EPSILON__) inputRadius = 2.0;
-        uint32_t radius = floor((inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5) / 2);
+        uint32_t radius = floor(inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5);
         radius |= 1; // force radius to be odd so that the three box-blur methodology works.
         int iterations;
         if (blurRadius * scale < 0.5) iterations = 1;
