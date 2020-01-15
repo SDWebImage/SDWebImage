@@ -237,7 +237,7 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     return YES;
 }
 
-#pragma mark - SDAnimatedImage
+#pragma mark - SDAnimatedImageProvider
 
 - (NSData *)animatedImageData {
     return [self.animatedCoder animatedImageData];
