@@ -247,6 +247,27 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test13ThatScaleDownLargeImageUseThumbnailDecoding {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages should translate to thumbnail decoding"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://via.placeholder.com/3999x3999.png"]; // Max size for this API
+    NSUInteger defaultLimitBytes = SDImageCoderHelper.defaultScaleDownLimitBytes;
+    SDImageCoderHelper.defaultScaleDownLimitBytes = 1000 * 1000 * 4; // Limit 1000x1000 pixel
+    // From v5.5.0, the `SDWebImageScaleDownLargeImages` translate to `SDWebImageContextImageThumbnailPixelSize`, and works for progressive loading
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages | SDWebImageProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.size).equal(CGSizeMake(1000, 1000));
+        if (finished) {
+            [expectation fulfill];
+        } else {
+            expect(image.sd_isIncremental).beTruthy();
+        }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        SDImageCoderHelper.defaultScaleDownLimitBytes = defaultLimitBytes;
+    }];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];

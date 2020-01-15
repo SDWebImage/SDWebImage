@@ -20,7 +20,6 @@
     expect([UIImage sd_decodedAndScaledDownImageWithImage:nil]).to.beNil();
 }
 
-#if SD_UIKIT
 - (void)test02ThatDecodedImageWithImageWorksWithARegularJPGImage {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
@@ -34,7 +33,11 @@
 - (void)test03ThatDecodedImageWithImageDoesNotDecodeAnimatedImages {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+#if SD_MAC
+    UIImage *animatedImage = image;
+#else
     UIImage *animatedImage = [UIImage animatedImageWithImages:@[image] duration:0];
+#endif
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:animatedImage];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).to.equal(animatedImage);
@@ -61,7 +64,7 @@
 - (void)test06ThatDecodeAndScaleDownImageWorks {
     NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
-    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:(60 * 1024 * 1024)];
     expect(decodedImage).toNot.beNil();
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).toNot.equal(image.size.width);
@@ -78,7 +81,6 @@
     expect(decodedImage.size.width).to.equal(image.size.width);
     expect(decodedImage.size.height).to.equal(image.size.height);
 }
-#endif
 
 - (void)test11ThatAPNGPCoderWorks {
     NSURL *APNGURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
@@ -197,14 +199,47 @@ withLocalImageURL:(NSURL *)imageUrl
 #endif
     }
     
+    // 3 - check thumbnail decoding
+    CGFloat pixelWidth = inputImage.size.width;
+    CGFloat pixelHeight = inputImage.size.height;
+    expect(pixelWidth).beGreaterThan(0);
+    expect(pixelHeight).beGreaterThan(0);
+    // check thumnail with scratch
+    CGFloat thumbnailWidth = 50;
+    CGFloat thumbnailHeight = 50;
+    UIImage *thumbImage = [coder decodedImageWithData:inputImageData options:@{
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(thumbnailWidth, thumbnailHeight)),
+        SDImageCoderDecodePreserveAspectRatio : @(NO)
+    }];
+    expect(thumbImage).toNot.beNil();
+    expect(thumbImage.size).equal(CGSizeMake(thumbnailWidth, thumbnailHeight));
+    // check thumnail with aspect ratio limit
+    thumbImage = [coder decodedImageWithData:inputImageData options:@{
+        SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(thumbnailWidth, thumbnailHeight)),
+        SDImageCoderDecodePreserveAspectRatio : @(YES)
+    }];
+    expect(thumbImage).toNot.beNil();
+    CGFloat ratio = pixelWidth / pixelHeight;
+    CGFloat thumbnailRatio = thumbnailWidth / thumbnailHeight;
+    CGSize thumbnailPixelSize;
+    if (ratio > thumbnailRatio) {
+        thumbnailPixelSize = CGSizeMake(thumbnailWidth, round(thumbnailWidth / ratio));
+    } else {
+        thumbnailPixelSize = CGSizeMake(round(thumbnailHeight * ratio), thumbnailHeight);
+    }
+    // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
+    expect(ABS(thumbImage.size.width - thumbnailPixelSize.width) <= 1);
+    expect(ABS(thumbImage.size.height - thumbnailPixelSize.height) <= 1);
+    
+    
     if (supportsEncoding) {
-        // 3 - check if we can encode to the original format
+        // 4 - check if we can encode to the original format
         if (encodingFormat == SDImageFormatUndefined) {
             encodingFormat = inputImageFormat;
         }
         expect([coder canEncodeToFormat:encodingFormat]).to.beTruthy();
         
-        // 4 - encode from UIImage to NSData using the inputImageFormat and check it
+        // 5 - encode from UIImage to NSData using the inputImageFormat and check it
         NSData *outputImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:nil];
         expect(outputImageData).toNot.beNil();
         UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];

@@ -18,12 +18,25 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
-    SDImageCoderOptions *coderOptions = @{SDImageCoderDecodeFirstFrameOnly : @(decodeFirstFrame), SDImageCoderDecodeScaleFactor : @(scale)};
-    if (context) {
-        SDImageCoderMutableOptions *mutableCoderOptions = [coderOptions mutableCopy];
-        [mutableCoderOptions setValue:context forKey:SDImageCoderWebImageContext];
-        coderOptions = [mutableCoderOptions copy];
+    NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
+    NSValue *thumbnailSizeValue;
+    BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
+    if (shouldScaleDown) {
+        CGFloat thumbnailPixels = SDImageCoderHelper.defaultScaleDownLimitBytes / 4;
+        CGFloat dimension = ceil(sqrt(thumbnailPixels));
+        thumbnailSizeValue = @(CGSizeMake(dimension, dimension));
     }
+    if (context[SDWebImageContextImageThumbnailPixelSize]) {
+        thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+    }
+    
+    SDImageCoderMutableOptions *mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:2];
+    mutableCoderOptions[SDImageCoderDecodeFirstFrameOnly] = @(decodeFirstFrame);
+    mutableCoderOptions[SDImageCoderDecodeScaleFactor] = @(scale);
+    mutableCoderOptions[SDImageCoderDecodePreserveAspectRatio] = preserveAspectRatioValue;
+    mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
+    mutableCoderOptions[SDImageCoderWebImageContext] = context;
+    SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
     
     if (!decodeFirstFrame) {
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
@@ -56,12 +69,7 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
             shouldDecode = NO;
         }
         if (shouldDecode) {
-            BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
-            if (shouldScaleDown) {
-                image = [SDImageCoderHelper decodedAndScaledDownImageWithImage:image limitBytes:0];
-            } else {
-                image = [SDImageCoderHelper decodedImageWithImage:image];
-            }
+            image = [SDImageCoderHelper decodedImageWithImage:image];
         }
     }
     
