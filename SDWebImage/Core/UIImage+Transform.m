@@ -606,7 +606,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
         .colorSpace = NULL,
-        .bitmapInfo = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little, //requests a BGRA buffer.
+        .bitmapInfo = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host, //requests a BGRA buffer.
         .version = 0,
         .decode = NULL,
         .renderingIntent = kCGRenderingIntentDefault

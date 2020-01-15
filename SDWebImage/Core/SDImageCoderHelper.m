@@ -293,12 +293,15 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (input_buffer.data) free(input_buffer.data);
         if (output_buffer.data) free(output_buffer.data);
     };
-    
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    // iOS display alpha info (BGRA8888/BGRX8888)
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
         .colorSpace = NULL,
-        .bitmapInfo = kCGImageAlphaFirst | kCGBitmapByteOrderDefault,
+        .bitmapInfo = bitmapInfo,
         .version = 0,
         .decode = NULL,
         .renderingIntent = kCGRenderingIntentDefault,
