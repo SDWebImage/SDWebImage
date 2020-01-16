@@ -172,7 +172,7 @@
 }
 
 - (void)test07UIImageTransformBlurWithImage:(UIImage *)testImage {
-    CGFloat radius = 50;
+    CGFloat radius = 25;
     UIImage *blurredImage = [testImage sd_blurredImageWithRadius:radius];
     expect(CGSizeEqualToSize(blurredImage.size, testImage.size)).beTruthy();
     // Check left color, should be blurred
