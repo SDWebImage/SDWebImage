@@ -1,3 +1,28 @@
+## [5.5.0 - Thumbnail Decoding && Core Image, onJan, 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.0)
+See [all tickets marked for the 5.5.0 release](https://github.com/SDWebImage/SDWebImage/milestone/55)
+
+### Features
+
+#### Thumbnail Decoding
+- Supports to load the large web image with thumbnail, control the limit size and aspect ratio #2922 #2810
+- Better than resize transformer, which does not allocate full pixel RAM and faster on CPU. If you've already use transformer to generate thumbnail, you'd better have a try
+- Works for both animated images and progressive images, each frame using the thumbnail decoding
+- Applies for Vector Format like SVG/PDF as well, see more in [Coder Plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+
+#### Core Image
+- Support all transformer method on CIImage based UIImage/NSImage #2918
+- For CIImage based UIImage/NSImage, using the CIFilter to take shortcut, which is faster and lazy (rasterize on demand)
+
+#### Cache
+- Support to use the creation date and the change date to determine the disk cache expire date compare #2915
+
+### Performances
+- Using UIGraphicsImageRenderer on iOS 10+, save memory when image bitmap is RGB(-25%) or Grayscale(-75%) #2907
+- Provide the polyfill APIs for firmware iOS 10- and macOS. If you already use `SDGraphicsBeginImageContext` for drawing, you'd better replace that instead.
+
+### Fixes
+- Fix Gaussian Blur's bug which take half of the blur radius compared to the standard, should match Core Image's behavior #2927
+
 ## [5.4.2 - 5.4 Patch, on Jan 7th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.4.2)
 See [all tickets marked for the 5.4.2 release](https://github.com/SDWebImage/SDWebImage/milestone/58)
 
