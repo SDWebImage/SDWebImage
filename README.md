@@ -20,7 +20,7 @@ This library provides an async image downloader with cache support. For convenie
 - [x] An asynchronous image downloader
 - [x] An asynchronous memory + disk image caching with automatic cache expiration handling
 - [x] A background image decompression to avoid frame rate drop
-- [x] Progressive image loading (including animated image, like GIF showing in Web browser)
+- [x] [Progressive image loading](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#progressive-animation) (including animated image, like GIF showing in Web browser)
 - [x] [Thumbnail image decoding](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#thumbnail-decoding-550) to save CPU && Memory for large images
 - [x] [Extendable image coder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#custom-coder-420) to support massive image format, like WebP
 - [x] [Full-stack solution for animated images](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) which keep a balance between CPU && Memory
