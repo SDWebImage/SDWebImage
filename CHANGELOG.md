@@ -1,3 +1,9 @@
+## [5.5.1 - 5.0 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.1)
+See [all tickets marked for the 5.5.1 release](https://github.com/SDWebImage/SDWebImage/milestone/59)
+
+### Fixes
+- Fix the SDAnimatedImageView's progressive animation bug, which reset the frame index to 0 each time new frames available #2931
+
 ## [5.5.0 - Thumbnail Decoding && Core Image, onJan, 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.0)
 See [all tickets marked for the 5.5.0 release](https://github.com/SDWebImage/SDWebImage/milestone/55)
 
@@ -22,6 +28,12 @@ See [all tickets marked for the 5.5.0 release](https://github.com/SDWebImage/SDW
 
 ### Fixes
 - Fix Gaussian Blur's bug which take half of the blur radius compared to the standard, should match Core Image's behavior #2927
+
+## [5.4 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.4.3)
+See [all tickets marked for the 5.4.3 release](https://github.com/SDWebImage/SDWebImage/milestone/61)
+
+### Fixes
+- Fix the SDAnimatedImageView's progressive animation bug, which reset the frame index to 0 each time new frames available #2931
 
 ## [5.4.2 - 5.4 Patch, on Jan 7th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.4.2)
 See [all tickets marked for the 5.4.2 release](https://github.com/SDWebImage/SDWebImage/milestone/58)
@@ -50,6 +62,12 @@ See [all tickets marked for the 5.4.0 release](https://github.com/SDWebImage/SDW
 ### Fixes
 - Using one global function to ensure we always sync all the UIImage category associated object status correctly inside our framework #2902
 - Fix the thread safe issue with Downloader and DownloaderOperation during cancel #2903
+
+## [5.3 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.3.4)
+See [all tickets marked for the 5.3.4 release](https://github.com/SDWebImage/SDWebImage/milestone/60)
+
+### Fixes
+- Fix the SDAnimatedImageView's progressive animation bug, which reset the frame index to 0 each time new frames available #2931
 
 ## [5.3 Patch, on Dec 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.3)
 See [all tickets marked for the 5.3.3 release](https://github.com/SDWebImage/SDWebImage/milestone/54)
