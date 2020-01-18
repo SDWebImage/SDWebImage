@@ -1,3 +1,9 @@
+## [5.3 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.3.4)
+See [all tickets marked for the 5.3.4 release](https://github.com/SDWebImage/SDWebImage/milestone/60)
+
+### Fixes
+- Fix the SDAnimatedImageView's progressive animation bug, which reset the frame index to 0 each time new frames available #2931
+
 ## [5.3 Patch, on Dec 3rd, 2019](https://github.com/rs/SDWebImage/releases/tag/5.3.3)
 See [all tickets marked for the 5.3.3 release](https://github.com/SDWebImage/SDWebImage/milestone/54)
 
