@@ -87,7 +87,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
 [manager loadImageWithURL:imageURL
                   options:0
                  progress:nil
-                completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
                     if (image) {
                         // do something with image
                     }
