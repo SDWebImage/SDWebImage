@@ -1,4 +1,10 @@
-## [5.5.1 - 5.0 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.1)
+## [5.5.2 - 5.5 Patch, on Jan 26th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.2)
+See [all tickets marked for the 5.5.2 release](https://github.com/SDWebImage/SDWebImage/milestone/62)
+
+### Fixes
+- Fix the issue that `maxBufferSize` property does not correctlly works for `SDAnimatedImageView` #2934
+
+## [5.5.1 - 5.5 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.1)
 See [all tickets marked for the 5.5.1 release](https://github.com/SDWebImage/SDWebImage/milestone/59)
 
 ### Fixes
