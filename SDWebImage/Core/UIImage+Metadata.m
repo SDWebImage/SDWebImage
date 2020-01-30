@@ -32,6 +32,26 @@
     return (self.images != nil);
 }
 
+- (BOOL)sd_isVector {
+    if (@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)) {
+        if (self.isSymbolImage) {
+            return YES;
+        }
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+    SEL SVGSelector = NSSelectorFromString(@"_CGSVGDocument");
+    if ([self respondsToSelector:SVGSelector] && [self performSelector:SVGSelector] != nil) {
+        return YES;
+    }
+    SEL PDFSelector = NSSelectorFromString(@"_CGPDFPage");
+    if ([self respondsToSelector:PDFSelector] && [self performSelector:PDFSelector] != nil) {
+        return YES;
+    }
+#pragma clang diagnostic pop
+    return NO;
+}
+
 #else
 
 - (NSUInteger)sd_imageLoopCount {
@@ -61,7 +81,7 @@
 }
 
 - (BOOL)sd_isAnimated {
-    BOOL isGIF = NO;
+    BOOL isAnimated = NO;
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
     NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
     NSBitmapImageRep *bitmapImageRep;
@@ -70,9 +90,24 @@
     }
     if (bitmapImageRep) {
         NSUInteger frameCount = [[bitmapImageRep valueForProperty:NSImageFrameCount] unsignedIntegerValue];
-        isGIF = frameCount > 1 ? YES : NO;
+        isAnimated = frameCount > 1 ? YES : NO;
     }
-    return isGIF;
+    return isAnimated;
+}
+
+- (BOOL)sd_isVector {
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    if ([imageRep isKindOfClass:[NSPDFImageRep class]]) {
+        return YES;
+    }
+    if ([imageRep isKindOfClass:[NSEPSImageRep class]]) {
+        return YES;
+    }
+    if ([NSStringFromClass(imageRep.class) hasSuffix:@"NSSVGImageRep"]) {
+        return YES;
+    }
+    return NO;
 }
 
 #endif
