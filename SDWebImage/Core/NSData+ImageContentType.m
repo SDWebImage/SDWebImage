@@ -68,7 +68,7 @@
         case 0x25: {
             if (data.length >= 4) {
                 //%PDF
-                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(1, 4)] encoding:NSASCIIStringEncoding];
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(1, 3)] encoding:NSASCIIStringEncoding];
                 if ([testString isEqualToString:@"PDF"]) {
                     return SDImageFormatPDF;
                 }
