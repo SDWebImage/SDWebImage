@@ -156,22 +156,34 @@
         withLocalImageURL:heicURL
          supportsEncoding:supportsEncoding
            encodingFormat:SDImageFormatHEIC
-          isAnimatedImage:isAnimatedImage];
+          isAnimatedImage:isAnimatedImage
+            isVectorImage:NO];
     }
+}
+
+- (void)test17ThatPDFWorks {
+    NSURL *pdfURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"pdf"];
+    [self verifyCoder:[SDImageIOCoder sharedCoder]
+    withLocalImageURL:pdfURL
+     supportsEncoding:NO
+       encodingFormat:SDImageFormatUndefined
+      isAnimatedImage:NO
+        isVectorImage:YES];
 }
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
 withLocalImageURL:(NSURL *)imageUrl
  supportsEncoding:(BOOL)supportsEncoding
   isAnimatedImage:(BOOL)isAnimated {
-    [self verifyCoder:coder withLocalImageURL:imageUrl supportsEncoding:supportsEncoding encodingFormat:SDImageFormatUndefined isAnimatedImage:isAnimated];
+    [self verifyCoder:coder withLocalImageURL:imageUrl supportsEncoding:supportsEncoding encodingFormat:SDImageFormatUndefined isAnimatedImage:isAnimated isVectorImage:NO];
 }
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
   withLocalImageURL:(NSURL *)imageUrl
    supportsEncoding:(BOOL)supportsEncoding
      encodingFormat:(SDImageFormat)encodingFormat
-    isAnimatedImage:(BOOL)isAnimated {
+    isAnimatedImage:(BOOL)isAnimated
+      isVectorImage:(BOOL)isVector {
     NSData *inputImageData = [NSData dataWithContentsOfURL:imageUrl];
     expect(inputImageData).toNot.beNil();
     SDImageFormat inputImageFormat = [NSData sd_imageFormatForImageData:inputImageData];
@@ -204,7 +216,18 @@ withLocalImageURL:(NSURL *)imageUrl
     CGFloat pixelHeight = inputImage.size.height;
     expect(pixelWidth).beGreaterThan(0);
     expect(pixelHeight).beGreaterThan(0);
-    // check thumnail with scratch
+    // check vector format supports thumbnail with screen size
+    if (isVector) {
+#if SD_UIKIT
+        CGFloat maxScreenSize = MAX(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
+#else
+        CGFloat maxScreenSize = MAX(NSScreen.mainScreen.frame.size.width, NSScreen.mainScreen.frame.size.height);
+#endif
+        expect(pixelWidth).equal(maxScreenSize);
+        expect(pixelHeight).equal(maxScreenSize);
+    }
+    
+    // check thumbnail with scratch
     CGFloat thumbnailWidth = 50;
     CGFloat thumbnailHeight = 50;
     UIImage *thumbImage = [coder decodedImageWithData:inputImageData options:@{
@@ -213,7 +236,7 @@ withLocalImageURL:(NSURL *)imageUrl
     }];
     expect(thumbImage).toNot.beNil();
     expect(thumbImage.size).equal(CGSizeMake(thumbnailWidth, thumbnailHeight));
-    // check thumnail with aspect ratio limit
+    // check thumbnail with aspect ratio limit
     thumbImage = [coder decodedImageWithData:inputImageData options:@{
         SDImageCoderDecodeThumbnailPixelSize : @(CGSizeMake(thumbnailWidth, thumbnailHeight)),
         SDImageCoderDecodePreserveAspectRatio : @(YES)
