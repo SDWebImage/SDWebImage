@@ -93,6 +93,12 @@
         case SDImageFormatHEIF:
             UTType = kSDUTTypeHEIF;
             break;
+        case SDImageFormatPDF:
+            UTType = kUTTypePDF;
+            break;
+        case SDImageFormatSVG:
+            UTType = kUTTypeScalableVectorGraphics;
+            break;
         default:
             // default is kUTTypePNG
             UTType = kUTTypePNG;
@@ -120,6 +126,10 @@
         imageFormat = SDImageFormatHEIC;
     } else if (CFStringCompare(uttype, kSDUTTypeHEIF, 0) == kCFCompareEqualTo) {
         imageFormat = SDImageFormatHEIF;
+    } else if (CFStringCompare(uttype, kUTTypePDF, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatPDF;
+    } else if (CFStringCompare(uttype, kUTTypeScalableVectorGraphics, 0) == kCFCompareEqualTo) {
+        imageFormat = SDImageFormatSVG;
     } else {
         imageFormat = SDImageFormatUndefined;
     }
