@@ -52,6 +52,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
 @property (strong, nonatomic, readwrite, nullable) NSURLSessionTask *dataTask;
 
+@property (strong, nonatomic, readwrite, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
 @property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue; // the queue to do image decoding
 #if SD_UIKIT
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
@@ -510,6 +512,10 @@ didReceiveResponse:(NSURLResponse *)response
     if (completionHandler) {
         completionHandler(disposition, credential);
     }
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) {
+    self.metrics = metrics;
 }
 
 #pragma mark Helper methods

@@ -498,6 +498,15 @@ didReceiveResponse:(NSURLResponse *)response
     }
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) {
+    
+    // Identify the operation that runs this task and pass it the delegate method
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
+    if ([dataOperation respondsToSelector:@selector(URLSession:task:didFinishCollectingMetrics:)]) {
+        [dataOperation URLSession:session task:task didFinishCollectingMetrics:metrics];
+    }
+}
+
 @end
 
 @implementation SDWebImageDownloadToken
