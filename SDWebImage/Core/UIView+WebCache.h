@@ -32,6 +32,13 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_imageURL;
 
 /**
+ * Get the current image operation key. Operation key is used to identify the different queries for one view instance (like UIButton).
+ * See more about this in `SDWebImageContextSetImageOperationKey`.
+ * @note You can use method `UIView+WebCacheOperation` to invesigate different queries' operation.
+ */
+@property (nonatomic, strong, readonly, nullable) NSString *sd_latestOperationKey;
+
+/**
  * The current image loading progress associated to the view. The unit count is the received size and excepted size of download.
  * The `totalUnitCount` and `completedUnitCount` will be reset to 0 after a new image loading start (change from current queue). And they will be set to `SDWebImageProgressUnitCountUnknown` if the progressBlock not been called but the image loading success to mark the progress finished (change from main queue).
  * @note You can use Key-Value Observing on the progress, but you should take care that the change to progress is from a background queue during download(the same as progressBlock). If you want to using KVO and update the UI, make sure to dispatch on the main queue. And it's recommand to use some KVO libs like KVOController because it's more safe and easy to use.
