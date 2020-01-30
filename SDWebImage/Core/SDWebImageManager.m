@@ -332,7 +332,9 @@ static id<SDImageLoader> _defaultImageLoader;
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
-    BOOL shouldTransformImage = downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer;
+    BOOL shouldTransformImage = downloadedImage && transformer;
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isVector || (options & SDWebImageTransformVectorImage));
     BOOL shouldCacheOriginal = downloadedImage && finished;
     BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     
@@ -380,7 +382,9 @@ static id<SDImageLoader> _defaultImageLoader;
     NSString *key = [self cacheKeyForURL:url context:context];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
-    BOOL shouldTransformImage = originalImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer;
+    BOOL shouldTransformImage = originalImage && transformer;
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
     BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     // if available, store transformed image to cache
     if (shouldTransformImage) {
