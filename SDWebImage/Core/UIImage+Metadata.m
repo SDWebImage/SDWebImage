@@ -32,25 +32,31 @@
     return (self.images != nil);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 - (BOOL)sd_isVector {
     if (@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)) {
-        if (self.isSymbolImage) {
+        // Xcode 11 supports symbol image, keep Xcode 10 compatible currently
+        SEL SymbolSelector = NSSelectorFromString(@"isSymbolImage");
+        if ([self respondsToSelector:SymbolSelector] && [self performSelector:SymbolSelector]) {
+            return YES;
+        }
+        // SVG
+        SEL SVGSelector = NSSelectorFromString(@"_CGSVGDocument");
+        if ([self respondsToSelector:SVGSelector] && [self performSelector:SVGSelector]) {
             return YES;
         }
     }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    SEL SVGSelector = NSSelectorFromString(@"_CGSVGDocument");
-    if ([self respondsToSelector:SVGSelector] && [self performSelector:SVGSelector] != nil) {
-        return YES;
+    if (@available(iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
+        // PDF
+        SEL PDFSelector = NSSelectorFromString(@"_CGPDFPage");
+        if ([self respondsToSelector:PDFSelector] && [self performSelector:PDFSelector]) {
+            return YES;
+        }
     }
-    SEL PDFSelector = NSSelectorFromString(@"_CGPDFPage");
-    if ([self respondsToSelector:PDFSelector] && [self performSelector:PDFSelector] != nil) {
-        return YES;
-    }
-#pragma clang diagnostic pop
     return NO;
 }
+#pragma clang diagnostic pop
 
 #else
 
