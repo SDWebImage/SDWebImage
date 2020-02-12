@@ -24,6 +24,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 @property (nonatomic, strong, nullable, readwrite) NSURL *url;
 @property (nonatomic, strong, nullable, readwrite) NSURLRequest *request;
 @property (nonatomic, strong, nullable, readwrite) NSURLResponse *response;
+@property (nonatomic, strong, nullable, readwrite) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 @property (nonatomic, weak, nullable, readwrite) id downloadOperationCancelToken;
 @property (nonatomic, weak, nullable) NSOperation<SDWebImageDownloaderOperation> *downloadOperation;
 @property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
@@ -498,6 +499,15 @@ didReceiveResponse:(NSURLResponse *)response
     }
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0)) {
+    
+    // Identify the operation that runs this task and pass it the delegate method
+    NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
+    if ([dataOperation respondsToSelector:@selector(URLSession:task:didFinishCollectingMetrics:)]) {
+        [dataOperation URLSession:session task:task didFinishCollectingMetrics:metrics];
+    }
+}
+
 @end
 
 @implementation SDWebImageDownloadToken
@@ -510,15 +520,27 @@ didReceiveResponse:(NSURLResponse *)response
     self = [super init];
     if (self) {
         _downloadOperation = downloadOperation;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidReceiveResponse:) name:SDWebImageDownloadReceiveResponseNotification object:downloadOperation];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidStop:) name:SDWebImageDownloadStopNotification object:downloadOperation];
     }
     return self;
 }
 
-- (void)downloadReceiveResponse:(NSNotification *)notification {
+- (void)downloadDidReceiveResponse:(NSNotification *)notification {
     NSOperation<SDWebImageDownloaderOperation> *downloadOperation = notification.object;
     if (downloadOperation && downloadOperation == self.downloadOperation) {
         self.response = downloadOperation.response;
+    }
+}
+
+- (void)downloadDidStop:(NSNotification *)notification {
+    NSOperation<SDWebImageDownloaderOperation> *downloadOperation = notification.object;
+    if (downloadOperation && downloadOperation == self.downloadOperation) {
+        if ([downloadOperation respondsToSelector:@selector(metrics)]) {
+            if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, watchOS 3.0, *)) {
+                self.metrics = downloadOperation.metrics;
+            }
+        }
     }
 }
 

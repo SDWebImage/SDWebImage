@@ -642,6 +642,37 @@
     }];
 }
 
+- (void)test26DownloadURLSessionMetrics {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Download URLSessionMetrics works"];
+    
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    
+    __block SDWebImageDownloadToken *token;
+    token = [downloader downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).beNil();
+        if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, *)) {
+            NSURLSessionTaskMetrics *metrics = token.metrics;
+            expect(metrics).notTo.beNil();
+            expect(metrics.redirectCount).equal(0);
+            expect(metrics.transactionMetrics.count).equal(1);
+            NSURLSessionTaskTransactionMetrics *metric = metrics.transactionMetrics.firstObject;
+            // Metrcis Test
+            expect(metric.fetchStartDate).notTo.beNil();
+            expect(metric.connectStartDate).notTo.beNil();
+            expect(metric.connectEndDate).notTo.beNil();
+            expect(metric.networkProtocolName).equal(@"http/1.1");
+            expect(metric.resourceFetchType).equal(NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad);
+            expect(metric.isProxyConnection).beFalsy();
+            expect(metric.isReusedConnection).beFalsy();
+        }
+        [expectation1 fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
+    }];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];

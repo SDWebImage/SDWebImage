@@ -36,6 +36,7 @@
 
 @optional
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 @property (strong, nonatomic, nullable) NSURLCredential *credential;
 @property (assign, nonatomic) double minimumProgressInterval;
 
@@ -61,6 +62,12 @@
  * The operation's task
  */
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
+
+/**
+ * The collected metrics from `-URLSession:task:didFinishCollectingMetrics:`.
+ * This can be used to collect the network metrics like download duration, DNS lookup duration, SSL handshake dureation, etc. See Apple's documentation: https://developer.apple.com/documentation/foundation/urlsessiontaskmetrics
+ */
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 /**
  * The credential used for authentication challenges in `-URLSession:task:didReceiveChallenge:completionHandler:`.
