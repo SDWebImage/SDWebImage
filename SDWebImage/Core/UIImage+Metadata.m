@@ -8,6 +8,7 @@
 
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
+#import "SDInternalMacros.h"
 #import "objc/runtime.h"
 
 @implementation UIImage (Metadata)
@@ -42,14 +43,14 @@
             return YES;
         }
         // SVG
-        SEL SVGSelector = NSSelectorFromString(@"_CGSVGDocument");
+        SEL SVGSelector = SD_SEL_SPI(CGSVGDocument);
         if ([self respondsToSelector:SVGSelector] && [self performSelector:SVGSelector]) {
             return YES;
         }
     }
     if (@available(iOS 11.0, tvOS 11.0, watchOS 4.0, *)) {
         // PDF
-        SEL PDFSelector = NSSelectorFromString(@"_CGPDFPage");
+        SEL PDFSelector = SD_SEL_SPI(CGPDFPage);
         if ([self respondsToSelector:PDFSelector] && [self performSelector:PDFSelector]) {
             return YES;
         }
