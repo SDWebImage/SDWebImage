@@ -33,16 +33,6 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/Core/*.{h,m}', 'WebImage/SDWebImage.h', 'SDWebImage/Private/*.{h,m}'
-    core.exclude_files = 'SDWebImage/MapKit/*.{h,m}'
     core.private_header_files = 'SDWebImage/Private/*.h'
-  end
-
-  s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.10'
-    mk.ios.deployment_target = '8.0'
-    mk.tvos.deployment_target = '9.2'
-    mk.source_files = 'SDWebImage/MapKit/*.{h,m}'
-    mk.framework = 'MapKit'
-    mk.dependency 'SDWebImage/Core'
   end
 end

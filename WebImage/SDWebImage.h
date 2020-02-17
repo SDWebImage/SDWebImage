@@ -85,8 +85,3 @@ FOUNDATION_EXPORT const unsigned char WebImageVersionString[];
 #if __has_include(<SDWebImage/SDAnimatedImageRep.h>)
 #import <SDWebImage/SDAnimatedImageRep.h>
 #endif
-
-// MapKit
-#if __has_include(<SDWebImage/MKAnnotationView+WebCache.h>)
-#import <SDWebImage/MKAnnotationView+WebCache.h>
-#endif

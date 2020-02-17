@@ -22,7 +22,6 @@ Then open the `SDWebImage.xcodeproj`.
 
 - `SDWebImage` for dynamic framework. You can also change the `Mach-O Type` to `Static Library` to build static framework in `Build Settings`.
 - `SDWebImage Static` for static library.
-- `SDWebImageMapKit` for MapKit sub component only.
 
 #### Select Build Platform you need
 

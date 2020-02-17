@@ -1,7 +1,6 @@
 use_frameworks!
 
 def all_example_pods
-  pod 'SDWebImage/MapKit', :path => './'
   pod 'SDWebImageWebPCoder', :git => 'https://github.com/SDWebImage/SDWebImageWebPCoder.git', :branch => 'master'
 end
 
@@ -11,7 +10,6 @@ def watch_example_pods
 end
 
 def all_test_pods
-  pod 'SDWebImage/MapKit', :path => './'
   pod 'Expecta'
   pod 'KVOController'
 end
