@@ -11,6 +11,7 @@ def watch_example_pods
 end
 
 def all_test_pods
+  pod 'SDWebImage', :path => './'
   pod 'Expecta'
   pod 'KVOController'
 end
