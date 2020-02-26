@@ -229,9 +229,9 @@ use_frameworks!
 pod 'SDWebImage'
 ```
 
-#### Subspecs
+#### Subspecs and MapKit
 
-From SDWebImage 5.6.0, the `MapKit` subspec have been moved into a standalone Git Repo: [SDWebImageMapKitPlugin](https://github.com/SDWebImage/SDWebImageMapKitPlugin). User who previouslly use the `MapKit` subspec should upgrade to use that instead. If you use SwiftPM or Carthage with Swift, you also need to change the imported module name (from `SDWebImageMapKit` into `SDWebImageMapKitPlugin`)
+From SDWebImage 5.6.0, the `MapKit` subspec have been moved into a standalone Git Repo: [SDWebImageMapKitPlugin](https://github.com/SDWebImage/SDWebImageMapKitPlugin). User who previously use the `MapKit` subspec should upgrade to use that instead. If you use SwiftPM or Carthage with Swift, you also need to change the imported module name (from `SDWebImageMapKit` into `SDWebImageMapKitPlugin`.
 
 ```
 pod 'SDWebImage'
