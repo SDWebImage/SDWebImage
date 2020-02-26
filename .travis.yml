@@ -51,10 +51,6 @@ script:
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -sdk watchsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
-    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk macosx -configuration Debug | xcpretty -c
-    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
 
     - echo Build the Demo apps
     - pod install

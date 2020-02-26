@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
   s.framework = 'ImageIO'
-  
   s.default_subspec = 'Core'
 
   s.pod_target_xcconfig = {
@@ -34,14 +33,5 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |core|
     core.source_files = 'SDWebImage/Core/*.{h,m}', 'WebImage/SDWebImage.h', 'SDWebImage/Private/*.{h,m}'
     core.private_header_files = 'SDWebImage/Private/*.h'
-  end
-
-  s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.11'
-    mk.ios.deployment_target = '9.0'
-    mk.tvos.deployment_target = '9.0'
-    mk.source_files = 'SDWebImageMapKit/MapKit/*.{h,m}'
-    mk.framework = 'MapKit'
-    mk.dependency 'SDWebImage/Core'
   end
 end

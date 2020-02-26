@@ -231,9 +231,16 @@ pod 'SDWebImage'
 
 #### Subspecs
 
-There are 2 subspecs available now: `Core` and `MapKit` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `MapKit`, you need to specify it). 
+From SDWebImage 5.6.0, the `MapKit` subspec have been moved into a standalone Git Repo: [SDWebImageMapKitPlugin](https://github.com/SDWebImage/SDWebImageMapKitPlugin). User who previouslly use the `MapKit` subspec should upgrade to use that instead. If you use SwiftPM or Carthage with Swift, you also need to change the imported module name (from `SDWebImageMapKit` into `SDWebImageMapKitPlugin`)
 
-Podfile example:
+```
+pod 'SDWebImage'
+pod 'SDWebImageMapKitPlugin'
+```
+
+Currently we still keep the `Core` subspec because some downstream framework use it. However, in SDWebImage 6.0.0, the `Core` subspec may been totally removed or changed. Please inform the framework author to not write Podspec dependency like this `s.dependency 'SDWebImage/Core'`, just use `s.dependency 'SDWebImage'`.
+
+For SDWebImge 5.5.x and lower, there are 2 subspecs available now: `Core` and `MapKit` (this means you can install only some of the SDWebImage modules. By default, you get just `Core`, so if you need `MapKit`, you need to specify it). 
 
 ```
 pod 'SDWebImage/MapKit'
@@ -245,13 +252,11 @@ pod 'SDWebImage/MapKit'
 
 To install with carthage, follow the instruction on [Carthage](https://github.com/Carthage/Carthage)
 
-Carthage users can point to this repository and use whichever generated framework they'd like: SDWebImage, SDWebImageMapKit or both.
-
 Make the following entry in your Cartfile: `github "SDWebImage/SDWebImage"`
 Then run `carthage update`
 If this is your first time using Carthage in the project, you'll need to go through some additional steps as explained [over at Carthage](https://github.com/Carthage/Carthage#adding-frameworks-to-an-application).
 
-> NOTE: At this time, Carthage does not provide a way to build only specific repository subcomponents (or equivalent of CocoaPods's subspecs). All components and their dependencies will be built with the above command. However, you don't need to copy frameworks you aren't using into your project. For instance, if you aren't using `SDWebImageMapKit`, feel free to delete that framework from the Carthage Build directory after `carthage update` completes.
+> NOTE: At this time, Carthage does not provide a way to build only specific repository subcomponents (or equivalent of CocoaPods's subspecs). All components and their dependencies will be built with the above command. However, you don't need to copy frameworks you aren't using into your project. For instance, for SDWebImage 5.5.x and lower, if you aren't using `SDWebImageMapKit`, feel free to delete that framework from the Carthage Build directory after `carthage update` completes.
 
 ### Installation with Swift Package Manager (Xcode 11+)
 
