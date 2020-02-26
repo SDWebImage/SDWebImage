@@ -470,10 +470,10 @@
 // NSImageView use a subview. We need this subview's layer for actual rendering.
 // Why using this design may because of properties like `imageAlignment` and `imageScaling`, which it's not available for UIImageView.contentMode (it's impossible to align left and keep aspect ratio at the same time)
 - (NSView *)imageView {
-    NSImageView *imageView = imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageView"));
+    NSImageView *imageView = imageView = objc_getAssociatedObject(self, SD_SEL_SPI(imageView));
     if (!imageView) {
         // macOS 10.14
-        imageView = objc_getAssociatedObject(self, NSSelectorFromString(@"_imageSubview"));
+        imageView = objc_getAssociatedObject(self, SD_SEL_SPI(imageSubview));
     }
     return imageView;
 }

@@ -575,6 +575,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (image.sd_isAnimated) {
         return NO;
     }
+    // do not decode vector images
+    if (image.sd_isVector) {
+        return NO;
+    }
     
     return YES;
 }

@@ -14,6 +14,9 @@
 		322241802272F808002429DB /* SDUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3222417E2272F808002429DB /* SDUtilsTests.m */; };
 		3226ECBB20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
 		3226ECBC20754F7700FAFACF /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
+		3234306223E2BAC800C290C8 /* TestImage.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3234306123E2BAC800C290C8 /* TestImage.pdf */; };
+		3234306323E2BAC800C290C8 /* TestImage.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3234306123E2BAC800C290C8 /* TestImage.pdf */; };
+		3234306423E2BAC800C290C8 /* TestImage.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3234306123E2BAC800C290C8 /* TestImage.pdf */; };
 		323B8E1F20862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		324047442271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
@@ -107,6 +110,7 @@
 		3222417E2272F808002429DB /* SDUtilsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDUtilsTests.m; sourceTree = "<group>"; };
 		3226ECB920754F7700FAFACF /* SDWebImageTestDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDownloadOperation.h; sourceTree = "<group>"; };
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
+		3234306123E2BAC800C290C8 /* TestImage.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = TestImage.pdf; sourceTree = "<group>"; };
 		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
 		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
 		324047432271956F007C53E1 /* TestEXIF.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestEXIF.png; sourceTree = "<group>"; };
@@ -238,6 +242,7 @@
 				433BBBB81D7EF8260086B6E9 /* TestImage.png */,
 				327A418B211D660600495442 /* TestImage.heic */,
 				32905E63211D786E00460FCF /* TestImage.heif */,
+				3234306123E2BAC800C290C8 /* TestImage.pdf */,
 				327054E1206CEFF3006EA328 /* TestImageAnimated.apng */,
 				3297A09E23374D1600814590 /* TestImageAnimated.heic */,
 			);
@@ -443,6 +448,7 @@
 				3299228B2365DC6C00EAFD97 /* TestImage.heic in Resources */,
 				329922872365DC6C00EAFD97 /* TestLoopCount.gif in Resources */,
 				3299228C2365DC6C00EAFD97 /* TestImage.heif in Resources */,
+				3234306423E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				329922892365DC6C00EAFD97 /* TestImageLarge.jpg in Resources */,
 				3299228A2365DC6C00EAFD97 /* TestImage.png in Resources */,
 				329922842365DC6C00EAFD97 /* MonochromeTestImage.jpg in Resources */,
@@ -461,6 +467,7 @@
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
 				32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */,
+				3234306323E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				32B99EA6203B31360017FD66 /* TestImage.png in Resources */,
 				3297A0A023374D1700814590 /* TestImageAnimated.heic in Resources */,
 				32B99EA2203B31360017FD66 /* MonochromeTestImage.jpg in Resources */,
@@ -479,6 +486,7 @@
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,
+				3234306223E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				3297A09F23374D1700814590 /* TestImageAnimated.heic in Resources */,

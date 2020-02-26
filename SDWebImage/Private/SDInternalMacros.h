@@ -21,6 +21,18 @@
 #define SD_OPTIONS_CONTAINS(options, value) (((options) & (value)) == (value))
 #endif
 
+#ifndef SD_CSTRING
+#define SD_CSTRING(str) #str
+#endif
+
+#ifndef SD_NSSTRING
+#define SD_NSSTRING(str) @(SD_CSTRING(str))
+#endif
+
+#ifndef SD_SEL_SPI
+#define SD_SEL_SPI(name) NSSelectorFromString([NSString stringWithFormat:@"_%@", SD_NSSTRING(name)])
+#endif
+
 #ifndef weakify
 #define weakify(...) \
 sd_keywordify \

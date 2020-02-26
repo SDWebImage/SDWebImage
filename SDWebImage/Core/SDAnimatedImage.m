@@ -12,6 +12,7 @@
 #import "SDImageCodersManager.h"
 #import "SDImageFrame.h"
 #import "UIImage+MemoryCacheCost.h"
+#import "UIImage+Metadata.h"
 #import "SDImageAssetManager.h"
 #import "objc/runtime.h"
 
@@ -295,6 +296,34 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     frameCount = frameCount > 0 ? frameCount : 1;
     NSUInteger cost = bytesPerFrame * frameCount;
     return cost;
+}
+
+@end
+
+@implementation SDAnimatedImage (Metadata)
+
+- (BOOL)sd_isAnimated {
+    return YES;
+}
+
+- (NSUInteger)sd_imageLoopCount {
+    return self.animatedImageLoopCount;
+}
+
+- (void)setSd_imageLoopCount:(NSUInteger)sd_imageLoopCount {
+    return;
+}
+
+- (SDImageFormat)sd_imageFormat {
+    return self.animatedImageFormat;
+}
+
+- (void)setSd_imageFormat:(SDImageFormat)sd_imageFormat {
+    return;
+}
+
+- (BOOL)sd_isVector {
+    return NO;
 }
 
 @end

@@ -195,6 +195,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Note if you use this when using the custom cache serializer, or using the transformer, we will also wait until the output image data written is finished.
      */
     SDWebImageWaitStoreCache = 1 << 22,
+    
+    /**
+     * We usually don't apply transform on vector images, because vector images supports dynamically changing to any size, rasterize to a fixed size will loss details. To modify vector images, you can process the vector data at runtime (such as modifying PDF tag / SVG element).
+     * Use this flag to transform them anyway.
+     */
+    SDWebImageTransformVectorImage = 1 << 23,
 };
 
 
