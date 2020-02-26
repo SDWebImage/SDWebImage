@@ -17,6 +17,7 @@
 
 // Currently Image/IO does not support WebP
 #define kSDUTTypeWebP ((__bridge CFStringRef)@"public.webp")
+#define kSVGTagEnd @"</svg>"
 
 @implementation NSData (ImageContentType)
 
@@ -71,6 +72,15 @@
                 NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(1, 3)] encoding:NSASCIIStringEncoding];
                 if ([testString isEqualToString:@"PDF"]) {
                     return SDImageFormatPDF;
+                }
+            }
+        }
+        case 0x3C: {
+            if (data.length > 100) {
+                // Check end with SVG tag
+                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length - 100, 100)] encoding:NSASCIIStringEncoding];
+                if ([testString containsString:kSVGTagEnd]) {
+                    return SDImageFormatSVG;
                 }
             }
         }
