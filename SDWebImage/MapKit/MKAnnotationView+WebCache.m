@@ -10,10 +10,7 @@
 
 #if SD_UIKIT || SD_MAC
 
-#import "objc/runtime.h"
-#import "UIView+WebCacheOperation.h"
 #import "UIView+WebCache.h"
-#import "SDInternalMacros.h"
 
 @implementation MKAnnotationView (WebCache)
 
@@ -55,14 +52,13 @@
                    context:(nullable SDWebImageContext *)context
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    @weakify(self);
+    __weak typeof(self) wself = self;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
                              context:context
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                           @strongify(self);
-                           self.image = image;
+                           wself.image = image;
                        }
                             progress:progressBlock
                            completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
