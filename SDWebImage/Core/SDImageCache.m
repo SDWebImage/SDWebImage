@@ -187,13 +187,20 @@
         dispatch_async(self.ioQueue, ^{
             @autoreleasepool {
                 NSData *data = imageData;
+                if (!data && [image conformsToProtocol:@protocol(SDAnimatedImage)]) {
+                    // If image is custom animated image class, prefer its original animated data
+                    data = [((id<SDAnimatedImage>)image) animatedImageData];
+                }
                 if (!data && image) {
-                    // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
-                    SDImageFormat format;
-                    if ([SDImageCoderHelper CGImageContainsAlpha:image.CGImage]) {
-                        format = SDImageFormatPNG;
-                    } else {
-                        format = SDImageFormatJPEG;
+                    // Check image's associated image format, may return .undefined
+                    SDImageFormat format = image.sd_imageFormat;
+                    if (format == SDImageFormatUndefined) {
+                        // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
+                        if ([SDImageCoderHelper CGImageContainsAlpha:image.CGImage]) {
+                            format = SDImageFormatPNG;
+                        } else {
+                            format = SDImageFormatJPEG;
+                        }
                     }
                     data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
                 }
