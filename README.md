@@ -66,6 +66,7 @@ We support SwiftUI by building with the functions (caching, loading and animatio
 - [SDWebImageLinkPlugin](https://github.com/SDWebImage/SDWebImageLinkPlugin) - plugin to support loading images from rich link url, as well as `LPLinkView` (using `LinkPresentation.framework`) 
 
 #### Integration with 3rd party libraries
+- [SDWebImageLottiePlugin](https://github.com/SDWebImage/SDWebImageLottiePlugin) - plugin to support [Lottie](https://github.com/airbnb/lottie-ios) animation with remote JSON files
 - [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) - plugin to support [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) as the engine for animated GIFs
 - [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin) - plugin to integrate [YYImage](https://github.com/ibireme/YYImage) & [YYCache](https://github.com/ibireme/YYCache) for image rendering & caching
 
