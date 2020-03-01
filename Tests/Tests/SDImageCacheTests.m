@@ -391,6 +391,36 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test42StoreCacheWithImageAndFormatWithoutImageData {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"StoreImage with sd_imageFormat should use that format"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"StoreImage with SDAnimatedImage should use animatedImageData"];
+    NSData *gifData = [NSData dataWithContentsOfFile:[self testGIFPath]];
+    
+    UIImage *gifImage = [UIImage sd_imageWithData:gifData]; // UIAnimatedImage
+    expect(gifImage.sd_isAnimated).beTruthy();
+    expect(gifImage.sd_imageFormat).equal(SDImageFormatGIF);
+    
+    NSString *kAnimatedImageKey1 = @"kAnimatedImageKey1";
+    NSString *kAnimatedImageKey2 = @"kAnimatedImageKey2";
+    [SDImageCache.sharedImageCache storeImage:gifImage forKey:kAnimatedImageKey1 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey1];
+        // Should save to GIF
+        expect(diskImage.sd_isAnimated).beTruthy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatGIF);
+        [expectation1 fulfill];
+    }];
+    
+    SDAnimatedImage *animatedImage = [SDAnimatedImage imageWithData:gifData];
+    expect(animatedImage.animatedImageData).notTo.beNil();
+    [SDImageCache.sharedImageCache storeImage:animatedImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
+        NSData *data = [SDImageCache.sharedImageCache diskImageDataForKey:kAnimatedImageKey2];
+        // Should save with animatedImageData
+        expect(data).equal(animatedImage.animatedImageData);
+        [expectation2 fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDMemoryCache & SDDiskCache
 - (void)test42CustomMemoryCache {
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
