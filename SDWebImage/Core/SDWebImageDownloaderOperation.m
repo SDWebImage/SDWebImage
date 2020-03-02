@@ -245,9 +245,10 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         // maintain the isFinished and isExecuting flags.
         if (self.isExecuting) self.executing = NO;
         if (!self.isFinished) self.finished = YES;
+    } else {
+        // Operation cancelled by user during sending the request
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}]];
     }
-    // Operation cancelled by user during sending the request
-    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}]];
 
     [self reset];
 }
