@@ -187,10 +187,13 @@
 
 - (void)test11ThatCancelAllDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"CancelAllDownloads"];
+    // Previous test case download may not finished, so we just check the download count should + 1 after new request
+    NSUInteger currentDownloadCount = [SDWebImageDownloader sharedDownloader].currentDownloadCount;
     
-    NSURL *imageURL = [NSURL URLWithString:@"http://via.placeholder.com/1100x1100.png"];
+    // Choose a large image to avoid download too fast
+    NSURL *imageURL = [NSURL URLWithString:@"https://www.sample-videos.com/img/Sample-png-image-1mb.png"];
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL completed:nil];
-    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
+    expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(currentDownloadCount + 1);
     
     [[SDWebImageDownloader sharedDownloader] cancelAllDownloads];
     
