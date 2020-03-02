@@ -392,51 +392,93 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 
 - (void)test42StoreCacheWithImageAndFormatWithoutImageData {
-    XCTestExpectation *expectation1 = [self expectationWithDescription:@"StoreImage with sd_imageFormat should use that format"];
-    XCTestExpectation *expectation2 = [self expectationWithDescription:@"StoreImage with SDAnimatedImage should use animatedImageData"];
-    XCTestExpectation *expectation3 = [self expectationWithDescription:@"StoreImage with UIAnimatedImage without sd_imageFormat should use GIF"];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"StoreImage UIImage without sd_imageFormat should use PNG for alpha channel"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"StoreImage UIImage without sd_imageFormat should use JPEG for non-alpha channel"];
+    XCTestExpectation *expectation3 = [self expectationWithDescription:@"StoreImage UIImage/UIAnimatedImage with sd_imageFormat should use that format"];
+    XCTestExpectation *expectation4 = [self expectationWithDescription:@"StoreImage SDAnimatedImage should use animatedImageData"];
+    XCTestExpectation *expectation5 = [self expectationWithDescription:@"StoreImage UIAnimatedImage without sd_imageFormat should use GIF"];
+    
+    NSString *kAnimatedImageKey1 = @"kAnimatedImageKey1";
+    NSString *kAnimatedImageKey2 = @"kAnimatedImageKey2";
+    NSString *kAnimatedImageKey3 = @"kAnimatedImageKey3";
+    NSString *kAnimatedImageKey4 = @"kAnimatedImageKey4";
+    NSString *kAnimatedImageKey5 = @"kAnimatedImageKey5";
+    
+    // Case 1: UIImage without `sd_imageFormat` should use PNG for alpha channel
+    NSData *pngData = [NSData dataWithContentsOfFile:[self testPNGPath]];
+    UIImage *pngImage = [UIImage sd_imageWithData:pngData];
+    expect(pngImage.sd_isAnimated).beFalsy();
+    expect(pngImage.sd_imageFormat).equal(SDImageFormatPNG);
+    // Remove sd_imageFormat
+    pngImage.sd_imageFormat = SDImageFormatUndefined;
+    // Check alpha channel
+    expect([SDImageCoderHelper CGImageContainsAlpha:pngImage.CGImage]).beTruthy();
+    
+    [SDImageCache.sharedImageCache storeImage:pngImage forKey:kAnimatedImageKey1 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey1];
+        // Should save to PNG
+        expect(diskImage.sd_isAnimated).beFalsy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatPNG);
+        [expectation1 fulfill];
+    }];
+    
+    // Case 2: UIImage without `sd_imageFormat` should use JPEG for non-alpha channel
+    SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
+    format.opaque = YES;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:pngImage.size format:format];
+    // Non-alpha image, also test `SDGraphicsImageRenderer` behavior here :)
+    UIImage *nonAlphaImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [pngImage drawInRect:CGRectMake(0, 0, pngImage.size.width, pngImage.size.height)];
+    }];
+    expect(nonAlphaImage).notTo.beNil();
+    expect([SDImageCoderHelper CGImageContainsAlpha:nonAlphaImage.CGImage]).beFalsy();
+    
+    [SDImageCache.sharedImageCache storeImage:nonAlphaImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey2];
+        // Should save to JPEG
+        expect(diskImage.sd_isAnimated).beFalsy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatJPEG);
+        [expectation2 fulfill];
+    }];
     
     NSData *gifData = [NSData dataWithContentsOfFile:[self testGIFPath]];
     UIImage *gifImage = [UIImage sd_imageWithData:gifData]; // UIAnimatedImage
     expect(gifImage.sd_isAnimated).beTruthy();
     expect(gifImage.sd_imageFormat).equal(SDImageFormatGIF);
     
-    NSString *kAnimatedImageKey1 = @"kAnimatedImageKey1";
-    NSString *kAnimatedImageKey2 = @"kAnimatedImageKey2";
-    NSString *kAnimatedImageKey3 = @"kAnimatedImageKey3";
-    
-    // Case 1: UIImage with `sd_imageFormat` should use that format
-    [SDImageCache.sharedImageCache storeImage:gifImage forKey:kAnimatedImageKey1 toDisk:YES completion:^{
-        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey1];
+    // Case 3: UIImage with `sd_imageFormat` should use that format
+    [SDImageCache.sharedImageCache storeImage:gifImage forKey:kAnimatedImageKey3 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey3];
         // Should save to GIF
         expect(diskImage.sd_isAnimated).beTruthy();
         expect(diskImage.sd_imageFormat).equal(SDImageFormatGIF);
-        [expectation1 fulfill];
+        [expectation3 fulfill];
     }];
     
-    // Case 2: SDAnimatedImage should use `animatedImageData`
+    // Case 4: SDAnimatedImage should use `animatedImageData`
     SDAnimatedImage *animatedImage = [SDAnimatedImage imageWithData:gifData];
     expect(animatedImage.animatedImageData).notTo.beNil();
-    [SDImageCache.sharedImageCache storeImage:animatedImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
-        NSData *data = [SDImageCache.sharedImageCache diskImageDataForKey:kAnimatedImageKey2];
+    [SDImageCache.sharedImageCache storeImage:animatedImage forKey:kAnimatedImageKey4 toDisk:YES completion:^{
+        NSData *data = [SDImageCache.sharedImageCache diskImageDataForKey:kAnimatedImageKey4];
         // Should save with animatedImageData
         expect(data).equal(animatedImage.animatedImageData);
-        [expectation2 fulfill];
+        [expectation4 fulfill];
     }];
     
-    // Case 3: UIAnimatedImage without sd_imageFormat should use GIF not APNG
+    // Case 5: UIAnimatedImage without sd_imageFormat should use GIF not APNG
     NSData *apngData = [NSData dataWithContentsOfFile:[self testAPNGPath]];
     UIImage *apngImage = [UIImage sd_imageWithData:apngData];
     expect(apngImage.sd_isAnimated).beTruthy();
     expect(apngImage.sd_imageFormat).equal(SDImageFormatPNG);
     // Remove sd_imageFormat
     apngImage.sd_imageFormat = SDImageFormatUndefined;
-    [SDImageCache.sharedImageCache storeImage:apngImage forKey:kAnimatedImageKey3 toDisk:YES completion:^{
-        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey3];
+    
+    [SDImageCache.sharedImageCache storeImage:apngImage forKey:kAnimatedImageKey5 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey5];
         // Should save to GIF
         expect(diskImage.sd_isAnimated).beTruthy();
         expect(diskImage.sd_imageFormat).equal(SDImageFormatGIF);
-        [expectation3 fulfill];
+        [expectation5 fulfill];
     }];
     
     [self waitForExpectationsWithCommonTimeout];
