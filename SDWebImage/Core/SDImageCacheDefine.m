@@ -38,6 +38,14 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     mutableCoderOptions[SDImageCoderWebImageContext] = context;
     SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
     
+    // Grab the image coder
+    id<SDImageCoder> imageCoder;
+    if ([context[SDWebImageContextImageCoder] conformsToProtocol:@protocol(SDImageCoder)]) {
+        imageCoder = context[SDWebImageContextImageCoder];
+    } else {
+        imageCoder = [SDImageCodersManager sharedManager];
+    }
+    
     if (!decodeFirstFrame) {
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
         // check whether we should use `SDAnimatedImage`
@@ -57,7 +65,7 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         }
     }
     if (!image) {
-        image = [[SDImageCodersManager sharedManager] decodedImageWithData:imageData options:coderOptions];
+        image = [imageCoder decodedImageWithData:imageData options:coderOptions];
     }
     if (image) {
         BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
