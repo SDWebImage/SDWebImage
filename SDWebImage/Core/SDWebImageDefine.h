@@ -213,9 +213,9 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetIma
 
 /**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager *)
- @note Consider deprecated. This context options can be replaced by other context option control like `.imageCache`, `.imageLoader`, `.imageTransofmer` (See below), which already matches all the properties in SDWebImageManager.
+ @deprecated Deprecated. This context options can be replaced by other context option control like `.imageCache`, `.imageLoader`, `.imageTransofmer` (See below), which already matches all the properties in SDWebImageManager.
  */
-FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager;
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager __deprecated_msg("Use individual context option like .imageCache, .imageLoader and .imageTransformer instead");
 
 /**
  A id<SDImageCache> instance which conforms to `SDImageCache` protocol. It's used to override the image mananger's cache during the image loading pipeline.
