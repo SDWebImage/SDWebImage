@@ -223,7 +223,10 @@
                             }
                         } else {
                             @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                 extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
+#pragma clang diagnostic pop
                             } @catch (NSException *exception) {
                                 NSLog(@"NSKeyedArchiver archive failed with exception: %@", exception);
                             }
@@ -397,7 +400,10 @@
                     }
                 } else {
                     @try {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                         extendedObject = [NSKeyedUnarchiver unarchiveObjectWithData:extendedData];
+#pragma clang diagnostic pop
                     } @catch (NSException *exception) {
                         NSLog(@"NSKeyedUnarchiver unarchive failed with exception: %@", exception);
                     }
