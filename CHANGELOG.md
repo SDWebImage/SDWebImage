@@ -1,8 +1,38 @@
+## [5.6.0 - URLSession Metrics && Vector Format, on Mar 5th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.6.0)
+See [all tickets marked for the 5.6.0 release](https://github.com/SDWebImage/SDWebImage/milestone/63)
+
+### Features
+
+#### URLSession Metrics
+- Added the URLSessionTaskMetrics support for downloader && operation, which can be used for network metrics #2937
+- Typically you use custom operation class to collect all metrics in your app. You can also collect metrics for single url request level. Check the #2937 example code to grab the download token and check metrics.
+
+#### Vector Image
+- Feature - better support for vector format detection, now PDF rasterized bitmap is built-in #2936
+- Pass `.thumbnailPixelSize` to control the PDF bitmap size. If you want vector PDF rendering, you still need to use [SDWebImagePDFCoder](https://github.com/SDWebImage/SDWebImagePDFCoder).
+- Vector image like SVG (via [SDWebImageSVGCoder](https://github.com/SDWebImage/SDWebImageSVGCoder)) and PDF (via [SDWebImagePDFCoder](https://github.com/SDWebImage/SDWebImagePDFCoder)), or system symbol images, can be detected by new API `sd_isVector`.
+- Vector image does not pass to transformer by default, because they support dynamic size changing. Pass `.transformVectorImage` option to allow transformation.
+
+#### Cache
+- Add a better check to handle the cases when call `storeImage` without imageData #2953
+- Which means, if you store image to disk without data, we will use extra information via `sd_imageFormat` or custom image class, to choose the the image format (including GIF and PDF) for encoding. Previously we only encode it into PNG or JPEG.
+
+#### Context Option
+- Feature add context option for cache, loader and coder, deprecated SDWebImageContextCustomManager #2955
+- This makes it easy to use custom loader, cache, and decoder, without need to create a dummy SDWebImageManager instance.
+
+### Fixes
+- Fix the rare case when call `SDWebImageDownloaderOperation.cancel`, the completion block may callback twice #2954
+
+### Warnings
+- Suppress the deprecation warning when min deployment target version set to iOS 13+ or macCatalyst
+- Complete all the SDWebImage error code with the localized description, make it easy for debugging #2948
+
 ## [5.5.2 - 5.5 Patch, on Jan 26th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.2)
 See [all tickets marked for the 5.5.2 release](https://github.com/SDWebImage/SDWebImage/milestone/62)
 
 ### Fixes
-- Fix the issue that `maxBufferSize` property does not correctlly works for `SDAnimatedImageView` #2934
+- Fix the issue that `maxBufferSize` property does not correctly works for `SDAnimatedImageView` #2934
 
 ## [5.5.1 - 5.5 Patch, on Jan 18th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.1)
 See [all tickets marked for the 5.5.1 release](https://github.com/SDWebImage/SDWebImage/milestone/59)
@@ -10,7 +40,7 @@ See [all tickets marked for the 5.5.1 release](https://github.com/SDWebImage/SDW
 ### Fixes
 - Fix the SDAnimatedImageView's progressive animation bug, which reset the frame index to 0 each time new frames available #2931
 
-## [5.5.0 - Thumbnail Decoding && Core Image, onJan, 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.0)
+## [5.5.0 - Thumbnail Decoding && Core Image, on Jan 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.5.0)
 See [all tickets marked for the 5.5.0 release](https://github.com/SDWebImage/SDWebImage/milestone/55)
 
 ### Features
