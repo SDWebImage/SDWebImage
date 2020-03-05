@@ -495,9 +495,6 @@ static id<SDImageLoader> _defaultImageLoader;
                               error:(nonnull NSError *)error
                             options:(SDWebImageOptions)options
                             context:(nullable SDWebImageContext *)context {
-    if ((options & SDWebImageRetryFailed)) {
-        return NO;
-    }
     id<SDImageLoader> imageLoader;
     if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
         imageLoader = context[SDWebImageContextImageLoader];
