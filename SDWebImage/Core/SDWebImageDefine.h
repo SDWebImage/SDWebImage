@@ -213,8 +213,28 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetIma
 
 /**
  A SDWebImageManager instance to control the image download and cache process using in UIImageView+WebCache category and likes. If not provided, use the shared manager (SDWebImageManager *)
+ @deprecated Deprecated. This context options can be replaced by other context option control like `.imageCache`, `.imageLoader`, `.imageTransofmer` (See below), which already matches all the properties in SDWebImageManager.
  */
-FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager;
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager __deprecated_msg("Use individual context option like .imageCache, .imageLoader and .imageTransformer instead");
+
+/**
+ A id<SDImageCache> instance which conforms to `SDImageCache` protocol. It's used to override the image mananger's cache during the image loading pipeline.
+ In other word, if you just want to specify a custom cache during image loading, you don't need to re-create a dummy SDWebImageManager instance with the cache. If not provided, use the image manager's cache (id<SDImageCache>)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageCache;
+
+/**
+ A id<SDImageLoader> instance which conforms to `SDImageLoader` protocol. It's used to override the image mananger's loader during the image loading pipeline.
+ In other word, if you just want to specify a custom loader during image loading, you don't need to re-create a dummy SDWebImageManager instance with the loader. If not provided, use the image manager's cache (id<SDImageLoader>)
+*/
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageLoader;
+
+/**
+ A id<SDImageCoder> instance which conforms to `SDImageCoder` protocol. It's used to override the default image codre for image decoding(including progressive) and encoding during the image loading process.
+ If you use this context option, we will not always use `SDImageCodersManager.shared` to loop through all registered coders and find the suitable one. Instead, we will arbitrarily use the exact provided coder without extra checking (We may not call `canDecodeFromData:`).
+ @note This is only useful for cases which you can ensure the loading url matches your coder, or you find it's too hard to write a common coder which can used for generic usage. This will bind the loading url with the coder logic, which is not always a good design, but possible. (id<SDImageCache>)
+*/
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageCoder;
 
 /**
  A id<SDImageTransformer> instance which conforms `SDImageTransformer` protocol. It's used for image transform after the image load finished and store the transformed image to cache. If you provide one, it will ignore the `transformer` in manager and use provided one instead. (id<SDImageTransformer>)
