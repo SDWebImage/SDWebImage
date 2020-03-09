@@ -52,13 +52,14 @@ As such, we have moved/built new modules to [SDWebImage org](https://github.com/
 We support SwiftUI by building with the functions (caching, loading and animation) powered by SDWebImage. You can have a try with [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
 
 #### Coders for additional image formats
-- [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP image format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
-- [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder to support HEIF image without Apple's `Image/IO framework`, iOS 8+/macOS 10.10+ support.
-- [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format
-- [SDWebImageFLIFCoder](https://github.com/SDWebImage/SDWebImageFLIFCoder) - coder for FLIF format
-- [SDWebImageAVIFCoder](https://github.com/SDWebImage/SDWebImageAVIFCoder) - coder for AVIF (AV1-based) format
-- [SDWebImagePDFCoder](https://github.com/SDWebImage/SDWebImagePDFCoder) - coder for PDF vector format image
-- [SDWebImageSVGCoder](https://github.com/SDWebImage/SDWebImageSVGCoder) - coder for SVG vector format image
+- [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
+- [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder for HEIF format, iOS 8+/macOS 10.10+ support. Based on [libheif](https://github.com/strukturag/libheif)
+- [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format. Based on [libbpg](https://github.com/mirrorer/libbpg)
+- [SDWebImageFLIFCoder](https://github.com/SDWebImage/SDWebImageFLIFCoder) - coder for FLIF format. Based on [libflif](https://github.com/FLIF-hub/FLIF)
+- [SDWebImageAVIFCoder](https://github.com/SDWebImage/SDWebImageAVIFCoder) - coder for AVIF (AV1-based) format. Based on [libavif](https://github.com/AOMediaCodec/libavif)
+- [SDWebImagePDFCoder](https://github.com/SDWebImage/SDWebImagePDFCoder) - coder for PDF vector format.
+- [SDWebImageSVGCoder](https://github.com/SDWebImage/SDWebImageSVGCoder) - coder for SVG vector format.
+- [SDWebImageLottieCoder](https://github.com/SDWebImage/SDWebImageLottieCoder) - coder for Lottie animation format. Based on [rlottie](https://github.com/Samsung/rlottie)
 - and more from community!
 
 #### Loaders
@@ -66,7 +67,8 @@ We support SwiftUI by building with the functions (caching, loading and animatio
 - [SDWebImageLinkPlugin](https://github.com/SDWebImage/SDWebImageLinkPlugin) - plugin to support loading images from rich link url, as well as `LPLinkView` (using `LinkPresentation.framework`) 
 
 #### Integration with 3rd party libraries
-- [SDWebImageLottiePlugin](https://github.com/SDWebImage/SDWebImageLottiePlugin) - plugin to support [Lottie](https://github.com/airbnb/lottie-ios) animation with remote JSON files
+- [SDWebImageLottiePlugin](https://github.com/SDWebImage/SDWebImageLottiePlugin) - plugin to support [Lottie-iOS](https://github.com/airbnb/lottie-ios), vector animation rending with JSON files
+- [SDWebImageSVGKitPlugin](https://github.com/SDWebImage/SDWebImageLottiePlugin) - plugin to support [SVGKit](https://github.com/SDWebImage/SDWebImageSVGKitPlugin), SVG using Core Animation rendering
 - [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) - plugin to support [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) as the engine for animated GIFs
 - [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin) - plugin to integrate [YYImage](https://github.com/ibireme/YYImage) & [YYCache](https://github.com/ibireme/YYCache) for image rendering & caching
 
