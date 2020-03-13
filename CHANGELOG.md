@@ -1,3 +1,12 @@
+## [5.6.1 - 5.6 Patch, on Mar 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.6.1)
+See [all tickets marked for the 5.6.1 release](https://github.com/SDWebImage/SDWebImage/milestone/65)
+
+### Performances
+- Keep the progressive decoding process only exist one per image download. Cancel the unused progressive decoding when full pixel data is available. #2483
+
+### Fixes
+- Fix the NotificationCenter does not remove the observer and little private header garden #2959
+
 ## [5.6.0 - URLSession Metrics && Vector Format, on Mar 5th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.6.0)
 See [all tickets marked for the 5.6.0 release](https://github.com/SDWebImage/SDWebImage/milestone/63)
 
