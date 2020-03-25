@@ -160,7 +160,7 @@ imageView.image = animatedImage;
 
 ```swift
 let imageView = SDAnimatedImageView()
-let animatedImage = SDAnimatedImage(name: "image.gif")
+let animatedImage = SDAnimatedImage(named: "image.gif")
 imageView.image = animatedImage
 ```
 
