@@ -247,7 +247,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 /**
  * Operation that queries the cache asynchronously and call the completion when done.
  *
- * @param key       The unique key used to store the wanted image
+ * @param key       The unique key used to store the wanted image. If you need transformer's image, calculate the key with `SDTransformedKeyForKey` or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
  * @return a NSOperation instance containing the cache op
@@ -257,7 +257,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
  *
- * @param key       The unique key used to store the wanted image
+ * @param key       The unique key used to store the wanted image. If you need transformer's image, calculate the key with `SDTransformedKeyForKey` or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param options   A mask to specify options to use for this cache query
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
@@ -268,7 +268,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
  *
- * @param key       The unique key used to store the wanted image
+ * @param key       The unique key used to store the wanted image. If you need transformer's image, calculate the key with `SDTransformedKeyForKey` or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param options   A mask to specify options to use for this cache query
  * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled

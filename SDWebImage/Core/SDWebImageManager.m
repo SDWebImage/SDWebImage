@@ -114,6 +114,7 @@ static id<SDImageLoader> _defaultImageLoader;
     } else {
         key = url.absoluteString;
     }
+    
     // Thumbnail Key Appending
     NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     if (thumbnailSizeValue != nil) {
@@ -123,14 +124,21 @@ static id<SDImageLoader> _defaultImageLoader;
 #else
         thumbnailSize = thumbnailSizeValue.CGSizeValue;
 #endif
-        
         BOOL preserveAspectRatio = YES;
         NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
             preserveAspectRatio = preserveAspectRatioValue.boolValue;
         }
-        NSString *transformerKey = [NSString stringWithFormat:@"Thumbnail({%f,%f},%d)", thumbnailSize.width, thumbnailSize.height, preserveAspectRatio];
-        key = SDTransformedKeyForKey(key, transformerKey);
+        key = SDThumbnailedKeyForKey(key, thumbnailSize, preserveAspectRatio);
+    }
+    
+    // Transformer Key Appending
+    id<SDImageTransformer> transformer = self.transformer;
+    if (context[SDWebImageContextImageTransformer]) {
+        transformer = context[SDWebImageContextImageTransformer];
+    }
+    if (transformer) {
+        key = SDTransformedKeyForKey(key, transformer.transformerKey);
     }
     
     return key;
@@ -409,8 +417,6 @@ static id<SDImageLoader> _defaultImageLoader;
             @autoreleasepool {
                 UIImage *transformedImage = [transformer transformedImageWithImage:originalImage forKey:key];
                 if (transformedImage && finished) {
-                    NSString *transformerKey = [transformer transformerKey];
-                    NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
                     BOOL imageWasTransformed = ![transformedImage isEqual:originalImage];
                     NSData *cacheData;
                     // pass nil if the image was transformed, so we can recalculate the data from the image
@@ -421,7 +427,7 @@ static id<SDImageLoader> _defaultImageLoader;
                     }
                     // keep the original image format and extended data
                     SDImageCopyAssociatedObject(originalImage, transformedImage);
-                    [self storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType options:options context:context completion:^{
+                    [self storeImage:transformedImage imageData:cacheData forKey:key cacheType:storeCacheType options:options context:context completion:^{
                         [self callCompletionBlockForOperation:operation completion:completedBlock image:transformedImage data:originalData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                     }];
                 } else {

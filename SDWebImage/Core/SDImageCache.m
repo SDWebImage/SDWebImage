@@ -9,7 +9,6 @@
 #import "SDImageCache.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageCodersManager.h"
-#import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
@@ -453,13 +452,6 @@
             doneBlock(nil, nil, SDImageCacheTypeNone);
         }
         return nil;
-    }
-    
-    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
-    if (transformer) {
-        // grab the transformed disk image if transformer provided
-        NSString *transformerKey = [transformer transformerKey];
-        key = SDTransformedKeyForKey(key, transformerKey);
     }
     
     // First check the in-memory cache...

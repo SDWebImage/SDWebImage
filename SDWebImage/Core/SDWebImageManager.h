@@ -266,4 +266,10 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  */
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url;
 
+/**
+ * Return the cache key for a given URL and context option.
+ * Some option like `.thumbnailPixelSize` and `imageTransformer` will effect the generated cache key, using this if you have those context associated.
+*/
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url context:(nullable SDWebImageContext *)context;
+
 @end
