@@ -269,6 +269,19 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 - (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
+ * Asynchronously queries the cache with operation and call the completion when done.
+ *
+ * @param key       The unique key used to store the wanted image. If you want transformed or thumbnail image, calculate the key with `SDTransformedKeyForKey`, `SDThumbnailedKeyForKey`, or generate the cache key from url with `cacheKeyForURL:context:`.
+ * @param options   A mask to specify options to use for this cache query
+ * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param queryCacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediatelly.
+ * @param doneBlock The completion block. Will not get called if the operation is cancelled
+ *
+ * @return a NSOperation instance containing the cache op
+ */
+- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)queryCacheType done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
+
+/**
  * Synchronously query the memory cache.
  *
  * @param key The unique key used to store the image
