@@ -24,6 +24,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  @param thumbnailPixelSize The thumbnail pixel size
  @param preserveAspectRatio The preserve aspect ratio option
  @return The thumbnailed cache key
+ @note If you have both transformer and thumbnail applied for image, call `SDThumbnailedKeyForKey` firstly and then with `SDTransformedKeyForKey`.`
  */
 FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, BOOL preserveAspectRatio);
 

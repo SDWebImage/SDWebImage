@@ -95,7 +95,23 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
-    return [self cacheKeyForURL:url context:nil];
+    return [self cacheKeyForURL:url cacheKeyFilter:self.cacheKeyFilter];
+}
+
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url cacheKeyFilter:(nullable id<SDWebImageCacheKeyFilter>)cacheKeyFilter {
+    if (!url) {
+        return @"";
+    }
+    
+    NSString *key;
+    // Cache Key Filter
+    if (cacheKeyFilter) {
+        key = [cacheKeyFilter cacheKeyForURL:url];
+    } else {
+        key = url.absoluteString;
+    }
+    
+    return key;
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url context:(nullable SDWebImageContext *)context {
@@ -355,7 +371,9 @@ static id<SDImageLoader> _defaultImageLoader;
     if (context[SDWebImageContextOriginalStoreCacheType]) {
         originalStoreCacheType = [context[SDWebImageContextOriginalStoreCacheType] integerValue];
     }
-    NSString *key = [self cacheKeyForURL:url context:context];
+    // origin cache key
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter] ?: self.cacheKeyFilter;
+    NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
@@ -405,6 +423,7 @@ static id<SDImageLoader> _defaultImageLoader;
     if (context[SDWebImageContextStoreCacheType]) {
         storeCacheType = [context[SDWebImageContextStoreCacheType] integerValue];
     }
+    // transformed cache key
     NSString *key = [self cacheKeyForURL:url context:context];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
