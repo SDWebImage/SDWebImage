@@ -227,8 +227,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 #pragma mark - Query and Retrieve Ops
 
 /**
- * Asynchronously queries the cache with operation and call the completion when done.
- *  Query the image data for the given key synchronously.
+ * Synchronously query the image data for the given key in disk cache. You can decode the image data to image after loaded.
  *
  *  @param key The unique key used to store the wanted image
  *  @return The image data for the given key, or nil if not found.
@@ -236,16 +235,16 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 - (nullable NSData *)diskImageDataForKey:(nullable NSString *)key;
 
 /**
- * Asynchronously load the image data in disk cache. You can decode the image data to image after loaded.
+ * Asynchronously query the image data for the given key in disk cache. You can decode the image data to image after loaded.
  *
  *  @param key The unique key used to store the wanted image
- *  @param completionBlock the block to be executed when the check is done.
+ *  @param completionBlock the block to be executed when the query is done.
  *  @note the completion block will be always executed on the main queue
  */
 - (void)diskImageDataQueryForKey:(nullable NSString *)key completion:(nullable SDImageCacheQueryDataCompletionBlock)completionBlock;
 
 /**
- * Operation that queries the cache asynchronously and call the completion when done.
+ * Asynchronously queries the cache with operation and call the completion when done.
  *
  * @param key       The unique key used to store the wanted image. If you want transformed or thumbnail image, calculate the key with `SDTransformedKeyForKey`, `SDThumbnailedKeyForKey`, or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
@@ -307,12 +306,32 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key;
 
 /**
+ * Synchronously query the disk cache. With the options and context which may effect the image generation. (Such as transformer, animated image, thumbnail, etc)
+ *
+ * @param key The unique key used to store the image
+ * @param options   A mask to specify options to use for this cache query
+ * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @return The image for the given key, or nil if not found.
+ */
+- (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context;
+
+/**
  * Synchronously query the cache (memory and or disk) after checking the memory cache.
  *
  * @param key The unique key used to store the image
  * @return The image for the given key, or nil if not found.
  */
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key;
+
+/**
+ * Synchronously query the cache (memory and or disk) after checking the memory cache. With the options and context which may effect the image generation. (Such as transformer, animated image, thumbnail, etc)
+ *
+ * @param key The unique key used to store the image
+ * @param options   A mask to specify options to use for this cache query
+ * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @return The image for the given key, or nil if not found.
+ */
+- (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context;;
 
 #pragma mark - Remove Ops
 
