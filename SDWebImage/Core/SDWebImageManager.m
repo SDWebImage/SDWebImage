@@ -95,16 +95,13 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
-    return [self cacheKeyForURL:url cacheKeyFilter:self.cacheKeyFilter];
-}
-
-- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url cacheKeyFilter:(nullable id<SDWebImageCacheKeyFilter>)cacheKeyFilter {
     if (!url) {
         return @"";
     }
     
     NSString *key;
     // Cache Key Filter
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
     if (cacheKeyFilter) {
         key = [cacheKeyFilter cacheKeyForURL:url];
     } else {
@@ -152,6 +149,9 @@ static id<SDImageLoader> _defaultImageLoader;
     id<SDImageTransformer> transformer = self.transformer;
     if (context[SDWebImageContextImageTransformer]) {
         transformer = context[SDWebImageContextImageTransformer];
+        if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+            transformer = nil;
+        }
     }
     if (transformer) {
         key = SDTransformedKeyForKey(key, transformer.transformerKey);
@@ -372,9 +372,14 @@ static id<SDImageLoader> _defaultImageLoader;
         originalStoreCacheType = [context[SDWebImageContextOriginalStoreCacheType] integerValue];
     }
     // origin cache key
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter] ?: self.cacheKeyFilter;
-    NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
+    SDWebImageMutableContext *originContext = [context mutableCopy];
+    // disable transformer for cache key generation
+    originContext[SDWebImageContextImageTransformer] = [NSNull null];
+    NSString *key = [self cacheKeyForURL:url context:originContext];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
     BOOL shouldTransformImage = downloadedImage && transformer;
@@ -426,7 +431,11 @@ static id<SDImageLoader> _defaultImageLoader;
     // transformed cache key
     NSString *key = [self cacheKeyForURL:url context:context];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
+    
     BOOL shouldTransformImage = originalImage && transformer;
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
