@@ -610,7 +610,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 - (void)test50SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
     [[SDImageCache sharedImageCache] storeImage:[self testJPEGImage] forKey:kTestImageKeyJPEG toDisk:NO completion:nil];
-    [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).notTo.beNil();
         [expectation fulfill];
     }];
@@ -680,7 +680,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
-    [cachesManager queryImageForKey:kTestImageKeyJPEG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [cachesManager queryImageForKey:kTestImageKeyJPEG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).to.beNil();
     }];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kTestImageKeyJPEG cacheType:SDImageCacheTypeMemory completion:nil];
@@ -699,7 +699,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
-    [cachesManager queryImageForKey:kTestImageKeyPNG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [cachesManager queryImageForKey:kTestImageKeyPNG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).to.beNil();
     }];
     [cachesManager storeImage:[self testPNGImage] imageData:nil forKey:kTestImageKeyPNG cacheType:SDImageCacheTypeMemory completion:nil];
@@ -732,7 +732,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
-    [cachesManager queryImageForKey:kConcurrentTestImageKey options:0 context:nil completion:nil];
+    [cachesManager queryImageForKey:kConcurrentTestImageKey options:0 context:nil cacheType:SDImageCacheTypeAll completion:nil];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kConcurrentTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager removeImageForKey:kConcurrentTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager clearWithCacheType:SDImageCacheTypeMemory completion:nil];
@@ -772,7 +772,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicySerial;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicySerial;
-    [cachesManager queryImageForKey:kSerialTestImageKey options:0 context:nil completion:nil];
+    [cachesManager queryImageForKey:kSerialTestImageKey options:0 context:nil cacheType:SDImageCacheTypeAll completion:nil];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kSerialTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager removeImageForKey:kSerialTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager clearWithCacheType:SDImageCacheTypeMemory completion:nil];
