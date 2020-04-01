@@ -314,6 +314,17 @@
     return [self.diskCache containsDataForKey:key];
 }
 
+- (void)diskImageDataQueryForKey:(NSString *)key completion:(SDImageCacheQueryDataCompletionBlock)completionBlock {
+    dispatch_async(self.ioQueue, ^{
+        NSData *imageData = [self diskImageDataBySearchingAllPathsForKey:key];
+        if (completionBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(imageData);
+            });
+        }
+    });
+}
+
 - (nullable NSData *)diskImageDataForKey:(nullable NSString *)key {
     if (!key) {
         return nil;

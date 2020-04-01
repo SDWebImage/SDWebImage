@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
 };
 
 typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
+typedef void(^SDImageCacheQueryDataCompletionBlock)(NSData * _Nullable data);
 typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 typedef void(^SDImageCacheQueryCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
