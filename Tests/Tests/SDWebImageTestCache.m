@@ -8,7 +8,7 @@
  */
 
 #import "SDWebImageTestCache.h"
-#import <SDWebImage/SDImageCacheConfig.h>
+#import <SDWebImage/SDWebImage.h>
 #import "SDFileAttributeHelper.h"
 
 static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hackemist.SDWebImageTestDiskCache";
@@ -118,6 +118,156 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
         [SDFileAttributeHelper removeExtendedAttribute:SDWebImageTestDiskCacheExtendedAttributeName atPath:cachePathForKey traverseLink:NO error:nil];
     } else {
         [SDFileAttributeHelper setExtendedAttribute:SDWebImageTestDiskCacheExtendedAttributeName value:extendedData atPath:cachePathForKey traverseLink:NO overwrite:YES error:nil];
+    }
+}
+
+@end
+
+@implementation SDWebImageTestCache
+
+- (instancetype)initWithCachePath:(NSString *)cachePath config:(SDImageCacheConfig *)config {
+    self = [super init];
+    if (self) {
+        self.config = config;
+        self.memoryCache = [[SDWebImageTestMemoryCache alloc] initWithConfig:config];
+        self.diskCache = [[SDWebImageTestDiskCache alloc] initWithCachePath:cachePath config:config];
+    }
+    return self;
+}
+
+- (void)clearWithCacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone:
+            break;
+        case SDImageCacheTypeMemory:
+            [self.memoryCache removeAllObjects];
+            break;
+        case SDImageCacheTypeDisk:
+            [self.diskCache removeAllData];
+            break;
+        case SDImageCacheTypeAll:
+            [self.memoryCache removeAllObjects];
+            [self.diskCache removeAllData];
+            break;
+        default:
+            break;
+    }
+    if (completionBlock) {
+        completionBlock();
+    }
+}
+
+- (void)containsImageForKey:(nullable NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDImageCacheContainsCompletionBlock)completionBlock {
+    SDImageCacheType containsCacheType = SDImageCacheTypeNone;
+    switch (cacheType) {
+        case SDImageCacheTypeNone:
+            break;
+        case SDImageCacheTypeMemory:
+            containsCacheType = [self.memoryCache objectForKey:key] ? SDImageCacheTypeMemory : SDImageCacheTypeNone;
+            break;
+        case SDImageCacheTypeDisk:
+            containsCacheType = [self.diskCache containsDataForKey:key] ? SDImageCacheTypeDisk : SDImageCacheTypeNone;
+            break;
+        case SDImageCacheTypeAll:
+            if ([self.memoryCache objectForKey:key]) {
+                containsCacheType = SDImageCacheTypeMemory;
+            } else if ([self.diskCache containsDataForKey:key]) {
+                containsCacheType = SDImageCacheTypeDisk;
+            }
+        default:
+            break;
+    }
+    if (completionBlock) {
+        completionBlock(containsCacheType);
+    }
+}
+
+- (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
+    return [self queryImageForKey:key options:options context:context cacheType:SDImageCacheTypeAll completion:completionBlock];
+}
+
+- (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)cacheType completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock {
+    UIImage *image;
+    NSData *data;
+    SDImageCacheType resultCacheType = SDImageCacheTypeNone;
+    switch (cacheType) {
+        case SDImageCacheTypeNone:
+            break;
+        case SDImageCacheTypeMemory:
+            image = [self.memoryCache objectForKey:key];
+            if (image) {
+                resultCacheType = SDImageCacheTypeMemory;
+            }
+            break;
+        case SDImageCacheTypeDisk:
+            data = [self.diskCache dataForKey:key];
+            image = [UIImage sd_imageWithData:data];
+            if (data) {
+                resultCacheType = SDImageCacheTypeDisk;
+            }
+            break;
+        case SDImageCacheTypeAll:
+            image = [self.memoryCache objectForKey:key];
+            if (image) {
+                resultCacheType = SDImageCacheTypeMemory;
+            } else {
+                data = [self.diskCache dataForKey:key];
+                image = [UIImage sd_imageWithData:data];
+                if (data) {
+                    resultCacheType = SDImageCacheTypeDisk;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    if (completionBlock) {
+        completionBlock(image, data, resultCacheType);
+    }
+    return nil;
+}
+
+- (void)removeImageForKey:(nullable NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone:
+            break;
+        case SDImageCacheTypeMemory:
+            [self.memoryCache removeObjectForKey:key];
+            break;
+        case SDImageCacheTypeDisk:
+            [self.diskCache removeDataForKey:key];
+            break;
+        case SDImageCacheTypeAll:
+            [self.memoryCache removeObjectForKey:key];
+            [self.diskCache removeDataForKey:key];
+            break;
+        default:
+            break;
+    }
+    if (completionBlock) {
+        completionBlock();
+    }
+}
+
+- (void)storeImage:(nullable UIImage *)image imageData:(nullable NSData *)imageData forKey:(nullable NSString *)key cacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    switch (cacheType) {
+        case SDImageCacheTypeNone:
+            break;
+        case SDImageCacheTypeMemory:
+            [self.memoryCache setObject:image forKey:key];
+            break;
+        case SDImageCacheTypeDisk:
+            [self.diskCache setData:imageData forKey:key];
+            break;
+        case SDImageCacheTypeAll:
+            [self.memoryCache setObject:image forKey:key];
+            [self.diskCache setData:imageData forKey:key];
+            break;
+        default:
+            break;
+    }
+    if (completionBlock) {
+        completionBlock();
     }
 }
 

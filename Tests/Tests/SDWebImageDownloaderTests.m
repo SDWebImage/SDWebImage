@@ -474,7 +474,6 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-#if SD_UIKIT
 - (void)test22ThatCustomDecoderWorksForImageDownload {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom decoder for SDWebImageDownloader not works"];
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
@@ -487,8 +486,8 @@
     UIImage *testJPEGImage = [[UIImage alloc] initWithContentsOfFile:testJPEGImagePath];
     
     [downloader downloadImageWithURL:testImageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
-        NSData *data1 = UIImagePNGRepresentation(testJPEGImage);
-        NSData *data2 = UIImagePNGRepresentation(image);
+        NSData *data1 = [testJPEGImage sd_imageDataAsFormat:SDImageFormatPNG];
+        NSData *data2 = [image sd_imageDataAsFormat:SDImageFormatPNG];
         if (![data1 isEqualToData:data2]) {
             XCTFail(@"The image data is not equal to cutom decoder, check -[SDWebImageTestDecoder decodedImageWithData:]");
         }
@@ -499,7 +498,6 @@
     [self waitForExpectationsWithCommonTimeout];
     [downloader invalidateSessionAndCancel:YES];
 }
-#endif
 
 - (void)test23ThatDownloadRequestModifierWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Download request modifier not works"];
