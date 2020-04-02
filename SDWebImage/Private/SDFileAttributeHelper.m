@@ -17,15 +17,15 @@
     ssize_t nameBuffLen = listxattr([path fileSystemRepresentation], NULL, 0, flags);
     if (nameBuffLen == -1) {
         if (err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSString stringWithUTF8String:strerror(errno)], @"error",
-             @"listxattr", @"function",
-             path, @":path",
-             [NSNumber numberWithBool:follow], @":traverseLink",
-             nil]
-            ];
+                         @{
+                             @"error": [NSString stringWithUTF8String:strerror(errno)],
+                             @"function": @"listxattr",
+                             @":path": path,
+                             @":traverseLink": @(follow)
+                         }
+                         ];
         return nil;
-    } else if (nameBuffLen == 0) return [NSArray array];
+    } else if (nameBuffLen == 0) return @[];
     
     // get name list
     NSMutableData *nameBuff = [NSMutableData dataWithLength:nameBuffLen];
@@ -36,7 +36,7 @@
     char *nextName, *endOfNames = [nameBuff mutableBytes] + nameBuffLen;
     for(nextName = [nameBuff mutableBytes]; nextName < endOfNames; nextName += 1+strlen(nextName))
         [names addObject:[NSString stringWithUTF8String:nextName]];
-    return [NSArray arrayWithArray:names];
+    return names.copy;
 }
 
 + (BOOL)hasExtendedAttribute:(NSString *)name atPath:(NSString *)path traverseLink:(BOOL)follow error:(NSError **)err {
@@ -46,13 +46,13 @@
     ssize_t nameBuffLen = listxattr([path fileSystemRepresentation], NULL, 0, flags);
     if (nameBuffLen == -1) {
         if (err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSString stringWithUTF8String:strerror(errno)], @"error",
-             @"listxattr", @"function",
-             path, @":path",
-             [NSNumber numberWithBool:follow], @":traverseLink",
-             nil]
-            ];
+                         @{
+                             @"error": [NSString stringWithUTF8String:strerror(errno)],
+                             @"function": @"listxattr",
+                             @":path": path,
+                             @":traverseLink": @(follow)
+                         }
+                         ];
         return NO;
     } else if (nameBuffLen == 0) return NO;
     
@@ -73,13 +73,13 @@
     ssize_t attrLen = getxattr([path fileSystemRepresentation], [name UTF8String], NULL, 0, 0, flags);
     if (attrLen == -1) {
         if (err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:
-                         [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSString stringWithUTF8String:strerror(errno)], @"error",
-                          @"getxattr", @"function",
-                          name, @":name",
-                          path, @":path",
-                          [NSNumber numberWithBool:follow], @":traverseLink",
-                          nil]
+                         @{
+                             @"error": [NSString stringWithUTF8String:strerror(errno)],
+                             @"function": @"getxattr",
+                             @":name": name,
+                             @":path": path,
+                             @":traverseLink": @(follow)
+                         }
                          ];
         return nil;
     }
@@ -95,15 +95,15 @@
     if (0 == setxattr([path fileSystemRepresentation], [name UTF8String], [value bytes], [value length], 0, flags)) return YES;
     // error
     if (err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:
-                     [NSDictionary dictionaryWithObjectsAndKeys:
-                      [NSString stringWithUTF8String:strerror(errno)], @"error",
-                      @"setxattr", @"function",
-                      name, @":name",
-                      [NSNumber numberWithUnsignedInteger:[value length]], @":value.length",
-                      path, @":path",
-                      [NSNumber numberWithBool:follow], @":traverseLink",
-                      [NSNumber numberWithBool:overwrite], @":overwrite",
-                      nil]
+                     @{
+                         @"error": [NSString stringWithUTF8String:strerror(errno)],
+                         @"function": @"setxattr",
+                         @":name": name,
+                         @":value.length": @(value.length),
+                         @":path": path,
+                         @":traverseLink": @(follow),
+                         @":overwrite": @(overwrite)
+                     }
                      ];
     return NO;
 }
@@ -113,13 +113,13 @@
     if (0 == removexattr([path fileSystemRepresentation], [name UTF8String], flags)) return YES;
     // error
     if (err) *err = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:
-                     [NSDictionary dictionaryWithObjectsAndKeys:
-                      [NSString stringWithUTF8String:strerror(errno)], @"error",
-                      @"removexattr", @"function",
-                      name, @":name",
-                      path, @":path",
-                      [NSNumber numberWithBool:follow], @":traverseLink",
-                      nil]
+                     @{
+                         @"error": [NSString stringWithUTF8String:strerror(errno)],
+                         @"function": @"removexattr",
+                         @":name": name,
+                         @":path": path,
+                         @":traverseLink": @(follow)
+                     }
                      ];
     return NO;
 }
