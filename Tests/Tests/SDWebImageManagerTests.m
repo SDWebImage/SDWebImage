@@ -294,6 +294,29 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test15ThatQueryCacheTypeWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image query cache type works"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/101x101.png"];
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    NSData *testImageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    [SDImageCache.sharedImageCache storeImageDataToDisk:testImageData forKey:key];
+    
+    // Query memory first
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).beNil();
+        expect(cacheType).equal(SDImageCacheTypeNone);
+        // Query disk secondly
+        [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeDisk)} progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
+            expect(image2).notTo.beNil();
+            expect(cacheType2).equal(SDImageCacheTypeDisk);
+            [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];

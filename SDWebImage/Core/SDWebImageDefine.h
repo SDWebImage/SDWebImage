@@ -260,7 +260,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageP
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageThumbnailPixelSize;
 
 /**
- A SDImageCacheType raw value which specify the source of cache to query. For example, you can query memory only, query disk only, or query from both memory and disk cache.
+ A SDImageCacheType raw value which specify the source of cache to query. Specify `SDImageCacheTypeDisk` to query from disk cache only; `SDImageCacheTypeMemory` to query from memory only. And `SDImageCacheTypeAll` to query from both memory cache and disk cache. Specify `SDImageCacheTypeNone` is invalid and totally ignore the cache query.
  If not provide or the value is invalid, we will use `SDImageCacheTypeAll`. (NSNumber)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextQueryCacheType;

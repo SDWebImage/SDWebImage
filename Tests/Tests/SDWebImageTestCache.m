@@ -188,6 +188,7 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
             } else if ([self.diskCache containsDataForKey:key]) {
                 containsCacheType = SDImageCacheTypeDisk;
             }
+            break;
         default:
             break;
     }
