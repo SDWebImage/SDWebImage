@@ -220,10 +220,15 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     // Check whether we should query cache
     BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
+    // Get the query cache type
+    SDImageCacheType queryCacheType = SDImageCacheTypeAll;
+    if (context[SDWebImageContextQueryCacheType]) {
+        queryCacheType = [context[SDWebImageContextQueryCacheType] integerValue];
+    }
     if (shouldQueryCache) {
         NSString *key = [self cacheKeyForURL:url context:context];
         @weakify(operation);
-        operation.cacheOperation = [imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
+        operation.cacheOperation = [imageCache queryImageForKey:key options:options context:context cacheType:queryCacheType completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
                 // Image combined operation cancelled by user
