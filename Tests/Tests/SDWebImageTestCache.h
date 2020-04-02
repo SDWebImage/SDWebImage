@@ -36,4 +36,6 @@
 
 - (nullable instancetype)initWithCachePath:(nonnull NSString *)cachePath config:(nonnull SDImageCacheConfig *)config;
 
+@property (nonatomic, class, readonly, nonnull) SDWebImageTestCache *sharedCache;
+
 @end

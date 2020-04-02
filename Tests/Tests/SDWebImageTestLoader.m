@@ -16,6 +16,15 @@
 
 @implementation SDWebImageTestLoader
 
++ (SDWebImageTestLoader *)sharedLoader {
+    static dispatch_once_t onceToken;
+    static SDWebImageTestLoader *loader;
+    dispatch_once(&onceToken, ^{
+        loader = [[SDWebImageTestLoader alloc] init];
+    });
+    return loader;
+}
+
 - (BOOL)canRequestImageForURL:(NSURL *)url {
     return YES;
 }

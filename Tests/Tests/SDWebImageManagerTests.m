@@ -8,6 +8,8 @@
 
 #import "SDTestCase.h"
 #import "SDWebImageTestTransformer.h"
+#import "SDWebImageTestCache.h"
+#import "SDWebImageTestLoader.h"
 
 @interface SDWebImageManagerTests : SDTestCase
 
@@ -266,6 +268,30 @@
     [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
         SDImageCoderHelper.defaultScaleDownLimitBytes = defaultLimitBytes;
     }];
+}
+
+- (void)test14ThatCustomCacheAndLoaderWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Custom Cache and Loader during manger query"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/100x100.png"];
+    SDWebImageContext *context = @{
+        SDWebImageContextImageCache : SDWebImageTestCache.sharedCache,
+        SDWebImageContextImageLoader : SDWebImageTestLoader.sharedLoader
+    };
+    [SDWebImageTestCache.sharedCache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageWaitStoreCache context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.size.width).equal(100);
+        expect(image.size.height).equal(100);
+        expect(data).notTo.beNil();
+        NSString *cacheKey = [SDWebImageManager.sharedManager cacheKeyForURL:imageURL];
+        // Check Disk Cache (SDWebImageWaitStoreCache behavior)
+        [SDWebImageTestCache.sharedCache containsImageForKey:cacheKey cacheType:SDImageCacheTypeDisk completion:^(SDImageCacheType containsCacheType) {
+            expect(containsCacheType).equal(SDImageCacheTypeDisk);
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (NSString *)testJPEGPath {

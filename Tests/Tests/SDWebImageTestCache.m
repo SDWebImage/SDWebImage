@@ -49,7 +49,7 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 @implementation SDWebImageTestDiskCache
 
 - (nullable NSString *)cachePathForKey:(nonnull NSString *)key {
-    return [self.cachePath stringByAppendingPathComponent:key];
+    return [self.cachePath stringByAppendingPathComponent:key.lastPathComponent];
 }
 
 - (BOOL)containsDataForKey:(nonnull NSString *)key {
@@ -72,7 +72,10 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 }
 
 - (void)removeAllData {
-    [self.fileManager removeItemAtPath:self.cachePath error:nil];
+    for (NSString *path in [self.fileManager subpathsAtPath:self.cachePath]) {
+        NSString *filePath = [self.cachePath stringByAppendingPathComponent:path];
+        [self.fileManager removeItemAtPath:filePath error:nil];
+    }
 }
 
 - (void)removeDataForKey:(nonnull NSString *)key {
@@ -124,6 +127,17 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 @end
 
 @implementation SDWebImageTestCache
+
++ (SDWebImageTestCache *)sharedCache {
+    static dispatch_once_t onceToken;
+    static SDWebImageTestCache *cache;
+    dispatch_once(&onceToken, ^{
+        NSString *cachePath = [[self userCacheDirectory] stringByAppendingPathComponent:@"SDWebImageTestCache"];
+        SDImageCacheConfig *config = SDImageCacheConfig.defaultCacheConfig;
+        cache = [[SDWebImageTestCache alloc] initWithCachePath:cachePath config:config];
+    });
+    return cache;
+}
 
 - (instancetype)initWithCachePath:(NSString *)cachePath config:(SDImageCacheConfig *)config {
     self = [super init];
@@ -269,6 +283,11 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
     if (completionBlock) {
         completionBlock();
     }
+}
+
++ (nullable NSString *)userCacheDirectory {
+    NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    return paths.firstObject;
 }
 
 @end

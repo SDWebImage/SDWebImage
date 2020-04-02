@@ -800,6 +800,8 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     expect(cache.memoryCache).notTo.beNil();
     expect(cache.diskCache).notTo.beNil();
     
+    // Clear
+    [cache clearWithCacheType:SDImageCacheTypeAll completion:nil];
     // Store
     UIImage *image1 = self.testJPEGImage;
     NSString *key1 = @"testJPEGImage";
@@ -816,6 +818,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     }];
     // Remove
     [cache removeImageForKey:key1 cacheType:SDImageCacheTypeAll completion:nil];
+    // Contain
     [cache containsImageForKey:key1 cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType containsCacheType) {
         expect(containsCacheType).equal(SDImageCacheTypeNone);
     }];
