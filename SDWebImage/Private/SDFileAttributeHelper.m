@@ -99,7 +99,7 @@
                          @"error": [NSString stringWithUTF8String:strerror(errno)],
                          @"function": @"setxattr",
                          @":name": name,
-                         @":value.length": [NSNumber numberWithUnsignedInteger:[value length]],
+                         @":value.length": @(value.length),
                          @":path": path,
                          @":traverseLink": @(follow),
                          @":overwrite": @(overwrite)
