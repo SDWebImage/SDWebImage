@@ -220,6 +220,7 @@
     
     // Use a fresh manager && cache to avoid get effected by other test cases
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"SDWebImageStoreCacheType"];
+    [cache clearDiskOnCompletion:nil];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
@@ -229,7 +230,7 @@
     SDWebImageContext *context = @{SDWebImageContextOriginalStoreCacheType : @(SDImageCacheTypeDisk), SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)};
     NSURL *url = [NSURL URLWithString:kTestJPEGURL];
     NSString *originalKey = [manager cacheKeyForURL:url];
-    NSString *transformedKey = SDTransformedKeyForKey(originalKey, transformer.transformerKey);
+    NSString *transformedKey = [manager cacheKeyForURL:url context:context];
     
     [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).equal(transformer.testImage);

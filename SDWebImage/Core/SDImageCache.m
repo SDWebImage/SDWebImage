@@ -9,7 +9,6 @@
 #import "SDImageCache.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageCodersManager.h"
-#import "SDImageTransformer.h"
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImage.h"
 #import "UIImage+MemoryCacheCost.h"
@@ -342,7 +341,12 @@
 }
 
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key {
-    UIImage *diskImage = [self diskImageForKey:key];
+    return [self imageFromDiskCacheForKey:key options:0 context:nil];
+}
+
+- (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context {
+    NSData *data = [self diskImageDataForKey:key];
+    UIImage *diskImage = [self diskImageForKey:key data:data options:options context:context];
     if (diskImage && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = diskImage.sd_memoryCost;
         [self.memoryCache setObject:diskImage forKey:key cost:cost];
@@ -352,6 +356,10 @@
 }
 
 - (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key {
+    return [self imageFromCacheForKey:key options:0 context:nil];
+}
+
+- (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context {
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
@@ -359,7 +367,7 @@
     }
     
     // Second check the disk cache...
-    image = [self imageFromDiskCacheForKey:key];
+    image = [self imageFromDiskCacheForKey:key options:options context:context];
     return image;
 }
 
@@ -453,13 +461,6 @@
             doneBlock(nil, nil, SDImageCacheTypeNone);
         }
         return nil;
-    }
-    
-    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
-    if (transformer) {
-        // grab the transformed disk image if transformer provided
-        NSString *transformerKey = [transformer transformerKey];
-        key = SDTransformedKeyForKey(key, transformerKey);
     }
     
     // First check the in-memory cache...

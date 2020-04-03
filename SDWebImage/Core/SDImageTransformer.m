@@ -38,6 +38,11 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
     }
 }
 
+NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, BOOL preserveAspectRatio) {
+    NSString *thumbnailKey = [NSString stringWithFormat:@"Thumbnail({%f,%f},%d)", thumbnailPixelSize.width, thumbnailPixelSize.height, preserveAspectRatio];
+    return SDTransformedKeyForKey(key, thumbnailKey);
+}
+
 @interface SDImagePipelineTransformer ()
 
 @property (nonatomic, copy, readwrite, nonnull) NSArray<id<SDImageTransformer>> *transformers;
