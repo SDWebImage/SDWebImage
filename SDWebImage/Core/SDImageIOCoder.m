@@ -221,9 +221,14 @@
     if (!image) {
         return nil;
     }
+    CGImageRef imageRef = image.CGImage;
+    if (!imageRef) {
+        // Earily return, supports CGImage only
+        return nil;
+    }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage];
+        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {
@@ -258,9 +263,32 @@
     if (backgroundColor) {
         properties[(__bridge NSString *)kCGImageDestinationBackgroundColor] = (__bridge id)(backgroundColor);
     }
+    CGSize maxPixelSize = CGSizeZero;
+    NSValue *maxPixelSizeValue = options[SDImageCoderEncodeMaxPixelSize];
+    if (maxPixelSizeValue != nil) {
+#if SD_MAC
+        maxPixelSize = maxPixelSizeValue.sizeValue;
+#else
+        maxPixelSize = maxPixelSizeValue.CGSizeValue;
+#endif
+    }
+    NSUInteger pixelWidth = CGImageGetWidth(imageRef);
+    NSUInteger pixelHeight = CGImageGetHeight(imageRef);
+    if (maxPixelSize.width > 0 && maxPixelSize.height > 0 && pixelWidth > 0 && pixelHeight > 0) {
+        CGFloat pixelRatio = pixelWidth / pixelHeight;
+        CGFloat maxPixelSizeRatio = maxPixelSize.width / maxPixelSize.height;
+        CGFloat finalPixelSize;
+        if (pixelRatio > maxPixelSizeRatio) {
+            finalPixelSize = maxPixelSize.width;
+        } else {
+            finalPixelSize = maxPixelSize.height;
+        }
+        properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+    }
+    
     
     // Add your image to the destination.
-    CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
+    CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {
