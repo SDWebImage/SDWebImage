@@ -37,6 +37,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodePreserveAs
 /**
  A CGSize value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.preserveAspectRatio`) the value size.
  Defaults to CGSizeZero, which means no thumbnail generation at all.
+ @note Supports for animated image as well.
  @note When you pass `.preserveAspectRatio == NO`, the thumbnail image is stretched to match each dimension. When `.preserveAspectRatio == YES`, the thumbnail image's width is limited to pixel size's width, the thumbnail image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
  @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
  */
@@ -62,8 +63,10 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeCompressio
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeBackgroundColor;
 
 /**
- A CGSize value indicating the max image resolution in pixels during encoding. For vector image, this also effect the output vector data information about width and height. The encoder will not generate the encoded image larger than this limit. Note it always use the aspect ratio of input image.
+ A CGSize value indicating the max image resolution in pixels during encoding. For vector image, this also effect the output vector data information about width and height. The encoder will not generate the encoded image larger than this limit. Note it always use the aspect ratio of input image..
  Defaults to CGSizeZero, which means no max size limit at all.
+ @note Supports for animated image as well.
+ @note The ouput image's width is limited to pixel size's width, the output image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxPixelSize;

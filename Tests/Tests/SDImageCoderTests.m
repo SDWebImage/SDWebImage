@@ -271,6 +271,25 @@ withLocalImageURL:(NSURL *)imageUrl
 #if SD_UIKIT
         expect(outputImage.images.count).to.equal(inputImage.images.count);
 #endif
+        
+        // check max pixel size encoding with scratch
+        CGFloat maxWidth = 50;
+        CGFloat maxHeight = 50;
+        CGFloat maxRatio = maxWidth / maxHeight;
+        CGSize maxPixelSize;
+        if (ratio > maxRatio) {
+            maxPixelSize = CGSizeMake(maxWidth, round(maxWidth / ratio));
+        } else {
+            maxPixelSize = CGSizeMake(round(maxHeight * ratio), maxHeight);
+        }
+        NSData *outputMaxImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:@{SDImageCoderEncodeMaxPixelSize : @(CGSizeMake(maxWidth, maxHeight))}];
+        UIImage *outputMaxImage = [coder decodedImageWithData:outputMaxImageData options:nil];
+        // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
+        expect(ABS(outputMaxImage.size.width - maxPixelSize.width) <= 1);
+        expect(ABS(outputMaxImage.size.height - maxPixelSize.height) <= 1);
+#if SD_UIKIT
+        expect(outputMaxImage.images.count).to.equal(inputImage.images.count);
+#endif
     }
 }
 

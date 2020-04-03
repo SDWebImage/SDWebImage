@@ -452,21 +452,23 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
     }
     NSUInteger pixelWidth = CGImageGetWidth(imageRef);
     NSUInteger pixelHeight = CGImageGetHeight(imageRef);
+    CGFloat finalPixelSize = 0;
     if (maxPixelSize.width > 0 && maxPixelSize.height > 0 && pixelWidth > 0 && pixelHeight > 0) {
         CGFloat pixelRatio = pixelWidth / pixelHeight;
         CGFloat maxPixelSizeRatio = maxPixelSize.width / maxPixelSize.height;
-        CGFloat finalPixelSize;
         if (pixelRatio > maxPixelSizeRatio) {
             finalPixelSize = maxPixelSize.width;
         } else {
             finalPixelSize = maxPixelSize.height;
         }
-        properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
     }
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single images
+        if (finalPixelSize > 0) {
+            properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+        }
         CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated images
@@ -479,7 +481,11 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
             SDImageFrame *frame = frames[i];
             NSTimeInterval frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{self.class.dictionaryProperty : @{self.class.delayTimeProperty : @(frameDuration)}};
+            NSMutableDictionary *frameProperties = [NSMutableDictionary dictionary];
+            frameProperties[self.class.dictionaryProperty] = @{self.class.delayTimeProperty : @(frameDuration)};
+            if (finalPixelSize > 0) {
+                frameProperties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+            }
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
         }
     }
