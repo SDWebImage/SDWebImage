@@ -1,3 +1,28 @@
+## [5.7.0 - Query Cache Type and Encoding Options, on Apr 4th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.7.0)
+See [all tickets marked for the 5.7.0 release](https://github.com/SDWebImage/SDWebImage/milestone/66)
+
+### Features
+
+#### Cache
+- Added the async version API to query disk image data only
+- Added the sync API to query disk image with context and options, which matches the async version
+
+#### Coder
+- Feature supports encoding options like max file size, max pixel size, as well as background color when using JPEG for alpha image #2972
+- You can use `.encodeMaxFileSize` to limit the desired lossy file size, better than compression quality
+- You can use `.encodeMaxPixelSize` to limit the pixel size, like thumbnail encoding
+
+#### Transformer
+- Refactory the current thumbnail && transformer about cache key. Developer should have the API to calculate the cache key from thumbnail or transformer, not hard-coded. #2966
+
+#### Context Option
+- Added new query cache type support, including the SDImageCache API and context option #2968
+- You use `.queryCacheType` to query image from memory/disk/both cache during image pipeline loading
+
+### Fixes
+- Fix the issue for Carthage/SwiftPM framework version symbols, this should match the framework name SDWebImage, or will get a link error when used #2971 #2969
+- Simplify the xattr helper method's code with modern Objective-C syntax #2967. Thanks @huangboju 
+
 ## [5.6.1 - 5.6 Patch, on Mar 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.6.1)
 See [all tickets marked for the 5.6.1 release](https://github.com/SDWebImage/SDWebImage/milestone/65)
 
