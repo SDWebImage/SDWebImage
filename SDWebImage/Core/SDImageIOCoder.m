@@ -291,6 +291,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
     if (maxFileSize > 0) {
         properties[kSDCGImageDestinationRequestedFileSize] = @(maxFileSize);
+        // Remove the quality if we have file size limit
+        properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = nil;
     }
     
     // Add your image to the destination.

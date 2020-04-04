@@ -98,6 +98,26 @@
     expect(testColor.sd_hexString).equal(backgroundColor.sd_hexString);
 }
 
+- (void)test09ThatJPGImageEncodeWithMaxFileSize {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    // This large JPEG encoding size between (770KB ~ 2.23MB)
+    NSUInteger limitFileSize = 1 * 1024 * 1024; // 1MB
+    // 100 quality (biggest)
+    NSData *maxEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:nil];
+    expect(maxEncodedData).notTo.beNil();
+    expect(maxEncodedData.length).beGreaterThan(limitFileSize);
+    // 0 quality (smallest)
+    NSData *minEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeCompressionQuality : @(0)}];
+    expect(minEncodedData).notTo.beNil();
+    expect(minEncodedData.length).beLessThan(limitFileSize);
+    NSData *limitEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeMaxFileSize : @(limitFileSize)}];
+    expect(limitEncodedData).notTo.beNil();
+    // So, if we limit the file size, the output data should in (770KB ~ 2.23MB)
+    expect(limitEncodedData.length).beLessThan(maxEncodedData.length);
+    expect(limitEncodedData.length).beGreaterThan(minEncodedData.length);
+}
+
 - (void)test11ThatAPNGPCoderWorks {
     NSURL *APNGURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"apng"];
     [self verifyCoder:[SDImageAPNGCoder sharedCoder]

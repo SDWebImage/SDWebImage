@@ -73,7 +73,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxPixelSi
 
 /**
  A NSUInteger value specify the max ouput data bytes size after encoding. Some lossy format like JPEG/HEIF supports the hint for codec to automatically reduce the quality and match the file size you want. Note this option will override the `SDImageCoderEncodeCompressionQuality`, because now the quality is decided by the encoder. (NSNumber)
- @note Not all format supports this feature. And this options does not works for vector images.
+ @note This is a hint, no gurantee for output size because of compression algorithm limit. And this options does not works for vector images.
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxFileSize;
