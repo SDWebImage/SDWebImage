@@ -8,6 +8,7 @@
  */
 
 #import "SDTestCase.h"
+#import "UIColor+HexString.h"
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -80,6 +81,21 @@
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);
     expect(decodedImage.size.height).to.equal(image.size.height);
+}
+
+- (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    UIColor *backgroundColor = [UIColor blackColor];
+    NSData *encodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeBackgroundColor : backgroundColor}];
+    expect(encodedData).notTo.beNil();
+    UIImage *decodedImage = [SDImageCodersManager.sharedManager decodedImageWithData:encodedData options:nil];
+    expect(decodedImage).notTo.beNil();
+    expect(decodedImage.size.width).to.equal(image.size.width);
+    expect(decodedImage.size.height).to.equal(image.size.height);
+    // Check background color, should not be white but the black color
+    UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(1, 1)];
+    expect(testColor.sd_hexString).equal(backgroundColor.sd_hexString);
 }
 
 - (void)test11ThatAPNGPCoderWorks {
