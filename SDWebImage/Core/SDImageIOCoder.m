@@ -14,6 +14,9 @@
 #import "SDImageHEICCoderInternal.h"
 #import "SDImageIOAnimatedCoderInternal.h"
 
+// Specify File Size for lossy format encoding, like JPEG
+static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
+
 @implementation SDImageIOCoder {
     size_t _width, _height;
     CGImagePropertyOrientation _orientation;
@@ -285,7 +288,10 @@
         }
         properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
     }
-    
+    NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
+    if (maxFileSize > 0) {
+        properties[kSDCGImageDestinationRequestedFileSize] = @(maxFileSize);
+    }
     
     // Add your image to the destination.
     CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);

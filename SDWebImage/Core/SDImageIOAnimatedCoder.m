@@ -16,6 +16,8 @@
 
 // Specify DPI for vector format in CGImageSource, like PDF
 static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizationDPI";
+// Specify File Size for lossy format encoding, like JPEG
+static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
 @interface SDImageIOCoderFrame : NSObject
 
@@ -461,6 +463,10 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
         } else {
             finalPixelSize = maxPixelSize.height;
         }
+    }
+    NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
+    if (maxFileSize > 0) {
+        properties[kSDCGImageDestinationRequestedFileSize] = @(maxFileSize);
     }
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
