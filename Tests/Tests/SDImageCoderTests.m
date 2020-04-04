@@ -8,6 +8,7 @@
  */
 
 #import "SDTestCase.h"
+#import "UIColor+HexString.h"
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -80,6 +81,41 @@
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);
     expect(decodedImage.size.height).to.equal(image.size.height);
+}
+
+- (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    UIColor *backgroundColor = [UIColor blackColor];
+    NSData *encodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeBackgroundColor : backgroundColor}];
+    expect(encodedData).notTo.beNil();
+    UIImage *decodedImage = [SDImageCodersManager.sharedManager decodedImageWithData:encodedData options:nil];
+    expect(decodedImage).notTo.beNil();
+    expect(decodedImage.size.width).to.equal(image.size.width);
+    expect(decodedImage.size.height).to.equal(image.size.height);
+    // Check background color, should not be white but the black color
+    UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(1, 1)];
+    expect(testColor.sd_hexString).equal(backgroundColor.sd_hexString);
+}
+
+- (void)test09ThatJPGImageEncodeWithMaxFileSize {
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    // This large JPEG encoding size between (770KB ~ 2.23MB)
+    NSUInteger limitFileSize = 1 * 1024 * 1024; // 1MB
+    // 100 quality (biggest)
+    NSData *maxEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:nil];
+    expect(maxEncodedData).notTo.beNil();
+    expect(maxEncodedData.length).beGreaterThan(limitFileSize);
+    // 0 quality (smallest)
+    NSData *minEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeCompressionQuality : @(0)}];
+    expect(minEncodedData).notTo.beNil();
+    expect(minEncodedData.length).beLessThan(limitFileSize);
+    NSData *limitEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeMaxFileSize : @(limitFileSize)}];
+    expect(limitEncodedData).notTo.beNil();
+    // So, if we limit the file size, the output data should in (770KB ~ 2.23MB)
+    expect(limitEncodedData.length).beLessThan(maxEncodedData.length);
+    expect(limitEncodedData.length).beGreaterThan(minEncodedData.length);
 }
 
 - (void)test11ThatAPNGPCoderWorks {
@@ -270,6 +306,25 @@ withLocalImageURL:(NSURL *)imageUrl
         expect(outputImage.scale).to.equal(inputImage.scale);
 #if SD_UIKIT
         expect(outputImage.images.count).to.equal(inputImage.images.count);
+#endif
+        
+        // check max pixel size encoding with scratch
+        CGFloat maxWidth = 50;
+        CGFloat maxHeight = 50;
+        CGFloat maxRatio = maxWidth / maxHeight;
+        CGSize maxPixelSize;
+        if (ratio > maxRatio) {
+            maxPixelSize = CGSizeMake(maxWidth, round(maxWidth / ratio));
+        } else {
+            maxPixelSize = CGSizeMake(round(maxHeight * ratio), maxHeight);
+        }
+        NSData *outputMaxImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:@{SDImageCoderEncodeMaxPixelSize : @(CGSizeMake(maxWidth, maxHeight))}];
+        UIImage *outputMaxImage = [coder decodedImageWithData:outputMaxImageData options:nil];
+        // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
+        expect(ABS(outputMaxImage.size.width - maxPixelSize.width) <= 1);
+        expect(ABS(outputMaxImage.size.height - maxPixelSize.height) <= 1);
+#if SD_UIKIT
+        expect(outputMaxImage.images.count).to.equal(inputImage.images.count);
 #endif
     }
 }

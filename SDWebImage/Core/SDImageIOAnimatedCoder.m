@@ -16,6 +16,8 @@
 
 // Specify DPI for vector format in CGImageSource, like PDF
 static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizationDPI";
+// Specify File Size for lossy format encoding, like JPEG
+static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
 @interface SDImageIOCoderFrame : NSObject
 
@@ -409,6 +411,11 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
     if (!image) {
         return nil;
     }
+    CGImageRef imageRef = image.CGImage;
+    if (!imageRef) {
+        // Earily return, supports CGImage only
+        return nil;
+    }
     
     if (format != self.class.imageFormat) {
         return nil;
@@ -426,16 +433,51 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
         return nil;
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    // Encoding Options
     double compressionQuality = 1;
     if (options[SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = @(compressionQuality);
+    CGColorRef backgroundColor = [options[SDImageCoderEncodeBackgroundColor] CGColor];
+    if (backgroundColor) {
+        properties[(__bridge NSString *)kCGImageDestinationBackgroundColor] = (__bridge id)(backgroundColor);
+    }
+    CGSize maxPixelSize = CGSizeZero;
+    NSValue *maxPixelSizeValue = options[SDImageCoderEncodeMaxPixelSize];
+    if (maxPixelSizeValue != nil) {
+#if SD_MAC
+        maxPixelSize = maxPixelSizeValue.sizeValue;
+#else
+        maxPixelSize = maxPixelSizeValue.CGSizeValue;
+#endif
+    }
+    NSUInteger pixelWidth = CGImageGetWidth(imageRef);
+    NSUInteger pixelHeight = CGImageGetHeight(imageRef);
+    CGFloat finalPixelSize = 0;
+    if (maxPixelSize.width > 0 && maxPixelSize.height > 0 && pixelWidth > 0 && pixelHeight > 0) {
+        CGFloat pixelRatio = pixelWidth / pixelHeight;
+        CGFloat maxPixelSizeRatio = maxPixelSize.width / maxPixelSize.height;
+        if (pixelRatio > maxPixelSizeRatio) {
+            finalPixelSize = maxPixelSize.width;
+        } else {
+            finalPixelSize = maxPixelSize.height;
+        }
+    }
+    NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
+    if (maxFileSize > 0) {
+        properties[kSDCGImageDestinationRequestedFileSize] = @(maxFileSize);
+        // Remove the quality if we have file size limit
+        properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = nil;
+    }
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single images
-        CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
+        if (finalPixelSize > 0) {
+            properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+        }
+        CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated images
         NSUInteger loopCount = image.sd_imageLoopCount;
@@ -447,7 +489,11 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
             SDImageFrame *frame = frames[i];
             NSTimeInterval frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{self.class.dictionaryProperty : @{self.class.delayTimeProperty : @(frameDuration)}};
+            NSMutableDictionary *frameProperties = [NSMutableDictionary dictionary];
+            frameProperties[self.class.dictionaryProperty] = @{self.class.delayTimeProperty : @(frameDuration)};
+            if (finalPixelSize > 0) {
+                frameProperties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+            }
             CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
         }
     }
