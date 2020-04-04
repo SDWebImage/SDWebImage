@@ -23,6 +23,9 @@ See [all tickets marked for the 5.7.0 release](https://github.com/SDWebImage/SDW
 - Fix the issue for Carthage/SwiftPM framework version symbols, this should match the framework name SDWebImage, or will get a link error when used #2971 #2969
 - Simplify the xattr helper method's code with modern Objective-C syntax #2967. Thanks @huangboju 
 
+### Changes
+- Change the behavior to return the abstract type for unknown image format, this can solve the accident issue for custom coder who provide a new format #2973
+
 ## [5.6.1 - 5.6 Patch, on Mar 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.6.1)
 See [all tickets marked for the 5.6.1 release](https://github.com/SDWebImage/SDWebImage/milestone/65)
 
