@@ -37,11 +37,11 @@ This library provides an async image downloader with cache support. For convenie
 
 ## Supported Image Formats
 
-- Image formats supported by UIImage (JPEG, PNG, HEIC, ...), including GIF/APNG/HEIC animation
+- Image formats supported by Apple system (JPEG, PNG, TIFF, HEIC, ...), including GIF/APNG/HEIC animation
 - WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project)
 - Support extendable coder plugins for new image formats like BPG, AVIF. And vector format like PDF, SVG. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
 
-## Additional modules
+## Additional modules and Ecosystem
 
 In order to keep SDWebImage focused and limited to the core features, but also allow extensibility and custom behaviors, during the 5.0 refactoring we focused on modularizing the library.
 As such, we have moved/built new modules to [SDWebImage org](https://github.com/SDWebImage).
@@ -49,7 +49,9 @@ As such, we have moved/built new modules to [SDWebImage org](https://github.com/
 #### SwiftUI
 [SwiftUI](https://developer.apple.com/xcode/swiftui/) is an innovative UI framework written in Swift to build user interfaces across all Apple platforms.
 
-We support SwiftUI by building with the functions (caching, loading and animation) powered by SDWebImage. You can have a try with [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
+We support SwiftUI by building a brand new framework called [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI), which is built on top of SDWebImage core functions (caching, loading and animation).
+
+The new framework introduce two View structs `WebImage` and `AnimatedImage` for SwiftUI world, `ImageIndicator` modifier for any View, `ImageManager` observable object for data source. Supports iOS 13+/macOS 10.15+/tvOS 13+/watchOS 6+ and Swift 5.1. Have a nice try and provide feedback!
 
 #### Coders for additional image formats
 - [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
@@ -72,13 +74,18 @@ We support SwiftUI by building with the functions (caching, loading and animatio
 - [SDWebImageFLPlugin](https://github.com/SDWebImage/SDWebImageFLPlugin) - plugin to support [FLAnimatedImage](https://github.com/Flipboard/FLAnimatedImage) as the engine for animated GIFs
 - [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin) - plugin to integrate [YYImage](https://github.com/ibireme/YYImage) & [YYCache](https://github.com/ibireme/YYCache) for image rendering & caching
 
+#### Community driven popular libraries
+- [FirebaseUI](https://github.com/firebase/FirebaseUI-iOS) - Firebase Storage binding for query images, based on SDWebImage loader system
+- [react-native-fast-image](https://github.com/DylanVann/react-native-fast-image) - React Native fast image component, based on SDWebImage Animated Image solution
+- [flutter_image_compress](https://github.com/OpenFlutter/flutter_image_compress) - Flutter compresses image plugin, based on SDWebImageWebPCoder coder plugin
+
 #### Make our lives easier
 - [libwebp-Xcode](https://github.com/SDWebImage/libwebp-Xcode) - A wrapper for [libwebp](https://chromium.googlesource.com/webm/libwebp) + an Xcode project.
 - [libheif-Xcode](https://github.com/SDWebImage/libheif-Xcode) - A wrapper for [libheif](https://github.com/strukturag/libheif) + an Xcode project.
 - [libavif-Xcode](https://github.com/SDWebImage/libavif-Xcode) - A wrapper for [libavif](https://github.com/AOMediaCodec/libavif) + an Xcode project.
 - and more third-party C/C++ image codec libraries with CocoaPods/Carthage/SwiftPM support.
 
-You can use those directly, or create similar components of your own.
+You can use those directly, or create similar components of your own, by using the customizable architecture of SDWebImage.
 
 ## Requirements
 
@@ -116,6 +123,7 @@ You can use those directly, or create similar components of your own.
 - If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/questions/tagged/sdwebimage).
 - If you **found a bug**, open an issue.
 - If you **have a feature request**, open an issue.
+- If you **need IRC channel**, use [Gitter](https://gitter.im/SDWebImage/community).
 
 ## Contribution
 
@@ -146,7 +154,14 @@ imageView.sd_setImage(with: URL(string: "http://www.domain.com/path/to/image.jpg
 ## Animated Images (GIF) support
 
 In 5.0, we introduced a brand new mechanism for supporting animated images. This includes animated image loading, rendering, decoding, and also supports customizations (for advanced users).
-This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to make them compatible with the common frameworks APIs. See [Animated Image](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
+
+This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnimatedImage` is subclass of `UIImage/NSImage`, and `SDAnimatedImageView` is subclass of `UIImageView/NSImageView`, to make them compatible with the common frameworks APIs.
+
+The `SDAnimatedImageView` supports the familiar image loading category methods, works like drop-in replacement for `UIImageView/NSImageView`.
+
+Don't have UIView (like WatchKit or CALayer)? you can still use `SDAnimatedPlayer` the player engine for advanced playback and rendering.
+
+See [Animated Image](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
 
 * Objective-C
 
