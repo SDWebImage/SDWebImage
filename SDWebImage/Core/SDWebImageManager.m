@@ -453,8 +453,6 @@ static id<SDImageLoader> _defaultImageLoader;
                     } else {
                         cacheData = (imageWasTransformed ? nil : originalData);
                     }
-                    // keep the original image format and extended data
-                    SDImageCopyAssociatedObject(originalImage, transformedImage);
                     [self storeImage:transformedImage imageData:cacheData forKey:key cacheType:storeCacheType options:options context:context completion:^{
                         [self callCompletionBlockForOperation:operation completion:completedBlock image:transformedImage data:originalData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                     }];
