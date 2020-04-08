@@ -1,3 +1,10 @@
+## [5.7.1 - 5.7 Patch, on Apr 8th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.1)
+See [all tickets marked for the 5.7.1 release](https://github.com/SDWebImage/SDWebImage/milestone/67)
+
+### Fixes
+- Don't copy attributes from originalImage to transformedImage when caching transformedImage #2976. Thanks @bdaz
+- Fix the wrong value assignment for SDAnimatedImageView code on macOS, warning #2974
+
 ## [5.7.0 - Query Cache Type and Encoding Options, on Apr 4th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.7.0)
 See [all tickets marked for the 5.7.0 release](https://github.com/SDWebImage/SDWebImage/milestone/66)
 
