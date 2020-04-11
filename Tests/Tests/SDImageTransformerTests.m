@@ -8,7 +8,7 @@
  */
 
 #import "SDTestCase.h"
-#import "UIColor+HexString.h"
+#import "UIColor+SDHexString.h"
 #import <CoreImage/CoreImage.h>
 
 @interface SDImageTransformerTests : SDTestCase
