@@ -1,3 +1,13 @@
+## [5.7.2 - 5.7 Patch, on Apr 11th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.2)
+See [all tickets marked for the 5.7.2 release](https://github.com/SDWebImage/SDWebImage/milestone/68)
+
+### Fixes
+- SDAnimatedImageView animation rendering should not use CGContext force decoding, use `kCGImageSourceShouldCacheImmediately` instead which can avoid OOM for large number of GIFs #2977
+- Fix that when first play animated image and use maxBufferSize to 0, the calculation does not works (The CGImage is nil) #2982
+
+### Project
+- Rename the private header `UIColor+HexString` and `NSBezierPath+SDRoundedCorners` with SD prefix, to avoid the conflict when using CocoaPods #2983
+
 ## [5.7.1 - 5.7 Patch, on Apr 8th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.1)
 See [all tickets marked for the 5.7.1 release](https://github.com/SDWebImage/SDWebImage/milestone/67)
 
