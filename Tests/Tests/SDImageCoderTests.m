@@ -126,24 +126,20 @@
     CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
     SDImageAPNGCoder *coder = [[SDImageAPNGCoder alloc] initWithAnimatedImageData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(NO)}];
     UIImage *imageWithoutLazyDecoding = [coder animatedImageFrameAtIndex:0];
-    coder = nil;
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime duration = end - begin;
     expect(imageWithoutLazyDecoding.sd_isDecoded).beTruthy();
-    CFAbsoluteTime renderingTime = [self measureImageRenderingTime:imageWithoutLazyDecoding];
     
     // Check that static image rendering should use lazy decoding
     CFAbsoluteTime begin2 = CFAbsoluteTimeGetCurrent();
-    UIImage *imageWithLazyDecoding = [SDImageAPNGCoder.sharedCoder decodedImageWithData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(YES)}];
+    SDImageAPNGCoder *coder2 = SDImageAPNGCoder.sharedCoder;
+    UIImage *imageWithLazyDecoding = [coder2 decodedImageWithData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(YES)}];
     CFAbsoluteTime end2 = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime duration2 = end2 - begin2;
     expect(imageWithLazyDecoding.sd_isDecoded).beFalsy();
-    CFAbsoluteTime renderingTime2 = [self measureImageRenderingTime:imageWithLazyDecoding];
     
-    // lazy decoding need less time
-    expect(duration2).beLessThan(duration);
-    // lazy rendering need more time
-    expect(renderingTime2).beGreaterThan(renderingTime);
+    // lazy decoding need less time (10x)
+    expect(duration2 * 10.0).beLessThan(duration);
 }
 
 - (void)test11ThatAPNGPCoderWorks {
@@ -365,20 +361,6 @@ withLocalImageURL:(NSURL *)imageUrl
     } @catch (NSException *exception) {
         expect(exception);
     }
-}
-
-- (CFAbsoluteTime)measureImageRenderingTime:(UIImage *)image {
-    CGImageRef imageRef = image.CGImage;
-    CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
-    SDGraphicsBeginImageContext(image.size);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    CGContextDrawImage(context, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
-    SDGraphicsEndImageContext();
-    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
-    CFAbsoluteTime duration = end - begin;
-    // CoreAnimation's `CA::copy_image` will trigger `CGImageProviderCopyImageBlockSetWithOptions`, which will trigger the ImageIO ImageProviderInfo's callback and decode images.
-    // Since it's hard to use SPI to simulate this case, I just use the method call duration to check, which will cost more than 20ms
-    return duration;
 }
 
 @end
