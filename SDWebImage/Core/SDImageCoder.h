@@ -21,6 +21,7 @@ typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;
  @note works for `SDImageCoder`.
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeFirstFrameOnly;
+
 /**
  A CGFloat value which is greater than or equal to 1.0. This value specify the image scale factor for decoding. If not provide, use 1.0. (NSNumber)
  @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.

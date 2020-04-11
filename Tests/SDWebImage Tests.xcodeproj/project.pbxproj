@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		1E3C51E919B46E370092B5E6 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		2D7AF0601F329763000083C2 /* SDTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D7AF05F1F329763000083C2 /* SDTestCase.m */; };
+		320224F72440C39B00E5B29D /* TestImageLarge.png in Resources */ = {isa = PBXBuildFile; fileRef = 320224F62440C39B00E5B29D /* TestImageLarge.png */; };
+		320224F82440C39B00E5B29D /* TestImageLarge.png in Resources */ = {isa = PBXBuildFile; fileRef = 320224F62440C39B00E5B29D /* TestImageLarge.png */; };
+		320224F92440C39B00E5B29D /* TestImageLarge.png in Resources */ = {isa = PBXBuildFile; fileRef = 320224F62440C39B00E5B29D /* TestImageLarge.png */; };
 		320630412085A37C006E0FA4 /* SDAnimatedImageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */; };
 		3222417F2272F808002429DB /* SDUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3222417E2272F808002429DB /* SDUtilsTests.m */; };
 		322241802272F808002429DB /* SDUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3222417E2272F808002429DB /* SDUtilsTests.m */; };
@@ -107,6 +110,7 @@
 		1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDownloaderTests.m; sourceTree = "<group>"; };
 		2D7AF05E1F329763000083C2 /* SDTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDTestCase.h; sourceTree = "<group>"; };
 		2D7AF05F1F329763000083C2 /* SDTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDTestCase.m; sourceTree = "<group>"; };
+		320224F62440C39B00E5B29D /* TestImageLarge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestImageLarge.png; sourceTree = "<group>"; };
 		3222417E2272F808002429DB /* SDUtilsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDUtilsTests.m; sourceTree = "<group>"; };
 		3226ECB920754F7700FAFACF /* SDWebImageTestDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestDownloadOperation.h; sourceTree = "<group>"; };
 		3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestDownloadOperation.m; sourceTree = "<group>"; };
@@ -239,6 +243,7 @@
 				326E69462334C0C200B7252C /* TestLoopCount.gif */,
 				5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */,
 				43828A441DA67F9900000E62 /* TestImageLarge.jpg */,
+				320224F62440C39B00E5B29D /* TestImageLarge.png */,
 				433BBBB81D7EF8260086B6E9 /* TestImage.png */,
 				327A418B211D660600495442 /* TestImage.heic */,
 				32905E63211D786E00460FCF /* TestImage.heif */,
@@ -449,6 +454,7 @@
 				329922872365DC6C00EAFD97 /* TestLoopCount.gif in Resources */,
 				3299228C2365DC6C00EAFD97 /* TestImage.heif in Resources */,
 				3234306423E2BAC800C290C8 /* TestImage.pdf in Resources */,
+				320224F92440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				329922892365DC6C00EAFD97 /* TestImageLarge.jpg in Resources */,
 				3299228A2365DC6C00EAFD97 /* TestImage.png in Resources */,
 				329922842365DC6C00EAFD97 /* MonochromeTestImage.jpg in Resources */,
@@ -468,6 +474,7 @@
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
 				32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */,
 				3234306323E2BAC800C290C8 /* TestImage.pdf in Resources */,
+				320224F82440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				32B99EA6203B31360017FD66 /* TestImage.png in Resources */,
 				3297A0A023374D1700814590 /* TestImageAnimated.heic in Resources */,
 				32B99EA2203B31360017FD66 /* MonochromeTestImage.jpg in Resources */,
@@ -487,6 +494,7 @@
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,
 				3234306223E2BAC800C290C8 /* TestImage.pdf in Resources */,
+				320224F72440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				3297A09F23374D1700814590 /* TestImageAnimated.heic in Resources */,

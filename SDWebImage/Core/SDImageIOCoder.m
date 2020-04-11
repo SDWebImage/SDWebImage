@@ -101,7 +101,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         return nil;
     }
     
-    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
+    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:nil];
     CFRelease(source);
     if (!image) {
         return nil;
@@ -193,7 +193,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:nil];
         if (image) {
             CFStringRef uttype = CGImageSourceGetType(_imageSource);
             image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];
