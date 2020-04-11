@@ -179,12 +179,12 @@
 #pragma mark - Animation Control
 - (void)startPlaying {
     [self.displayLink start];
-    // Calculate max buffer size
-    [self calculateMaxBufferCount];
     // Setup frame
     if (self.currentFrameIndex == 0 && !self.currentFrame) {
         [self setupCurrentFrame];
     }
+    // Calculate max buffer size
+    [self calculateMaxBufferCount];
 }
 
 - (void)stopPlaying {
