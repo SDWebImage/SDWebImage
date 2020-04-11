@@ -22,7 +22,7 @@
 }
 
 - (void)test02ThatDecodedImageWithImageWorksWithARegularJPGImage {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
@@ -32,7 +32,7 @@
 }
 
 - (void)test03ThatDecodedImageWithImageDoesNotDecodeAnimatedImages {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"gif"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
 #if SD_MAC
     UIImage *animatedImage = image;
@@ -45,7 +45,7 @@
 }
 
 - (void)test04ThatDecodedImageWithImageWorksWithAlphaImages {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
@@ -53,7 +53,7 @@
 }
 
 - (void)test05ThatDecodedImageWithImageWorksEvenWithMonochromeImage {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"MonochromeTestImage" ofType:@"jpg"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"MonochromeTestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedImageWithImage:image];
     expect(decodedImage).toNot.beNil();
@@ -63,7 +63,7 @@
 }
 
 - (void)test06ThatDecodeAndScaleDownImageWorks {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:(60 * 1024 * 1024)];
     expect(decodedImage).toNot.beNil();
@@ -74,7 +74,7 @@
 }
 
 - (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerImage {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
     expect(decodedImage).toNot.beNil();
@@ -84,7 +84,7 @@
 }
 
 - (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIColor *backgroundColor = [UIColor blackColor];
     NSData *encodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeBackgroundColor : backgroundColor}];
@@ -99,7 +99,7 @@
 }
 
 - (void)test09ThatJPGImageEncodeWithMaxFileSize {
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     // This large JPEG encoding size between (770KB ~ 2.23MB)
     NSUInteger limitFileSize = 1 * 1024 * 1024; // 1MB
@@ -116,6 +116,34 @@
     // So, if we limit the file size, the output data should in (770KB ~ 2.23MB)
     expect(limitEncodedData.length).beLessThan(maxEncodedData.length);
     expect(limitEncodedData.length).beGreaterThan(minEncodedData.length);
+}
+
+- (void)test10ThatAnimatedImageCacheImmediatelyWorks {
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"png"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    
+    // Check that animated image rendering should not use lazy decoding (performance related)
+    CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
+    SDImageAPNGCoder *coder = [[SDImageAPNGCoder alloc] initWithAnimatedImageData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(NO)}];
+    UIImage *imageWithoutLazyDecoding = [coder animatedImageFrameAtIndex:0];
+    coder = nil;
+    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+    CFAbsoluteTime duration = end - begin;
+    expect(imageWithoutLazyDecoding.sd_isDecoded).beTruthy();
+    CFAbsoluteTime renderingTime = [self measureImageRenderingTime:imageWithoutLazyDecoding];
+    
+    // Check that static image rendering should use lazy decoding
+    CFAbsoluteTime begin2 = CFAbsoluteTimeGetCurrent();
+    UIImage *imageWithLazyDecoding = [SDImageAPNGCoder.sharedCoder decodedImageWithData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(YES)}];
+    CFAbsoluteTime end2 = CFAbsoluteTimeGetCurrent();
+    CFAbsoluteTime duration2 = end2 - begin2;
+    expect(imageWithLazyDecoding.sd_isDecoded).beFalsy();
+    CFAbsoluteTime renderingTime2 = [self measureImageRenderingTime:imageWithLazyDecoding];
+    
+    // lazy decoding need less time
+    expect(duration2).beLessThan(duration);
+    // lazy rendering need more time
+    expect(renderingTime2).beGreaterThan(renderingTime);
 }
 
 - (void)test11ThatAPNGPCoderWorks {
@@ -138,7 +166,7 @@
     // When GIF metadata does not contains any loop count information (`kCGImagePropertyGIFLoopCount`'s value nil)
     // The standard says it should just play once. See: http://www6.uniovi.es/gifanim/gifabout.htm
     // This behavior is different from other modern animated image format like APNG/WebP. Which will play infinitely
-    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestLoopCount" ofType:@"gif"];
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestLoopCount" ofType:@"gif"];
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
     UIImage *image = [SDImageGIFCoder.sharedCoder decodedImageWithData:testImageData options:nil];
     expect(image.sd_imageLoopCount).equal(1);
@@ -337,6 +365,20 @@ withLocalImageURL:(NSURL *)imageUrl
     } @catch (NSException *exception) {
         expect(exception);
     }
+}
+
+- (CFAbsoluteTime)measureImageRenderingTime:(UIImage *)image {
+    CGImageRef imageRef = image.CGImage;
+    CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
+    SDGraphicsBeginImageContext(image.size);
+    CGContextRef context = SDGraphicsGetCurrentContext();
+    CGContextDrawImage(context, CGRectMake(0, 0, image.size.width, image.size.height), imageRef);
+    SDGraphicsEndImageContext();
+    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+    CFAbsoluteTime duration = end - begin;
+    // CoreAnimation's `CA::copy_image` will trigger `CGImageProviderCopyImageBlockSetWithOptions`, which will trigger the ImageIO ImageProviderInfo's callback and decode images.
+    // Since it's hard to use SPI to simulate this case, I just use the method call duration to check, which will cost more than 20ms
+    return duration;
 }
 
 @end

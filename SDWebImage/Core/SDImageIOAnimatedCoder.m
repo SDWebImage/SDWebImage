@@ -122,8 +122,12 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 + (NSTimeInterval)frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
+    NSDictionary *options = @{
+        (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
+        (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
+    };
     NSTimeInterval frameDuration = 0.1;
-    CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
+    CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)options);
     if (!cfFrameProperties) {
         return frameDuration;
     }
@@ -153,9 +157,10 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     return frameDuration;
 }
 
-+ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize {
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
+    // Some options need to pass to `CGImageSourceCopyPropertiesAtIndex` before `CGImageSourceCreateImageAtIndex`, or ImageIO will ignore them because they parse once :)
     // Parse the image properties
-    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, NULL);
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)options);
     NSUInteger pixelWidth = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] unsignedIntegerValue];
     NSUInteger pixelHeight = [properties[(__bridge NSString *)kCGImagePropertyPixelHeight] unsignedIntegerValue];
     CGImagePropertyOrientation exifOrientation = (CGImagePropertyOrientation)[properties[(__bridge NSString *)kCGImagePropertyOrientation] unsignedIntegerValue];
@@ -169,10 +174,15 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     if ([NSData sd_imageFormatFromUTType:uttype] == SDImageFormatPDF) {
         isVector = YES;
     }
-    
+
+    NSMutableDictionary *decodingOptions;
+    if (options) {
+        decodingOptions = [NSMutableDictionary dictionaryWithDictionary:options];
+    } else {
+        decodingOptions = [NSMutableDictionary dictionary];
+    }
     CGImageRef imageRef;
     if (thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height)) {
-        NSDictionary *options;
         if (isVector) {
             if (thumbnailSize.width == 0 || thumbnailSize.height == 0) {
                 // Provide the default pixel count for vector images, simply just use the screen size
@@ -187,12 +197,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             CGFloat maxPixelSize = MAX(thumbnailSize.width, thumbnailSize.height);
             NSUInteger DPIPerPixel = 2;
             NSUInteger rasterizationDPI = maxPixelSize * DPIPerPixel;
-            options = @{kSDCGImageSourceRasterizationDPI : @(rasterizationDPI)};
+            decodingOptions[kSDCGImageSourceRasterizationDPI] = @(rasterizationDPI);
         }
-        imageRef = CGImageSourceCreateImageAtIndex(source, index, (__bridge CFDictionaryRef)options);
+        imageRef = CGImageSourceCreateImageAtIndex(source, index, (__bridge CFDictionaryRef)decodingOptions);
     } else {
-        NSMutableDictionary *thumbnailOptions = [NSMutableDictionary dictionary];
-        thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
+        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
         CGFloat maxPixelSize;
         if (preserveAspectRatio) {
             CGFloat pixelRatio = pixelWidth / pixelHeight;
@@ -205,9 +214,9 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         } else {
             maxPixelSize = MAX(thumbnailSize.width, thumbnailSize.height);
         }
-        thumbnailOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = @(maxPixelSize);
-        thumbnailOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
-        imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)thumbnailOptions);
+        decodingOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = @(maxPixelSize);
+        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
+        imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)decodingOptions);
     }
     if (!imageRef) {
         return nil;
@@ -288,12 +297,12 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
-        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:nil];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
         
         for (size_t i = 0; i < count; i++) {
-            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize];
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:nil];
             if (!image) {
                 continue;
             }
@@ -369,7 +378,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGImageSourceUpdateData(_imageSource, (__bridge CFDataRef)data, finished);
     
     if (_width + _height == 0) {
-        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(_imageSource, 0, NULL);
+        NSDictionary *options = @{
+            (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
+            (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
+        };
+        CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(_imageSource, 0, (__bridge CFDictionaryRef)options);
         if (properties) {
             CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
             if (val) CFNumberGetValue(val, kCFNumberLongType, &_height);
@@ -393,7 +406,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:nil];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -597,24 +610,20 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize];
+    if (index >= _frameCount) {
+        return nil;
+    }
+    // Animated Image should not use the CGContext solution to force decode. Prefers to use Image/IO built in method, which is safer and memory friendly, see https://github.com/SDWebImage/SDWebImage/issues/2961
+    NSDictionary *options = @{
+        (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
+        (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
+    };
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:options];
     if (!image) {
         return nil;
     }
     image.sd_imageFormat = self.class.imageFormat;
-    // Image/IO create CGImage does not decode, so we do this because this is called background queue, this can avoid main queue block when rendering(especially when one more imageViews use the same image instance)
-    CGImageRef imageRef = [SDImageCoderHelper CGImageCreateDecoded:image.CGImage];
-    if (!imageRef) {
-        return image;
-    }
-#if SD_MAC
-    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:kCGImagePropertyOrientationUp];
-#else
-    image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:image.imageOrientation];
-#endif
-    CGImageRelease(imageRef);
-    image.sd_isDecoded = YES;
-    image.sd_imageFormat = self.class.imageFormat;
+    image.sd_isDecoded = YES;;
     return image;
 }
 
