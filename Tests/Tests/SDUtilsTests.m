@@ -12,7 +12,7 @@
 #import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
 #import "SDFileAttributeHelper.h"
-#import "UIColor+HexString.h"
+#import "UIColor+SDHexString.h"
 
 @interface SDUtilsTests : SDTestCase
 

@@ -7,7 +7,7 @@
  */
 
 #import "SDImageTransformer.h"
-#import "UIColor+HexString.h"
+#import "UIColor+SDHexString.h"
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
 #endif
