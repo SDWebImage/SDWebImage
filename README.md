@@ -64,7 +64,11 @@ The new framework introduce two View structs `WebImage` and `AnimatedImage` for 
 - [SDWebImageLottieCoder](https://github.com/SDWebImage/SDWebImageLottieCoder) - coder for Lottie animation format. Based on [rlottie](https://github.com/Samsung/rlottie)
 - and more from community!
 
-#### Loaders
+#### Custom Caches
+- [SDWebImageYYPlugin](https://github.com/SDWebImage/SDWebImageYYPlugin) - plugin to support caching images with [YYCache](https://github.com/ibireme/YYCache)
+- [SDWebImagePINPlugin](https://github.com/SDWebImage/SDWebImagePINPlugin) - plugin to support caching images with [PINCache](https://github.com/pinterest/PINCache)
+
+#### Custom Loaders
 - [SDWebImagePhotosPlugin](https://github.com/SDWebImage/SDWebImagePhotosPlugin) - plugin to support loading images from Photos (using `Photos.framework`) 
 - [SDWebImageLinkPlugin](https://github.com/SDWebImage/SDWebImageLinkPlugin) - plugin to support loading images from rich link url, as well as `LPLinkView` (using `LinkPresentation.framework`) 
 
@@ -77,7 +81,7 @@ The new framework introduce two View structs `WebImage` and `AnimatedImage` for 
 #### Community driven popular libraries
 - [FirebaseUI](https://github.com/firebase/FirebaseUI-iOS) - Firebase Storage binding for query images, based on SDWebImage loader system
 - [react-native-fast-image](https://github.com/DylanVann/react-native-fast-image) - React Native fast image component, based on SDWebImage Animated Image solution
-- [flutter_image_compress](https://github.com/OpenFlutter/flutter_image_compress) - Flutter compresses image plugin, based on SDWebImageWebPCoder coder plugin
+- [flutter_image_compress](https://github.com/OpenFlutter/flutter_image_compress) - Flutter compresses image plugin, based on SDWebImage WebP coder plugin
 
 #### Make our lives easier
 - [libwebp-Xcode](https://github.com/SDWebImage/libwebp-Xcode) - A wrapper for [libwebp](https://chromium.googlesource.com/webm/libwebp) + an Xcode project.
