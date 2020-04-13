@@ -311,8 +311,8 @@ withLocalImageURL:(NSURL *)imageUrl
         thumbnailPixelSize = CGSizeMake(round(thumbnailHeight * ratio), thumbnailHeight);
     }
     // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
-    expect(ABS(thumbImage.size.width - thumbnailPixelSize.width) <= 1);
-    expect(ABS(thumbImage.size.height - thumbnailPixelSize.height) <= 1);
+    expect(ABS(thumbImage.size.width - thumbnailPixelSize.width)).beLessThanOrEqualTo(1);
+    expect(ABS(thumbImage.size.height - thumbnailPixelSize.height)).beLessThanOrEqualTo(1);
     
     
     if (supportsEncoding) {
@@ -345,8 +345,8 @@ withLocalImageURL:(NSURL *)imageUrl
         NSData *outputMaxImageData = [coder encodedDataWithImage:inputImage format:encodingFormat options:@{SDImageCoderEncodeMaxPixelSize : @(CGSizeMake(maxWidth, maxHeight))}];
         UIImage *outputMaxImage = [coder decodedImageWithData:outputMaxImageData options:nil];
         // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
-        expect(ABS(outputMaxImage.size.width - maxPixelSize.width) <= 1);
-        expect(ABS(outputMaxImage.size.height - maxPixelSize.height) <= 1);
+        expect(ABS(outputMaxImage.size.width - maxPixelSize.width)).beLessThanOrEqualTo(1);
+        expect(ABS(outputMaxImage.size.height - maxPixelSize.height)).beLessThanOrEqualTo(1);
 #if SD_UIKIT
         expect(outputMaxImage.images.count).to.equal(inputImage.images.count);
 #endif
