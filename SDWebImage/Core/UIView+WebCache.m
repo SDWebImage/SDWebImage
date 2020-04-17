@@ -11,6 +11,7 @@
 #import "UIView+WebCacheOperation.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
+#import "SDWebImageTransitionInternal.h"
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
@@ -260,10 +261,21 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         } completionHandler:^{
             [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
                 context.duration = transition.duration;
-                context.timingFunction = transition.timingFunction;
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+                CAMediaTimingFunction *timingFunction = transition.timingFunction;
+                #pragma clang diagnostic pop
+                if (!timingFunction) {
+                    timingFunction = SDTimingFunctionFromAnimationOptions(transition.animationOptions);
+                }
+                context.timingFunction = timingFunction;
                 context.allowsImplicitAnimation = SD_OPTIONS_CONTAINS(transition.animationOptions, SDWebImageAnimationOptionAllowsImplicitAnimation);
                 if (finalSetImageBlock && !transition.avoidAutoSetImage) {
                     finalSetImageBlock(image, imageData, cacheType, imageURL);
+                }
+                CATransition *trans = SDTransitionFromAnimationOptions(transition.animationOptions);
+                if (trans) {
+                    [view.layer addAnimation:trans forKey:kCATransition];
                 }
                 if (transition.animations) {
                     transition.animations(view, image);
