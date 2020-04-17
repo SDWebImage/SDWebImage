@@ -350,6 +350,32 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)testUIViewOperationKeyContextWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView operation key context should pass through"];
+    
+    UIView *view = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    SDWebImageManager *customManager = [[SDWebImageManager alloc] initWithCache:SDImageCachesManager.sharedManager loader:SDImageLoadersManager.sharedManager];
+    customManager.optionsProcessor = [SDWebImageOptionsProcessor optionsProcessorWithBlock:^SDWebImageOptionsResult * _Nullable(NSURL * _Nullable url, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+        // expect manager does not exist, avoid retain cycle
+        expect(context[SDWebImageContextCustomManager]).beNil();
+        // expect operation key to be the image view class
+        expect(context[SDWebImageContextSetImageOperationKey]).equal(NSStringFromClass(view.class));
+        return [[SDWebImageOptionsResult alloc] initWithOptions:options context:context];
+    }];
+    [view sd_internalSetImageWithURL:originalImageURL
+                    placeholderImage:nil
+                             options:0
+                             context:@{SDWebImageContextCustomManager: customManager}
+                       setImageBlock:nil
+                            progress:nil
+                           completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
