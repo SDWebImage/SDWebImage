@@ -40,8 +40,8 @@ let package = Package(
         .target(
             name: "SDWebImageMapKit",
             dependencies: ["SDWebImage"],
-            path: "SDWebImage/MapKit",
-            publicHeadersPath: "."
+            path: "SDWebImageMapKit",
+            sources: ["MapKit"]
         )
     ]
 )
