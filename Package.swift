@@ -32,8 +32,8 @@ let package = Package(
             dependencies: [],
             path: "SDWebImage",
             sources: ["Core", "Private"],
-            publicHeadersPath: "Core",
             cSettings: [
+                .headerSearchPath("Core"),
                 .headerSearchPath("Private")
             ]
         ),

@@ -1,0 +1,1 @@
+../../Core/SDAnimatedImageRep.h

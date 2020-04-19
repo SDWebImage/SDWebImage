@@ -1,0 +1,1 @@
+../../Core/UIImage+ForceDecode.h
