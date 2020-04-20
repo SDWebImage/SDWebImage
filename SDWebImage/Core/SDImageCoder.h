@@ -80,6 +80,14 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxPixelSi
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxFileSize;
 
 /**
+ A Boolean value indicating the encoding format should contains a thumbnail image into the output data. Only some of image format (like JPEG/HEIF/AVIF) support this behavior. The embed thumbnail will be used during next time thumbnail decoding (provided `.thumbnailPixelSize`), which is faster than full image thumbnail decoding. (NSNumber)
+ Defaults to NO, which does not embed any thumbnail.
+ @note The thumbnail image's pixel size is not defined, the encoder can choose the proper pixel size which is suitable for encoding quality.
+ @note works for `SDImageCoder`
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeEmbedThumbnail;
+
+/**
  A SDWebImageContext object which hold the original context options from top-level API. (SDWebImageContext)
  This option is ignored for all built-in coders and take no effect.
  But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data inforamtion only.

@@ -484,6 +484,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         // Remove the quality if we have file size limit
         properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = nil;
     }
+    BOOL embedThumbnail = NO;
+    if (options[SDImageCoderEncodeEmbedThumbnail]) {
+        embedThumbnail = [options[SDImageCoderEncodeEmbedThumbnail] boolValue];
+    }
+    properties[(__bridge NSString *)kCGImageDestinationEmbedThumbnail] = @(embedThumbnail);
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
