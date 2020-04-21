@@ -476,6 +476,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         } else {
             finalPixelSize = maxPixelSize.height;
         }
+        properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
     }
     NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
     if (maxFileSize > 0) {
@@ -487,27 +488,22 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
     if (encodeFirstFrame || frames.count == 0) {
         // for static single images
-        if (finalPixelSize > 0) {
-            properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
-        }
         CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated images
         NSUInteger loopCount = image.sd_imageLoopCount;
-        NSDictionary *containerProperties = @{self.class.loopCountProperty : @(loopCount)};
-        properties[self.class.dictionaryProperty] = containerProperties;
-        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)properties);
+        NSDictionary *containerProperties = @{
+            self.class.dictionaryProperty: @{self.class.loopCountProperty : @(loopCount)}
+        };
+        // container level properties (applies for `CGImageDestinationSetProperties`, not individual frames)
+        CGImageDestinationSetProperties(imageDestination, (__bridge CFDictionaryRef)containerProperties);
         
         for (size_t i = 0; i < frames.count; i++) {
             SDImageFrame *frame = frames[i];
             NSTimeInterval frameDuration = frame.duration;
             CGImageRef frameImageRef = frame.image.CGImage;
-            NSMutableDictionary *frameProperties = [NSMutableDictionary dictionary];
-            frameProperties[self.class.dictionaryProperty] = @{self.class.delayTimeProperty : @(frameDuration)};
-            if (finalPixelSize > 0) {
-                frameProperties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
-            }
-            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
+            properties[self.class.dictionaryProperty] = @{self.class.delayTimeProperty : @(frameDuration)};
+            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)properties);
         }
     }
     // Finalize the destination.
