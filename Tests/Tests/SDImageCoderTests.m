@@ -231,6 +231,52 @@
         isVectorImage:YES];
 }
 
+- (void)test18ThatImageIOAnimatedCoderAbstractClass {
+    SDImageIOAnimatedCoder *coder = [[SDImageIOAnimatedCoder alloc] init];
+    @try {
+        [coder canEncodeToFormat:SDImageFormatPNG];
+        XCTFail("Should throw exception");
+    } @catch (NSException *exception) {
+        expect(exception);
+    }
+}
+
+- (void)test19ThatEmbedThumbnailHEICWorks {
+    if (@available(iOS 11, macOS 10.13, *)) {
+        // The input HEIC does not contains any embed thumbnail
+        NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heic"];
+        CGImageSourceRef source = CGImageSourceCreateWithURL((__bridge CFURLRef)heicURL, nil);
+        expect(source).notTo.beNil();
+        NSArray *thumbnailImages = [self thumbnailImagesFromImageSource:source];
+        expect(thumbnailImages.count).equal(0);
+        
+        CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, 0, nil);
+#if SD_UIKIT
+        UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:1 orientation: UIImageOrientationUp];
+#else
+        UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:1 orientation:kCGImagePropertyOrientationUp];
+#endif
+        CGImageRelease(imageRef);
+        // Encode with embed thumbnail
+        NSData *encodedData = [SDImageIOCoder.sharedCoder encodedDataWithImage:image format:SDImageFormatHEIC options:@{SDImageCoderEncodeEmbedThumbnail : @(YES)}];
+        
+        // The new HEIC contains one embed thumbnail
+        CGImageSourceRef source2 = CGImageSourceCreateWithData((__bridge CFDataRef)encodedData, nil);
+        expect(source2).notTo.beNil();
+        NSArray *thumbnailImages2 = [self thumbnailImagesFromImageSource:source2];
+        expect(thumbnailImages2.count).equal(1);
+        
+        // Currently ImageIO has no control to custom embed thumbnail pixel size, just check the behavior :)
+        NSDictionary *thumbnailImageInfo = thumbnailImages2.firstObject;
+        NSUInteger thumbnailWidth = [thumbnailImageInfo[(__bridge NSString *)kCGImagePropertyWidth] unsignedIntegerValue];
+        NSUInteger thumbnailHeight = [thumbnailImageInfo[(__bridge NSString *)kCGImagePropertyHeight] unsignedIntegerValue];
+        expect(thumbnailWidth).equal(320);
+        expect(thumbnailHeight).equal(212);
+    }
+}
+
+#pragma mark - Utils
+
 - (void)verifyCoder:(id<SDImageCoder>)coder
 withLocalImageURL:(NSURL *)imageUrl
  supportsEncoding:(BOOL)supportsEncoding
@@ -353,14 +399,14 @@ withLocalImageURL:(NSURL *)imageUrl
     }
 }
 
-- (void)test16ThatImageIOAnimatedCoderAbstractClass {
-    SDImageIOAnimatedCoder *coder = [[SDImageIOAnimatedCoder alloc] init];
-    @try {
-        [coder canEncodeToFormat:SDImageFormatPNG];
-        XCTFail("Should throw exception");
-    } @catch (NSException *exception) {
-        expect(exception);
-    }
+- (NSArray *)thumbnailImagesFromImageSource:(CGImageSourceRef)source API_AVAILABLE(ios(11.0), tvos(11.0), macos(13.0)) {
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
+    NSDictionary *fileProperties = properties[(__bridge NSString *)kCGImagePropertyFileContentsDictionary];
+    NSArray *imagesProperties = fileProperties[(__bridge NSString *)kCGImagePropertyImages];
+    NSDictionary *imageProperties = imagesProperties.firstObject;
+    NSArray *thumbnailImages = imageProperties[(__bridge NSString *)kCGImagePropertyThumbnailImages];
+    
+    return thumbnailImages;
 }
 
 @end
