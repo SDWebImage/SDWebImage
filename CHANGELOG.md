@@ -1,3 +1,9 @@
+## [5.7.3 - 5.7 Patch, on Apr 21st, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.3)
+See [all tickets marked for the 5.7.3 release](https://github.com/SDWebImage/SDWebImage/milestone/70)
+
+### Fixes
+- Fix the encoding options which does not passthrough the correct value to ImageIO #2989
+
 ## [5.7.2 - 5.7 Patch, on Apr 11th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.2)
 See [all tickets marked for the 5.7.2 release](https://github.com/SDWebImage/SDWebImage/milestone/68)
 
