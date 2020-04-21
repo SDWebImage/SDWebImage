@@ -10,8 +10,6 @@
 
 #if SD_UIKIT || SD_MAC
 
-#import "UIView+WebCache.h"
-
 @implementation MKAnnotationView (WebCache)
 
 - (void)sd_setImageWithURL:(nullable NSURL *)url {

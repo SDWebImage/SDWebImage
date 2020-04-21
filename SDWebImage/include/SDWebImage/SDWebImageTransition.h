@@ -1,0 +1,1 @@
+../../Core/SDWebImageTransition.h

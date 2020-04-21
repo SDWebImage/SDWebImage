@@ -283,6 +283,12 @@ In the source files where you need to use the library, import the umbrella heade
 #import <SDWebImage/SDWebImage.h>
 ```
 
+It's also recommend to use the module import syntax, available for CocoaPods(enable `modular_headers`)/Carthage/SwiftPM.
+
+```objecitivec
+@import SDWebImage;
+```
+
 ### Build Project
 
 At this point your workspace should build without error. If you are having problem, post to the Issue and the

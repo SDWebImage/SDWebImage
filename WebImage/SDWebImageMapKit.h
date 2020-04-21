@@ -9,11 +9,11 @@
 
 #import <MapKit/MapKit.h>
 
-//! Project version number for WebImage.
-FOUNDATION_EXPORT double WebImageMapKitVersionNumber;
+//! Project version number for SDWebImageMapKit.
+FOUNDATION_EXPORT double SDWebImageMapKitVersionNumber;
 
-//! Project version string for WebImage.
-FOUNDATION_EXPORT const unsigned char WebImageMapKitVersionString[];
+//! Project version string for SDWebImageMapKit.
+FOUNDATION_EXPORT const unsigned char SDWebImageMapKitVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <SDWebImageMapKit/PublicHeader.h>
 

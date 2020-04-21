@@ -1,0 +1,1 @@
+../../Core/NSImage+Compatibility.h

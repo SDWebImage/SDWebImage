@@ -1,0 +1,1 @@
+../../Core/SDWebImageOptionsProcessor.h

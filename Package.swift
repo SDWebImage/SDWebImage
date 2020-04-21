@@ -32,16 +32,16 @@ let package = Package(
             dependencies: [],
             path: "SDWebImage",
             sources: ["Core", "Private"],
-            publicHeadersPath: "Core",
             cSettings: [
+                .headerSearchPath("Core"),
                 .headerSearchPath("Private")
             ]
         ),
         .target(
             name: "SDWebImageMapKit",
             dependencies: ["SDWebImage"],
-            path: "SDWebImage/MapKit",
-            publicHeadersPath: "."
+            path: "SDWebImageMapKit",
+            sources: ["MapKit"]
         )
     ]
 )
