@@ -251,7 +251,11 @@
         expect(thumbnailImages.count).equal(0);
         
         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, 0, nil);
-        UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+#if SD_UIKIT
+        UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:1 orientation: UIImageOrientationUp];
+#else
+        UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:1 orientation:kCGImagePropertyOrientationUp];
+#endif
         CGImageRelease(imageRef);
         // Encode with embed thumbnail
         NSData *encodedData = [SDImageIOCoder.sharedCoder encodedDataWithImage:image format:SDImageFormatHEIC options:@{SDImageCoderEncodeEmbedThumbnail : @(YES)}];
