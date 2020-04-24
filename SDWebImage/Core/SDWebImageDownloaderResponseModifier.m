@@ -39,41 +39,35 @@
 
 @end
 
-@interface SDWebImageDownloaderHTTPResponseModifier ()
+@implementation SDWebImageDownloaderResponseModifier (HTTPConveniences)
 
-@property (nonatomic, copy, nullable) NSString *version;
-@property (nonatomic) NSInteger statusCode;
-@property (nonatomic, copy, nullable) NSDictionary<NSString *,NSString *> *headers;
+- (instancetype)initWithStatusCode:(NSInteger)statusCode {
+    return [self initWithStatusCode:statusCode version:nil headers:nil];
+}
 
-@end
-
-@implementation SDWebImageDownloaderHTTPResponseModifier
+- (instancetype)initWithVersion:(NSString *)version {
+    return [self initWithStatusCode:200 version:version headers:nil];
+}
 
 - (instancetype)initWithHeaders:(NSDictionary<NSString *,NSString *> *)headers {
-    return [self initWithVersion:nil statusCode:200 headers:headers];
+    return [self initWithStatusCode:200 version:nil headers:headers];
 }
 
-- (instancetype)initWithVersion:(NSString *)version statusCode:(NSInteger)statusCode headers:(NSDictionary<NSString *,NSString *> *)headers {
-    self = [super init];
-    if (self) {
-        _version = [version copy];
-        _statusCode = statusCode;
-        _headers = [headers copy];
-    }
-    return self;
-}
-
-- (NSURLResponse *)modifiedResponseWithResponse:(NSURLResponse *)response {
-    if (![response isKindOfClass:NSHTTPURLResponse.class]) {
-        return response;
-    }
-    NSMutableDictionary *mutableHeaders = [((NSHTTPURLResponse *)response).allHeaderFields mutableCopy];
-    for (NSString *header in self.headers) {
-        NSString *value = self.headers[header];
-        mutableHeaders[header] = value;
-    }
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:response.URL statusCode:self.statusCode HTTPVersion:self.version ?: @"HTTP/1.1" headerFields:[mutableHeaders copy]];
-    return httpResponse;
+- (instancetype)initWithStatusCode:(NSInteger)statusCode version:(NSString *)version headers:(NSDictionary<NSString *,NSString *> *)headers {
+    version = version ? [version copy] : @"HTTP/1.1";
+    headers = [headers copy];
+    return [self initWithBlock:^NSURLResponse * _Nullable(NSURLResponse * _Nonnull response) {
+        if (![response isKindOfClass:NSHTTPURLResponse.class]) {
+            return response;
+        }
+        NSMutableDictionary *mutableHeaders = [((NSHTTPURLResponse *)response).allHeaderFields mutableCopy];
+        for (NSString *header in headers) {
+            NSString *value = headers[header];
+            mutableHeaders[header] = value;
+        }
+        NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:response.URL statusCode:statusCode HTTPVersion:version headerFields:[mutableHeaders copy]];
+        return httpResponse;
+    }];
 }
 
 @end

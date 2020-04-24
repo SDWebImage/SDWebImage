@@ -40,20 +40,30 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
 @end
 
 /**
- A convenient request modifier to provide the HTTP request including HTTP method, headers and body.
- */
-@interface SDWebImageDownloaderHTTPRequestModifier : NSObject <SDWebImageDownloaderRequestModifier>
+A convenient request modifier to provide the HTTP request including HTTP Method, Headers and Body.
+*/
+@interface SDWebImageDownloaderRequestModifier (HTTPConveniences)
 
-/// Create the request modifier with HTTP Headers
+/// Create the request modifier with HTTP Method.
+/// @param method HTTP Method, nil means to GET.
+/// @note This is for convenience, if you need code to control the logic, use block API instead.
+- (nonnull instancetype)initWithMethod:(nullable NSString *)method;
+
+/// Create the request modifier with HTTP Headers.
 /// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original request.
-/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
+/// @note This is for convenience, if you need code to control the logic, use block API instead.
 - (nonnull instancetype)initWithHeaders:(nullable NSDictionary<NSString *, NSString *> *)headers;
 
-/// Create the request modifier with HTTP Method, Headers and Body
+/// Create the request modifier with HTTP Body.
+/// @param body HTTP Body.
+/// @note This is for convenience, if you need code to control the logic, use block API instead.
+- (nonnull instancetype)initWithBody:(nullable NSData *)body;
+
+/// Create the request modifier with HTTP Method, Headers and Body.
 /// @param method HTTP Method, nil means to GET.
 /// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original request.
-/// @param body HTTP Body
-/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
+/// @param body HTTP Body.
+/// @note This is for convenience, if you need code to control the logic, use block API instead.
 - (nonnull instancetype)initWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body;
 
 @end

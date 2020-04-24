@@ -38,39 +38,34 @@
 
 @end
 
-@interface SDWebImageDownloaderHTTPRequestModifier ()
+@implementation SDWebImageDownloaderRequestModifier (HTTPConveniences)
 
-@property (nonatomic, copy, nullable) NSString *method;
-@property (nonatomic, copy, nullable) NSDictionary<NSString *,NSString *> *headers;
-@property (nonatomic, copy, nullable) NSData *body;
-
-@end
-
-@implementation SDWebImageDownloaderHTTPRequestModifier
+- (instancetype)initWithMethod:(NSString *)method {
+    return [self initWithMethod:method headers:nil body:nil];
+}
 
 - (instancetype)initWithHeaders:(NSDictionary<NSString *,NSString *> *)headers {
     return [self initWithMethod:nil headers:headers body:nil];
 }
 
-- (instancetype)initWithMethod:(NSString *)method headers:(NSDictionary<NSString *,NSString *> *)headers body:(NSData *)body {
-    self = [super init];
-    if (self) {
-        _method = [method copy];
-        _headers = [headers copy];
-        _body = [body copy];
-    }
-    return self;
+- (instancetype)initWithBody:(NSData *)body {
+    return [self initWithMethod:nil headers:nil body:body];
 }
 
-- (NSURLRequest *)modifiedRequestWithRequest:(NSURLRequest *)request {
-    NSMutableURLRequest *mutableRequest = [request mutableCopy];
-    mutableRequest.HTTPMethod = self.method;
-    mutableRequest.HTTPBody = self.body;
-    for (NSString *header in self.headers) {
-        NSString *value = self.headers[header];
-        [mutableRequest setValue:value forHTTPHeaderField:header];
-    }
-    return [mutableRequest copy];
+- (instancetype)initWithMethod:(NSString *)method headers:(NSDictionary<NSString *,NSString *> *)headers body:(NSData *)body {
+    method = [method copy];
+    headers = [headers copy];
+    body = [body copy];
+    return [self initWithBlock:^NSURLRequest * _Nullable(NSURLRequest * _Nonnull request) {
+        NSMutableURLRequest *mutableRequest = [request mutableCopy];
+        mutableRequest.HTTPMethod = method;
+        mutableRequest.HTTPBody = body;
+        for (NSString *header in headers) {
+            NSString *value = headers[header];
+            [mutableRequest setValue:value forHTTPHeaderField:header];
+        }
+        return [mutableRequest copy];
+    }];
 }
 
 @end
