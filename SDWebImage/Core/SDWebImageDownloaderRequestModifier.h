@@ -39,18 +39,16 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  */
 @interface SDWebImageDownloaderHTTPRequestModifier : NSObject <SDWebImageDownloaderRequestModifier>
 
+/// Create the request modifier with HTTP Headers
+/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original request.
+/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
+- (nonnull instancetype)initWithHeaders:(nullable NSDictionary<NSString *, NSString *> *)headers;
+
 /// Create the request modifier with HTTP Method, Headers and Body
 /// @param method HTTP Method, nil means to GET.
 /// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original request.
 /// @param body HTTP Body
 /// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
-- (nonnull instancetype)initWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body;
-
-/// Create the request modifier with HTTP Method, Headers and Body
-/// @param method HTTP Method, nil means to GET.
-/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from SDWebImageDownloader global configuration.
-/// @param body HTTP Body
-/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
-+ (nonnull instancetype)requestModifierWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body;
+- (nonnull instancetype)initWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body NS_DESIGNATED_INITIALIZER;
 
 @end

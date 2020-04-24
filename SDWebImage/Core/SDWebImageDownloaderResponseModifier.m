@@ -49,6 +49,10 @@
 
 @implementation SDWebImageDownloaderHTTPResponseModifier
 
+- (instancetype)initWithHeaders:(NSDictionary<NSString *,NSString *> *)headers {
+    return [self initWithVersion:nil statusCode:200 headers:headers];
+}
+
 - (instancetype)initWithVersion:(NSString *)version statusCode:(NSInteger)statusCode headers:(NSDictionary<NSString *,NSString *> *)headers {
     self = [super init];
     if (self) {
@@ -57,11 +61,6 @@
         _headers = [headers copy];
     }
     return self;
-}
-
-+ (instancetype)responseModifierWithVersion:(NSString *)version statusCode:(NSInteger)statusCode headers:(NSDictionary<NSString *,NSString *> *)headers {
-    SDWebImageDownloaderHTTPResponseModifier *responseModifier = [[SDWebImageDownloaderHTTPResponseModifier alloc] initWithVersion:version statusCode:statusCode headers:headers];
-    return responseModifier;
 }
 
 - (NSURLResponse *)modifiedResponseWithResponse:(NSURLResponse *)response {
