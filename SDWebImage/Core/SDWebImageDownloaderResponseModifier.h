@@ -29,7 +29,12 @@ typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(N
  */
 @interface SDWebImageDownloaderResponseModifier : NSObject <SDWebImageDownloaderResponseModifier>
 
+/// Create the response modifier with block
+/// @param block A block to control modifier logic
 - (nonnull instancetype)initWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
+
+/// Create the response modifier with block
+/// @param block A block to control modifier logic
 + (nonnull instancetype)responseModifierWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
 
 @end
@@ -49,6 +54,6 @@ typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(N
 /// @param statusCode HTTP Status Code
 /// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original response.
 /// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderResponseModifier` instead
-- (nonnull instancetype)initWithVersion:(nullable NSString *)version statusCode:(NSInteger)statusCode headers:(nullable NSDictionary<NSString *, NSString *> *)headers NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithVersion:(nullable NSString *)version statusCode:(NSInteger)statusCode headers:(nullable NSDictionary<NSString *, NSString *> *)headers;
 
 @end

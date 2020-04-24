@@ -72,7 +72,7 @@
         NSString *value = self.headers[header];
         mutableHeaders[header] = value;
     }
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:response.URL statusCode:self.statusCode HTTPVersion:self.version ?: (__bridge NSString *)kCFHTTPVersion1_1 headerFields:[mutableHeaders copy]];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:response.URL statusCode:self.statusCode HTTPVersion:self.version ?: @"HTTP/1.1" headerFields:[mutableHeaders copy]];
     return httpResponse;
 }
 

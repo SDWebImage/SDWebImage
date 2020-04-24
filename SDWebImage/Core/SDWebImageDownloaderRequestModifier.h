@@ -29,7 +29,12 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
  */
 @interface SDWebImageDownloaderRequestModifier : NSObject <SDWebImageDownloaderRequestModifier>
 
+/// Create the request modifier with block
+/// @param block A block to control modifier logic
 - (nonnull instancetype)initWithBlock:(nonnull SDWebImageDownloaderRequestModifierBlock)block;
+
+/// Create the request modifier with block
+/// @param block A block to control modifier logic
 + (nonnull instancetype)requestModifierWithBlock:(nonnull SDWebImageDownloaderRequestModifierBlock)block;
 
 @end
@@ -49,6 +54,6 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
 /// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original request.
 /// @param body HTTP Body
 /// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderRequestModifier` instead
-- (nonnull instancetype)initWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body NS_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithMethod:(nullable NSString *)method headers:(nullable NSDictionary<NSString *, NSString *> *)headers body:(nullable NSData *)body;
 
 @end
