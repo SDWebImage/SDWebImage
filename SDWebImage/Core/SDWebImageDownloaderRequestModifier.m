@@ -37,3 +37,41 @@
 }
 
 @end
+
+@interface SDWebImageDownloaderHTTPRequestModifier ()
+
+@property (nonatomic, copy, nullable) NSString *method;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *,NSString *> *headers;
+@property (nonatomic, copy, nullable) NSData *body;
+
+@end
+
+@implementation SDWebImageDownloaderHTTPRequestModifier
+
+- (instancetype)initWithMethod:(NSString *)method headers:(NSDictionary<NSString *,NSString *> *)headers body:(NSData *)body {
+    self = [super init];
+    if (self) {
+        _method = [method copy];
+        _headers = [headers copy];
+        _body = [body copy];
+    }
+    return self;
+}
+
++ (instancetype)requestModifierWithMethod:(NSString *)method headers:(NSDictionary<NSString *,NSString *> *)headers body:(NSData *)body {
+    SDWebImageDownloaderHTTPRequestModifier *requestModifier = [[SDWebImageDownloaderHTTPRequestModifier alloc] initWithMethod:method headers:headers body:body];
+    return requestModifier;
+}
+
+- (NSURLRequest *)modifiedRequestWithRequest:(NSURLRequest *)request {
+    NSMutableURLRequest *mutableRequest = [request mutableCopy];
+    mutableRequest.HTTPMethod = self.method;
+    mutableRequest.HTTPBody = self.body;
+    for (NSString *header in self.headers) {
+        NSString *value = self.headers[header];
+        [mutableRequest setValue:value forHTTPHeaderField:header];
+    }
+    return [mutableRequest copy];
+}
+
+@end

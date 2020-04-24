@@ -33,3 +33,24 @@ typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(N
 + (nonnull instancetype)responseModifierWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
 
 @end
+
+/**
+ A convenient response modifier to provide the HTTP response including HTTP method, headers and body.
+ */
+@interface SDWebImageDownloaderHTTPResponseModifier : NSObject <SDWebImageDownloaderResponseModifier>
+
+/// Create the response modifier with HTTP Version, Status Code and Headers
+/// @param version HTTP Version, nil means "HTTP/1.1"
+/// @param statusCode HTTP Status Code
+/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original response.
+/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderResponseModifier` instead
+- (nonnull instancetype)initWithVersion:(nullable NSString *)version statusCode:(NSInteger)statusCode headers:(nullable NSDictionary<NSString *, NSString *> *)headers;
+
+/// Create the response modifier with HTTP Version, Status Code and Headers
+/// @param version HTTP Version, nil means "HTTP/1.1". See available value in CFNetwork like `kCFHTTPVersion1_1`.
+/// @param statusCode HTTP Status Code
+/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original response.
+/// @note This is for convenience, if you need code to control the logic, use `SDWebImageDownloaderResponseModifier` instead
++ (nonnull instancetype)responseModifierWithVersion:(nullable NSString *)version statusCode:(NSInteger)statusCode headers:(nullable NSDictionary<NSString *, NSString *> *)headers;
+
+@end
