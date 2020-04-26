@@ -52,10 +52,19 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                      setImageBlock:(nullable SDSetImageBlock)setImageBlock
                           progress:(nullable SDImageLoaderProgressBlock)progressBlock
                          completed:(nullable SDInternalCompletionBlock)completedBlock {
-    context = [context copy]; // copy to avoid mutable object
+    if (context) {
+        // copy to avoid mutable object
+        context = [context copy];
+    } else {
+        context = [NSDictionary dictionary];
+    }
     NSString *validOperationKey = context[SDWebImageContextSetImageOperationKey];
     if (!validOperationKey) {
+        // pass through the operation key to downstream, which can used for tracing operation or image view class
         validOperationKey = NSStringFromClass([self class]);
+        SDWebImageMutableContext *mutableContext = [context mutableCopy];
+        mutableContext[SDWebImageContextSetImageOperationKey] = validOperationKey;
+        context = [mutableContext copy];
     }
     self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
@@ -80,10 +89,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         [self sd_startImageIndicator];
         id<SDWebImageIndicator> imageIndicator = self.sd_imageIndicator;
 #endif
-        
         SDWebImageManager *manager = context[SDWebImageContextCustomManager];
         if (!manager) {
             manager = [SDWebImageManager sharedManager];
+        } else {
+            // remove this manager to avoid retain cycle (manger -> loader -> operation -> context -> manager)
+            SDWebImageMutableContext *mutableContext = [context mutableCopy];
+            mutableContext[SDWebImageContextCustomManager] = nil;
+            context = [mutableContext copy];
         }
         
         SDImageLoaderProgressBlock combinedProgressBlock = ^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {

@@ -9,6 +9,7 @@
 #import "SDWebImageDefine.h"
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
+#import "SDAssociatedObject.h"
 
 #pragma mark - Image scale
 
@@ -110,8 +111,7 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
     }
-    scaledImage.sd_isIncremental = image.sd_isIncremental;
-    scaledImage.sd_imageFormat = image.sd_imageFormat;
+    SDImageCopyAssociatedObject(image, scaledImage);
     
     return scaledImage;
 }
@@ -120,8 +120,14 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
 
 SDWebImageContextOption const SDWebImageContextSetImageOperationKey = @"setImageOperationKey";
 SDWebImageContextOption const SDWebImageContextCustomManager = @"customManager";
+SDWebImageContextOption const SDWebImageContextImageCache = @"imageCache";
+SDWebImageContextOption const SDWebImageContextImageLoader = @"imageLoader";
+SDWebImageContextOption const SDWebImageContextImageCoder = @"imageCoder";
 SDWebImageContextOption const SDWebImageContextImageTransformer = @"imageTransformer";
 SDWebImageContextOption const SDWebImageContextImageScaleFactor = @"imageScaleFactor";
+SDWebImageContextOption const SDWebImageContextImagePreserveAspectRatio = @"imagePreserveAspectRatio";
+SDWebImageContextOption const SDWebImageContextImageThumbnailPixelSize = @"imageThumbnailPixelSize";
+SDWebImageContextOption const SDWebImageContextQueryCacheType = @"queryCacheType";
 SDWebImageContextOption const SDWebImageContextStoreCacheType = @"storeCacheType";
 SDWebImageContextOption const SDWebImageContextOriginalStoreCacheType = @"originalStoreCacheType";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";

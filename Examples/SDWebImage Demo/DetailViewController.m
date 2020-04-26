@@ -24,6 +24,8 @@
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
                                options:SDWebImageProgressiveLoad];
+    self.imageView.shouldCustomLoopCount = YES;
+    self.imageView.animationRepeatCount = 0;
 }
 
 - (void)viewDidLoad {

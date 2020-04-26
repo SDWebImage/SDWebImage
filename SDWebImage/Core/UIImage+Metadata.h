@@ -28,11 +28,19 @@
 
 /**
  * UIKit:
- * Check the `images` array property
+ * Check the `images` array property.
  * AppKit:
  * NSImage currently only support animated via GIF imageRep unlike UIImage. It will check the imageRep's frame count.
  */
 @property (nonatomic, assign, readonly) BOOL sd_isAnimated;
+
+/**
+ * UIKit:
+ * Check the `isSymbolImage` property. Also check the system PDF(iOS 11+) && SVG(iOS 13+) support.
+ * AppKit:
+ * NSImage supports PDF && SVG && EPS imageRep, check the imageRep class.
+ */
+@property (nonatomic, assign, readonly) BOOL sd_isVector;
 
 /**
  * The image format represent the original compressed image data format.

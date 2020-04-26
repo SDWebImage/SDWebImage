@@ -8,6 +8,8 @@
 
 #import "SDTestCase.h"
 #import "SDWebImageTestTransformer.h"
+#import "SDWebImageTestCache.h"
+#import "SDWebImageTestLoader.h"
 
 @interface SDWebImageManagerTests : SDTestCase
 
@@ -119,7 +121,7 @@
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:[SDImageCache sharedImageCache] loader:[SDWebImageDownloader sharedDownloader]];
     manager.transformer = transformer;
     [[SDImageCache sharedImageCache] removeImageForKey:kTestJPEGURL withCompletion:^{
-        [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage | SDWebImageTransformVectorImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
             expect(image).equal(transformer.testImage);
             [expectation fulfill];
         }];
@@ -218,6 +220,7 @@
     
     // Use a fresh manager && cache to avoid get effected by other test cases
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"SDWebImageStoreCacheType"];
+    [cache clearDiskOnCompletion:nil];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
@@ -225,23 +228,100 @@
     
     // test: original image -> disk only, transformed image -> memory only
     SDWebImageContext *context = @{SDWebImageContextOriginalStoreCacheType : @(SDImageCacheTypeDisk), SDWebImageContextStoreCacheType : @(SDImageCacheTypeMemory)};
-    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *url = [NSURL URLWithString:kTestAPNGPURL];
     NSString *originalKey = [manager cacheKeyForURL:url];
-    NSString *transformedKey = SDTransformedKeyForKey(originalKey, transformer.transformerKey);
+    NSString *transformedKey = [manager cacheKeyForURL:url context:context];
     
     [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).equal(transformer.testImage);
+        // the transformed image should not inherite any attribute from original one
+        expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
+        expect(image.sd_isAnimated).beFalsy();
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2*kMinDelayNanosecond), dispatch_get_main_queue(), ^{
             // original -> disk only
-            [manager.imageCache containsImageForKey:originalKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType originalCacheType) {
-                expect(originalCacheType).equal(SDImageCacheTypeDisk);
-                // transformed -> memory only
-                [manager.imageCache containsImageForKey:transformedKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType transformedCacheType) {
-                    expect(transformedCacheType).equal(SDImageCacheTypeMemory);
-                    [expectation fulfill];
-                }];
+            UIImage *originalImage = [cache imageFromMemoryCacheForKey:originalKey];
+            expect(originalImage).beNil();
+            NSData *originalData = [cache diskImageDataForKey:originalKey];
+            expect(originalData).notTo.beNil();
+            originalImage = [UIImage sd_imageWithData:originalData];
+            expect(originalImage).notTo.beNil();
+            expect(originalImage.sd_imageFormat).equal(SDImageFormatPNG);
+            expect(originalImage.sd_isAnimated).beTruthy();
+            // transformed -> memory only
+            [manager.imageCache containsImageForKey:transformedKey cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType transformedCacheType) {
+                expect(transformedCacheType).equal(SDImageCacheTypeMemory);
+                [cache clearDiskOnCompletion:nil];
+                [expectation fulfill];
             }];
         });
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test13ThatScaleDownLargeImageUseThumbnailDecoding {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages should translate to thumbnail decoding"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"http://via.placeholder.com/3999x3999.png"]; // Max size for this API
+    NSUInteger defaultLimitBytes = SDImageCoderHelper.defaultScaleDownLimitBytes;
+    SDImageCoderHelper.defaultScaleDownLimitBytes = 1000 * 1000 * 4; // Limit 1000x1000 pixel
+    // From v5.5.0, the `SDWebImageScaleDownLargeImages` translate to `SDWebImageContextImageThumbnailPixelSize`, and works for progressive loading
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages | SDWebImageProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.size).equal(CGSizeMake(1000, 1000));
+        if (finished) {
+            [expectation fulfill];
+        } else {
+            expect(image.sd_isIncremental).beTruthy();
+        }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        SDImageCoderHelper.defaultScaleDownLimitBytes = defaultLimitBytes;
+    }];
+}
+
+- (void)test14ThatCustomCacheAndLoaderWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Custom Cache and Loader during manger query"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/100x100.png"];
+    SDWebImageContext *context = @{
+        SDWebImageContextImageCache : SDWebImageTestCache.sharedCache,
+        SDWebImageContextImageLoader : SDWebImageTestLoader.sharedLoader
+    };
+    [SDWebImageTestCache.sharedCache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageWaitStoreCache context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.size.width).equal(100);
+        expect(image.size.height).equal(100);
+        expect(data).notTo.beNil();
+        NSString *cacheKey = [SDWebImageManager.sharedManager cacheKeyForURL:imageURL];
+        // Check Disk Cache (SDWebImageWaitStoreCache behavior)
+        [SDWebImageTestCache.sharedCache containsImageForKey:cacheKey cacheType:SDImageCacheTypeDisk completion:^(SDImageCacheType containsCacheType) {
+            expect(containsCacheType).equal(SDImageCacheTypeDisk);
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test15ThatQueryCacheTypeWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image query cache type works"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/101x101.png"];
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    NSData *testImageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    [SDImageCache.sharedImageCache storeImageDataToDisk:testImageData forKey:key];
+    
+    // Query memory first
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).beNil();
+        expect(cacheType).equal(SDImageCacheTypeNone);
+        // Query disk secondly
+        [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeDisk)} progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
+            expect(image2).notTo.beNil();
+            expect(cacheType2).equal(SDImageCacheTypeDisk);
+            [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
+            [expectation fulfill];
+        }];
     }];
     
     [self waitForExpectationsWithCommonTimeout];

@@ -8,12 +8,13 @@
  */
 
 #import "SDTestCase.h"
-#import "UIColor+HexString.h"
+#import "UIColor+SDHexString.h"
 #import <CoreImage/CoreImage.h>
 
 @interface SDImageTransformerTests : SDTestCase
 
-@property (nonatomic, strong) UIImage *testImage;
+@property (nonatomic, strong) UIImage *testImageCG;
+@property (nonatomic, strong) UIImage *testImageCI;
 
 @end
 
@@ -22,21 +23,37 @@
 #pragma mark - UIImage+Transform
 
 // UIImage+Transform test is hard to write because it's more about visual effect. Current it's tied to the `TestImage.png`, please keep that image or write new test with new image
-- (void)test01UIImageTransformResize {
+- (void)test01UIImageTransformResizeCG {
+    [self test01UIImageTransformResizeWithImage:self.testImageCG];
+}
+
+- (void)test01UIImageTransformResizeCI {
+    [self test01UIImageTransformResizeWithImage:self.testImageCI];
+}
+
+- (void)test01UIImageTransformResizeWithImage:(UIImage *)testImage {
     CGSize scaleDownSize = CGSizeMake(200, 100);
-    UIImage *scaledDownImage = [self.testImage sd_resizedImageWithSize:scaleDownSize scaleMode:SDImageScaleModeFill];
+    UIImage *scaledDownImage = [testImage sd_resizedImageWithSize:scaleDownSize scaleMode:SDImageScaleModeFill];
     expect(CGSizeEqualToSize(scaledDownImage.size, scaleDownSize)).beTruthy();
     CGSize scaleUpSize = CGSizeMake(2000, 1000);
-    UIImage *scaledUpImage = [self.testImage sd_resizedImageWithSize:scaleUpSize scaleMode:SDImageScaleModeAspectFit];
+    UIImage *scaledUpImage = [testImage sd_resizedImageWithSize:scaleUpSize scaleMode:SDImageScaleModeAspectFit];
     expect(CGSizeEqualToSize(scaledUpImage.size, scaleUpSize)).beTruthy();
     // Check image not inversion
     UIColor *topCenterColor = [scaledUpImage sd_colorAtPoint:CGPointMake(1000, 50)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test02UIImageTransformCrop {
+- (void)test02UIImageTransformCropCG {
+    [self test02UIImageTransformCropWithImage:self.testImageCG];
+}
+
+- (void)test02UIImageTransformCropCI {
+    [self test02UIImageTransformCropWithImage:self.testImageCI];
+}
+
+- (void)test02UIImageTransformCropWithImage:(UIImage *)testImage {
     CGRect rect = CGRectMake(50, 10, 200, 200);
-    UIImage *croppedImage = [self.testImage sd_croppedImageWithRect:rect];
+    UIImage *croppedImage = [testImage sd_croppedImageWithRect:rect];
     expect(CGSizeEqualToSize(croppedImage.size, CGSizeMake(200, 200))).beTruthy();
     UIColor *startColor = [croppedImage sd_colorAtPoint:CGPointZero];
     expect([startColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]).beTruthy();
@@ -45,7 +62,15 @@
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test03UIImageTransformRoundedCorner {
+- (void)test03UIImageTransformRoundedCornerCG {
+    [self test03UIImageTransformRoundedCornerWithImage:self.testImageCG];
+}
+
+- (void)test03UIImageTransformRoundedCornerCI {
+    [self test03UIImageTransformRoundedCornerWithImage:self.testImageCI];
+}
+
+- (void)test03UIImageTransformRoundedCornerWithImage:(UIImage *)testImage {
     CGFloat radius = 50;
 #if SD_UIKIT
     SDRectCorner corners = UIRectCornerAllCorners;
@@ -54,7 +79,7 @@
 #endif
     CGFloat borderWidth = 1;
     UIColor *borderColor = [UIColor blackColor];
-    UIImage *roundedCornerImage = [self.testImage sd_roundedCornerImageWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderColor];
+    UIImage *roundedCornerImage = [testImage sd_roundedCornerImageWithRadius:radius corners:corners borderWidth:borderWidth borderColor:borderColor];
     expect(CGSizeEqualToSize(roundedCornerImage.size, CGSizeMake(300, 300))).beTruthy();
     UIColor *startColor = [roundedCornerImage sd_colorAtPoint:CGPointZero];
     expect([startColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]).beTruthy();
@@ -66,25 +91,42 @@
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test04UIImageTransformRotate {
+- (void)test04UIImageTransformRotateCG {
+    [self test04UIImageTransformRotateWithImage:self.testImageCG];
+}
+
+- (void)test04UIImageTransformRotateCI {
+    [self test04UIImageTransformRotateWithImage:self.testImageCI];
+}
+
+- (void)test04UIImageTransformRotateWithImage:(UIImage *)testImage {
     CGFloat angle = M_PI_4;
-    UIImage *rotatedImage = [self.testImage sd_rotatedImageWithAngle:angle fitSize:NO];
+    UIImage *rotatedImage = [testImage sd_rotatedImageWithAngle:angle fitSize:NO];
     // Not fit size and no change
-    expect(CGSizeEqualToSize(rotatedImage.size, self.testImage.size)).beTruthy();
+    expect(CGSizeEqualToSize(rotatedImage.size, testImage.size)).beTruthy();
     // Fit size, may change size
-    rotatedImage = [self.testImage sd_rotatedImageWithAngle:angle fitSize:YES];
-    CGSize rotatedSize = CGSizeMake(floor(300 * 1.414), floor(300 * 1.414)); // 45º, square length * sqrt(2)
-    expect(CGSizeEqualToSize(rotatedImage.size, rotatedSize)).beTruthy();
+    rotatedImage = [testImage sd_rotatedImageWithAngle:angle fitSize:YES];
+    CGSize rotatedSize = CGSizeMake(ceil(300 * 1.414), ceil(300 * 1.414)); // 45º, square length * sqrt(2)
+    expect(rotatedImage.size.width - rotatedSize.width <= 1).beTruthy();
+    expect(rotatedImage.size.height - rotatedSize.height <= 1).beTruthy();
     // Check image not inversion
     UIColor *leftCenterColor = [rotatedImage sd_colorAtPoint:CGPointMake(60, 175)];
     expect([leftCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test05UIImageTransformFlip {
+- (void)test05UIImageTransformFlipCG {
+    [self test05UIImageTransformFlipWithImage:self.testImageCG];
+}
+
+- (void)test05UIImageTransformFlipCI {
+    [self test05UIImageTransformFlipWithImage:self.testImageCI];
+}
+
+- (void)test05UIImageTransformFlipWithImage:(UIImage *)testImage {
     BOOL horizontal = YES;
     BOOL vertical = YES;
-    UIImage *flippedImage = [self.testImage sd_flippedImageWithHorizontal:horizontal vertical:vertical];
-    expect(CGSizeEqualToSize(flippedImage.size, self.testImage.size)).beTruthy();
+    UIImage *flippedImage = [testImage sd_flippedImageWithHorizontal:horizontal vertical:vertical];
+    expect(CGSizeEqualToSize(flippedImage.size, testImage.size)).beTruthy();
     // Test pixel colors method here
     UIColor *checkColor = [flippedImage sd_colorAtPoint:CGPointMake(75, 75)];
     expect(checkColor);
@@ -98,10 +140,18 @@
     expect([bottomCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test06UIImageTransformTint {
+- (void)test06UIImageTransformTintCG {
+    [self test06UIImageTransformTintWithImage:self.testImageCG];
+}
+
+- (void)test06UIImageTransformTintCI {
+    [self test06UIImageTransformTintWithImage:self.testImageCI];
+}
+
+- (void)test06UIImageTransformTintWithImage:(UIImage *)testImage {
     UIColor *tintColor = [UIColor blackColor];
-    UIImage *tintedImage = [self.testImage sd_tintedImageWithColor:tintColor];
-    expect(CGSizeEqualToSize(tintedImage.size, self.testImage.size)).beTruthy();
+    UIImage *tintedImage = [testImage sd_tintedImageWithColor:tintColor];
+    expect(CGSizeEqualToSize(tintedImage.size, testImage.size)).beTruthy();
     // Check center color, should keep clear
     UIColor *centerColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 150)];
     expect([centerColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]);
@@ -113,10 +163,18 @@
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
-- (void)test07UIImageTransformBlur {
-    CGFloat radius = 50;
-    UIImage *blurredImage = [self.testImage sd_blurredImageWithRadius:radius];
-    expect(CGSizeEqualToSize(blurredImage.size, self.testImage.size)).beTruthy();
+- (void)test07UIImageTransformBlurCG {
+    [self test07UIImageTransformBlurWithImage:self.testImageCG];
+}
+
+- (void)test07UIImageTransformBlurCI {
+    [self test07UIImageTransformBlurWithImage:self.testImageCI];
+}
+
+- (void)test07UIImageTransformBlurWithImage:(UIImage *)testImage {
+    CGFloat radius = 25;
+    UIImage *blurredImage = [testImage sd_blurredImageWithRadius:radius];
+    expect(CGSizeEqualToSize(blurredImage.size, testImage.size)).beTruthy();
     // Check left color, should be blurred
     UIColor *leftColor = [blurredImage sd_colorAtPoint:CGPointMake(80, 150)];
     // Hard-code from the output
@@ -124,14 +182,23 @@
     expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]);
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 20)];
-    expect([topCenterColor.sd_hexString isEqualToString:@"#9a430d06"]).beTruthy();
+    UIColor *bottomCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 280)];
+    expect([topCenterColor.sd_hexString isEqualToString:bottomCenterColor.sd_hexString]).beFalsy();
 }
 
-- (void)test08UIImageTransformFilter {
+- (void)test08UIImageTransformFilterCG {
+    [self test08UIImageTransformFilterWithImage:self.testImageCG];
+}
+
+- (void)test08UIImageTransformFilterCI {
+    [self test08UIImageTransformFilterWithImage:self.testImageCI];
+}
+
+- (void)test08UIImageTransformFilterWithImage:(UIImage *)testImage {
     // Invert color filter
     CIFilter *filter = [CIFilter filterWithName:@"CIColorInvert"];
-    UIImage *filteredImage = [self.testImage sd_filteredImageWithFilter:filter];
-    expect(CGSizeEqualToSize(filteredImage.size, self.testImage.size)).beTruthy();
+    UIImage *filteredImage = [testImage sd_filteredImageWithFilter:filter];
+    expect(CGSizeEqualToSize(filteredImage.size, testImage.size)).beTruthy();
     // Check left color, should be inverted
     UIColor *leftColor = [filteredImage sd_colorAtPoint:CGPointMake(80, 150)];
     // Hard-code from the output
@@ -198,7 +265,7 @@
     NSString *transformerKey = [transformerKeys componentsJoinedByString:@"-"]; // SDImageTransformerKeySeparator
     expect([pipelineTransformer.transformerKey isEqualToString:transformerKey]).beTruthy();
     
-    UIImage *transformedImage = [pipelineTransformer transformedImageWithImage:self.testImage forKey:@"Test"];
+    UIImage *transformedImage = [pipelineTransformer transformedImageWithImage:self.testImageCG forKey:@"Test"];
     expect(transformedImage).notTo.beNil();
     expect(CGSizeEqualToSize(transformedImage.size, cropRect.size)).beTruthy();
 }
@@ -238,6 +305,8 @@
     key = @"ftp://root:password@foo.com/image.png";
     expect(SDTransformedKeyForKey(key, transformerKey)).equal(@"ftp://root:password@foo.com/image-SDImageFlippingTransformer(1,0).png");
 }
+
+#pragma mark - Coder Helper
 
 - (void)test20CGImageCreateDecodedWithOrientation {
     // Test EXIF orientation tag, you can open this image with `Preview.app`, open inspector (Command+I) and rotate (Command+L/R) to check
@@ -331,11 +400,23 @@
 
 #pragma mark - Helper
 
-- (UIImage *)testImage {
-    if (!_testImage) {
-        _testImage = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestImage"]];
+- (UIImage *)testImageCG {
+    if (!_testImageCG) {
+        _testImageCG = [[UIImage alloc] initWithContentsOfFile:[self testPNGPathForName:@"TestImage"]];
     }
-    return _testImage;
+    return _testImageCG;
+}
+
+- (UIImage *)testImageCI {
+    if (!_testImageCI) {
+        CIImage *ciImage = [[CIImage alloc] initWithContentsOfURL:[NSURL fileURLWithPath:[self testPNGPathForName:@"TestImage"]]];
+#if SD_UIKIT
+        _testImageCI = [[UIImage alloc] initWithCIImage:ciImage scale:1 orientation:UIImageOrientationUp];
+#else
+        _testImageCI = [[UIImage alloc] initWithCIImage:ciImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#endif
+    }
+    return _testImageCI;
 }
 
 - (NSString *)testPNGPathForName:(NSString *)name {

@@ -74,6 +74,16 @@
 + (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation CF_RETURNS_RETAINED;
 
 /**
+ Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.
+ It will detect whether the image size matching the scale size, if not, stretch the image to the target size.
+ 
+ @param cgImage The CGImage
+ @param size The scale size in pixel.
+ @return A new created scaled image
+ */
++ (CGImageRef _Nullable)CGImageCreateScaled:(_Nonnull CGImageRef)cgImage size:(CGSize)size CF_RETURNS_RETAINED;
+
+/**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image
  @param image The image to be decoded
  @return The decoded image
@@ -88,6 +98,12 @@
  @return The decoded and probably scaled down image
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
+
+/**
+ Control the default limit bytes to scale down larget images.
+ This value must be larger than or equal to 1MB. Defaults to 60MB on iOS/tvOS, 90MB on macOS, 30MB on watchOS.
+ */
+@property (class, readwrite) NSUInteger defaultScaleDownLimitBytes;
 
 #if SD_UIKIT || SD_WATCH
 /**

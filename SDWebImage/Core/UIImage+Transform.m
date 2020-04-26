@@ -9,7 +9,8 @@
 #import "UIImage+Transform.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageGraphics.h"
-#import "NSBezierPath+RoundedCorners.h"
+#import "SDGraphicsImageRenderer.h"
+#import "NSBezierPath+SDRoundedCorners.h"
 #import <Accelerate/Accelerate.h>
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
@@ -163,13 +164,29 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
+#if SD_UIKIT || SD_MAC
+// Create-Rule, caller should call CGImageRelease
+static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull ciImage) {
+    CGImageRef imageRef = NULL;
+    if (@available(iOS 10, macOS 10.12, tvOS 10, *)) {
+        imageRef = ciImage.CGImage;
+    }
+    if (!imageRef) {
+        CIContext *context = [CIContext context];
+        imageRef = [context createCGImage:ciImage fromRect:ciImage.extent];
+    } else {
+        CGImageRetain(imageRef);
+    }
+    return imageRef;
+}
+#endif
+
 @implementation UIImage (Transform)
 
-- (void)sd_drawInRect:(CGRect)rect withScaleMode:(SDImageScaleMode)scaleMode clipsToBounds:(BOOL)clips {
+- (void)sd_drawInRect:(CGRect)rect context:(CGContextRef)context scaleMode:(SDImageScaleMode)scaleMode clipsToBounds:(BOOL)clips {
     CGRect drawRect = SDCGRectFitWithScaleMode(rect, self.size, scaleMode);
     if (drawRect.size.width == 0 || drawRect.size.height == 0) return;
     if (clips) {
-        CGContextRef context = SDGraphicsGetCurrentContext();
         if (context) {
             CGContextSaveGState(context);
             CGContextAddRect(context, rect);
@@ -184,161 +201,214 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 - (nullable UIImage *)sd_resizedImageWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode {
     if (size.width <= 0 || size.height <= 0) return nil;
-    SDGraphicsBeginImageContextWithOptions(size, NO, self.scale);
-    [self sd_drawInRect:CGRectMake(0, 0, size.width, size.height) withScaleMode:scaleMode clipsToBounds:NO];
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [self sd_drawInRect:CGRectMake(0, 0, size.width, size.height) context:context scaleMode:scaleMode clipsToBounds:NO];
+    }];
     return image;
 }
 
 - (nullable UIImage *)sd_croppedImageWithRect:(CGRect)rect {
-    if (!self.CGImage) return nil;
     rect.origin.x *= self.scale;
     rect.origin.y *= self.scale;
     rect.size.width *= self.scale;
     rect.size.height *= self.scale;
     if (rect.size.width <= 0 || rect.size.height <= 0) return nil;
-    CGImageRef imageRef = CGImageCreateWithImageInRect(self.CGImage, rect);
+    
+#if SD_UIKIT || SD_MAC
+    // CIImage shortcut
+    if (self.CIImage) {
+        CGRect croppingRect = CGRectMake(rect.origin.x, self.size.height - CGRectGetMaxY(rect), rect.size.width, rect.size.height);
+        CIImage *ciImage = [self.CIImage imageByCroppingToRect:croppingRect];
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
+    
+    CGImageRef imageRef = self.CGImage;
     if (!imageRef) {
         return nil;
     }
+    
+    CGImageRef croppedImageRef = CGImageCreateWithImageInRect(imageRef, rect);
+    if (!croppedImageRef) {
+        return nil;
+    }
 #if SD_UIKIT || SD_WATCH
-    UIImage *image = [UIImage imageWithCGImage:imageRef scale:self.scale orientation:self.imageOrientation];
+    UIImage *image = [UIImage imageWithCGImage:croppedImageRef scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
+    UIImage *image = [[UIImage alloc] initWithCGImage:croppedImageRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
 #endif
-    CGImageRelease(imageRef);
+    CGImageRelease(croppedImageRef);
     return image;
 }
 
 - (nullable UIImage *)sd_roundedCornerImageWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor {
-    if (!self.CGImage) return nil;
-    SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
-    
-    CGFloat minSize = MIN(self.size.width, self.size.height);
-    if (borderWidth < minSize / 2) {
-#if SD_UIKIT || SD_WATCH
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadii:CGSizeMake(cornerRadius, cornerRadius)];
-#else
-        NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadius:cornerRadius];
-#endif
-        [path closePath];
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGRect rect = CGRectMake(0, 0, self.size.width, self.size.height);
         
-        CGContextSaveGState(context);
-        [path addClip];
-        [self drawInRect:rect];
-        CGContextRestoreGState(context);
-    }
-    
-    if (borderColor && borderWidth < minSize / 2 && borderWidth > 0) {
-        CGFloat strokeInset = (floor(borderWidth * self.scale) + 0.5) / self.scale;
-        CGRect strokeRect = CGRectInset(rect, strokeInset, strokeInset);
-        CGFloat strokeRadius = cornerRadius > self.scale / 2 ? cornerRadius - self.scale / 2 : 0;
+        CGFloat minSize = MIN(self.size.width, self.size.height);
+        if (borderWidth < minSize / 2) {
 #if SD_UIKIT || SD_WATCH
-        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadii:CGSizeMake(strokeRadius, strokeRadius)];
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadii:CGSizeMake(cornerRadius, cornerRadius)];
 #else
-        NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadius:strokeRadius];
+            NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:CGRectInset(rect, borderWidth, borderWidth) byRoundingCorners:corners cornerRadius:cornerRadius];
 #endif
-        [path closePath];
+            [path closePath];
+            
+            CGContextSaveGState(context);
+            [path addClip];
+            [self drawInRect:rect];
+            CGContextRestoreGState(context);
+        }
         
-        path.lineWidth = borderWidth;
-        [borderColor setStroke];
-        [path stroke];
-    }
-    
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
+        if (borderColor && borderWidth < minSize / 2 && borderWidth > 0) {
+            CGFloat strokeInset = (floor(borderWidth * self.scale) + 0.5) / self.scale;
+            CGRect strokeRect = CGRectInset(rect, strokeInset, strokeInset);
+            CGFloat strokeRadius = cornerRadius > self.scale / 2 ? cornerRadius - self.scale / 2 : 0;
+#if SD_UIKIT || SD_WATCH
+            UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadii:CGSizeMake(strokeRadius, strokeRadius)];
+#else
+            NSBezierPath *path = [NSBezierPath sd_bezierPathWithRoundedRect:strokeRect byRoundingCorners:corners cornerRadius:strokeRadius];
+#endif
+            [path closePath];
+            
+            path.lineWidth = borderWidth;
+            [borderColor setStroke];
+            [path stroke];
+        }
+    }];
     return image;
 }
 
 - (nullable UIImage *)sd_rotatedImageWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize {
-    if (!self.CGImage) return nil;
-    size_t width = (size_t)CGImageGetWidth(self.CGImage);
-    size_t height = (size_t)CGImageGetHeight(self.CGImage);
-    CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0., 0., width, height),
+    size_t width = self.size.width;
+    size_t height = self.size.height;
+    CGRect newRect = CGRectApplyAffineTransform(CGRectMake(0, 0, width, height),
                                                 fitSize ? CGAffineTransformMakeRotation(angle) : CGAffineTransformIdentity);
-    
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(NULL,
-                                                 (size_t)newRect.size.width,
-                                                 (size_t)newRect.size.height,
-                                                 8,
-                                                 (size_t)newRect.size.width * 4,
-                                                 colorSpace,
-                                                 kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
-    
-    CGContextSetShouldAntialias(context, true);
-    CGContextSetAllowsAntialiasing(context, true);
-    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
-    
-    CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
-    CGContextRotateCTM(context, angle);
-    
-    CGContextDrawImage(context, CGRectMake(-(width * 0.5), -(height * 0.5), width, height), self.CGImage);
-    CGImageRef imgRef = CGBitmapContextCreateImage(context);
+
+#if SD_UIKIT || SD_MAC
+    // CIImage shortcut
+    if (self.CIImage) {
+        CIImage *ciImage = self.CIImage;
+        if (fitSize) {
+            CGAffineTransform transform = CGAffineTransformMakeRotation(angle);
+            ciImage = [ciImage imageByApplyingTransform:transform];
+        } else {
+            CIFilter *filter = [CIFilter filterWithName:@"CIStraightenFilter"];
+            [filter setValue:ciImage forKey:kCIInputImageKey];
+            [filter setValue:@(angle) forKey:kCIInputAngleKey];
+            ciImage = filter.outputImage;
+        }
 #if SD_UIKIT || SD_WATCH
-    UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
 #endif
-    CGImageRelease(imgRef);
-    CGContextRelease(context);
-    return img;
+        return image;
+    }
+#endif
+    
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:newRect.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetShouldAntialias(context, true);
+        CGContextSetAllowsAntialiasing(context, true);
+        CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+        CGContextTranslateCTM(context, +(newRect.size.width * 0.5), +(newRect.size.height * 0.5));
+#if SD_UIKIT || SD_WATCH
+        // Use UIKit coordinate system counterclockwise (⟲)
+        CGContextRotateCTM(context, -angle);
+#else
+        CGContextRotateCTM(context, angle);
+#endif
+        
+        [self drawInRect:CGRectMake(-(width * 0.5), -(height * 0.5), width, height)];
+    }];
+    return image;
 }
 
 - (nullable UIImage *)sd_flippedImageWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical {
-    if (!self.CGImage) return nil;
-    size_t width = (size_t)CGImageGetWidth(self.CGImage);
-    size_t height = (size_t)CGImageGetHeight(self.CGImage);
-    size_t bytesPerRow = width * 4;
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, bytesPerRow, colorSpace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-    CGColorSpaceRelease(colorSpace);
-    if (!context) return nil;
-    
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), self.CGImage);
-    UInt8 *data = (UInt8 *)CGBitmapContextGetData(context);
-    if (!data) {
-        CGContextRelease(context);
-        return nil;
-    }
-    vImage_Buffer src = { data, height, width, bytesPerRow };
-    vImage_Buffer dest = { data, height, width, bytesPerRow };
-    if (vertical) {
-        vImageVerticalReflect_ARGB8888(&src, &dest, kvImageBackgroundColorFill);
-    }
-    if (horizontal) {
-        vImageHorizontalReflect_ARGB8888(&src, &dest, kvImageBackgroundColorFill);
-    }
-    CGImageRef imgRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-#if SD_UIKIT || SD_WATCH
-    UIImage *img = [UIImage imageWithCGImage:imgRef scale:self.scale orientation:self.imageOrientation];
+    size_t width = self.size.width;
+    size_t height = self.size.height;
+
+#if SD_UIKIT || SD_MAC
+    // CIImage shortcut
+    if (self.CIImage) {
+        CGAffineTransform transform = CGAffineTransformIdentity;
+        // Use UIKit coordinate system
+        if (horizontal) {
+            CGAffineTransform flipHorizontal = CGAffineTransformMake(-1, 0, 0, 1, width, 0);
+            transform = CGAffineTransformConcat(transform, flipHorizontal);
+        }
+        if (vertical) {
+            CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, height);
+            transform = CGAffineTransformConcat(transform, flipVertical);
+        }
+        CIImage *ciImage = [self.CIImage imageByApplyingTransform:transform];
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
-    UIImage *img = [[UIImage alloc] initWithCGImage:imgRef scale:self.scale orientation:kCGImagePropertyOrientationUp];
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
 #endif
-    CGImageRelease(imgRef);
-    return img;
+        return image;
+    }
+#endif
+    
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = self.scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        // Use UIKit coordinate system
+        if (horizontal) {
+            CGAffineTransform flipHorizontal = CGAffineTransformMake(-1, 0, 0, 1, width, 0);
+            CGContextConcatCTM(context, flipHorizontal);
+        }
+        if (vertical) {
+            CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, height);
+            CGContextConcatCTM(context, flipVertical);
+        }
+        [self drawInRect:CGRectMake(0, 0, width, height)];
+    }];
+    return image;
 }
 
 #pragma mark - Image Blending
 
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
-    if (!self.CGImage) return nil;
-    if (!tintColor.CGColor) return nil;
-    
     BOOL hasTint = CGColorGetAlpha(tintColor.CGColor) > __FLT_EPSILON__;
     if (!hasTint) {
-#if SD_UIKIT || SD_WATCH
-        return [UIImage imageWithCGImage:self.CGImage scale:self.scale orientation:self.imageOrientation];
-#else
-        return [[UIImage alloc] initWithCGImage:self.CGImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
-#endif
+        return self;
     }
+    
+#if SD_UIKIT || SD_MAC
+    // CIImage shortcut
+    if (self.CIImage) {
+        CIImage *ciImage = self.CIImage;
+        CIImage *colorImage = [CIImage imageWithColor:[[CIColor alloc] initWithColor:tintColor]];
+        colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
+        CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
+        [filter setValue:colorImage forKey:kCIInputImageKey];
+        [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
+        ciImage = filter.outputImage;
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
     
     CGSize size = self.size;
     CGRect rect = { CGPointZero, size };
@@ -347,23 +417,30 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
     CGBlendMode blendMode = kCGBlendModeSourceAtop;
     
-    SDGraphicsBeginImageContextWithOptions(size, NO, scale);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    [self drawInRect:rect];
-    CGContextSetBlendMode(context, blendMode);
-    CGContextSetFillColorWithColor(context, tintColor.CGColor);
-    CGContextFillRect(context, rect);
-    UIImage *image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
-    
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.scale = scale;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [self drawInRect:rect];
+        CGContextSetBlendMode(context, blendMode);
+        CGContextSetFillColorWithColor(context, tintColor.CGColor);
+        CGContextFillRect(context, rect);
+    }];
     return image;
 }
 
 - (nullable UIColor *)sd_colorAtPoint:(CGPoint)point {
-    if (!self) {
-        return nil;
+    CGImageRef imageRef = NULL;
+    // CIImage compatible
+#if SD_UIKIT || SD_MAC
+    if (self.CIImage) {
+        imageRef = SDCreateCGImageFromCIImage(self.CIImage);
     }
-    CGImageRef imageRef = self.CGImage;
+#endif
+    if (!imageRef) {
+        imageRef = self.CGImage;
+        CGImageRetain(imageRef);
+    }
     if (!imageRef) {
         return nil;
     }
@@ -372,42 +449,53 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     CGFloat width = CGImageGetWidth(imageRef);
     CGFloat height = CGImageGetHeight(imageRef);
     if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixels
     CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
     if (!provider) {
+        CGImageRelease(imageRef);
         return nil;
     }
     CFDataRef data = CGDataProviderCopyData(provider);
     if (!data) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixel at point
     size_t bytesPerRow = CGImageGetBytesPerRow(imageRef);
     size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     
     CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, 4);
     if (CFDataGetLength(data) < range.location + range.length) {
         CFRelease(data);
+        CGImageRelease(imageRef);
         return nil;
     }
     Pixel_8888 pixel = {0};
     CFDataGetBytes(data, range, pixel);
     CFRelease(data);
-    
+    CGImageRelease(imageRef);
     // Convert to color
-    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     return SDGetColorFromPixel(pixel, bitmapInfo);
 }
 
 - (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
-    if (!self) {
-        return nil;
+    CGImageRef imageRef = NULL;
+    // CIImage compatible
+#if SD_UIKIT || SD_MAC
+    if (self.CIImage) {
+        imageRef = SDCreateCGImageFromCIImage(self.CIImage);
     }
-    CGImageRef imageRef = self.CGImage;
+#endif
+    if (!imageRef) {
+        imageRef = self.CGImage;
+        CGImageRetain(imageRef);
+    }
     if (!imageRef) {
         return nil;
     }
@@ -416,16 +504,19 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     CGFloat width = CGImageGetWidth(imageRef);
     CGFloat height = CGImageGetHeight(imageRef);
     if (CGRectGetWidth(rect) <= 0 || CGRectGetHeight(rect) <= 0 || CGRectGetMinX(rect) < 0 || CGRectGetMinY(rect) < 0 || CGRectGetMaxX(rect) > width || CGRectGetMaxY(rect) > height) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
     // Get pixels
     CGDataProviderRef provider = CGImageGetDataProvider(imageRef);
     if (!provider) {
+        CGImageRelease(imageRef);
         return nil;
     }
     CFDataRef data = CGDataProviderCopyData(provider);
     if (!data) {
+        CGImageRelease(imageRef);
         return nil;
     }
     
@@ -437,6 +528,7 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
     size_t end = bytesPerRow * (CGRectGetMaxY(rect) - 1) + components * CGRectGetMaxX(rect);
     if (CFDataGetLength(data) < (CFIndex)end) {
         CFRelease(data);
+        CGImageRelease(imageRef);
         return nil;
     }
     
@@ -460,28 +552,52 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         [colors addObject:color];
     }
     CFRelease(data);
+    CGImageRelease(imageRef);
     
     return [colors copy];
 }
 
 #pragma mark - Image Effect
 
-// We use vImage to do box convolve for performance and support for watchOS. However, you can just use `CIFilter.CIBoxBlur`. For other blur effect, use any filter in `CICategoryBlur`
+// We use vImage to do box convolve for performance and support for watchOS. However, you can just use `CIFilter.CIGaussianBlur`. For other blur effect, use any filter in `CICategoryBlur`
 - (nullable UIImage *)sd_blurredImageWithRadius:(CGFloat)blurRadius {
     if (self.size.width < 1 || self.size.height < 1) {
         return nil;
     }
-    if (!self.CGImage) {
-        return nil;
-    }
-    
     BOOL hasBlur = blurRadius > __FLT_EPSILON__;
     if (!hasBlur) {
         return self;
     }
     
     CGFloat scale = self.scale;
+    CGFloat inputRadius = blurRadius * scale;
+#if SD_UIKIT || SD_MAC
+    if (self.CIImage) {
+        CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+        [filter setValue:self.CIImage forKey:kCIInputImageKey];
+        [filter setValue:@(inputRadius) forKey:kCIInputRadiusKey];
+        CIImage *ciImage = filter.outputImage;
+        ciImage = [ciImage imageByCroppingToRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+#if SD_UIKIT
+        UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
+#else
+        UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
+#endif
+        return image;
+    }
+#endif
+    
     CGImageRef imageRef = self.CGImage;
+    
+    //convert to BGRA if it isn't
+    if (CGImageGetBitsPerPixel(imageRef) != 32 ||
+        CGImageGetBitsPerComponent(imageRef) != 8 ||
+        !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
+        SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
+        [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+        imageRef = SDGraphicsGetImageFromCurrentImageContext().CGImage;
+        SDGraphicsEndImageContext();
+    }
     
     vImage_Buffer effect = {}, scratch = {};
     vImage_Buffer *input = NULL, *output = NULL;
@@ -490,14 +606,14 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
         .colorSpace = NULL,
-        .bitmapInfo = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little, //requests a BGRA buffer.
+        .bitmapInfo = kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host, //requests a BGRA buffer.
         .version = 0,
         .decode = NULL,
         .renderingIntent = kCGRenderingIntentDefault
     };
     
     vImage_Error err;
-    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImagePrintDiagnosticsToConsole);
+    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImageNoFlags);
     if (err != kvImageNoError) {
         NSLog(@"UIImage+Transform error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@", err, self);
         return nil;
@@ -524,9 +640,8 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
         //
         // ... if d is odd, use three box-blurs of size 'd', centered on the output pixel.
         //
-        CGFloat inputRadius = blurRadius * scale;
         if (inputRadius - 2.0 < __FLT_EPSILON__) inputRadius = 2.0;
-        uint32_t radius = floor((inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5) / 2);
+        uint32_t radius = floor(inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5);
         radius |= 1; // force radius to be odd so that the three box-blur methodology works.
         int iterations;
         if (blurRadius * scale < 0.5) iterations = 1;
@@ -562,12 +677,19 @@ static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitma
 
 #if SD_UIKIT || SD_MAC
 - (nullable UIImage *)sd_filteredImageWithFilter:(nonnull CIFilter *)filter {
-    if (!self.CGImage) return nil;
-    
-    CIContext *context = [CIContext context];
-    CIImage *inputImage = [CIImage imageWithCGImage:self.CGImage];
+    CIImage *inputImage;
+    if (self.CIImage) {
+        inputImage = self.CIImage;
+    } else {
+        CGImageRef imageRef = self.CGImage;
+        if (!imageRef) {
+            return nil;
+        }
+        inputImage = [CIImage imageWithCGImage:imageRef];
+    }
     if (!inputImage) return nil;
     
+    CIContext *context = [CIContext context];
     [filter setValue:inputImage forKey:kCIInputImageKey];
     CIImage *outputImage = filter.outputImage;
     if (!outputImage) return nil;

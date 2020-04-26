@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
 };
 
 typedef void(^SDImageCacheCheckCompletionBlock)(BOOL isInCache);
+typedef void(^SDImageCacheQueryDataCompletionBlock)(NSData * _Nullable data);
 typedef void(^SDImageCacheCalculateSizeBlock)(NSUInteger fileCount, NSUInteger totalSize);
 typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * _Nonnull key);
 typedef void(^SDImageCacheQueryCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
@@ -74,6 +75,23 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonn
 - (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key
                                              options:(SDWebImageOptions)options
                                              context:(nullable SDWebImageContext *)context
+                                          completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock;
+
+/**
+ Query the cached image from image cache for given key. The operation can be used to cancel the query.
+ If image is cached in memory, completion is called synchronously, else aynchronously and depends on the options arg (See `SDWebImageQueryDiskSync`)
+
+ @param key The image cache key
+ @param options A mask to specify options to use for this query
+ @param context A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ @param cacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediatelly.
+ @param completionBlock The completion block. Will not get called if the operation is cancelled
+ @return The operation for this query
+ */
+- (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key
+                                             options:(SDWebImageOptions)options
+                                             context:(nullable SDWebImageContext *)context
+                                           cacheType:(SDImageCacheType)cacheType
                                           completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock;
 
 /**

@@ -6,11 +6,11 @@
  * file that was distributed with this source code.
  */
 
-#import "NSBezierPath+RoundedCorners.h"
+#import "NSBezierPath+SDRoundedCorners.h"
 
 #if SD_MAC
 
-@implementation NSBezierPath (RoundedCorners)
+@implementation NSBezierPath (SDRoundedCorners)
 
 + (instancetype)sd_bezierPathWithRoundedRect:(NSRect)rect byRoundingCorners:(SDRectCorner)corners cornerRadius:(CGFloat)cornerRadius {
     NSBezierPath *path = [NSBezierPath bezierPath];

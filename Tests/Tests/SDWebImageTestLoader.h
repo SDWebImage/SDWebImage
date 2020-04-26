@@ -13,4 +13,6 @@
 // A really naive implementation of custom image loader using `NSURLSession`
 @interface SDWebImageTestLoader : NSObject <SDImageLoader>
 
+@property (nonatomic, class, readonly, nonnull) SDWebImageTestLoader *sharedLoader;
+
 @end

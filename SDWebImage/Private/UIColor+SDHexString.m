@@ -6,9 +6,9 @@
  * file that was distributed with this source code.
  */
 
-#import "UIColor+HexString.h"
+#import "UIColor+SDHexString.h"
 
-@implementation UIColor (HexString)
+@implementation UIColor (SDHexString)
 
 - (NSString *)sd_hexString {
     CGFloat red, green, blue, alpha;

@@ -11,6 +11,8 @@
 #import "SDWeakProxy.h"
 #import "SDDisplayLink.h"
 #import "SDInternalMacros.h"
+#import "SDFileAttributeHelper.h"
+#import "UIColor+SDHexString.h"
 
 @interface SDUtilsTests : SDTestCase
 
@@ -72,6 +74,64 @@
     NSTimeInterval duration = displayLink.duration; // Running value
     expect(duration).beGreaterThan(0.01);
     expect(duration).beLessThan(0.02);
+}
+
+- (void)testSDFileAttributeHelper {
+    NSData *fileData = [@"File Data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *extendedData = [@"Extended Data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *filePath = @"/tmp/file.dat";
+    [NSFileManager.defaultManager removeItemAtPath:filePath error:nil];
+    [fileData writeToFile:filePath atomically:YES];
+    BOOL exist = [NSFileManager.defaultManager fileExistsAtPath:filePath];
+    expect(exist).beTruthy();
+    
+    NSArray *names = [SDFileAttributeHelper extendedAttributeNamesAtPath:filePath traverseLink:NO error:nil];
+    expect(names.count).equal(0);
+    
+    NSString *attr = @"com.hackemist.test";
+    [SDFileAttributeHelper setExtendedAttribute:attr value:extendedData atPath:filePath traverseLink:NO overwrite:YES error:nil];
+    
+    BOOL hasAttr =[SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(hasAttr).beTruthy();
+    
+    names = [SDFileAttributeHelper extendedAttributeNamesAtPath:filePath traverseLink:NO error:nil];
+    expect(names.count).equal(1);
+    expect(names.firstObject).equal(attr);
+    
+    NSData *queriedData = [SDFileAttributeHelper extendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(extendedData).equal(queriedData);
+    
+    BOOL removed = [SDFileAttributeHelper removeExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(removed).beTruthy();
+    
+    hasAttr = [SDFileAttributeHelper hasExtendedAttribute:attr atPath:filePath traverseLink:NO error:nil];
+    expect(hasAttr).beFalsy();
+}
+
+- (void)testSDGraphicsImageRenderer {
+    // Main Screen
+    SDGraphicsImageRendererFormat *format = SDGraphicsImageRendererFormat.preferredFormat;
+#if SD_UIKIT
+    CGFloat screenScale = [UIScreen mainScreen].scale;
+#elif SD_MAC
+    CGFloat screenScale = [NSScreen mainScreen].backingScaleFactor;
+#endif
+    expect(format.scale).equal(screenScale);
+    expect(format.opaque).beFalsy();
+#if SD_UIKIT
+    expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeAutomatic);
+#elif SD_MAC
+    expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeStandard);
+#endif
+    CGSize size = CGSizeMake(100, 100);
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+    UIColor *color = UIColor.redColor;
+    UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [color setFill];
+        CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+    }];
+    expect(image.scale).equal(format.scale);
+    expect([[image sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString isEqualToString:color.sd_hexString]).beTruthy();
 }
 
 - (void)testSDScaledImageForKey {

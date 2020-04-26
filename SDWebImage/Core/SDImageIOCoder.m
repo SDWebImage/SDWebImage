@@ -12,6 +12,10 @@
 #import <ImageIO/ImageIO.h>
 #import "UIImage+Metadata.h"
 #import "SDImageHEICCoderInternal.h"
+#import "SDImageIOAnimatedCoderInternal.h"
+
+// Specify File Size for lossy format encoding, like JPEG
+static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
 @implementation SDImageIOCoder {
     size_t _width, _height;
@@ -19,6 +23,8 @@
     CGImageSourceRef _imageSource;
     CGFloat _scale;
     BOOL _finished;
+    BOOL _preserveAspectRatio;
+    CGSize _thumbnailSize;
 }
 
 - (void)dealloc {
@@ -74,7 +80,33 @@
         scale = MAX([scaleFactor doubleValue], 1) ;
     }
     
-    UIImage *image = [[UIImage alloc] initWithData:data scale:scale];
+    CGSize thumbnailSize = CGSizeZero;
+    NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
+#if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+#else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+    }
+    
+    BOOL preserveAspectRatio = YES;
+    NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+    if (preserveAspectRatioValue != nil) {
+        preserveAspectRatio = preserveAspectRatioValue.boolValue;
+    }
+    
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    if (!source) {
+        return nil;
+    }
+    
+    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:nil];
+    CFRelease(source);
+    if (!image) {
+        return nil;
+    }
+    
     image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
     return image;
 }
@@ -95,6 +127,22 @@
             scale = MAX([scaleFactor doubleValue], 1);
         }
         _scale = scale;
+        CGSize thumbnailSize = CGSizeZero;
+        NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+        if (thumbnailSizeValue != nil) {
+    #if SD_MAC
+            thumbnailSize = thumbnailSizeValue.sizeValue;
+    #else
+            thumbnailSize = thumbnailSizeValue.CGSizeValue;
+    #endif
+        }
+        _thumbnailSize = thumbnailSize;
+        BOOL preserveAspectRatio = YES;
+        NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+        if (preserveAspectRatioValue != nil) {
+            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        }
+        _preserveAspectRatio = preserveAspectRatio;
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -140,21 +188,13 @@
     
     if (_width + _height > 0) {
         // Create the image
-        CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(_imageSource, 0, NULL);
-        
-        if (partialImageRef) {
-            CGFloat scale = _scale;
-            NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
-            if (scaleFactor != nil) {
-                scale = MAX([scaleFactor doubleValue], 1);
-            }
-#if SD_UIKIT || SD_WATCH
-            UIImageOrientation imageOrientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:_orientation];
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:imageOrientation];
-#else
-            image = [[UIImage alloc] initWithCGImage:partialImageRef scale:scale orientation:_orientation];
-#endif
-            CGImageRelease(partialImageRef);
+        CGFloat scale = _scale;
+        NSNumber *scaleFactor = options[SDImageCoderDecodeScaleFactor];
+        if (scaleFactor != nil) {
+            scale = MAX([scaleFactor doubleValue], 1);
+        }
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:nil];
+        if (image) {
             CFStringRef uttype = CGImageSourceGetType(_imageSource);
             image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];
         }
@@ -184,9 +224,14 @@
     if (!image) {
         return nil;
     }
+    CGImageRef imageRef = image.CGImage;
+    if (!imageRef) {
+        // Earily return, supports CGImage only
+        return nil;
+    }
     
     if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage];
+        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
         if (hasAlpha) {
             format = SDImageFormatPNG;
         } else {
@@ -211,14 +256,52 @@
     CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
     properties[(__bridge NSString *)kCGImagePropertyOrientation] = @(exifOrientation);
+    // Encoding Options
     double compressionQuality = 1;
     if (options[SDImageCoderEncodeCompressionQuality]) {
         compressionQuality = [options[SDImageCoderEncodeCompressionQuality] doubleValue];
     }
     properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = @(compressionQuality);
+    CGColorRef backgroundColor = [options[SDImageCoderEncodeBackgroundColor] CGColor];
+    if (backgroundColor) {
+        properties[(__bridge NSString *)kCGImageDestinationBackgroundColor] = (__bridge id)(backgroundColor);
+    }
+    CGSize maxPixelSize = CGSizeZero;
+    NSValue *maxPixelSizeValue = options[SDImageCoderEncodeMaxPixelSize];
+    if (maxPixelSizeValue != nil) {
+#if SD_MAC
+        maxPixelSize = maxPixelSizeValue.sizeValue;
+#else
+        maxPixelSize = maxPixelSizeValue.CGSizeValue;
+#endif
+    }
+    NSUInteger pixelWidth = CGImageGetWidth(imageRef);
+    NSUInteger pixelHeight = CGImageGetHeight(imageRef);
+    if (maxPixelSize.width > 0 && maxPixelSize.height > 0 && pixelWidth > 0 && pixelHeight > 0) {
+        CGFloat pixelRatio = pixelWidth / pixelHeight;
+        CGFloat maxPixelSizeRatio = maxPixelSize.width / maxPixelSize.height;
+        CGFloat finalPixelSize;
+        if (pixelRatio > maxPixelSizeRatio) {
+            finalPixelSize = maxPixelSize.width;
+        } else {
+            finalPixelSize = maxPixelSize.height;
+        }
+        properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
+    }
+    NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
+    if (maxFileSize > 0) {
+        properties[kSDCGImageDestinationRequestedFileSize] = @(maxFileSize);
+        // Remove the quality if we have file size limit
+        properties[(__bridge NSString *)kCGImageDestinationLossyCompressionQuality] = nil;
+    }
+    BOOL embedThumbnail = NO;
+    if (options[SDImageCoderEncodeEmbedThumbnail]) {
+        embedThumbnail = [options[SDImageCoderEncodeEmbedThumbnail] boolValue];
+    }
+    properties[(__bridge NSString *)kCGImageDestinationEmbedThumbnail] = @(embedThumbnail);
     
     // Add your image to the destination.
-    CGImageDestinationAddImage(imageDestination, image.CGImage, (__bridge CFDictionaryRef)properties);
+    CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {

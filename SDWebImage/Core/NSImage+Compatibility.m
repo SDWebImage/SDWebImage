@@ -20,6 +20,15 @@
     return cgImage;
 }
 
+- (nullable CIImage *)CIImage {
+    NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
+    NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
+    if (![imageRep isKindOfClass:NSCIImageRep.class]) {
+        return nil;
+    }
+    return ((NSCIImageRep *)imageRep).CIImage;
+}
+
 - (CGFloat)scale {
     CGFloat scale = 1;
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
@@ -50,6 +59,28 @@
         CGImageRelease(rotatedCGImage);
     } else {
         imageRep = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+    }
+    if (scale < 1) {
+        scale = 1;
+    }
+    CGFloat pixelWidth = imageRep.pixelsWide;
+    CGFloat pixelHeight = imageRep.pixelsHigh;
+    NSSize size = NSMakeSize(pixelWidth / scale, pixelHeight / scale);
+    self = [self initWithSize:size];
+    if (self) {
+        imageRep.size = size;
+        [self addRepresentation:imageRep];
+    }
+    return self;
+}
+
+- (instancetype)initWithCIImage:(nonnull CIImage *)ciImage scale:(CGFloat)scale orientation:(CGImagePropertyOrientation)orientation {
+    NSCIImageRep *imageRep;
+    if (orientation != kCGImagePropertyOrientationUp) {
+        CIImage *rotatedCIImage = [ciImage imageByApplyingOrientation:orientation];
+        imageRep = [[NSCIImageRep alloc] initWithCIImage:rotatedCIImage];
+    } else {
+        imageRep = [[NSCIImageRep alloc] initWithCIImage:ciImage];
     }
     if (scale < 1) {
         scale = 1;

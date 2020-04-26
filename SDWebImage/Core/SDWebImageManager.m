@@ -10,6 +10,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDownloader.h"
 #import "UIImage+Metadata.h"
+#import "SDAssociatedObject.h"
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
 
@@ -94,19 +95,69 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
-    return [self cacheKeyForURL:url cacheKeyFilter:self.cacheKeyFilter];
-}
-
-- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url cacheKeyFilter:(id<SDWebImageCacheKeyFilter>)cacheKeyFilter {
     if (!url) {
         return @"";
     }
-
+    
+    NSString *key;
+    // Cache Key Filter
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
     if (cacheKeyFilter) {
-        return [cacheKeyFilter cacheKeyForURL:url];
+        key = [cacheKeyFilter cacheKeyForURL:url];
     } else {
-        return url.absoluteString;
+        key = url.absoluteString;
     }
+    
+    return key;
+}
+
+- (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url context:(nullable SDWebImageContext *)context {
+    if (!url) {
+        return @"";
+    }
+    
+    NSString *key;
+    // Cache Key Filter
+    id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
+    if (context[SDWebImageContextCacheKeyFilter]) {
+        cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
+    }
+    if (cacheKeyFilter) {
+        key = [cacheKeyFilter cacheKeyForURL:url];
+    } else {
+        key = url.absoluteString;
+    }
+    
+    // Thumbnail Key Appending
+    NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
+        CGSize thumbnailSize = CGSizeZero;
+#if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+#else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+        BOOL preserveAspectRatio = YES;
+        NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
+        if (preserveAspectRatioValue != nil) {
+            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        }
+        key = SDThumbnailedKeyForKey(key, thumbnailSize, preserveAspectRatio);
+    }
+    
+    // Transformer Key Appending
+    id<SDImageTransformer> transformer = self.transformer;
+    if (context[SDWebImageContextImageTransformer]) {
+        transformer = context[SDWebImageContextImageTransformer];
+        if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+            transformer = nil;
+        }
+    }
+    if (transformer) {
+        key = SDTransformedKeyForKey(key, transformer.transformerKey);
+    }
+    
+    return key;
 }
 
 - (SDWebImageCombinedOperation *)loadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDInternalCompletionBlock)completedBlock {
@@ -184,17 +235,28 @@ static id<SDImageLoader> _defaultImageLoader;
                              context:(nullable SDWebImageContext *)context
                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // Grab the image cache to use
+    id<SDImageCache> imageCache;
+    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
+        imageCache = context[SDWebImageContextImageCache];
+    } else {
+        imageCache = self.imageCache;
+    }
     // Check whether we should query cache
     BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
+    // Get the query cache type
+    SDImageCacheType queryCacheType = SDImageCacheTypeAll;
+    if (context[SDWebImageContextQueryCacheType]) {
+        queryCacheType = [context[SDWebImageContextQueryCacheType] integerValue];
+    }
     if (shouldQueryCache) {
-        id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
-        NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
+        NSString *key = [self cacheKeyForURL:url context:context];
         @weakify(operation);
-        operation.cacheOperation = [self.imageCache queryImageForKey:key options:options context:context completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
+        operation.cacheOperation = [imageCache queryImageForKey:key options:options context:context cacheType:queryCacheType completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
                 // Image combined operation cancelled by user
-                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil] url:url];
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during querying the cache"}] url:url];
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
@@ -217,11 +279,18 @@ static id<SDImageLoader> _defaultImageLoader;
                               cacheType:(SDImageCacheType)cacheType
                                progress:(nullable SDImageLoaderProgressBlock)progressBlock
                               completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // Grab the image loader to use
+    id<SDImageLoader> imageLoader;
+    if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
+        imageLoader = context[SDWebImageContextImageLoader];
+    } else {
+        imageLoader = self.imageLoader;
+    }
     // Check whether we should download image from network
     BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);
     shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
     shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
-    shouldDownload &= [self.imageLoader canRequestImageForURL:url];
+    shouldDownload &= [imageLoader canRequestImageForURL:url];
     if (shouldDownload) {
         if (cachedImage && options & SDWebImageRefreshCached) {
             // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
@@ -239,11 +308,11 @@ static id<SDImageLoader> _defaultImageLoader;
         }
         
         @weakify(operation);
-        operation.loaderOperation = [self.imageLoader requestImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
+        operation.loaderOperation = [imageLoader requestImageWithURL:url options:options context:context progress:progressBlock completed:^(UIImage *downloadedImage, NSData *downloadedData, NSError *error, BOOL finished) {
             @strongify(operation);
             if (!operation || operation.isCancelled) {
                 // Image combined operation cancelled by user
-                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:nil] url:url];
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}] url:url];
             } else if (cachedImage && options & SDWebImageRefreshCached && [error.domain isEqualToString:SDWebImageErrorDomain] && error.code == SDWebImageErrorCacheNotModified) {
                 // Image refresh hit the NSURLCache cache, do not call the completion block
             } else if ([error.domain isEqualToString:SDWebImageErrorDomain] && error.code == SDWebImageErrorCancelled) {
@@ -251,7 +320,7 @@ static id<SDImageLoader> _defaultImageLoader;
                 [self callCompletionBlockForOperation:operation completion:completedBlock error:error url:url];
             } else if (error) {
                 [self callCompletionBlockForOperation:operation completion:completedBlock error:error url:url];
-                BOOL shouldBlockFailedURL = [self shouldBlockFailedURLWithURL:url error:error];
+                BOOL shouldBlockFailedURL = [self shouldBlockFailedURLWithURL:url error:error options:options context:context];
                 
                 if (shouldBlockFailedURL) {
                     SD_LOCK(self.failedURLsLock);
@@ -264,7 +333,7 @@ static id<SDImageLoader> _defaultImageLoader;
                     [self.failedURLs removeObject:url];
                     SD_UNLOCK(self.failedURLsLock);
                 }
-                
+                // Continue store cache process
                 [self callStoreCacheProcessForOperation:operation url:url options:options context:context downloadedImage:downloadedImage downloadedData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
             }
             
@@ -302,12 +371,20 @@ static id<SDImageLoader> _defaultImageLoader;
     if (context[SDWebImageContextOriginalStoreCacheType]) {
         originalStoreCacheType = [context[SDWebImageContextOriginalStoreCacheType] integerValue];
     }
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
-    NSString *key = [self cacheKeyForURL:url cacheKeyFilter:cacheKeyFilter];
+    // origin cache key
+    SDWebImageMutableContext *originContext = [context mutableCopy];
+    // disable transformer for cache key generation
+    originContext[SDWebImageContextImageTransformer] = [NSNull null];
+    NSString *key = [self cacheKeyForURL:url context:originContext];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
-    BOOL shouldTransformImage = downloadedImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage)) && transformer;
+    BOOL shouldTransformImage = downloadedImage && transformer;
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isVector || (options & SDWebImageTransformVectorImage));
     BOOL shouldCacheOriginal = downloadedImage && finished;
     
     // if available, store original image to cache
@@ -318,37 +395,74 @@ static id<SDImageLoader> _defaultImageLoader;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 @autoreleasepool {
                     NSData *cacheData = [cacheSerializer cacheDataWithImage:downloadedImage originalData:downloadedData imageURL:url];
-                    [self.imageCache storeImage:downloadedImage imageData:cacheData forKey:key cacheType:targetStoreCacheType completion:nil];
+                    [self storeImage:downloadedImage imageData:cacheData forKey:key cacheType:targetStoreCacheType options:options context:context completion:^{
+                        // Continue transform process
+                        [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
+                    }];
                 }
             });
         } else {
-            [self.imageCache storeImage:downloadedImage imageData:downloadedData forKey:key cacheType:targetStoreCacheType completion:nil];
+            [self storeImage:downloadedImage imageData:downloadedData forKey:key cacheType:targetStoreCacheType options:options context:context completion:^{
+                // Continue transform process
+                [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
+            }];
         }
+    } else {
+        // Continue transform process
+        [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
     }
+}
+
+// Transform process
+- (void)callTransformProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
+                                     url:(nonnull NSURL *)url
+                                 options:(SDWebImageOptions)options
+                                 context:(SDWebImageContext *)context
+                           originalImage:(nullable UIImage *)originalImage
+                            originalData:(nullable NSData *)originalData
+                                finished:(BOOL)finished
+                                progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                               completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // the target image store cache type
+    SDImageCacheType storeCacheType = SDImageCacheTypeAll;
+    if (context[SDWebImageContextStoreCacheType]) {
+        storeCacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+    }
+    // transformed cache key
+    NSString *key = [self cacheKeyForURL:url context:context];
+    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
+    id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
+    
+    BOOL shouldTransformImage = originalImage && transformer;
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
     // if available, store transformed image to cache
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             @autoreleasepool {
-                UIImage *transformedImage = [transformer transformedImageWithImage:downloadedImage forKey:key];
+                UIImage *transformedImage = [transformer transformedImageWithImage:originalImage forKey:key];
                 if (transformedImage && finished) {
-                    NSString *transformerKey = [transformer transformerKey];
-                    NSString *cacheKey = SDTransformedKeyForKey(key, transformerKey);
-                    BOOL imageWasTransformed = ![transformedImage isEqual:downloadedImage];
+                    BOOL imageWasTransformed = ![transformedImage isEqual:originalImage];
                     NSData *cacheData;
                     // pass nil if the image was transformed, so we can recalculate the data from the image
                     if (cacheSerializer && (storeCacheType == SDImageCacheTypeDisk || storeCacheType == SDImageCacheTypeAll)) {
-                        cacheData = [cacheSerializer cacheDataWithImage:transformedImage  originalData:(imageWasTransformed ? nil : downloadedData) imageURL:url];
+                        cacheData = [cacheSerializer cacheDataWithImage:transformedImage originalData:(imageWasTransformed ? nil : originalData) imageURL:url];
                     } else {
-                        cacheData = (imageWasTransformed ? nil : downloadedData);
+                        cacheData = (imageWasTransformed ? nil : originalData);
                     }
-                    [self.imageCache storeImage:transformedImage imageData:cacheData forKey:cacheKey cacheType:storeCacheType completion:nil];
+                    [self storeImage:transformedImage imageData:cacheData forKey:key cacheType:storeCacheType options:options context:context completion:^{
+                        [self callCompletionBlockForOperation:operation completion:completedBlock image:transformedImage data:originalData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
+                    }];
+                } else {
+                    [self callCompletionBlockForOperation:operation completion:completedBlock image:transformedImage data:originalData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
                 }
-                
-                [self callCompletionBlockForOperation:operation completion:completedBlock image:transformedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
             }
         });
     } else {
-        [self callCompletionBlockForOperation:operation completion:completedBlock image:downloadedImage data:downloadedData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
+        [self callCompletionBlockForOperation:operation completion:completedBlock image:originalImage data:originalData error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
     }
 }
 
@@ -361,6 +475,35 @@ static id<SDImageLoader> _defaultImageLoader;
     SD_LOCK(self.runningOperationsLock);
     [self.runningOperations removeObject:operation];
     SD_UNLOCK(self.runningOperationsLock);
+}
+
+- (void)storeImage:(nullable UIImage *)image
+         imageData:(nullable NSData *)data
+            forKey:(nullable NSString *)key
+         cacheType:(SDImageCacheType)cacheType
+           options:(SDWebImageOptions)options
+           context:(nullable SDWebImageContext *)context
+        completion:(nullable SDWebImageNoParamsBlock)completion {
+    id<SDImageCache> imageCache;
+    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
+        imageCache = context[SDWebImageContextImageCache];
+    } else {
+        imageCache = self.imageCache;
+    }
+    BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
+    // Check whether we should wait the store cache finished. If not, callback immediately
+    [imageCache storeImage:image imageData:data forKey:key cacheType:cacheType completion:^{
+        if (waitStoreCache) {
+            if (completion) {
+                completion();
+            }
+        }
+    }];
+    if (!waitStoreCache) {
+        if (completion) {
+            completion();
+        }
+    }
 }
 
 - (void)callCompletionBlockForOperation:(nullable SDWebImageCombinedOperation*)operation
@@ -386,13 +529,21 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (BOOL)shouldBlockFailedURLWithURL:(nonnull NSURL *)url
-                              error:(nonnull NSError *)error {
+                              error:(nonnull NSError *)error
+                            options:(SDWebImageOptions)options
+                            context:(nullable SDWebImageContext *)context {
+    id<SDImageLoader> imageLoader;
+    if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
+        imageLoader = context[SDWebImageContextImageLoader];
+    } else {
+        imageLoader = self.imageLoader;
+    }
     // Check whether we should block failed url
     BOOL shouldBlockFailedURL;
     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
-        shouldBlockFailedURL = [self.imageLoader shouldBlockFailedURLWithURL:url error:error];
+        shouldBlockFailedURL = [imageLoader shouldBlockFailedURLWithURL:url error:error];
     }
     
     return shouldBlockFailedURL;

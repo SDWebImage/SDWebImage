@@ -391,6 +391,99 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test42StoreCacheWithImageAndFormatWithoutImageData {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"StoreImage UIImage without sd_imageFormat should use PNG for alpha channel"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"StoreImage UIImage without sd_imageFormat should use JPEG for non-alpha channel"];
+    XCTestExpectation *expectation3 = [self expectationWithDescription:@"StoreImage UIImage/UIAnimatedImage with sd_imageFormat should use that format"];
+    XCTestExpectation *expectation4 = [self expectationWithDescription:@"StoreImage SDAnimatedImage should use animatedImageData"];
+    XCTestExpectation *expectation5 = [self expectationWithDescription:@"StoreImage UIAnimatedImage without sd_imageFormat should use GIF"];
+    
+    NSString *kAnimatedImageKey1 = @"kAnimatedImageKey1";
+    NSString *kAnimatedImageKey2 = @"kAnimatedImageKey2";
+    NSString *kAnimatedImageKey3 = @"kAnimatedImageKey3";
+    NSString *kAnimatedImageKey4 = @"kAnimatedImageKey4";
+    NSString *kAnimatedImageKey5 = @"kAnimatedImageKey5";
+    
+    // Case 1: UIImage without `sd_imageFormat` should use PNG for alpha channel
+    NSData *pngData = [NSData dataWithContentsOfFile:[self testPNGPath]];
+    UIImage *pngImage = [UIImage sd_imageWithData:pngData];
+    expect(pngImage.sd_isAnimated).beFalsy();
+    expect(pngImage.sd_imageFormat).equal(SDImageFormatPNG);
+    // Remove sd_imageFormat
+    pngImage.sd_imageFormat = SDImageFormatUndefined;
+    // Check alpha channel
+    expect([SDImageCoderHelper CGImageContainsAlpha:pngImage.CGImage]).beTruthy();
+    
+    [SDImageCache.sharedImageCache storeImage:pngImage forKey:kAnimatedImageKey1 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey1];
+        // Should save to PNG
+        expect(diskImage.sd_isAnimated).beFalsy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatPNG);
+        [expectation1 fulfill];
+    }];
+    
+    // Case 2: UIImage without `sd_imageFormat` should use JPEG for non-alpha channel
+    SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
+    format.opaque = YES;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:pngImage.size format:format];
+    // Non-alpha image, also test `SDGraphicsImageRenderer` behavior here :)
+    UIImage *nonAlphaImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        [pngImage drawInRect:CGRectMake(0, 0, pngImage.size.width, pngImage.size.height)];
+    }];
+    expect(nonAlphaImage).notTo.beNil();
+    expect([SDImageCoderHelper CGImageContainsAlpha:nonAlphaImage.CGImage]).beFalsy();
+    
+    [SDImageCache.sharedImageCache storeImage:nonAlphaImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey2];
+        // Should save to JPEG
+        expect(diskImage.sd_isAnimated).beFalsy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatJPEG);
+        [expectation2 fulfill];
+    }];
+    
+    NSData *gifData = [NSData dataWithContentsOfFile:[self testGIFPath]];
+    UIImage *gifImage = [UIImage sd_imageWithData:gifData]; // UIAnimatedImage
+    expect(gifImage.sd_isAnimated).beTruthy();
+    expect(gifImage.sd_imageFormat).equal(SDImageFormatGIF);
+    
+    // Case 3: UIImage with `sd_imageFormat` should use that format
+    [SDImageCache.sharedImageCache storeImage:gifImage forKey:kAnimatedImageKey3 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey3];
+        // Should save to GIF
+        expect(diskImage.sd_isAnimated).beTruthy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatGIF);
+        [expectation3 fulfill];
+    }];
+    
+    // Case 4: SDAnimatedImage should use `animatedImageData`
+    SDAnimatedImage *animatedImage = [SDAnimatedImage imageWithData:gifData];
+    expect(animatedImage.animatedImageData).notTo.beNil();
+    [SDImageCache.sharedImageCache storeImage:animatedImage forKey:kAnimatedImageKey4 toDisk:YES completion:^{
+        NSData *data = [SDImageCache.sharedImageCache diskImageDataForKey:kAnimatedImageKey4];
+        // Should save with animatedImageData
+        expect(data).equal(animatedImage.animatedImageData);
+        [expectation4 fulfill];
+    }];
+    
+    // Case 5: UIAnimatedImage without sd_imageFormat should use GIF not APNG
+    NSData *apngData = [NSData dataWithContentsOfFile:[self testAPNGPath]];
+    UIImage *apngImage = [UIImage sd_imageWithData:apngData];
+    expect(apngImage.sd_isAnimated).beTruthy();
+    expect(apngImage.sd_imageFormat).equal(SDImageFormatPNG);
+    // Remove sd_imageFormat
+    apngImage.sd_imageFormat = SDImageFormatUndefined;
+    
+    [SDImageCache.sharedImageCache storeImage:apngImage forKey:kAnimatedImageKey5 toDisk:YES completion:^{
+        UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey5];
+        // Should save to GIF
+        expect(diskImage.sd_isAnimated).beTruthy();
+        expect(diskImage.sd_imageFormat).equal(SDImageFormatGIF);
+        [expectation5 fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDMemoryCache & SDDiskCache
 - (void)test42CustomMemoryCache {
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
@@ -491,11 +584,33 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 #endif
 
+- (void)test47DiskCacheExtendedData {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache extended data read/write works"];
+    UIImage *image = [self testPNGImage];
+    NSDictionary *extendedObject = @{@"Test" : @"Object"};
+    image.sd_extendedObject = extendedObject;
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestImageKeyPNG];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestImageKeyPNG];
+    // Write extended data
+    [SDImageCache.sharedImageCache storeImage:image forKey:kTestImageKeyPNG completion:^{
+        NSData *extendedData = [SDImageCache.sharedImageCache.diskCache extendedDataForKey:kTestImageKeyPNG];
+        expect(extendedData).toNot.beNil();
+        // Read extended data
+        UIImage *newImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kTestImageKeyPNG];
+        id newExtendedObject = newImage.sd_extendedObject;
+        expect(extendedObject).equal(newExtendedObject);
+        // Remove extended data
+        [SDImageCache.sharedImageCache.diskCache setExtendedData:nil forKey:kTestImageKeyPNG];
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test50SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
     [[SDImageCache sharedImageCache] storeImage:[self testJPEGImage] forKey:kTestImageKeyJPEG toDisk:NO completion:nil];
-    [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).notTo.beNil();
         [expectation fulfill];
     }];
@@ -565,7 +680,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyLowestOnly;
-    [cachesManager queryImageForKey:kTestImageKeyJPEG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [cachesManager queryImageForKey:kTestImageKeyJPEG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).to.beNil();
     }];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kTestImageKeyJPEG cacheType:SDImageCacheTypeMemory completion:nil];
@@ -584,7 +699,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyHighestOnly;
-    [cachesManager queryImageForKey:kTestImageKeyPNG options:0 context:nil completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+    [cachesManager queryImageForKey:kTestImageKeyPNG options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image).to.beNil();
     }];
     [cachesManager storeImage:[self testPNGImage] imageData:nil forKey:kTestImageKeyPNG cacheType:SDImageCacheTypeMemory completion:nil];
@@ -617,7 +732,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicyConcurrent;
-    [cachesManager queryImageForKey:kConcurrentTestImageKey options:0 context:nil completion:nil];
+    [cachesManager queryImageForKey:kConcurrentTestImageKey options:0 context:nil cacheType:SDImageCacheTypeAll completion:nil];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kConcurrentTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager removeImageForKey:kConcurrentTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager clearWithCacheType:SDImageCacheTypeMemory completion:nil];
@@ -657,7 +772,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     cachesManager.removeOperationPolicy = SDImageCachesManagerOperationPolicySerial;
     cachesManager.containsOperationPolicy = SDImageCachesManagerOperationPolicySerial;
     cachesManager.clearOperationPolicy = SDImageCachesManagerOperationPolicySerial;
-    [cachesManager queryImageForKey:kSerialTestImageKey options:0 context:nil completion:nil];
+    [cachesManager queryImageForKey:kSerialTestImageKey options:0 context:nil cacheType:SDImageCacheTypeAll completion:nil];
     [cachesManager storeImage:[self testJPEGImage] imageData:nil forKey:kSerialTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager removeImageForKey:kSerialTestImageKey cacheType:SDImageCacheTypeMemory completion:nil];
     [cachesManager clearWithCacheType:SDImageCacheTypeMemory completion:nil];
@@ -676,6 +791,41 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test58CustomImageCache {
+    NSString *cachePath = [[self userCacheDirectory] stringByAppendingPathComponent:@"custom"];
+    SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
+    SDWebImageTestCache *cache = [[SDWebImageTestCache alloc] initWithCachePath:cachePath config:config];
+    expect(cache.memoryCache).notTo.beNil();
+    expect(cache.diskCache).notTo.beNil();
+    
+    // Clear
+    [cache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+    // Store
+    UIImage *image1 = self.testJPEGImage;
+    NSString *key1 = @"testJPEGImage";
+    [cache storeImage:image1 imageData:nil forKey:key1 cacheType:SDImageCacheTypeAll completion:nil];
+    // Contain
+    [cache containsImageForKey:key1 cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType containsCacheType) {
+        expect(containsCacheType).equal(SDImageCacheTypeMemory);
+    }];
+    // Query
+    [cache queryImageForKey:key1 options:0 context:nil cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(image).equal(image1);
+        expect(data).beNil();
+        expect(cacheType).equal(SDImageCacheTypeMemory);
+    }];
+    // Remove
+    [cache removeImageForKey:key1 cacheType:SDImageCacheTypeAll completion:nil];
+    // Contain
+    [cache containsImageForKey:key1 cacheType:SDImageCacheTypeAll completion:^(SDImageCacheType containsCacheType) {
+        expect(containsCacheType).equal(SDImageCacheTypeNone);
+    }];
+    // Clear
+    [cache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+    NSArray<NSString *> *cacheFiles = [cache.diskCache.fileManager contentsOfDirectoryAtPath:cachePath error:nil];
+    expect(cacheFiles.count).equal(0);
 }
 
 #pragma mark Helper methods
@@ -705,6 +855,15 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     return reusableImage;
 }
 
+- (UIImage *)testAPNGImage {
+    static UIImage *reusableImage = nil;
+    if (!reusableImage) {
+        NSData *data = [NSData dataWithContentsOfFile:[self testAPNGPath]];
+        reusableImage = [UIImage sd_imageWithData:data];
+    }
+    return reusableImage;
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
@@ -718,6 +877,12 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 - (NSString *)testGIFPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     NSString *testPath = [testBundle pathForResource:@"TestImage" ofType:@"gif"];
+    return testPath;
+}
+
+- (NSString *)testAPNGPath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestImageAnimated" ofType:@"apng"];
     return testPath;
 }
 

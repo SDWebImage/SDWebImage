@@ -12,35 +12,35 @@
 #import "NSData+ImageContentType.h"
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
+#import "SDAssociatedObject.h"
 #import "UIImage+Metadata.h"
+#import "SDInternalMacros.h"
+#import <Accelerate/Accelerate.h>
 
-#if SD_UIKIT || SD_WATCH
+static inline size_t SDByteAlign(size_t size, size_t alignment) {
+    return ((size + (alignment - 1)) / alignment) * alignment;
+}
+
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
 
+static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
+static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
 /*
  * Defines the maximum size in MB of the decoded image when the flag `SDWebImageScaleDownLargeImages` is set
  * Suggested value for iPad1 and iPhone 3GS: 60.
  * Suggested value for iPad2 and iPhone 4: 120.
  * Suggested value for iPhone 3G and iPod 2 and earlier devices: 30.
  */
-static const CGFloat kDestImageSizeMB = 60.f;
-
-/*
- * Defines the maximum size in MB of a tile used to decode image when the flag `SDWebImageScaleDownLargeImages` is set
- * Suggested value for iPad1 and iPhone 3GS: 20.
- * Suggested value for iPad2 and iPhone 4: 40.
- * Suggested value for iPhone 3G and iPod 2 and earlier devices: 10.
- */
-static const CGFloat kSourceImageTileSizeMB = 20.f;
-
-static const CGFloat kBytesPerMB = 1024.0f * 1024.0f;
-static const CGFloat kPixelsPerMB = kBytesPerMB / kBytesPerPixel;
-static const CGFloat kDestTotalPixels = kDestImageSizeMB * kPixelsPerMB;
-static const CGFloat kTileTotalPixels = kSourceImageTileSizeMB * kPixelsPerMB;
+#if SD_MAC
+static CGFloat kDestImageLimitBytes = 90.f * kBytesPerMB;
+#elif SD_UIKIT
+static CGFloat kDestImageLimitBytes = 60.f * kBytesPerMB;
+#elif SD_WATCH
+static CGFloat kDestImageLimitBytes = 30.f * kBytesPerMB;
+#endif
 
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
-#endif
 
 @implementation SDImageCoderHelper
 
@@ -277,10 +277,57 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return newImageRef;
 }
 
++ (CGImageRef)CGImageCreateScaled:(CGImageRef)cgImage size:(CGSize)size {
+    if (!cgImage) {
+        return NULL;
+    }
+    size_t width = CGImageGetWidth(cgImage);
+    size_t height = CGImageGetHeight(cgImage);
+    if (width == size.width && height == size.height) {
+        CGImageRetain(cgImage);
+        return cgImage;
+    }
+    
+    __block vImage_Buffer input_buffer = {}, output_buffer = {};
+    @onExit {
+        if (input_buffer.data) free(input_buffer.data);
+        if (output_buffer.data) free(output_buffer.data);
+    };
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    // iOS display alpha info (BGRA8888/BGRX8888)
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
+    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+    vImage_CGImageFormat format = (vImage_CGImageFormat) {
+        .bitsPerComponent = 8,
+        .bitsPerPixel = 32,
+        .colorSpace = NULL,
+        .bitmapInfo = bitmapInfo,
+        .version = 0,
+        .decode = NULL,
+        .renderingIntent = kCGRenderingIntentDefault,
+    };
+    
+    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
+    if (a_ret != kvImageNoError) return NULL;
+    output_buffer.width = MAX(size.width, 0);
+    output_buffer.height = MAX(size.height, 0);
+    output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
+    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
+    if (!output_buffer.data) return NULL;
+    
+    vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+    if (ret != kvImageNoError) return NULL;
+    
+    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoFlags, &ret);
+    if (ret != kvImageNoError) {
+        CGImageRelease(outputImage);
+        return NULL;
+    }
+    
+    return outputImage;
+}
+
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
-#if SD_MAC
-    return image;
-#else
     if (![self shouldDecodeImage:image]) {
         return image;
     }
@@ -289,18 +336,18 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!imageRef) {
         return image;
     }
+#if SD_MAC
+    UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
     UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
-    CGImageRelease(imageRef);
-    decodedImage.sd_isDecoded = YES;
-    decodedImage.sd_imageFormat = image.sd_imageFormat;
-    return decodedImage;
 #endif
+    CGImageRelease(imageRef);
+    SDImageCopyAssociatedObject(image, decodedImage);
+    decodedImage.sd_isDecoded = YES;
+    return decodedImage;
 }
 
 + (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
-#if SD_MAC
-    return image;
-#else
     if (![self shouldDecodeImage:image]) {
         return image;
     }
@@ -311,13 +358,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     CGFloat destTotalPixels;
     CGFloat tileTotalPixels;
-    if (bytes > 0) {
-        destTotalPixels = bytes / kBytesPerPixel;
-        tileTotalPixels = destTotalPixels / 3;
-    } else {
-        destTotalPixels = kDestTotalPixels;
-        tileTotalPixels = kTileTotalPixels;
+    if (bytes == 0) {
+        bytes = kDestImageLimitBytes;
     }
+    destTotalPixels = bytes / kBytesPerPixel;
+    tileTotalPixels = destTotalPixels / 3;
     CGContextRef destContext;
     
     // autorelease the bitmap context and all vars to help system to free memory when there are memory warning.
@@ -420,16 +465,30 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (destImageRef == NULL) {
             return image;
         }
+#if SD_MAC
+        UIImage *destImage = [[UIImage alloc] initWithCGImage:destImageRef scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
         UIImage *destImage = [[UIImage alloc] initWithCGImage:destImageRef scale:image.scale orientation:image.imageOrientation];
+#endif
         CGImageRelease(destImageRef);
         if (destImage == nil) {
             return image;
         }
+        SDImageCopyAssociatedObject(image, destImage);
         destImage.sd_isDecoded = YES;
-        destImage.sd_imageFormat = image.sd_imageFormat;
         return destImage;
     }
-#endif
+}
+
++ (NSUInteger)defaultScaleDownLimitBytes {
+    return kDestImageLimitBytes;
+}
+
++ (void)setDefaultScaleDownLimitBytes:(NSUInteger)defaultScaleDownLimitBytes {
+    if (defaultScaleDownLimitBytes < kBytesPerMB) {
+        return;
+    }
+    kDestImageLimitBytes = defaultScaleDownLimitBytes;
 }
 
 #if SD_UIKIT || SD_WATCH
@@ -503,18 +562,21 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
 
 #pragma mark - Helper Fuction
-#if SD_UIKIT || SD_WATCH
 + (BOOL)shouldDecodeImage:(nullable UIImage *)image {
-    // Avoid extra decode
-    if (image.sd_isDecoded) {
-        return NO;
-    }
     // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
     if (image == nil) {
         return NO;
     }
+    // Avoid extra decode
+    if (image.sd_isDecoded) {
+        return NO;
+    }
     // do not decode animated images
-    if (image.images != nil) {
+    if (image.sd_isAnimated) {
+        return NO;
+    }
+    // do not decode vector images
+    if (image.sd_isVector) {
         return NO;
     }
     
@@ -533,11 +595,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     CGFloat destTotalPixels;
-    if (bytes > 0) {
-        destTotalPixels = bytes / kBytesPerPixel;
-    } else {
-        destTotalPixels = kDestTotalPixels;
+    if (bytes == 0) {
+        bytes = kDestImageLimitBytes;
     }
+    destTotalPixels = bytes / kBytesPerPixel;
     if (destTotalPixels <= kPixelsPerMB) {
         // Too small to scale down
         return NO;
@@ -551,7 +612,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     return shouldScaleDown;
 }
-#endif
 
 static inline CGAffineTransform SDCGContextTransformFromOrientation(CGImagePropertyOrientation orientation, CGSize size) {
     // Inspiration from @libfeihu

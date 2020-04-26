@@ -72,6 +72,7 @@
 
 // This class override these methods from UIImage(NSImage), and it supports NSSecureCoding.
 // You should use these methods to create a new animated image. Use other methods just call super instead.
+// Pay attention, when the animated image frame count <= 1, all the `SDAnimatedImageProvider` protocol methods will return nil or 0 value, you'd better check the frame count before usage and keep fallback.
 + (nullable instancetype)imageNamed:(nonnull NSString *)name; // Cache in memory, no Asset Catalog support
 #if __has_include(<UIKit/UITraitCollection.h>)
 + (nullable instancetype)imageNamed:(nonnull NSString *)name inBundle:(nullable NSBundle *)bundle compatibleWithTraitCollection:(nullable UITraitCollection *)traitCollection; // Cache in memory, no Asset Catalog support
