@@ -42,6 +42,24 @@ typedef NSString * _Nullable (^SDImageCacheAdditionalCachePathBlock)(NSString * 
 typedef void(^SDImageCacheQueryCompletionBlock)(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType);
 typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCacheType);
 
+#pragma mark - Context Options
+
+/**
+ A `UIImage` instance from `SDWebImageCache` when miss normal cache and you specify `SDWebImageContextOriginalQueryCacheType`
+ and image cache hit. This can be used directly instead of downloading.
+ @note If you don't implement `SDWebImageContextOriginalQueryCacheType` support, you do not need to care abot this context option.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOriginalCachedImage;
+
+/**
+ A `NSData` instance from `SDWebImageCache` when miss normal cache and you specify `SDWebImageContextOriginalQueryCacheType`
+ and image cache hit. This can be used directly instead of downloading.
+ @note If you don't implement `SDWebImageContextOriginalQueryCacheType` support, you do not need to care abot this context option.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOriginalCachedImageData;
+
+#pragma mark - Helper method
+
 /**
  This is the built-in decoding process for image query from cache.
  @note If you want to implement your custom loader with `queryImageForKey:options:context:completion:` API, but also want to keep compatible with SDWebImage's behavior, you'd better use this to produce image.
@@ -53,6 +71,8 @@ typedef void(^SDImageCacheContainsCompletionBlock)(SDImageCacheType containsCach
  @return The decoded image for current image data query from cache
  */
 FOUNDATION_EXPORT UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+
+#pragma mark - SDImageCache
 
 /**
  This is the image cache protocol to provide custom image cache for `SDWebImageManager`.
