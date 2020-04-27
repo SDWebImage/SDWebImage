@@ -42,7 +42,7 @@ typedef NSURLRequest * _Nullable (^SDWebImageDownloaderRequestModifierBlock)(NSU
 /**
 A convenient request modifier to provide the HTTP request including HTTP Method, Headers and Body.
 */
-@interface SDWebImageDownloaderRequestModifier (HTTPConveniences)
+@interface SDWebImageDownloaderRequestModifier (Conveniences)
 
 /// Create the request modifier with HTTP Method.
 /// @param method HTTP Method, nil means to GET.

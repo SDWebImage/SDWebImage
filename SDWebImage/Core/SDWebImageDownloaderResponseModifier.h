@@ -42,7 +42,7 @@ typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(N
 /**
 A convenient response modifier to provide the HTTP response including HTTP Status Code, Version and Headers.
 */
-@interface SDWebImageDownloaderResponseModifier (HTTPConveniences)
+@interface SDWebImageDownloaderResponseModifier (Conveniences)
 
 /// Create the response modifier with HTTP Status code.
 /// @param statusCode HTTP Status Code.

@@ -38,7 +38,7 @@
 
 @end
 
-@implementation SDWebImageDownloaderRequestModifier (HTTPConveniences)
+@implementation SDWebImageDownloaderRequestModifier (Conveniences)
 
 - (instancetype)initWithMethod:(NSString *)method {
     return [self initWithMethod:method headers:nil body:nil];

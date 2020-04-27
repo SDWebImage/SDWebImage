@@ -39,7 +39,7 @@
 
 @end
 
-@implementation SDWebImageDownloaderResponseModifier (HTTPConveniences)
+@implementation SDWebImageDownloaderResponseModifier (Conveniences)
 
 - (instancetype)initWithStatusCode:(NSInteger)statusCode {
     return [self initWithStatusCode:statusCode version:nil headers:nil];
