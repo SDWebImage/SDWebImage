@@ -30,7 +30,12 @@ A downloader response modifier class with block.
 */
 @interface SDWebImageDownloaderDecryptor : NSObject <SDWebImageDownloaderDecryptor>
 
+/// Create the data decryptor with block
+/// @param block A block to control decrypt logic
 - (nonnull instancetype)initWithBlock:(nonnull SDWebImageDownloaderDecryptorBlock)block;
+
+/// Create the data decryptor with block
+/// @param block A block to control decrypt logic
 + (nonnull instancetype)decryptorWithBlock:(nonnull SDWebImageDownloaderDecryptorBlock)block;
 
 @end
