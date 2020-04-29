@@ -228,6 +228,21 @@ static id<SDImageLoader> _defaultImageLoader;
     return isRunning;
 }
 
+- (void)removeFailedURL:(NSURL *)url {
+    if (!url) {
+        return;
+    }
+    SD_LOCK(self.failedURLsLock);
+    [self.failedURLs removeObject:url];
+    SD_UNLOCK(self.failedURLsLock);
+}
+
+- (void)removeAllFailedURLs {
+    SD_LOCK(self.failedURLsLock);
+    [self.failedURLs removeAllObjects];
+    SD_UNLOCK(self.failedURLsLock);
+}
+
 #pragma mark - Private
 
 // Query normal cache process
