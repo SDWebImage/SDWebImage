@@ -327,6 +327,37 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test15ThatOriginalQueryCacheTypeWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image original query cache type with transformer works"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/102x102.png"];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    NSString *originalKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    NSString *transformedKey = [SDWebImageManager.sharedManager cacheKeyForURL:url context:@{SDWebImageContextImageTransformer : transformer}];
+    
+    [[SDWebImageManager sharedManager] loadImageWithURL:url options:0 context:@{SDWebImageContextImageTransformer : transformer, SDWebImageContextOriginalStoreCacheType : @(SDImageCacheTypeAll)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        // Get the transformed image
+        expect(image).equal(transformer.testImage);
+        // Now, the original image is stored into memory/disk cache
+        UIImage *originalImage = [SDImageCache.sharedImageCache imageFromMemoryCacheForKey:originalKey];
+        expect(originalImage.size).equal(CGSizeMake(102, 102));
+        // Query again with original cache type, which should not trigger any download
+        UIImage *transformedImage = [SDImageCache.sharedImageCache imageFromMemoryCacheForKey:transformedKey];
+        expect(image).equal(transformedImage);
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:transformedKey];
+        [SDImageCache.sharedImageCache removeImageFromMemoryForKey:transformedKey];
+        [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextImageTransformer : transformer, SDWebImageContextOriginalQueryCacheType : @(SDImageCacheTypeAll)} progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
+            // Get the transformed image
+            expect(image2).equal(transformer.testImage);
+            [SDImageCache.sharedImageCache removeImageFromMemoryForKey:originalKey];
+            [SDImageCache.sharedImageCache removeImageFromDiskForKey:originalKey];
+            [expectation fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
