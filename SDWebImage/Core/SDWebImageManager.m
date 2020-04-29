@@ -262,8 +262,8 @@ static id<SDImageLoader> _defaultImageLoader;
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
-            else if (!cachedImage) {
-                // Miss normal cache, we have a chance to quary original image from cache instead of downloading
+            else if (context[SDWebImageContextImageTransformer] && !cachedImage) {
+                // Have a chance to quary original cache instead of downloading
                 [self callOriginalCacheProcessForOperation:operation url:url options:options context:context progress:progressBlock completed:completedBlock];
                 return ;
             }
@@ -299,7 +299,7 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     // Check whether we should query original cache
-    BOOL shouldQueryOriginalCache = context[SDWebImageContextImageTransformer] && (originalQueryCacheType != SDImageCacheTypeNone);
+    BOOL shouldQueryOriginalCache = (originalQueryCacheType != SDImageCacheTypeNone);
     if (shouldQueryOriginalCache) {
         // Change originContext to mutable
         SDWebImageMutableContext * __block originContext;
@@ -309,7 +309,7 @@ static id<SDImageLoader> _defaultImageLoader;
             originContext = [NSMutableDictionary dictionary];
         }
         
-        // disable transformer for cache key generation
+        // Disable transformer for cache key generation
         id<SDImageTransformer> transformer = originContext[SDWebImageContextImageTransformer];
         originContext[SDWebImageContextImageTransformer] = [NSNull null];
         
@@ -329,17 +329,10 @@ static id<SDImageLoader> _defaultImageLoader;
                 originContext[SDWebImageContextImageTransformer] = transformer;
             }
             
-            // Pass the original cached image and date to the next process
-            if (cachedImage) {
-                originContext[SDWebImageContextOriginalCachedImage] = cachedImage;
-            }
+            // Use the store cache process instead of downloading, and ignore .refreshCached option for now
+            [self callStoreCacheProcessForOperation:operation url:url options:options context:context downloadedImage:cachedImage downloadedData:cachedData finished:YES progress:progressBlock completed:completedBlock];
             
-            if (cachedData) {
-                originContext[SDWebImageContextOriginalCachedImageData] = cachedData;
-            }
-            
-            // Continue download process
-            [self callDownloadProcessForOperation:operation url:url options:options context:[originContext copy] cachedImage:nil cachedData:nil cacheType:originalQueryCacheType progress:progressBlock completed:completedBlock];
+            [self safelyRemoveOperationFromRunning:operation];
         }];
     }
     else {
@@ -366,12 +359,9 @@ static id<SDImageLoader> _defaultImageLoader;
         imageLoader = self.imageLoader;
     }
     
-    // Get original chched image
-    UIImage *originalCachedImage = context[SDWebImageContextOriginalCachedImage];
-    
     // Check whether we should download image from network
     BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);
-    shouldDownload &= ((!cachedImage && !originalCachedImage) || options & SDWebImageRefreshCached);
+    shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
     shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
     shouldDownload &= [imageLoader canRequestImageForURL:url];
     if (shouldDownload) {
@@ -426,10 +416,6 @@ static id<SDImageLoader> _defaultImageLoader;
         }];
     } else if (cachedImage) {
         [self callCompletionBlockForOperation:operation completion:completedBlock image:cachedImage data:cachedData error:nil cacheType:cacheType finished:YES url:url];
-        [self safelyRemoveOperationFromRunning:operation];
-    } else if (originalCachedImage) {
-        // Still use the store cache process, but only instead of downloading
-        [self callStoreCacheProcessForOperation:operation url:url options:options context:context downloadedImage:originalCachedImage downloadedData:context[SDWebImageContextOriginalCachedImageData] finished:YES progress:progressBlock completed:completedBlock];
         [self safelyRemoveOperationFromRunning:operation];
     } else {
         // Image not in cache and download disallowed by delegate

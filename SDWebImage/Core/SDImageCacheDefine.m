@@ -83,8 +83,3 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     
     return image;
 }
-
-#pragma mark - Context option
-
-SDWebImageContextOption const SDWebImageContextOriginalCachedImage = @"originalCachedImage";
-SDWebImageContextOption const SDWebImageContextOriginalCachedImageData = @"originalCachedImageData";
