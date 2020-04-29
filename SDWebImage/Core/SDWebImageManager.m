@@ -261,11 +261,10 @@ static id<SDImageLoader> _defaultImageLoader;
                 [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during querying the cache"}] url:url];
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
-            }
-            else if (context[SDWebImageContextImageTransformer] && !cachedImage) {
+            } else if (context[SDWebImageContextImageTransformer] && !cachedImage) {
                 // Have a chance to quary original cache instead of downloading
                 [self callOriginalCacheProcessForOperation:operation url:url options:options context:context progress:progressBlock completed:completedBlock];
-                return ;
+                return;
             }
             
             // Continue download process
@@ -334,8 +333,7 @@ static id<SDImageLoader> _defaultImageLoader;
             
             [self safelyRemoveOperationFromRunning:operation];
         }];
-    }
-    else {
+    } else {
         // Continue download process
         [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:nil cachedData:nil cacheType:originalQueryCacheType progress:progressBlock completed:completedBlock];
     }
