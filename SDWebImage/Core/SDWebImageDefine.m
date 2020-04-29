@@ -129,6 +129,7 @@ SDWebImageContextOption const SDWebImageContextImagePreserveAspectRatio = @"imag
 SDWebImageContextOption const SDWebImageContextImageThumbnailPixelSize = @"imageThumbnailPixelSize";
 SDWebImageContextOption const SDWebImageContextQueryCacheType = @"queryCacheType";
 SDWebImageContextOption const SDWebImageContextStoreCacheType = @"storeCacheType";
+SDWebImageContextOption const SDWebImageContextOriginalQueryCacheType = @"originalQueryCacheType";
 SDWebImageContextOption const SDWebImageContextOriginalStoreCacheType = @"originalStoreCacheType";
 SDWebImageContextOption const SDWebImageContextAnimatedImageClass = @"animatedImageClass";
 SDWebImageContextOption const SDWebImageContextDownloadRequestModifier = @"downloadRequestModifier";

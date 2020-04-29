@@ -228,7 +228,7 @@ static id<SDImageLoader> _defaultImageLoader;
 
 #pragma mark - Private
 
-// Query cache process
+// Query normal cache process
 - (void)callCacheProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
                                  url:(nonnull NSURL *)url
                              options:(SDWebImageOptions)options
@@ -242,13 +242,15 @@ static id<SDImageLoader> _defaultImageLoader;
     } else {
         imageCache = self.imageCache;
     }
-    // Check whether we should query cache
-    BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
+    
     // Get the query cache type
     SDImageCacheType queryCacheType = SDImageCacheTypeAll;
     if (context[SDWebImageContextQueryCacheType]) {
         queryCacheType = [context[SDWebImageContextQueryCacheType] integerValue];
     }
+    
+    // Check whether we should query cache
+    BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
     if (shouldQueryCache) {
         NSString *key = [self cacheKeyForURL:url context:context];
         @weakify(operation);
@@ -260,12 +262,82 @@ static id<SDImageLoader> _defaultImageLoader;
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
             }
+            else if (context[SDWebImageContextImageTransformer] && !cachedImage) {
+                // Have a chance to quary original cache instead of downloading
+                [self callOriginalCacheProcessForOperation:operation url:url options:options context:context progress:progressBlock completed:completedBlock];
+                return ;
+            }
+            
             // Continue download process
             [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:cachedImage cachedData:cachedData cacheType:cacheType progress:progressBlock completed:completedBlock];
         }];
     } else {
         // Continue download process
         [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:nil cachedData:nil cacheType:SDImageCacheTypeNone progress:progressBlock completed:completedBlock];
+    }
+}
+
+// Query original cache process
+- (void)callOriginalCacheProcessForOperation:(nonnull SDWebImageCombinedOperation *)operation
+                                         url:(nonnull NSURL *)url
+                                     options:(SDWebImageOptions)options
+                                     context:(nullable SDWebImageContext *)context
+                                    progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                                   completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // Grab the image cache to use
+    id<SDImageCache> imageCache;
+    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
+        imageCache = context[SDWebImageContextImageCache];
+    } else {
+        imageCache = self.imageCache;
+    }
+    
+    // Get the original query cache type
+    SDImageCacheType originalQueryCacheType = SDImageCacheTypeNone;
+    if (context[SDWebImageContextOriginalQueryCacheType]) {
+        originalQueryCacheType = [context[SDWebImageContextOriginalQueryCacheType] integerValue];
+    }
+    
+    // Check whether we should query original cache
+    BOOL shouldQueryOriginalCache = (originalQueryCacheType != SDImageCacheTypeNone);
+    if (shouldQueryOriginalCache) {
+        // Change originContext to mutable
+        SDWebImageMutableContext * __block originContext;
+        if (context) {
+            originContext = [context mutableCopy];
+        } else {
+            originContext = [NSMutableDictionary dictionary];
+        }
+        
+        // Disable transformer for cache key generation
+        id<SDImageTransformer> transformer = originContext[SDWebImageContextImageTransformer];
+        originContext[SDWebImageContextImageTransformer] = [NSNull null];
+        
+        NSString *key = [self cacheKeyForURL:url context:originContext];
+        @weakify(operation);
+        operation.cacheOperation = [imageCache queryImageForKey:key options:options context:context cacheType:originalQueryCacheType completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
+            @strongify(operation);
+            if (!operation || operation.isCancelled) {
+                // Image combined operation cancelled by user
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during querying the cache"}] url:url];
+                [self safelyRemoveOperationFromRunning:operation];
+                return;
+            }
+            
+            // Add original transformer
+            if (transformer) {
+                originContext[SDWebImageContextImageTransformer] = transformer;
+            }
+            
+            // Use the store cache process instead of downloading, and ignore .refreshCached option for now
+            [self callStoreCacheProcessForOperation:operation url:url options:options context:context downloadedImage:cachedImage downloadedData:cachedData finished:YES progress:progressBlock completed:completedBlock];
+            
+            [self safelyRemoveOperationFromRunning:operation];
+        }];
+    }
+    else {
+        // Continue download process
+        [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:nil cachedData:nil cacheType:originalQueryCacheType progress:progressBlock completed:completedBlock];
     }
 }
 
@@ -286,6 +358,7 @@ static id<SDImageLoader> _defaultImageLoader;
     } else {
         imageLoader = self.imageLoader;
     }
+    
     // Check whether we should download image from network
     BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);
     shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
