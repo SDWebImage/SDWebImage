@@ -266,16 +266,18 @@
     @synchronized (self) {
         [self.prefetchOperations compact];
         for (id operation in self.prefetchOperations) {
-            if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
-                [operation cancel];
+            id<SDWebImageOperation> strongOperation = operation;
+            if (strongOperation) {
+                [strongOperation cancel];
             }
         }
         self.prefetchOperations.count = 0;
         
         [self.loadOperations compact];
         for (id operation in self.loadOperations) {
-            if ([operation conformsToProtocol:@protocol(SDWebImageOperation)]) {
-                [operation cancel];
+            id<SDWebImageOperation> strongOperation = operation;
+            if (strongOperation) {
+                [strongOperation cancel];
             }
         }
         self.loadOperations.count = 0;

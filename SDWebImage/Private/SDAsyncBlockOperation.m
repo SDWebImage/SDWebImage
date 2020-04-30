@@ -52,7 +52,9 @@
 
 - (void)cancel {
     [super cancel];
-    [self complete];
+    if (self.isExecuting) {
+        [self complete];
+    }
 }
 
 - (void)complete {
