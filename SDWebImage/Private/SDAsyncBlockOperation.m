@@ -41,9 +41,8 @@
             return;
         }
         
-        [self willChangeValueForKey:@"isExecuting"];
+        self.finished = NO;
         self.executing = YES;
-        [self didChangeValueForKey:@"isExecuting"];
         
         if (self.executionBlock) {
             self.executionBlock(self);
@@ -68,8 +67,8 @@
 - (void)complete {
     @synchronized (self) {
         if (self.isExecuting) {
-            self.executing = NO;
             self.finished = YES;
+            self.executing = NO;
         }
     }
  }
@@ -84,6 +83,10 @@
     [self willChangeValueForKey:@"isExecuting"];
     _executing = executing;
     [self didChangeValueForKey:@"isExecuting"];
+}
+
+- (BOOL)isConcurrent {
+    return YES;
 }
 
 @end
