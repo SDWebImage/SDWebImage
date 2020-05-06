@@ -95,6 +95,10 @@
     operation = token.downloadOperation;
     expect([operation class]).to.equal([SDWebImageTestDownloadOperation class]);
     
+    // Assert the NSOperation conforms to `SDWebImageOperation`
+    expect([NSOperation.class conformsToProtocol:@protocol(SDWebImageOperation)]).beTruthy();
+    expect([operation conformsToProtocol:@protocol(SDWebImageOperation)]).beTruthy();
+    
     // back to the original value
     downloader.config.operationClass = nil;
     token = [downloader downloadImageWithURL:imageURL3 options:0 progress:nil completed:nil];
