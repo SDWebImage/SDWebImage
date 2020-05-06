@@ -1,3 +1,9 @@
+## [5.7.4 - 5.7 Patch, on May 6th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.4)
+See [all tickets marked for the 5.7.4 release](https://github.com/SDWebImage/SDWebImage/milestone/71)
+
+### Fixes
+- Fix the issue that NSOperation conforms to `SDWebImageOperation` check failed. Fix cancelling prefetcher hung up #2999 #2998
+
 ## [5.7.3 - 5.7 Patch, on Apr 21st, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.3)
 See [all tickets marked for the 5.7.3 release](https://github.com/SDWebImage/SDWebImage/milestone/70)
 
