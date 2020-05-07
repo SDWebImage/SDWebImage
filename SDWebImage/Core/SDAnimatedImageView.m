@@ -184,12 +184,8 @@
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
         super.highlighted = NO;
         
-        if (self.autoPlayAnimatedImage) {
-            // Start animating
-            [self startAnimating];
-        } else {
-            [self stopAnimating];
-        }
+        [self stopAnimating];
+        [self checkPlay];
 
         [self.imageViewLayer setNeedsDisplay];
     }
@@ -263,14 +259,7 @@
     [super didMoveToSuperview];
 #endif
     
-    if (self.autoPlayAnimatedImage) {
-        [self updateShouldAnimate];
-        if (self.shouldAnimate) {
-            [self startAnimating];
-        } else {
-            [self stopAnimating];
-        }
-    }
+    [self checkPlay];
 }
 
 #if SD_MAC
@@ -285,14 +274,7 @@
     [super didMoveToWindow];
 #endif
     
-    if (self.autoPlayAnimatedImage) {
-        [self updateShouldAnimate];
-        if (self.shouldAnimate) {
-            [self startAnimating];
-        } else {
-            [self stopAnimating];
-        }
-    }
+    [self checkPlay];
 }
 
 #if SD_MAC
@@ -307,28 +289,14 @@
     [super setAlpha:alpha];
 #endif
     
-    if (self.autoPlayAnimatedImage) {
-        [self updateShouldAnimate];
-        if (self.shouldAnimate) {
-            [self startAnimating];
-        } else {
-            [self stopAnimating];
-        }
-    }
+    [self checkPlay];
 }
 
 - (void)setHidden:(BOOL)hidden
 {
     [super setHidden:hidden];
     
-    if (self.autoPlayAnimatedImage) {
-        [self updateShouldAnimate];
-        if (self.shouldAnimate) {
-            [self startAnimating];
-        } else {
-            [self stopAnimating];
-        }
-    }
+    [self checkPlay];
 }
 
 #pragma mark - UIImageView Method Overrides
@@ -415,6 +383,19 @@
 
 #pragma mark - Private Methods
 #pragma mark Animation
+
+/// Check if it should be played
+- (void)checkPlay
+{
+    if (self.autoPlayAnimatedImage) {
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
+    }
+}
 
 // Don't repeatedly check our window & superview in `-displayDidRefresh:` for performance reasons.
 // Just update our cached value whenever the animated image or visibility (window, superview, hidden, alpha) is changed.
