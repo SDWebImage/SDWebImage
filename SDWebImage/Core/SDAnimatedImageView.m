@@ -187,6 +187,8 @@
         if (self.autoPlayAnimatedImage) {
             // Start animating
             [self startAnimating];
+        } else {
+            [self stopAnimating];
         }
 
         [self.imageViewLayer setNeedsDisplay];
