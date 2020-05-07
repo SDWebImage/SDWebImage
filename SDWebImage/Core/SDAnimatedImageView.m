@@ -93,6 +93,7 @@
 {
     // Pay attention that UIKit's `initWithImage:` will trigger a `setImage:` during initialization before this `commonInit`.
     // So the properties which rely on this order, should using lazy-evaluation or do extra check in `setImage:`.
+    self.autoPlayAnimatedImage = YES;
     self.shouldCustomLoopCount = NO;
     self.shouldIncrementalLoad = YES;
     self.playbackRate = 1.0;
@@ -183,8 +184,12 @@
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
         super.highlighted = NO;
         
-        // Start animating
-        [self startAnimating];
+        if (self.autoPlayAnimatedImage) {
+            // Start animating
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
 
         [self.imageViewLayer setNeedsDisplay];
     }
@@ -258,11 +263,13 @@
     [super didMoveToSuperview];
 #endif
     
-    [self updateShouldAnimate];
-    if (self.shouldAnimate) {
-        [self startAnimating];
-    } else {
-        [self stopAnimating];
+    if (self.autoPlayAnimatedImage) {
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
     }
 }
 
@@ -278,11 +285,13 @@
     [super didMoveToWindow];
 #endif
     
-    [self updateShouldAnimate];
-    if (self.shouldAnimate) {
-        [self startAnimating];
-    } else {
-        [self stopAnimating];
+    if (self.autoPlayAnimatedImage) {
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
     }
 }
 
@@ -298,11 +307,13 @@
     [super setAlpha:alpha];
 #endif
     
-    [self updateShouldAnimate];
-    if (self.shouldAnimate) {
-        [self startAnimating];
-    } else {
-        [self stopAnimating];
+    if (self.autoPlayAnimatedImage) {
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
     }
 }
 
@@ -310,11 +321,13 @@
 {
     [super setHidden:hidden];
     
-    [self updateShouldAnimate];
-    if (self.shouldAnimate) {
-        [self startAnimating];
-    } else {
-        [self stopAnimating];
+    if (self.autoPlayAnimatedImage) {
+        [self updateShouldAnimate];
+        if (self.shouldAnimate) {
+            [self startAnimating];
+        } else {
+            [self stopAnimating];
+        }
     }
 }
 
