@@ -21,6 +21,13 @@
 @interface SDAnimatedImageView : UIImageView
 
 /**
+ If the image has more than one frame, set this value to `YES` will automatically
+ play/stop the animation when the view become visible/invisible.
+ 
+ The default value is `YES`.
+ */
+@property (nonatomic) BOOL autoPlayAnimatedImage;
+/**
  Current display frame image. This value is KVO Compliance.
  */
 @property (nonatomic, strong, readonly, nullable) UIImage *currentFrame;
