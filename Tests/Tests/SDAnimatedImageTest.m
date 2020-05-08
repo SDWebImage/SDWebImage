@@ -468,6 +468,50 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test28AnimatedImageAutoPlayAnimatedImage {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView AutoPlayAnimatedImage behavior"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    imageView.autoPlayAnimatedImage = NO;
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    // This APNG duration is 2s
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.image = image;
+
+    expect(imageView.animating).equal(0);
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(imageView.animating).equal(0);
+        
+        #if SD_UIKIT
+            [imageView startAnimating];
+        #else
+            imageView.animates = YES;
+        #endif
+        
+        expect(imageView.animating).equal(1);
+    });
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(imageView.animating).equal(1);
+
+        #if SD_UIKIT
+            [imageView stopAnimating];
+        #else
+            imageView.animates = NO;
+        #endif
+        [imageView removeFromSuperview];
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
