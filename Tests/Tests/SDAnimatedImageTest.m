@@ -483,28 +483,39 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
     imageView.image = image;
 
-    expect(imageView.animating).equal(0);
+    #if SD_UIKIT
+        expect(imageView.animating).equal(0);
+    #else
+        expect(imageView.animates).equal(0);
+    #endif
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        expect(imageView.animating).equal(0);
+        #if SD_UIKIT
+            expect(imageView.animating).equal(0);
+        #else
+            expect(imageView.animates).equal(0);
+        #endif
         
         #if SD_UIKIT
             [imageView startAnimating];
         #else
             imageView.animates = YES;
         #endif
-        
-        expect(imageView.animating).equal(1);
     });
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        expect(imageView.animating).equal(1);
-
+        #if SD_UIKIT
+            expect(imageView.animating).equal(1);
+        #else
+            expect(imageView.animates).equal(1);
+        #endif
+        
         #if SD_UIKIT
             [imageView stopAnimating];
         #else
             imageView.animates = NO;
         #endif
+        
         [imageView removeFromSuperview];
         [expectation fulfill];
     });
