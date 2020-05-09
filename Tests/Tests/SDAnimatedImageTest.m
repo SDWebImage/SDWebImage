@@ -484,16 +484,16 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     imageView.image = image;
 
     #if SD_UIKIT
-        expect(imageView.animating).equal(0);
+        expect(imageView.animating).equal(NO);
     #else
-        expect(imageView.animates).equal(0);
+        expect(imageView.animates).equal(NO);
     #endif
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         #if SD_UIKIT
-            expect(imageView.animating).equal(0);
+            expect(imageView.animating).equal(NO);
         #else
-            expect(imageView.animates).equal(0);
+            expect(imageView.animates).equal(NO);
         #endif
         
         #if SD_UIKIT
@@ -505,9 +505,9 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         #if SD_UIKIT
-            expect(imageView.animating).equal(1);
+            expect(imageView.animating).equal(YES);
         #else
-            expect(imageView.animates).equal(1);
+            expect(imageView.animates).equal(YES);
         #endif
         
         #if SD_UIKIT
