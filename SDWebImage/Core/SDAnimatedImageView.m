@@ -183,11 +183,8 @@
         
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).
         super.highlighted = NO;
-    #if SD_UIKIT
+        
         [self stopAnimating];
-    #else
-        [self setAnimates:NO];
-    #endif
         [self checkPlay];
 
         [self.imageViewLayer setNeedsDisplay];
@@ -328,6 +325,8 @@
     } else {
 #if SD_UIKIT
         [super startAnimating];
+#else
+        [super setAnimates:YES];
 #endif
     }
 }
@@ -346,6 +345,8 @@
     } else {
 #if SD_UIKIT
         [super stopAnimating];
+#else
+        [super setAnimates:NO];
 #endif
     }
 }
@@ -362,9 +363,17 @@
 #endif
 
 #if SD_MAC
+- (BOOL)animates
+{
+    if (self.player) {
+        return self.player.isPlaying;
+    } else {
+        return [super animates];
+    }
+}
+
 - (void)setAnimates:(BOOL)animates
 {
-    [super setAnimates:animates];
     if (animates) {
         [self startAnimating];
     } else {
@@ -392,19 +401,11 @@
 {
     if (self.autoPlayAnimatedImage) {
         [self updateShouldAnimate];
-    #if SD_UIKIT
         if (self.shouldAnimate) {
             [self startAnimating];
         } else {
             [self stopAnimating];
         }
-    #else
-        if (self.shouldAnimate) {
-            [self setAnimates:YES];
-        } else {
-            [self setAnimates:NO];
-        }
-    #endif
     }
 }
 
