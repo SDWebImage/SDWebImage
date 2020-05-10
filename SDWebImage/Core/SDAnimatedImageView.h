@@ -82,6 +82,14 @@
 @property (nonatomic, assign) BOOL resetFrameIndexWhenStopped;
 
 /**
+ If the image has more than one frame, set this value to `YES` will automatically
+ play/stop the animation when the view become visible/invisible.
+ 
+ The default value is `YES`.
+ */
+@property (nonatomic) BOOL autoPlayAnimatedImage;
+
+/**
  You can specify a runloop mode to let it rendering.
  Default is NSRunLoopCommonModes on multi-core device, NSDefaultRunLoopMode on single-core device
  @note This is useful for some cases, for example, always specify NSDefaultRunLoopMode, if you want to pause the animation when user scroll (for Mac user, drag the mouse or touchpad)
