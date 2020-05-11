@@ -1,3 +1,32 @@
+## [5.8.0 - Transform original cache and more, on May 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.0)
+See [all tickets marked for the 5.8.0 release](https://github.com/SDWebImage/SDWebImage/milestone/69)
+
+### Features
+
+#### Transformer
+- Add query original cache for transformed image without downloading #2992
+- This can be used to query the original image from cache then do transforming when transformed key cache miss, without any downloading happened.
+
+#### Animated Image
+- Added autoplay control property to AnimatedImageView (autoPlayAnimatedImage) #3003
+
+#### Manager
+- Mark the black list formal error code, support remove the failed URL from black list #2997
+- Polish the error description between image decode failed and image size is 0 #3005
+
+#### Downloader
+- Add the convenient request/response modifier, which provide HTTP header directly #2990
+
+#### View Category
+- Added the convenient transition options for macOS user. Deprecate the old timingFunction, which can use System API to achieve #2985
+- Feature pass the set operation key into context option from upstream. Fix the potential retain cycle if user use custom manager #2986
+
+#### Coder
+- Feature: Encoding options supports embed thumbnail (works for JPEG/HEIF/AVIF) #2988
+
+#### Project
+- Support the SwiftPM Objective-C user to use `#improt <SDWebImage/SDWebImage.h>` #2987
+
 ## [5.7.4 - 5.7 Patch, on May 6th, 2020](https://github.com/SDWebImage/SDWebImage/releases/tag/5.7.4)
 See [all tickets marked for the 5.7.4 release](https://github.com/SDWebImage/SDWebImage/milestone/71)
 
