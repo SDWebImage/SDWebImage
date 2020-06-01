@@ -604,7 +604,7 @@
     });
 }
 
-// Make sure to call form io queue by caller
+// Make sure to call from io queue by caller
 - (void)_removeImageFromDiskForKey:(NSString *)key {
     if (!key) {
         return;

@@ -46,7 +46,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 @interface SDWebImageTransition : NSObject
 
 /**
- By default, we set the image to the view at the beginning of the animtions. You can disable this and provide custom set image process
+ By default, we set the image to the view at the beginning of the animations. You can disable this and provide custom set image process
  */
 @property (nonatomic, assign) BOOL avoidAutoSetImage;
 /**

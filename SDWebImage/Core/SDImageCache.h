@@ -40,7 +40,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
      */
     SDImageCacheAvoidDecodeImage = 1 << 4,
     /**
-     * By default, we decode the animated image. This flag can force decode the first frame only and produece the static image.
+     * By default, we decode the animated image. This flag can force decode the first frame only and produce the static image.
      */
     SDImageCacheDecodeFirstFrameOnly = 1 << 5,
     /**
@@ -49,7 +49,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCachePreloadAllFrames = 1 << 6,
     /**
      * By default, when you use `SDWebImageContextAnimatedImageClass` context option (like using `SDAnimatedImageView` which designed to use `SDAnimatedImage`), we may still use `UIImage` when the memory cache hit, or image decoder is not available, to behave as a fallback solution.
-     * Using this option, can ensure we always produce image with your provided class. If failed, a error with code `SDWebImageErrorBadImageData` will been used.
+     * Using this option, can ensure we always produce image with your provided class. If failed, an error with code `SDWebImageErrorBadImageData` will be used.
      * Note this options is not compatible with `SDImageCacheDecodeFirstFrameOnly`, which always produce a UIImage/NSImage.
      */
     SDImageCacheMatchAnimatedImageClass = 1 << 7,
@@ -65,7 +65,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 
 /**
  *  Cache Config object - storing all kind of settings.
- *  The property is copy so change of currrent config will not accidentally affect other cache's config.
+ *  The property is copy so change of current config will not accidentally affect other cache's config.
  */
 @property (nonatomic, copy, nonnull, readonly) SDImageCacheConfig *config;
 
@@ -282,7 +282,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param key       The unique key used to store the wanted image. If you want transformed or thumbnail image, calculate the key with `SDTransformedKeyForKey`, `SDThumbnailedKeyForKey`, or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param options   A mask to specify options to use for this cache query
  * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
- * @param queryCacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediatelly.
+ * @param queryCacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediately.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
  * @return a NSOperation instance containing the cache op

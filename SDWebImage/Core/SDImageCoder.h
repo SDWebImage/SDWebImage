@@ -67,14 +67,14 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeBackground
  A CGSize value indicating the max image resolution in pixels during encoding. For vector image, this also effect the output vector data information about width and height. The encoder will not generate the encoded image larger than this limit. Note it always use the aspect ratio of input image..
  Defaults to CGSizeZero, which means no max size limit at all.
  @note Supports for animated image as well.
- @note The ouput image's width is limited to pixel size's width, the output image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
+ @note The output image's width is limited to pixel size's width, the output image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxPixelSize;
 
 /**
- A NSUInteger value specify the max ouput data bytes size after encoding. Some lossy format like JPEG/HEIF supports the hint for codec to automatically reduce the quality and match the file size you want. Note this option will override the `SDImageCoderEncodeCompressionQuality`, because now the quality is decided by the encoder. (NSNumber)
- @note This is a hint, no gurantee for output size because of compression algorithm limit. And this options does not works for vector images.
+ A NSUInteger value specify the max output data bytes size after encoding. Some lossy format like JPEG/HEIF supports the hint for codec to automatically reduce the quality and match the file size you want. Note this option will override the `SDImageCoderEncodeCompressionQuality`, because now the quality is decided by the encoder. (NSNumber)
+ @note This is a hint, no guarantee for output size because of compression algorithm limit. And this options does not works for vector images.
  @note works for `SDImageCoder`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeMaxFileSize;
@@ -90,7 +90,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeEmbedThumb
 /**
  A SDWebImageContext object which hold the original context options from top-level API. (SDWebImageContext)
  This option is ignored for all built-in coders and take no effect.
- But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data inforamtion only.
+ But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data information only.
  See `SDWebImageContext` for more detailed information.
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext API_DEPRECATED("The coder component will be seperated from Core subspec in the future. Update your code to not rely on this context option.", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));;
