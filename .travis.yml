@@ -64,11 +64,11 @@ script:
     - mkdir DerivedData
 
     - echo Run the tests
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
-    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
 
 after_success:
