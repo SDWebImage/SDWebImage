@@ -83,7 +83,7 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
  */
 @interface SDWebImageTransition (Conveniences)
 
-/// Fade transition.
+/// Fade-in transition.
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *fadeTransition;
 /// Flip from left transition.
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *flipFromLeftTransition;
@@ -97,6 +97,34 @@ typedef void (^SDWebImageTransitionCompletionBlock)(BOOL finished);
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *curlUpTransition;
 /// Curl down transition.
 @property (nonatomic, class, nonnull, readonly) SDWebImageTransition *curlDownTransition;
+
+/// Fade-in transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)fadeTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(fade(duration:));
+
+/// Flip from left  transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)flipFromLeftTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(flipFromLeft(duration:));
+
+/// Flip from right transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)flipFromRightTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(flipFromRight(duration:));
+
+/// Flip from top transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)flipFromTopTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(flipFromTop(duration:));
+
+/// Flip from bottom transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)flipFromBottomTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(flipFromBottom(duration:));
+
+///  Curl up transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)curlUpTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(curlUp(duration:));
+
+/// Curl down transition with duration.
+/// @param duration transition duration, use ease-in-out
++ (nonnull instancetype)curlDownTransitionWithDuration:(NSTimeInterval)duration NS_SWIFT_NAME(curlDown(duration:));
 
 @end
 
