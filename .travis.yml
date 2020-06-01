@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode11
+osx_image: xcode11.4
 
 env:
   global:
@@ -41,7 +41,6 @@ script:
 
     - echo Build as static library
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage static' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
-    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage static' -sdk watchsimulator -configuration Debug | xcpretty -c
 
     - echo Clean DerivedData
     - rm -rf ~/Library/Developer/Xcode/DerivedData/
@@ -51,14 +50,11 @@ script:
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -sdk appletvsimulator -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -sdk watchsimulator -configuration Debug | xcpretty -c
-    # - xcodebuild archive -project SDWebImage.xcodeproj -scheme 'SDWebImage' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
+    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImage' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk macosx -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
     - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -sdk appletvsimulator -configuration Debug | xcpretty -c
-    # - xcodebuild archive -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
-
-    - echo Clean DerivedData
-    - rm -rf ~/Library/Developer/Xcode/DerivedData/
+    - xcodebuild build -project SDWebImage.xcodeproj -scheme 'SDWebImageMapKit' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug | xcpretty -c
 
     - echo Build the Demo apps
     - pod install
@@ -66,19 +62,21 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage TV Demo' -destination 'platform=tvOS Simulator,name=Apple TV 4K' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
-    # - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
 
-    - echo Clean DerivedData
-    - rm -rf ~/Library/Developer/Xcode/DerivedData/
     - mkdir DerivedData
+    - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/common
 
     - echo Run the tests
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
-    - xcodebuild clean test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug -UseModernBuildSystem=NO CODE_SIGNING_ALLOWED=NO | xcpretty -c
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
+    - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
 
 after_success:
     - export PATH="/usr/local/opt/curl/bin:$PATH"
