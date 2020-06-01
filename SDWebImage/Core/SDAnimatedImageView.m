@@ -135,7 +135,7 @@
             } else {
                 provider = (id<SDAnimatedImage>)image;
             }
-            // Create animted player
+            // Create animated player
             self.player = [SDAnimatedImagePlayer playerWithProvider:provider];
         } else {
             // Update Frame Count

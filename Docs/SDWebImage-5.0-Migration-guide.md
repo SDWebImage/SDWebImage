@@ -28,7 +28,7 @@ Swift:
 imageView.sd_setImage(with: url, placeholderImage: placeholder)
 ```
 
-However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. This param can hold anything, as oposed to the previous `SDWebImageOptions` enum limitations. This gives developers advanced control for the behavior of image loading (cache, loader, etc). See the declaration for `SDWebImageContext` for detailed information.
+However, all view categories in 5.0 introduce a new extra arg called `SDWebImageContext`. This param can hold anything, as opposed to the previous `SDWebImageOptions` enum limitations. This gives developers advanced control for the behavior of image loading (cache, loader, etc). See the declaration for `SDWebImageContext` for detailed information.
 
 ### New Feature
 

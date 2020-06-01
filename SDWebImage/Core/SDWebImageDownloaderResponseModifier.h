@@ -55,14 +55,14 @@ A convenient response modifier to provide the HTTP response including HTTP Statu
 - (nonnull instancetype)initWithVersion:(nullable NSString *)version;
 
 /// Create the response modifier with HTTP Headers. Status code defaults to 200.
-/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original response.
+/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will override the same fields from original response.
 /// @note This is for convenience, if you need code to control the logic, use block API instead.
 - (nonnull instancetype)initWithHeaders:(nullable NSDictionary<NSString *, NSString *> *)headers;
 
 /// Create the response modifier with HTTP Status Code, Version and Headers.
 /// @param statusCode HTTP Status Code.
 /// @param version HTTP Version, nil means "HTTP/1.1".
-/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will overide the same fileds from original response.
+/// @param headers HTTP Headers. Case insensitive according to HTTP/1.1(HTTP/2) standard. The headers will override the same fields from original response.
 /// @note This is for convenience, if you need code to control the logic, use block API instead.
 - (nonnull instancetype)initWithStatusCode:(NSInteger)statusCode version:(nullable NSString *)version headers:(nullable NSDictionary<NSString *, NSString *> *)headers;
 

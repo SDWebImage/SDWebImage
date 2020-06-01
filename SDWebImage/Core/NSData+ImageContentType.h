@@ -50,7 +50,7 @@ static const SDImageFormat SDImageFormatSVG       = 8;
 + (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format CF_RETURNS_NOT_RETAINED NS_SWIFT_NAME(sd_UTType(from:));
 
 /**
- *  Convert UTTyppe to SDImageFormat
+ *  Convert UTType to SDImageFormat
  *
  *  @param uttype The UTType as CFStringRef
  *  @return The Format as SDImageFormat
