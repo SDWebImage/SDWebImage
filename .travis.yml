@@ -10,6 +10,11 @@ env:
 notifications:
   email: false
 
+addons:
+  homebrew:
+    packages:
+    - curl # Fix the codecov upload issue
+
 cache: cocoapods
 podfile: Podfile
 
@@ -59,17 +64,19 @@ script:
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage Watch Demo' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - xcodebuild build -workspace SDWebImage.xcworkspace -scheme 'SDWebImage iOS Demo' -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
 
-    - echo Clean DerivedData
-    - rm -rf ~/Library/Developer/Xcode/DerivedData/
     - mkdir DerivedData
+    - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/common
 
     - echo Run the tests
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests iOS' -destination 'platform=iOS Simulator,name=iPhone 11 Pro' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests Mac' -destination 'platform=macOS,arch=x86_64' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
     - xcodebuild test -workspace SDWebImage.xcworkspace -scheme 'Tests TV' -destination 'platform=tvOS Simulator,name=Apple TV' -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
     - mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
+    - cp -R ./DerivedData/common ~/Library/Developer/Xcode/DerivedData
 
 after_success:
     - export PATH="/usr/local/opt/curl/bin:$PATH"
