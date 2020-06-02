@@ -209,6 +209,7 @@
     }
     self.currentFrameIndex = index;
     self.currentLoopCount = loopCount;
+    self.currentFrame = [self.animatedProvider animatedImageFrameAtIndex:index];
     [self handleFrameChange];
 }
 
