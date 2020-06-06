@@ -201,6 +201,11 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Use this flag to transform them anyway.
      */
     SDWebImageTransformVectorImage = 1 << 23,
+    
+    /**
+    * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is applied for image download from the network and from disk cache.
+    */
+    SDWebImageTransitionFromDiskCache = 1 << 24,
 };
 
 
