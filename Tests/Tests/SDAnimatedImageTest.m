@@ -523,6 +523,39 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test29AnimatedImageSeekFrame {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView stopAnimating normal behavior"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    // seeking through local image should return non-null images
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+
+    __block NSUInteger i = 0;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        i++;
+        if (i < player.totalFrameCount) {
+            [player seekToFrameAtIndex:i loopCount:0];
+        } else {
+            [expectation fulfill];
+        }
+    }];
+    [player seekToFrameAtIndex:i loopCount:0];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
