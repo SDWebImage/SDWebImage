@@ -1,3 +1,16 @@
+## [5.8.1 - 5.8 Patch, on June 12th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.1)
+See [all tickets marked for the 5.8.1 release](https://github.com/SDWebImage/SDWebImage/milestone/73)
+
+### Features
+- Added the convenient transition with duration APIs #3027
+
+### Fixes
+- Fix the issue that the NSURLRequest method should not be nil, which may cause Crash #3037
+- Fix the issue when `maxPixelSize` is larger than image size will cause a upscale in ImageIO #3015
+- Change to use `kCGImageSourceCreateThumbnailFromImageAlways` to solve the issue when HEIC/JPEG contains an embed thumbnail but its size is much smaller than provided `maxPixelSize` #3038
+- SDAnimatedImagePlayer seek returning nil image fix #3030
+- Fixing Typos throughout project #3026
+
 ## [5.8.0 - Transform original cache and more, on May 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.0)
 See [all tickets marked for the 5.8.0 release](https://github.com/SDWebImage/SDWebImage/milestone/69)
 
