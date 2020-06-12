@@ -215,7 +215,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             maxPixelSize = MAX(thumbnailSize.width, thumbnailSize.height);
         }
         decodingOptions[(__bridge NSString *)kCGImageSourceThumbnailMaxPixelSize] = @(maxPixelSize);
-        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageIfAbsent] = @(YES);
+        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailFromImageAlways] = @(YES);
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)decodingOptions);
     }
     if (!imageRef) {
