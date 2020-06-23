@@ -1,3 +1,10 @@
+## [5.8.2 - 5.8 Patch, on June 23rd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.2)
+See [all tickets marked for the 5.8.2 release](https://github.com/SDWebImage/SDWebImage/milestone/74)
+
+### Fixes
+- Fix the issue that SDAnimatedImageView can not render static image on iOS 14. #3043
+- Fix the `maxPixelSize` logic issue will cause a upscale in SDImageIOAnimatedCoder #3039
+
 ## [5.8.1 - 5.8 Patch, on June 12th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.1)
 See [all tickets marked for the 5.8.1 release](https://github.com/SDWebImage/SDWebImage/milestone/73)
 
