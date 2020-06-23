@@ -466,6 +466,9 @@
 - (void)displayLayer:(CALayer *)layer
 {
     UIImage *currentFrame = self.currentFrame;
+    if (!currentFrame) {
+        currentFrame = self.image;
+    }
     if (currentFrame) {
         layer.contentsScale = currentFrame.scale;
         layer.contents = (__bridge id)currentFrame.CGImage;
