@@ -16,7 +16,10 @@
 #import "SDInternalMacros.h"
 #import "objc/runtime.h"
 
-@interface SDAnimatedImageView () <CALayerDelegate> {
+@interface UIImageView () <CALayerDelegate>
+@end
+
+@interface SDAnimatedImageView () {
     BOOL _initFinished; // Extra flag to mark the `commonInit` is called
     NSRunLoopMode _runLoopMode;
     NSUInteger _maxBufferSize;
@@ -466,12 +469,14 @@
 - (void)displayLayer:(CALayer *)layer
 {
     UIImage *currentFrame = self.currentFrame;
-    if (!currentFrame) {
-        currentFrame = self.image;
-    }
     if (currentFrame) {
         layer.contentsScale = currentFrame.scale;
         layer.contents = (__bridge id)currentFrame.CGImage;
+    } else {
+        // If we have no animation frames, call super implementation. iOS 14+ UIImageView use this delegate method for rendering.
+        if ([UIImageView instancesRespondToSelector:@selector(displayLayer:)]) {
+            [super displayLayer:layer];
+        }
     }
 }
 
