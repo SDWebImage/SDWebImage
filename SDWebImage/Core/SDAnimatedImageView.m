@@ -474,7 +474,7 @@
         layer.contents = (__bridge id)currentFrame.CGImage;
     } else {
         // If we have no animation frames, call super implementation. iOS 14+ UIImageView use this delegate method for rendering.
-        if ([super respondsToSelector:@selector(displayLayer:)]) {
+        if ([UIImageView instancesRespondToSelector:@selector(displayLayer:)]) {
             [super displayLayer:layer];
         }
     }
