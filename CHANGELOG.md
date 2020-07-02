@@ -1,3 +1,12 @@
+## [5.8.3 - 5.8 Patch, on July 2nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.3)
+See [all tickets marked for the 5.8.3 release](https://github.com/SDWebImage/SDWebImage/milestone/75)
+
+### Changes
+- Add the support for that UIImage+MultiFormat methods on SDAnimatedImage, which supports encoding the animation like GIF/APNG/WebP with lower compression quality #3047
+
+### Fixes
+- Fix the issue of iOS 14 vector image rendering on SDAnimatedImageView #3046
+
 ## [5.8.2 - 5.8 Patch, on June 23rd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.2)
 See [all tickets marked for the 5.8.2 release](https://github.com/SDWebImage/SDWebImage/milestone/74)
 
