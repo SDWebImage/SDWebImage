@@ -15,6 +15,7 @@
 #import "SDImageAPNGCoder.h"
 #import "SDImageHEICCoder.h"
 #import "SDImageHEICCoderInternal.h"
+#import "SDImageAWebPCoderInternal.h"
 
 @implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
@@ -70,6 +71,13 @@
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
             NSUInteger loopCount = [SDImageHEICCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else if (CFStringCompare(type, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
+            // WebP
+            // Do initialize about frame count, current frame/duration and loop count
+            [self setProperty:NSImageFrameCount withValue:@(frameCount)];
+            [self setProperty:NSImageCurrentFrame withValue:@(0)];
+            NSUInteger loopCount = [SDImageAWebPCoder imageLoopCountWithSource:imageSource];
+            [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         }
     }
     return self;
@@ -100,6 +108,9 @@
         } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
             // HEIC
             frameDuration = [SDImageHEICCoder frameDurationAtIndex:index source:imageSource];
+        } else if (CFStringCompare(type, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
+            // WebP
+            frameDuration = [SDImageAWebPCoder frameDurationAtIndex:index source:imageSource];
         }
         if (!frameDuration) {
             return;

@@ -14,9 +14,8 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
 #import "SDImageHEICCoderInternal.h"
+#import "SDImageAWebPCoderInternal.h"
 
-// Currently Image/IO does not support WebP
-#define kSDUTTypeWebP ((__bridge CFStringRef)@"public.webp")
 #define kSVGTagEnd @"</svg>"
 
 @implementation NSData (ImageContentType)
