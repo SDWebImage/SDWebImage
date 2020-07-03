@@ -11,7 +11,8 @@
 
 /**
  This coder is used for Google WebP and Animated WebP(AWebP) image format.
- Image/IO provide the WebP support in iOS 14/macOS 11/tvOS 14/watchOS 7+.
+ Image/IO provide the WebP decoding support in iOS 14/macOS 11/tvOS 14/watchOS 7+.
+ @note Currently Image/IO seems does not supports WebP encoding, if you need WebP encoding, use the custom codec below.
  @note If you need to support lower firmware version for WebP, you can have a try at https://github.com/SDWebImage/SDWebImageWebPCoder
  */
 @interface SDImageAWebPCoder : SDImageIOAnimatedCoder <SDProgressiveImageCoder, SDAnimatedImageCoder>
