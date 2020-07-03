@@ -224,6 +224,7 @@
 		32D3CDCE21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D3CDCC21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m */; };
 		32D3CDCF21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D3CDCC21DDE87300C4DB49 /* UIImage+MemoryCacheCost.m */; };
 		32D3CDD121DDE87300C4DB49 /* UIImage+MemoryCacheCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D3CDCD21DDE87300C4DB49 /* UIImage+MemoryCacheCost.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32D9EE4B24AF259B00EAFDF4 /* SDImageAWebPCoder.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 3263626C24AEEEB0008FB119 /* SDImageAWebPCoder.h */; };
 		32E5690822B1FFCA00CBABC6 /* SDWebImageOptionsProcessor.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 324406292296C5F400A36084 /* SDWebImageOptionsProcessor.h */; };
 		32E67311235765B500DB4987 /* SDDisplayLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E6730F235765B500DB4987 /* SDDisplayLink.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		32E67312235765B500DB4987 /* SDDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E67310235765B500DB4987 /* SDDisplayLink.m */; };
@@ -318,6 +319,7 @@
 			dstPath = include/SDWebImage;
 			dstSubfolderSpec = 16;
 			files = (
+				32D9EE4B24AF259B00EAFDF4 /* SDImageAWebPCoder.h in Copy Headers */,
 				328E9DE523A61DD30051C893 /* SDGraphicsImageRenderer.h in Copy Headers */,
 				325F7CCD2389467800AEDFCC /* UIImage+ExtendedCacheData.h in Copy Headers */,
 				326E2F36236F1E30006F847F /* SDAnimatedImagePlayer.h in Copy Headers */,
