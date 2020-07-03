@@ -8,6 +8,9 @@
 
 #import "AppDelegate.h"
 
+#import <SDWebImage/SDWebImage.h>
+#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
+
 @interface AppDelegate ()
 
 @end
@@ -16,6 +19,14 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    if (@available(iOS 14, tvOS 14, macOS 11, watchOS 7, *)) {
+        // iOS 14 supports WebP built-in
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
+    } else {
+        // iOS 13 does not supports WebP, use third-party codec
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
+    }
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageHEICCoder sharedCoder]]; // For HEIC static/animated image. Animated image is new introduced in iOS 13, but it contains performance issue for now.
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
