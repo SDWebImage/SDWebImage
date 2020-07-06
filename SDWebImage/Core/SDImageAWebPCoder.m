@@ -7,7 +7,6 @@
 */
 
 #import "SDImageAWebPCoder.h"
-#import "SDImageAWebPCoderInternal.h"
 #import "SDImageIOAnimatedCoderInternal.h"
 
 // These constants are available from iOS 14+ and Xcode 12. This raw value is used for toolchain and firmware compatibility
@@ -46,7 +45,7 @@ static NSString * kSDCGImagePropertyWebPUnclampedDelayTime = @"UnclampedDelayTim
     switch ([NSData sd_imageFormatForImageData:data]) {
         case SDImageFormatWebP:
             // Check WebP decoding compatibility
-            return [self.class canDecodeFromWebPFormat];
+            return [self.class canDecodeFromFormat:SDImageFormatWebP];
         default:
             return NO;
     }
@@ -60,30 +59,10 @@ static NSString * kSDCGImagePropertyWebPUnclampedDelayTime = @"UnclampedDelayTim
     switch (format) {
         case SDImageFormatWebP:
             // Check WebP encoding compatibility
-            return [self.class canEncodeToWebPFormat];
+            return [self.class canEncodeToFormat:SDImageFormatWebP];
         default:
             return NO;
     }
-}
-
-#pragma mark - WebP Format
-
-+ (BOOL)canDecodeFromWebPFormat {
-    static BOOL canDecode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canDecode = [self canDecodeFromFormat:SDImageFormatWebP];
-    });
-    return canDecode;
-}
-
-+ (BOOL)canEncodeToWebPFormat {
-    static BOOL canEncode = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        canEncode = [self canEncodeToFormat:SDImageFormatWebP];
-    });
-    return canEncode;
 }
 
 #pragma mark - Subclass Override

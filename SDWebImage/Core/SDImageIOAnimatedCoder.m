@@ -109,9 +109,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 #pragma mark - Utils
 
 + (BOOL)canDecodeFromFormat:(SDImageFormat)format {
+    static dispatch_once_t onceToken;
+    static NSSet *imageUTTypeSet;
+    dispatch_once(&onceToken, ^{
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
+        imageUTTypeSet = [NSSet setWithArray:imageUTTypes];
+    });
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
-    NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
-    if ([imageUTTypes containsObject:(__bridge NSString *)(imageUTType)]) {
+    if ([imageUTTypeSet containsObject:(__bridge NSString *)(imageUTType)]) {
         // Can decode from target format
         return YES;
     }
@@ -119,19 +124,18 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 + (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    NSMutableData *imageData = [NSMutableData data];
+    static dispatch_once_t onceToken;
+    static NSSet *imageUTTypeSet;
+    dispatch_once(&onceToken, ^{
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageDestinationCopyTypeIdentifiers();
+        imageUTTypeSet = [NSSet setWithArray:imageUTTypes];
+    });
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
-    
-    // Create an image destination.
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
-    if (!imageDestination) {
-        // Can't encode to target format
-        return NO;
-    } else {
+    if ([imageUTTypeSet containsObject:(__bridge NSString *)(imageUTType)]) {
         // Can encode to target format
-        CFRelease(imageDestination);
         return YES;
     }
+    return NO;
 }
 
 + (NSUInteger)imageLoopCountWithSource:(CGImageSourceRef)source {

@@ -14,8 +14,7 @@
 #import "SDImageGIFCoder.h"
 #import "SDImageAPNGCoder.h"
 #import "SDImageHEICCoder.h"
-#import "SDImageHEICCoderInternal.h"
-#import "SDImageAWebPCoderInternal.h"
+#import "SDImageAWebPCoder.h"
 
 @implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
@@ -35,6 +34,8 @@
 }
 
 // We should override init method for `NSBitmapImageRep` to do initialize about animated image format
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (instancetype)initWithData:(NSData *)data {
     self = [super initWithData:data];
     if (self) {
@@ -119,6 +120,7 @@
         [super setProperty:NSImageCurrentFrameDuration withValue:@(frameDuration)];
     }
 }
+#pragma clang diagnostic pop
 
 @end
 
