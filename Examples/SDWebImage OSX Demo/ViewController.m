@@ -8,7 +8,6 @@
 
 #import "ViewController.h"
 #import <SDWebImage/SDWebImage.h>
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
 @interface ViewController ()
 
@@ -24,8 +23,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
     
     // For animated GIF rendering, set `animates` to YES or will only show the first frame
     self.imageView2.animates = YES; // `SDAnimatedImageRep` can be used for built-in `NSImageView` to support better GIF & APNG rendering as well. No need `SDAnimatedImageView`

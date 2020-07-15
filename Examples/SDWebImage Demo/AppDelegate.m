@@ -10,6 +10,7 @@
 #import "MasterViewController.h"
 
 #import <SDWebImage/SDWebImage.h>
+#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
 @implementation AppDelegate
 
@@ -24,6 +25,18 @@
         NSString *fileName = [[SDImageCache sharedImageCache] cachePathForKey:key].lastPathComponent;
         return [bundledPath stringByAppendingPathComponent:fileName.stringByDeletingPathExtension];
     };
+    
+    if (@available(iOS 14, tvOS 14, macOS 11, watchOS 7, *)) {
+        // iOS 14 supports WebP built-in
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
+    } else {
+        // iOS 13 does not supports WebP, use third-party codec
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
+    }
+    if (@available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)) {
+        // For HEIC animated image. Animated image is new introduced in iOS 13, but it contains performance issue for now.
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageHEICCoder sharedCoder]];
+    }
 
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     // Override point for customization after application launch.

@@ -108,6 +108,36 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 
 #pragma mark - Utils
 
++ (BOOL)canDecodeFromFormat:(SDImageFormat)format {
+    static dispatch_once_t onceToken;
+    static NSSet *imageUTTypeSet;
+    dispatch_once(&onceToken, ^{
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageSourceCopyTypeIdentifiers();
+        imageUTTypeSet = [NSSet setWithArray:imageUTTypes];
+    });
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
+    if ([imageUTTypeSet containsObject:(__bridge NSString *)(imageUTType)]) {
+        // Can decode from target format
+        return YES;
+    }
+    return NO;
+}
+
++ (BOOL)canEncodeToFormat:(SDImageFormat)format {
+    static dispatch_once_t onceToken;
+    static NSSet *imageUTTypeSet;
+    dispatch_once(&onceToken, ^{
+        NSArray *imageUTTypes = (__bridge_transfer NSArray *)CGImageDestinationCopyTypeIdentifiers();
+        imageUTTypeSet = [NSSet setWithArray:imageUTTypes];
+    });
+    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
+    if ([imageUTTypeSet containsObject:(__bridge NSString *)(imageUTType)]) {
+        // Can encode to target format
+        return YES;
+    }
+    return NO;
+}
+
 + (NSUInteger)imageLoopCountWithSource:(CGImageSourceRef)source {
     NSUInteger loopCount = self.defaultLoopCount;
     NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
