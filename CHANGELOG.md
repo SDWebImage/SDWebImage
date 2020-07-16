@@ -1,3 +1,10 @@
+## [5.8.4 - 5.8 Patch, on July 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.4)
+See [all tickets marked for the 5.8.4 release](https://github.com/SDWebImage/SDWebImage/milestone/76)
+
+### Fixes
+- Try to copy the local NSMutableDictionary before calling CGImageSourceCreateImageAtIndex, try to solve the rare crash inside ImageIO call stack #3052
+- Fix race condition when use transition but canceling an operation #3053
+
 ## [5.8.3 - 5.8 Patch, on July 2nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.3)
 See [all tickets marked for the 5.8.3 release](https://github.com/SDWebImage/SDWebImage/milestone/75)
 
