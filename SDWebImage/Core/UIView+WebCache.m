@@ -203,6 +203,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 - (void)sd_cancelCurrentImageLoad {
     [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
+    self.sd_latestOperationKey = nil;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
@@ -228,14 +229,18 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     } else if ([view isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
-            imageView.image = setImage;
+            if (view.sd_latestOperationKey != nil) {
+                imageView.image = setImage;
+            }
         };
     }
 #if SD_UIKIT
     else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
-            [button setImage:setImage forState:UIControlStateNormal];
+            if (view.sd_latestOperationKey != nil) {
+                [button setImage:setImage forState:UIControlStateNormal];
+            }
         };
     }
 #endif
@@ -243,7 +248,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     else if ([view isKindOfClass:[NSButton class]]) {
         NSButton *button = (NSButton *)view;
         finalSetImageBlock = ^(UIImage *setImage, NSData *setImageData, SDImageCacheType setCacheType, NSURL *setImageURL) {
-            button.image = setImage;
+            if (view.sd_latestOperationKey != nil) {
+                button.image = setImage;
+            }
         };
     }
 #endif
@@ -275,10 +282,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         } completionHandler:^{
             [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
                 context.duration = transition.duration;
-                #pragma clang diagnostic push
-                #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 CAMediaTimingFunction *timingFunction = transition.timingFunction;
-                #pragma clang diagnostic pop
+#pragma clang diagnostic pop
                 if (!timingFunction) {
                     timingFunction = SDTimingFunctionFromAnimationOptions(transition.animationOptions);
                 }

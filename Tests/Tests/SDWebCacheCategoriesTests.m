@@ -208,6 +208,7 @@
     [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
     [imageView sd_cancelCurrentImageLoad];
     NSString *operationKey = NSStringFromClass(UIView.class);
+    expect(imageView.sd_latestOperationKey).beNil();
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
 }
 
