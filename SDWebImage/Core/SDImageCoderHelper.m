@@ -420,6 +420,15 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // of the source tile in MB, see how many rows of pixels high it
         // can be given the input image width.
         sourceTile.size.height = (int)(tileTotalPixels / sourceTile.size.width );
+        
+        //if tileTotalPixels < sourceTile.size.width
+        //sourceTile.size.height == 0. so set a default value at this condition.
+        //if we don't do like this.
+        //int iterations = (int)( sourceResolution.height / sourceTile.size.height ); (code from line 444)
+        //iterations will be a infinite nagative number.
+        if (tileTotalPixels < sourceTile.size.width) {
+            sourceTile.size.height = 1;
+        }
         sourceTile.origin.x = 0.0f;
         // The output tile is the same proportions as the input tile, but
         // scaled to image scale.
