@@ -1,3 +1,39 @@
+## [5.8.4 - 5.8 Patch, on July 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.4)
+See [all tickets marked for the 5.8.4 release](https://github.com/SDWebImage/SDWebImage/milestone/76)
+
+### Fixes
+- Try to copy the local NSMutableDictionary before calling CGImageSourceCreateImageAtIndex, try to solve the rare crash inside ImageIO call stack #3052
+- Fix race condition when use transition but canceling an operation #3053
+
+## [5.8.3 - 5.8 Patch, on July 2nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.3)
+See [all tickets marked for the 5.8.3 release](https://github.com/SDWebImage/SDWebImage/milestone/75)
+
+### Changes
+- Add the support for that UIImage+MultiFormat methods on SDAnimatedImage, which supports encoding the animation like GIF/APNG/WebP with lower compression quality #3047
+
+### Fixes
+- Fix the issue of iOS 14 vector image rendering on SDAnimatedImageView #3046
+
+## [5.8.2 - 5.8 Patch, on June 23rd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.2)
+See [all tickets marked for the 5.8.2 release](https://github.com/SDWebImage/SDWebImage/milestone/74)
+
+### Fixes
+- Fix the issue that SDAnimatedImageView can not render static image on iOS 14. #3043
+- Fix the `maxPixelSize` logic issue will cause a upscale in SDImageIOAnimatedCoder #3039
+
+## [5.8.1 - 5.8 Patch, on June 12th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.1)
+See [all tickets marked for the 5.8.1 release](https://github.com/SDWebImage/SDWebImage/milestone/73)
+
+### Features
+- Added the convenient transition with duration APIs #3027
+
+### Fixes
+- Fix the issue that the NSURLRequest method should not be nil, which may cause Crash #3037
+- Fix the issue when `maxPixelSize` is larger than image size will cause a upscale in ImageIO #3015
+- Change to use `kCGImageSourceCreateThumbnailFromImageAlways` to solve the issue when HEIC/JPEG contains an embed thumbnail but its size is much smaller than provided `maxPixelSize` #3038
+- SDAnimatedImagePlayer seek returning nil image fix #3030
+- Fixing Typos throughout project #3026
+
 ## [5.8.0 - Transform original cache and more, on May 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.0)
 See [all tickets marked for the 5.8.0 release](https://github.com/SDWebImage/SDWebImage/milestone/69)
 

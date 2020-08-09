@@ -57,17 +57,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "43A629ED1D0E07600089D7DD"
-            BuildableName = "SDWebImage Watch Demo.app"
-            BlueprintName = "SDWebImage Watch Demo"
-            ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -82,7 +71,7 @@
       notificationPayloadFile = "SDWebImage Watch Demo Extension/PushNotificationPayload.apns">
       <RemoteRunnable
          runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.carousel"
+         BundleIdentifier = "com.apple.Carousel"
          RemotePath = "/SDWebImage iOS Demo">
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -92,17 +81,6 @@
             ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
          </BuildableReference>
       </RemoteRunnable>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "43A629ED1D0E07600089D7DD"
-            BuildableName = "SDWebImage Watch Demo.app"
-            BlueprintName = "SDWebImage Watch Demo"
-            ReferencedContainer = "container:SDWebImage Demo.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -112,7 +90,7 @@
       debugDocumentVersioning = "YES">
       <RemoteRunnable
          runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.carousel"
+         BundleIdentifier = "com.apple.Carousel"
          RemotePath = "/SDWebImage iOS Demo">
          <BuildableReference
             BuildableIdentifier = "primary"

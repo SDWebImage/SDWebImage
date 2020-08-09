@@ -203,6 +203,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 - (void)sd_cancelCurrentImageLoad {
     [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
+    self.sd_latestOperationKey = nil;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
@@ -251,22 +252,38 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     if (transition) {
 #if SD_UIKIT
         [UIView transitionWithView:view duration:0 options:0 animations:^{
+            if (!view.sd_latestOperationKey) {
+                return;
+            }
             // 0 duration to let UIKit render placeholder and prepares block
             if (transition.prepares) {
                 transition.prepares(view, image, imageData, cacheType, imageURL);
             }
         } completion:^(BOOL finished) {
             [UIView transitionWithView:view duration:transition.duration options:transition.animationOptions animations:^{
+                if (!view.sd_latestOperationKey) {
+                    return;
+                }
                 if (finalSetImageBlock && !transition.avoidAutoSetImage) {
                     finalSetImageBlock(image, imageData, cacheType, imageURL);
                 }
                 if (transition.animations) {
                     transition.animations(view, image);
                 }
-            } completion:transition.completion];
+            } completion:^(BOOL finished) {
+                if (!view.sd_latestOperationKey) {
+                    return;
+                }
+                if (transition.completion) {
+                    transition.completion(finished);
+                }
+            }];
         }];
 #elif SD_MAC
         [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull prepareContext) {
+            if (!view.sd_latestOperationKey) {
+                return;
+            }
             // 0 duration to let AppKit render placeholder and prepares block
             prepareContext.duration = 0;
             if (transition.prepares) {
@@ -274,11 +291,14 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             }
         } completionHandler:^{
             [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+                if (!view.sd_latestOperationKey) {
+                    return;
+                }
                 context.duration = transition.duration;
-                #pragma clang diagnostic push
-                #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 CAMediaTimingFunction *timingFunction = transition.timingFunction;
-                #pragma clang diagnostic pop
+#pragma clang diagnostic pop
                 if (!timingFunction) {
                     timingFunction = SDTimingFunctionFromAnimationOptions(transition.animationOptions);
                 }
@@ -295,6 +315,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                     transition.animations(view, image);
                 }
             } completionHandler:^{
+                if (!view.sd_latestOperationKey) {
+                    return;
+                }
                 if (transition.completion) {
                     transition.completion(YES);
                 }
