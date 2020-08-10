@@ -15,6 +15,8 @@
 #import "UIImage+Metadata.h"
 #import "UIImage+ExtendedCacheData.h"
 
+static NSString * _defaultDiskCacheDirectory;
+
 @interface SDImageCache ()
 
 #pragma mark - Properties
@@ -38,6 +40,17 @@
         instance = [self new];
     });
     return instance;
+}
+
++ (NSString *)defaultDiskCacheDirectory {
+    if (!_defaultDiskCacheDirectory) {
+        _defaultDiskCacheDirectory = [[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"];
+    }
+    return _defaultDiskCacheDirectory;
+}
+
++ (void)setDefaultDiskCacheDirectory:(NSString *)defaultDiskCacheDirectory {
+    _defaultDiskCacheDirectory = [defaultDiskCacheDirectory copy];
 }
 
 - (instancetype)init {
@@ -75,8 +88,11 @@
         if (directory != nil) {
             _diskCachePath = [directory stringByAppendingPathComponent:ns];
         } else {
-            NSString *path = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:ns];
-            _diskCachePath = path;
+            if (!directory) {
+                // Use default disk cache directory
+                directory = [self.class defaultDiskCacheDirectory];
+            }
+            _diskCachePath = [directory stringByAppendingPathComponent:ns];
         }
         
         NSAssert([config.diskCacheClass conformsToProtocol:@protocol(SDDiskCache)], @"Custom disk cache class must conform to `SDDiskCache` protocol");
@@ -121,7 +137,7 @@
     return [self.diskCache cachePathForKey:key];
 }
 
-- (nullable NSString *)userCacheDirectory {
++ (nullable NSString *)userCacheDirectory {
     NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     return paths.firstObject;
 }
@@ -131,9 +147,9 @@
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             // ~/Library/Caches/com.hackemist.SDImageCache/default/
-            NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
+            NSString *newDefaultPath = [[[self.class userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
             // ~/Library/Caches/default/com.hackemist.SDWebImageCache.default/
-            NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
+            NSString *oldDefaultPath = [[[self.class userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
             dispatch_async(self.ioQueue, ^{
                 [((SDDiskCache *)self.diskCache) moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
             });
