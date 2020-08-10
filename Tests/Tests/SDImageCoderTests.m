@@ -83,6 +83,29 @@
     expect(decodedImage.size.height).to.equal(image.size.height);
 }
 
+- (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerBytes {
+    // Check when user provide a limit bytes, which cause the tile rectangle too small to calculate
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    CGFloat sourceWidth = CGImageGetWidth(image.CGImage);
+    CGFloat tileMinPixels = sourceWidth * 1;
+    NSUInteger kBytesPerPixel = 4;
+    NSUInteger kBytesPerMB = 1024 * 1024;
+    NSUInteger limitBytes = MAX(tileMinPixels * 3 * kBytesPerPixel, kBytesPerMB);
+    // Image 1 should be scaled down size (shouldScaleDownImage returns YES)
+    UIImage *decodedImage1 = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:limitBytes + kBytesPerPixel];
+    expect(decodedImage1).toNot.beNil();
+    expect(decodedImage1).toNot.equal(image);
+    expect(decodedImage1.size.width).toNot.equal(image.size.width);
+    expect(decodedImage1.size.height).toNot.equal(image.size.height);
+    // Image 2 should not be scaled down, only force decode (shouldScaleDownImage returns NO)
+    UIImage *decodedImage2 = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:limitBytes - kBytesPerPixel];
+    expect(decodedImage2).toNot.beNil();
+    expect(decodedImage2).toNot.equal(image);
+    expect(decodedImage2.size.width).to.equal(image.size.width);
+    expect(decodedImage2.size.height).to.equal(image.size.height);
+}
+
 - (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
     NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"png"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
