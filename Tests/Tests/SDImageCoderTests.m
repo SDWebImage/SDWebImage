@@ -203,7 +203,7 @@
 }
 
 - (void)test16ThatHEICAnimatedWorks {
-    if (@available(iOS 11, tvOS 11, macOS 10.13, *)) {
+    if (@available(iOS 13, tvOS 13, macOS 10.15, *)) {
         NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"heic"];
 #if SD_UIKIT
         BOOL isAnimatedImage = YES;
