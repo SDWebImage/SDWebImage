@@ -595,6 +595,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return NO;
     }
     CGFloat destTotalPixels;
+    CGFloat tileTotalPixels;
     if (bytes == 0) {
         bytes = kDestImageLimitBytes;
     }
@@ -607,6 +608,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (imageScale < 1) {
         shouldScaleDown = YES;
     } else {
+        shouldScaleDown = NO;
+    }
+    // Add a protect when tile rectangle is too small to calculate
+    // The tile rectangle width equals to image's width, height should be at least 1 pixel
+    tileTotalPixels = destTotalPixels / 3;
+    if (tileTotalPixels < sourceResolution.width * 1) {
         shouldScaleDown = NO;
     }
     
