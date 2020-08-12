@@ -299,7 +299,7 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 
 #pragma mark - Hash
 
-#define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_MD5_DIGEST_LENGTH * 2 - 1)
+#define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_SHA1_DIGEST_LENGTH * 2 - 1)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -308,17 +308,17 @@ static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable
     if (str == NULL) {
         str = "";
     }
-    unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, (CC_LONG)strlen(str), r);
+    unsigned char r[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(str, (CC_LONG)strlen(str), r);
     NSURL *keyURL = [NSURL URLWithString:key];
     NSString *ext = keyURL ? keyURL.pathExtension : key.pathExtension;
     // File system has file name length limit, we need to check if ext is too long, we don't add it to the filename
     if (ext.length > SD_MAX_FILE_EXTENSION_LENGTH) {
         ext = nil;
     }
-    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
+    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
-                          r[11], r[12], r[13], r[14], r[15], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
+                          r[11], r[12], r[13], r[14], r[15], r[16], r[17], r[18], r[19], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
     return filename;
 }
 #pragma clang diagnostic pop
