@@ -104,7 +104,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 @property (nonatomic, class, readonly, nonnull) SDImageCache *sharedImageCache;
 
 /**
- * Control the default disk cache directory. This will effect all the SDImageCache instance created, even for shared image cache.
+ * Control the default disk cache directory. This will effect all the SDImageCache instance created after modification, even for shared image cache.
  * This can be used to share the same disk cache with the App and App Extension (Today/Notification Widget) using `- [NSFileManager.containerURLForSecurityApplicationGroupIdentifier:]`.
  * @note If you pass nil, the value will be reset to `~/Library/Caches/com.hackemist.SDImageCache`.
  * @note We still preserve the `namespace` arg, which means, if you change this property into `/path/to/use`,  the `SDImageCache.sharedImageCache.diskCachePath` should be `/path/to/use/default` because shared image cache use `default` as namespace.
@@ -114,6 +114,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 
 /**
  * Init a new cache store with a specific namespace
+ * The final disk cache directory should looks like ($directory/$namespace). And the default config of shared cache, should result in (~/Library/Caches/com.hackemist.SDImageCache/default/)
  *
  * @param ns The namespace to use for this cache store
  */
@@ -121,7 +122,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 
 /**
  * Init a new cache store with a specific namespace and directory.
- * If you don't provide the disk cache directory, we will use the User Cache directory with prefix (~/Library/Caches/com.hackemist.SDImageCache/).
+ * The final disk cache directory should looks like ($directory/$namespace). And the default config of shared cache, should result in (~/Library/Caches/com.hackemist.SDImageCache/default/)
  *
  * @param ns        The namespace to use for this cache store
  * @param directory Directory to cache disk images in
@@ -130,7 +131,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
                        diskCacheDirectory:(nullable NSString *)directory;
 
 /**
- * Init a new cache store with a specific namespace, directory and file manager
+ * Init a new cache store with a specific namespace, directory and config.
  * The final disk cache directory should looks like ($directory/$namespace). And the default config of shared cache, should result in (~/Library/Caches/com.hackemist.SDImageCache/default/)
  *
  * @param ns          The namespace to use for this cache store
