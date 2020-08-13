@@ -484,6 +484,25 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test43CustomDefaultCacheDirectory {
+    NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *testDirectory = [paths.firstObject stringByAppendingPathComponent:@"CustomDefaultCacheDirectory"];
+    NSString *defaultDirectory = [paths.firstObject stringByAppendingPathComponent:@"com.hackemist.SDImageCache"];
+    NSString *namespace = @"Test";
+    
+    // Default cache path
+    expect(SDImageCache.defaultDiskCacheDirectory).equal(defaultDirectory);
+    SDImageCache *cache1 = [[SDImageCache alloc] initWithNamespace:namespace];
+    expect(cache1.diskCachePath).equal([defaultDirectory stringByAppendingPathComponent:namespace]);
+    // Custom cache path
+    SDImageCache.defaultDiskCacheDirectory = testDirectory;
+    SDImageCache *cache2 = [[SDImageCache alloc] initWithNamespace:namespace];
+    expect(cache2.diskCachePath).equal([testDirectory stringByAppendingPathComponent:namespace]);
+    // Check reset
+    SDImageCache.defaultDiskCacheDirectory = nil;
+    expect(SDImageCache.defaultDiskCacheDirectory).equal(defaultDirectory);
+}
+
 #pragma mark - SDMemoryCache & SDDiskCache
 - (void)test42CustomMemoryCache {
     SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
