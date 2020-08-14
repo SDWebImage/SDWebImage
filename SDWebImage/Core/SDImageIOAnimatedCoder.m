@@ -212,7 +212,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         decodingOptions = [NSMutableDictionary dictionary];
     }
     CGImageRef imageRef;
-    if (thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height)) {
+    BOOL createFullImage = thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height);
+    if (createFullImage) {
         if (isVector) {
             if (thumbnailSize.width == 0 || thumbnailSize.height == 0) {
                 // Provide the default pixel count for vector images, simply just use the screen size
@@ -251,8 +252,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     if (!imageRef) {
         return nil;
     }
-    
-    if (thumbnailSize.width > 0 && thumbnailSize.height > 0) {
+    // Thumbnail image post-process
+    if (!createFullImage) {
         if (preserveAspectRatio) {
             // kCGImageSourceCreateThumbnailWithTransform will apply EXIF transform as well, we should not apply twice
             exifOrientation = kCGImagePropertyOrientationUp;

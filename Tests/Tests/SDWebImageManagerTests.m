@@ -280,6 +280,25 @@
     }];
 }
 
+- (void)test13ThatScaleDownLargeImageEXIFOrientationImage {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages works on EXIF orientation image"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"];
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+#if SD_UIKIT
+        UIImageOrientation orientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:kCGImagePropertyOrientationUpMirrored];
+        expect(image.imageOrientation).equal(orientation);
+#endif
+        if (finished) {
+            [expectation fulfill];
+        } else {
+            expect(image.sd_isIncremental).beTruthy();
+        }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test14ThatCustomCacheAndLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom Cache and Loader during manger query"];
     NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/100x100.png"];
