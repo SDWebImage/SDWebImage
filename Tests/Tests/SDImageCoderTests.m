@@ -85,7 +85,7 @@
 }
 
 - (void)test07ThatDecodeAndScaleDownImageScaleSmallerBytes {
-    // Check when user provide too smaller bytes, we scale it down to 1x1, but not return the force decoded original size image
+    // Check when user provide too small bytes, we scale it down to 1x1, but not return the force decoded original size image
     NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:1];
