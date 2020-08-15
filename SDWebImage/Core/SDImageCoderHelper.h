@@ -92,7 +92,7 @@
 
 /**
  Return the decoded and probably scaled down image by the provided image. If the image pixels bytes size large than the limit bytes, will try to scale down. Or just works as `decodedImageWithImage:`, never scale up.
- @warning You should not pass a too smaller bytes limit, the suggestion value should be larger than 1MB. We use Tile Decoding to avoid OOM, however, this will consume much more CPU time because we need to iterate and draw each tile (which may be hundreds).
+ @warning You should not pass a too small bytes limit, the suggestion value should be larger than 1MB. We use Tile Decoding to avoid OOM, however, this will consume much more CPU time because we need to iterate and draw each tile line by line.
 
  @param image The image to be decoded and scaled down
  @param bytes The limit bytes size. Provide 0 to use the build-in limit.

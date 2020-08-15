@@ -597,6 +597,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (bytes == 0) {
         bytes = [self defaultScaleDownLimitBytes];
     }
+    bytes = MAX(bytes, kBytesPerPixel);
     destTotalPixels = bytes / kBytesPerPixel;
     float imageScale = destTotalPixels / sourceTotalPixels;
     if (imageScale < 1) {
