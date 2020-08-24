@@ -74,6 +74,7 @@
 }
 
 - (void)test07ThatDecodeAndScaleDownImageDoesNotScaleSmallerImage {
+    // check when user use the larget bytes than image pixels byets, we do not scale up the image (defaults 60MB means 3965x3965 pixels)
     NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
     UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
     UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image];
@@ -81,6 +82,17 @@
     expect(decodedImage).toNot.equal(image);
     expect(decodedImage.size.width).to.equal(image.size.width);
     expect(decodedImage.size.height).to.equal(image.size.height);
+}
+
+- (void)test07ThatDecodeAndScaleDownImageScaleSmallerBytes {
+    // Check when user provide too small bytes, we scale it down to 1x1, but not return the force decoded original size image
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImage" ofType:@"jpg"];
+    UIImage *image = [[UIImage alloc] initWithContentsOfFile:testImagePath];
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:1];
+    expect(decodedImage).toNot.beNil();
+    expect(decodedImage).toNot.equal(image);
+    expect(decodedImage.size.width).to.equal(1);
+    expect(decodedImage.size.height).to.equal(1);
 }
 
 - (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
