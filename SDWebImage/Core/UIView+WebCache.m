@@ -174,7 +174,32 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #if SD_UIKIT || SD_MAC
             // check whether we should use the image transition
             SDWebImageTransition *transition = nil;
-            if (finished && (options & SDWebImageForceTransition || cacheType == SDImageCacheTypeNone)) {
+            BOOL shouldUseTransition = NO;
+            if (options & SDWebImageForceTransition) {
+                // Always
+                shouldUseTransition = YES;
+            } else if (cacheType == SDImageCacheTypeNone) {
+                // Default, from network
+                shouldUseTransition = YES;
+            } else {
+                // Async, from disk (and, user don't use sync query)
+                if (options & SDWebImageForceTransitionAsync) {
+                    if (cacheType == SDImageCacheTypeMemory) {
+                        shouldUseTransition = NO;
+                    } else if (cacheType == SDImageCacheTypeDisk) {
+                        if (options & SDWebImageQueryMemoryDataSync || options & SDWebImageQueryDiskDataSync) {
+                            shouldUseTransition = NO;
+                        } else {
+                            shouldUseTransition = YES;
+                        }
+                    } else {
+                        shouldUseTransition = NO;
+                    }
+                } else {
+                    shouldUseTransition = NO;
+                }
+            }
+            if (finished && shouldUseTransition) {
                 transition = self.sd_imageTransition;
             }
 #endif

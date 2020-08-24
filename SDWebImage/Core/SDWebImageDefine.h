@@ -161,6 +161,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     
     /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
+     * @note This options naming may be `SDWebImageForceTransitionAlways` in the furture. Which does not check any condition, just do transition even we query the cache immediately from memory. See related `SDWebImageForceTransitionAsync`.
      */
     SDWebImageForceTransition = 1 << 17,
     
@@ -201,6 +202,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * Use this flag to transform them anyway.
      */
     SDWebImageTransformVectorImage = 1 << 23,
+    
+    /**
+     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for condition when the callback from manager is asynchronous.
+     * For example, when memory cache hit, or disk cache who using `queryDiskDataSync`, this will trigger  transition. The default behavior (without any options) only do transition when network query successed.
+     * @note This is used for UI rendering which relay  the same runloop to avoid flashing, suitable for common use case cases. Which means, if user can see any waiting, do transition. else not.
+     */
+    SDWebImageForceTransitionAsync = 1 << 24
 };
 
 
