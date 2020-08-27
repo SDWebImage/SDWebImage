@@ -528,13 +528,10 @@ static NSString * _defaultDiskCacheDirectory;
         @autoreleasepool {
             NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
             UIImage *diskImage;
-            SDImageCacheType cacheType = SDImageCacheTypeNone;
             if (image) {
                 // the image is from in-memory cache, but need image data
                 diskImage = image;
-                cacheType = SDImageCacheTypeMemory;
             } else if (diskData) {
-                cacheType = SDImageCacheTypeDisk;
                 // decode image data only if in-memory cache missed
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 if (diskImage && self.config.shouldCacheImagesInMemory) {
@@ -545,10 +542,10 @@ static NSString * _defaultDiskCacheDirectory;
             
             if (doneBlock) {
                 if (shouldQueryDiskSync) {
-                    doneBlock(diskImage, diskData, cacheType);
+                    doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        doneBlock(diskImage, diskData, cacheType);
+                        doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                     });
                 }
             }
