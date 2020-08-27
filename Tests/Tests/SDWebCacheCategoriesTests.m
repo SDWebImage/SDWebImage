@@ -253,8 +253,8 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)testUIViewTransitionWork {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView transition does not work"];
+- (void)testUIViewTransitionFromNetworkWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView transition from network does not work"];
     
     // Attach a window, or CALayer will not submit drawing
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
@@ -296,8 +296,8 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)testUIViewTransitionAsyncWork {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView transition async does not work"];
+- (void)testUIViewTransitionFromDiskWork {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"UIView transition from disk does not work"];
     
     // Attach a window, or CALayer will not submit drawing
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
@@ -323,7 +323,7 @@
     __weak typeof(imageView) wimageView = imageView;
     [imageView sd_setImageWithURL:originalImageURL
                  placeholderImage:placeholder
-                          options:SDWebImageForceTransitionAsync | SDWebImageFromCacheOnly // Ensure we queired from disk cache
+                          options:SDWebImageFromCacheOnly // Ensure we queired from disk cache
                         completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                             [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
                             [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];

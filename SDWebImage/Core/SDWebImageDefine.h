@@ -160,8 +160,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     SDWebImageFromLoaderOnly = 1 << 16,
     
     /**
-     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for memory and disk cache as well.
-     * @note This options naming may be `SDWebImageForceTransitionAlways` in the furture. Which does not check any condition, just do transition even we query the cache immediately from memory. See related `SDWebImageForceTransitionAsync`.
+     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image when the callback from manager is asynchronous (from network, or disk cache query)
+     * This mask can force to apply view transition for any cases, like memory cache query, or sync disk cache query.
      */
     SDWebImageForceTransition = 1 << 17,
     
@@ -201,14 +201,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * We usually don't apply transform on vector images, because vector images supports dynamically changing to any size, rasterize to a fixed size will loss details. To modify vector images, you can process the vector data at runtime (such as modifying PDF tag / SVG element).
      * Use this flag to transform them anyway.
      */
-    SDWebImageTransformVectorImage = 1 << 23,
-    
-    /**
-     * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image download from the network. This mask can force to apply view transition for condition when the callback from manager is asynchronous.
-     * For example, when disk cache hit (and you don't use `queryDiskDataSync`), this will trigger transition because disk query is asynchronous. The default behavior (without any options) only do transition when network query successed.
-     * @note This is best used for UI rendering common cases, because even the cache is from disk, we may see a quick flashing of placeholder. In summary, if user can see any waiting (whether it takes 10 milliseconds or 10 minutes), do transition. else not.
-     */
-    SDWebImageForceTransitionAsync = 1 << 24
+    SDWebImageTransformVectorImage = 1 << 23
 };
 
 

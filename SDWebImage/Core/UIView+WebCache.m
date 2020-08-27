@@ -179,23 +179,20 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                 // Always
                 shouldUseTransition = YES;
             } else if (cacheType == SDImageCacheTypeNone) {
-                // Default, from network
+                // From network
                 shouldUseTransition = YES;
             } else {
-                // Async, from disk (and, user don't use sync query)
-                if (options & SDWebImageForceTransitionAsync) {
-                    if (cacheType == SDImageCacheTypeMemory) {
+                // From disk (and, user don't use sync query)
+                if (cacheType == SDImageCacheTypeMemory) {
+                    shouldUseTransition = NO;
+                } else if (cacheType == SDImageCacheTypeDisk) {
+                    if (options & SDWebImageQueryMemoryDataSync || options & SDWebImageQueryDiskDataSync) {
                         shouldUseTransition = NO;
-                    } else if (cacheType == SDImageCacheTypeDisk) {
-                        if (options & SDWebImageQueryMemoryDataSync || options & SDWebImageQueryDiskDataSync) {
-                            shouldUseTransition = NO;
-                        } else {
-                            shouldUseTransition = YES;
-                        }
                     } else {
-                        shouldUseTransition = NO;
+                        shouldUseTransition = YES;
                     }
                 } else {
+                    // Not valid cache type, fallback
                     shouldUseTransition = NO;
                 }
             }
