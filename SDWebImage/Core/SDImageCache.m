@@ -539,14 +539,13 @@ static NSString * _defaultDiskCacheDirectory;
                     [self.memoryCache setObject:diskImage forKey:key cost:cost];
                 }
             }
-            SDImageCacheType cacheType = diskImage ? SDImageCacheTypeDisk : SDImageCacheTypeNone;
             
             if (doneBlock) {
                 if (shouldQueryDiskSync) {
-                    doneBlock(diskImage, diskData, cacheType);
+                    doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        doneBlock(diskImage, diskData, cacheType);
+                        doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                     });
                 }
             }
