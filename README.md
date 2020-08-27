@@ -38,7 +38,7 @@ This library provides an async image downloader with cache support. For convenie
 ## Supported Image Formats
 
 - Image formats supported by Apple system (JPEG, PNG, TIFF, HEIC, ...), including GIF/APNG/HEIC animation
-- WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project)
+- WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project). Note iOS 14/macOS 11.0 supports built-in WebP decoding (no encoding).
 - Support extendable coder plugins for new image formats like BPG, AVIF. And vector format like PDF, SVG. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
 
 ## Additional modules and Ecosystem
@@ -54,7 +54,7 @@ We support SwiftUI by building a brand new framework called [SDWebImageSwiftUI](
 The new framework introduce two View structs `WebImage` and `AnimatedImage` for SwiftUI world, `ImageIndicator` modifier for any View, `ImageManager` observable object for data source. Supports iOS 13+/macOS 10.15+/tvOS 13+/watchOS 6+ and Swift 5.1. Have a nice try and provide feedback!
 
 #### Coders for additional image formats
-- [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP format. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
+- [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) - coder for WebP format. iOS 8+/macOS 10.10+. Based on [libwebp](https://chromium.googlesource.com/webm/libwebp)
 - [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder) - coder for HEIF format, iOS 8+/macOS 10.10+ support. Based on [libheif](https://github.com/strukturag/libheif)
 - [SDWebImageBPGCoder](https://github.com/SDWebImage/SDWebImageBPGCoder) - coder for BPG format. Based on [libbpg](https://github.com/mirrorer/libbpg)
 - [SDWebImageFLIFCoder](https://github.com/SDWebImage/SDWebImageFLIFCoder) - coder for FLIF format. Based on [libflif](https://github.com/FLIF-hub/FLIF)
