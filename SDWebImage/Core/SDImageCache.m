@@ -281,7 +281,7 @@ static NSString * _defaultDiskCacheDirectory;
     });
 }
 
-// Make sure to call form io queue by caller
+// Make sure to call from io queue by caller
 - (void)_storeImageDataToDisk:(nullable NSData *)imageData forKey:(nullable NSString *)key {
     if (!imageData || !key) {
         return;
@@ -316,7 +316,7 @@ static NSString * _defaultDiskCacheDirectory;
     return exists;
 }
 
-// Make sure to call form io queue by caller
+// Make sure to call from io queue by caller
 - (BOOL)_diskImageDataExistsWithKey:(nullable NSString *)key {
     if (!key) {
         return NO;
