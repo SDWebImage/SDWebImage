@@ -55,7 +55,13 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [[SDAnimatedImage alloc] initWithContentsOfFile:[self testGIFPath]];
     expect(image).notTo.beNil();
     expect(image.scale).equal(1); // scale
-    // enough, other can be test with InitWithData
+    
+    // Test Retina File Path should result @2x scale
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"1@2x" ofType:@"gif"];
+    image = [[SDAnimatedImage alloc] initWithContentsOfFile:testPath];
+    expect(image).notTo.beNil();
+    expect(image.scale).equal(2); // scale
 }
 
 - (void)test03AnimatedImageInitWithAnimatedCoder {
