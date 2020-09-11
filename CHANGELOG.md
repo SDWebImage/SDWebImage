@@ -1,3 +1,9 @@
+## [5.9.1 - 5.9 Patch, on Sep 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.1)
+See [all tickets marked for the 5.9.1 release](https://github.com/SDWebImage/SDWebImage/milestone/77)
+
+### Fixes
+- Fix the issue of SDAnimatedImage initWithContentsOfFile where the path name less than 3 characters #3081
+
 ## [5.9.0 - iOS 14 WebP, on Aug 27th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.0)
 See [all tickets marked for the 5.9.0 release](https://github.com/SDWebImage/SDWebImage/milestone/72)
 
