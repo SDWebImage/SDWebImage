@@ -395,7 +395,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
         imageView.animates = NO;
 #endif
         expect(imageView.player.frameBuffer.count).equal(0);
-        expect(imageView.currentFrameIndex).equal(0);
         
         [imageView removeFromSuperview];
         [expectation fulfill];
