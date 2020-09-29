@@ -1,3 +1,9 @@
+## [5.9.2 - 5.9 Patch, on Sep 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.2)
+See [all tickets marked for the 5.9.2 release](https://github.com/SDWebImage/SDWebImage/milestone/78)
+
+### Fixes
+- Fix the issue that SDAnimatedImageView will trigger an empty callback when animation stopped. This will cause some bad effect such as rendering a empty image or placeholder image (especially on iOS 14) #3092
+
 ## [5.9.1 - 5.9 Patch, on Sep 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.1)
 See [all tickets marked for the 5.9.1 release](https://github.com/SDWebImage/SDWebImage/milestone/77)
 
