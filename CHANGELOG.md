@@ -1,3 +1,36 @@
+## [5.9.2 - 5.9 Patch, on Sep 29th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.2)
+See [all tickets marked for the 5.9.2 release](https://github.com/SDWebImage/SDWebImage/milestone/78)
+
+### Fixes
+- Fix the issue that SDAnimatedImageView will trigger an empty callback when animation stopped. This will cause some bad effect such as rendering a empty image or placeholder image (especially on iOS 14) #3092
+- Fix: `duration` is not used in SDWebImageTransition convenience initializers. #3094
+
+## [5.9.1 - 5.9 Patch, on Sep 11th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.1)
+See [all tickets marked for the 5.9.1 release](https://github.com/SDWebImage/SDWebImage/milestone/77)
+
+### Fixes
+- Fix the issue of SDAnimatedImage initWithContentsOfFile where the path name less than 3 characters #3081
+
+## [5.9.0 - iOS 14 WebP, on Aug 27th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.0)
+See [all tickets marked for the 5.9.0 release](https://github.com/SDWebImage/SDWebImage/milestone/72)
+
+### Features
+
+#### Image
+- Supports built-in WebP/AWebP codec from ImageIO for iOS 14/tvOS 14/macOS 11/watchOS 7 #3048
+- To use, add `SDImageAWebPCoder` to your coders manager. Note built-in WebP currently supports decoding only, for encoding, you still need `SDImageWebPCoder`
+- Add the support to pass small bytes to `decodedAndScaledDownLargeImage`, which always scale down (at least 1x1 pixel) but not return the original size #3067
+
+#### Cache
+- Supports the user to customize the default disk cache directory, which can be used to share cache for App && App Extension #3066
+
+#### View Category
+- Adjust the current behavior to use transition. Now it automatically do transition when manager callback asynchronously (if user see waiting, then do transition) #3074
+
+### Fixes
+- Fix the bug when the thumbnail pixel size is larger than the pixel size, and the image has EXIF orientation, the final UIImage will use wrong image orientation #3070
+- Fix the image format detection for smaller SVG which less than 100 Bytes #3072
+
 ## [5.8.4 - 5.8 Patch, on July 16th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.8.4)
 See [all tickets marked for the 5.8.4 release](https://github.com/SDWebImage/SDWebImage/milestone/76)
 

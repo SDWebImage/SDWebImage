@@ -32,6 +32,9 @@
 		32515F9E24AF1919005E8F79 /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9824AF1919005E8F79 /* TestImageAnimated.webp */; };
 		3254C32020641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
 		3254C32120641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
+		32648067250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
+		32648068250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
+		32648069250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		3264FF2F205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		3264FF30205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		326E69472334C0C300B7252C /* TestLoopCount.gif in Resources */ = {isa = PBXBuildFile; fileRef = 326E69462334C0C200B7252C /* TestLoopCount.gif */; };
@@ -127,6 +130,7 @@
 		32515F9724AF1919005E8F79 /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
 		32515F9824AF1919005E8F79 /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
+		32648066250232F7004FA0FC /* 1@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "1@2x.gif"; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
 		3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestTransformer.m; sourceTree = "<group>"; };
 		326E69462334C0C200B7252C /* TestLoopCount.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = TestLoopCount.gif; sourceTree = "<group>"; };
@@ -245,6 +249,7 @@
 		32B99EA1203B30DF0017FD66 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				32648066250232F7004FA0FC /* 1@2x.gif */,
 				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
 				324047432271956F007C53E1 /* TestEXIF.png */,
 				433BBBB61D7EF8200086B6E9 /* TestImage.gif */,
@@ -466,6 +471,7 @@
 				3234306423E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				320224F92440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				329922892365DC6C00EAFD97 /* TestImageLarge.jpg in Resources */,
+				32648069250232F7004FA0FC /* 1@2x.gif in Resources */,
 				3299228A2365DC6C00EAFD97 /* TestImage.png in Resources */,
 				329922842365DC6C00EAFD97 /* MonochromeTestImage.jpg in Resources */,
 				329922882365DC6C00EAFD97 /* TestImage.jpg in Resources */,
@@ -488,6 +494,7 @@
 				3234306323E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				320224F82440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				32B99EA6203B31360017FD66 /* TestImage.png in Resources */,
+				32648068250232F7004FA0FC /* 1@2x.gif in Resources */,
 				3297A0A023374D1700814590 /* TestImageAnimated.heic in Resources */,
 				32B99EA2203B31360017FD66 /* MonochromeTestImage.jpg in Resources */,
 				32905E65211D786E00460FCF /* TestImage.heif in Resources */,
@@ -510,6 +517,7 @@
 				3234306223E2BAC800C290C8 /* TestImage.pdf in Resources */,
 				320224F72440C39B00E5B29D /* TestImageLarge.png in Resources */,
 				433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */,
+				32648067250232F7004FA0FC /* 1@2x.gif in Resources */,
 				433BBBB91D7EF8260086B6E9 /* TestImage.png in Resources */,
 				3297A09F23374D1700814590 /* TestImageAnimated.heic in Resources */,
 				327054E2206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,

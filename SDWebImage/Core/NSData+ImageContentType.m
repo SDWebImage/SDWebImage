@@ -74,12 +74,9 @@
             }
         }
         case 0x3C: {
-            if (data.length > 100) {
-                // Check end with SVG tag
-                NSString *testString = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length - 100, 100)] encoding:NSASCIIStringEncoding];
-                if ([testString containsString:kSVGTagEnd]) {
-                    return SDImageFormatSVG;
-                }
+            // Check end with SVG tag
+            if ([data rangeOfData:[kSVGTagEnd dataUsingEncoding:NSUTF8StringEncoding] options:NSDataSearchBackwards range: NSMakeRange(data.length - MIN(100, data.length), MIN(100, data.length))].location != NSNotFound) {
+                return SDImageFormatSVG;
             }
         }
     }

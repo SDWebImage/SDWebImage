@@ -13,6 +13,41 @@
 
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
 
+// Check whether the coder is called
+@interface SDImageAPNGTestCoder : SDImageAPNGCoder
+
+@property (nonatomic, class, assign) BOOL isCalled;
+
+@end
+
+@implementation SDImageAPNGTestCoder
+
+static BOOL _isCalled;
+
++ (BOOL)isCalled {
+    return _isCalled;
+}
+
++ (void)setIsCalled:(BOOL)isCalled {
+    _isCalled = isCalled;
+}
+
++ (instancetype)sharedCoder {
+    static SDImageAPNGTestCoder *coder;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        coder = [[SDImageAPNGTestCoder alloc] init];
+    });
+    return coder;
+}
+
+- (instancetype)initWithAnimatedImageData:(NSData *)data options:(SDImageCoderOptions *)options {
+    SDImageAPNGTestCoder.isCalled = YES;
+    return [super initWithAnimatedImageData:data options:options];
+}
+
+@end
+
 // Internal header
 @interface SDAnimatedImageView ()
 
@@ -55,7 +90,13 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     SDAnimatedImage *image = [[SDAnimatedImage alloc] initWithContentsOfFile:[self testGIFPath]];
     expect(image).notTo.beNil();
     expect(image.scale).equal(1); // scale
-    // enough, other can be test with InitWithData
+    
+    // Test Retina File Path should result @2x scale
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"1@2x" ofType:@"gif"];
+    image = [[SDAnimatedImage alloc] initWithContentsOfFile:testPath];
+    expect(image).notTo.beNil();
+    expect(image.scale).equal(2); // scale
 }
 
 - (void)test03AnimatedImageInitWithAnimatedCoder {
@@ -389,7 +430,6 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
         imageView.animates = NO;
 #endif
         expect(imageView.player.frameBuffer.count).equal(0);
-        expect(imageView.currentFrameIndex).equal(0);
         
         [imageView removeFromSuperview];
         [expectation fulfill];
@@ -554,6 +594,12 @@ static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop coun
     [player seekToFrameAtIndex:i loopCount:0];
     
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test30AnimatedImageCoderPriority {
+    [SDImageCodersManager.sharedManager addCoder:SDImageAPNGTestCoder.sharedCoder];
+    [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
 #pragma mark - Helper

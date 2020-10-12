@@ -160,14 +160,14 @@
     }
 }
 
-- (void)resetCurrentFrameIndex {
-    self.currentFrame = nil;
-    self.currentFrameIndex = 0;
-    self.currentLoopCount = 0;
-    self.currentTime = 0;
-    self.bufferMiss = NO;
-    self.needsDisplayWhenImageBecomesAvailable = NO;
-    [self handleFrameChange];
+- (void)resetCurrentFrameStatus {
+    // These should not trigger KVO, user don't need to receive an `index == 0, image == nil` callback.
+    _currentFrame = nil;
+    _currentFrameIndex = 0;
+    _currentLoopCount = 0;
+    _currentTime = 0;
+    _bufferMiss = NO;
+    _needsDisplayWhenImageBecomesAvailable = NO;
 }
 
 - (void)clearFrameBuffer {
@@ -191,7 +191,8 @@
     [_fetchQueue cancelAllOperations];
     // Using `_displayLink` here because when UIImageView dealloc, it may trigger `[self stopAnimating]`, we already release the display link in SDAnimatedImageView's dealloc method.
     [_displayLink stop];
-    [self resetCurrentFrameIndex];
+    // We need to reset the frame status, but not trigger any handle. This can ensure next time's playing status correct.
+    [self resetCurrentFrameStatus];
 }
 
 - (void)pausePlaying {
