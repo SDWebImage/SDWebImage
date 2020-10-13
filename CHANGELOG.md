@@ -1,3 +1,10 @@
+## [5.9.3 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.3)
+See [all tickets marked for the 5.9.3 release](https://github.com/SDWebImage/SDWebImage/milestone/79)
+
+### Fixes
+- Fix coder priority inverse in SDAnimatedImage #3101
+- Fix that SDImageCache will automatically store the disk image into memory cache even if store cache type is disk #3104
+
 ## [5.9.2 - 5.9 Patch, on Sep 29th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.2)
 See [all tickets marked for the 5.9.2 release](https://github.com/SDWebImage/SDWebImage/milestone/78)
 
