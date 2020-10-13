@@ -532,11 +532,18 @@ static NSString * _defaultDiskCacheDirectory;
                 // the image is from in-memory cache, but need image data
                 diskImage = image;
             } else if (diskData) {
-                // decode image data only if in-memory cache missed
-                diskImage = [self diskImageForKey:key data:diskData options:options context:context];
-                if (diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = diskImage.sd_memoryCost;
-                    [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                BOOL shouldCacheToMomery = YES;
+                if (context[SDWebImageContextStoreCacheType]) {
+                    SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+                    shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+                }
+                if (shouldCacheToMomery) {
+                    // decode image data only if in-memory cache missed
+                    diskImage = [self diskImageForKey:key data:diskData options:options context:context];
+                    if (diskImage && self.config.shouldCacheImagesInMemory) {
+                        NSUInteger cost = diskImage.sd_memoryCost;
+                        [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                    }
                 }
             }
             

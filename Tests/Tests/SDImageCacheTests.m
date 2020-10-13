@@ -626,6 +626,18 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
 
 #pragma mark - SDImageCache & SDImageCachesManager
+- (void)test49SDImageCacheQueryOp {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
+    NSData *data = [[SDImageCodersManager sharedManager] encodedDataWithImage:[self testJPEGImage] format:SDImageFormatJPEG options:nil];
+    [[SDImageCache sharedImageCache] storeImageDataToDisk:data forKey:kTestImageKeyJPEG];
+    
+    [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:@{SDWebImageContextStoreCacheType : @(SDImageCacheTypeDisk)} cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect([[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG]).beNil();
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test50SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
     [[SDImageCache sharedImageCache] storeImage:[self testJPEGImage] forKey:kTestImageKeyJPEG toDisk:NO completion:nil];
