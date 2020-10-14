@@ -212,6 +212,75 @@
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
 }
 
+- (void)testUIViewCancelCurrentImageLoadWithTransition {
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *firstImageUrl = [NSURL URLWithString:kTestJPEGURL];
+    NSURL *secondImageUrl = [NSURL URLWithString:kTestPNGURL];
+
+    // First, reset our caches
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestPNGURL];
+
+    // Next, lets put our second image into memory, so that the next time
+    // we load it, it will come from memory, and thus shouldUseTransition will be NO
+    XCTestExpectation *firstLoadExpectation = [self expectationWithDescription:@"First image loaded"];
+
+    [imageView sd_internalSetImageWithURL:secondImageUrl placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [firstLoadExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[firstLoadExpectation]
+                      timeout:5.0];
+
+    // Now, lets load a new image using a transition
+    XCTestExpectation *secondLoadExpectation = [self expectationWithDescription:@"Second image loaded"];
+    XCTestExpectation *transitionPreparesExpectation = [self expectationWithDescription:@"Transition prepares"];
+
+    // Build a custom transition with a completion block that
+    // we do not expect to be called, because we cancel in the
+    // middle of a transition
+    XCTestExpectation *transitionCompletionExpecation = [self expectationWithDescription:@"Transition completed"];
+    transitionCompletionExpecation.inverted = YES;
+
+    SDWebImageTransition *customTransition = [SDWebImageTransition new];
+    customTransition.duration = 1.0;
+    customTransition.prepares = ^(__kindof UIView * _Nonnull view, UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        [transitionPreparesExpectation fulfill];
+    };
+    customTransition.completion = ^(BOOL finished) {
+        [transitionCompletionExpecation fulfill];
+    };
+
+    // Now, load our first image URL (maybe as part of a UICollectionView)
+    // We use a custom context to ensure a unique ImageOperationKey for every load
+    // that is requested
+    NSMutableDictionary *context = [NSMutableDictionary new];
+    context[SDWebImageContextSetImageOperationKey] = firstImageUrl.absoluteString;
+
+    imageView.sd_imageTransition = customTransition;
+    [imageView sd_internalSetImageWithURL:firstImageUrl placeholderImage:nil options:0 context:context setImageBlock:nil progress:nil completed:nil];
+    [self waitForExpectations:@[transitionPreparesExpectation] timeout:5.0];
+
+    // At this point, our transition has started, and so we cancel the load operation,
+    // perhaps as a result of a call to `prepareForReuse` in a UICollectionViewCell
+    [imageView sd_cancelCurrentImageLoad];
+
+    // Now, we update our context's imageOperationKey and URL, perhaps
+    // because of a re-use of a UICollectionViewCell. In this case,
+    // we are assigning an image URL that is already present in the
+    // memory cache
+    context[SDWebImageContextSetImageOperationKey] = secondImageUrl.absoluteString;
+    [imageView sd_internalSetImageWithURL:secondImageUrl placeholderImage:nil options:0 context:context setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+
+        [secondLoadExpectation fulfill];
+    }];
+
+    // The original load operation's transitionCompletionExpecation should never
+    // be called (it has been inverted, above)
+    [self waitForExpectations:@[secondLoadExpectation, transitionCompletionExpecation]
+                      timeout:2.0];
+}
+
 - (void)testUIViewCancelCallbackWithError {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView internalSetImageWithURL cancel callback error"];
     
