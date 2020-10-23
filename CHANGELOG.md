@@ -1,3 +1,10 @@
+## [5.9.4 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.4)
+See [all tickets marked for the 5.9.4 release](https://github.com/SDWebImage/SDWebImage/milestone/80)
+
+### Fixes
+- Fix race condition when using transitions that are canceled and then switched to a new transition or load operation #3108 #3107
+- Fixed the store cache type was specified to `SDImageCacheTypeDisk ` that no pictures were obtained when the disk had pictures #3110
+
 ## [5.9.3 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.3)
 See [all tickets marked for the 5.9.3 release](https://github.com/SDWebImage/SDWebImage/milestone/79)
 
