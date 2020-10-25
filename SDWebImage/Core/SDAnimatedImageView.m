@@ -10,7 +10,6 @@
 
 #if SD_UIKIT || SD_MAC
 
-#import "SDAnimatedImagePlayer.h"
 #import "UIImage+Metadata.h"
 #import "NSImage+Compatibility.h"
 #import "SDInternalMacros.h"
@@ -31,7 +30,7 @@
 @property (nonatomic, assign, readwrite) NSUInteger currentLoopCount;
 @property (nonatomic, assign) BOOL shouldAnimate;
 @property (nonatomic, assign) BOOL isProgressive;
-@property (nonatomic,strong) SDAnimatedImagePlayer *player; // The animation player.
+@property (nonatomic, strong, readwrite) SDAnimatedImagePlayer *player; // The animation player.
 @property (nonatomic) CALayer *imageViewLayer; // The actual rendering layer.
 
 @end

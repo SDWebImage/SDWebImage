@@ -11,6 +11,7 @@
 #if SD_UIKIT || SD_MAC
 
 #import "SDAnimatedImage.h"
+#import "SDAnimatedImagePlayer.h"
 
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.
@@ -87,6 +88,11 @@
  Default is YES.
  */
 @property (nonatomic, assign) BOOL autoPlayAnimatedImage;
+
+/**
+ The animation player.
+ */
+@property (nonatomic, strong, readonly, nullable) SDAnimatedImagePlayer *player;
 
 /**
  You can specify a runloop mode to let it rendering.
