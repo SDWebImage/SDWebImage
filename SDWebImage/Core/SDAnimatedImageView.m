@@ -163,6 +163,9 @@
         // Play Rate
         self.player.playbackRate = self.playbackRate;
         
+        // Play Mode
+        self.player.playbackMode = self.playbackMode;
+
         // Setup handler
         @weakify(self);
         self.player.animationFrameHandler = ^(NSUInteger index, UIImage * frame) {

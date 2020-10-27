@@ -242,6 +242,18 @@
     NSUInteger currentFrameIndex = self.currentFrameIndex;
     NSUInteger nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
     
+    switch (self.playbackMode) {
+        case SDAnimatedImagePlaybackModeNormal:
+            nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
+            break;
+        case SDAnimatedImagePlaybackModeReverse: {
+            nextFrameIndex = (currentFrameIndex - 1) % totalFrameCount;
+        }
+            break;
+        default:
+            break;
+    }
+    
     // Check if we need to display new frame firstly
     BOOL bufferFull = NO;
     if (self.needsDisplayWhenImageBecomesAvailable) {
