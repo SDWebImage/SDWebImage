@@ -402,7 +402,8 @@
 /// Check if it should be played
 - (void)checkPlay
 {
-    if (self.autoPlayAnimatedImage) {
+    // Only handle for SDAnimatedImage, leave UIAnimatedImage or animationImages for super implementation control
+    if (self.player && self.autoPlayAnimatedImage) {
         [self updateShouldAnimate];
         if (self.shouldAnimate) {
             [self startAnimating];
