@@ -140,9 +140,7 @@
 #pragma mark - State Control
 
 - (void)setupCurrentFrame {
-    if (self.playbackMode == SDAnimatedImagePlaybackModeReversedBounce) {
-        self.currentFrameIndex = self.totalFrameCount - 1;
-    }
+    if (self.playbackMode == )
     
     if ([self.animatedProvider isKindOfClass:[UIImage class]]) {
         UIImage *image = (UIImage *)self.animatedProvider;
@@ -183,7 +181,7 @@
 - (void)startPlaying {
     [self.displayLink start];
     // Setup frame
-        [self setupCurrentFrame];
+    [self setupCurrentFrame];
     // Calculate max buffer size
     [self calculateMaxBufferCount];
 }

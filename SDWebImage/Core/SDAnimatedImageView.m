@@ -23,6 +23,7 @@
     NSRunLoopMode _runLoopMode;
     NSUInteger _maxBufferSize;
     double _playbackRate;
+    SDAnimatedImagePlaybackMode _playbackMode;
 }
 
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
@@ -240,6 +241,16 @@
     }
     return _playbackRate;
 }
+
+- (void)setPlaybackMode:(SDAnimatedImagePlaybackMode)playbackMode {
+    _playbackMode = playbackMode;
+    self.player.playbackMode = playbackMode;
+}
+
+- (SDAnimatedImagePlaybackMode)playbackMode {
+    return _playbackMode;
+}
+
 
 - (BOOL)shouldIncrementalLoad
 {
