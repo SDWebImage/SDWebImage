@@ -24,6 +24,7 @@
 @property (nonatomic, assign) NSTimeInterval currentTime;
 @property (nonatomic, assign) BOOL bufferMiss;
 @property (nonatomic, assign) BOOL needsDisplayWhenImageBecomesAvailable;
+@property (nonatomic, assign) BOOL shouldReverse;
 @property (nonatomic, assign) NSUInteger maxBufferCount;
 @property (nonatomic, strong) NSOperationQueue *fetchQueue;
 @property (nonatomic, strong) dispatch_semaphore_t lock;
@@ -139,9 +140,10 @@
 #pragma mark - State Control
 
 - (void)setupCurrentFrame {
-    if (self.currentFrameIndex != 0) {
-        return;
+    if (self.playbackMode == SDAnimatedImagePlaybackModeReversedBounce) {
+        self.currentFrameIndex = self.totalFrameCount - 1;
     }
+    
     if ([self.animatedProvider isKindOfClass:[UIImage class]]) {
         UIImage *image = (UIImage *)self.animatedProvider;
         // Use the poster image if available
@@ -158,6 +160,7 @@
             [self handleFrameChange];
         }
     }
+    
 }
 
 - (void)resetCurrentFrameStatus {
@@ -180,9 +183,7 @@
 - (void)startPlaying {
     [self.displayLink start];
     // Setup frame
-    if (self.currentFrameIndex == 0 && !self.currentFrame) {
         [self setupCurrentFrame];
-    }
     // Calculate max buffer size
     [self calculateMaxBufferCount];
 }
@@ -246,14 +247,34 @@
         case SDAnimatedImagePlaybackModeNormal:
             nextFrameIndex = (currentFrameIndex + 1) % totalFrameCount;
             break;
-        case SDAnimatedImagePlaybackModeReverse: {
-            nextFrameIndex = (currentFrameIndex - 1) % totalFrameCount;
+        case SDAnimatedImagePlaybackModeReverse:
+            nextFrameIndex = currentFrameIndex == 0 ? (totalFrameCount - 1) : (currentFrameIndex - 1) % totalFrameCount;
+            break;
+        case SDAnimatedImagePlaybackModeBounce: {
+            if (currentFrameIndex == 0) {
+                self.shouldReverse = false;
+            } else if (currentFrameIndex == totalFrameCount - 1) {
+                self.shouldReverse = true;
+            }
+            nextFrameIndex = self.shouldReverse ? (currentFrameIndex - 1) : (currentFrameIndex + 1);
+            nextFrameIndex %= totalFrameCount;
+        }
+            break;
+        case SDAnimatedImagePlaybackModeReversedBounce: {
+            if (currentFrameIndex == 0) {
+                self.shouldReverse = false;
+            } else if (currentFrameIndex == totalFrameCount - 1) {
+                self.shouldReverse = true;
+            }
+            nextFrameIndex = self.shouldReverse ? (currentFrameIndex - 1) : (currentFrameIndex + 1);
+            nextFrameIndex %= totalFrameCount;
         }
             break;
         default:
             break;
     }
     
+    NSLog(@"current frame: %@ next frame: %@ total frame: %@", @(currentFrameIndex), @(nextFrameIndex), @(totalFrameCount));
     // Check if we need to display new frame firstly
     BOOL bufferFull = NO;
     if (self.needsDisplayWhenImageBecomesAvailable) {
