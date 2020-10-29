@@ -56,7 +56,7 @@ typedef NS_ENUM(NSUInteger, SDAnimatedImagePlaybackMode) {
 /// `< 0.0` is not supported currently and stop animation. (may support reverse playback in the future)
 @property (nonatomic, assign) double playbackRate;
 
-/// The animation playback mode. Default mode is SDAnimatedImagePlaybackModeNormal.
+/// Asynchronous setup animation playback mode. Default mode is SDAnimatedImagePlaybackModeNormal.
 @property (nonatomic, assign) SDAnimatedImagePlaybackMode playbackMode;
 
 /// Provide a max buffer size by bytes. This is used to adjust frame buffer count and can be useful when the decoding cost is expensive (such as Animated WebP software decoding). Default is 0.

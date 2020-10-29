@@ -54,7 +54,7 @@
  */
 @property (nonatomic, assign) double playbackRate;
 
-/// The animation playback mode. Default mode is SDAnimatedImagePlaybackModeNormal.
+/// Asynchronous setup animation playback mode. Default mode is SDAnimatedImagePlaybackModeNormal.
 @property (nonatomic, assign) SDAnimatedImagePlaybackMode playbackMode;
 
 /**
