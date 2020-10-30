@@ -20,6 +20,10 @@
  For AppKit: use `-setAnimates:` to control animating, `animates` to check animation state. This view is layer-backed.
  */
 @interface SDAnimatedImageView : UIImageView
+/**
+ The animation player.
+ */
+@property (nonatomic, strong, nonnull) SDAnimatedImagePlayer *player;
 
 /**
  Current display frame image. This value is KVO Compliance.

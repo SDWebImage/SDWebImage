@@ -143,15 +143,12 @@
     if (self.currentFrameIndex != 0) {
         return;
     }
-    if (self.playbackMode == SDAnimatedImagePlaybackModeNormal ||
-        self.playbackMode == SDAnimatedImagePlaybackModeBounce) {
-        self.currentFrameIndex = 0;
-    } else if (self.playbackMode == SDAnimatedImagePlaybackModeReverse ||
+    if (self.playbackMode == SDAnimatedImagePlaybackModeReverse ||
                self.playbackMode == SDAnimatedImagePlaybackModeReversedBounce) {
         self.currentFrameIndex = self.totalFrameCount - 1;
     }
     
-    if ([self.animatedProvider isKindOfClass:[UIImage class]]) {
+    if (!self.currentFrame && [self.animatedProvider isKindOfClass:[UIImage class]]) {
         UIImage *image = (UIImage *)self.animatedProvider;
         // Use the poster image if available
         #if SD_MAC
