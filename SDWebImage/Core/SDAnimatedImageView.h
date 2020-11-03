@@ -14,7 +14,7 @@
 
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.
- Call `setImage:` with `UIImage(NSImage)` which conform to `SDAnimatedImage` protocol will start animated image rendering. Call with normal UIImage(NSImage) will back to normal UIImageView(NSImageView) rendering
+ Call `setImage:` with `UIImage(NSImage)` which conforms to `SDAnimatedImage` protocol will start animated image rendering. Call with normal UIImage(NSImage) will back to normal UIImageView(NSImageView) rendering
  For UIKit: use `-startAnimating`, `-stopAnimating` to control animating. `isAnimating` to check animation state.
  For AppKit: use `-setAnimates:` to control animating, `animates` to check animation state. This view is layer-backed.
  */
@@ -82,7 +82,7 @@
 @property (nonatomic, assign) BOOL resetFrameIndexWhenStopped;
 
 /**
- If the image has more than one frame, set this value to `YES` will automatically
+ If the image which conforms to `SDAnimatedImage` protocol has more than one frame, set this value to `YES` will automatically
  play/stop the animation when the view become visible/invisible.
  Default is YES.
  */

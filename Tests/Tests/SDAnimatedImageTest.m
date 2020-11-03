@@ -602,6 +602,26 @@ static BOOL _isCalled;
     expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
+#if SD_UIKIT
+- (void)test31AnimatedImageViewSetAnimationImages {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    expect(imageView.animationImages).notTo.beNil();
+}
+
+- (void)test32AnimatedImageViewNotStopPlayingAnimationImagesWhenHidden {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    [self.window addSubview:imageView];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    [imageView startAnimating];
+    expect(imageView.animating).beTruthy();
+    imageView.hidden = YES;
+    expect(imageView.animating).beTruthy();
+}
+#endif
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
