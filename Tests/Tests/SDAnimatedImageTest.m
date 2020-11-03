@@ -602,6 +602,143 @@ static BOOL _isCalled;
     expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
+- (void)test31AnimatedImagePlaybackModeReverse {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeReverse;
+
+    __block NSUInteger i = player.totalFrameCount - 1;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        i--;
+        if (index == 0) {
+            [expectation fulfill];
+        }
+    }];
+    
+    [player startPlaying];
+    
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test31AnimatedImagePlaybackModeBounce {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback bounce mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeBounce;
+
+    __block NSInteger i = 0;
+    __block BOOL flag = false;
+    __block NSUInteger cnt = 0;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        
+        if (index >= player.totalFrameCount - 1) {
+            cnt++;
+            flag = true;
+        } else if (cnt != 0 && index == 0) {
+            cnt++;
+            flag = false;
+        }
+        
+        if (!flag) {
+            i++;
+        } else {
+            i--;
+        }
+
+        if (cnt > 3) {
+            [expectation fulfill];
+        }
+    }];
+    
+    [player startPlaying];
+    
+    [self waitForExpectationsWithTimeout:14 handler:^(NSError * _Nullable error) {
+        expect(error).to.beNil();
+    }];
+}
+
+- (void)test32AnimatedImagePlaybackModeReversedBounce{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse bounce mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeReversedBounce;
+
+    __block NSInteger i = player.totalFrameCount - 1;
+    __block BOOL flag = false;
+    __block NSUInteger cnt = 0;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        
+        if (cnt != 0 && index >= player.totalFrameCount - 1) {
+            cnt++;
+            flag = false;
+        } else if (index == 0) {
+            cnt++;
+            flag = true;
+        }
+        
+        if (flag) {
+            i++;
+        } else {
+            i--;
+        }
+
+        if (cnt > 3) {
+            [expectation fulfill];
+        }
+    }];
+    [player startPlaying];
+    
+    [self waitForExpectationsWithTimeout:14 handler:^(NSError * _Nullable error) {
+        expect(error).to.beNil();
+    }];
+}
+
+
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
