@@ -26,6 +26,7 @@
     SDAnimatedImagePlaybackMode _playbackMode;
 }
 
+@property (nonatomic, strong, readwrite) SDAnimatedImagePlayer *player;
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
 @property (nonatomic, assign, readwrite) NSUInteger currentFrameIndex;
 @property (nonatomic, assign, readwrite) NSUInteger currentLoopCount;

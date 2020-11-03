@@ -21,9 +21,11 @@
  */
 @interface SDAnimatedImageView : UIImageView
 /**
- The animation player.
+ The internal animation player.
+ This property is only used for advanced usage, like inspecting/debugging animation status, control progressive loading, complicated animation frame index control, etc.
+ @warning Pay attention if you directly update the player's property like `totalFrameCount`, `totalLoopCount`, the same property on `SDAnimatedImageView` may not get synced.
  */
-@property (nonatomic, strong, nonnull) SDAnimatedImagePlayer *player;
+@property (nonatomic, strong, readonly, nullable) SDAnimatedImagePlayer *player;
 
 /**
  Current display frame image. This value is KVO Compliance.
