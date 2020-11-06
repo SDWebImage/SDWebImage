@@ -182,6 +182,10 @@
             } else {
                 self.currentLoopCount = loopCount;
             }
+            
+            if (self.animationLoopCompletion) {
+                self.animationLoopCompletion(loopCount, self.player.totalLoopCount);
+            }
         };
         
         // Ensure disabled highlighting; it's not supported (see `-setHighlighted:`).

@@ -94,6 +94,12 @@
  @note This is useful for some cases, for example, always specify NSDefaultRunLoopMode, if you want to pause the animation when user scroll (for Mac user, drag the mouse or touchpad)
  */
 @property (nonatomic, copy, nonnull) NSRunLoopMode runLoopMode;
+
+/**
+ You can handle every animation loop completion.
+ @note totalLoopCount 0 means infinite loop.
+ */
+@property (nonatomic, copy, nullable) void (^animationLoopCompletion)(NSUInteger currentLoopCount, NSUInteger totalLoopCount);
 @end
 
 #endif
