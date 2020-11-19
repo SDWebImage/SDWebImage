@@ -378,7 +378,11 @@ static id<SDImageLoader> _defaultImageLoader;
     BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);
     shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
     shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
-    shouldDownload &= [imageLoader canRequestImageForURL:url];
+    if ([imageLoader respondsToSelector:@selector(canRequestImageForURL:options:context:)]) {
+        shouldDownload &= [imageLoader canRequestImageForURL:url options:options context:context];
+    } else {
+        shouldDownload &= [imageLoader canRequestImageForURL:url];
+    }
     if (shouldDownload) {
         if (cachedImage && options & SDWebImageRefreshCached) {
             // If image was found in the cache but SDWebImageRefreshCached is provided, notify about the cached image
@@ -631,7 +635,11 @@ static id<SDImageLoader> _defaultImageLoader;
     if ([self.delegate respondsToSelector:@selector(imageManager:shouldBlockFailedURL:withError:)]) {
         shouldBlockFailedURL = [self.delegate imageManager:self shouldBlockFailedURL:url withError:error];
     } else {
-        shouldBlockFailedURL = [imageLoader shouldBlockFailedURLWithURL:url error:error];
+        if ([imageLoader respondsToSelector:@selector(shouldBlockFailedURLWithURL:error:options:context:)]) {
+            shouldBlockFailedURL = [imageLoader shouldBlockFailedURLWithURL:url error:error options:options context:context];
+        } else {
+            shouldBlockFailedURL = [imageLoader shouldBlockFailedURLWithURL:url error:error];
+        }
     }
     
     return shouldBlockFailedURL;
