@@ -561,6 +561,10 @@ didReceiveResponse:(NSURLResponse *)response
 @implementation SDWebImageDownloader (SDImageLoader)
 
 - (BOOL)canRequestImageForURL:(NSURL *)url {
+    return [self canRequestImageForURL:url options:0 context:nil];
+}
+
+- (BOOL)canRequestImageForURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
     if (!url) {
         return NO;
     }
@@ -596,6 +600,10 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 - (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
+    return [self shouldBlockFailedURLWithURL:url error:error options:0 context:nil];
+}
+
+- (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
     BOOL shouldBlockFailedURL;
     // Filter the error domain and check error codes
     if ([error.domain isEqualToString:SDWebImageErrorDomain]) {
