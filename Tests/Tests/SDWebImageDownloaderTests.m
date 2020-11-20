@@ -622,13 +622,10 @@
     SDWebImageDownloaderDecryptor *decryptor = [SDWebImageDownloaderDecryptor decryptorWithBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
         if (@available(iOS 13, macOS 10.15, tvOS 13, *)) {
             return [data decompressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:nil];
-        } else if (@available (iOS 9, macOS 10.11, tvOS 9, *)) {
+        } else {
             NSMutableData *decodedData = [NSMutableData dataWithLength:10 * data.length];
             compression_decode_buffer((uint8_t *)decodedData.bytes, decodedData.length, data.bytes, data.length, nil, COMPRESSION_ZLIB);
             return [decodedData copy];
-        } else {
-            // iOS 8 does not have built-in Zlib support, just mock the data
-            return base64PNGData;
         }
     }];
     // Note this is not a Zip Archive, just PNG raw buffer data using zlib compression

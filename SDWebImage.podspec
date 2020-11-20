@@ -2,8 +2,8 @@ Pod::Spec.new do |s|
   s.name = 'SDWebImage'
   s.version = '5.9.5'
 
-  s.osx.deployment_target = '10.10'
-  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.11'
+  s.ios.deployment_target = '9.0'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
 
@@ -37,9 +37,9 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MapKit' do |mk|
-    mk.osx.deployment_target = '10.10'
-    mk.ios.deployment_target = '8.0'
-    mk.tvos.deployment_target = '9.2'
+    mk.osx.deployment_target = '10.11'
+    mk.ios.deployment_target = '9.0'
+    mk.tvos.deployment_target = '9.0'
     mk.source_files = 'SDWebImageMapKit/MapKit/*.{h,m}'
     mk.framework = 'MapKit'
     mk.dependency 'SDWebImage/Core'

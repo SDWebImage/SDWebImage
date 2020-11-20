@@ -176,7 +176,7 @@ GCC_WARN_UNUSED_VARIABLE = YES
 HEADER_SEARCH_PATHS = $(inherited)
 
 // Code will load on this and later versions of iOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
-IPHONEOS_DEPLOYMENT_TARGET = 8.0
+IPHONEOS_DEPLOYMENT_TARGET = 9.0
 
 // This is a list of paths to be added to the `runpath` search path list for the image being created. At runtime, `dyld` uses the `runpath` when searching for dylibs whose load path begins with `@rpath/`. 
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
@@ -185,7 +185,7 @@ LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/
 LIBRARY_SEARCH_PATHS = $(inherited)
 
 // Code will load on this and later versions of macOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
-MACOSX_DEPLOYMENT_TARGET = 10.10
+MACOSX_DEPLOYMENT_TARGET = 10.11
 
 // Options defined in this setting are passed to invocations of the linker.
 OTHER_LDFLAGS = -ObjC
