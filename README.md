@@ -295,6 +295,9 @@ It's also recommend to use the module import syntax, available for CocoaPods(ena
 At this point your workspace should build without error. If you are having problem, post to the Issue and the
 community can help you solve it.
 
+## Data Collection Practices
+As required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
+
 ## Author
 - [Olivier Poitrey](https://github.com/rs)
 

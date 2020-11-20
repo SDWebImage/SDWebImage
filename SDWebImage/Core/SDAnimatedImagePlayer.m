@@ -13,6 +13,7 @@
 #import "SDInternalMacros.h"
 
 @interface SDAnimatedImagePlayer () {
+    SD_LOCK_DECLARE(_lock);
     NSRunLoopMode _runLoopMode;
 }
 
@@ -27,7 +28,6 @@
 @property (nonatomic, assign) BOOL shouldReverse;
 @property (nonatomic, assign) NSUInteger maxBufferCount;
 @property (nonatomic, strong) NSOperationQueue *fetchQueue;
-@property (nonatomic, strong) dispatch_semaphore_t lock;
 @property (nonatomic, strong) SDDisplayLink *displayLink;
 
 @end
@@ -47,6 +47,7 @@
         self.totalLoopCount = provider.animatedImageLoopCount;
         self.animatedProvider = provider;
         self.playbackRate = 1.0;
+        SD_LOCK_INIT(_lock);
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -71,7 +72,7 @@
     [_fetchQueue cancelAllOperations];
     [_fetchQueue addOperationWithBlock:^{
         NSNumber *currentFrameIndex = @(self.currentFrameIndex);
-        SD_LOCK(self.lock);
+        SD_LOCK(self->_lock);
         NSArray *keys = self.frameBuffer.allKeys;
         // only keep the next frame for later rendering
         for (NSNumber * key in keys) {
@@ -79,7 +80,7 @@
                 [self.frameBuffer removeObjectForKey:key];
             }
         }
-        SD_UNLOCK(self.lock);
+        SD_UNLOCK(self->_lock);
     }];
 }
 
@@ -97,13 +98,6 @@
         _frameBuffer = [NSMutableDictionary dictionary];
     }
     return _frameBuffer;
-}
-
-- (dispatch_semaphore_t)lock {
-    if (!_lock) {
-        _lock = dispatch_semaphore_create(1);
-    }
-    return _lock;
 }
 
 - (SDDisplayLink *)displayLink {
@@ -158,9 +152,9 @@
         #endif
         if (posterFrame) {
             self.currentFrame = posterFrame;
-            SD_LOCK(self.lock);
+            SD_LOCK(self->_lock);
             self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
-            SD_UNLOCK(self.lock);
+            SD_UNLOCK(self->_lock);
             [self handleFrameChange];
         }
     }
@@ -178,9 +172,9 @@
 }
 
 - (void)clearFrameBuffer {
-    SD_LOCK(self.lock);
+    SD_LOCK(_lock);
     [_frameBuffer removeAllObjects];
-    SD_UNLOCK(self.lock);
+    SD_UNLOCK(_lock);
 }
 
 #pragma mark - Animation Control
@@ -266,13 +260,13 @@
     BOOL bufferFull = NO;
     if (self.needsDisplayWhenImageBecomesAvailable) {
         UIImage *currentFrame;
-        SD_LOCK(self.lock);
+        SD_LOCK(_lock);
         currentFrame = self.frameBuffer[@(currentFrameIndex)];
-        SD_UNLOCK(self.lock);
+        SD_UNLOCK(_lock);
         
         // Update the current frame
         if (currentFrame) {
-            SD_LOCK(self.lock);
+            SD_LOCK(_lock);
             // Remove the frame buffer if need
             if (self.frameBuffer.count > self.maxBufferCount) {
                 self.frameBuffer[@(currentFrameIndex)] = nil;
@@ -281,7 +275,7 @@
             if (self.frameBuffer.count == totalFrameCount) {
                 bufferFull = YES;
             }
-            SD_UNLOCK(self.lock);
+            SD_UNLOCK(_lock);
             
             // Update the current frame immediately
             self.currentFrame = currentFrame;
@@ -342,9 +336,9 @@
     // Or, most cases, the decode speed is faster than render speed, we fetch next frame
     NSUInteger fetchFrameIndex = self.bufferMiss? currentFrameIndex : nextFrameIndex;
     UIImage *fetchFrame;
-    SD_LOCK(self.lock);
+    SD_LOCK(_lock);
     fetchFrame = self.bufferMiss? nil : self.frameBuffer[@(nextFrameIndex)];
-    SD_UNLOCK(self.lock);
+    SD_UNLOCK(_lock);
     
     if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
@@ -359,9 +353,9 @@
 
             BOOL isAnimating = self.displayLink.isRunning;
             if (isAnimating) {
-                SD_LOCK(self.lock);
+                SD_LOCK(self->_lock);
                 self.frameBuffer[@(fetchFrameIndex)] = frame;
-                SD_UNLOCK(self.lock);
+                SD_UNLOCK(self->_lock);
             }
         }];
         [self.fetchQueue addOperation:operation];

@@ -655,7 +655,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         return nil;
     }
     image.sd_imageFormat = self.class.imageFormat;
-    image.sd_isDecoded = YES;;
+    image.sd_isDecoded = YES;
     return image;
 }
 

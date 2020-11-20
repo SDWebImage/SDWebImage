@@ -1,3 +1,9 @@
+## [5.9.5 - 5.9 Patch, on Nov 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.5)
+See [all tickets marked for the 5.9.5 release](https://github.com/SDWebImage/SDWebImage/milestone/81)
+
+### Fixes
+- Add animationImages support when using SDAnimatedImageView #3113
+
 ## [5.9.4 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.4)
 See [all tickets marked for the 5.9.4 release](https://github.com/SDWebImage/SDWebImage/milestone/80)
 

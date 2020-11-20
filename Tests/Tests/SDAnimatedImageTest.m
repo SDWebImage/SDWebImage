@@ -602,7 +602,27 @@ static BOOL _isCalled;
     expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
-- (void)test30AnimatedImagePlaybackModeReverse {
+#if SD_UIKIT
+- (void)test31AnimatedImageViewSetAnimationImages {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    expect(imageView.animationImages).notTo.beNil();
+}
+
+- (void)test32AnimatedImageViewNotStopPlayingAnimationImagesWhenHidden {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    [self.window addSubview:imageView];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    [imageView startAnimating];
+    expect(imageView.animating).beTruthy();
+    imageView.hidden = YES;
+    expect(imageView.animating).beTruthy();
+}
+#endif
+
+- (void)test33AnimatedImagePlaybackModeReverse {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -636,7 +656,7 @@ static BOOL _isCalled;
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test31AnimatedImagePlaybackModeBounce {
+- (void)test34AnimatedImagePlaybackModeBounce {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback bounce mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -687,7 +707,7 @@ static BOOL _isCalled;
     }];
 }
 
-- (void)test32AnimatedImagePlaybackModeReversedBounce{
+- (void)test35AnimatedImagePlaybackModeReversedBounce{
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse bounce mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -736,8 +756,6 @@ static BOOL _isCalled;
         expect(error).to.beNil();
     }];
 }
-
-
 
 #pragma mark - Helper
 - (UIWindow *)window {

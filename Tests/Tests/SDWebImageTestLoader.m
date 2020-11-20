@@ -26,6 +26,10 @@
 }
 
 - (BOOL)canRequestImageForURL:(NSURL *)url {
+    return [self canRequestImageForURL:url options:0 context:nil];
+}
+
+- (BOOL)canRequestImageForURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
     return YES;
 }
 
@@ -60,6 +64,10 @@
 }
 
 - (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
+    return [self shouldBlockFailedURLWithURL:url error:error options:0 context:nil];
+}
+
+- (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
     return NO;
 }
 
