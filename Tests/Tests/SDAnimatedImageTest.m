@@ -640,14 +640,15 @@ static BOOL _isCalled;
     __weak SDAnimatedImagePlayer *player = imageView.player;
     player.playbackMode = SDAnimatedImagePlaybackModeReverse;
 
-    __block NSUInteger i = player.totalFrameCount - 1;
+    __block NSInteger i = player.totalFrameCount - 1;
     [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
         expect(index).equal(i);
         expect(frame).notTo.beNil();
-        i--;
         if (index == 0) {
             [expectation fulfill];
+            return;
         }
+        i--;
     }];
     
     [player startPlaying];
