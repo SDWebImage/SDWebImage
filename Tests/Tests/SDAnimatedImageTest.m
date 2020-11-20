@@ -657,8 +657,7 @@ static BOOL _isCalled;
     
     [player startPlaying];
     
-    
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
 - (void)test34AnimatedImagePlaybackModeBounce {
@@ -711,9 +710,7 @@ static BOOL _isCalled;
     
     [player startPlaying];
     
-    [self waitForExpectationsWithTimeout:14 handler:^(NSError * _Nullable error) {
-        expect(error).to.beNil();
-    }];
+    [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
 - (void)test35AnimatedImagePlaybackModeReversedBounce{
@@ -765,9 +762,7 @@ static BOOL _isCalled;
     }];
     [player startPlaying];
     
-    [self waitForExpectationsWithTimeout:14 handler:^(NSError * _Nullable error) {
-        expect(error).to.beNil();
-    }];
+    [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
 #pragma mark - Helper
