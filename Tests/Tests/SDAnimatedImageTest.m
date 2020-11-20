@@ -641,11 +641,15 @@ static BOOL _isCalled;
     player.playbackMode = SDAnimatedImagePlaybackModeReverse;
 
     __block NSInteger i = player.totalFrameCount - 1;
+    __weak typeof(imageView) wimageView = imageView;
     [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
         expect(index).equal(i);
         expect(frame).notTo.beNil();
         if (index == 0) {
             [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
             return;
         }
         i--;
@@ -678,6 +682,7 @@ static BOOL _isCalled;
     __block NSInteger i = 0;
     __block BOOL flag = false;
     __block NSUInteger cnt = 0;
+    __weak typeof(imageView) wimageView = imageView;
     [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
         expect(index).equal(i);
         expect(frame).notTo.beNil();
@@ -698,6 +703,9 @@ static BOOL _isCalled;
 
         if (cnt > 3) {
             [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
         }
     }];
     
@@ -729,6 +737,7 @@ static BOOL _isCalled;
     __block NSInteger i = player.totalFrameCount - 1;
     __block BOOL flag = false;
     __block NSUInteger cnt = 0;
+    __weak typeof(imageView) wimageView = imageView;
     [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
         expect(index).equal(i);
         expect(frame).notTo.beNil();
@@ -749,6 +758,9 @@ static BOOL _isCalled;
 
         if (cnt > 3) {
             [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
         }
     }];
     [player startPlaying];
