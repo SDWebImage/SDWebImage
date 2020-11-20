@@ -341,7 +341,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  * @return The image for the given key, or nil if not found.
  */
-- (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context;;
+- (nullable UIImage *)imageFromCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context;
 
 #pragma mark - Remove Ops
 
