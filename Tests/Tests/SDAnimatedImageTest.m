@@ -602,7 +602,7 @@ static BOOL _isCalled;
     expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
-- (void)test31AnimatedImagePlaybackModeReverse {
+- (void)test30AnimatedImagePlaybackModeReverse {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];

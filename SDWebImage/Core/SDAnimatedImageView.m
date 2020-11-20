@@ -248,6 +248,9 @@
 }
 
 - (SDAnimatedImagePlaybackMode)playbackMode {
+    if (!_initFinished) {
+        return SDAnimatedImagePlaybackModeNormal; // Default mode is normal
+    }
     return _playbackMode;
 }
 
