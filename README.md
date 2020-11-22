@@ -93,14 +93,15 @@ You can use those directly, or create similar components of your own, by using t
 
 ## Requirements
 
-- iOS 8.0 or later
+- iOS 9.0 or later
 - tvOS 9.0 or later
 - watchOS 2.0 or later
-- macOS 10.10 or later (10.15 for Catalyst)
-- Xcode 10.0 or later
+- macOS 10.11 or later (10.15 for Catalyst)
+- Xcode 11.0 or later
 
 #### Backwards compatibility
 
+- For iOS 8, macOS 10.10 or Xcode < 11, use [any 5.x version up to 5.9.5](https://github.com/SDWebImage/SDWebImage/releases/tag/5.9.5)
 - For iOS 7, macOS 10.9 or Xcode < 8, use [any 4.x version up to 4.4.6](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
 - For macOS 10.8, use [any 4.x version up to 4.3.0](https://github.com/SDWebImage/SDWebImage/releases/tag/4.3.0)
 - For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/SDWebImage/SDWebImage/tag/3.7.6)

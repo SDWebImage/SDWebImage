@@ -63,7 +63,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
@@ -130,7 +130,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
@@ -145,7 +145,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         } else {
             // progressive updates
         }
@@ -161,7 +161,7 @@
         if (!image && !data && error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
@@ -227,7 +227,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     
@@ -243,7 +243,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
@@ -256,7 +256,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         }
     }];
     [self waitForExpectationsWithCommonTimeout];
@@ -353,6 +353,8 @@
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (allProgressCount > 0) {
             [expectation fulfill];
+            allProgressCount = 0;
+            return;
         } else {
             XCTFail(@"Progress callback more than once");
         }
@@ -370,7 +372,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         } else {
             // progressive updates
         }
@@ -385,7 +387,7 @@
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {
-            XCTFail(@"Something went wrong");
+            XCTFail(@"Something went wrong: %@", error.description);
         } else {
             // progressive updates
         }
@@ -422,7 +424,7 @@
                                            if (image && data && !error && finished) {
                                                [expectation fulfill];
                                            } else {
-                                               XCTFail(@"Something went wrong");
+                                               XCTFail(@"Something went wrong: %@", error.description);
                                            }
                                        }];
     expect(token2).toNot.beNil();
@@ -464,7 +466,7 @@
                                                [expectation fulfill];
                                            } else {
                                                NSLog(@"image = %@, data = %@, error = %@", image, data, error);
-                                               XCTFail(@"Something went wrong");
+                                               XCTFail(@"Something went wrong: %@", error.description);
                                            }
                                        }];
     expect(token2).toNot.beNil();
@@ -622,13 +624,10 @@
     SDWebImageDownloaderDecryptor *decryptor = [SDWebImageDownloaderDecryptor decryptorWithBlock:^NSData * _Nullable(NSData * _Nonnull data, NSURLResponse * _Nullable response) {
         if (@available(iOS 13, macOS 10.15, tvOS 13, *)) {
             return [data decompressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:nil];
-        } else if (@available (iOS 9, macOS 10.11, tvOS 9, *)) {
+        } else {
             NSMutableData *decodedData = [NSMutableData dataWithLength:10 * data.length];
             compression_decode_buffer((uint8_t *)decodedData.bytes, decodedData.length, data.bytes, data.length, nil, COMPRESSION_ZLIB);
             return [decodedData copy];
-        } else {
-            // iOS 8 does not have built-in Zlib support, just mock the data
-            return base64PNGData;
         }
     }];
     // Note this is not a Zip Archive, just PNG raw buffer data using zlib compression
