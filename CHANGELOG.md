@@ -1,3 +1,20 @@
+## [5.10.0 - iOS 9+/Xcode 11+, on Nov 22nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.0)
+See [all tickets marked for the 5.10.0 release](https://github.com/SDWebImage/SDWebImage/milestone/82)
+
+### Project
+- Bumped the min deployment target version to iOS 9, macOS 10.11. Bumped the min Xcode version to Xcode 11 #3130 
+- This effect the downstream dependencies like [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder), you may update them to the latest version at the same time.
+
+### Features
+#### Animated Image
+- Add animation playback mode for SDAnimatedImageView/Player, including reverse, bounce and reversed bounce #3115 
+
+#### Custom Loader
+- Added the options and context arg for Image Loader custom protocol, this can be used for advanced user to grab and check for context for current loading URL to process the logic #3129 
+
+#### Performance
+- Replace all current dispatch_semaphore usage into the os_unfair_lock, use OSSpinLock for lower firmware #3128 
+
 ## [5.9.5 - 5.9 Patch, on Nov 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.5)
 See [all tickets marked for the 5.9.5 release](https://github.com/SDWebImage/SDWebImage/milestone/81)
 

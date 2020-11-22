@@ -239,7 +239,7 @@ Podfile example:
 pod 'SDWebImage/MapKit'
 ```
 
-### Installation with Carthage (iOS 8+)
+### Installation with Carthage
 
 [Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and is less invasive than CocoaPods.
 
