@@ -53,22 +53,6 @@
 }
 #endif
 
-- (void)testMKAnnotationViewSetImageWithURL {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"MKAnnotationView setImageWithURL"];
-    
-    MKAnnotationView *annotationView = [[MKAnnotationView alloc] init];
-    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
-    [annotationView sd_setImageWithURL:originalImageURL
-                             completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-                                 expect(image).toNot.beNil();
-                                 expect(error).to.beNil();
-                                 expect(originalImageURL).to.equal(imageURL);
-                                 expect(annotationView.image).to.equal(image);
-                                 [expectation fulfill];
-                             }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-
 #if SD_UIKIT
 - (void)testUIButtonSetImageWithURLNormalState {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIButton setImageWithURL normalState"];
