@@ -700,7 +700,7 @@ static BOOL _isCalled;
             i--;
         }
 
-        if (cnt > 3) {
+        if (cnt >= 2) {
             [expectation fulfill];
             // Stop Animation to avoid extra callback
             [wimageView.player stopPlaying];
@@ -753,7 +753,7 @@ static BOOL _isCalled;
             i--;
         }
 
-        if (cnt > 3) {
+        if (cnt >= 2) {
             [expectation fulfill];
             // Stop Animation to avoid extra callback
             [wimageView.player stopPlaying];
