@@ -34,7 +34,7 @@
  @param key A string identifying the data. If nil, just return NO.
  @return Whether the key is in cache.
  */
-- (BOOL)containsDataForKey:(nonnull NSString *)key;
+- (BOOL)containsDataForKey:(nonnull NSString *)key NS_SWIFT_NAME(containsData(key:));
 
 /**
  Returns the data associated with a given key.
@@ -43,7 +43,7 @@
  @param key A string identifying the data. If nil, just return nil.
  @return The value associated with key, or nil if no value is associated with key.
  */
-- (nullable NSData *)dataForKey:(nonnull NSString *)key;
+- (nullable NSData *)dataForKey:(nonnull NSString *)key NS_SWIFT_NAME(data(key:));
 
 /**
  Sets the value of the specified key in the cache.
@@ -52,7 +52,7 @@
  @param data The data to be stored in the cache.
  @param key    The key with which to associate the value. If nil, this method has no effect.
  */
-- (void)setData:(nullable NSData *)data forKey:(nonnull NSString *)key;
+- (void)setData:(nullable NSData *)data forKey:(nonnull NSString *)key NS_SWIFT_NAME(setData(data:key:));
 
 /**
  Returns the extended data associated with a given key.
@@ -61,7 +61,7 @@
  @param key A string identifying the data. If nil, just return nil.
  @return The value associated with key, or nil if no value is associated with key.
  */
-- (nullable NSData *)extendedDataForKey:(nonnull NSString *)key;
+- (nullable NSData *)extendedDataForKey:(nonnull NSString *)key NS_SWIFT_NAME(extendedData(key:));
 
 /**
  Set extended data with a given key.
@@ -72,7 +72,7 @@
  @param extendedData The extended data (pass nil to remove).
  @param key The key with which to associate the value. If nil, this method has no effect.
 */
-- (void)setExtendedData:(nullable NSData *)extendedData forKey:(nonnull NSString *)key;
+- (void)setExtendedData:(nullable NSData *)extendedData forKey:(nonnull NSString *)key NS_SWIFT_NAME(setExtendedData(data:key:));
 
 /**
  Removes the value of the specified key in the cache.
@@ -80,7 +80,7 @@
  
  @param key The key identifying the value to be removed. If nil, this method has no effect.
  */
-- (void)removeDataForKey:(nonnull NSString *)key;
+- (void)removeDataForKey:(nonnull NSString *)key NS_SWIFT_NAME(removeData(key:));
 
 /**
  Empties the cache.
@@ -99,7 +99,7 @@
  @param key A string identifying the value
  @return The cache path for key. Or nil if the key can not associate to a path
  */
-- (nullable NSString *)cachePathForKey:(nonnull NSString *)key;
+- (nullable NSString *)cachePathForKey:(nonnull NSString *)key NS_SWIFT_NAME(cachePath(key:));
 
 /**
  Returns the number of data in this cache.
@@ -140,6 +140,6 @@
  @param srcPath old location of cache directory
  @param dstPath new location of cache directory
  */
-- (void)moveCacheDirectoryFromPath:(nonnull NSString *)srcPath toPath:(nonnull NSString *)dstPath;
+- (void)moveCacheDirectoryFromPath:(nonnull NSString *)srcPath toPath:(nonnull NSString *)dstPath NS_SWIFT_NAME(moveCacheDirectory(from:to:));
 
 @end
