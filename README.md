@@ -37,8 +37,9 @@ This library provides an async image downloader with cache support. For convenie
 
 ## Supported Image Formats
 
-- Image formats supported by Apple system (JPEG, PNG, TIFF, HEIC, ...), including GIF/APNG/HEIC animation
-- WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project). Note iOS 14/macOS 11.0 supports built-in WebP decoding (no encoding).
+- Image formats supported by Apple system (JPEG, PNG, TIFF, BMP, ...), including [GIF](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#gif-coder)/[APNG](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#apng-coder) animated image
+- HEIC format from iOS 11/macOS 10.13, including animated HEIC from iOS 13/macOS 10.15 via [SDWebImageHEICCoder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#heic-coder). For lower firmware, use coder plugin [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder)
+- WebP format from iOS 14/macOS 11.0 via [SDWebImageAWebPCoder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#awebp-coder). For lower firmware, use coder plugin [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder)
 - Support extendable coder plugins for new image formats like BPG, AVIF. And vector format like PDF, SVG. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
 
 ## Additional modules and Ecosystem
