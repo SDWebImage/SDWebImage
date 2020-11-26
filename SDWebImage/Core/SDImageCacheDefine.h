@@ -138,6 +138,6 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonn
  @param completionBlock A block executed after the operation is finished
  */
 - (void)clearWithCacheType:(SDImageCacheType)cacheType
-                completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(clear(withType:completion:));
+                completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(clear(with:completion:));
 
 @end
