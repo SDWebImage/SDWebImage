@@ -163,7 +163,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  */
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(sotre(image:key:completion:));
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(store(image:key:completion:));
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -177,7 +177,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
 - (void)storeImage:(nullable UIImage *)image
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(sotre(image:key:disk:completion:));
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(store(image:key:disk:completion:));
 
 /**
  * Asynchronously store an image into memory and disk cache at the given key.
@@ -195,7 +195,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(sotre(image:data:key:disk:completion:));
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock NS_SWIFT_NAME(store(image:data:key:disk:completion:));
 
 /**
  * Synchronously store image into memory cache at the given key.
