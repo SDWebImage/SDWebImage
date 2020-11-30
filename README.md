@@ -166,7 +166,7 @@ This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnima
 
 The `SDAnimatedImageView` supports the familiar image loading category methods, works like drop-in replacement for `UIImageView/NSImageView`.
 
-Don't have UIView (like WatchKit or CALayer)? you can still use `SDAnimatedPlayer` the player engine for advanced playback and rendering.
+Don't have `UIView` (like `WatchKit` or `CALayer`)? you can still use `SDAnimatedPlayer` the player engine for advanced playback and rendering.
 
 See [Animated Image](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
 
@@ -209,9 +209,9 @@ pod 'SDWebImage', '~> 5.0'
 
 ##### Swift and static framework
 
-Swift project previously have to use `use_frameworks!` to make all Pods into dynamic framework to let CocoaPods works.
+Swift project previously had to use `use_frameworks!` to make all Pods into dynamic framework to let CocoaPods work.
 
-However, start with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to build both Objective-C && Swift code into static framework. You can use modular headers to use SDWebImage as static framework, without the need of `use_frameworks!`:
+However, starting with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to build both Objective-C && Swift code into static framework. You can use modular headers to use SDWebImage as static framework, without the need of `use_frameworks!`:
 
 ```
 platform :ios, '8.0'
