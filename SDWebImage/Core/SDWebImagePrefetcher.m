@@ -22,7 +22,7 @@
     unsigned long _totalCount;
     
     // Used to ensure NSPointerArray thread safe
-    SD_LOCK_DECLARE(_prefetchOperationsLock)
+    SD_LOCK_DECLARE(_prefetchOperationsLock);
     SD_LOCK_DECLARE(_loadOperationsLock);
 }
 
