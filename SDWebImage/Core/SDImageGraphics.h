@@ -19,9 +19,9 @@
 /// Returns the current graphics context.
 FOUNDATION_EXPORT CGContextRef __nullable SDGraphicsGetCurrentContext(void) CF_RETURNS_NOT_RETAINED;
 /// Creates a bitmap-based graphics context and makes it the current context.
-FOUNDATION_EXPORT void SDGraphicsBeginImageContext(CGSize size) NS_SWIFT_NAME(SDGraphicsBeginImageContext(size:));
+FOUNDATION_EXPORT void SDGraphicsBeginImageContext(CGSize size);
 /// Creates a bitmap-based graphics context with the specified options.
-FOUNDATION_EXPORT void SDGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGFloat scale) NS_SWIFT_NAME(SDGraphicsBeginImageContext(size:opaque:scale:));
+FOUNDATION_EXPORT void SDGraphicsBeginImageContextWithOptions(CGSize size, BOOL opaque, CGFloat scale);
 /// Removes the current bitmap-based graphics context from the top of the stack.
 FOUNDATION_EXPORT void SDGraphicsEndImageContext(void);
 /// Returns an image based on the contents of the current bitmap-based graphics context.
