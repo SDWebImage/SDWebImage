@@ -79,7 +79,7 @@ typedef NS_ENUM(NSUInteger, SDAnimatedImagePlaybackMode) {
 /// The provider can be any protocol implementation, like `SDAnimatedImage` or `SDImageGIFCoder`, etc.
 /// @note This provider can represent mutable content, like progressive animated loading. But you need to update the frame count by yourself
 /// @param provider The animated provider
-+ (nullable instancetype)playerWithProvider:(nonnull id<SDAnimatedImageProvider>)provider NS_SWIFT_NAME(init(player:));
++ (nullable instancetype)playerWithProvider:(nonnull id<SDAnimatedImageProvider>)provider NS_SWIFT_NAME(init(provider:));
 
 /// The handler block when current frame and index changed.
 @property (nonatomic, copy, nullable) void (^animationFrameHandler)(NSUInteger index, UIImage * _Nonnull frame);
