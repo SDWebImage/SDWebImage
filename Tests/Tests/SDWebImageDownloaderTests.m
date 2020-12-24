@@ -685,6 +685,24 @@
     }];
 }
 
+- (void)test27DownloadShouldCallbackWhenURLSessionRunning {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader should callback when URLSessionTask running"];
+    
+    NSURL *url = [NSURL URLWithString: @"https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/SDWebImage_logo.png"];
+    
+    [SDImageCache.sharedImageCache clearWithCacheType:SDImageCacheTypeAll completion:^{
+        SDWebImageCombinedOperation *operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            [expectation fulfill];
+        }];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [operation cancel];
+        });
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
