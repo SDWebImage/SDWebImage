@@ -689,9 +689,12 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader should callback when URLSessionTask running"];
     
     NSURL *url = [NSURL URLWithString: @"https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/SDWebImage_logo.png"];
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     
-    [SDImageCache.sharedImageCache clearWithCacheType:SDImageCacheTypeAll completion:^{
+    [SDImageCache.sharedImageCache removeImageForKey:key withCompletion:^{
         SDWebImageCombinedOperation *operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(error.domain).equal(SDWebImageErrorDomain);
+            expect(error.code).equal(SDWebImageErrorCancelled);
             [expectation fulfill];
         }];
         
