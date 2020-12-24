@@ -232,18 +232,23 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 - (void)cancelInternal {
     if (self.isFinished) return;
     [super cancel];
+    
+    __block typeof(self) strongSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
+    });
+    
+    // As we cancelled the task, its callback won't be called and thus won't
+    // maintain the isFinished and isExecuting flags.
+    if (self.isExecuting) self.executing = NO;
+    if (!self.isFinished) self.finished = YES;
 
     if (self.dataTask) {
         [self.dataTask cancel];
-        __block typeof(self) strongSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:strongSelf];
-        });
-
-        // As we cancelled the task, its callback won't be called and thus won't
-        // maintain the isFinished and isExecuting flags.
-        if (self.isExecuting) self.executing = NO;
-        if (!self.isFinished) self.finished = YES;
+        self.dataTask = nil;
+        // Provide the same userInfo as URLSession if network is cancelled
+        // Don't relay on `URLSession:task:didCompleteWithError:` delegate callback because it may delay
+        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSLocalizedDescriptionKey: @"cancelled", NSURLErrorFailingURLErrorKey: self.request.URL, NSURLErrorFailingURLStringErrorKey: self.request.URL.absoluteString}]];
     } else {
         // Operation cancelled by user during sending the request
         [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}]];
