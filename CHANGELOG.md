@@ -1,3 +1,10 @@
+## [5.10.1 - 5.10 Patch, on Dec 25th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.1)
+See [all tickets marked for the 5.10.1 release](https://github.com/SDWebImage/SDWebImage/milestone/83)
+
+### Fixes
+- Fix the race condition when user cancel the network loading will not trigger the completion block #3142
+- Fix deprecation warnings for OSSpinLock #3137
+
 ## [5.10.0 - iOS 9+/Xcode 11+, on Nov 22nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.0)
 See [all tickets marked for the 5.10.0 release](https://github.com/SDWebImage/SDWebImage/milestone/82)
 
