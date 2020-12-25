@@ -244,15 +244,13 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     if (!self.isFinished) self.finished = YES;
 
     if (self.dataTask) {
+        // Cancel the URLSession, `URLSession:task:didCompleteWithError:` delegate callback will be ignored
         [self.dataTask cancel];
         self.dataTask = nil;
-        // Provide the same userInfo as URLSession if network is cancelled
-        // Don't relay on `URLSession:task:didCompleteWithError:` delegate callback because it may delay
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:@{NSLocalizedDescriptionKey: @"cancelled", NSURLErrorFailingURLErrorKey: self.request.URL, NSURLErrorFailingURLStringErrorKey: self.request.URL.absoluteString}]];
-    } else {
-        // Operation cancelled by user during sending the request
-        [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}]];
     }
+    
+    // Operation cancelled by user during sending the request
+    [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}]];
 
     [self reset];
 }

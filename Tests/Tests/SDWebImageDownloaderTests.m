@@ -174,6 +174,7 @@
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
                                           expect(error).notTo.beNil();
+                                          expect(error.domain).equal(SDWebImageErrorDomain);
                                           expect(error.code).equal(SDWebImageErrorCancelled);
                                       }];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
