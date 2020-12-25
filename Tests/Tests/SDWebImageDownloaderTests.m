@@ -174,6 +174,7 @@
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
                                           expect(error).notTo.beNil();
+                                          expect(error.domain).equal(SDWebImageErrorDomain);
                                           expect(error.code).equal(SDWebImageErrorCancelled);
                                       }];
     expect([SDWebImageDownloader sharedDownloader].currentDownloadCount).to.equal(1);
@@ -683,6 +684,27 @@
     [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
         [downloader invalidateSessionAndCancel:YES];
     }];
+}
+
+- (void)test27DownloadShouldCallbackWhenURLSessionRunning {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader should callback when URLSessionTask running"];
+    
+    NSURL *url = [NSURL URLWithString: @"https://raw.githubusercontent.com/SDWebImage/SDWebImage/master/SDWebImage_logo.png"];
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    
+    [SDImageCache.sharedImageCache removeImageForKey:key withCompletion:^{
+        SDWebImageCombinedOperation *operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(error.domain).equal(SDWebImageErrorDomain);
+            expect(error.code).equal(SDWebImageErrorCancelled);
+            [expectation fulfill];
+        }];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [operation cancel];
+        });
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 #pragma mark - SDWebImageLoader
