@@ -246,7 +246,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     }
     
     // NSOperation disallow setFinished=YES **before** operation's start method been called
-    // We check for the initialized status and only setFinished=YES for running status.
+    // We check for the initialized status, which is isExecuting == NO && isFinished = NO
+    // Ony update for non-intialized status, which is !(isExecuting == NO && isFinished = NO), or if (self.isExecuting || self.isFinished) {...}
     if (self.isExecuting || self.isFinished) {
         if (self.isExecuting) self.executing = NO;
         if (!self.isFinished) self.finished = YES;
