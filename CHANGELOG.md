@@ -1,3 +1,9 @@
+## [5.10.2 - 5.10 Patch, on Dec 29th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.2)
+See [all tickets marked for the 5.10.2 release](https://github.com/SDWebImage/SDWebImage/milestone/85)
+
+### Fixes
+- Fix the case that we setFinished=YES before NSOperation started. This may cause exception from Foundation #3146
+
 ## [5.10.1 - 5.10 Patch, on Dec 25th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.1)
 See [all tickets marked for the 5.10.1 release](https://github.com/SDWebImage/SDWebImage/milestone/83)
 
