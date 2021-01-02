@@ -312,8 +312,7 @@
 }
 
 - (void)test22DoNotDecodeImageWhenApplicationWillTerminate {
-    /// Just create SDImageCodersManager advance
-    [SDImageCodersManager sharedManager];
+    [[SDImageCodersManager sharedManager] addCoder:SDImageIOCoder.sharedCoder];
     XCTestExpectation *expectation = [self expectationWithDescription:@"doNotDecodeImageWhenApplicationWillTerminate"];
     NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"png"];
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];

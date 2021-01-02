@@ -16,7 +16,6 @@
 @interface SDImageCodersManager ()
 
 @property (nonatomic, strong, nonnull) NSMutableArray<id<SDImageCoder>> *imageCoders;
-@property (atomic, assign) BOOL willTerminated;
 
 @end
 
@@ -37,31 +36,9 @@
     if (self = [super init]) {
         // initialize with default coders
         _imageCoders = [NSMutableArray arrayWithArray:@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]]];
-        _willTerminated = NO;
-#if SD_UIKIT
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(applicationWillTerminate)
-                                                     name:UIApplicationWillTerminateNotification
-                                                   object:nil];
-
-#endif
-#if SD_MAC
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(applicationWillTerminate)
-                                                     name:NSApplicationWillTerminateNotification
-                                                   object:nil];
-#endif
         SD_LOCK_INIT(_codersLock);
     }
     return self;
-}
-
-- (void)applicationWillTerminate {
-    self.willTerminated = YES;
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (NSArray<id<SDImageCoder>> *)coders {
@@ -125,10 +102,6 @@
     if (!data) {
         return nil;
     }
-    BOOL terminated = self.willTerminated;
-    if (terminated) {
-        return nil;
-    }
     
     UIImage *image;
     NSArray<id<SDImageCoder>> *coders = self.coders;
@@ -144,10 +117,6 @@
 
 - (NSData *)encodedDataWithImage:(UIImage *)image format:(SDImageFormat)format options:(nullable SDImageCoderOptions *)options {
     if (!image) {
-        return nil;
-    }
-    BOOL terminated = self.willTerminated;
-    if (terminated) {
         return nil;
     }
     
