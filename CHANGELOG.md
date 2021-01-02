@@ -1,3 +1,46 @@
+## [5.10.2 - 5.10 Patch, on Dec 29th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.2)
+See [all tickets marked for the 5.10.2 release](https://github.com/SDWebImage/SDWebImage/milestone/85)
+
+### Fixes
+- Fix the case that we setFinished=YES before NSOperation started. This may cause exception from Foundation #3146
+
+## [5.10.1 - 5.10 Patch, on Dec 25th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.1)
+See [all tickets marked for the 5.10.1 release](https://github.com/SDWebImage/SDWebImage/milestone/83)
+
+### Fixes
+- Fix the race condition when user cancel the network loading will not trigger the completion block #3142
+- Fix deprecation warnings for OSSpinLock #3137
+
+## [5.10.0 - iOS 9+/Xcode 11+, on Nov 22nd, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.0)
+See [all tickets marked for the 5.10.0 release](https://github.com/SDWebImage/SDWebImage/milestone/82)
+
+### Project
+- Bumped the min deployment target version to iOS 9, macOS 10.11. Bumped the min Xcode version to Xcode 11 #3130 
+- This effect the downstream dependencies like [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder), you may update them to the latest version at the same time.
+
+### Features
+#### Animated Image
+- Add animation playback mode for SDAnimatedImageView/Player, including reverse, bounce and reversed bounce #3115 
+
+#### Custom Loader
+- Added the options and context arg for Image Loader custom protocol, this can be used for advanced user to grab and check for context for current loading URL to process the logic #3129 
+
+#### Performance
+- Replace all current dispatch_semaphore usage into the os_unfair_lock, use OSSpinLock for lower firmware #3128 
+
+## [5.9.5 - 5.9 Patch, on Nov 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.5)
+See [all tickets marked for the 5.9.5 release](https://github.com/SDWebImage/SDWebImage/milestone/81)
+
+### Fixes
+- Add animationImages support when using SDAnimatedImageView #3113
+
+## [5.9.4 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.4)
+See [all tickets marked for the 5.9.4 release](https://github.com/SDWebImage/SDWebImage/milestone/80)
+
+### Fixes
+- Fix race condition when using transitions that are canceled and then switched to a new transition or load operation #3108 #3107
+- Fixed the store cache type was specified to `SDImageCacheTypeDisk ` that no pictures were obtained when the disk had pictures #3110
+
 ## [5.9.3 - 5.9 Patch, on Oct 13th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.9.3)
 See [all tickets marked for the 5.9.3 release](https://github.com/SDWebImage/SDWebImage/milestone/79)
 

@@ -34,7 +34,7 @@ Doing this helps prioritize the most common problems and requests.
 
 When reporting issues, please include the following:
 
-- The platform name and version (e.g. iOS 8.1)
+- The platform name and version (e.g. iOS 10.0)
 - The library version
 - The integration method (e.g. CocoaPods/Carthage/manually)
 - The version of Xcode you're using
