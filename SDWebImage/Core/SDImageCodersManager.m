@@ -16,11 +16,11 @@
 @interface SDImageCodersManager ()
 
 @property (nonatomic, strong, nonnull) dispatch_semaphore_t codersLock;
+@property (atomic, assign) BOOL willTerminated;
 
 @end
 
-@implementation SDImageCodersManager
-{
+@implementation SDImageCodersManager {
     NSMutableArray<id<SDImageCoder>> *_imageCoders;
 }
 
@@ -38,20 +38,40 @@
         // initialize with default coders
         _imageCoders = [NSMutableArray arrayWithArray:@[[SDImageIOCoder sharedCoder], [SDImageGIFCoder sharedCoder], [SDImageAPNGCoder sharedCoder]]];
         _codersLock = dispatch_semaphore_create(1);
+        _willTerminated = NO;
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillTerminate)
+                                                     name:UIApplicationWillTerminateNotification
+                                                   object:nil];
+
+#endif
+#if SD_MAC
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillTerminate)
+                                                     name:NSApplicationWillTerminateNotification
+                                                   object:nil];
+#endif
     }
     return self;
 }
 
-- (NSArray<id<SDImageCoder>> *)coders
-{
+- (void)applicationWillTerminate {
+    self.willTerminated = YES;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (NSArray<id<SDImageCoder>> *)coders {
     SD_LOCK(self.codersLock);
     NSArray<id<SDImageCoder>> *coders = [_imageCoders copy];
     SD_UNLOCK(self.codersLock);
     return coders;
 }
 
-- (void)setCoders:(NSArray<id<SDImageCoder>> *)coders
-{
+- (void)setCoders:(NSArray<id<SDImageCoder>> *)coders {
     SD_LOCK(self.codersLock);
     [_imageCoders removeAllObjects];
     if (coders.count) {
@@ -105,6 +125,11 @@
     if (!data) {
         return nil;
     }
+    BOOL terminated = self.willTerminated;
+    if (terminated) {
+        return nil;
+    }
+    
     UIImage *image;
     NSArray<id<SDImageCoder>> *coders = self.coders;
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
@@ -121,6 +146,11 @@
     if (!image) {
         return nil;
     }
+    BOOL terminated = self.willTerminated;
+    if (terminated) {
+        return nil;
+    }
+    
     NSArray<id<SDImageCoder>> *coders = self.coders;
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canEncodeToFormat:format]) {
