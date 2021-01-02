@@ -37,8 +37,9 @@ This library provides an async image downloader with cache support. For convenie
 
 ## Supported Image Formats
 
-- Image formats supported by Apple system (JPEG, PNG, TIFF, HEIC, ...), including GIF/APNG/HEIC animation
-- WebP format, including animated WebP (use the [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder) project). Note iOS 14/macOS 11.0 supports built-in WebP decoding (no encoding).
+- Image formats supported by Apple system (JPEG, PNG, TIFF, BMP, ...), including [GIF](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#gif-coder)/[APNG](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#apng-coder) animated image
+- HEIC format from iOS 11/macOS 10.13, including animated HEIC from iOS 13/macOS 10.15 via [SDWebImageHEICCoder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#heic-coder). For lower firmware, use coder plugin [SDWebImageHEIFCoder](https://github.com/SDWebImage/SDWebImageHEIFCoder)
+- WebP format from iOS 14/macOS 11.0 via [SDWebImageAWebPCoder](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#awebp-coder). For lower firmware, use coder plugin [SDWebImageWebPCoder](https://github.com/SDWebImage/SDWebImageWebPCoder)
 - Support extendable coder plugins for new image formats like BPG, AVIF. And vector format like PDF, SVG. See all the list in [Image coder plugin List](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
 
 ## Additional modules and Ecosystem
@@ -93,14 +94,15 @@ You can use those directly, or create similar components of your own, by using t
 
 ## Requirements
 
-- iOS 8.0 or later
+- iOS 9.0 or later
 - tvOS 9.0 or later
 - watchOS 2.0 or later
-- macOS 10.10 or later (10.15 for Catalyst)
-- Xcode 10.0 or later
+- macOS 10.11 or later (10.15 for Catalyst)
+- Xcode 11.0 or later
 
 #### Backwards compatibility
 
+- For iOS 8, macOS 10.10 or Xcode < 11, use [any 5.x version up to 5.9.5](https://github.com/SDWebImage/SDWebImage/releases/tag/5.9.5)
 - For iOS 7, macOS 10.9 or Xcode < 8, use [any 4.x version up to 4.4.6](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
 - For macOS 10.8, use [any 4.x version up to 4.3.0](https://github.com/SDWebImage/SDWebImage/releases/tag/4.3.0)
 - For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/SDWebImage/SDWebImage/tag/3.7.6)
@@ -164,7 +166,7 @@ This animated image solution is available for `iOS`/`tvOS`/`macOS`. The `SDAnima
 
 The `SDAnimatedImageView` supports the familiar image loading category methods, works like drop-in replacement for `UIImageView/NSImageView`.
 
-Don't have UIView (like WatchKit or CALayer)? you can still use `SDAnimatedPlayer` the player engine for advanced playback and rendering.
+Don't have `UIView` (like `WatchKit` or `CALayer`)? you can still use `SDAnimatedPlayer` the player engine for advanced playback and rendering.
 
 See [Animated Image](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#animated-image-50) for more detailed information.
 
@@ -207,9 +209,9 @@ pod 'SDWebImage', '~> 5.0'
 
 ##### Swift and static framework
 
-Swift project previously have to use `use_frameworks!` to make all Pods into dynamic framework to let CocoaPods works.
+Swift project previously had to use `use_frameworks!` to make all Pods into dynamic framework to let CocoaPods work.
 
-However, start with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to build both Objective-C && Swift code into static framework. You can use modular headers to use SDWebImage as static framework, without the need of `use_frameworks!`:
+However, starting with `CocoaPods 1.5.0+` (with `Xcode 9+`), which supports to build both Objective-C && Swift code into static framework. You can use modular headers to use SDWebImage as static framework, without the need of `use_frameworks!`:
 
 ```
 platform :ios, '8.0'
@@ -238,7 +240,7 @@ Podfile example:
 pod 'SDWebImage/MapKit'
 ```
 
-### Installation with Carthage (iOS 8+)
+### Installation with Carthage
 
 [Carthage](https://github.com/Carthage/Carthage) is a lightweight dependency manager for Swift and Objective-C. It leverages CocoaTouch modules and is less invasive than CocoaPods.
 
@@ -294,6 +296,9 @@ It's also recommend to use the module import syntax, available for CocoaPods(ena
 
 At this point your workspace should build without error. If you are having problem, post to the Issue and the
 community can help you solve it.
+
+## Data Collection Practices
+As required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
 
 ## Author
 - [Olivier Poitrey](https://github.com/rs)

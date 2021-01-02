@@ -632,6 +632,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [[SDImageCache sharedImageCache] storeImageDataToDisk:data forKey:kTestImageKeyJPEG];
     
     [[SDImageCachesManager sharedManager] queryImageForKey:kTestImageKeyJPEG options:0 context:@{SDWebImageContextStoreCacheType : @(SDImageCacheTypeDisk)} cacheType:SDImageCacheTypeAll completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(image).notTo.beNil();
         expect([[SDImageCache sharedImageCache] imageFromMemoryCacheForKey:kTestImageKeyJPEG]).beNil();
         [expectation fulfill];
     }];

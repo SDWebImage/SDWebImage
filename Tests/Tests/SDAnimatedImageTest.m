@@ -602,6 +602,169 @@ static BOOL _isCalled;
     expect(SDImageAPNGTestCoder.isCalled).equal(YES);
 }
 
+#if SD_UIKIT
+- (void)test31AnimatedImageViewSetAnimationImages {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    expect(imageView.animationImages).notTo.beNil();
+}
+
+- (void)test32AnimatedImageViewNotStopPlayingAnimationImagesWhenHidden {
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    [self.window addSubview:imageView];
+    UIImage *image = [[UIImage alloc] initWithData:[self testJPEGData]];
+    imageView.animationImages = @[image];
+    [imageView startAnimating];
+    expect(imageView.animating).beTruthy();
+    imageView.hidden = YES;
+    expect(imageView.animating).beTruthy();
+}
+#endif
+
+- (void)test33AnimatedImagePlaybackModeReverse {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeReverse;
+
+    __block NSInteger i = player.totalFrameCount - 1;
+    __weak typeof(imageView) wimageView = imageView;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        if (index == 0) {
+            [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
+            return;
+        }
+        i--;
+    }];
+    
+    [player startPlaying];
+    
+    [self waitForExpectationsWithTimeout:15 handler:nil];
+}
+
+- (void)test34AnimatedImagePlaybackModeBounce {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback bounce mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeBounce;
+
+    __block NSInteger i = 0;
+    __block BOOL flag = false;
+    __block NSUInteger cnt = 0;
+    __weak typeof(imageView) wimageView = imageView;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        
+        if (index >= player.totalFrameCount - 1) {
+            cnt++;
+            flag = true;
+        } else if (cnt != 0 && index == 0) {
+            cnt++;
+            flag = false;
+        }
+        
+        if (!flag) {
+            i++;
+        } else {
+            i--;
+        }
+
+        if (cnt >= 2) {
+            [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
+        }
+    }];
+    
+    [player startPlaying];
+    
+    [self waitForExpectationsWithTimeout:15 handler:nil];
+}
+
+- (void)test35AnimatedImagePlaybackModeReversedBounce{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse bounce mode"];
+    
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testAPNGPData]];
+    imageView.autoPlayAnimatedImage = NO;
+    imageView.image = image;
+    
+    __weak SDAnimatedImagePlayer *player = imageView.player;
+    player.playbackMode = SDAnimatedImagePlaybackModeReversedBounce;
+
+    __block NSInteger i = player.totalFrameCount - 1;
+    __block BOOL flag = false;
+    __block NSUInteger cnt = 0;
+    __weak typeof(imageView) wimageView = imageView;
+    [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
+        expect(index).equal(i);
+        expect(frame).notTo.beNil();
+        
+        if (cnt != 0 && index >= player.totalFrameCount - 1) {
+            cnt++;
+            flag = false;
+        } else if (index == 0) {
+            cnt++;
+            flag = true;
+        }
+        
+        if (flag) {
+            i++;
+        } else {
+            i--;
+        }
+
+        if (cnt >= 2) {
+            [expectation fulfill];
+            // Stop Animation to avoid extra callback
+            [wimageView.player stopPlaying];
+            [wimageView removeFromSuperview];
+        }
+    }];
+    [player startPlaying];
+    
+    [self waitForExpectationsWithTimeout:15 handler:nil];
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
