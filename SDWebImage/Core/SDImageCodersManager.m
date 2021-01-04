@@ -102,7 +102,6 @@
     if (!data) {
         return nil;
     }
-    
     UIImage *image;
     NSArray<id<SDImageCoder>> *coders = self.coders;
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
@@ -119,7 +118,6 @@
     if (!image) {
         return nil;
     }
-    
     NSArray<id<SDImageCoder>> *coders = self.coders;
     for (id<SDImageCoder> coder in coders.reverseObjectEnumerator) {
         if ([coder canEncodeToFormat:format]) {

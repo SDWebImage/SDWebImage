@@ -29,8 +29,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 @implementation SDImageIOCoderFrame
 @end
 
-BOOL willTerminated_;
-NSLock *terminatedLock_;
+static BOOL willTerminated_;
+static NSLock *terminatedLock_;
 
 @implementation SDImageIOAnimatedCoder {
     size_t _width, _height;
@@ -186,17 +186,11 @@ NSLock *terminatedLock_;
 }
 
 + (NSTimeInterval)frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
-    NSTimeInterval frameDuration = 0.1;
-    
-    // Earily return when application will be terminated.
-    if (self.willTerminated) {
-        return frameDuration;
-    }
-    
     NSDictionary *options = @{
         (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
         (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
     };
+    NSTimeInterval frameDuration = 0.1;
     CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)options);
     if (!cfFrameProperties) {
         return frameDuration;
