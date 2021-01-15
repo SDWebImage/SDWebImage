@@ -361,7 +361,13 @@ static NSString * _defaultDiskCacheDirectory;
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context {
     NSData *data = [self diskImageDataForKey:key];
     UIImage *diskImage = [self diskImageForKey:key data:data options:options context:context];
-    if (diskImage && self.config.shouldCacheImagesInMemory) {
+    
+    BOOL shouldCacheToMomery = YES;
+    if (context[SDWebImageContextStoreCacheType]) {
+        SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+        shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+    }
+    if (diskImage && self.config.shouldCacheImagesInMemory && shouldCacheToMomery) {
         NSUInteger cost = diskImage.sd_memoryCost;
         [self.memoryCache setObject:diskImage forKey:key cost:cost];
     }
