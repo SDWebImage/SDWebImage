@@ -368,8 +368,9 @@
 
 - (void)test18ThatProgressiveGIFWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive GIF download"];
-    NSURL *imageURL = [NSURL URLWithString:kTestGIFURL];
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:imageURL options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+    //Local pictures avoid network congestion.
+    NSString *gifPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"1@2x" ofType:@"gif"];
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL fileURLWithPath:gifPath] options:SDWebImageDownloaderProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         if (image && data && !error && finished) {
             [expectation fulfill];
         } else if (finished) {

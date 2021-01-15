@@ -326,7 +326,8 @@ static BOOL _isCalled;
 - (void)test23AnimatedImageViewCategoryProgressive {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category progressive"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
+    //Local pictures avoid network congestion.
+    NSURL *testURL = [NSURL fileURLWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"1@2x" ofType:@"gif"]];
     [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:testURL.absoluteString];
     [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageProgressiveLoad progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {

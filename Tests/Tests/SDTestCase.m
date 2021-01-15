@@ -9,7 +9,7 @@
 
 #import "SDTestCase.h"
 
-const int64_t kAsyncTestTimeout = 5;
+const int64_t kAsyncTestTimeout = 15;
 const int64_t kMinDelayNanosecond = NSEC_PER_MSEC * 100; // 0.1s
 NSString *const kTestJPEGURL = @"http://via.placeholder.com/50x50.jpg";
 NSString *const kTestProgressiveJPEGURL = @"https://raw.githubusercontent.com/ibireme/YYImage/master/Demo/YYImageDemo/mew_progressive.jpg";
