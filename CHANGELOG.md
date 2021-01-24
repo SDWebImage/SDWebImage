@@ -1,3 +1,9 @@
+## [5.10.3 - 5.10 Patch, on Jan 24th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.10.3)
+See [all tickets marked for the 5.10.3 release](https://github.com/SDWebImage/SDWebImage/milestone/86)
+
+### Fixes
+- Fixed the store cache type was specified to `SDImageCacheTypeDisk ` that pictures shouldn't cache to memory. #3157
+
 ## [5.10.2 - 5.10 Patch, on Dec 29th, 2020](https://github.com/rs/SDWebImage/releases/tag/5.10.2)
 See [all tickets marked for the 5.10.2 release](https://github.com/SDWebImage/SDWebImage/milestone/85)
 
