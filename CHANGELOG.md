@@ -1,3 +1,9 @@
+## [5.10.4 - 5.10 Patch, on Feb 2nd, 2021](https://github.com/rs/SDWebImage/releases/tag/5.10.4)
+See [all tickets marked for the 5.10.4 release](https://github.com/SDWebImage/SDWebImage/milestone/87)
+
+### Performance
+- Don't unnecessarily copy image data in the Download Operation #3167
+
 ## [5.10.3 - 5.10 Patch, on Jan 24th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.10.3)
 See [all tickets marked for the 5.10.3 release](https://github.com/SDWebImage/SDWebImage/milestone/86)
 
