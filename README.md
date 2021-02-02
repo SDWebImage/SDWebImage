@@ -105,7 +105,7 @@ You can use those directly, or create similar components of your own, by using t
 - For iOS 8, macOS 10.10 or Xcode < 11, use [any 5.x version up to 5.9.5](https://github.com/SDWebImage/SDWebImage/releases/tag/5.9.5)
 - For iOS 7, macOS 10.9 or Xcode < 8, use [any 4.x version up to 4.4.6](https://github.com/SDWebImage/SDWebImage/releases/tag/4.4.6)
 - For macOS 10.8, use [any 4.x version up to 4.3.0](https://github.com/SDWebImage/SDWebImage/releases/tag/4.3.0)
-- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/SDWebImage/SDWebImage/tag/3.7.6)
+- For iOS 5 and 6, use [any 3.x version up to 3.7.6](https://github.com/SDWebImage/SDWebImage/releases/tag/3.7.6)
 - For iOS < 5.0, please use the last [2.0 version](https://github.com/SDWebImage/SDWebImage/tree/2.0-compat).
 
 ## Getting Started
