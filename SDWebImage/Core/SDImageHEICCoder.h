@@ -7,7 +7,7 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "SDImageIOAnimatedCoder.h"
+#import <SDWebImage/SDImageIOAnimatedCoder.h>
 
 /**
  This coder is used for HEIC (HEIF with HEVC container codec) image format.

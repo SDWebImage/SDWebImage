@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "NSData+ImageContentType.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/NSData+ImageContentType.h>
 
 /**
  UIImage category for convenient image format decoding/encoding.

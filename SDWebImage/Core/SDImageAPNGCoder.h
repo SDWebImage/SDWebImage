@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageIOAnimatedCoder.h"
+#import <SDWebImage/SDImageIOAnimatedCoder.h>
 
 /**
  Built in coder using ImageIO that supports APNG encoding/decoding

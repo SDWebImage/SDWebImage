@@ -6,12 +6,12 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 #if SD_UIKIT || SD_MAC
 
-#import "SDAnimatedImage.h"
-#import "SDAnimatedImagePlayer.h"
+#import <SDWebImage/SDAnimatedImage.h>
+#import <SDWebImage/SDAnimatedImagePlayer.h>
 
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.

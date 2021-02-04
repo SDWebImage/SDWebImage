@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /// Operation execution order
 typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {

@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 typedef void(^SDWebImageNoParamsBlock)(void);
 typedef NSString * SDWebImageContextOption NS_EXTENSIBLE_STRING_ENUM;

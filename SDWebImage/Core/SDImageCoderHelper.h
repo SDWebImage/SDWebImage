@@ -7,8 +7,8 @@
  */
 
 #import <ImageIO/ImageIO.h>
-#import "SDWebImageCompat.h"
-#import "SDImageFrame.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDImageFrame.h>
 
 /**
  Provide some common helper methods for building the image decoder/encoder.

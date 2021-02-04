@@ -6,7 +6,7 @@
 * file that was distributed with this source code.
 */
 
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /**
  These following class are provided to use `UIGraphicsImageRenderer` with polyfill, which allows write cross-platform(AppKit/UIKit) code and avoid runtime version check.

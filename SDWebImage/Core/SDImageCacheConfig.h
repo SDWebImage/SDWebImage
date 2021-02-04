@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /// Image Cache Expire Type
 typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {

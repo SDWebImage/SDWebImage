@@ -6,9 +6,9 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "SDWebImageDefine.h"
-#import "SDWebImageOperation.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageDefine.h>
+#import <SDWebImage/SDWebImageOperation.h>
 
 typedef void(^SDImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 typedef void(^SDImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);

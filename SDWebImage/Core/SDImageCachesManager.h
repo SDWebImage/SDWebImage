@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageCacheDefine.h"
+#import <SDWebImage/SDImageCacheDefine.h>
 
 /// Policy for cache operation
 typedef NS_ENUM(NSUInteger, SDImageCachesManagerOperationPolicy) {

@@ -8,7 +8,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /**
  You can use switch case like normal enum. It's also recommended to add a default case. You should not assume anything about the raw value.

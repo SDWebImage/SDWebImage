@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "SDWebImageOperation.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageOperation.h>
 
 /**
  These methods are used to support canceling for UIView image loading, it's designed to be used internal but not external.

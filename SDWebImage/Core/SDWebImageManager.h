@@ -6,14 +6,14 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "SDWebImageOperation.h"
-#import "SDImageCacheDefine.h"
-#import "SDImageLoader.h"
-#import "SDImageTransformer.h"
-#import "SDWebImageCacheKeyFilter.h"
-#import "SDWebImageCacheSerializer.h"
-#import "SDWebImageOptionsProcessor.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageOperation.h>
+#import <SDWebImage/SDImageCacheDefine.h>
+#import <SDWebImage/SDImageLoader.h>
+#import <SDWebImage/SDImageTransformer.h>
+#import <SDWebImage/SDWebImageCacheKeyFilter.h>
+#import <SDWebImage/SDWebImageCacheSerializer.h>
+#import <SDWebImage/SDWebImageOptionsProcessor.h>
 
 typedef void(^SDExternalCompletionBlock)(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL);
 

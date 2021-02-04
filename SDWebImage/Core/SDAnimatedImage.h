@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "SDImageCoder.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDImageCoder.h>
 
 
 /**

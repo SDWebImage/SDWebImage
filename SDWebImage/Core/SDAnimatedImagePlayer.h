@@ -7,8 +7,8 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
-#import "SDImageCoder.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDImageCoder.h>
 
 typedef NS_ENUM(NSUInteger, SDAnimatedImagePlaybackMode) {
     /**

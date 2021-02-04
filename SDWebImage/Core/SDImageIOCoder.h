@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageCoder.h"
+#import <SDWebImage/SDImageCoder.h>
 
 /**
  Built in coder that supports PNG, JPEG, TIFF, includes support for progressive decoding.

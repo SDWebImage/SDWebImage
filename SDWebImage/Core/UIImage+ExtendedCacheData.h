@@ -8,7 +8,7 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 @interface UIImage (ExtendedCacheData)
 

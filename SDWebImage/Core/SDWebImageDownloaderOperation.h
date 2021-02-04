@@ -7,8 +7,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageDownloader.h"
-#import "SDWebImageOperation.h"
+#import <SDWebImage/SDWebImageDownloader.h>
+#import <SDWebImage/SDWebImageOperation.h>
 
 /**
  Describes a downloader operation. If one wants to use a custom downloader op, it needs to inherit from `NSOperation` and conform to this protocol

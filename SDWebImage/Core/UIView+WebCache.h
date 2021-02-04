@@ -6,11 +6,11 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "SDWebImageDefine.h"
-#import "SDWebImageManager.h"
-#import "SDWebImageTransition.h"
-#import "SDWebImageIndicator.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageDefine.h>
+#import <SDWebImage/SDWebImageManager.h>
+#import <SDWebImage/SDWebImageTransition.h>
+#import <SDWebImage/SDWebImageIndicator.h>
 
 /**
  The value specify that the image progress unit count cannot be determined because the progressBlock is not been called.

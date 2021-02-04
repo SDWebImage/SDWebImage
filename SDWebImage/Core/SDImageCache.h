@@ -7,12 +7,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
-#import "SDWebImageDefine.h"
-#import "SDImageCacheConfig.h"
-#import "SDImageCacheDefine.h"
-#import "SDMemoryCache.h"
-#import "SDDiskCache.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageDefine.h>
+#import <SDWebImage/SDImageCacheConfig.h>
+#import <SDWebImage/SDImageCacheDefine.h>
+#import <SDWebImage/SDMemoryCache.h>
+#import <SDWebImage/SDDiskCache.h>
 
 /// Image Cache Options
 typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {

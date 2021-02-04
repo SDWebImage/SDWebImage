@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import "SDImageLoader.h"
+#import <SDWebImage/SDImageLoader.h>
 
 /**
  A loaders manager to manage multiple loaders

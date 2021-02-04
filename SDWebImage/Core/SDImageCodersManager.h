@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDImageCoder.h"
+#import <SDWebImage/SDImageCoder.h>
 
 /**
  Global object holding the array of coders, so that we avoid passing them from object to object.

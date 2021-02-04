@@ -7,14 +7,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
-#import "SDWebImageDefine.h"
-#import "SDWebImageOperation.h"
-#import "SDWebImageDownloaderConfig.h"
-#import "SDWebImageDownloaderRequestModifier.h"
-#import "SDWebImageDownloaderResponseModifier.h"
-#import "SDWebImageDownloaderDecryptor.h"
-#import "SDImageLoader.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/SDWebImageDefine.h>
+#import <SDWebImage/SDWebImageOperation.h>
+#import <SDWebImage/SDWebImageDownloaderConfig.h>
+#import <SDWebImage/SDWebImageDownloaderRequestModifier.h>
+#import <SDWebImage/SDWebImageDownloaderResponseModifier.h>
+#import <SDWebImage/SDWebImageDownloaderDecryptor.h>
+#import <SDWebImage/SDImageLoader.h>
 
 /// Downloader options
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {

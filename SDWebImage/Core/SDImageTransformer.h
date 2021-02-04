@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
-#import "UIImage+Transform.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/UIImage+Transform.h>
 
 /**
  Return the transformed cache key which applied with specify transformerKey.

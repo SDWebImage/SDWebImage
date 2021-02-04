@@ -7,8 +7,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
-#import "NSData+ImageContentType.h"
+#import <SDWebImage/SDWebImageCompat.h>
+#import <SDWebImage/NSData+ImageContentType.h>
 
 typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;

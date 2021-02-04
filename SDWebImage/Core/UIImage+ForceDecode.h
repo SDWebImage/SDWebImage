@@ -6,7 +6,7 @@
  * file that was distributed with this source code.
  */
 
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /**
  UIImage category about force decode feature (avoid Image/IO's lazy decoding during rendering behavior).

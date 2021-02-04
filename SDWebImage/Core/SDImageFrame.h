@@ -7,7 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SDWebImageCompat.h"
+#import <SDWebImage/SDWebImageCompat.h>
 
 /**
  This class is used for creating animated images via `animatedImageWithFrames` in `SDImageCoderHelper`.
