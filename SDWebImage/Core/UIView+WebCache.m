@@ -141,7 +141,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
-            SDWebImageNoParamsBlock callCompletedBlockClojure = ^{
+            SDWebImageNoParamsBlock callCompletedBlockClosure = ^{
                 if (!self) { return; }
                 if (!shouldNotSetImage) {
                     [self sd_setNeedsLayout];
@@ -155,7 +155,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             // OR
             // case 1b: we got no image and the SDWebImageDelayPlaceholder is not set
             if (shouldNotSetImage) {
-                dispatch_main_async_safe(callCompletedBlockClojure);
+                dispatch_main_async_safe(callCompletedBlockClosure);
                 return;
             }
             
@@ -206,7 +206,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #else
                 [self sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:cacheType imageURL:imageURL];
 #endif
-                callCompletedBlockClojure();
+                callCompletedBlockClosure();
             });
         }];
         [self sd_setImageLoadOperation:operation forKey:validOperationKey];
