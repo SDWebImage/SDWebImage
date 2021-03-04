@@ -9,6 +9,7 @@
 #import "SDWebImageCompat.h"
 #import "SDWebImageDefine.h"
 #import "SDWebImageOperation.h"
+#import "SDImageCoder.h"
 
 typedef void(^SDImageLoaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL);
 typedef void(^SDImageLoaderCompletedBlock)(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished);
@@ -49,6 +50,18 @@ FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Non
  @return The decoded progressive image for current image data load from the network
  */
 FOUNDATION_EXPORT UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, BOOL finished,  id<SDWebImageOperation> _Nonnull operation, SDWebImageOptions options, SDWebImageContext * _Nullable context);
+
+/**
+ This function get the progressive decoder for current loading operation. If no progressive decoding is happended or decoder is not able to construct, return nil.
+ @return The progressive decoder associated with the loading operation.
+ */
+FOUNDATION_EXPORT id<SDProgressiveImageCoder> _Nullable SDImageLoaderGetProgressiveCoder(id<SDWebImageOperation> _Nonnull operation);
+
+/**
+ This function set the progressive decoder for current loading operation. If no progressive decoding is happended, pass nil.
+ @param operation The loading operation to associate the progerssive decoder.
+ */
+FOUNDATION_EXPORT void SDImageLoaderSetProgressiveCoder(id<SDWebImageOperation> _Nonnull operation, id<SDProgressiveImageCoder> _Nullable progressiveCoder);
 
 #pragma mark - SDImageLoader
 

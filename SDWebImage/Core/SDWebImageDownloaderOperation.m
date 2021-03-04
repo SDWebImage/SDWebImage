@@ -11,6 +11,7 @@
 #import "SDInternalMacros.h"
 #import "SDWebImageDownloaderResponseModifier.h"
 #import "SDWebImageDownloaderDecryptor.h"
+#import "SDAnimatedImage.h"
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
@@ -262,6 +263,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 - (void)done {
     self.finished = YES;
     self.executing = NO;
+    SDImageLoaderSetProgressiveCoder(self, nil);
     [self reset];
 }
 
@@ -471,7 +473,14 @@ didReceiveResponse:(NSURLResponse *)response
                     // decode the image in coder queue, cancel all previous decoding process
                     [self.coderQueue cancelAllOperations];
                     [self.coderQueue addOperationWithBlock:^{
-                        UIImage *image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                        // check if we already use progressive decoding, use that to produce faster decoding
+                        id<SDProgressiveImageCoder> progressiveCoder = SDImageLoaderGetProgressiveCoder(self);
+                        UIImage *image;
+                        if (progressiveCoder) {
+                            image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, YES, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                        } else {
+                            image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                        }
                         CGSize imageSize = image.size;
                         if (imageSize.width == 0 || imageSize.height == 0) {
                             NSString *description = image == nil ? @"Downloaded image decode failed" : @"Downloaded image has 0 pixels";
