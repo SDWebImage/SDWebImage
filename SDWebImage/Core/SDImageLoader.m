@@ -202,8 +202,8 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
-        // mark the image as progressive (completionBlock one are not mark as progressive)
-        image.sd_isIncremental = YES;
+        // mark the image as progressive (completed one are not mark as progressive)
+        image.sd_isIncremental = !finished;
     }
     
     return image;

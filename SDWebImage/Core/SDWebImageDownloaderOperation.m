@@ -263,7 +263,6 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 - (void)done {
     self.finished = YES;
     self.executing = NO;
-    SDImageLoaderSetProgressiveCoder(self, nil);
     [self reset];
 }
 
@@ -388,7 +387,8 @@ didReceiveResponse:(NSURLResponse *)response
     
     // Using data decryptor will disable the progressive decoding, since there are no support for progressive decrypt
     BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.decryptor;
-    if (supportProgressive) {
+    // Progressive decoding Only decode partial image, full image in `URLSession:task:didCompleteWithError:`
+    if (supportProgressive && !finished) {
         // Get the image data
         NSData *imageData = [self.imageData copy];
         
@@ -396,7 +396,7 @@ didReceiveResponse:(NSURLResponse *)response
         if (self.coderQueue.operationCount == 0) {
             // NSOperation have autoreleasepool, don't need to create extra one
             [self.coderQueue addOperationWithBlock:^{
-                UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, finished, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, NO, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                 if (image) {
                     // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
                     
