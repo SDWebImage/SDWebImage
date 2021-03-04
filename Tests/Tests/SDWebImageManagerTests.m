@@ -269,6 +269,7 @@
         expect(image).notTo.beNil();
         expect(image.size).equal(CGSizeMake(1000, 1000));
         if (finished) {
+            expect(image.sd_isIncremental).beFalsy();
             [expectation fulfill];
         } else {
             expect(image.sd_isIncremental).beTruthy();
@@ -290,6 +291,7 @@
         expect(image.imageOrientation).equal(orientation);
 #endif
         if (finished) {
+            expect(image.sd_isIncremental).beFalsy();
             [expectation fulfill];
         } else {
             expect(image.sd_isIncremental).beTruthy();

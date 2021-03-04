@@ -707,6 +707,32 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test28ProgressiveDownloadShouldUseSameCoder  {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Progressive download should use the same coder for each animated image"];
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    
+    __block SDWebImageDownloadToken *token;
+    __block id<SDImageCoder> progressiveCoder;
+    token = [downloader downloadImageWithURL:[NSURL URLWithString:kTestGIFURL] options:SDWebImageDownloaderProgressiveLoad context:@{SDWebImageContextAnimatedImageClass : SDAnimatedImage.class} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).beNil();
+        expect([image isKindOfClass:SDAnimatedImage.class]).beTruthy();
+        id<SDImageCoder> coder = ((SDAnimatedImage *)image).animatedCoder;
+        if (!progressiveCoder) {
+            progressiveCoder = coder;
+        }
+        expect(progressiveCoder).equal(coder);
+        if (!finished) {
+            progressiveCoder = coder;
+        } else {
+            [expectation fulfill];
+        }
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader invalidateSessionAndCancel:YES];
+    }];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
