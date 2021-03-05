@@ -267,6 +267,18 @@ static id<SDImageLoader> _defaultImageLoader;
         queryCacheType = [context[SDWebImageContextQueryCacheType] integerValue];
     }
     
+    // Get the transformer
+    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
+    if (transformer) {
+        // Use standandalone cache for original image query
+        if ([context[SDWebImageContextOriginalImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
+            imageCache = context[SDWebImageContextOriginalImageCache];
+        }
+    }
+    
     // Check whether we should query cache
     BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
     if (shouldQueryCache) {
@@ -582,6 +594,17 @@ static id<SDImageLoader> _defaultImageLoader;
         imageCache = context[SDWebImageContextImageCache];
     } else {
         imageCache = self.imageCache;
+    }
+    // Get the transformer
+    id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
+    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        transformer = nil;
+    }
+    if (transformer) {
+        // Use standandalone cache for original image query
+        if ([context[SDWebImageContextOriginalImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
+            imageCache = context[SDWebImageContextOriginalImageCache];
+        }
     }
     BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     // Check whether we should wait the store cache finished. If not, callback immediately
