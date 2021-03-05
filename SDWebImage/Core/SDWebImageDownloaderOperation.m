@@ -11,7 +11,6 @@
 #import "SDInternalMacros.h"
 #import "SDWebImageDownloaderResponseModifier.h"
 #import "SDWebImageDownloaderDecryptor.h"
-#import "SDAnimatedImage.h"
 
 static NSString *const kProgressCallbackKey = @"progress";
 static NSString *const kCompletedCallbackKey = @"completed";
@@ -395,7 +394,12 @@ didReceiveResponse:(NSURLResponse *)response
         // keep maximum one progressive decode process during download
         if (self.coderQueue.operationCount == 0) {
             // NSOperation have autoreleasepool, don't need to create extra one
+            @weakify(self);
             [self.coderQueue addOperationWithBlock:^{
+                @strongify(self);
+                if (!self) {
+                    return;
+                }
                 UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, NO, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                 if (image) {
                     // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
@@ -472,7 +476,12 @@ didReceiveResponse:(NSURLResponse *)response
                 } else {
                     // decode the image in coder queue, cancel all previous decoding process
                     [self.coderQueue cancelAllOperations];
+                    @weakify(self);
                     [self.coderQueue addOperationWithBlock:^{
+                        @strongify(self);
+                        if (!self) {
+                            return;
+                        }
                         // check if we already use progressive decoding, use that to produce faster decoding
                         id<SDProgressiveImageCoder> progressiveCoder = SDImageLoaderGetProgressiveCoder(self);
                         UIImage *image;
