@@ -15,7 +15,19 @@
 #import "SDInternalMacros.h"
 #import "objc/runtime.h"
 
+SDWebImageContextOption const SDWebImageContextLoaderCachedImage = @"loaderCachedImage";
+
 static void * SDImageLoaderProgressiveCoderKey = &SDImageLoaderProgressiveCoderKey;
+
+id<SDProgressiveImageCoder> SDImageLoaderGetProgressiveCoder(id<SDWebImageOperation> operation) {
+    NSCParameterAssert(operation);
+    return objc_getAssociatedObject(operation, SDImageLoaderProgressiveCoderKey);
+}
+
+void SDImageLoaderSetProgressiveCoder(id<SDWebImageOperation> operation, id<SDProgressiveImageCoder> progressiveCoder) {
+    NSCParameterAssert(operation);
+    objc_setAssociatedObject(operation, SDImageLoaderProgressiveCoderKey, progressiveCoder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
 UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NSURL * _Nonnull imageURL, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     NSCParameterAssert(imageData);
@@ -136,7 +148,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
     
     // Grab the progressive image coder
-    id<SDProgressiveImageCoder> progressiveCoder = objc_getAssociatedObject(operation, SDImageLoaderProgressiveCoderKey);
+    id<SDProgressiveImageCoder> progressiveCoder = SDImageLoaderGetProgressiveCoder(operation);
     if (!progressiveCoder) {
         id<SDProgressiveImageCoder> imageCoder = context[SDWebImageContextImageCoder];
         // Check the progressive coder if provided
@@ -152,7 +164,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
                 }
             }
         }
-        objc_setAssociatedObject(operation, SDImageLoaderProgressiveCoderKey, progressiveCoder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        SDImageLoaderSetProgressiveCoder(operation, progressiveCoder);
     }
     // If we can't find any progressive coder, disable progressive download
     if (!progressiveCoder) {
@@ -190,11 +202,9 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
-        // mark the image as progressive (completionBlock one are not mark as progressive)
-        image.sd_isIncremental = YES;
+        // mark the image as progressive (completed one are not mark as progressive)
+        image.sd_isIncremental = !finished;
     }
     
     return image;
 }
-
-SDWebImageContextOption const SDWebImageContextLoaderCachedImage = @"loaderCachedImage";
