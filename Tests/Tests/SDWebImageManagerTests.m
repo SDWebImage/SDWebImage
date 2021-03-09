@@ -379,6 +379,44 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test16ThatTransformerUseDifferentCacheForOriginalAndTransformedImage {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer use different cache instance for original image and transformed image works"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/103x103.png"];
+    SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    NSString *originalKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    NSString *transformedKey = [SDWebImageManager.sharedManager cacheKeyForURL:url context:@{SDWebImageContextImageTransformer : transformer}];
+    
+    SDImageCache *transformerCache = [[SDImageCache alloc] initWithNamespace:@"TransformerCache"];
+    SDImageCache *originalCache = [[SDImageCache alloc] initWithNamespace:@"OriginalCache"];
+    
+    [[SDWebImageManager sharedManager] loadImageWithURL:url options:SDWebImageWaitStoreCache context:
+     @{SDWebImageContextImageTransformer : transformer,
+       SDWebImageContextOriginalImageCache : originalCache,
+       SDWebImageContextImageCache : transformerCache,
+       SDWebImageContextOriginalStoreCacheType: @(SDImageCacheTypeMemory),
+       SDWebImageContextStoreCacheType: @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        // Get the transformed image
+        expect(image).equal(transformer.testImage);
+        // Now, the original image is stored into originalCache
+        UIImage *originalImage = [originalCache imageFromMemoryCacheForKey:originalKey];
+        expect(originalImage.size).equal(CGSizeMake(103, 103));
+        expect([transformerCache imageFromMemoryCacheForKey:originalKey]).beNil();
+        
+        // The transformed image is stored into transformerCache
+        UIImage *transformedImage = [transformerCache imageFromMemoryCacheForKey:transformedKey];
+        expect(image).equal(transformedImage);
+        expect([originalCache imageFromMemoryCacheForKey:transformedKey]).beNil();
+        
+        [originalCache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+        [transformerCache clearWithCacheType:SDImageCacheTypeAll completion:nil];
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 10 handler:nil];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
