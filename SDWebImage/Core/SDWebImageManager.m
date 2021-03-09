@@ -321,19 +321,10 @@ static id<SDImageLoader> _defaultImageLoader;
     // Check whether we should query original cache
     BOOL shouldQueryOriginalCache = (originalQueryCacheType != SDImageCacheTypeNone);
     if (shouldQueryOriginalCache) {
-        // Change originContext to mutable
-        SDWebImageMutableContext * __block originContext;
-        if (context) {
-            originContext = [context mutableCopy];
-        } else {
-            originContext = [NSMutableDictionary dictionary];
-        }
-        
-        // Disable transformer for cache key generation
-        id<SDImageTransformer> transformer = originContext[SDWebImageContextImageTransformer];
-        originContext[SDWebImageContextImageTransformer] = [NSNull null];
-        
-        NSString *key = [self cacheKeyForURL:url context:originContext];
+        // Disable transformer for original cache key generation
+        SDWebImageMutableContext *tempContext = [context mutableCopy];
+        tempContext[SDWebImageContextImageTransformer] = [NSNull null];
+        NSString *key = [self cacheKeyForURL:url context:tempContext];
         @weakify(operation);
         operation.cacheOperation = [imageCache queryImageForKey:key options:options context:context cacheType:originalQueryCacheType completion:^(UIImage * _Nullable cachedImage, NSData * _Nullable cachedData, SDImageCacheType cacheType) {
             @strongify(operation);
@@ -474,11 +465,10 @@ static id<SDImageLoader> _defaultImageLoader;
     if (context[SDWebImageContextOriginalStoreCacheType]) {
         originalStoreCacheType = [context[SDWebImageContextOriginalStoreCacheType] integerValue];
     }
-    // origin cache key
-    SDWebImageMutableContext *originContext = [context mutableCopy];
-    // disable transformer for cache key generation
-    originContext[SDWebImageContextImageTransformer] = [NSNull null];
-    NSString *key = [self cacheKeyForURL:url context:originContext];
+    // Disable transformer for original cache key generation
+    SDWebImageMutableContext *tempContext = [context mutableCopy];
+    tempContext[SDWebImageContextImageTransformer] = [NSNull null];
+    NSString *key = [self cacheKeyForURL:url context:tempContext];
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
     if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
         transformer = nil;
