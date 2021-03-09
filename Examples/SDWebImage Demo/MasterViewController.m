@@ -113,7 +113,7 @@
     __weak SDAnimatedImageView *imageView = cell.customImageView;
     [imageView sd_setImageWithURL:[NSURL URLWithString:self.objects[indexPath.row]]
                  placeholderImage:placeholderImage
-                          options:indexPath.row == 0 ? SDWebImageRefreshCached : 0
+                          options:0
                           context:@{SDWebImageContextImageThumbnailPixelSize : @(CGSizeMake(180, 120))}
                          progress:nil
                         completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
