@@ -288,6 +288,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOrigin
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOriginalStoreCacheType;
 
 /**
+ A id<SDImageCache> instance which conforms to `SDImageCache` protocol. It's used to control the cache for original image when using the transformer. If you provide one, the original image (full size image) will query and write from that cache instance instead, the transformed image will query and write from the default `SDWebImageContextImageCache` instead. (id<SDImageCache>)
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOriginalImageCache;
+
+/**
  A Class object which the instance is a `UIImage/NSImage` subclass and adopt `SDAnimatedImage` protocol. We will call `initWithData:scale:options:` to create the instance (or `initWithAnimatedCoder:scale:` when using progressive download) . If the instance create failed, fallback to normal `UIImage/NSImage`.
  This can be used to improve animated images rendering performance (especially memory usage on big animated images) with `SDAnimatedImageView` (Class).
  */
