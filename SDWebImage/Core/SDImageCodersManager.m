@@ -41,16 +41,14 @@
     return self;
 }
 
-- (NSArray<id<SDImageCoder>> *)coders
-{
+- (NSArray<id<SDImageCoder>> *)coders {
     SD_LOCK(_codersLock);
     NSArray<id<SDImageCoder>> *coders = [_imageCoders copy];
     SD_UNLOCK(_codersLock);
     return coders;
 }
 
-- (void)setCoders:(NSArray<id<SDImageCoder>> *)coders
-{
+- (void)setCoders:(NSArray<id<SDImageCoder>> *)coders {
     SD_LOCK(_codersLock);
     [_imageCoders removeAllObjects];
     if (coders.count) {
