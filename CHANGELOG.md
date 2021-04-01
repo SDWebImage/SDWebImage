@@ -1,3 +1,18 @@
+## [5.11.0 - Performance, on Apr 1st, 2021](https://github.com/rs/SDWebImage/releases/tag/5.11.0)
+See [all tickets marked for the 5.11.0 release](https://github.com/SDWebImage/SDWebImage/milestone/84)
+
+### Features
+#### Transformer
+- Added the new context option SDWebImageContextOriginalImageCache, which control the cache instance used for original full size image query/write when using transformer #3184 
+
+### Performance
+- Increase progressive decoding performance by using the progressive decoder's result instead of re-decoding the full image data #3182 
+- Avoid the strong retain during download decoding, this can make the download operation fast to destroy and reduce memory peak, especially in progressive decoding #3183 
+
+### Fixes
+- Don't encode/decode image when app will terminated #3149 
+
+
 ## [5.10.4 - 5.10 Patch, on Feb 2nd, 2021](https://github.com/rs/SDWebImage/releases/tag/5.10.4)
 See [all tickets marked for the 5.10.4 release](https://github.com/SDWebImage/SDWebImage/milestone/87)
 
