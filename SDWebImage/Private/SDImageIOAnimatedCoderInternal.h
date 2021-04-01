@@ -24,5 +24,6 @@
 + (nullable UIImage *)createFrameAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(nullable NSDictionary *)options;
 + (BOOL)canEncodeToFormat:(SDImageFormat)format;
 + (BOOL)canDecodeFromFormat:(SDImageFormat)format;
++ (BOOL)willTerminate;
 
 @end

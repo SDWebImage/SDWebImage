@@ -13,6 +13,7 @@
 #import "SDImageCoderHelper.h"
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
+#import "SDInternalMacros.h"
 
 // Specify DPI for vector format in CGImageSource, like PDF
 static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizationDPI";
@@ -29,8 +30,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 @implementation SDImageIOCoderFrame
 @end
 
-static BOOL willTerminated_;
-static NSLock *terminatedLock_;
+static BOOL applicationWillTerminate = NO;
+SD_LOCK_DECLARE_STATIC(applicationWillTerminateLock);
 
 @implementation SDImageIOAnimatedCoder {
     size_t _width, _height;
@@ -47,8 +48,7 @@ static NSLock *terminatedLock_;
 
 + (void)initialize {
     if (self == SDImageIOAnimatedCoder.class) {
-        willTerminated_ = NO;
-        terminatedLock_ = [[NSLock alloc] init];
+        SD_LOCK_INIT(applicationWillTerminateLock);
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationWillTerminate:)
@@ -65,16 +65,16 @@ static NSLock *terminatedLock_;
     }
 }
 
-+ (void)applicationWillTerminate:(NSNotification *)note {
-    [terminatedLock_ lock];
-    willTerminated_ = YES;
-    [terminatedLock_ unlock];
++ (void)applicationWillTerminate:(NSNotification *)notification {
+    SD_LOCK(applicationWillTerminateLock);
+    applicationWillTerminate = YES;
+    SD_UNLOCK(applicationWillTerminateLock);
 }
 
 + (BOOL)willTerminated {
-    [terminatedLock_ lock];
-    BOOL willTerminated = willTerminated_;
-    [terminatedLock_ unlock];
+    SD_LOCK(applicationWillTerminateLock);
+    BOOL willTerminated = applicationWillTerminate;
+    SD_UNLOCK(applicationWillTerminateLock);
     return willTerminated;
 }
 
@@ -223,7 +223,7 @@ static NSLock *terminatedLock_;
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
     // Earily return when application will be terminated.
-    if (self.willTerminated) {
+    if (SDImageIOAnimatedCoder.willTerminated) {
         return nil;
     }
     
@@ -435,11 +435,11 @@ static NSLock *terminatedLock_;
 }
 
 - (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
-    if (_finished) {
+    // Earily return when application will be terminated.
+    if (SDImageIOAnimatedCoder.willTerminated) {
         return;
     }
-    // Earily return when application will be terminated.
-    if (self.class.willTerminated) {
+    if (_finished) {
         return;
     }
     _imageData = data;

@@ -26,6 +26,15 @@ OSSpinLock lock##_deprecated;
 #endif
 #endif
 
+#ifndef SD_LOCK_DECLARE_STATIC
+#if SD_USE_OS_UNFAIR_LOCK
+#define SD_LOCK_DECLARE_STATIC(lock) static os_unfair_lock lock
+#else
+#define SD_LOCK_DECLARE_STATIC(lock) static os_unfair_lock lock API_AVAILABLE(ios(10.0), tvos(10), watchos(3), macos(10.12)); \
+static OSSpinLock lock##_deprecated;
+#endif
+#endif
+
 #ifndef SD_LOCK_INIT
 #if SD_USE_OS_UNFAIR_LOCK
 #define SD_LOCK_INIT(lock) lock = OS_UNFAIR_LOCK_INIT
