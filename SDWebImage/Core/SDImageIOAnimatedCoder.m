@@ -71,11 +71,11 @@ SD_LOCK_DECLARE_STATIC(applicationWillTerminateLock);
     SD_UNLOCK(applicationWillTerminateLock);
 }
 
-+ (BOOL)willTerminated {
++ (BOOL)willTerminate {
     SD_LOCK(applicationWillTerminateLock);
-    BOOL willTerminated = applicationWillTerminate;
+    BOOL willTerminate = applicationWillTerminate;
     SD_UNLOCK(applicationWillTerminateLock);
-    return willTerminated;
+    return willTerminate;
 }
 
 - (void)dealloc {
@@ -223,7 +223,7 @@ SD_LOCK_DECLARE_STATIC(applicationWillTerminateLock);
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
     // Earily return when application will be terminated.
-    if (SDImageIOAnimatedCoder.willTerminated) {
+    if (SDImageIOAnimatedCoder.willTerminate) {
         return nil;
     }
     
@@ -436,7 +436,7 @@ SD_LOCK_DECLARE_STATIC(applicationWillTerminateLock);
 
 - (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
     // Earily return when application will be terminated.
-    if (SDImageIOAnimatedCoder.willTerminated) {
+    if (SDImageIOAnimatedCoder.willTerminate) {
         return;
     }
     if (_finished) {
