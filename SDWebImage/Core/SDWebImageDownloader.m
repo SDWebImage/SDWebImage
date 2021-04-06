@@ -140,11 +140,12 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
 }
 
 - (void)dealloc {
-    [self.session invalidateAndCancel];
-    self.session = nil;
-    
     [self.downloadQueue cancelAllOperations];
     [self.config removeObserver:self forKeyPath:NSStringFromSelector(@selector(maxConcurrentDownloads)) context:SDWebImageDownloaderContext];
+    
+    // Invalide the URLSession after all operations been cancelled
+    [self.session invalidateAndCancel];
+    self.session = nil;
 }
 
 - (void)invalidateSessionAndCancel:(BOOL)cancelPendingOperations {
