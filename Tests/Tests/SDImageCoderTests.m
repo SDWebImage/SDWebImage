@@ -311,26 +311,6 @@
     }
 }
 
-- (void)test22DoNotDecodeImageWhenApplicationWillTerminate {
-    [[SDImageCodersManager sharedManager] addCoder:SDImageIOCoder.sharedCoder];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"doNotDecodeImageWhenApplicationWillTerminate"];
-    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"png"];
-    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
-    [[SDImageCache sharedImageCache] storeImageDataToDisk:testImageData forKey:@"TestImageLarge"];
-    NSOperation *operation = [[SDImageCache sharedImageCache] queryCacheOperationForKey:@"TestImageLarge" done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
-        expect(data).to.equal(testImageData);
-        expect(image).to.beNil;
-        [[SDImageCache sharedImageCache] removeImageForKey:@"TestImageLarge" withCompletion:^{
-            [expectation fulfill];
-        }];
-    }];
-    expect(operation).toNot.beNil;
-    [operation start];
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillTerminateNotification object:nil];
-    
-    [self waitForExpectationsWithCommonTimeout];
-}
-
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
