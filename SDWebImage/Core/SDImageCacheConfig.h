@@ -68,6 +68,12 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 @property (assign, nonatomic) BOOL shouldRemoveExpiredDataWhenEnterBackground;
 
 /**
+ * Whether or not to remove the expired disk data when application been terminated. This operation is processed in sync to ensure clean up.
+ * Defaults to YES.
+ */
+@property (assign, nonatomic) BOOL shouldRemoveExpiredDataWhenTerminate;
+
+/**
  * The reading options while reading cache from disk.
  * Defaults to 0. You can set this to `NSDataReadingMappedIfSafe` to improve performance.
  */
