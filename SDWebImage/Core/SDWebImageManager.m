@@ -282,6 +282,10 @@ static id<SDImageLoader> _defaultImageLoader;
                 // Have a chance to query original cache instead of downloading
                 [self callOriginalCacheProcessForOperation:operation url:url options:options context:context progress:progressBlock completed:completedBlock];
                 return;
+            } else if (!cachedImage && (options & SDWebImageDelayPlaceholderAfterDiskCache)) {
+                // Let complete block set placeholder
+                [self callCompletionBlockForOperation:operation completion:completedBlock error:nil url:url];
+                // Go on network download
             }
             
             // Continue download process
