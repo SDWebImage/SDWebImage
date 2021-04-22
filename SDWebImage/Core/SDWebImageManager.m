@@ -313,7 +313,7 @@ static id<SDImageLoader> _defaultImageLoader;
         }
     }
     // Get the original query cache type
-    SDImageCacheType originalQueryCacheType = SDImageCacheTypeNone;
+    SDImageCacheType originalQueryCacheType = SDImageCacheTypeDisk;
     if (context[SDWebImageContextOriginalQueryCacheType]) {
         originalQueryCacheType = [context[SDWebImageContextOriginalQueryCacheType] integerValue];
     }
@@ -461,7 +461,7 @@ static id<SDImageLoader> _defaultImageLoader;
         storeCacheType = [context[SDWebImageContextStoreCacheType] integerValue];
     }
     // the original store image cache type
-    SDImageCacheType originalStoreCacheType = SDImageCacheTypeNone;
+    SDImageCacheType originalStoreCacheType = SDImageCacheTypeDisk;
     if (context[SDWebImageContextOriginalStoreCacheType]) {
         originalStoreCacheType = [context[SDWebImageContextOriginalStoreCacheType] integerValue];
     }
