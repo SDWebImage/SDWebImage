@@ -128,7 +128,7 @@
                                 context:(nullable SDWebImageContext *)context NS_DESIGNATED_INITIALIZER;
 
 /**
- *  Adds handlers for progress and completion. Returns a tokent that can be passed to -cancel: to cancel this set of
+ *  Adds handlers for progress and completion. Returns a token that can be passed to -cancel: to cancel this set of
  *  callbacks.
  *
  *  @param progressBlock  the block executed when a new chunk of data arrives.
