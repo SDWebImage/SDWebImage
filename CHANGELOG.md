@@ -1,3 +1,17 @@
+## [5.11.1 - 5.11 Patch, on Apr 23rd, 2021](https://github.com/rs/SDWebImage/releases/tag/5.11.1)
+See [all tickets marked for the 5.11.1 release](https://github.com/SDWebImage/SDWebImage/milestone/88)
+
+### Changes
+- Change the .originalStoreCaheType and .originalQueryCacheType into .disk, Now we will store the full image data into disk and re-query the full image data by default #3219
+- Change the willTerminate auto clean cache logic into sync version #3210
+
+### Fixes
+- Fix the bug that when querying original cache miss, the download process will be skipped. This is not designed behavior #3221
+- Ensure the invalid URLSeesion will receive the cancel callback and does not trigger the any exception from framework #3205
+
+### Documentation
+- Fix spelling error in SDWebImageDownloaderOperation #3220
+
 ## [5.11.0 - Performance, on Apr 1st, 2021](https://github.com/rs/SDWebImage/releases/tag/5.11.0)
 See [all tickets marked for the 5.11.0 release](https://github.com/SDWebImage/SDWebImage/milestone/84)
 
