@@ -333,6 +333,10 @@ static id<SDImageLoader> _defaultImageLoader;
                 [self callCompletionBlockForOperation:operation completion:completedBlock error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during querying the cache"}] url:url];
                 [self safelyRemoveOperationFromRunning:operation];
                 return;
+            } else if (context[SDWebImageContextImageTransformer] && !cachedImage) {
+                // Original image cache miss. Continue download process
+                [self callDownloadProcessForOperation:operation url:url options:options context:context cachedImage:nil cachedData:nil cacheType:originalQueryCacheType progress:progressBlock completed:completedBlock];
+                return;
             }
                         
             // Use the store cache process instead of downloading, and ignore .refreshCached option for now
