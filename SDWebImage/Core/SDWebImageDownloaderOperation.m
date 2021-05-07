@@ -191,6 +191,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             }
             if (cachedResponse) {
                 self.cachedData = cachedResponse.data;
+                self.response = cachedResponse.response;
             }
         }
         
@@ -323,7 +324,9 @@ didReceiveResponse:(NSURLResponse *)response
         response = [self.responseModifier modifiedResponseWithResponse:response];
         if (!response) {
             valid = NO;
-            self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidDownloadResponse userInfo:@{NSLocalizedDescriptionKey : @"Download marked as failed because response is nil"}];
+            self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain
+                                                     code:SDWebImageErrorInvalidDownloadResponse
+                                                 userInfo:@{NSLocalizedDescriptionKey : @"Download marked as failed because response is nil"}];
         }
     }
     
@@ -342,7 +345,9 @@ didReceiveResponse:(NSURLResponse *)response
         valid = NO;
         self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain
                                                  code:SDWebImageErrorInvalidDownloadStatusCode
-                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Download marked as failed because of invalid response status code %ld", (long)statusCode], SDWebImageErrorDownloadStatusCodeKey: @(statusCode)}];
+                                             userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Download marked as failed because of invalid response status code %ld", (long)statusCode],
+                                                        SDWebImageErrorDownloadStatusCodeKey : @(statusCode),
+                                                        SDWebImageErrorDownloadResponseKey : response}];
     }
     // Check content type valid (defaults nil)
     NSString *contentType = [response isKindOfClass:NSHTTPURLResponse.class] ? ((NSHTTPURLResponse *)response).MIMEType : nil;
@@ -354,7 +359,9 @@ didReceiveResponse:(NSURLResponse *)response
         valid = NO;
         self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain
                                                  code:SDWebImageErrorInvalidDownloadContentType
-                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Download marked as failed because of invalid response content type %@", contentType], SDWebImageErrorDownloadContentTypeKey: contentType}];
+                                             userInfo:@{NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Download marked as failed because of invalid response content type %@", contentType],
+                                                        SDWebImageErrorDownloadContentTypeKey : contentType,
+                                                        SDWebImageErrorDownloadResponseKey : response}];
     }
     //'304 Not Modified' is an exceptional one
     //URLSession current behavior will return 200 status code when the server respond 304 and URLCache hit. But this is not a standard behavior and we just add a check
@@ -362,7 +369,8 @@ didReceiveResponse:(NSURLResponse *)response
         valid = NO;
         self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain
                                                  code:SDWebImageErrorCacheNotModified
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Download response status code is 304 not modified and ignored"}];
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Download response status code is 304 not modified and ignored",
+                                                        SDWebImageErrorDownloadResponseKey : response}];
     }
     
     if (valid) {
@@ -495,7 +503,10 @@ didReceiveResponse:(NSURLResponse *)response
                  *  then we should check if the cached data is equal to image data
                  */
                 if (self.options & SDWebImageDownloaderIgnoreCachedResponse && [self.cachedData isEqualToData:imageData]) {
-                    self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCacheNotModified userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image is not modified and ignored"}];
+                    self.responseError = [NSError errorWithDomain:SDWebImageErrorDomain
+                                                             code:SDWebImageErrorCacheNotModified
+                                                         userInfo:@{NSLocalizedDescriptionKey : @"Downloaded image is not modified and ignored",
+                                                                    SDWebImageErrorDownloadResponseKey : self.response}];
                     // call completion block with not modified error
                     [self callCompletionBlocksWithError:self.responseError];
                     [self done];

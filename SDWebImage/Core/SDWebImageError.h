@@ -11,6 +11,8 @@
 
 FOUNDATION_EXPORT NSErrorDomain const _Nonnull SDWebImageErrorDomain;
 
+/// The response instance for invalid download response (NSURLResponse *)
+FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadResponseKey;
 /// The HTTP status code for invalid download response (NSNumber *)
 FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadStatusCodeKey;
 /// The HTTP MIME content type for invalid download response (NSString *)
