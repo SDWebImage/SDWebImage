@@ -11,3 +11,4 @@
 
 NSErrorDomain const _Nonnull SDWebImageErrorDomain = @"SDWebImageErrorDomain";
 NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadStatusCodeKey = @"SDWebImageErrorDownloadStatusCodeKey";
+NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadContentTypeKey = @"SDWebImageErrorDownloadContentTypeKey";
