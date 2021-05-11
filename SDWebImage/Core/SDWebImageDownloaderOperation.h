@@ -37,8 +37,12 @@
 @optional
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+
+// These operation-level config was inherited from downloader. See `SDWebImageDownloaderConfig` for documentation.
 @property (strong, nonatomic, nullable) NSURLCredential *credential;
 @property (assign, nonatomic) double minimumProgressInterval;
+@property (copy, nonatomic, nullable) NSIndexSet *acceptableStatusCodes;
+@property (copy, nonatomic, nullable) NSSet<NSString *> *acceptableContentTypes;
 
 @end
 
@@ -84,6 +88,21 @@
  * Defaults to 0, which means each time we receive the new data from URLSession, we callback the progressBlock immediately.
  */
 @property (assign, nonatomic) double minimumProgressInterval;
+
+/**
+ * Set the acceptable HTTP Response status code. The status code which beyond the range will mark the download operation failed.
+ * For example, if we config [200, 400) but server response is 503, the download will fail with error code `SDWebImageErrorInvalidDownloadStatusCode`.
+ * Defaults to [200,400). Nil means no validation at all.
+ */
+@property (copy, nonatomic, nullable) NSIndexSet *acceptableStatusCodes;
+
+/**
+ * Set the acceptable HTTP Response content type. The content type beyond the set will mark the download operation failed.
+ * For example, if we config ["image/png"] but server response is "application/json", the download will fail with error code `SDWebImageErrorInvalidDownloadContentType`.
+ * Normally you don't need this for image format detection because we use image's data file signature magic bytes: https://en.wikipedia.org/wiki/List_of_file_signatures
+ * Defaults to nil. Nil means no validation at all.
+ */
+@property (copy, nonatomic, nullable) NSSet<NSString *> *acceptableContentTypes;
 
 /**
  * The options for the receiver.

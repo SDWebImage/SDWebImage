@@ -11,8 +11,12 @@
 
 FOUNDATION_EXPORT NSErrorDomain const _Nonnull SDWebImageErrorDomain;
 
+/// The response instance for invalid download response (NSURLResponse *)
+FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadResponseKey;
 /// The HTTP status code for invalid download response (NSNumber *)
 FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadStatusCodeKey;
+/// The HTTP MIME content type for invalid download response (NSString *)
+FOUNDATION_EXPORT NSErrorUserInfoKey const _Nonnull SDWebImageErrorDownloadContentTypeKey;
 
 /// SDWebImage error domain and codes
 typedef NS_ERROR_ENUM(SDWebImageErrorDomain, SDWebImageError) {
@@ -24,4 +28,5 @@ typedef NS_ERROR_ENUM(SDWebImageErrorDomain, SDWebImageError) {
     SDWebImageErrorInvalidDownloadStatusCode = 2001, // The image download response a invalid status code. You can check the status code in error's userInfo under `SDWebImageErrorDownloadStatusCodeKey`
     SDWebImageErrorCancelled = 2002, // The image loading operation is cancelled before finished, during either async disk cache query, or waiting before actual network request. For actual network request error, check `NSURLErrorDomain` error domain and code.
     SDWebImageErrorInvalidDownloadResponse = 2003, // When using response modifier, the modified download response is nil and marked as failed.
+    SDWebImageErrorInvalidDownloadContentType = 2004, // The image download response a invalid content type. You can check the MIME content type in error's userInfo under `SDWebImageErrorDownloadContentTypeKey`
 };

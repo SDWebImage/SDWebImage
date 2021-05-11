@@ -95,4 +95,19 @@ typedef NS_ENUM(NSInteger, SDWebImageDownloaderExecutionOrder) {
  */
 @property (nonatomic, copy, nullable) NSString *password;
 
+/**
+ * Set the acceptable HTTP Response status code. The status code which beyond the range will mark the download operation failed.
+ * For example, if we config [200, 400) but server response is 503, the download will fail with error code `SDWebImageErrorInvalidDownloadStatusCode`.
+ * Defaults to [200,400). Nil means no validation at all.
+ */
+@property (nonatomic, copy, nullable) NSIndexSet *acceptableStatusCodes;
+
+/**
+ * Set the acceptable HTTP Response content type. The content type beyond the set will mark the download operation failed.
+ * For example, if we config ["image/png"] but server response is "application/json", the download will fail with error code `SDWebImageErrorInvalidDownloadContentType`.
+ * Normally you don't need this for image format detection because we use image's data file signature magic bytes: https://en.wikipedia.org/wiki/List_of_file_signatures
+ * Defaults to nil. Nil means no validation at all.
+ */
+@property (nonatomic, copy, nullable) NSSet<NSString *> *acceptableContentTypes;
+
 @end

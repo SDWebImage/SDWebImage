@@ -349,6 +349,14 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         operation.minimumProgressInterval = MIN(MAX(self.config.minimumProgressInterval, 0), 1);
     }
     
+    if ([operation respondsToSelector:@selector(setAcceptableStatusCodes:)]) {
+        operation.acceptableStatusCodes = self.config.acceptableStatusCodes;
+    }
+    
+    if ([operation respondsToSelector:@selector(setAcceptableContentTypes:)]) {
+        operation.acceptableContentTypes = self.config.acceptableContentTypes;
+    }
+    
     if (options & SDWebImageDownloaderHighPriority) {
         operation.queuePriority = NSOperationQueuePriorityHigh;
     } else if (options & SDWebImageDownloaderLowPriority) {

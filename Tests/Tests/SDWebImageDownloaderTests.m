@@ -733,6 +733,41 @@
     }];
 }
 
+- (void)test29AcceptableStatusCodeAndContentType {
+    SDWebImageDownloaderConfig *config1 = [[SDWebImageDownloaderConfig alloc] init];
+    config1.acceptableStatusCodes = [NSIndexSet indexSetWithIndex:1];
+    SDWebImageDownloader *downloader1 = [[SDWebImageDownloader alloc] initWithConfig:config1];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"Acceptable status code should work"];
+    
+    SDWebImageDownloaderConfig *config2 = [[SDWebImageDownloaderConfig alloc] init];
+    config2.acceptableContentTypes = [NSSet setWithArray:@[@"application/json"]];
+    SDWebImageDownloader *downloader2 = [[SDWebImageDownloader alloc] initWithConfig:config2];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Acceptable content type should work"];
+    
+    __block SDWebImageDownloadToken *token1;
+    token1 = [downloader1 downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadStatusCode);
+        NSInteger statusCode = ((NSHTTPURLResponse *)token1.response).statusCode;
+        expect(statusCode).equal(200);
+        [expectation1 fulfill];
+    }];
+    
+    __block SDWebImageDownloadToken *token2;
+    token2 = [downloader2 downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        expect(error).notTo.beNil();
+        expect(error.code).equal(SDWebImageErrorInvalidDownloadContentType);
+        NSString *contentType = ((NSHTTPURLResponse *)token1.response).MIMEType;
+        expect(contentType).equal(@"image/jpeg");
+        [expectation2 fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        [downloader1 invalidateSessionAndCancel:YES];
+        [downloader2 invalidateSessionAndCancel:YES];
+    }];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
