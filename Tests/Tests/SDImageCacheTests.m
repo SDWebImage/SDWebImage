@@ -388,6 +388,10 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         }];
     }];
     
+    // Test sync version API `imageFromCacheForKey` as well
+    expect([SDImageCache.sharedImageCache imageFromCacheForKey:kAnimatedImageKey options:SDImageCacheMatchAnimatedImageClass context:@{SDWebImageContextAnimatedImageClass : SDAnimatedImage.class}]).beNil();
+    expect([SDImageCache.sharedImageCache imageFromCacheForKey:kAnimatedImageKey options:0 context:@{SDWebImageContextAnimatedImageClass : SDAnimatedImage.class}]).notTo.beNil();
+    
     [self waitForExpectationsWithCommonTimeout];
 }
 
