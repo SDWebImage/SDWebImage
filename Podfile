@@ -14,7 +14,6 @@ def all_test_pods
   pod 'SDWebImage/MapKit', :path => './'
   pod 'Expecta'
   pod 'KVOController'
-  pod 'SDWebImageWebPCoder', :git => 'https://github.com/SDWebImage/SDWebImageWebPCoder.git', :branch => 'master'
 end
 
 example_project_path = 'Examples/SDWebImage Demo'
