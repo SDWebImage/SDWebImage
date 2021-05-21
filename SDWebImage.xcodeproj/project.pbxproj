@@ -1337,7 +1337,6 @@
 		4A2CAE131AB4BB5400B6BC39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				INFOPLIST_FILE = WebImage/Info.plist;
 			};
 			name = Debug;
@@ -1345,7 +1344,6 @@
 		4A2CAE141AB4BB5400B6BC39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				INFOPLIST_FILE = WebImage/Info.plist;
 			};
 			name = Release;
@@ -1381,7 +1379,6 @@
 		80B6DFEC2142B71600BCB334 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				INFOPLIST_FILE = WebImage/Info.plist;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = "1,2,3";
@@ -1392,7 +1389,6 @@
 		80B6DFED2142B71600BCB334 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
 				INFOPLIST_FILE = WebImage/Info.plist;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvsimulator appletvos";
 				TARGETED_DEVICE_FAMILY = "1,2,3";
