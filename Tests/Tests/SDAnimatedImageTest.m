@@ -713,7 +713,7 @@ static BOOL _isCalled;
     [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
-- (void)test35AnimatedImagePlaybackModeReversedBounce{
+- (void)test35AnimatedImagePlaybackModeReversedBounce {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse bounce mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -765,6 +765,18 @@ static BOOL _isCalled;
     [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
+- (void)test36AnimatedImageMemoryCost {
+    if (@available(iOS 14, tvOS 14, macOS 11, watchOS 7, *)) {
+        [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
+        UIImage *image = [UIImage sd_imageWithData:[NSData dataWithContentsOfFile:[self testMemotyCostImagePath]]];
+        NSUInteger cost = [image sd_memoryCost];
+        expect(image.images.count).equal(5333);
+        expect(image.scale).equal(1);
+        expect(cost).equal(16 * image.size.width * image.size.height * 4);
+        [[SDImageCodersManager sharedManager] removeCoder:[SDImageAWebPCoder sharedCoder]];
+    }
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {
@@ -792,6 +804,12 @@ static BOOL _isCalled;
 - (NSString *)testAPNGPPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     NSString *testPath = [testBundle pathForResource:@"TestImageAnimated" ofType:@"apng"];
+    return testPath;
+}
+
+- (NSString *)testMemotyCostImagePath {
+    NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+    NSString *testPath = [testBundle pathForResource:@"TestAnimatedImageMemory" ofType:@"webp"];
     return testPath;
 }
 
