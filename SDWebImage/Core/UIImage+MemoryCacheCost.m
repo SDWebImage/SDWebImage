@@ -20,7 +20,8 @@ FOUNDATION_STATIC_INLINE NSUInteger SDMemoryCacheCostForImage(UIImage *image) {
 #if SD_MAC
     frameCount = 1;
 #elif SD_UIKIT || SD_WATCH
-    frameCount = image.images.count > 0 ? image.images.count : 1;
+    // Filter the same image in `_UIAnimatedImage`.
+    frameCount = image.images.count > 0 ? [NSSet setWithArray:image.images].count : 1;
 #endif
     NSUInteger cost = bytesPerFrame * frameCount;
     return cost;
