@@ -383,6 +383,28 @@ static NSString * _defaultDiskCacheDirectory;
     // First check the in-memory cache...
     UIImage *image = [self imageFromMemoryCacheForKey:key];
     if (image) {
+        if (options & SDImageCacheDecodeFirstFrameOnly) {
+            // Ensure static image
+            Class animatedImageClass = image.class;
+            if (image.sd_isAnimated || ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)])) {
+#if SD_MAC
+                image = [[NSImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:kCGImagePropertyOrientationUp];
+#else
+                image = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
+#endif
+            }
+        } else if (options & SDImageCacheMatchAnimatedImageClass) {
+            // Check image class matching
+            Class animatedImageClass = image.class;
+            Class desiredImageClass = context[SDWebImageContextAnimatedImageClass];
+            if (desiredImageClass && ![animatedImageClass isSubclassOfClass:desiredImageClass]) {
+                image = nil;
+            }
+        }
+    }
+    
+    // Since we don't need to query imageData, return image if exist
+    if (image) {
         return image;
     }
     
