@@ -229,3 +229,6 @@ SUPPORTS_MACCATALYST = YES
 
 // macOS Catalyst support
 DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO
+
+// When enabled, this causes the compiler and linker to disallow use of APIs that are not available to app extensions and to disallow linking to frameworks that have not been built with this setting enabled.
+APPLICATION_EXTENSION_API_ONLY = YES

@@ -283,7 +283,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             if (transition.prepares) {
                 transition.prepares(view, image, imageData, cacheType, imageURL);
             }
-        } completion:^(BOOL finished) {
+        } completion:^(BOOL tempFinished) {
             [UIView transitionWithView:view duration:transition.duration options:transition.animationOptions animations:^{
                 if (!view.sd_latestOperationKey || ![originalOperationKey isEqualToString:view.sd_latestOperationKey]) {
                     return;
