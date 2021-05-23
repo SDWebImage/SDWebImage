@@ -165,34 +165,25 @@
 
 #pragma mark - Frame Buffer
 
-- (UIImage *)frameBufferWithIndex:(NSUInteger)index {
+- (nullable UIImage *)frameBufferWithIndex:(NSUInteger)index {
     SD_LOCK(_lock);
     UIImage *frame = self.frameBuffer[@(index)];
     SD_UNLOCK(_lock);
     return frame;
 }
 
-- (void)setFrameBuffer:(UIImage *)frame withIndex:(NSUInteger)index {
+- (void)setFrameBuffer:(nullable UIImage *)frame withIndex:(NSUInteger)index {
     SD_LOCK(_lock);
     self.frameBuffer[@(index)] = frame;
     SD_UNLOCK(_lock);
 }
 
 - (void)compactFrameBuffer {
-    NSUInteger bufferCount = self.frameBuffer.count;
     NSUInteger maxBufferCount = self.maxBufferCount;
+    NSUInteger currentFrameIndex = self.currentFrameIndex;
     SD_LOCK(_lock);
-    if (bufferCount > maxBufferCount) {
-        // Remove from lower to higher index
-        NSArray<NSNumber *> *frameIndexes = [self.frameBuffer.allKeys sortedArrayUsingSelector:@selector(compare:)];
-        NSUInteger remainCount = bufferCount - maxBufferCount;
-        for (NSNumber *index in frameIndexes) {
-            self.frameBuffer[index] = nil;
-            remainCount--;
-            if (remainCount == 0) {
-                break;;
-            }
-        }
+    if (self.frameBuffer.count > maxBufferCount) {
+        self.frameBuffer[@(currentFrameIndex)] = nil;
     }
     SD_UNLOCK(_lock);
 }
