@@ -197,12 +197,14 @@
     SD_UNLOCK(_lock);
 }
 
-- (BOOL)isFrameBufferFull {
-    NSUInteger totalFrameCount = self.totalFrameCount;
+- (BOOL)shouldFetchFrameBufferWithIndex:(NSUInteger)index {
+    if (self.bufferMiss) {
+        return YES;
+    }
     SD_LOCK(_lock);
-    BOOL bufferFull = self.frameBuffer.count == totalFrameCount;
+    UIImage *fetchFrame = self.frameBuffer[@(index)];
     SD_UNLOCK(_lock);
-    return bufferFull;
+    return !fetchFrame;
 }
 
 - (void)clearFrameBuffer {
@@ -356,12 +358,10 @@
     // Check if we should prefetch next frame or current frame
     // When buffer miss, means the decode speed is slower than render speed, we fetch current miss frame
     // Or, most cases, the decode speed is faster than render speed, we fetch next frame
-    NSUInteger fetchFrameIndex = self.bufferMiss? currentFrameIndex : nextFrameIndex;
-    UIImage *fetchFrame = self.bufferMiss ? nil : [self frameBufferWithIndex:nextFrameIndex];
-    // Check whether we can stop fetch
-    BOOL bufferFull = [self isFrameBufferFull];
+    NSUInteger fetchFrameIndex = self.bufferMiss ? currentFrameIndex : nextFrameIndex;
     
-    if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
+    // Check whether we can stop fetch
+    if (self.fetchQueue.operationCount == 0 && [self shouldFetchFrameBufferWithIndex:fetchFrameIndex]) {
         // Prefetch next frame in background queue
         id<SDAnimatedImageProvider> animatedProvider = self.animatedProvider;
         @weakify(self);
