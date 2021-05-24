@@ -189,11 +189,17 @@
 - (void)compactFrameBuffer {
     NSUInteger maxBufferCount = self.maxBufferCount;
     NSUInteger currentFrameIndex = self.currentFrameIndex;
+    NSUInteger currentBufferCount;
     SD_LOCK(_lock);
-    if (self.frameBuffer.count > maxBufferCount) {
+    currentBufferCount = self.frameBuffer.count;
+    if (currentBufferCount > maxBufferCount) {
         [self.frameBuffer removeObjectForKey:@(currentFrameIndex)];
     }
     SD_UNLOCK(_lock);
+    if (currentBufferCount > maxBufferCount) {
+        // Remove buffer pool
+        [SDAnimatedImageBufferPool removeBufferForProvider:self.animatedProvider index:currentFrameIndex];
+    }
 }
 
 - (BOOL)shouldFetchFrameBufferWithIndex:(NSUInteger)index {
