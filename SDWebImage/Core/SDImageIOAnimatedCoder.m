@@ -634,6 +634,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     return _frameCount;
 }
 
+- (SDImageFrameOptions *)supportedFrameOptions {
+    return @{
+        SDImageFrameOptionScaleFactor: @(_scale),
+        SDImageFrameOptionThumbnailPixelSize: @(_thumbnailSize),
+        SDImageFrameOptionPreserveAspectRatio: @(_preserveAspectRatio)
+    };
+}
+
 - (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
     if (index >= _frameCount) {
         return 0;

@@ -11,6 +11,7 @@
 #import "SDDisplayLink.h"
 #import "SDDeviceHelper.h"
 #import "SDInternalMacros.h"
+#import "SDAnimatedImageBufferPool.h"
 
 @interface SDAnimatedImagePlayer () {
     SD_LOCK_DECLARE(_lock);
@@ -166,8 +167,13 @@
 #pragma mark - Frame Buffer
 
 - (nullable UIImage *)frameBufferWithIndex:(NSUInteger)index {
+    // Query buffer pool
+    UIImage *frame = [SDAnimatedImageBufferPool bufferForProvider:self.animatedProvider index:index];
+    if (frame) {
+        return frame;
+    }
     SD_LOCK(_lock);
-    UIImage *frame = self.frameBuffer[@(index)];
+    frame = self.frameBuffer[@(index)];
     SD_UNLOCK(_lock);
     return frame;
 }
@@ -176,6 +182,8 @@
     SD_LOCK(_lock);
     self.frameBuffer[@(index)] = frame;
     SD_UNLOCK(_lock);
+    // Store buffer pool
+    [SDAnimatedImageBufferPool setBuffer:frame forProvider:self.animatedProvider index:index];
 }
 
 - (void)compactFrameBuffer {
@@ -183,7 +191,7 @@
     NSUInteger currentFrameIndex = self.currentFrameIndex;
     SD_LOCK(_lock);
     if (self.frameBuffer.count > maxBufferCount) {
-        self.frameBuffer[@(currentFrameIndex)] = nil;
+        [self.frameBuffer removeObjectForKey:@(currentFrameIndex)];
     }
     SD_UNLOCK(_lock);
 }
@@ -192,15 +200,13 @@
     if (self.bufferMiss) {
         return YES;
     }
-    SD_LOCK(_lock);
-    UIImage *fetchFrame = self.frameBuffer[@(index)];
-    SD_UNLOCK(_lock);
-    return !fetchFrame;
+    return ![self frameBufferWithIndex:index];
 }
 
 - (void)clearFrameBuffer {
     SD_LOCK(_lock);
     [self.frameBuffer removeAllObjects];
+    [SDAnimatedImageBufferPool clearBufferForProvider:self.animatedProvider];
     SD_UNLOCK(_lock);
 }
 

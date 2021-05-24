@@ -252,6 +252,10 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     return [self.animatedCoder animatedImageFrameCount];
 }
 
+- (SDImageFrameOptions *)supportedFrameOptions {
+    return [self.animatedCoder supportedFrameOptions];
+}
+
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
     if (index >= self.animatedImageFrameCount) {
         return nil;

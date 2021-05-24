@@ -14,6 +14,10 @@ typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
 typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;
 
+typedef NSString * SDImageFrameOption NS_STRING_ENUM;
+typedef NSDictionary<SDImageFrameOption, id> SDImageFrameOptions;
+typedef NSMutableDictionary<SDImageFrameOption, id> SDAnimatedImageFrameMutableOptions;
+
 #pragma mark - Coder Options
 // These options are for image decoding
 /**
@@ -94,6 +98,21 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeEmbedThumb
  See `SDWebImageContext` for more detailed information.
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext API_DEPRECATED("The coder component will be seperated from Core subspec in the future. Update your code to not rely on this context option.", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
+
+#pragma mark - Frame Options for Animated Image
+// These options are used for animated image frame decoding and caching. The value should be serializable (String/Number/Value)
+/**
+ See `SDImageCoderDecodeThumbnailPixelSize`.
+ */
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionThumbnailPixelSize;
+/**
+ See `SDImageCoderDecodeScaleFactor`.
+ */
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionScaleFactor;
+/**
+ See `SDImageCoderDecodePreserveAspectRatio`.
+ */
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionPreserveAspectRatio;
 
 #pragma mark - Coder
 /**
@@ -227,6 +246,12 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext 
  */
 @property (nonatomic, assign, readonly) NSUInteger animatedImageLoopCount;
 /**
+ The supported animated image properties during decoding. For example, if the codec supports thumbnail decoding, provide `.thumbnailPixelSize:(a,b)` from the input.
+ @note This property is used for animated image frame decoding and caching currently. (Introduced in 5.12.0)
+ @note Which means, we will use (imageData, frameOptions, frameIndex) 3-tuple to identify the cache for each frame decoded by coder. This is shared globally by any imagView or imagePlayer.
+ */
+@property (nonatomic, copy, readonly, nullable) SDImageFrameOptions *supportedFrameOptions;
+/**
  Returns the frame image from a specified index.
  @note The index maybe randomly if one image was set to different imageViews, keep it re-entrant. (It's not recommend to store the images into array because it's memory consuming)
  
@@ -242,6 +267,14 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext 
  @return Frame's duration
  */
 - (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index;
+
+@end
+
+#pragma mark - Animated Provider which supports buffer sharing
+@protocol SDAnimatedImageBufferProvider <NSObject>
+
+@required
+@property (nonatomic, copy, readonly, nullable) NSData *animatedImageData;
 
 @end
 
