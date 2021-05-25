@@ -624,9 +624,9 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 
 - (SDImageFrameOptions *)effectiveFrameOptions {
     return @{
-        SDImageFrameOptionScaleFactor: @(_scale),
-        SDImageFrameOptionThumbnailPixelSize: @(_thumbnailSize),
-        SDImageFrameOptionPreserveAspectRatio: @(_preserveAspectRatio)
+        SDImageFrameDecodeScaleFactor: @(_scale),
+        SDImageFrameDecodeThumbnailPixelSize: @(_thumbnailSize),
+        SDImageFrameDecodePreserveAspectRatio: @(_preserveAspectRatio)
     };
 }
 
@@ -663,12 +663,12 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
     };
     CGFloat scale = _scale;
-    if (options[SDImageFrameOptionScaleFactor]) {
-        scale = [options[SDImageFrameOptionScaleFactor] doubleValue];
+    if (options[SDImageFrameDecodeScaleFactor]) {
+        scale = [options[SDImageFrameDecodeScaleFactor] doubleValue];
     }
     CGSize thumbnailSize = _thumbnailSize;
-    if (options[SDImageFrameOptionThumbnailPixelSize]) {
-        NSValue *thumbnailSizeValue = options[SDImageFrameOptionThumbnailPixelSize];
+    if (options[SDImageFrameDecodeThumbnailPixelSize]) {
+        NSValue *thumbnailSizeValue = options[SDImageFrameDecodeThumbnailPixelSize];
 #if SD_MAC
         thumbnailSize = thumbnailSizeValue.sizeValue;
 #else
@@ -676,8 +676,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 #endif
     }
     BOOL preserveAspectRatio = _preserveAspectRatio;
-    if (options[SDImageFrameOptionPreserveAspectRatio]) {
-        preserveAspectRatio = [options[SDImageFrameOptionPreserveAspectRatio] boolValue];
+    if (options[SDImageFrameDecodePreserveAspectRatio]) {
+        preserveAspectRatio = [options[SDImageFrameDecodePreserveAspectRatio] boolValue];
     }
     UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:extraOptions];
     if (!image) {

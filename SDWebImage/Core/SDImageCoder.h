@@ -104,15 +104,15 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext 
 /**
  See `SDImageCoderDecodeThumbnailPixelSize`.
  */
-FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionThumbnailPixelSize;
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameDecodeThumbnailPixelSize;
 /**
  See `SDImageCoderDecodeScaleFactor`.
  */
-FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionScaleFactor;
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameDecodeScaleFactor;
 /**
  See `SDImageCoderDecodePreserveAspectRatio`.
  */
-FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionPreserveAspectRatio;
+FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameDecodePreserveAspectRatio;
 
 #pragma mark - Coder
 /**
@@ -288,6 +288,7 @@ FOUNDATION_EXPORT SDImageFrameOption _Nonnull const SDImageFrameOptionPreserveAs
  */
 @protocol SDAnimatedImageCoder <SDImageCoder, SDAnimatedImageProvider>
 
+#pragma mark - Animated Decoding
 @required
 /**
  Because animated image coder should keep the original data, we will alloc a new instance with the same class for the specify animated image data

@@ -22,7 +22,7 @@ SDImageCoderOption const SDImageCoderEncodeEmbedThumbnail = @"encodeEmbedThumbna
 
 SDImageCoderOption const SDImageCoderWebImageContext = @"webImageContext";
 
-SDImageFrameOption const SDImageFrameOptionThumbnailPixelSize = @"thumbnailPixelSize";
-SDImageFrameOption const SDImageFrameOptionScaleFactor = @"scaleFactor";
-SDImageFrameOption const SDImageFrameOptionPreserveAspectRatio = @"preserveAspectRatio";
+SDImageFrameOption const SDImageFrameDecodeThumbnailPixelSize = SDImageCoderDecodeThumbnailPixelSize;
+SDImageFrameOption const SDImageFrameDecodeScaleFactor = SDImageCoderDecodeScaleFactor;
+SDImageFrameOption const SDImageFrameDecodePreserveAspectRatio = SDImageCoderDecodePreserveAspectRatio;
 
