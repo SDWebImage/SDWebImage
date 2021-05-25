@@ -212,8 +212,8 @@
 - (void)clearFrameBuffer {
     SD_LOCK(_lock);
     [self.frameBuffer removeAllObjects];
-    [SDAnimatedImageBufferPool clearBufferForProvider:self.animatedProvider];
     SD_UNLOCK(_lock);
+    [SDAnimatedImageBufferPool clearBufferForProvider:self.animatedProvider];
 }
 
 #pragma mark - Animation Control

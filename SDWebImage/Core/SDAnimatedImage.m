@@ -183,10 +183,8 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
             [frames addObject:frame];
         }
         self.loadedAnimatedImageFrames = frames;
+        self.loadedFrameOptions = [self effectiveFrameOptions];
         self.allFramesLoaded = YES;
-        if ([self.animatedCoder respondsToSelector:@selector(effectiveFrameOptions)]) {
-            self.loadedFrameOptions = [self effectiveFrameOptions];
-        }
     }
 }
 
