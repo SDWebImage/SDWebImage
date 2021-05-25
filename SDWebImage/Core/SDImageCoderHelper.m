@@ -135,7 +135,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         avgDuration = 0.1; // if it's a animated image but no duration, set it to default 100ms (this do not have that 10ms limit like GIF or WebP to allow custom coder provide the limit)
     }
     
-    __block NSUInteger index = 0;
     __block NSUInteger repeatCount = 1;
     __block UIImage *previousImage = animatedImages.firstObject;
     [animatedImages enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -149,15 +148,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             SDImageFrame *frame = [SDImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
             [frames addObject:frame];
             repeatCount = 1;
-            index++;
         }
         previousImage = image;
-        // last one
-        if (idx == frameCount - 1) {
-            SDImageFrame *frame = [SDImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
-            [frames addObject:frame];
-        }
     }];
+    // last one
+    SDImageFrame *frame = [SDImageFrame frameWithImage:previousImage duration:avgDuration * repeatCount];
+    [frames addObject:frame];
     
 #else
     

@@ -410,9 +410,7 @@ withLocalImageURL:(NSURL *)imageUrl
         UIImage *outputImage = [coder decodedImageWithData:outputImageData options:nil];
         expect(outputImage.size).to.equal(inputImage.size);
         expect(outputImage.scale).to.equal(inputImage.scale);
-#if SD_UIKIT
-        expect(outputImage.images.count).to.equal(inputImage.images.count);
-#endif
+        expect(outputImage.sd_imageLoopCount).to.equal(inputImage.sd_imageLoopCount);
         
         // check max pixel size encoding with scratch
         CGFloat maxWidth = 50;
@@ -429,13 +427,11 @@ withLocalImageURL:(NSURL *)imageUrl
         // Image/IO's thumbnail API does not always use round to preserve precision, we check ABS <= 1
         expect(ABS(outputMaxImage.size.width - maxPixelSize.width)).beLessThanOrEqualTo(1);
         expect(ABS(outputMaxImage.size.height - maxPixelSize.height)).beLessThanOrEqualTo(1);
-#if SD_UIKIT
-        expect(outputMaxImage.images.count).to.equal(inputImage.images.count);
-#endif
+        expect(outputMaxImage.sd_imageLoopCount).to.equal(inputImage.sd_imageLoopCount);
     }
 }
 
-- (NSArray *)thumbnailImagesFromImageSource:(CGImageSourceRef)source API_AVAILABLE(ios(11.0), tvos(11.0), macos(13.0)) {
+- (NSArray *)thumbnailImagesFromImageSource:(CGImageSourceRef)source API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13)) {
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
     NSDictionary *fileProperties = properties[(__bridge NSString *)kCGImagePropertyFileContentsDictionary];
     NSArray *imagesProperties = fileProperties[(__bridge NSString *)kCGImagePropertyImages];

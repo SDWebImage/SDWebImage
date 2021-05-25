@@ -770,7 +770,10 @@ static BOOL _isCalled;
         [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
         UIImage *image = [UIImage sd_imageWithData:[NSData dataWithContentsOfFile:[self testMemotyCostImagePath]]];
         NSUInteger cost = [image sd_memoryCost];
+#if SD_UIKIT
         expect(image.images.count).equal(5333);
+#endif
+        expect(image.sd_imageFrameCount).equal(16);
         expect(image.scale).equal(1);
         expect(cost).equal(16 * image.size.width * image.size.height * 4);
         [[SDImageCodersManager sharedManager] removeCoder:[SDImageAWebPCoder sharedCoder]];
