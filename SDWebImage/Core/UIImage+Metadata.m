@@ -34,6 +34,10 @@
     if (!animatedImages || animatedImages.count <= 1) {
         return 1;
     }
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_imageFrameCount));
+    if ([value isKindOfClass:[NSNumber class]]) {
+        return [value unsignedIntegerValue];
+    }
     __block NSUInteger frameCount = 1;
     __block UIImage *previousImage = animatedImages.firstObject;
     [animatedImages enumerateObjectsUsingBlock:^(UIImage * _Nonnull image, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -46,6 +50,7 @@
         }
         previousImage = image;
     }];
+    objc_setAssociatedObject(self, @selector(sd_imageFrameCount), @(frameCount), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
     return frameCount;
 }
