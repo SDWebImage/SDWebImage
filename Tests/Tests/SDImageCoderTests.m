@@ -435,7 +435,7 @@ withLocalImageURL:(NSURL *)imageUrl
     }
 }
 
-- (NSArray *)thumbnailImagesFromImageSource:(CGImageSourceRef)source API_AVAILABLE(ios(11.0), tvos(11.0), macos(13.0)) {
+- (NSArray *)thumbnailImagesFromImageSource:(CGImageSourceRef)source API_AVAILABLE(ios(11.0), tvos(11.0), macos(10.13)) {
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(source, nil);
     NSDictionary *fileProperties = properties[(__bridge NSString *)kCGImagePropertyFileContentsDictionary];
     NSArray *imagesProperties = fileProperties[(__bridge NSString *)kCGImagePropertyImages];
