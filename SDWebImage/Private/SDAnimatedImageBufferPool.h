@@ -10,6 +10,7 @@
 #import "SDImageCoder.h"
 
 /// Buffer Pool is used to track all animated image frame buffer. A buffer can be shared only when `(image data, decoding options, index)` are all equal.
+/// The provide should implements `effectiveFrameOptions` to detect cache equality.
 /// @note: The current tracking use weak reference to avoid effect buffer's lifecycle.
 @interface SDAnimatedImageBufferPool : NSObject
 

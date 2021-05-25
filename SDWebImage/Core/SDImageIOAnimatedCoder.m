@@ -622,6 +622,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     return YES;
 }
 
+- (SDImageFrameOptions *)effectiveFrameOptions {
+    return @{
+        SDImageFrameOptionScaleFactor: @(_scale),
+        SDImageFrameOptionThumbnailPixelSize: @(_thumbnailSize),
+        SDImageFrameOptionPreserveAspectRatio: @(_preserveAspectRatio)
+    };
+}
+
 - (NSData *)animatedImageData {
     return _imageData;
 }
@@ -634,14 +642,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     return _frameCount;
 }
 
-- (SDImageFrameOptions *)supportedFrameOptions {
-    return @{
-        SDImageFrameOptionScaleFactor: @(_scale),
-        SDImageFrameOptionThumbnailPixelSize: @(_thumbnailSize),
-        SDImageFrameOptionPreserveAspectRatio: @(_preserveAspectRatio)
-    };
-}
-
 - (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
     if (index >= _frameCount) {
         return 0;
@@ -650,15 +650,36 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
+    return [self animatedImageFrameAtIndex:index options:nil];
+}
+
+- (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index options:(nullable SDImageFrameOptions *)options {
     if (index >= _frameCount) {
         return nil;
     }
     // Animated Image should not use the CGContext solution to force decode. Prefers to use Image/IO built in method, which is safer and memory friendly, see https://github.com/SDWebImage/SDWebImage/issues/2961
-    NSDictionary *options = @{
+    NSDictionary *extraOptions = @{
         (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
         (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
     };
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:options];
+    CGFloat scale = _scale;
+    if (options[SDImageFrameOptionScaleFactor]) {
+        scale = [options[SDImageFrameOptionScaleFactor] doubleValue];
+    }
+    CGSize thumbnailSize = _thumbnailSize;
+    if (options[SDImageFrameOptionThumbnailPixelSize]) {
+        NSValue *thumbnailSizeValue = options[SDImageFrameOptionThumbnailPixelSize];
+#if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+#else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+    }
+    BOOL preserveAspectRatio = _preserveAspectRatio;
+    if (options[SDImageFrameOptionPreserveAspectRatio]) {
+        preserveAspectRatio = [options[SDImageFrameOptionPreserveAspectRatio] boolValue];
+    }
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:extraOptions];
     if (!image) {
         return nil;
     }

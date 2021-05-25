@@ -34,16 +34,16 @@ static inline NSString * SDCalculateProviderID(id<SDAnimatedImageProvider> provi
         return providerID;
     }
     NSUInteger frameCount = provider.animatedImageFrameCount;
-    SDImageFrameOptions *supportedFrameOptions = provider.supportedFrameOptions;
+    SDImageFrameOptions *effectiveFrameOptions = provider.effectiveFrameOptions;
     
     NSData *imageData = provider.animatedImageData;
     // 80 Bytes hashing, acceptable speed
     // https://stackoverflow.com/questions/10768467/how-does-nsdatas-implementation-of-the-hash-method-work
     NSUInteger dataHash = [imageData hash];
-    NSString *optionsHash = SDCalculateOptionsHash(supportedFrameOptions);
+    NSString *optionsHash = SDCalculateOptionsHash(effectiveFrameOptions);
     
     // Final hash string
-    providerID = [NSString stringWithFormat:@"data(%lu)-frame(%lu)%@", dataHash, frameCount, optionsHash];
+    providerID = [NSString stringWithFormat:@"data(%lu)-frame(%lu)%@", (unsigned long)dataHash, (unsigned long)frameCount, optionsHash];
     
     objc_setAssociatedObject(provider, &kSDAnimatedImageProviderIDKey, providerID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
@@ -52,7 +52,7 @@ static inline NSString * SDCalculateProviderID(id<SDAnimatedImageProvider> provi
 
 static inline NSString * SDCalculateBufferID(NSString *providerID, NSUInteger index) {
     // Final hash string
-    return [providerID stringByAppendingFormat:@":%lu", index];
+    return [providerID stringByAppendingFormat:@":%lu", (unsigned long)index];
 }
 
 @implementation SDAnimatedImageBufferPool
@@ -66,28 +66,23 @@ static inline NSString * SDCalculateBufferID(NSString *providerID, NSUInteger in
 
 + (UIImage *)bufferForProvider:(nonnull id<SDAnimatedImageProvider>)provider index:(NSUInteger)index {
     NSParameterAssert(provider);
+    if (![provider respondsToSelector:@selector(effectiveFrameOptions)]) {
+        return nil;
+    }
     NSString *providerID = SDCalculateProviderID(provider);
     NSString *bufferID = SDCalculateBufferID(providerID, index);
     SD_LOCK(_globalBufferTableLock);
     UIImage *buffer = [_globalBufferTable objectForKey:bufferID];
     SD_UNLOCK(_globalBufferTableLock);
     
-//    // Update index, slow but not necessary
-//    SD_LOCK(_globalProviderTableLock);
-//    NSMutableIndexSet *indexes = [_globalProviderTable objectForKey:providerID];
-//    NSAssert(indexes, @"Provider is not registered in buffer pool. Call `+registerProvider:` before using %@", NSStringFromSelector(_cmd));
-//    if (!buffer) {
-//        [indexes removeIndex:index];
-//    } else {
-//        [indexes addIndex:index];
-//    }
-//    SD_UNLOCK(_globalProviderTableLock);
-    
     return buffer;
 }
 
 + (void)setBuffer:(UIImage *)buffer forProvider:(nonnull id<SDAnimatedImageProvider>)provider index:(NSUInteger)index {
     NSParameterAssert(provider);
+    if (![provider respondsToSelector:@selector(effectiveFrameOptions)]) {
+        return;
+    }
     if (!buffer) {
         return [self removeBufferForProvider:provider index:index];
     }
@@ -95,7 +90,9 @@ static inline NSString * SDCalculateBufferID(NSString *providerID, NSUInteger in
     NSString *bufferID = SDCalculateBufferID(providerID, index);
     
     // Store buffer
+    SD_LOCK(_globalBufferTableLock);
     [_globalBufferTable setObject:buffer forKey:bufferID];
+    SD_UNLOCK(_globalBufferTableLock);
     
     // Update index
     SD_LOCK(_globalProviderTableLock);
@@ -111,6 +108,9 @@ static inline NSString * SDCalculateBufferID(NSString *providerID, NSUInteger in
 
 + (void)removeBufferForProvider:(nonnull id<SDAnimatedImageProvider>)provider index:(NSUInteger)index {
     NSParameterAssert(provider);
+    if (![provider respondsToSelector:@selector(effectiveFrameOptions)]) {
+        return;
+    }
     NSString *providerID = SDCalculateProviderID(provider);
     NSString *bufferID = SDCalculateBufferID(providerID, index);
     
@@ -131,6 +131,9 @@ static inline NSString * SDCalculateBufferID(NSString *providerID, NSUInteger in
 
 + (void)clearBufferForProvider:(nonnull id<SDAnimatedImageProvider>)provider {
     NSParameterAssert(provider);
+    if (![provider respondsToSelector:@selector(effectiveFrameOptions)]) {
+        return;
+    }
     NSString *providerID = SDCalculateProviderID(provider);
     
     // Query index
