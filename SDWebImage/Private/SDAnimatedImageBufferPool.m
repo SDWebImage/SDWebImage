@@ -1,10 +1,10 @@
-//
-//  SDAnimatedImageBufferPool.m
-//  SDWebImage
-//
-//  Created by 李卓立 on 2021/5/23.
-//  Copyright © 2021 Dailymotion. All rights reserved.
-//
+/*
+* This file is part of the SDWebImage package.
+* (c) Olivier Poitrey <rs@dailymotion.com>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 
 #import "SDAnimatedImageBufferPool.h"
 #import "SDInternalMacros.h"
