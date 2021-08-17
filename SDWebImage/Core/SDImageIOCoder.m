@@ -253,14 +253,9 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     NSUInteger pixelWidth = CGImageGetWidth(imageRef);
     NSUInteger pixelHeight = CGImageGetHeight(imageRef);
     if (maxPixelSize.width > 0 && maxPixelSize.height > 0 && pixelWidth > maxPixelSize.width && pixelHeight > maxPixelSize.height) {
-        CGFloat pixelRatio = pixelWidth / pixelHeight;
-        CGFloat maxPixelSizeRatio = maxPixelSize.width / maxPixelSize.height;
-        CGFloat finalPixelSize;
-        if (pixelRatio > maxPixelSizeRatio) {
-            finalPixelSize = maxPixelSize.width;
-        } else {
-            finalPixelSize = maxPixelSize.height;
-        }
+        CGFloat maxPixelSizeForOriginal = MAX(pixelWidth, pixelHeight);
+        CGFloat maxPixelSizeForDestination = MAX(maxPixelSize.width, maxPixelSize.height);
+        CGFloat finalPixelSize = MIN(maxPixelSizeForOriginal, maxPixelSizeForDestination);
         properties[(__bridge NSString *)kCGImageDestinationImageMaxPixelSize] = @(finalPixelSize);
     }
     NSUInteger maxFileSize = [options[SDImageCoderEncodeMaxFileSize] unsignedIntegerValue];
