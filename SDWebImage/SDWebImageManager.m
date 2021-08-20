@@ -148,6 +148,30 @@
 
     @synchronized (self.runningOperations) {
         [self.runningOperations addObject:operation];
+        
+        /*
+         Fix: Memory bug
+         When the task is executed in a concurrent queue, when the user scrolls up and down in the List, the function call "sd_setImageWithURL:placeholderImage:options:progress:completed:" will be triggered to "SDWebImageCombinedOperation cancel",
+         and the real task will be Cancel was called, which caused the task to be executed in multi-threaded execution until the "operation.isCancelled" in "SDImageCache queryDiskCacheForKey:done:" was returned.
+
+         Through the principle of opening and closing, when we add, we guarantee that there must be a place to be removed.
+
+         Since the block supports the ability of external coverage, the approach here is the same as
+         operation.cancelBlock = ^{
+                          [subOperation cancel];
+
+         This code does not conflict
+         
+         There is a bug that SDWebImageCombinedOperation is not released.
+         */
+        __weak __typeof(self) weakSelf = self;
+        operation.cancelBlock = ^{
+            __strong __typeof(weakSelf) strongSelf = weakSelf;
+            __strong __typeof(weakOperation) strongOperation = weakOperation;
+            if (strongOperation) {
+                [strongSelf.runningOperations removeObject:strongOperation];
+            }
+        };
     }
     NSString *key = [self cacheKeyForURL:url];
 
