@@ -437,7 +437,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:nil];
+        CGImageSourceRef imageSource = _imageSource;
+        if (imageSource != NULL) {
+            CFRetain(imageSource);
+        } else {
+            return nil;
+        }
+        image = [self.class createFrameAtIndex:0 source:imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:nil];
+        CFRelease(imageSource);
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -650,7 +657,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
         (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
     };
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:options];
+    CGImageSourceRef imageSource = _imageSource;
+    if (imageSource != NULL) {
+        CFRetain(imageSource);
+    } else {
+        return nil;
+    }
+    UIImage *image = [self.class createFrameAtIndex:index source:imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:options];
+    CFRelease(imageSource);
     if (!image) {
         return nil;
     }
