@@ -27,6 +27,12 @@
     }
 }
 
+- (instancetype)copyWithZone:(NSZone *)zone {
+  SDAnimatedImageRep *imageRep = [super copyWithZone:zone];
+  CFRetain(imageRep->_imageSource);
+  return imageRep;
+}
+
 // `NSBitmapImageRep`'s `imageRepWithData:` is not designed initializer
 + (instancetype)imageRepWithData:(NSData *)data {
     SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:data];
