@@ -35,8 +35,8 @@
     NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
     CGFloat width = imageRep.size.width;
     CGFloat height = imageRep.size.height;
-    NSUInteger pixelWidth = imageRep.pixelsWide;
-    NSUInteger pixelHeight = imageRep.pixelsHigh;
+    CGFloat pixelWidth = (CGFloat)imageRep.pixelsWide;
+    CGFloat pixelHeight = (CGFloat)imageRep.pixelsHigh;
     if (width > 0 && height > 0) {
         CGFloat widthScale = pixelWidth / width;
         CGFloat heightScale = pixelHeight / height;
