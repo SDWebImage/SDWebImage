@@ -12,6 +12,7 @@
 #import "SDWebImageError.h"
 #import "SDInternalMacros.h"
 #import "SDWebImageTransitionInternal.h"
+#import "SDImageCache.h"
 
 const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
