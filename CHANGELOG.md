@@ -13,10 +13,12 @@ See [all tickets marked for the 5.12.0 release](https://github.com/SDWebImage/SD
 
 #### Animated Image
 - Added sd_imageFrameCount convenient API for UIAinmatedImage/NSBitmapImageRep #3243 
+- Make SDAnimatedImageRep confirms to correct copy semantic #3258
 
 ### Fixes
 - Fix image source release in iOS 15 #3276 
 - Fix wrong memory cost in _UIAnimatedImage #3237 
+- Fix pixel ratio thumbnail calculation #3277
 - Fix the warning, enable APPLICATION_EXTENSION_API_ONLY for all framework target #3236 
 
 ## [5.11.1 - 5.11 Patch, on Apr 23rd, 2021](https://github.com/rs/SDWebImage/releases/tag/5.11.1)
