@@ -1,3 +1,24 @@
+## [5.12.0, on Sep 30th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.0)
+See [all tickets marked for the 5.12.0 release](https://github.com/SDWebImage/SDWebImage/milestone/89)
+
+### Features
+
+#### Cache
+- Do a extra memory cache sync when weak cache feature enabled && Change the default value for shouldUseWeakMemoryCache to NO #3239 
+- Fix imageFromCacheForKey with options and context behavior, matching the async version one. #3238 
+
+#### Downloader
+- Feature: allow user to custom acceptable status code and content type #3227
+- Change the default delegate method to allows optional cert in SSL verify, matches URLSession's behavior #3241 
+
+#### Animated Image
+- Added sd_imageFrameCount convenient API for UIAinmatedImage/NSBitmapImageRep #3243 
+
+### Fixes
+- Fix image source release in iOS 15 #3276 
+- Fix wrong memory cost in _UIAnimatedImage #3237 
+- Fix the warning, enable APPLICATION_EXTENSION_API_ONLY for all framework target #3236 
+
 ## [5.11.1 - 5.11 Patch, on Apr 23rd, 2021](https://github.com/rs/SDWebImage/releases/tag/5.11.1)
 See [all tickets marked for the 5.11.1 release](https://github.com/SDWebImage/SDWebImage/milestone/88)
 
