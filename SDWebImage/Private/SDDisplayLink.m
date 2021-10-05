@@ -103,7 +103,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         duration = nextFireDate - self.currentFireDate;
     }
 #endif
-    if (duration == 0) {
+    if (duration <= 0) {
         duration = kSDDisplayLinkInterval;
     }
     return duration;
