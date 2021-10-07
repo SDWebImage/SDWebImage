@@ -40,7 +40,7 @@
     }];
     expect([[SDWebImageManager sharedManager] isRunning]).to.equal(YES);
 
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
 }
 
 - (void)test03ThatDownloadWithIncorrectURLInvokesCompletionBlockWithAnErrorAsync {
@@ -82,7 +82,7 @@
         [expectation fulfill];
     });
     
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
 }
 
 - (void)test07ThatLoadImageWithSDWebImageRefreshCachedWorks {

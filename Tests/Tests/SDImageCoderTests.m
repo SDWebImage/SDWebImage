@@ -9,6 +9,7 @@
 
 #import "SDTestCase.h"
 #import "UIColor+SDHexString.h"
+#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -246,7 +247,12 @@
 - (void)test18ThatStaticWebPWorks {
     if (@available(iOS 14, tvOS 14, macOS 11, *)) {
         NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
+#if SD_TV
+        /// TV OS does not support ImageIO's webp.
+        [self verifyCoder:[SDImageWebPCoder sharedCoder]
+#else
         [self verifyCoder:[SDImageAWebPCoder sharedCoder]
+#endif
         withLocalImageURL:staticWebPURL
          supportsEncoding:NO // Currently (iOS 14.0) seems no encoding support
            encodingFormat:SDImageFormatWebP
@@ -258,7 +264,12 @@
 - (void)test19ThatAnimatedWebPWorks {
     if (@available(iOS 14, tvOS 14, macOS 11, *)) {
         NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
+#if SD_TV
+        /// TV OS does not support ImageIO's webp.
+        [self verifyCoder:[SDImageWebPCoder sharedCoder]
+#else
         [self verifyCoder:[SDImageAWebPCoder sharedCoder]
+#endif
         withLocalImageURL:staticWebPURL
          supportsEncoding:NO // Currently (iOS 14.0) seems no encoding support
            encodingFormat:SDImageFormatWebP
