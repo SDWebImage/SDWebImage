@@ -105,6 +105,7 @@
 		43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 43828A441DA67F9900000E62 /* TestImageLarge.jpg */; };
 		5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
 		6B181A1B265757ED00BD06B3 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
+		6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
 		770D3B9C7914D53EBA0524DB /* Pods_Tests_TV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B73996BC299E8E0174661628 /* Pods_Tests_TV.framework */; };
 		AFDBD4044E95252B70FB85CE /* Pods_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD1BD830DA7388EB6C110B3B /* Pods_Tests_iOS.framework */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
@@ -490,6 +491,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,

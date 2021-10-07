@@ -347,7 +347,7 @@ static BOOL _isCalled;
         expect(cacheType).equal(SDImageCacheTypeNone);
         [expectation fulfill];
     }];
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
 }
 
 - (void)test24AnimatedImageViewCategoryDiskCache {
@@ -775,7 +775,12 @@ static BOOL _isCalled;
 #endif
         expect(image.sd_imageFrameCount).equal(16);
         expect(image.scale).equal(1);
+#if SD_MAC
+        /// Frame count is 1 in mac.
+        expect(cost).equal(image.size.width * image.size.height * 4);
+#else
         expect(cost).equal(16 * image.size.width * image.size.height * 4);
+#endif
         [[SDImageCodersManager sharedManager] removeCoder:[SDImageAWebPCoder sharedCoder]];
     }
 }
