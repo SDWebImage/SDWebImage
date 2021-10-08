@@ -757,7 +757,7 @@
     token2 = [downloader2 downloadImageWithURL:[NSURL URLWithString:kTestJPEGURL] completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
         expect(error).notTo.beNil();
         expect(error.code).equal(SDWebImageErrorInvalidDownloadContentType);
-        NSString *contentType = ((NSHTTPURLResponse *)token1.response).MIMEType;
+        NSString *contentType = ((NSHTTPURLResponse *)token2.response).MIMEType;
         expect(contentType).equal(@"image/jpeg");
         [expectation2 fulfill];
     }];

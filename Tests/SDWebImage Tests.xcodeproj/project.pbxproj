@@ -105,6 +105,8 @@
 		43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 43828A441DA67F9900000E62 /* TestImageLarge.jpg */; };
 		5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
 		6B181A1B265757ED00BD06B3 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
+		6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
+		6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
 		770D3B9C7914D53EBA0524DB /* Pods_Tests_TV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B73996BC299E8E0174661628 /* Pods_Tests_TV.framework */; };
 		AFDBD4044E95252B70FB85CE /* Pods_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD1BD830DA7388EB6C110B3B /* Pods_Tests_iOS.framework */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
@@ -467,6 +469,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				3299228D2365DC6C00EAFD97 /* TestImageAnimated.apng in Resources */,
 				3299228B2365DC6C00EAFD97 /* TestImage.heic in Resources */,
 				329922872365DC6C00EAFD97 /* TestLoopCount.gif in Resources */,
@@ -490,6 +493,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
@@ -562,12 +566,16 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests TV/Pods-Tests TV-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-tvOS/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-tvOS/SDWebImageWebPCoder.framework",
+				"${BUILT_PRODUCTS_DIR}/libwebp-tvOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-tvOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-tvOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
@@ -602,12 +610,16 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-macOS/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-macOS/SDWebImageWebPCoder.framework",
+				"${BUILT_PRODUCTS_DIR}/libwebp-macOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-macOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-macOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
@@ -624,12 +636,16 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests iOS/Pods-Tests iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-iOS/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-iOS/SDWebImageWebPCoder.framework",
+				"${BUILT_PRODUCTS_DIR}/libwebp-iOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-iOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-iOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
