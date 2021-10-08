@@ -1,6 +1,6 @@
 
 language: objective-c
-osx_image: xcode11.4
+osx_image: xcode13.0
 
 env:
   global:
