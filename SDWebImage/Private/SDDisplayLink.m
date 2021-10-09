@@ -90,7 +90,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSTimeInterval duration = 0;
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
         duration = self.displayLink.targetTimestamp - CACurrentMediaTime();
     } else {
         duration = self.displayLink.duration * self.displayLink.frameInterval;
