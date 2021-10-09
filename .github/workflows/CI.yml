@@ -34,6 +34,7 @@ jobs:
         run: |
           set -o pipefail
           pod lib lint SDWebImage.podspec --allow-warnings --skip-tests
+          
   Demo:
     name: Run Demo
     runs-on: macos-11
@@ -152,6 +153,7 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.0.app
       PROJECT_NAME: SDWebImage.xcodeproj
+      SCHEME_NAME: SDWebImage
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -182,9 +184,9 @@ jobs:
       - name: Build as dynamic frameworks
         run: |
           set -o pipefail
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage" -sdk macosx -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage" -sdk appletvsimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage" -sdk watchsimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage" -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk macosx -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk appletvsimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk watchsimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" -configuration Release | xcpretty -c
           rm -rf ~/Library/Developer/Xcode/DerivedData/
