@@ -1,0 +1,192 @@
+name: "SDWebImage CI"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  Pods:
+    name: Cocoapods Lint
+    runs-on: macos-11
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Cocoapods
+        run: gem install cocoapods --no-document --quiet
+        
+      - name: Install Xcpretty
+        run: gem install xcpretty --no-document --quiet
+        
+      - name: Pod Update.
+        run: pod repo update --silent
+        
+      - name: Pod Install.
+        run: pod install
+
+      - name: Run SDWebImage podspec lint
+        run: |
+          set -o pipefail
+          pod lib lint SDWebImage.podspec --allow-warnings --skip-tests
+          
+  Demo:
+    name: Run Demo
+    runs-on: macos-11
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app
+      WORKSPACE_NAME: SDWebImage.xcworkspace
+      OSXSCHEME: SDWebImage OSX Demo
+      iOSSCHEME: SDWebImage iOS Demo
+      TVSCHEME: SDWebImage TV Demo
+      WATCHSCHEME: SDWebImage Watch Demo
+    strategy:
+      matrix:
+        iosDestination: ["name=iPhone 13 Pro"]
+        tvOSDestination: ["name=Apple TV 4K"]
+        watchOSDestination: ["platform=watchOS Simulator,name=Apple Watch Series 7 - 45mm"]
+        macOSDestination: ["platform=macOS"]
+        macCatalystDestination: ["platform=macOS,arch=x86_64,variant=Mac Catalyst"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Cocoapods
+        run: gem install cocoapods --no-document --quiet
+        
+      - name: Install Xcpretty
+        run: gem install xcpretty --no-document --quiet
+        
+      - name: Pod Update
+        run: pod repo update --silent
+        
+      - name: Pod Install
+        run: pod install
+
+      - name: Run demo for OSX
+        run: |
+          set -o pipefail
+          xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.OSXSCHEME }}" -destination "${{ matrix.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          
+      - name: Run demo for iOS
+        run: |
+          set -o pipefail
+          xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.iOSSCHEME }}" -destination "${{ matrix.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          
+      - name: Run demo for TV
+        run: |
+          set -o pipefail
+          xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.TVSCHEME }}" -destination "${{ matrix.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          
+      - name: Run demo for Watch
+        run: |
+          set -o pipefail
+          xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.WATCHSCHEME }}" -destination "${{ matrix.watchOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          
+  Test:
+    name: Unit Test
+    runs-on: macos-11
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app
+      WORKSPACE_NAME: SDWebImage.xcworkspace
+    strategy:
+      matrix:
+        iosDestination: ["platform=iOS Simulator,name=iPhone 13 Pro"]
+        macOSDestination: ["platform=macOS,arch=x86_64"]
+        tvOSDestination: ["platform=tvOS Simulator,name=Apple TV 4K"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Cocoapods
+        run: gem install cocoapods --no-document --quiet
+        
+      - name: Install Xcpretty
+        run: gem install xcpretty --no-document --quiet
+        
+      - name: Pod Update
+        run: pod repo update --silent
+        
+      - name: Pod Install
+        run: pod install
+        
+      - name: Clean DerivedData
+        run: |
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
+          mkdir DerivedData
+        
+      - name: Test - ${{ matrix.iosDestination }}
+        run: |
+          set -o pipefail
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests iOS" -destination "${{ matrix.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
+          
+      - name: Test - ${{ matrix.macOSDestination }}
+        run: |
+          set -o pipefail
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Mac" -destination "${{ matrix.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
+    
+      - name: Test - ${{ matrix.tvOSDestination }}
+        run: |
+          set -o pipefail
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ matrix.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
+          
+      - name: Code Coverage
+        run: |
+          set -o pipefail
+          export PATH="/usr/local/opt/curl/bin:$PATH"
+          curl --version
+          bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+          bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
+          bash <(curl -s https://codecov.io/bash) -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
+          
+  Build:
+    name: Build Library
+    runs-on: macos-11
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app
+      PROJECT_NAME: SDWebImage.xcodeproj
+      SCHEME_NAME: SDWebImage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Cocoapods
+        run: gem install cocoapods --no-document --quiet
+        
+      - name: Install Xcpretty
+        run: gem install xcpretty --no-document --quiet
+        
+      - name: Pod Update
+        run: pod repo update --silent
+        
+      - name: Pod Install
+        run: pod install
+
+      - name: Build the SwiftPM
+        run: |
+          set -o pipefail
+          swift build
+          rm -rf ~/.build
+          
+      - name: Build as static library
+        run: |
+          set -o pipefail
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage static" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
+      - name: Build as dynamic frameworks
+        run: |
+          set -o pipefail
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk macosx -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk appletvsimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk watchsimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" -configuration Release | xcpretty -c
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
