@@ -9,13 +9,23 @@
 #import <Foundation/Foundation.h>
 #import "SDImageIOAnimatedCoder.h"
 
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
 // AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation
-#define kSDUTTypeHEIC ((__bridge CFStringRef)@"public.heic")
-#define kSDUTTypeHEIF ((__bridge CFStringRef)@"public.heif")
+#define kSDUTTypeHEIC  ((__bridge CFStringRef)@"public.heic")
+#define kSDUTTypeHEIF  ((__bridge CFStringRef)@"public.heif")
 // HEIC Sequence (Animated Image)
 #define kSDUTTypeHEICS ((__bridge CFStringRef)@"public.heics")
-// kUTTypeWebP seems not defined in public UTI framework, Apple use the hardcode string, we define them :)
-#define kSDUTTypeWebP ((__bridge CFStringRef)@"org.webmproject.webp")
+// kSDUTTypeWebP seems not defined in public UTI framework, Apple use the hardcode string, we define them :)
+#define kSDUTTypeWebP  ((__bridge CFStringRef)@"org.webmproject.webp")
+
+#define kSDUTTypeImage ((__bridge CFStringRef)@"public.image")
+#define kSDUTTypeJPEG  ((__bridge CFStringRef)@"public.jpeg")
+#define kSDUTTypePNG   ((__bridge CFStringRef)@"public.png")
+#define kSDUTTypeTIFF  ((__bridge CFStringRef)@"public.tiff")
+#define kSDUTTypeSVG   ((__bridge CFStringRef)@"public.svg-image")
+#define kSDUTTypeGIF   ((__bridge CFStringRef)@"com.compuserve.gif")
+#define kSDUTTypePDF   ((__bridge CFStringRef)@"com.adobe.pdf")
 
 @interface SDImageIOAnimatedCoder ()
 

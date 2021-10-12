@@ -7,6 +7,7 @@
  */
 
 #import "SDImageAPNGCoder.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 #if SD_MAC
 #import <CoreServices/CoreServices.h>
 #else
@@ -31,7 +32,7 @@
 }
 
 + (NSString *)imageUTType {
-    return (__bridge NSString *)kUTTypePNG;
+    return (__bridge NSString *)kSDUTTypePNG;
 }
 
 + (NSString *)dictionaryProperty {

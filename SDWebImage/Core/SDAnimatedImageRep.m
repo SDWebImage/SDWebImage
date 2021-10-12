@@ -58,13 +58,13 @@
         if (!type) {
             return self;
         }
-        if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
+        if (CFStringCompare(type, kSDUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
             // Fix the `NSBitmapImageRep` GIF loop count calculation issue
             // Which will use 0 when there are no loop count information metadata in GIF data
             NSUInteger loopCount = [SDImageGIFCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
-        } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
+        } else if (CFStringCompare(type, kSDUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
             // Do initialize about frame count, current frame/duration and loop count
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
@@ -106,10 +106,10 @@
         }
         NSUInteger index = [value unsignedIntegerValue];
         NSTimeInterval frameDuration = 0;
-        if (CFStringCompare(type, kUTTypeGIF, 0) == kCFCompareEqualTo) {
+        if (CFStringCompare(type, kSDUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
             frameDuration = [SDImageGIFCoder frameDurationAtIndex:index source:imageSource];
-        } else if (CFStringCompare(type, kUTTypePNG, 0) == kCFCompareEqualTo) {
+        } else if (CFStringCompare(type, kSDUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
             frameDuration = [SDImageAPNGCoder frameDurationAtIndex:index source:imageSource];
         } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
