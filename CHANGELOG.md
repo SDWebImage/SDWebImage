@@ -1,3 +1,18 @@
+## [5.12.1 - 5.12 Patch, on Oct 15th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.1)
+See [all tickets marked for the 5.12.1 release](https://github.com/SDWebImage/SDWebImage/milestone/90)
+
+### Fixes
+- Fix ProMotion display issues #3280
+- Add tvos check when use targetTimestamp in displaylink #3286
+- Revert "Fix image source release in iOS 15" in 5.12.0 #3281
+
+### Warnings
+- Since UTI is an standard, we can use it directly to avoid warning on iOS 15 
+
+### Tests
+- Fix test error #3283
+- Port travis configuration to github actions #3285
+
 ## [5.12.0, on Sep 30th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.0)
 See [all tickets marked for the 5.12.0 release](https://github.com/SDWebImage/SDWebImage/milestone/89)
 
