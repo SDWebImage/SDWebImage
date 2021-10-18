@@ -774,6 +774,7 @@
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     expect([loader canRequestImageForURL:imageURL]).beTruthy();
+    expect([loader canRequestImageForURL:imageURL options:0 context:nil]).beTruthy();
     NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
     expect([loader shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
     
@@ -797,6 +798,7 @@
     manager.loaders = @[SDWebImageDownloader.sharedDownloader, loader];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
     expect([manager canRequestImageForURL:imageURL]).beTruthy();
+    expect([manager canRequestImageForURL:imageURL options:0 context:nil]).beTruthy();
     NSError *imageError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
     expect([manager shouldBlockFailedURLWithURL:imageURL error:imageError]).equal(NO);
     
