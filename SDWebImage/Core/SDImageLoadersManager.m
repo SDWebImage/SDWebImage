@@ -78,10 +78,20 @@
 #pragma mark - SDImageLoader
 
 - (BOOL)canRequestImageForURL:(nullable NSURL *)url {
+    return [self canRequestImageForURL:url options:0 context:nil];
+}
+
+- (BOOL)canRequestImageForURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context {
     NSArray<id<SDImageLoader>> *loaders = self.loaders;
     for (id<SDImageLoader> loader in loaders.reverseObjectEnumerator) {
-        if ([loader canRequestImageForURL:url]) {
-            return YES;
+        if ([loader respondsToSelector:@selector(canRequestImageForURL:options:context:)]) {
+            if ([loader canRequestImageForURL:url options:options context:context]) {
+                return YES;
+            }
+        } else {
+            if ([loader canRequestImageForURL:url]) {
+                return YES;
+            }
         }
     }
     return NO;
