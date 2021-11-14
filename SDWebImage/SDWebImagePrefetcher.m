@@ -63,13 +63,17 @@
 
         if (image) {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                //CHANGED BY: Jonathan rose see IOS-7986
+                SDWebImagePrefetcherProgressBlock progressBlockCopy = [self.progressBlock copy];
+                progressBlockCopy(self.finishedCount,[self.prefetchURLs count]);
             }
             NSLog(@"Prefetched %@ out of %@", @(self.finishedCount), @(self.prefetchURLs.count));
         }
         else {
             if (self.progressBlock) {
-                self.progressBlock(self.finishedCount,[self.prefetchURLs count]);
+                //CHANGED BY: Jonathan rose see IOS-7986
+                SDWebImagePrefetcherProgressBlock progressBlockCopy = [self.progressBlock copy];
+                progressBlockCopy(self.finishedCount,[self.prefetchURLs count]);
             }
             NSLog(@"Prefetched %@ out of %@ (Failed)", @(self.finishedCount), @(self.prefetchURLs.count));
 
@@ -91,7 +95,9 @@
         else if (self.finishedCount == self.requestedCount) {
             [self reportStatus];
             if (self.completionBlock) {
-                self.completionBlock(self.finishedCount, self.skippedCount);
+                //CHANGED BY: Jonathan rose see IOS-7986
+                SDWebImagePrefetcherCompletionBlock completionBlockCopy = [self.completionBlock copy];
+                completionBlockCopy(self.finishedCount, self.skippedCount);
                 self.completionBlock = nil;
             }
             self.progressBlock = nil;

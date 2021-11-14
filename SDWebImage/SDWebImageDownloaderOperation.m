@@ -50,6 +50,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
             completed:(SDWebImageDownloaderCompletedBlock)completedBlock
             cancelled:(SDWebImageNoParamsBlock)cancelBlock {
     if ((self = [super init])) {
+        if ([self respondsToSelector:@selector(setName:)]) {
+            self.name = [NSString stringWithFormat:@"%@_Op", NSStringFromClass([self class])];
+        }
         _request = request;
         _shouldDecompressImages = YES;
         _shouldUseCredentialStorage = YES;
@@ -79,16 +82,22 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
             __weak __typeof__ (self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
-            self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
+            
+            
+            __block UIBackgroundTaskIdentifier backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
                 __strong __typeof (wself) sself = wself;
 
                 if (sself) {
                     [sself cancel];
 
-                    [app endBackgroundTask:sself.backgroundTaskId];
-                    sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                    [app endBackgroundTask:backgroundTaskId];
+                    if (sself.backgroundTaskId == backgroundTaskId) {
+                        sself.backgroundTaskId = UIBackgroundTaskInvalid;
+                    }
                 }
             }];
+            
+            self.backgroundTaskId = backgroundTaskId;
         }
 #endif
 
@@ -101,7 +110,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 
     if (self.connection) {
         if (self.progressBlock) {
-            self.progressBlock(0, NSURLResponseUnknownLength);
+            //CHANGED BY: Jonathan rose see IOS-7986
+            SDWebImageDownloaderProgressBlock progressBlockCopy = [self.progressBlock copy];
+            progressBlockCopy(0, NSURLResponseUnknownLength);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
@@ -124,7 +135,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     }
     else {
         if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
+            //CHANGED BY: Jonathan rose see IOS-7986
+            SDWebImageDownloaderCompletedBlock completedBlockCopy = [self.completedBlock copy];
+           completedBlockCopy(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
         }
     }
 
@@ -161,8 +174,12 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
 - (void)cancelInternal {
     if (self.isFinished) return;
     [super cancel];
-    if (self.cancelBlock) self.cancelBlock();
-
+    //FIXED BY: Jonathan rose see IOS-7828
+    dispatch_block_t cancelBlockCopy = [self.cancelBlock copy];
+    if (cancelBlockCopy){
+        cancelBlockCopy();
+    }
+    
     if (self.connection) {
         [self.connection cancel];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -218,7 +235,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         if (self.progressBlock) {
-            self.progressBlock(0, expected);
+            //FIXED BY: Jonathan rose see IOS-7986
+            SDWebImageDownloaderProgressBlock progressBlockCopy = [self.progressBlock copy];
+            progressBlockCopy(0, expected);
         }
 
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -242,7 +261,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
         });
 
         if (self.completedBlock) {
-            self.completedBlock(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            //CHANGED BY: Jonathan rose see IOS-7986
+            SDWebImageDownloaderCompletedBlock completedBlockCopy = [self.completedBlock copy];
+            completedBlockCopy(nil, nil, [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
         }
         CFRunLoopStop(CFRunLoopGetCurrent());
         [self done];
@@ -320,7 +341,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
                     if (self.completedBlock) {
-                        self.completedBlock(image, nil, nil, NO);
+                        //CHANGED BY: Jonathan rose see IOS-7986
+                        SDWebImageDownloaderCompletedBlock completedBlockCopy = [self.completedBlock copy];
+                        completedBlockCopy(image, nil, nil, NO);
                     }
                 });
             }
@@ -330,7 +353,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     }
 
     if (self.progressBlock) {
-        self.progressBlock(self.imageData.length, self.expectedSize);
+        //FIXED BY: Jonathan rose see IOS-7986
+        SDWebImageDownloaderProgressBlock progressBlockCopy = [self.progressBlock copy];
+        progressBlockCopy(self.imageData.length, self.expectedSize);
     }
 }
 
@@ -416,7 +441,9 @@ NSString *const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinis
     }
 
     if (self.completedBlock) {
-        self.completedBlock(nil, nil, error, YES);
+        //CHANGED BY: Jonathan rose see IOS-7986
+        SDWebImageDownloaderCompletedBlock completedBlockCopy = [self.completedBlock copy];
+       completedBlockCopy(nil, nil, error, YES);
     }
     self.completionBlock = nil;
     [self done];

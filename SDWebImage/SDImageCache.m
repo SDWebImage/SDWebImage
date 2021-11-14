@@ -5,7 +5,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
+#import <Bolts/Bolts.h>
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
@@ -189,15 +189,17 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
     return [paths[0] stringByAppendingPathComponent:fullNamespace];
 }
 
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
-    if (!image || !key) {
-        return;
+- (BFTask*)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk {
+    if (!key || (!image && !(recalculate == NO && imageData) ) ) {  //Change by Rose IOS-8789
+        return [BFTask taskWithError:[NSError errorWithDomain:@"SDImageCache" code:-55 userInfo:@{NSLocalizedFailureReasonErrorKey:@"NO key or no image"}]];
     }
-
-    NSUInteger cost = SDCacheCostForImage(image);
-    [self.memCache setObject:image forKey:key cost:cost];
-
+    
+    if (image){  //Changed by Rose IOS-8789
+        NSUInteger cost = SDCacheCostForImage(image);
+        [self.memCache setObject:image forKey:key cost:cost];
+    }
     if (toDisk) {
+        BFTaskCompletionSource* taskSource = [BFTaskCompletionSource taskCompletionSource];
         dispatch_async(self.ioQueue, ^{
             NSData *data = imageData;
 
@@ -239,7 +241,11 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
                 [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];
             }
+            [taskSource setResult:BFTASK_RESULT_SUCCESS];
         });
+        return taskSource.task;
+    }else{
+        return [BFTask taskWithResult:BFTASK_RESULT_SUCCESS];
     }
 }
 

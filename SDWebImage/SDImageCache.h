@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
-
+@class BFTask;
 typedef NS_ENUM(NSInteger, SDImageCacheType) {
     /**
      * The image wasn't available the SDWebImage caches, but was downloaded from the web.
@@ -122,7 +122,7 @@ typedef void(^SDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger tot
  * @param key         The unique image cache key, usually it's image absolute URL
  * @param toDisk      Store the image to disk cache if YES
  */
-- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
+- (BFTask*)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 /**
  * Query the disk cache asynchronously.
