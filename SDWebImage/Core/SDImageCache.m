@@ -552,51 +552,68 @@ static NSString * _defaultDiskCacheDirectory;
     // 2. in-memory cache miss & diskDataSync
     BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryMemoryDataSync) ||
                                 (!image && options & SDImageCacheQueryDiskDataSync));
-    void(^queryDiskBlock)(void) =  ^{
-        if (operation.isCancelled) {
-            if (doneBlock) {
-                doneBlock(nil, nil, SDImageCacheTypeNone);
+    
+    // Query in ioQueue to keep IO-safe
+    if (shouldQueryDiskSync) {
+        __block NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+        __block UIImage *diskImage;
+        dispatch_sync(self.ioQueue, ^{
+            @autoreleasepool {
+                if (image) {
+                    // the image is from in-memory cache, but need image data
+                    diskImage = image;
+                } else if (diskData) {
+                    BOOL shouldCacheToMomery = YES;
+                    if (context[SDWebImageContextStoreCacheType]) {
+                        SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+                        shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+                    }
+                    // decode image data only if in-memory cache missed
+                    diskImage = [self diskImageForKey:key data:diskData options:options context:context];
+                    if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
+                        NSUInteger cost = diskImage.sd_memoryCost;
+                        [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                    }
+                }
             }
-            return;
-        }
-        
-        @autoreleasepool {
-            NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
-            UIImage *diskImage;
-            if (image) {
-                // the image is from in-memory cache, but need image data
-                diskImage = image;
-            } else if (diskData) {
-                BOOL shouldCacheToMomery = YES;
-                if (context[SDWebImageContextStoreCacheType]) {
-                    SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
-                    shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+        });
+        doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
+    } else {
+        dispatch_async(self.ioQueue, ^{
+            if (operation.isCancelled) {
+                if (doneBlock) {
+                    doneBlock(nil, nil, SDImageCacheTypeNone);
                 }
-                // decode image data only if in-memory cache missed
-                diskImage = [self diskImageForKey:key data:diskData options:options context:context];
-                if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = diskImage.sd_memoryCost;
-                    [self.memoryCache setObject:diskImage forKey:key cost:cost];
-                }
+                return;
             }
             
-            if (doneBlock) {
-                if (shouldQueryDiskSync) {
-                    doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
-                } else {
+            @autoreleasepool {
+                NSData *diskData = [self diskImageDataBySearchingAllPathsForKey:key];
+                UIImage *diskImage;
+                if (image) {
+                    // the image is from in-memory cache, but need image data
+                    diskImage = image;
+                } else if (diskData) {
+                    BOOL shouldCacheToMomery = YES;
+                    if (context[SDWebImageContextStoreCacheType]) {
+                        SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+                        shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+                    }
+                    // decode image data only if in-memory cache missed
+                    diskImage = [self diskImageForKey:key data:diskData options:options context:context];
+                    if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
+                        NSUInteger cost = diskImage.sd_memoryCost;
+                        [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                    }
+                }
+                
+                if (doneBlock) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                     });
                 }
             }
-        }
-    };
-    
-    // Query in ioQueue to keep IO-safe
-    if (shouldQueryDiskSync) {
-        dispatch_sync(self.ioQueue, queryDiskBlock);
-    } else {
-        dispatch_async(self.ioQueue, queryDiskBlock);
+        });
     }
     
     return operation;
