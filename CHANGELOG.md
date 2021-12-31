@@ -1,3 +1,10 @@
+## [5.12.2 - 5.12 Patch, on Dec 31st, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.2)
+See [all tickets marked for the 5.12.2 release](https://github.com/SDWebImage/SDWebImage/milestone/91)
+
+### Fixes
+- Eliminates accumulated floating point errors. #3312
+- Don't copy image data for incremental decoding. #3304
+
 ## [5.12.1 - 5.12 Patch, on Oct 15th, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.1)
 See [all tickets marked for the 5.12.1 release](https://github.com/SDWebImage/SDWebImage/milestone/90)
 
