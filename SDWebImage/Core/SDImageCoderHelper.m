@@ -57,12 +57,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         durations[i] = frames[i].duration * 1000;
     }
     NSUInteger const gcd = gcdArray(frameCount, durations);
-    __block NSUInteger totalDuration = 0;
+    __block NSTimeInterval totalDuration = 0;
     NSMutableArray<UIImage *> *animatedImages = [NSMutableArray arrayWithCapacity:frameCount];
     [frames enumerateObjectsUsingBlock:^(SDImageFrame * _Nonnull frame, NSUInteger idx, BOOL * _Nonnull stop) {
         UIImage *image = frame.image;
         NSUInteger duration = frame.duration * 1000;
-        totalDuration += duration;
+        totalDuration += frame.duration;
         NSUInteger repeatCount;
         if (gcd) {
             repeatCount = duration / gcd;
@@ -74,7 +74,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         }
     }];
     
-    animatedImage = [UIImage animatedImageWithImages:animatedImages duration:totalDuration / 1000.f];
+    animatedImage = [UIImage animatedImageWithImages:animatedImages duration:totalDuration];
     
 #else
     
