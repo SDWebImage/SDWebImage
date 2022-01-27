@@ -1,3 +1,9 @@
+## [5.12.3 - 5.12 Patch, on Jan 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.3)
+See [all tickets marked for the 5.12.3 release](https://github.com/SDWebImage/SDWebImage/milestone/92)
+
+### Fixes
+- Fix #3320 decodedAndScaledDownImageWithImage does not render the image completely #3321 Thanks @ty0x2333
+
 ## [5.12.2 - 5.12 Patch, on Dec 31st, 2021](https://github.com/rs/SDWebImage/releases/tag/5.12.2)
 See [all tickets marked for the 5.12.2 release](https://github.com/SDWebImage/SDWebImage/milestone/91)
 
