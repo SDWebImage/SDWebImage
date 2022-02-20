@@ -35,6 +35,30 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)testUIImageViewSetImageWithURLDiskSync {
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    
+    // Ensure the image is cached in disk but not memory
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache storeImageDataToDisk:imageData forKey:kTestJPEGURL];
+    
+    UIImageView *imageView = [[UIImageView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    
+    [imageView sd_setImageWithURL:originalImageURL
+                 placeholderImage:nil
+                          options:SDWebImageQueryDiskDataSync
+                        completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+                            expect(image).toNot.beNil();
+                            expect(error).to.beNil();
+                            expect(originalImageURL).to.equal(imageURL);
+                            expect(imageView.image).to.equal(image);
+                        }];
+    expect(imageView.sd_imageURL).equal(originalImageURL);
+    expect(imageView.image).toNot.beNil();
+}
+
 #if SD_UIKIT
 - (void)testUIImageViewSetHighlightedImageWithURL {
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIImageView setHighlightedImageWithURL"];
