@@ -406,6 +406,16 @@
     CGImageRelease(leftCGImage);
 }
 
+- (void)test21BMPImageCreateDecodedShouldNotBlank {
+    UIImage *testImage = [[UIImage alloc] initWithContentsOfFile:[self testBMPPathForName:@"TestImage"]];
+    CGImageRef cgImage = testImage.CGImage;
+    expect(cgImage).notTo.beNil();
+    UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:testImage];
+    expect(decodedImage).notTo.beNil();
+    UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(100, 100)];
+    expect([[testColor sd_hexString] isEqualToString:@"#ff0a64bf"]).beTruthy();
+}
+
 #pragma mark - Helper
 
 - (UIImage *)testImageCG {

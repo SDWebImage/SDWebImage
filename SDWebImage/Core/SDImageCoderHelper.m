@@ -259,7 +259,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     CGContextRef context = NULL;
     if (@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)) {
         // Update for iOS 15: CoreGraphics's draw image will fail to transcode and draw some special CGImage on BGRX8888
-        // We prefer to use the input CGImaage's bitmap firstly, then fallback to BGRA. See #3330
+        // We prefer to use the input CGImage's bitmap firstly, then fallback to BGRAX8888. See #3330
         bitmapInfo = CGImageGetBitmapInfo(cgImage);
         context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
     }
@@ -396,8 +396,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // to create bitmap graphics contexts without alpha info.
         CGBitmapInfo bitmapInfo;
         if (@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)) {
-            // Update for iOS 15: CoreGraphics's draw image will fail to transcode and draw some special CGImage on BGRX8888
-            // We prefer to use the input CGImaage's bitmap firstly, then fallback to BGRA. See #3330
+            // Update for iOS 15: CoreGraphics's draw image will fail to transcode some special CGImage on BGRX8888
+            // We prefer to use the input CGImage's bitmap firstly, then fallback to BGRAX8888. See #3330
             bitmapInfo = CGImageGetBitmapInfo(sourceImageRef);
             destContext = CGBitmapContextCreate(NULL,
                                                 destResolution.width,
