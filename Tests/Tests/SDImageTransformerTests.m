@@ -154,10 +154,10 @@
     expect(CGSizeEqualToSize(tintedImage.size, testImage.size)).beTruthy();
     // Check center color, should keep clear
     UIColor *centerColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 150)];
-    expect([centerColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]);
+    expect([centerColor.sd_hexString isEqualToString:[UIColor clearColor].sd_hexString]).beTruthy();
     // Check left color, should be tinted
     UIColor *leftColor = [tintedImage sd_colorAtPoint:CGPointMake(80, 150)];
-    expect([leftColor.sd_hexString isEqualToString:tintColor.sd_hexString]);
+    expect([leftColor.sd_hexString isEqualToString:tintColor.sd_hexString]).beTruthy();
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
@@ -177,9 +177,14 @@
     expect(CGSizeEqualToSize(blurredImage.size, testImage.size)).beTruthy();
     // Check left color, should be blurred
     UIColor *leftColor = [blurredImage sd_colorAtPoint:CGPointMake(80, 150)];
-    // Hard-code from the output
-    UIColor *expectedColor = [UIColor colorWithRed:0.431373 green:0.101961 blue:0.0901961 alpha:0.729412];
-    expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]);
+    // Hard-code from the output, allows a little deviation because of blur diffs
+    NSString *expectedColorHex;
+    if (testImage.CIImage) {
+        expectedColorHex = @"#c0721b17";
+    } else {
+        expectedColorHex = @"#c1721b17";
+    }
+    expect([leftColor.sd_hexString isEqualToString:expectedColorHex]).beTruthy();
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 20)];
     UIColor *bottomCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 280)];
@@ -203,7 +208,7 @@
     UIColor *leftColor = [filteredImage sd_colorAtPoint:CGPointMake(80, 150)];
     // Hard-code from the output
     UIColor *expectedColor = [UIColor colorWithRed:0.85098 green:0.992157 blue:0.992157 alpha:1];
-    expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]);
+    expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]).beTruthy();
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [filteredImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor whiteColor].sd_hexString]).beTruthy();
@@ -422,6 +427,11 @@
 - (NSString *)testPNGPathForName:(NSString *)name {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:name ofType:@"png"];
+}
+
+- (NSString *)testBMPPathForName:(NSString *)name {
+  NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
+  return [testBundle pathForResource:name ofType:@"bmp"];
 }
 
 @end
