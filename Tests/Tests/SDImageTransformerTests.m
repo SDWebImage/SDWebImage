@@ -413,7 +413,8 @@
     UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:testImage];
     expect(decodedImage).notTo.beNil();
     UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(100, 100)];
-    expect([[testColor sd_hexString] isEqualToString:@"#ff0a64bf"]).beTruthy();
+    // Should not be black color
+    expect([[testColor sd_hexString] isEqualToString:UIColor.blackColor.sd_hexString]).beFalsy();
 }
 
 #pragma mark - Helper
