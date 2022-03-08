@@ -1,3 +1,10 @@
+## [5.12.4 - 5.12 Patch, on Mar 8th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.4)
+See [all tickets marked for the 5.12.4 release](https://github.com/SDWebImage/SDWebImage/milestone/93)
+
+### Fixes
+- Fix imageView blinks with option `SDImageCacheQueryDiskDataSync` #3327
+- Workaround the iOS 15+ Force Decode may return black image because of CoreGraphics #3332
+
 ## [5.12.3 - 5.12 Patch, on Jan 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.3)
 See [all tickets marked for the 5.12.3 release](https://github.com/SDWebImage/SDWebImage/milestone/92)
 
