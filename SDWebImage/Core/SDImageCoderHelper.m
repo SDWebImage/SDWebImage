@@ -253,22 +253,19 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // iOS prefer BGRA8888 (premultiplied) or BGRX8888 bitmapInfo for screen rendering, which is same as `UIGraphicsBeginImageContext()` or `- [CALayer drawInContext:]`
-    // Though you can use any supported bitmapInfo (see: https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB ) and let Core Graphics reorder it when you call `CGContextDrawImage`
-    // But since our build-in coders use this bitmapInfo, this can have a little performance benefit
+    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
+    // Check #3330 for more detail about why this bitmap is choosen.
     CGBitmapInfo bitmapInfo;
-    CGContextRef context = NULL;
-    if (@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)) {
-        // Update for iOS 15: CoreGraphics's draw image will fail to transcode and draw some special CGImage on BGRX8888
-        // We prefer to use the input CGImage's bitmap firstly, then fallback to BGRAX8888. See #3330
-        bitmapInfo = CGImageGetBitmapInfo(cgImage);
-        context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
+    if (hasAlpha) {
+        // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
+        // BGRA8888
+        bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
+    } else {
+        // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
+        // RGB888
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
     }
-    if (!context) {
-        bitmapInfo = kCGBitmapByteOrder32Host;
-        bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
-        context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
-    }
+    CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
     if (!context) {
         return NULL;
     }
@@ -300,9 +297,18 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         if (output_buffer.data) free(output_buffer.data);
     };
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // iOS display alpha info (BGRA8888/BGRX8888)
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Host;
-    bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
+    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
+    // Check #3330 for more detail about why this bitmap is choosen.
+    CGBitmapInfo bitmapInfo;
+    if (hasAlpha) {
+        // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
+        // BGRA8888
+        bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
+    } else {
+        // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
+        // RGB888
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
+    }
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
@@ -310,7 +316,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         .bitmapInfo = bitmapInfo,
         .version = 0,
         .decode = NULL,
-        .renderingIntent = kCGRenderingIntentDefault,
+        .renderingIntent = CGImageGetRenderingIntent(cgImage)
     };
     
     vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
@@ -398,33 +404,24 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         BOOL hasAlpha = [self CGImageContainsAlpha:sourceImageRef];
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
-        // Since the original image here has no alpha info, use kCGImageAlphaNoneSkipFirst
-        // to create bitmap graphics contexts without alpha info.
+        // Check #3330 for more detail about why this bitmap is choosen.
         CGBitmapInfo bitmapInfo;
-        if (@available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)) {
-            // Update for iOS 15: CoreGraphics's draw image will fail to transcode some special CGImage on BGRX8888
-            // We prefer to use the input CGImage's bitmap firstly, then fallback to BGRAX8888. See #3330
-            bitmapInfo = CGImageGetBitmapInfo(sourceImageRef);
-            destContext = CGBitmapContextCreate(NULL,
-                                                destResolution.width,
-                                                destResolution.height,
-                                                kBitsPerComponent,
-                                                0,
-                                                colorspaceRef,
-                                                bitmapInfo);
+        if (hasAlpha) {
+            // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
+            // BGRA8888
+            bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
+        } else {
+            // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
+            // RGB888
+            bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
         }
-        if (!destContext) {
-            // iOS display alpha info (BGRA8888/BGRX8888)
-            bitmapInfo = kCGBitmapByteOrder32Host;
-            bitmapInfo |= hasAlpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNoneSkipFirst;
-            destContext = CGBitmapContextCreate(NULL,
-                                                destResolution.width,
-                                                destResolution.height,
-                                                kBitsPerComponent,
-                                                0,
-                                                colorspaceRef,
-                                                bitmapInfo);
-        }
+        destContext = CGBitmapContextCreate(NULL,
+                                            destResolution.width,
+                                            destResolution.height,
+                                            kBitsPerComponent,
+                                            0,
+                                            colorspaceRef,
+                                            bitmapInfo);
         
         if (destContext == NULL) {
             return image;
