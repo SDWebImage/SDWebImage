@@ -34,7 +34,7 @@
     
     // NSImageView + Animated Image
     self.imageView2.sd_imageIndicator = SDWebImageActivityIndicator.largeIndicator;
-    [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"https:raw.githubusercontent.com/onevcat/APNGKit/master/TestImages/APNG-cube.apng"]];
+    [self.imageView2 sd_setImageWithURL:[NSURL URLWithString:@"https://raw.githubusercontent.com/onevcat/APNGKit/2.2.0/Tests/APNGKitTests/Resources/General/APNG-cube.apng"]];
     NSMenu *menu1 = [[NSMenu alloc] initWithTitle:@"Toggle Animation"];
     NSMenuItem *item1 = [menu1 addItemWithTitle:@"Toggle Animation" action:@selector(toggleAnimation:) keyEquivalent:@""];
     item1.tag = 1;

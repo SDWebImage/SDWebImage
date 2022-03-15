@@ -22,8 +22,7 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
     size_t height = ceil(size.height * scale);
     if (width < 1 || height < 1) return NULL;
     
-    //pre-multiplied BGRA for non-opaque, BGRX for opaque, 8-bits per component, as Apple's doc
-    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef space = NSScreen.mainScreen.colorSpace.CGColorSpace;
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
     CGBitmapInfo bitmapInfo;
@@ -37,7 +36,6 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
         bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
     }
     CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, bitmapInfo);
-    CGColorSpaceRelease(space);
     if (!context) {
         return NULL;
     }
