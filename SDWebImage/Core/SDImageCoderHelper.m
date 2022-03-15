@@ -15,6 +15,7 @@
 #import "SDAssociatedObject.h"
 #import "UIImage+Metadata.h"
 #import "SDInternalMacros.h"
+#import "SDGraphicsImageRenderer.h"
 #import <Accelerate/Accelerate.h>
 
 static inline size_t SDByteAlign(size_t size, size_t alignment) {
@@ -337,16 +338,21 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return image;
     }
     
-    CGImageRef imageRef = [self CGImageCreateDecoded:image.CGImage];
+    CGImageRef imageRef = image.CGImage;
     if (!imageRef) {
         return image;
     }
-#if SD_MAC
-    UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:kCGImagePropertyOrientationUp];
-#else
-    UIImage *decodedImage = [[UIImage alloc] initWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
-#endif
-    CGImageRelease(imageRef);
+    BOOL hasAlpha = [self CGImageContainsAlpha:imageRef];
+    // Prefer to use new Image Renderer to re-draw image, instead of low-level CGBitmapContext and CGContextDrawImage
+    // This can keep both OS compatible and don't fight with Apple's performance optimization
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.opaque = !hasAlpha;
+    format.scale = image.scale;
+    CGSize imageSize = image.size;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:imageSize format:format];
+    UIImage *decodedImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+            [image drawInRect:CGRectMake(0, 0, imageSize.width, imageSize.height)];
+    }];
     SDImageCopyAssociatedObject(image, decodedImage);
     decodedImage.sd_isDecoded = YES;
     return decodedImage;
