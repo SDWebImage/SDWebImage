@@ -8,6 +8,7 @@
 
 #import "SDImageGraphics.h"
 #import "NSImage+Compatibility.h"
+#import "SDImageCoderHelper.h"
 #import "objc/runtime.h"
 
 #if SD_MAC
@@ -22,7 +23,7 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
     size_t height = ceil(size.height * scale);
     if (width < 1 || height < 1) return NULL;
     
-    CGColorSpaceRef space = NSScreen.mainScreen.colorSpace.CGColorSpace;
+    CGColorSpaceRef space = [SDImageCoderHelper colorSpaceGetDeviceRGB];
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
     CGBitmapInfo bitmapInfo;

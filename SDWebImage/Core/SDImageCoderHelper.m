@@ -189,24 +189,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (CGColorSpaceRef)colorSpaceGetDeviceRGB {
-#if SD_MAC
-    CGColorSpaceRef screenColorSpace = NSScreen.mainScreen.colorSpace.CGColorSpace;
-    if (screenColorSpace) {
-        return screenColorSpace;
-    }
-#endif
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#if SD_UIKIT
-        if (@available(iOS 9.0, tvOS 9.0, *)) {
-            colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-        } else {
-            colorSpace = CGColorSpaceCreateDeviceRGB();
-        }
-#else
-        colorSpace = CGColorSpaceCreateDeviceRGB();
-#endif
+        colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     });
     return colorSpace;
 }
