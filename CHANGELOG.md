@@ -1,3 +1,9 @@
+## [5.12.5 - 5.12 Patch, on Mar 16th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.5)
+See [all tickets marked for the 5.12.5 release](https://github.com/SDWebImage/SDWebImage/milestone/94)
+
+### Fixes
+- Workaround iOS 15+ force decode again using Image Renderer(preferred) and RGB888 #3334
+
 ## [5.12.4 - 5.12 Patch, on Mar 8th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.4)
 See [all tickets marked for the 5.12.4 release](https://github.com/SDWebImage/SDWebImage/milestone/93)
 
