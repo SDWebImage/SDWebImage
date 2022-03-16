@@ -8,6 +8,7 @@
 
 #import "SDImageGraphics.h"
 #import "NSImage+Compatibility.h"
+#import "SDImageCoderHelper.h"
 #import "objc/runtime.h"
 
 #if SD_MAC
@@ -22,11 +23,20 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
     size_t height = ceil(size.height * scale);
     if (width < 1 || height < 1) return NULL;
     
-    //pre-multiplied BGRA for non-opaque, BGRX for opaque, 8-bits per component, as Apple's doc
-    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-    CGImageAlphaInfo alphaInfo = kCGBitmapByteOrder32Host | (opaque ? kCGImageAlphaNoneSkipFirst : kCGImageAlphaPremultipliedFirst);
-    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, kCGBitmapByteOrderDefault | alphaInfo);
-    CGColorSpaceRelease(space);
+    CGColorSpaceRef space = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
+    // Check #3330 for more detail about why this bitmap is choosen.
+    CGBitmapInfo bitmapInfo;
+    if (!opaque) {
+        // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
+        // BGRA8888
+        bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
+    } else {
+        // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
+        // RGB888
+        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
+    }
+    CGContextRef context = CGBitmapContextCreate(NULL, width, height, 8, 0, space, bitmapInfo);
     if (!context) {
         return NULL;
     }
