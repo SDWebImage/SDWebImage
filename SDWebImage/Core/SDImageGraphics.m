@@ -17,7 +17,13 @@ static void *kNSGraphicsContextScaleFactorKey;
 static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGFloat scale) {
     if (scale == 0) {
         // Match `UIGraphicsBeginImageContextWithOptions`, reset to the scale factor of the device’s main screen if scale is 0.
-        scale = [NSScreen mainScreen].backingScaleFactor;
+        NSScreen *mainScreen = nil;
+        if (@available(macOS 10.12, *)) {
+            mainScreen = [NSScreen mainScreen];
+        } else {
+            mainScreen = [NSScreen screens].firstObject;
+        }
+        scale = mainScreen.backingScaleFactor ?: 1.0f;
     }
     size_t width = ceil(size.width * scale);
     size_t height = ceil(size.height * scale);
@@ -106,7 +112,13 @@ UIImage * SDGraphicsGetImageFromCurrentImageContext(void) {
     }
     if (!scale) {
         // reset to the scale factor of the device’s main screen if scale is 0.
-        scale = [NSScreen mainScreen].backingScaleFactor;
+        NSScreen *mainScreen = nil;
+        if (@available(macOS 10.12, *)) {
+            mainScreen = [NSScreen mainScreen];
+        } else {
+            mainScreen = [NSScreen screens].firstObject;
+        }
+        scale = mainScreen.backingScaleFactor ?: 1.0f;
     }
     NSImage *image = [[NSImage alloc] initWithCGImage:imageRef scale:scale orientation:kCGImagePropertyOrientationUp];
     CGImageRelease(imageRef);
