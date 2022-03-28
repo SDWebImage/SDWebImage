@@ -168,6 +168,17 @@ static NSString * _defaultDiskCacheDirectory;
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
 }
 
+- (void)storeImageData:(NSData *)imageData
+                forKey:(NSString *)key
+            completion:(SDWebImageNoParamsBlock)completionBlock {
+    [self storeImageData:imageData forKey:key toDisk:YES completion:completionBlock];
+}
+
+- (void)storeImageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk completion:(SDWebImageNoParamsBlock)completionBlock {
+    [self storeImage:nil imageData:imageData forKey:key toDisk:toDisk completion:completionBlock];
+}
+
+
 - (void)storeImage:(nullable UIImage *)image
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
@@ -182,7 +193,7 @@ static NSString * _defaultDiskCacheDirectory;
           toMemory:(BOOL)toMemory
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    if (!image || !key) {
+    if ((!image && !imageData) || !key) {
         if (completionBlock) {
             completionBlock();
         }
@@ -191,6 +202,10 @@ static NSString * _defaultDiskCacheDirectory;
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = image.sd_memoryCost;
+        if (!image && imageData) {
+            cost = imageData.length;
+            image = [UIImage imageWithData:imageData];
+        }
         [self.memoryCache setObject:image forKey:key cost:cost];
     }
     
