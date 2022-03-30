@@ -201,12 +201,10 @@ static NSString * _defaultDiskCacheDirectory;
     }
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = image.sd_memoryCost;
-        if (!image && imageData) {
-            cost = imageData.length;
-            image = [UIImage imageWithData:imageData];
+        if (image) {
+            NSUInteger cost = image.sd_memoryCost;
+            [self.memoryCache setObject:image forKey:key cost:cost];
         }
-        [self.memoryCache setObject:image forKey:key cost:cost];
     }
     
     if (!toDisk) {
