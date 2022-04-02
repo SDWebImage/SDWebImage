@@ -28,7 +28,13 @@ inline CGFloat SDImageScaleFactorForKey(NSString * _Nullable key) {
 #elif SD_UIKIT
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 #elif SD_MAC
-    if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)])
+    NSScreen *mainScreen = nil;
+    if (@available(macOS 10.12, *)) {
+        mainScreen = [NSScreen mainScreen];
+    } else {
+        mainScreen = [NSScreen screens].firstObject;
+    }
+    if ([mainScreen respondsToSelector:@selector(backingScaleFactor)])
 #endif
     {
         // a@2x.png -> 8
