@@ -87,7 +87,7 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     // get cache Path for image key
     NSString *cachePathForKey = [self cachePathForKey:key];
     // transform to NSURL
-    NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey];
+    NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey isDirectory:NO];
     
     [data writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil];
     
