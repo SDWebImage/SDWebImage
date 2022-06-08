@@ -12,6 +12,7 @@
 
 #if SD_MAC
 #import <QuartzCore/QuartzCore.h>
+#import <CoreImage/CIFilter.h>
 #endif
 
 #pragma mark - Activity Indicator
