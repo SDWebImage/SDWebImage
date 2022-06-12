@@ -1,3 +1,14 @@
+## [5.12.6 - 5.12 Patch, on Jun 12th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.6)
+See [all tickets marked for the 5.12.6 release](https://github.com/SDWebImage/SDWebImage/milestone/95)
+
+### Fixes
+- Fix the thumbnail pixel size calculation when preserveAspectRatio is true #3354
+- Fix macOS compile on Xcode 14 which missing necessary CoreImage import #3353
+- Fix a crash of accessing +[NSScreen mainScreen] from background thread on OSX 10.11. #3337
+
+### Performance
+- Small performance improvement to generating file URLs in SDDiskCache `-setData:forKey:` #3346
+
 ## [5.12.5 - 5.12 Patch, on Mar 16th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.5)
 See [all tickets marked for the 5.12.5 release](https://github.com/SDWebImage/SDWebImage/milestone/94)
 
