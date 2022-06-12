@@ -168,16 +168,11 @@ static NSString * _defaultDiskCacheDirectory;
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk completion:completionBlock];
 }
 
-- (void)storeImageData:(NSData *)imageData
-                forKey:(NSString *)key
-            completion:(SDWebImageNoParamsBlock)completionBlock {
-    [self storeImageData:imageData forKey:key toDisk:YES completion:completionBlock];
+- (void)storeImageData:(nullable NSData *)imageData
+                forKey:(nullable NSString *)key
+            completion:(nullable SDWebImageNoParamsBlock)completionBlock {
+    [self storeImage:nil imageData:imageData forKey:key toDisk:YES completion:completionBlock];
 }
-
-- (void)storeImageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk completion:(SDWebImageNoParamsBlock)completionBlock {
-    [self storeImage:nil imageData:imageData forKey:key toDisk:toDisk completion:completionBlock];
-}
-
 
 - (void)storeImage:(nullable UIImage *)image
          imageData:(nullable NSData *)imageData
