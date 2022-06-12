@@ -341,6 +341,18 @@
     }
 }
 
+- (void)test22ThatThumbnailPreserveAspectRatio {
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    CGSize thumbnailSize = CGSizeMake(400, 300);
+    UIImage *image = [SDImageIOCoder.sharedCoder decodedImageWithData:testImageData options:@{
+        SDImageCoderDecodePreserveAspectRatio: @(YES),
+        SDImageCoderDecodeThumbnailPixelSize: @(thumbnailSize)}];
+    CGSize imageSize = image.size;
+    expect(imageSize.width).equal(400);
+    expect(imageSize.height).equal(263);
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
