@@ -195,11 +195,9 @@ static NSString * _defaultDiskCacheDirectory;
         return;
     }
     // if memory cache is enabled
-    if (toMemory && self.config.shouldCacheImagesInMemory) {
-        if (image) {
-            NSUInteger cost = image.sd_memoryCost;
-            [self.memoryCache setObject:image forKey:key cost:cost];
-        }
+    if (image && toMemory && self.config.shouldCacheImagesInMemory) {
+        NSUInteger cost = image.sd_memoryCost;
+        [self.memoryCache setObject:image forKey:key cost:cost];
     }
     
     if (!toDisk) {
@@ -242,7 +240,7 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 - (void)_archivedDataWithImage:(UIImage *)image forKey:(NSString *)key {
-    if (!image) {
+    if (!image || !key) {
         return;
     }
     // Check extended data
