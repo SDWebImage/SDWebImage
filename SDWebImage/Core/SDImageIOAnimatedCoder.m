@@ -19,6 +19,8 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
+NSLock *kSDImageIOCoderLock;
+
 @interface SDImageIOCoderFrame : NSObject
 
 @property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
@@ -188,6 +190,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        kSDImageIOCoderLock = [[NSLock alloc] init];
+    });
+
+    [kSDImageIOCoderLock lock];
+    
     // Some options need to pass to `CGImageSourceCopyPropertiesAtIndex` before `CGImageSourceCreateImageAtIndex`, or ImageIO will ignore them because they parse once :)
     // Parse the image properties
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)options);
@@ -227,6 +237,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
     }
     if (!imageRef) {
+        [kSDImageIOCoderLock unlock];
         return nil;
     }
     // Thumbnail image post-process
@@ -249,6 +260,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
 #endif
     CGImageRelease(imageRef);
+    [kSDImageIOCoderLock unlock];
     return image;
 }
 
