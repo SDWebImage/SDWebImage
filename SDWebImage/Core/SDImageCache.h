@@ -180,6 +180,17 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
+ * Asynchronously store an image data into disk cache at the given key.
+ *
+ * @param imageData           The image data to store
+ * @param key             The unique image cache key, usually it's image absolute URL
+ * @param completionBlock A block executed after the operation is finished
+ */
+- (void)storeImageData:(nullable NSData *)imageData
+                forKey:(nullable NSString *)key
+            completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+
+/**
  * Asynchronously store an image into memory and disk cache at the given key.
  *
  * @param image           The image to store
@@ -198,7 +209,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
- * Synchronously store image into memory cache at the given key.
+ * Synchronously store an image into memory cache at the given key.
  *
  * @param image  The image to store
  * @param key    The unique image cache key, usually it's image absolute URL
@@ -207,7 +218,7 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
                     forKey:(nullable NSString *)key;
 
 /**
- * Synchronously store image data into disk cache at the given key.
+ * Synchronously store an image data into disk cache at the given key.
  *
  * @param imageData  The image data to store
  * @param key        The unique image cache key, usually it's image absolute URL
