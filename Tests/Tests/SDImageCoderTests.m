@@ -341,7 +341,7 @@
     }
 }
 
-- (void)test22ThatThumbnailPreserveAspectRatio {
+- (void)test22ThatThumbnailDecodeCalculation {
     NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
     CGSize thumbnailSize = CGSizeMake(400, 300);
@@ -351,6 +351,19 @@
     CGSize imageSize = image.size;
     expect(imageSize.width).equal(400);
     expect(imageSize.height).equal(263);
+}
+
+- (void)test23ThatThumbnailEncodeCalculation {
+    NSString *testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestImageLarge" ofType:@"jpg"];
+    NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
+    UIImage *image = [SDImageIOCoder.sharedCoder decodedImageWithData:testImageData options:nil];
+    expect(image.size).equal(CGSizeMake(5250, 3450));
+    CGSize thumbnailSize = CGSizeMake(4000, 4000); // 3450 < 4000 < 5250
+    NSData *encodedData = [SDImageIOCoder.sharedCoder encodedDataWithImage:image format:SDImageFormatJPEG options:@{
+            SDImageCoderEncodeMaxPixelSize: @(thumbnailSize)
+    }];
+    UIImage *encodedImage = [UIImage sd_imageWithData:encodedData];
+    expect(encodedImage.size).equal(CGSizeMake(4000, 2629));
 }
 
 #pragma mark - Utils
