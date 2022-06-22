@@ -76,12 +76,23 @@
 /**
  Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.
  It will detect whether the image size matching the scale size, if not, stretch the image to the target size.
+ @note If you need to keep aspect ratio, you can calculate the scale size by using `scaledSizeWithImageSize` first.
  
  @param cgImage The CGImage
  @param size The scale size in pixel.
  @return A new created scaled image
  */
 + (CGImageRef _Nullable)CGImageCreateScaled:(_Nonnull CGImageRef)cgImage size:(CGSize)size CF_RETURNS_RETAINED;
+
+/** Scale the image size based on provided scale size, whether or not to preserve aspect ratio, whether or not to scale up.
+ @note For example, if you implements thumnail decoding, pass `shouldScaleUp` to NO to avoid the calculated size larger than image size.
+ 
+ @param imageSize The image size (in pixel or point defined by caller)
+ @param scaleSize The scale size (in pixel or point defined by caller)
+ @param preserveAspectRatio Whether or not to preserve aspect ratio
+ @param shouldScaleUp Whether or not to scale up (or scale down only)
+ */
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize preserveAspectRatio:(BOOL)preserveAspectRatio shouldScaleUp:(BOOL)shouldScaleUp;
 
 /**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image

@@ -366,6 +366,30 @@
     expect(encodedImage.size).equal(CGSizeMake(4000, 2629));
 }
 
+- (void)test24ThatScaleSizeCalculation {
+    // preserveAspectRatio true
+    CGSize size1 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(150, 150) preserveAspectRatio:YES shouldScaleUp:NO];
+    expect(size1).equal(CGSizeMake(75, 150));
+    CGSize size2 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(150, 150) preserveAspectRatio:YES shouldScaleUp:YES];
+    expect(size2).equal(CGSizeMake(75, 150));
+    CGSize size3 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(300, 300) preserveAspectRatio:YES shouldScaleUp:NO];
+    expect(size3).equal(CGSizeMake(100, 200));
+    CGSize size4 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(300, 300) preserveAspectRatio:YES shouldScaleUp:YES];
+    expect(size4).equal(CGSizeMake(150, 300));
+    
+    // preserveAspectRatio false
+    CGSize size5 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(150, 150) preserveAspectRatio:NO shouldScaleUp:NO];
+    expect(size5).equal(CGSizeMake(100, 150));
+    CGSize size6 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(100, 200) scaleSize:CGSizeMake(150, 150) preserveAspectRatio:NO shouldScaleUp:YES];
+    expect(size6).equal(CGSizeMake(150, 150));
+    
+    // 0 value
+    CGSize size7 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(0, 0) scaleSize:CGSizeMake(999, 999) preserveAspectRatio:NO shouldScaleUp:NO];
+    expect(size7).equal(CGSizeMake(0, 0));
+    CGSize size8 = [SDImageCoderHelper scaledSizeWithImageSize:CGSizeMake(999, 999) scaleSize:CGSizeMake(0, 0) preserveAspectRatio:NO shouldScaleUp:NO];
+    expect(size8).equal(CGSizeMake(999, 999));
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
