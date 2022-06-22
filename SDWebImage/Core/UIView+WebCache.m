@@ -95,6 +95,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             [((SDImageCache *)manager.imageCache) imageFromMemoryCacheForKey:key];
         }
         dispatch_main_async_safe(^{
+            if (![validOperationKey isEqual:self.sd_latestOperationKey]) { return; }
             [self sd_setImage:placeholder imageData:nil basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:SDImageCacheTypeNone imageURL:url];
         });
     }
@@ -214,11 +215,13 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             }
 #endif
             dispatch_main_async_safe(^{
+                if ([validOperationKey isEqual:self.sd_latestOperationKey]) {
 #if SD_UIKIT || SD_MAC
-                [self sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
+                    [self sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock transition:transition cacheType:cacheType imageURL:imageURL];
 #else
-                [self sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:cacheType imageURL:imageURL];
+                    [self sd_setImage:targetImage imageData:targetData basedOnClassOrViaCustomSetImageBlock:setImageBlock cacheType:cacheType imageURL:imageURL];
 #endif
+                }
                 callCompletedBlockClosure();
             });
         }];

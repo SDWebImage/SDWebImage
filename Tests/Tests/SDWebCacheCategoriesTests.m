@@ -318,7 +318,30 @@
         [expectation fulfill];
     }];
     [imageView sd_cancelCurrentImageLoad];
-    
+
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)testUIViewCancelShouldNotSetPlaceholder {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"UIView internalSetImageWithURL call 1"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"UIView internalSetImageWithURL call 2"];
+
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+
+    [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:SDWebImageDelayPlaceholder context:@{ SDWebImageContextSetImageOperationKey: NSUUID.UUID.UUIDString } setImageBlock:^(UIImage * _Nullable image_, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        XCTAssert(NO, @"Should not get called");
+    } progress:nil completed:^(UIImage * _Nullable image_, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [expectation1 fulfill];
+    }];
+    [imageView sd_cancelCurrentImageLoad];
+
+    [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:UIImage.new options:0 context:@{ SDWebImageContextSetImageOperationKey: NSUUID.UUID.UUIDString } setImageBlock:nil progress:nil completed:^(UIImage * _Nullable image_, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        [expectation2 fulfill];
+    }];
+
     [self waitForExpectationsWithCommonTimeout];
 }
 
