@@ -325,6 +325,43 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return outputImage;
 }
 
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize preserveAspectRatio:(BOOL)preserveAspectRatio shouldScaleUp:(BOOL)shouldScaleUp {
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat resultWidth;
+    CGFloat resultHeight;
+    
+    if (width <= 0 || height <= 0 || scaleSize.width <= 0 || scaleSize.height <= 0) {
+        // Protect
+        resultWidth = width;
+        resultHeight = height;
+    } else {
+        // Scale to fit
+        if (preserveAspectRatio) {
+            CGFloat pixelRatio = width / height;
+            CGFloat scaleRatio = scaleSize.width / scaleSize.height;
+            if (pixelRatio > scaleRatio) {
+                resultWidth = scaleSize.width;
+                resultHeight = ceil(scaleSize.width / pixelRatio);
+            } else {
+                resultHeight = scaleSize.height;
+                resultWidth = ceil(scaleSize.height * pixelRatio);
+            }
+        } else {
+            // Stretch
+            resultWidth = scaleSize.width;
+            resultHeight = scaleSize.height;
+        }
+        if (!shouldScaleUp) {
+            // Scale down only
+            resultWidth = MIN(width, resultWidth);
+            resultHeight = MIN(height, resultHeight);
+        }
+    }
+    
+    return CGSizeMake(resultWidth, resultHeight);
+}
+
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
     if (![self shouldDecodeImage:image]) {
         return image;
