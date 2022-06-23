@@ -575,9 +575,16 @@ static id<SDImageLoader> _defaultImageLoader;
             @autoreleasepool {
                 // transformed/thumbnailed cache key
                 NSString *key = [self cacheKeyForURL:url context:context];
-                UIImage *transformedImage = [transformer transformedImageWithImage:originalImage forKey:key];
+                // Case that transformer one thumbnail, which this time need full pixel image
+                UIImage *fullSizeImage = originalImage;
+                if (shouldDecodeFullImage) {
+                    SDWebImageMutableContext *tempContext = [context mutableCopy];
+                    tempContext[SDWebImageContextImageThumbnailPixelSize] = nil;
+                    fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext) ?: originalImage;
+                }
+                UIImage *transformedImage = [transformer transformedImageWithImage:fullSizeImage forKey:key];
                 if (transformedImage && finished) {
-                    BOOL imageWasTransformed = ![transformedImage isEqual:originalImage];
+                    BOOL imageWasTransformed = ![transformedImage isEqual:fullSizeImage];
                     NSData *cacheData;
                     // pass nil if the image was transformed, so we can recalculate the data from the image
                     if (cacheSerializer && (storeCacheType == SDImageCacheTypeDisk || storeCacheType == SDImageCacheTypeAll)) {
@@ -589,7 +596,7 @@ static id<SDImageLoader> _defaultImageLoader;
                     [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:transformedImage data:cacheData cacheType:cacheType transformed:imageWasTransformed finished:finished completed:completedBlock];
                 } else {
                     // Continue store transform cache process
-                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
+                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
                 }
             }
         });
@@ -601,9 +608,9 @@ static id<SDImageLoader> _defaultImageLoader;
                 // disable thumbnail decoding
                 SDWebImageMutableContext *tempContext = [context mutableCopy];
                 tempContext[SDWebImageContextImageThumbnailPixelSize] = nil;
-                UIImage *originalImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext);
+                UIImage *fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext) ?: originalImage;
                 // Continue store transform cache process
-                [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
+                [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
             }
         });
     } else {
