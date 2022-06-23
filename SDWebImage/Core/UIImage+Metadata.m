@@ -186,4 +186,13 @@
     return value.boolValue;
 }
 
+- (void)setSd_isThumbnail:(BOOL)sd_isThumbnail {
+    objc_setAssociatedObject(self, @selector(sd_isThumbnail), @(sd_isThumbnail), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)sd_isThumbnail {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isThumbnail));
+    return value.boolValue;
+}
+
 @end

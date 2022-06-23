@@ -14,6 +14,8 @@
 #import "SDInternalMacros.h"
 
 UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+    NSCParameterAssert(imageData);
+    NSCParameterAssert(cacheKey);
     UIImage *image;
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
@@ -79,6 +81,8 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
+        // mark the image as thumbnail, to let manager check whether to re-decode if needed
+        image.sd_isThumbnail = thumbnailSizeValue != nil;
     }
     
     return image;

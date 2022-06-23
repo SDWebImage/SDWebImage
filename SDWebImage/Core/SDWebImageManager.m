@@ -510,7 +510,7 @@ static id<SDImageLoader> _defaultImageLoader;
         // normally use the store cache type, but if target image is transformed, use original store cache type instead
         SDImageCacheType targetStoreCacheType = shouldTransformImage ? originalStoreCacheType : storeCacheType;
         UIImage *originalImage = downloadedImage;
-        BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize];
+        BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize] != nil;
         if (thumbnailed) {
             // Thumbnail decoding does not keep original image
             // Here we only store the original data to disk for original cache key
@@ -560,10 +560,16 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
+    // transformer check
     BOOL shouldTransformImage = originalImage && transformer;
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
-    // if available, store transformed image to cache
+    
+    // thumbnail check
+    // This exist when previous thumbnail pipeline callback into next full size pipeline, because we share the same URL download but need different image
+    // Actually this is a hack, we attach the metadata into image object, which should design a better concept like `ImageInfo` and keep that around
+    BOOL shouldDecodeFullImage = originalImage.sd_isThumbnail && context[SDWebImageContextImageThumbnailPixelSize] == nil;
+    
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             @autoreleasepool {
@@ -585,6 +591,19 @@ static id<SDImageLoader> _defaultImageLoader;
                     // Continue store transform cache process
                     [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
                 }
+            }
+        });
+    } else if (shouldDecodeFullImage) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            @autoreleasepool {
+                // transformed/thumbnailed cache key
+                NSString *key = [self cacheKeyForURL:url context:context];
+                // disable thumbnail decoding
+                SDWebImageMutableContext *tempContext = [context mutableCopy];
+                tempContext[SDWebImageContextImageThumbnailPixelSize] = nil;
+                UIImage *originalImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext);
+                // Continue store transform cache process
+                [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
             }
         });
     } else {
@@ -620,7 +639,7 @@ static id<SDImageLoader> _defaultImageLoader;
     // but the storeImage does not handle the thumbnail context option
     // to keep exist SDImageCache's impl compatible, we introduce this helper
     NSData *cacheData = data;
-    BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize];
+    BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize] != nil;
     if (thumbnailed) {
         // Thumbnail decoding already stored original data before in `storeCacheProcess`
         // Here we only store the thumbnail image to memory for thumbnail cache key

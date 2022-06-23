@@ -65,4 +65,9 @@
  */
 @property (nonatomic, assign) BOOL sd_isIncremental;
 
+/**
+ A bool value indicating whether the image is from thumbnail decoding and may be smaller than the full image data pixel size.
+ */
+@property (nonatomic, assign) BOOL sd_isThumbnail;
+
 @end

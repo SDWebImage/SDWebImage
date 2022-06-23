@@ -106,6 +106,8 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
+        // mark the image as thumbnail, to let manager check whether to re-decode if needed
+        image.sd_isThumbnail = thumbnailSizeValue != nil;
     }
     
     return image;
@@ -204,6 +206,8 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         }
         // mark the image as progressive (completed one are not mark as progressive)
         image.sd_isIncremental = !finished;
+        // mark the image as thumbnail, to let manager check whether to re-decode if needed
+        image.sd_isThumbnail = thumbnailSizeValue != nil;
     }
     
     return image;
