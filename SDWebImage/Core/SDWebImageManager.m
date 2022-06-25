@@ -568,7 +568,8 @@ static id<SDImageLoader> _defaultImageLoader;
     // thumbnail check
     // This exist when previous thumbnail pipeline callback into next full size pipeline, because we share the same URL download but need different image
     // Actually this is a hack, we attach the metadata into image object, which should design a better concept like `ImageInfo` and keep that around
-    BOOL shouldRedecodeFullImage = cacheType == SDImageCacheTypeNone;
+    // Redecode need the full size data (progressive decoding or third-party loaders may callback nil data)
+    BOOL shouldRedecodeFullImage = originalData && cacheType == SDImageCacheTypeNone;
     if (shouldRedecodeFullImage) {
         // If the retuened image decode options exist (some loaders impl does not use `SDImageLoaderDecode`) but does not match the options we provide, redecode
         SDImageCoderOptions *returnedDecodeOptions = originalImage.sd_decodeOptions;

@@ -265,6 +265,7 @@
     NSUInteger defaultLimitBytes = SDImageCoderHelper.defaultScaleDownLimitBytes;
     SDImageCoderHelper.defaultScaleDownLimitBytes = 1000 * 1000 * 4; // Limit 1000x1000 pixel
     // From v5.5.0, the `SDWebImageScaleDownLargeImages` translate to `SDWebImageContextImageThumbnailPixelSize`, and works for progressive loading
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:originalImageURL.absoluteString];
     [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages | SDWebImageProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();
         expect(image.size).equal(CGSizeMake(1000, 1000));
