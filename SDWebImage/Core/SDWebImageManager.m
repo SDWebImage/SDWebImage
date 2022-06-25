@@ -568,11 +568,17 @@ static id<SDImageLoader> _defaultImageLoader;
     // thumbnail check
     // This exist when previous thumbnail pipeline callback into next full size pipeline, because we share the same URL download but need different image
     // Actually this is a hack, we attach the metadata into image object, which should design a better concept like `ImageInfo` and keep that around
-    // Should match impl in `SDImageCacheDecodeImageData/SDImageLoaderDecode[Progressive]ImageData`
-    SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, options, url.absoluteString);
-    SDImageCoderOptions *returnedDecodeOptions = originalImage.sd_decodeOptions;
-    // If the retuened image decode options exist (some loaders impl does not use `SDImageLoaderDecode`) but does not match the options we provide, redecode
-    BOOL shouldRedecodeFullImage = returnedDecodeOptions && ![returnedDecodeOptions isEqualToDictionary:decodeOptions];
+    BOOL shouldRedecodeFullImage = cacheType == SDImageCacheTypeNone;
+    if (shouldRedecodeFullImage) {
+        // If the retuened image decode options exist (some loaders impl does not use `SDImageLoaderDecode`) but does not match the options we provide, redecode
+        SDImageCoderOptions *returnedDecodeOptions = originalImage.sd_decodeOptions;
+        if (returnedDecodeOptions) {
+            SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, options, url.absoluteString);
+            shouldRedecodeFullImage = ![returnedDecodeOptions isEqualToDictionary:decodeOptions];
+        } else {
+            shouldRedecodeFullImage = NO;
+        }
+    }
     
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
