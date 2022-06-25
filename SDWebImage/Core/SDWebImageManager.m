@@ -661,7 +661,7 @@ static id<SDImageLoader> _defaultImageLoader;
         // transformed/thumbnailed cache key
         NSString *key = [self cacheKeyForURL:url context:context];
         [self storeImage:image imageData:cacheData forKey:key imageCache:imageCache cacheType:storeCacheType waitStoreCache:waitStoreCache completion:^{
-            [self callCompletionBlockForOperation:operation completion:completedBlock image:image data:data error:nil cacheType:SDImageCacheTypeNone finished:finished url:url];
+            [self callCompletionBlockForOperation:operation completion:completedBlock image:image data:data error:nil cacheType:cacheType finished:finished url:url];
         }];
     } else {
         [self callCompletionBlockForOperation:operation completion:completedBlock image:image data:data error:nil cacheType:cacheType finished:finished url:url];
