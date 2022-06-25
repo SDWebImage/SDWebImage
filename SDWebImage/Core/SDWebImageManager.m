@@ -568,7 +568,11 @@ static id<SDImageLoader> _defaultImageLoader;
     // thumbnail check
     // This exist when previous thumbnail pipeline callback into next full size pipeline, because we share the same URL download but need different image
     // Actually this is a hack, we attach the metadata into image object, which should design a better concept like `ImageInfo` and keep that around
-    BOOL shouldDecodeFullImage = originalImage.sd_isThumbnail && context[SDWebImageContextImageThumbnailPixelSize] == nil;
+    // Should match impl in `SDImageCacheDecodeImageData/SDImageLoaderDecode[Progressive]ImageData`
+    SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, options, url.absoluteString);
+    SDImageCoderOptions *returnedDecodeOptions = originalImage.sd_decodeOptions;
+    // If the retuened image decode options exist (some loaders impl does not use `SDImageLoaderDecode`) but does not match the options we provide, redecode
+    BOOL shouldRedecodeFullImage = returnedDecodeOptions && ![returnedDecodeOptions isEqualToDictionary:decodeOptions];
     
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -577,10 +581,8 @@ static id<SDImageLoader> _defaultImageLoader;
                 NSString *key = [self cacheKeyForURL:url context:context];
                 // Case that transformer one thumbnail, which this time need full pixel image
                 UIImage *fullSizeImage = originalImage;
-                if (shouldDecodeFullImage) {
-                    SDWebImageMutableContext *tempContext = [context mutableCopy];
-                    tempContext[SDWebImageContextImageThumbnailPixelSize] = nil;
-                    fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext) ?: originalImage;
+                if (shouldRedecodeFullImage) {
+                    fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, context) ?: originalImage;
                 }
                 UIImage *transformedImage = [transformer transformedImageWithImage:fullSizeImage forKey:key];
                 if (transformedImage && finished) {
@@ -600,15 +602,11 @@ static id<SDImageLoader> _defaultImageLoader;
                 }
             }
         });
-    } else if (shouldDecodeFullImage) {
+    } else if (shouldRedecodeFullImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             @autoreleasepool {
-                // transformed/thumbnailed cache key
-                NSString *key = [self cacheKeyForURL:url context:context];
-                // disable thumbnail decoding
-                SDWebImageMutableContext *tempContext = [context mutableCopy];
-                tempContext[SDWebImageContextImageThumbnailPixelSize] = nil;
-                UIImage *fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, tempContext) ?: originalImage;
+                // Re-decode because the returned image does not match current request pipeline's context
+                UIImage *fullSizeImage = SDImageCacheDecodeImageData(originalData, url.absoluteString, options, context) ?: originalImage;
                 // Continue store transform cache process
                 [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
             }
