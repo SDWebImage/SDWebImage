@@ -55,6 +55,20 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCacheMatchAnimatedImageClass = 1 << 7,
 };
 
+@interface SDImageCacheToken : NSObject <SDWebImageOperation>
+
+/**
+ Cancel the current cache query.
+ */
+- (void)cancel;
+
+/**
+ The query's cache key.
+ */
+@property (nonatomic, strong, nullable, readonly) NSString *key;
+
+@end
+
 /**
  * SDImageCache maintains a memory cache and a disk cache. Disk cache write operations are performed
  * asynchronous so it doesn’t add unnecessary latency to the UI.
@@ -270,9 +284,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param key       The unique key used to store the wanted image. If you want transformed or thumbnail image, calculate the key with `SDTransformedKeyForKey`, `SDThumbnailedKeyForKey`, or generate the cache key from url with `cacheKeyForURL:context:`.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
- * @return a NSOperation instance containing the cache op
+ * @return a SDImageCacheToken instance containing the cache operation, will callback immediately when cancelled
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -281,9 +295,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param options   A mask to specify options to use for this cache query
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
- * @return a NSOperation instance containing the cache op
+ * @return a SDImageCacheToken instance containing the cache operation, will callback immediately when cancelled
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -293,9 +307,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param context   A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
- * @return a NSOperation instance containing the cache op
+ * @return a SDImageCacheToken instance containing the cache operation, will callback immediately when cancellederation, will callback immediately when cancelled
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Asynchronously queries the cache with operation and call the completion when done.
@@ -306,9 +320,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
  * @param queryCacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediately.
  * @param doneBlock The completion block. Will not get called if the operation is cancelled
  *
- * @return a NSOperation instance containing the cache op
+ * @return a SDImageCacheToken instance containing the cache operation, will callback immediately when cancelled
  */
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)queryCacheType done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)queryCacheType done:(nullable SDImageCacheQueryCompletionBlock)doneBlock;
 
 /**
  * Synchronously query the memory cache.

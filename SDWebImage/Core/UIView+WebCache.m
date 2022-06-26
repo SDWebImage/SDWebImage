@@ -47,13 +47,13 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     objc_setAssociatedObject(self, @selector(sd_imageProgress), sd_imageProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
-                  placeholderImage:(nullable UIImage *)placeholder
-                           options:(SDWebImageOptions)options
-                           context:(nullable SDWebImageContext *)context
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDImageLoaderProgressBlock)progressBlock
-                         completed:(nullable SDInternalCompletionBlock)completedBlock {
+- (nullable id<SDWebImageOperation>)sd_internalSetImageWithURL:(nullable NSURL *)url
+                                              placeholderImage:(nullable UIImage *)placeholder
+                                                       options:(SDWebImageOptions)options
+                                                       context:(nullable SDWebImageContext *)context
+                                                 setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                                                      progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                                                     completed:(nullable SDInternalCompletionBlock)completedBlock {
     if (context) {
         // copy to avoid mutable object
         context = [context copy];
@@ -99,6 +99,8 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         });
     }
     
+    id <SDWebImageOperation> operation = nil;
+    
     if (url) {
         // reset the progress
         NSProgress *imageProgress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
@@ -135,7 +137,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             }
         };
         @weakify(self);
-        id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        operation = [manager loadImageWithURL:url options:options context:context progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             @strongify(self);
             if (!self) { return; }
             // if the progress not been updated, mark it to complete state
@@ -234,6 +236,8 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
             }
         });
     }
+    
+    return operation;
 }
 
 - (void)sd_cancelCurrentImageLoad {

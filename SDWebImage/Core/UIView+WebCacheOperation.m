@@ -9,8 +9,6 @@
 #import "UIView+WebCacheOperation.h"
 #import "objc/runtime.h"
 
-static char loadOperationKey;
-
 // key is strong, value is weak because operation instance is retained by SDWebImageManager's runningOperations property
 // we should use lock to keep thread-safe because these method may not be accessed from main queue
 typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
@@ -19,12 +17,12 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 
 - (SDOperationsDictionary *)sd_operationDictionary {
     @synchronized(self) {
-        SDOperationsDictionary *operations = objc_getAssociatedObject(self, &loadOperationKey);
+        SDOperationsDictionary *operations = objc_getAssociatedObject(self, @selector(sd_operationDictionary));
         if (operations) {
             return operations;
         }
         operations = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsWeakMemory capacity:0];
-        objc_setAssociatedObject(self, &loadOperationKey, operations, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(sd_operationDictionary), operations, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return operations;
     }
 }

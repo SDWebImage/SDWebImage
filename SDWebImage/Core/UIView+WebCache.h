@@ -71,14 +71,15 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  *   block is called a last time with the full image and the last parameter set to YES.
  *
  *   The last parameter is the original image URL
+ *  @return The returned operation for cancelling cache and download operation, typically type is `SDWebImageCombinedOperation`
  */
-- (void)sd_internalSetImageWithURL:(nullable NSURL *)url
-                  placeholderImage:(nullable UIImage *)placeholder
-                           options:(SDWebImageOptions)options
-                           context:(nullable SDWebImageContext *)context
-                     setImageBlock:(nullable SDSetImageBlock)setImageBlock
-                          progress:(nullable SDImageLoaderProgressBlock)progressBlock
-                         completed:(nullable SDInternalCompletionBlock)completedBlock;
+- (nullable id<SDWebImageOperation>)sd_internalSetImageWithURL:(nullable NSURL *)url
+                                              placeholderImage:(nullable UIImage *)placeholder
+                                                       options:(SDWebImageOptions)options
+                                                       context:(nullable SDWebImageContext *)context
+                                                 setImageBlock:(nullable SDSetImageBlock)setImageBlock
+                                                      progress:(nullable SDImageLoaderProgressBlock)progressBlock
+                                                     completed:(nullable SDInternalCompletionBlock)completedBlock;
 
 /**
  * Cancel the current image load

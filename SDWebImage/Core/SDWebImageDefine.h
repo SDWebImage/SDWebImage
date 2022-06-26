@@ -105,6 +105,8 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, placeholder images are loaded while the image is loading. This flag will delay the loading
      * of the placeholder image until after the image has finished loading.
+     * @note This is used to treate placeholder as an **Error Placeholder** but not **Loading Placeholder** by defaults. if the image loading is cancelled or error, the placeholder will be always set.
+     * @note Therefore, if you want both **Error Placeholder** and **Loading Placeholder** exist, use `SDWebImageAvoidAutoSetImage` to manually set the two placeholders and final loaded image by your hand depends on loading result.
      */
     SDWebImageDelayPlaceholder = 1 << 8,
     
