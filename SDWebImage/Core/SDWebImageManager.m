@@ -498,9 +498,13 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
+    // transformer check
     BOOL shouldTransformImage = downloadedImage && transformer;
     shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
     shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isVector || (options & SDWebImageTransformVectorImage));
+    // thumbnail check
+    BOOL shouldThumbnailImage = context[SDWebImageContextImageThumbnailPixelSize] != nil || downloadedImage.sd_decodeOptions[SDImageCoderDecodeThumbnailPixelSize] != nil;
+    
     BOOL shouldCacheOriginal = downloadedImage && finished && cacheType == SDImageCacheTypeNone;
     
     // if available, store original image to cache
@@ -508,27 +512,26 @@ static id<SDImageLoader> _defaultImageLoader;
         // Get original cache key generation without transformer/thumbnail
         NSString *key = [self originalCacheKeyForURL:url context:context];
         // normally use the store cache type, but if target image is transformed, use original store cache type instead
-        SDImageCacheType targetStoreCacheType = shouldTransformImage ? originalStoreCacheType : storeCacheType;
-        UIImage *originalImage = downloadedImage;
-        BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize] != nil;
-        if (thumbnailed) {
+        SDImageCacheType targetStoreCacheType = (shouldTransformImage || shouldThumbnailImage) ? originalStoreCacheType : storeCacheType;
+        UIImage *fullSizeImage = downloadedImage;
+        if (shouldThumbnailImage) {
             // Thumbnail decoding does not keep original image
             // Here we only store the original data to disk for original cache key
             // Store thumbnail image to memory for thumbnail cache key later in `storeTransformCacheProcess`
-            originalImage = nil;
+            fullSizeImage = nil;
         }
-        if (originalImage && cacheSerializer && (targetStoreCacheType == SDImageCacheTypeDisk || targetStoreCacheType == SDImageCacheTypeAll)) {
+        if (fullSizeImage && cacheSerializer && (targetStoreCacheType == SDImageCacheTypeDisk || targetStoreCacheType == SDImageCacheTypeAll)) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                 @autoreleasepool {
-                    NSData *cacheData = [cacheSerializer cacheDataWithImage:originalImage originalData:downloadedData imageURL:url];
-                    [self storeImage:originalImage imageData:cacheData forKey:key imageCache:imageCache cacheType:targetStoreCacheType waitStoreCache:waitStoreCache completion:^{
+                    NSData *cacheData = [cacheSerializer cacheDataWithImage:fullSizeImage originalData:downloadedData imageURL:url];
+                    [self storeImage:fullSizeImage imageData:cacheData forKey:key imageCache:imageCache cacheType:targetStoreCacheType waitStoreCache:waitStoreCache completion:^{
                         // Continue transform process
                         [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData cacheType:cacheType finished:finished completed:completedBlock];
                     }];
                 }
             });
         } else {
-            [self storeImage:originalImage imageData:downloadedData forKey:key imageCache:imageCache cacheType:targetStoreCacheType waitStoreCache:waitStoreCache completion:^{
+            [self storeImage:fullSizeImage imageData:downloadedData forKey:key imageCache:imageCache cacheType:targetStoreCacheType waitStoreCache:waitStoreCache completion:^{
                 // Continue transform process
                 [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData cacheType:cacheType finished:finished completed:completedBlock];
             }];
@@ -558,7 +561,6 @@ static id<SDImageLoader> _defaultImageLoader;
     if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
         transformer = nil;
     }
-    id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
     // transformer check
     BOOL shouldTransformImage = originalImage && transformer;
@@ -588,24 +590,24 @@ static id<SDImageLoader> _defaultImageLoader;
                 NSString *key = [self cacheKeyForURL:url context:context];
                 // Case that transformer one thumbnail, which this time need full pixel image
                 UIImage *fullSizeImage = originalImage;
+                BOOL imageWasRedecoded = NO;
                 if (shouldRedecodeFullImage) {
-                    fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, context) ?: originalImage;
+                    fullSizeImage = SDImageCacheDecodeImageData(originalData, key, options, context);
+                    if (fullSizeImage) {
+                        imageWasRedecoded = YES;
+                    } else {
+                        imageWasRedecoded = NO;
+                        fullSizeImage = originalImage; // Fallback
+                    }
                 }
                 UIImage *transformedImage = [transformer transformedImageWithImage:fullSizeImage forKey:key];
                 if (transformedImage && finished) {
                     BOOL imageWasTransformed = ![transformedImage isEqual:fullSizeImage];
-                    NSData *cacheData;
-                    // pass nil if the image was transformed, so we can recalculate the data from the image
-                    if (cacheSerializer && (storeCacheType == SDImageCacheTypeDisk || storeCacheType == SDImageCacheTypeAll)) {
-                        cacheData = [cacheSerializer cacheDataWithImage:transformedImage originalData:(imageWasTransformed ? nil : originalData) imageURL:url];
-                    } else {
-                        cacheData = (imageWasTransformed ? nil : originalData);
-                    }
                     // Continue store transform cache process
-                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:transformedImage data:cacheData cacheType:cacheType transformed:imageWasTransformed finished:finished completed:completedBlock];
+                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:transformedImage data:originalData cacheType:cacheType finished:finished transformed:imageWasTransformed || imageWasRedecoded completed:completedBlock];
                 } else {
                     // Continue store transform cache process
-                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
+                    [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType finished:finished transformed:imageWasRedecoded completed:completedBlock];
                 }
             }
         });
@@ -613,14 +615,21 @@ static id<SDImageLoader> _defaultImageLoader;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             @autoreleasepool {
                 // Re-decode because the returned image does not match current request pipeline's context
-                UIImage *fullSizeImage = SDImageCacheDecodeImageData(originalData, url.absoluteString, options, context) ?: originalImage;
+                UIImage *fullSizeImage = SDImageCacheDecodeImageData(originalData, url.absoluteString, options, context);
+                BOOL imageWasRedecoded = NO;
+                if (fullSizeImage) {
+                    imageWasRedecoded = YES;
+                } else {
+                    imageWasRedecoded = NO;
+                    fullSizeImage = originalImage; // Fallback
+                }
                 // Continue store transform cache process
-                [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
+                [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:fullSizeImage data:originalData cacheType:cacheType finished:finished transformed:imageWasRedecoded completed:completedBlock];
             }
         });
     } else {
         // Continue store transform cache process
-        [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType transformed:NO finished:finished completed:completedBlock];
+        [self callStoreTransformCacheProcessForOperation:operation url:url options:options context:context image:originalImage data:originalData cacheType:cacheType finished:finished transformed:NO completed:completedBlock];
     }
 }
 
@@ -631,8 +640,8 @@ static id<SDImageLoader> _defaultImageLoader;
                                              image:(nullable UIImage *)image
                                               data:(nullable NSData *)data
                                          cacheType:(SDImageCacheType)cacheType
-                                       transformed:(BOOL)transformed
                                           finished:(BOOL)finished
+                                       transformed:(BOOL)transformed
                                          completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use
     id<SDImageCache> imageCache;
@@ -647,18 +656,19 @@ static id<SDImageLoader> _defaultImageLoader;
     if (context[SDWebImageContextStoreCacheType]) {
         storeCacheType = [context[SDWebImageContextStoreCacheType] integerValue];
     }
-    // Hack: SDImageCache's queryImage API handle the thumbnail context option (in `SDImageCacheDecodeImageData`)
-    // but the storeImage does not handle the thumbnail context option
-    // to keep exist SDImageCache's impl compatible, we introduce this helper
-    NSData *cacheData = data;
-    BOOL thumbnailed = context[SDWebImageContextImageThumbnailPixelSize] != nil;
-    if (thumbnailed) {
-        // Thumbnail decoding already stored original data before in `storeCacheProcess`
-        // Here we only store the thumbnail image to memory for thumbnail cache key
-        cacheData = nil;
-    }
-    BOOL shouldCache = transformed || thumbnailed;
-    if (shouldCache) {
+    id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
+    // thumbnail check
+    BOOL shouldThumbnailImage = context[SDWebImageContextImageThumbnailPixelSize] != nil || image.sd_decodeOptions[SDImageCoderDecodeThumbnailPixelSize] != nil;
+    
+    // Store the transformed/thumbnail image into the cache
+    if (transformed || shouldThumbnailImage) {
+        NSData *cacheData;
+        // pass nil if the image was transformed/thumbnailed, so we can recalculate the data from the image
+        if (cacheSerializer && (storeCacheType == SDImageCacheTypeDisk || storeCacheType == SDImageCacheTypeAll)) {
+            cacheData = [cacheSerializer cacheDataWithImage:image originalData:nil imageURL:url];
+        } else {
+            cacheData = nil;
+        }
         // transformed/thumbnailed cache key
         NSString *key = [self cacheKeyForURL:url context:context];
         [self storeImage:image imageData:cacheData forKey:key imageCache:imageCache cacheType:storeCacheType waitStoreCache:waitStoreCache completion:^{
