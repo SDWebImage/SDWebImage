@@ -13,8 +13,7 @@
 #import "UIImage+Metadata.h"
 #import "SDInternalMacros.h"
 
-UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
-    UIImage *image;
+SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext * _Nullable context, SDWebImageOptions options, NSString * _Nonnull cacheKey) {
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
@@ -37,6 +36,17 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
     mutableCoderOptions[SDImageCoderWebImageContext] = context;
     SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
+    
+    return coderOptions;
+}
+
+UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
+    NSCParameterAssert(imageData);
+    NSCParameterAssert(cacheKey);
+    UIImage *image;
+    SDImageCoderOptions *coderOptions = SDGetDecodeOptionsFromContext(context, options, cacheKey);
+    BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
+    CGFloat scale = [coderOptions[SDImageCoderDecodeScaleFactor] doubleValue];
     
     // Grab the image coder
     id<SDImageCoder> imageCoder;
@@ -79,6 +89,8 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
+        // assign the decode options, to let manager check whether to re-decode if needed
+        image.sd_decodeOptions = coderOptions;
     }
     
     return image;

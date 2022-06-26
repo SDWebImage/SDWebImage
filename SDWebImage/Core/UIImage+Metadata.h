@@ -8,6 +8,7 @@
 
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
+#import "SDImageCoder.h"
 
 /**
  UIImage category for image metadata, including animation, loop count, format, incremental, etc.
@@ -64,5 +65,13 @@
  A bool value indicating whether the image is during incremental decoding and may not contains full pixels.
  */
 @property (nonatomic, assign) BOOL sd_isIncremental;
+
+/**
+ A dictionary value contains the decode options when decoded from SDWebImage loading system (say, `SDImageCacheDecodeImageData/SDImageLoaderDecode[Progressive]ImageData`)
+ It may not always available and only image decoding related options will be saved. (including [.decodeScaleFactor, .decodeThumbnailPixelSize, .decodePreserveAspectRatio, .decodeFirstFrameOnly])
+ @note This is used to identify and check the image from downloader when multiple different request (which want different image thumbnail size, image class, etc) share the same URLOperation.
+ @warning This API exist only because of current SDWebImageDownloader bad design which does not callback the context we call it. There will be refactory in future (API break) and you SHOULD NOT rely on this property at all.
+ */
+@property (nonatomic, copy) SDImageCoderOptions *sd_decodeOptions;
 
 @end

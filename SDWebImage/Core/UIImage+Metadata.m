@@ -186,4 +186,16 @@
     return value.boolValue;
 }
 
+- (void)setSd_decodeOptions:(SDImageCoderOptions *)sd_decodeOptions {
+    objc_setAssociatedObject(self, @selector(sd_decodeOptions), sd_decodeOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (SDImageCoderOptions *)sd_decodeOptions {
+    SDImageCoderOptions *value = objc_getAssociatedObject(self, @selector(sd_decodeOptions));
+    if ([value isKindOfClass:NSDictionary.class]) {
+        return value;
+    }
+    return nil;
+}
+
 @end

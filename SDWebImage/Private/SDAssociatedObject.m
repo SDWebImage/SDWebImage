@@ -18,6 +18,7 @@ void SDImageCopyAssociatedObject(UIImage * _Nullable source, UIImage * _Nullable
     }
     // Image Metadata
     target.sd_isIncremental = source.sd_isIncremental;
+    target.sd_decodeOptions = source.sd_decodeOptions;
     target.sd_imageLoopCount = source.sd_imageLoopCount;
     target.sd_imageFormat = source.sd_imageFormat;
     // Force Decode

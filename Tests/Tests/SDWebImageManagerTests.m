@@ -265,6 +265,7 @@
     NSUInteger defaultLimitBytes = SDImageCoderHelper.defaultScaleDownLimitBytes;
     SDImageCoderHelper.defaultScaleDownLimitBytes = 1000 * 1000 * 4; // Limit 1000x1000 pixel
     // From v5.5.0, the `SDWebImageScaleDownLargeImages` translate to `SDWebImageContextImageThumbnailPixelSize`, and works for progressive loading
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:originalImageURL.absoluteString];
     [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages | SDWebImageProgressiveLoad progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();
         expect(image.size).equal(CGSizeMake(1000, 1000));
@@ -415,6 +416,108 @@
     }];
     
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 10 handler:nil];
+}
+
+- (void)test17ThatThumbnailCacheQueryNotWriteToWrongKey {
+    // 1. When query thumbnail decoding for SDImageCache, the thumbnailed image should not stored into full size key
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Thumbnail for cache should not store the wrong key"];
+    
+    // 500x500
+    CGSize fullSize = CGSizeMake(500, 500);
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:fullSize];
+    UIImage *fullSizeImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetRGBFillColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextFillRect(context, CGRectMake(0, 0, fullSize.width, fullSize.height));
+    }];
+    expect(fullSizeImage.size).equal(fullSize);
+    
+    NSString *fullSizeKey = @"kTestRectangle";
+    // Disk only
+    [SDImageCache.sharedImageCache storeImageDataToDisk:fullSizeImage.sd_imageData forKey:fullSizeKey];
+    
+    CGSize thumbnailSize = CGSizeMake(100, 100);
+    NSString *thumbnailKey = SDThumbnailedKeyForKey(fullSizeKey, thumbnailSize, YES);
+    // thumbnail size key miss, full size key hit
+    [SDImageCache.sharedImageCache queryCacheOperationForKey:fullSizeKey options:0 context:@{SDWebImageContextImageThumbnailPixelSize : @(thumbnailSize)} done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(image.size).equal(thumbnailSize);
+        expect(cacheType).equal(SDImageCacheTypeDisk);
+        // Currently, thumbnail decoding does not write back to the original key's memory cache
+        // But this may change in the future once I change the API for `SDImageCacheProtocol`
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:fullSizeKey]).beNil();
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:thumbnailKey]).beNil();
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test18ThatThumbnailLoadingCanUseFullSizeCache {
+    // 2. When using SDWebImageManager to load thumbnail image, it will prefers the full size image and thumbnail decoding on the fly, no network
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Thumbnail for loading should prefers full size cache when thumbnail cache miss, like Transformer behavior"];
+    
+    // 500x500
+    CGSize fullSize = CGSizeMake(500, 500);
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:fullSize];
+    UIImage *fullSizeImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetRGBFillColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextFillRect(context, CGRectMake(0, 0, fullSize.width, fullSize.height));
+    }];
+    expect(fullSizeImage.size).equal(fullSize);
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/500x500.png"];
+    NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    [SDImageCache.sharedImageCache storeImageDataToDisk:fullSizeImage.sd_imageData forKey:fullSizeKey];
+    
+    CGSize thumbnailSize = CGSizeMake(100, 100);
+    NSString *thumbnailKey = SDThumbnailedKeyForKey(fullSizeKey, thumbnailSize, YES);
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:thumbnailKey];
+    // Load with thumbnail, should use full size cache instead to decode and scale down
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageThumbnailPixelSize : @(thumbnailSize)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image.size).equal(thumbnailSize);
+        expect(cacheType).equal(SDImageCacheTypeDisk);
+        expect(finished).beTruthy();
+        
+        // The thumbnail one should stored into memory and disk cache with thumbnail key as well
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:thumbnailKey].size).equal(thumbnailSize);
+        expect([SDImageCache.sharedImageCache imageFromDiskCacheForKey:thumbnailKey].size).equal(thumbnailSize);
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test19ThatDifferentThumbnailLoadShouldCallbackDifferentSize {
+    // 3. Current SDWebImageDownloader use the **URL** as primiary key to bind operation, however, different loading pipeline may ask different image size for same URL, this design does not match
+    // We use a hack logic to do a re-decode check when the callback image's decode options does not match the loading pipeline provided, it will re-decode the full data with global queue :)
+    // Ugly unless we re-define the design of SDWebImageDownloader, maybe change that `addHandlersForProgress` with context options args as well. Different context options need different callback image
+    
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/501x501.png"];
+    NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
+    for (int i = 490; i < 500; i++) {
+        // 490x490, ..., 499x499
+        CGSize thumbnailSize = CGSizeMake(i, i);
+        NSString *thumbnailKey = SDThumbnailedKeyForKey(fullSizeKey, thumbnailSize, YES);
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:thumbnailKey];
+        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Different thumbnail loading for same URL should callback different image size: (%dx%d)", i, i]];
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:url.absoluteString];
+        __block SDWebImageCombinedOperation *operation;
+        operation = [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageThumbnailPixelSize : @(thumbnailSize)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            expect(image.size).equal(thumbnailSize);
+            expect(cacheType).equal(SDImageCacheTypeNone);
+            expect(finished).beTruthy();
+            
+            NSURLRequest *request = ((SDWebImageDownloadToken *)operation.loaderOperation).request;
+            NSLog(@"thumbnail image size: (%dx%d) loaded with the shared request: %p", i, i, request);
+            [expectation fulfill];
+        }];
+    }
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
 }
 
 - (NSString *)testJPEGPath {

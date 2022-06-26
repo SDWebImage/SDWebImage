@@ -373,7 +373,11 @@ static NSString * _defaultDiskCacheDirectory;
         SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
         shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
     }
-    if (diskImage && self.config.shouldCacheImagesInMemory && shouldCacheToMomery) {
+    if (context[SDWebImageContextImageThumbnailPixelSize]) {
+        // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
+        shouldCacheToMomery = NO;
+    }
+    if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = diskImage.sd_memoryCost;
         [self.memoryCache setObject:diskImage forKey:key cost:cost];
     }
@@ -580,6 +584,10 @@ static NSString * _defaultDiskCacheDirectory;
             if (context[SDWebImageContextStoreCacheType]) {
                 SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
                 shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+            }
+            if (context[SDWebImageContextImageThumbnailPixelSize]) {
+                // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
+                shouldCacheToMomery = NO;
             }
             // decode image data only if in-memory cache missed
             diskImage = [self diskImageForKey:key data:diskData options:options context:context];
