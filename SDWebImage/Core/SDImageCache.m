@@ -15,6 +15,42 @@
 #import "UIImage+Metadata.h"
 #import "UIImage+ExtendedCacheData.h"
 
+@interface SDImageCacheToken ()
+
+@property (nonatomic, strong, nullable, readwrite) NSString *key;
+@property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
+@property (nonatomic, copy, nullable) SDImageCacheQueryCompletionBlock doneBlock;
+
+@end
+
+@implementation SDImageCacheToken
+
+-(instancetype)initWithDoneBlock:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
+    self = [super init];
+    if (self) {
+        self.doneBlock = doneBlock;
+    }
+    return self;
+}
+
+- (void)cancel {
+    @synchronized (self) {
+        if (self.isCancelled) {
+            return;
+        }
+        self.cancelled = YES;
+        
+        dispatch_main_async_safe(^{
+            if (self.doneBlock) {
+                self.doneBlock(nil, nil, SDImageCacheTypeNone);
+                self.doneBlock = nil;
+            }
+        });
+    }
+}
+
+@end
+
 static NSString * _defaultDiskCacheDirectory;
 
 @interface SDImageCache ()
@@ -493,19 +529,19 @@ static NSString * _defaultDiskCacheDirectory;
     image.sd_extendedObject = extendedObject;
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key done:(SDImageCacheQueryCompletionBlock)doneBlock {
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(NSString *)key done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:0 done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDImageCacheQueryCompletionBlock)doneBlock {
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(NSString *)key options:(SDImageCacheOptions)options done:(SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:options context:nil done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
     return [self queryCacheOperationForKey:key options:options context:context cacheType:SDImageCacheTypeAll done:doneBlock];
 }
 
-- (nullable NSOperation *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)queryCacheType done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
+- (nullable SDImageCacheToken *)queryCacheOperationForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)queryCacheType done:(nullable SDImageCacheQueryCompletionBlock)doneBlock {
     if (!key) {
         if (doneBlock) {
             doneBlock(nil, nil, SDImageCacheTypeNone);
@@ -556,23 +592,28 @@ static NSString * _defaultDiskCacheDirectory;
     }
     
     // Second check the disk cache...
-    NSOperation *operation = [NSOperation new];
+    SDImageCacheToken *operation = [[SDImageCacheToken alloc] initWithDoneBlock:doneBlock];
+    operation.key = key;
     // Check whether we need to synchronously query disk
     // 1. in-memory cache hit & memoryDataSync
     // 2. in-memory cache miss & diskDataSync
     BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryMemoryDataSync) ||
                                 (!image && options & SDImageCacheQueryDiskDataSync));
     NSData* (^queryDiskDataBlock)(void) = ^NSData* {
-        if (operation.isCancelled) {
-            return nil;
+        @synchronized (operation) {
+            if (operation.isCancelled) {
+                return nil;
+            }
         }
         
         return [self diskImageDataBySearchingAllPathsForKey:key];
     };
     
     UIImage* (^queryDiskImageBlock)(NSData*) = ^UIImage*(NSData* diskData) {
-        if (operation.isCancelled) {
-            return nil;
+        @synchronized (operation) {
+            if (operation.isCancelled) {
+                return nil;
+            }
         }
         
         UIImage *diskImage;
@@ -614,6 +655,11 @@ static NSString * _defaultDiskCacheDirectory;
         dispatch_async(self.ioQueue, ^{
             NSData* diskData = queryDiskDataBlock();
             UIImage* diskImage = queryDiskImageBlock(diskData);
+            @synchronized (operation) {
+                if (operation.isCancelled) {
+                    return;
+                }
+            }
             if (doneBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
