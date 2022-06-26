@@ -1,3 +1,26 @@
+## [5.13.0 - Thumbnail, on Jun 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.0)
+See [all tickets marked for the 5.13.0 release](https://github.com/SDWebImage/SDWebImage/milestone/97)
+
+### Features
+
+#### Thumbnail
+- Change thumbnail cache behavior as expected, share cache through different loading pipeline without extra download #3362
+- Now the thumbnail behavior more like transformer. When request different thumbnail size and cache miss, it prefers to query full size disk cache again, then decode for request thumbnail size without actual network download
+
+#### Coder
+- Added new API for custom coder better handling the thumbnail size #3359
+
+#### Cache
+- Allows store image data only and introduce async API #3336
+- Now the queryCacheOperationForKey API return `SDImageCacheToken` instead of useless placeholder `NSOperation`. When you cancel the cache query from main queue, it will callback in sync instead of async
+
+### Performance
+- Support using iOS 15 UIImage new API imageByPreparingForDisplay for faster force decoding #3355 #3340
+
+### Fixes
+- Fix the encodeMaxPixelSize logic #3357
+- Fix the case when user cancel the image loading for same URL in sequence cause placeholder mass #3363
+
 ## [5.12.6 - 5.12 Patch, on Jun 12th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.12.6)
 See [all tickets marked for the 5.12.6 release](https://github.com/SDWebImage/SDWebImage/milestone/95)
 
