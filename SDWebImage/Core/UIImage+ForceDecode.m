@@ -14,7 +14,7 @@
 
 - (BOOL)sd_isDecoded {
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isDecoded));
-    if (value) {
+    if (value != nil) {
         return value.boolValue;
     } else {
         // Assume only CGImage based can use lazy decoding

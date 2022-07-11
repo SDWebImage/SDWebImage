@@ -22,6 +22,8 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
     return ((size + (alignment - 1)) / alignment) * alignment;
 }
 
+static SDImageCoderDecodeSolution kDefaultDecodeSolution = SDImageCoderDecodeSolutionCoreGraphics;
+
 static const size_t kBytesPerPixel = 4;
 static const size_t kBitsPerComponent = 8;
 
@@ -370,12 +372,14 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #if SD_UIKIT
     // See: https://developer.apple.com/documentation/uikit/uiimage/3750834-imagebypreparingfordisplay
     // Need CGImage-based
-    if (@available(iOS 15, tvOS 15, *)) {
-        UIImage *decodedImage = [image imageByPreparingForDisplay];
-        if (decodedImage) {
-            SDImageCopyAssociatedObject(image, decodedImage);
-            decodedImage.sd_isDecoded = YES;
-            return decodedImage;
+    if (self.defaultDecodeSolution == SDImageCoderDecodeSolutionUIKit) {
+        if (@available(iOS 15, tvOS 15, *)) {
+            UIImage *decodedImage = [image imageByPreparingForDisplay];
+            if (decodedImage) {
+                SDImageCopyAssociatedObject(image, decodedImage);
+                decodedImage.sd_isDecoded = YES;
+                return decodedImage;
+            }
         }
     }
 #endif
@@ -435,15 +439,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #if SD_UIKIT
     // See: https://developer.apple.com/documentation/uikit/uiimage/3750835-imagebypreparingthumbnailofsize
     // Need CGImage-based
-    if (@available(iOS 15, tvOS 15, *)) {
-        // Calculate thumbnail point size
-        CGFloat scale = image.scale ?: 1;
-        CGSize thumbnailSize = CGSizeMake(destResolution.width / scale, destResolution.height / scale);
-        UIImage *decodedImage = [image imageByPreparingThumbnailOfSize:thumbnailSize];
-        if (decodedImage) {
-            SDImageCopyAssociatedObject(image, decodedImage);
-            decodedImage.sd_isDecoded = YES;
-            return decodedImage;
+    if (self.defaultDecodeSolution == SDImageCoderDecodeSolutionUIKit) {
+        if (@available(iOS 15, tvOS 15, *)) {
+            // Calculate thumbnail point size
+            CGFloat scale = image.scale ?: 1;
+            CGSize thumbnailSize = CGSizeMake(destResolution.width / scale, destResolution.height / scale);
+            UIImage *decodedImage = [image imageByPreparingThumbnailOfSize:thumbnailSize];
+            if (decodedImage) {
+                SDImageCopyAssociatedObject(image, decodedImage);
+                decodedImage.sd_isDecoded = YES;
+                return decodedImage;
+            }
         }
     }
 #endif
@@ -555,6 +561,14 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         destImage.sd_isDecoded = YES;
         return destImage;
     }
+}
+
++ (SDImageCoderDecodeSolution)defaultDecodeSolution {
+    return kDefaultDecodeSolution;
+}
+
++ (void)setDefaultDecodeSolution:(SDImageCoderDecodeSolution)defaultDecodeSolution {
+    kDefaultDecodeSolution = defaultDecodeSolution;
 }
 
 + (NSUInteger)defaultScaleDownLimitBytes {

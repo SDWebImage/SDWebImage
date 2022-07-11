@@ -10,6 +10,13 @@
 #import "SDWebImageCompat.h"
 #import "SDImageFrame.h"
 
+typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
+    /// always use the CoreGraphics to redraw on bitmap context, best compatibility
+    SDImageCoderDecodeSolutionCoreGraphics,
+    /// available on iOS/tvOS 15+, use UIKit's new CGImageDecompressor, best performance. If failed, will fallback to CoreGraphics as well
+    SDImageCoderDecodeSolutionUIKit
+};
+
 /**
  Provide some common helper methods for building the image decoder/encoder.
  */
@@ -110,6 +117,12 @@
  @return The decoded and probably scaled down image
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
+
+/** Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.
+ @note Defaults to `SDImageCoderDecodeSolutionCoreGraphics`
+ @note You can opt-in to use `SDImageCoderDecodeSolutionUIKit`, which will prefer to use UIKit on iOS 15, and fallback to CoreGraphics instead.
+ */
+@property (class, readwrite) SDImageCoderDecodeSolution defaultDecodeSolution;
 
 /**
  Control the default limit bytes to scale down largest images.
