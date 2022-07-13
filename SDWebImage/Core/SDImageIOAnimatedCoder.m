@@ -215,19 +215,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     BOOL createFullImage = thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height);
     if (createFullImage) {
         if (isVector) {
-            if (thumbnailSize.width == 0 || thumbnailSize.height == 0) {
-                // Provide the default pixel count for vector images, simply just use the screen size
-#if SD_WATCH
-                thumbnailSize = WKInterfaceDevice.currentDevice.screenBounds.size;
-#elif SD_UIKIT
-                thumbnailSize = UIScreen.mainScreen.bounds.size;
-#elif SD_MAC
-                thumbnailSize = NSScreen.mainScreen.frame.size;
-#endif
-            }
-            CGFloat maxPixelSize = MAX(thumbnailSize.width, thumbnailSize.height);
-            NSUInteger DPIPerPixel = 2;
-            NSUInteger rasterizationDPI = maxPixelSize * DPIPerPixel;
+            // Use 72 DPI by default, matching Apple's PDFKit behavior
+            NSUInteger rasterizationDPI = 72;
             decodingOptions[kSDCGImageSourceRasterizationDPI] = @(rasterizationDPI);
         }
         imageRef = CGImageSourceCreateImageAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
