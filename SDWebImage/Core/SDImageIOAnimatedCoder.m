@@ -197,13 +197,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     if (!exifOrientation) {
         exifOrientation = kCGImagePropertyOrientationUp;
     }
-    
-    CFStringRef uttype = CGImageSourceGetType(source);
-    // Check vector format
-    BOOL isVector = NO;
-    if ([NSData sd_imageFormatFromUTType:uttype] == SDImageFormatPDF) {
-        isVector = YES;
-    }
 
     NSMutableDictionary *decodingOptions;
     if (options) {
@@ -214,11 +207,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGImageRef imageRef;
     BOOL createFullImage = thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height);
     if (createFullImage) {
-        if (isVector) {
-            // Use 72 DPI by default, matching Apple's PDFKit behavior
-            NSUInteger rasterizationDPI = 72;
-            decodingOptions[kSDCGImageSourceRasterizationDPI] = @(rasterizationDPI);
-        }
         imageRef = CGImageSourceCreateImageAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
     } else {
         decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);

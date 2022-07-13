@@ -11,6 +11,12 @@
 #import "UIColor+SDHexString.h"
 #import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
+@interface SDImageIOCoder ()
+
++ (CGRect)boxRectFromPDFFData:(nonnull NSData *)data;
+
+@end
+
 @interface SDWebImageDecoderTests : SDTestCase
 
 @end
@@ -437,15 +443,14 @@ withLocalImageURL:(NSURL *)imageUrl
     CGFloat pixelHeight = inputImage.size.height;
     expect(pixelWidth).beGreaterThan(0);
     expect(pixelHeight).beGreaterThan(0);
-    // check vector format supports thumbnail with screen size
+    // check vector format should use 72 DPI
     if (isVector) {
-#if SD_UIKIT
-        CGFloat maxScreenSize = MAX(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
-#else
-        CGFloat maxScreenSize = MAX(NSScreen.mainScreen.frame.size.width, NSScreen.mainScreen.frame.size.height);
-#endif
-        expect(pixelWidth).equal(maxScreenSize);
-        expect(pixelHeight).equal(maxScreenSize);
+        CGRect boxRect = [SDImageIOCoder boxRectFromPDFFData:inputImageData];
+        expect(boxRect.size.width).beGreaterThan(0);
+        expect(boxRect.size.height).beGreaterThan(0);
+        // Since 72 DPI is 1:1 from inch size to pixel size
+        expect(boxRect.size.width).equal(pixelWidth);
+        expect(boxRect.size.height).equal(pixelHeight);
     }
     
     // check thumbnail with scratch
