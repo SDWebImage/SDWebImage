@@ -132,8 +132,13 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             }
         }
         decodingOptions = @{
+            // This option will cause ImageIO return the pixel size from `CGImageSourceCopyProperties`
+            // If not provided, it always return 0 size
             kSDCGImageSourceRasterizationDPI : @(rasterizationDPI),
         };
+        // Already calculated DPI, avoid re-calculation based on thumbnail information
+        preserveAspectRatio = YES;
+        thumbnailSize = CGSizeZero;
     }
     
     UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize options:decodingOptions];
