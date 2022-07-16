@@ -9,6 +9,7 @@
 #import "UIImage+ForceDecode.h"
 #import "SDImageCoderHelper.h"
 #import "objc/runtime.h"
+#import "NSImage+Compatibility.h"
 
 @implementation UIImage (ForceDecode)
 

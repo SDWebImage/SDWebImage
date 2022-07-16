@@ -11,9 +11,11 @@
 #import "SDImageFrame.h"
 
 typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
-    /// always use the CoreGraphics to redraw on bitmap context, best compatibility
+    /// automatically choose the solution based on image format, hardware, OS version. This keep balance for compatibility and performance. Default after SDWebImage 5.13.0
+    SDImageCoderDecodeSolutionAutomatic,
+    /// always use CoreGraphics to draw on bitmap context and trigger decode. Best compatibility. Default before SDWebImage 5.13.0
     SDImageCoderDecodeSolutionCoreGraphics,
-    /// available on iOS/tvOS 15+, use UIKit's new CGImageDecompressor, best performance. If failed, will fallback to CoreGraphics as well
+    /// available on iOS/tvOS 15+, use UIKit's new CGImageDecompressor/CMPhoto to decode. Best performance. If failed, will fallback to CoreGraphics as well
     SDImageCoderDecodeSolutionUIKit
 };
 
@@ -118,9 +120,9 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
 
-/** Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.
- @note Defaults to `SDImageCoderDecodeSolutionCoreGraphics`
- @note You can opt-in to use `SDImageCoderDecodeSolutionUIKit`, which will prefer to use UIKit on iOS 15, and fallback to CoreGraphics instead.
+/**
+ Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.
+ @note Defaults to `SDImageCoderDecodeSolutionAutomatic`, which prefers to use UIKit for JPEG/HEIF, and fallback on CoreGraphics. If you want control on your hand, set the other solution.
  */
 @property (class, readwrite) SDImageCoderDecodeSolution defaultDecodeSolution;
 
