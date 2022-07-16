@@ -57,9 +57,85 @@ static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageS
     return rect;
 }
 
-static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel) {
-    CGFloat w = pixel[0] / 255.0;
-    CGFloat a = pixel[1] / 255.0;
+static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel, CGBitmapInfo bitmapInfo) {
+    // Get alpha info, byteOrder info
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    CGFloat w = 0, a = 1;
+    
+    BOOL byteOrderNormal = NO;
+    switch (byteOrderInfo) {
+        case kCGBitmapByteOrderDefault: {
+            byteOrderNormal = YES;
+        } break;
+        case kCGBitmapByteOrder32Little: {
+        } break;
+        case kCGBitmapByteOrder32Big: {
+            byteOrderNormal = YES;
+        } break;
+        default: break;
+    }
+    switch (alphaInfo) {
+        case kCGImageAlphaPremultipliedFirst:
+        case kCGImageAlphaFirst: {
+            if (byteOrderNormal) {
+                // AW
+                a = pixel[0] / 255.0;
+                w = pixel[1] / 255.0;
+            } else {
+                // WA
+                w = pixel[0] / 255.0;
+                a = pixel[1] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaPremultipliedLast:
+        case kCGImageAlphaLast: {
+            if (byteOrderNormal) {
+                // WA
+                w = pixel[0] / 255.0;
+                a = pixel[1] / 255.0;
+            } else {
+                // AW
+                a = pixel[0] / 255.0;
+                w = pixel[1] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNone: {
+            // W
+            w = pixel[0] / 255.0;
+        }
+            break;
+        case kCGImageAlphaNoneSkipLast: {
+            if (byteOrderNormal) {
+                // WX
+                w = pixel[0] / 255.0;
+            } else {
+                // XW
+                a = pixel[1] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaNoneSkipFirst: {
+            if (byteOrderNormal) {
+                // XW
+                a = pixel[1] / 255.0;
+            } else {
+                // WX
+                a = pixel[0] / 255.0;
+            }
+        }
+            break;
+        case kCGImageAlphaOnly: {
+            // A
+            a = pixel[0] / 255.0;
+        }
+            break;
+        default:
+            break;
+    }
+    
     return [UIColor colorWithWhite:w alpha:a];
 }
 
@@ -489,8 +565,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         CFRelease(data);
         CGImageRelease(imageRef);
         // Convert to color
-        return SDGetColorFromGrayscale(pixel);
-    } else {
+        return SDGetColorFromGrayscale(pixel, bitmapInfo);
+    } else if (components == 3 || components == 4) {
         // RGB/RGBA
         Pixel_8888 pixel = {0};
         CFDataGetBytes(data, range, pixel);
@@ -498,6 +574,9 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         CGImageRelease(imageRef);
         // Convert to color
         return SDGetColorFromRGBA(pixel, bitmapInfo);
+    } else {
+        NSLog(@"Unsupported components: %zu", components);
+        return nil;
     }
 }
 
@@ -567,17 +646,21 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         UIColor *color;
         if (components == 2) {
             Pixel_88 pixel = {pixels[index], pixel[index+1]};
-            color = SDGetColorFromGrayscale(pixel);
+            color = SDGetColorFromGrayscale(pixel, bitmapInfo);
         } else {
             if (components == 3) {
                 Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], 0};
                 color = SDGetColorFromRGBA(pixel, bitmapInfo);
-            } else {
+            } else if (components == 4) {
                 Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
                 color = SDGetColorFromRGBA(pixel, bitmapInfo);
+            } else {
+                NSLog(@"Unsupported components: %zu", components);
             }
         }
-        [colors addObject:color];
+        if (color) {
+            [colors addObject:color];
+        }
     }
     CFRelease(data);
     CGImageRelease(imageRef);
