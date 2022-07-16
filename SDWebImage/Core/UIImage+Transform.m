@@ -57,7 +57,13 @@ static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageS
     return rect;
 }
 
-static inline UIColor * SDGetColorFromPixel(Pixel_8888 pixel, CGBitmapInfo bitmapInfo) {
+static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel) {
+    CGFloat w = pixel[0] / 255.0;
+    CGFloat a = pixel[1] / 255.0;
+    return [UIColor colorWithWhite:w alpha:a];
+}
+
+static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmapInfo) {
     // Get alpha info, byteOrder info
     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
     CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
@@ -470,18 +476,29 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     
-    CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, 4);
+    CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, components);
     if (CFDataGetLength(data) < range.location + range.length) {
         CFRelease(data);
         CGImageRelease(imageRef);
         return nil;
     }
-    Pixel_8888 pixel = {0};
-    CFDataGetBytes(data, range, pixel);
-    CFRelease(data);
-    CGImageRelease(imageRef);
-    // Convert to color
-    return SDGetColorFromPixel(pixel, bitmapInfo);
+    // greyscale
+    if (components == 2) {
+        Pixel_88 pixel = {0};
+        CFDataGetBytes(data, range, pixel);
+        CFRelease(data);
+        CGImageRelease(imageRef);
+        // Convert to color
+        return SDGetColorFromGrayscale(pixel);
+    } else {
+        // RGB/RGBA
+        Pixel_8888 pixel = {0};
+        CFDataGetBytes(data, range, pixel);
+        CFRelease(data);
+        CGImageRelease(imageRef);
+        // Convert to color
+        return SDGetColorFromRGBA(pixel, bitmapInfo);
+    }
 }
 
 - (nullable NSArray<UIColor *> *)sd_colorsWithRect:(CGRect)rect {
@@ -539,16 +556,27 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     // Convert to color
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     NSMutableArray<UIColor *> *colors = [NSMutableArray arrayWithCapacity:CGRectGetWidth(rect) * CGRectGetHeight(rect)];
-    for (size_t index = start; index < end; index += 4) {
+    for (size_t index = start; index < end; index += components) {
         if (index >= row * bytesPerRow + col * components) {
             // Index beyond the end of current row, go next row
             row++;
             index = row * bytesPerRow + CGRectGetMinX(rect) * components;
-            index -= 4;
+            index -= components;
             continue;
         }
-        Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
-        UIColor *color = SDGetColorFromPixel(pixel, bitmapInfo);
+        UIColor *color;
+        if (components == 2) {
+            Pixel_88 pixel = {pixels[index], pixel[index+1]};
+            color = SDGetColorFromGrayscale(pixel);
+        } else {
+            if (components == 3) {
+                Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], 0};
+                color = SDGetColorFromRGBA(pixel, bitmapInfo);
+            } else {
+                Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
+                color = SDGetColorFromRGBA(pixel, bitmapInfo);
+            }
+        }
         [colors addObject:color];
     }
     CFRelease(data);
