@@ -576,6 +576,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         return SDGetColorFromRGBA(pixel, bitmapInfo);
     } else {
         NSLog(@"Unsupported components: %zu", components);
+        CFRelease(data);
+        CGImageRelease(imageRef);
         return nil;
     }
 }
