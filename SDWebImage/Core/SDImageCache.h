@@ -55,6 +55,9 @@ typedef NS_OPTIONS(NSUInteger, SDImageCacheOptions) {
     SDImageCacheMatchAnimatedImageClass = 1 << 7,
 };
 
+/**
+ *  A token associated with each cache query. Can be used to cancel a cache query
+ */
 @interface SDImageCacheToken : NSObject <SDWebImageOperation>
 
 /**

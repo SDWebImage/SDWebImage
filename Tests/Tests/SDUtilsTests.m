@@ -127,11 +127,18 @@
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
     UIColor *color = UIColor.redColor;
     UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
-        [color setFill];
+        CGContextSetFillColorWithColor(context, [color CGColor]);
         CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
     }];
     expect(image.scale).equal(format.scale);
-    expect([[image sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString isEqualToString:color.sd_hexString]).beTruthy();
+    expect([image sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString).equal(color.sd_hexString);
+    
+    UIColor *grayscaleColor = UIColor.blackColor;
+    UIImage *grayscaleImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetFillColorWithColor(context, [grayscaleColor CGColor]);
+        CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+    }];
+    expect([grayscaleImage sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString).equal(grayscaleColor.sd_hexString);
 }
 
 - (void)testSDScaledImageForKey {

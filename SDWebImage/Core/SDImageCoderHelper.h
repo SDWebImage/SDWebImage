@@ -10,6 +10,15 @@
 #import "SDWebImageCompat.h"
 #import "SDImageFrame.h"
 
+typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
+    /// automatically choose the solution based on image format, hardware, OS version. This keep balance for compatibility and performance. Default after SDWebImage 5.13.0
+    SDImageCoderDecodeSolutionAutomatic,
+    /// always use CoreGraphics to draw on bitmap context and trigger decode. Best compatibility. Default before SDWebImage 5.13.0
+    SDImageCoderDecodeSolutionCoreGraphics,
+    /// available on iOS/tvOS 15+, use UIKit's new CGImageDecompressor/CMPhoto to decode. Best performance. If failed, will fallback to CoreGraphics as well
+    SDImageCoderDecodeSolutionUIKit
+};
+
 /**
  Provide some common helper methods for building the image decoder/encoder.
  */
@@ -110,6 +119,12 @@
  @return The decoded and probably scaled down image
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
+
+/**
+ Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.
+ @note Defaults to `SDImageCoderDecodeSolutionAutomatic`, which prefers to use UIKit for JPEG/HEIF, and fallback on CoreGraphics. If you want control on your hand, set the other solution.
+ */
+@property (class, readwrite) SDImageCoderDecodeSolution defaultDecodeSolution;
 
 /**
  Control the default limit bytes to scale down largest images.

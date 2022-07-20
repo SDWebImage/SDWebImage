@@ -9,12 +9,30 @@
 #import "UIImage+ForceDecode.h"
 #import "SDImageCoderHelper.h"
 #import "objc/runtime.h"
+#import "NSImage+Compatibility.h"
 
 @implementation UIImage (ForceDecode)
 
 - (BOOL)sd_isDecoded {
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isDecoded));
-    return value.boolValue;
+    if (value != nil) {
+        return value.boolValue;
+    } else {
+        // Assume only CGImage based can use lazy decoding
+        CGImageRef cgImage = self.CGImage;
+        if (cgImage) {
+            CFStringRef uttype = CGImageGetUTType(self.CGImage);
+            if (uttype) {
+                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+                return NO;
+            } else {
+                // Thumbnail or CGBitmapContext drawn image
+                return YES;
+            }
+        }
+    }
+    // Assume others as non-decoded
+    return NO;
 }
 
 - (void)setSd_isDecoded:(BOOL)sd_isDecoded {

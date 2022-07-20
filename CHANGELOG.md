@@ -1,3 +1,17 @@
+## [5.13.1 - 5.13 Patch, on Jul 16th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.1)
+See [all tickets marked for the 5.13.1 release](https://github.com/SDWebImage/SDWebImage/milestone/98)
+
+### Features
+- Added `SDImageCoderHelper.defaultDecodeSolution` to control the force decode solution. Automatic by default #3368 #3365
+- Now imageByPreparingForDisplay is only applied for JPEG/HEIF images. If you want the 5.12.0 behavior, set the solution to `.uiKit` instead
+
+### Fixes
+- Fix the PDF image without thumbnailPixelSize will result huge bitmap size, now fixed into 72 DPI matching PDFKit #3370
+- Fix `sd_colorAtPoint` and `sd_colorsWithRect` support for grayscale image (white and alpha) #3372
+
+### Warnings
+- Fix the clang analyze issue #3373
+
 ## [5.13.0 - Thumbnail, on Jun 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.0)
 See [all tickets marked for the 5.13.0 release](https://github.com/SDWebImage/SDWebImage/milestone/97)
 

@@ -166,10 +166,8 @@
         return imageFormat;
     }
     // Check CGImage's UTType, may return nil for non-Image/IO based image
-    if (@available(iOS 9.0, tvOS 9.0, macOS 10.11, watchOS 2.0, *)) {
-        CFStringRef uttype = CGImageGetUTType(self.CGImage);
-        imageFormat = [NSData sd_imageFormatFromUTType:uttype];
-    }
+    CFStringRef uttype = CGImageGetUTType(self.CGImage);
+    imageFormat = [NSData sd_imageFormatFromUTType:uttype];
     return imageFormat;
 }
 
