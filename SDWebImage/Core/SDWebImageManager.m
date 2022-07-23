@@ -382,6 +382,11 @@ static id<SDImageLoader> _defaultImageLoader;
                               cacheType:(SDImageCacheType)cacheType
                                progress:(nullable SDImageLoaderProgressBlock)progressBlock
                               completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // Mark the cache operation end
+    @synchronized (operation) {
+        operation.cacheOperation = nil;
+    }
+    
     // Grab the image loader to use
     id<SDImageLoader> imageLoader;
     if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
