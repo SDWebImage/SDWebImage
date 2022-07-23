@@ -11,6 +11,14 @@
 #import "SDWebImageTestCache.h"
 #import "SDWebImageTestLoader.h"
 
+// Keep strong references for object
+@interface SDObjectContainer<ObjectType> : NSObject
+@property (nonatomic, strong, readwrite) ObjectType object;
+@end
+
+@implementation SDObjectContainer
+@end
+
 @interface SDWebImageManagerTests : SDTestCase
 
 @end
@@ -27,14 +35,24 @@
 
     NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     
-    [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
-                                                options:SDWebImageRefreshCached
-                                               progress:nil
-                                              completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    SDObjectContainer<SDWebImageCombinedOperation *> *container = [SDObjectContainer new];
+    container.object = [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
+                                                                   options:0
+                                                                  progress:nil
+                                                                 completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).toNot.beNil();
         expect(error).to.beNil();
         expect(originalImageURL).to.equal(imageURL);
-
+        
+        // When download, the cache operation will reset to nil since it's always finished
+        SDWebImageCombinedOperation *operation = container.object;
+        expect(container).notTo.beNil();
+        expect(operation.cacheOperation).beNil();
+        expect(operation.loaderOperation).notTo.beNil();
+        container.object = nil;
+        
         [expectation fulfill];
         expectation = nil;
     }];
@@ -49,7 +67,7 @@
     NSURL *originalImageURL = [NSURL URLWithString:@"http://static2.dmcdn.net/static/video/656/177/44771656:jpeg_preview_small.png"];
     
     [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL
-                                                options:SDWebImageRefreshCached
+                                                options:0
                                                progress:nil
                                               completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
         expect(image).to.beNil();
