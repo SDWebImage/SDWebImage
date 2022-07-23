@@ -209,6 +209,26 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [[SDImageCache sharedImageCache] removeImageFromMemoryForKey:kTestGIFURL];
 }
 
+- (void)test15CancelQueryShouldCallbackOnceInSync {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel Query Should Callback Once In Sync"];
+    expectation.expectedFulfillmentCount = 1;
+    NSString *key = @"test15CancelQueryShouldCallbackOnceInSync";
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:key];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
+    __block BOOL callced = NO;
+    SDImageCacheToken *token = [SDImageCache.sharedImageCache queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        callced = true;
+        [expectation fulfill]; // callback once fulfill once
+    }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(callced).beFalsy();
+        [token cancel]; // sync
+        expect(callced).beTruthy();
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)test20InitialCacheSize{
     expect([[SDImageCache sharedImageCache] totalDiskSize]).to.equal(0);
 }
