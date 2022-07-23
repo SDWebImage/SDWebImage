@@ -136,14 +136,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     XCTestExpectation *expectation = [self expectationWithDescription:@"queryCacheOperationForKey"];
     UIImage *imageForTesting = [self testJPEGImage];
     [[SDImageCache sharedImageCache] storeImage:imageForTesting forKey:kTestImageKeyJPEG completion:nil];
-    NSOperation *operation = [[SDImageCache sharedImageCache] queryCacheOperationForKey:kTestImageKeyJPEG done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
+    id<SDWebImageOperation> operation = [[SDImageCache sharedImageCache] queryCacheOperationForKey:kTestImageKeyJPEG done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
         expect(image).to.equal(imageForTesting);
         [[SDImageCache sharedImageCache] removeImageForKey:kTestImageKeyJPEG withCompletion:^{
             [expectation fulfill];
         }];
     }];
     expect(operation).toNot.beNil;
-    [operation start];
     [self waitForExpectationsWithCommonTimeout];
 }
 
