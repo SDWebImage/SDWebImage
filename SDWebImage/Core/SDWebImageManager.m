@@ -164,13 +164,7 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     // Transformer Key Appending
-    id<SDImageTransformer> transformer = self.transformer;
-    if (context[SDWebImageContextImageTransformer]) {
-        transformer = context[SDWebImageContextImageTransformer];
-        if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
-            transformer = nil;
-        }
-    }
+    const id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer] ?: self.transformer;
     if (transformer) {
         key = SDTransformedKeyForKey(key, transformer.transformerKey);
     }
