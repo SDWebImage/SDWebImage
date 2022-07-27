@@ -149,11 +149,10 @@ static id<SDImageLoader> _defaultImageLoader;
     // Thumbnail Key Appending
     NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     if (thumbnailSizeValue != nil) {
-        CGSize thumbnailSize = CGSizeZero;
 #if SD_MAC
-        thumbnailSize = thumbnailSizeValue.sizeValue;
+        const CGSize thumbnailSize = thumbnailSizeValue.sizeValue;
 #else
-        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+        const CGSize thumbnailSize = thumbnailSizeValue.CGSizeValue;
 #endif
         BOOL preserveAspectRatio = YES;
         NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
