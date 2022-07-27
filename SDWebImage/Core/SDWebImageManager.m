@@ -96,20 +96,7 @@ static id<SDImageLoader> _defaultImageLoader;
 }
 
 - (nullable NSString *)cacheKeyForURL:(nullable NSURL *)url {
-    if (!url) {
-        return @"";
-    }
-    
-    NSString *key;
-    // Cache Key Filter
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
-    if (cacheKeyFilter) {
-        key = [cacheKeyFilter cacheKeyForURL:url];
-    } else {
-        key = url.absoluteString;
-    }
-    
-    return key;
+  return [self cacheKeyForURL:url context:nil];
 }
 
 - (nullable NSString *)originalCacheKeyForURL:(nullable NSURL *)url context:(nullable SDWebImageContext *)context {
