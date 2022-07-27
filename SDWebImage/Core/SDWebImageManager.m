@@ -139,10 +139,7 @@ static id<SDImageLoader> _defaultImageLoader;
     
     NSString *key;
     // Cache Key Filter
-    id<SDWebImageCacheKeyFilter> cacheKeyFilter = self.cacheKeyFilter;
-    if (context[SDWebImageContextCacheKeyFilter]) {
-        cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
-    }
+    const id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter] ?: self.cacheKeyFilter;
     if (cacheKeyFilter) {
         key = [cacheKeyFilter cacheKeyForURL:url];
     } else {
