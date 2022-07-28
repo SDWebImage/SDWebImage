@@ -251,17 +251,10 @@ static id<SDImageLoader> _defaultImageLoader;
                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use
-    id<SDImageCache> imageCache;
-    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-        imageCache = context[SDWebImageContextImageCache];
-    } else {
-        imageCache = self.imageCache;
-    }
+    id<SDImageCache> imageCache = context[SDWebImageContextImageCache] ?: self.imageCache;
     // Get the query cache type
-    SDImageCacheType queryCacheType = SDImageCacheTypeAll;
-    if (context[SDWebImageContextQueryCacheType]) {
-        queryCacheType = [context[SDWebImageContextQueryCacheType] integerValue];
-    }
+    NSNumber *const queryCacheTypeValue = context[SDWebImageContextQueryCacheType];
+    const SDImageCacheType queryCacheType = queryCacheTypeValue ? queryCacheTypeValue.integerValue : SDImageCacheTypeAll;
     
     // Check whether we should query cache
     BOOL shouldQueryCache = !SD_OPTIONS_CONTAINS(options, SDWebImageFromLoaderOnly);
