@@ -622,8 +622,9 @@ static NSString * _defaultDiskCacheDirectory;
             diskImage = image;
         } else if (diskData) {
             BOOL shouldCacheToMomery = YES;
-            if (context[SDWebImageContextStoreCacheType]) {
-                SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
+            NSNumber *const cacheTypeValue = context[SDWebImageContextStoreCacheType];
+            if (cacheTypeValue) {
+                SDImageCacheType cacheType = cacheTypeValue.integerValue;
                 shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
             }
             if (context[SDWebImageContextImageThumbnailPixelSize]) {
