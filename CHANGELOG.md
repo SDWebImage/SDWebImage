@@ -1,5 +1,5 @@
 ## [5.13.2 - 5.13 Patch, on Jul 23th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.2)
-See [all tickets marked for the 5.13.1 release](https://github.com/SDWebImage/SDWebImage/milestone/99)
+See [all tickets marked for the 5.13.2 release](https://github.com/SDWebImage/SDWebImage/milestone/99)
 
 ### Fixes
 - Fix the rare case when cancel an async disk cache query may cause twice callback #3380 #3374

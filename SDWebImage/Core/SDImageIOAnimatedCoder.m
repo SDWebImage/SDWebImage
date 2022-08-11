@@ -627,14 +627,35 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     if (index >= _frameCount) {
         return nil;
     }
-    // Animated Image should not use the CGContext solution to force decode. Prefers to use Image/IO built in method, which is safer and memory friendly, see https://github.com/SDWebImage/SDWebImage/issues/2961
-    NSDictionary *options = @{
-        (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
-        (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
-    };
+    NSDictionary *options;
+    BOOL isDecoded = YES;
+    if (@available(iOS 15, tvOS 15, *)) {
+        // iOS 15+, CGImageRef now retains CGImageSourceRef internally. To workaround its thread-safe issue, we have to strip CGImageSourceRef, using Force-Decode (or have to use SPI `CGImageSetImageSource`), See: https://github.com/SDWebImage/SDWebImage/issues/3273
+        isDecoded = NO;
+        options = @{
+            (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(NO),
+            (__bridge NSString *)kCGImageSourceShouldCache : @(NO)
+        };
+    } else {
+        // Animated Image should not use the CGContext solution to force decode on lower firmware. Prefers to use Image/IO built in method, which is safer and memory friendly, see https://github.com/SDWebImage/SDWebImage/issues/2961
+        isDecoded = YES;
+        options = @{
+            (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
+            (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
+        };
+    }
     UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize options:options];
     if (!image) {
         return nil;
+    }
+    if (!isDecoded) {
+        image = [SDImageCoderHelper decodedImageWithImage:image];
+#if DEBUG
+        // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
+        // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
+        extern CGImageSourceRef CGImageGetImageSource(CGImageRef);
+        NSCAssert(!CGImageGetImageSource(image.CGImage), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+#endif
     }
     image.sd_imageFormat = self.class.imageFormat;
     image.sd_isDecoded = YES;
