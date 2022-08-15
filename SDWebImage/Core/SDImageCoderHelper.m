@@ -141,13 +141,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     for (size_t i = 0; i < frameCount; i++) {
-        @autoreleasepool {
-            SDImageFrame *frame = frames[i];
-            NSTimeInterval frameDuration = frame.duration;
-            CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyGIFDictionary : @{(__bridge NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
-            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
-        }
+        SDImageFrame *frame = frames[i];
+        NSTimeInterval frameDuration = frame.duration;
+        CGImageRef frameImageRef = frame.image.CGImage;
+        NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyGIFDictionary : @{(__bridge NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
+        CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
     }
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {
