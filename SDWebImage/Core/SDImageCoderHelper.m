@@ -579,19 +579,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         sourceTile.size.height += sourceSeemOverlap;
         destTile.size.height += kDestSeemOverlap;
         for( int y = 0; y < iterations; ++y ) {
-            @autoreleasepool {
-                sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap;
-                destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + kDestSeemOverlap);
-                sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
-                if( y == iterations - 1 && remainder ) {
-                    float dify = destTile.size.height;
-                    destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale;
-                    dify -= destTile.size.height;
-                    destTile.origin.y = MIN(0, destTile.origin.y + dify);
-                }
-                CGContextDrawImage( destContext, destTile, sourceTileImageRef );
-                CGImageRelease( sourceTileImageRef );
+            sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap;
+            destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + kDestSeemOverlap);
+            sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
+            if( y == iterations - 1 && remainder ) {
+                float dify = destTile.size.height;
+                destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale;
+                dify -= destTile.size.height;
+                destTile.origin.y = MIN(0, destTile.origin.y + dify);
             }
+            CGContextDrawImage( destContext, destTile, sourceTileImageRef );
+            CGImageRelease( sourceTileImageRef );
         }
         
         CGImageRef destImageRef = CGBitmapContextCreateImage(destContext);
