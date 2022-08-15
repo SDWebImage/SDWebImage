@@ -224,14 +224,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     CGFloat scale = animatedImage.scale;
     
     for (size_t i = 0; i < frameCount; i++) {
-        @autoreleasepool {
-            // NSBitmapImageRep need to manually change frame. "Good taste" API
-            [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
-            NSTimeInterval frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] doubleValue];
-            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
-            SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
-            [frames addObject:frame];
-        }
+        // NSBitmapImageRep need to manually change frame. "Good taste" API
+        [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
+        NSTimeInterval frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] doubleValue];
+        NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
+        SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
+        [frames addObject:frame];
     }
 #endif
     
