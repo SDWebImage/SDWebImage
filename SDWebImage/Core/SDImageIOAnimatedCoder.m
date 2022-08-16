@@ -196,7 +196,9 @@ NSLock *kSDImageIOCoderLock;
         kSDImageIOCoderLock = [[NSLock alloc] init];
     });
 
-    [kSDImageIOCoderLock lock];
+    if (@available(iOS 15, *)) {
+        [kSDImageIOCoderLock lock];
+    }
     
     // Some options need to pass to `CGImageSourceCopyPropertiesAtIndex` before `CGImageSourceCreateImageAtIndex`, or ImageIO will ignore them because they parse once :)
     // Parse the image properties
@@ -237,7 +239,9 @@ NSLock *kSDImageIOCoderLock;
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
     }
     if (!imageRef) {
-        [kSDImageIOCoderLock unlock];
+        if (@available(iOS 15, *)) {
+            [kSDImageIOCoderLock unlock];
+        }
         return nil;
     }
     // Thumbnail image post-process
@@ -260,7 +264,9 @@ NSLock *kSDImageIOCoderLock;
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
 #endif
     CGImageRelease(imageRef);
-    [kSDImageIOCoderLock unlock];
+    if (@available(iOS 15, *)) {
+        [kSDImageIOCoderLock unlock];
+    }
     return image;
 }
 
