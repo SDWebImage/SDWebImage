@@ -19,7 +19,7 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
-NSLock *kSDImageIOCoderLock;
+NSLock *kSDImageIOCoderLock API_AVAILABLE(ios(15));
 
 @interface SDImageIOCoderFrame : NSObject
 
@@ -191,12 +191,11 @@ NSLock *kSDImageIOCoderLock;
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
     
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        kSDImageIOCoderLock = [[NSLock alloc] init];
-    });
-
     if (@available(iOS 15, *)) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            kSDImageIOCoderLock = [[NSLock alloc] init];
+        });
         [kSDImageIOCoderLock lock];
     }
     
