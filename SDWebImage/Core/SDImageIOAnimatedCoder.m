@@ -191,7 +191,7 @@ NSLock *kSDImageIOCoderLock API_AVAILABLE(ios(15));
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize options:(NSDictionary *)options {
     
-    if (@available(iOS 15, *)) {
+    if (@available(iOS 15, tvOS 15, *)) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             kSDImageIOCoderLock = [[NSLock alloc] init];
@@ -238,7 +238,7 @@ NSLock *kSDImageIOCoderLock API_AVAILABLE(ios(15));
         imageRef = CGImageSourceCreateThumbnailAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
     }
     if (!imageRef) {
-        if (@available(iOS 15, *)) {
+        if (@available(iOS 15, tvOS 15, *)) {
             [kSDImageIOCoderLock unlock];
         }
         return nil;
@@ -263,7 +263,7 @@ NSLock *kSDImageIOCoderLock API_AVAILABLE(ios(15));
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
 #endif
     CGImageRelease(imageRef);
-    if (@available(iOS 15, *)) {
+    if (@available(iOS 15, tvOS 15, *)) {
         [kSDImageIOCoderLock unlock];
     }
     return image;
