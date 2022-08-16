@@ -662,6 +662,13 @@ static NSString * _defaultDiskCacheDirectory;
             }
             if (doneBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    // Dispatch from IO queue to main queue need time, user may call cancel during the dispatch timing
+                    // This check is here to avoid double callback (one is from `SDImageCacheToken` in sync)
+                    @synchronized (operation) {
+                        if (operation.isCancelled) {
+                            return;
+                        }
+                    }
                     doneBlock(diskImage, diskData, SDImageCacheTypeDisk);
                 });
             }

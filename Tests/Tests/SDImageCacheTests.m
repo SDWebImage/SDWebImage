@@ -136,14 +136,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     XCTestExpectation *expectation = [self expectationWithDescription:@"queryCacheOperationForKey"];
     UIImage *imageForTesting = [self testJPEGImage];
     [[SDImageCache sharedImageCache] storeImage:imageForTesting forKey:kTestImageKeyJPEG completion:nil];
-    NSOperation *operation = [[SDImageCache sharedImageCache] queryCacheOperationForKey:kTestImageKeyJPEG done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
+    id<SDWebImageOperation> operation = [[SDImageCache sharedImageCache] queryCacheOperationForKey:kTestImageKeyJPEG done:^(UIImage *image, NSData *data, SDImageCacheType cacheType) {
         expect(image).to.equal(imageForTesting);
         [[SDImageCache sharedImageCache] removeImageForKey:kTestImageKeyJPEG withCompletion:^{
             [expectation fulfill];
         }];
     }];
     expect(operation).toNot.beNil;
-    [operation start];
     [self waitForExpectationsWithCommonTimeout];
 }
 
@@ -207,6 +206,26 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         expect(image == animatedImage).beFalsy();
     }];
     [[SDImageCache sharedImageCache] removeImageFromMemoryForKey:kTestGIFURL];
+}
+
+- (void)test15CancelQueryShouldCallbackOnceInSync {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel Query Should Callback Once In Sync"];
+    expectation.expectedFulfillmentCount = 1;
+    NSString *key = @"test15CancelQueryShouldCallbackOnceInSync";
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:key];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
+    __block BOOL callced = NO;
+    SDImageCacheToken *token = [SDImageCache.sharedImageCache queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        callced = true;
+        [expectation fulfill]; // callback once fulfill once
+    }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        expect(callced).beFalsy();
+        [token cancel]; // sync
+        expect(callced).beTruthy();
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 - (void)test20InitialCacheSize{
