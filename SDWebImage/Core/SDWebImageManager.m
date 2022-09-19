@@ -824,6 +824,7 @@ static id<SDImageLoader> _defaultImageLoader;
 - (void)cancel {
     SD_LOCK(_cancelledLock);
     if (_cancelled) {
+        SD_UNLOCK(_cancelledLock);
         return;
     }
     _cancelled = YES;
