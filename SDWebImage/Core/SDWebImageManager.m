@@ -17,9 +17,7 @@
 static id<SDImageCache> _defaultImageCache;
 static id<SDImageLoader> _defaultImageLoader;
 
-@interface SDWebImageCombinedOperation () {
-    SD_LOCK_DECLARE(_cancelledLock); // a lock to keep the access to `cancelled` thread-safe
-}
+@interface SDWebImageCombinedOperation ()
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
 @property (strong, nonatomic, readwrite, nullable) id<SDWebImageOperation> loaderOperation;
@@ -805,39 +803,30 @@ static id<SDImageLoader> _defaultImageLoader;
 
 @implementation SDWebImageCombinedOperation
 
-- (instancetype)init {
-    if (self = [super init]) {
-        SD_LOCK_INIT(_cancelledLock);
-    }
-
-    return self;
-}
-
 - (BOOL)isCancelled {
-    BOOL isCancelled = NO;
-    SD_LOCK(_cancelledLock);
-    isCancelled = _cancelled;
-    SD_UNLOCK(_cancelledLock);
-    return isCancelled;
+    // Need recursive lock (user's cancel block may check isCancelled), do not use SD_LOCK
+    @synchronized (self) {
+        return _cancelled;
+    }
 }
 
 - (void)cancel {
-    SD_LOCK(_cancelledLock);
-    if (_cancelled) {
-        SD_UNLOCK(_cancelledLock);
-        return;
+    // Need recursive lock (user's cancel block may check isCancelled), do not use SD_LOCK
+    @synchronized(self) {
+        if (_cancelled) {
+            return;
+        }
+        _cancelled = YES;
+        if (self.cacheOperation) {
+            [self.cacheOperation cancel];
+            self.cacheOperation = nil;
+        }
+        if (self.loaderOperation) {
+            [self.loaderOperation cancel];
+            self.loaderOperation = nil;
+        }
+        [self.manager safelyRemoveOperationFromRunning:self];
     }
-    _cancelled = YES;
-    if (self.cacheOperation) {
-        [self.cacheOperation cancel];
-        self.cacheOperation = nil;
-    }
-    if (self.loaderOperation) {
-        [self.loaderOperation cancel];
-        self.loaderOperation = nil;
-    }
-    [self.manager safelyRemoveOperationFromRunning:self];
-    SD_UNLOCK(_cancelledLock);
 }
 
 @end

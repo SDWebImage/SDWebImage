@@ -29,6 +29,9 @@ typedef void(^SDInternalCompletionBlock)(UIImage * _Nullable image, NSData * _Nu
  */
 - (void)cancel;
 
+/// Whether the operation has been cancelled.
+@property (nonatomic, assign, readonly, getter=isCancelled) BOOL cancelled;
+
 /**
  The cache operation from the image cache query
  */
