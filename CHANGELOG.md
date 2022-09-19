@@ -1,3 +1,12 @@
+## [5.13.3 - 5.13 Crash Fix, on Sep 19th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.3)
+See [all tickets marked for the 5.13.3 release](https://github.com/SDWebImage/SDWebImage/milestone/100)
+
+### Fixes
+- Try to workaround iOS 15+ crash that CGImage retain the CGImageSource during animation image playing #3387
+- Fix the crash because of SDWebImageCombinedOperation recursive lock #3403
+- Synchronise getter and setter of the cancelled property of the SDWebImageCombinedOperation #3393
+- Fix the switching from animated image rendering to static image does not works on macOS 11+ #3402
+
 ## [5.13.2 - 5.13 Patch, on Jul 23th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.2)
 See [all tickets marked for the 5.13.2 release](https://github.com/SDWebImage/SDWebImage/milestone/99)
 
