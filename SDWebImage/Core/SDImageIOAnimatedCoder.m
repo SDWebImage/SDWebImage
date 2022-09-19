@@ -14,12 +14,6 @@
 #import "SDAnimatedImageRep.h"
 #import "UIImage+ForceDecode.h"
 
-#define SD_CHECK_CGIMAGE_RETAIN_SOURCE TARGET_OS_MACCATALYST ||\
-    (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_15_0) ||\
-    (__MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_12_0) ||\
-    (__TV_OS_VERSION_MAX_ALLOWED >= __TVOS_15_0) ||\
-    (__WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_8_0)
-
 // Specify DPI for vector format in CGImageSource, like PDF
 static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizationDPI";
 // Specify File Size for lossy format encoding, like JPEG
@@ -254,12 +248,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (!isDecoded) {
             // Use CoreGraphics to trigger immediately decode
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
-//            CGImageRef decodedImageRef = CGImageCreate(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef), CGImageGetBitsPerComponent(imageRef), CGImageGetBitsPerPixel(imageRef), CGImageGetBytesPerRow(imageRef), CGImageGetColorSpace(imageRef), CGImageGetBitmapInfo(imageRef), CGImageGetDataProvider(imageRef), NULL, CGImageGetShouldInterpolate(imageRef), CGImageGetRenderingIntent(imageRef));
             CGImageRelease(imageRef);
             imageRef = decodedImageRef;
             isDecoded = YES;
         }
-#if DEBUG && SD_CHECK_CGIMAGE_RETAIN_SOURCE
+#if SD_CHECK_CGIMAGE_RETAIN_SOURCE
         // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
         // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
         extern CGImageSourceRef CGImageGetImageSource(CGImageRef);
