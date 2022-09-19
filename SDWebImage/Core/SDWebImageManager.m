@@ -803,12 +803,20 @@ static id<SDImageLoader> _defaultImageLoader;
 
 @implementation SDWebImageCombinedOperation
 
+- (BOOL)isCancelled {
+    // Need recursive lock (user's cancel block may check isCancelled), do not use SD_LOCK
+    @synchronized (self) {
+        return _cancelled;
+    }
+}
+
 - (void)cancel {
+    // Need recursive lock (user's cancel block may check isCancelled), do not use SD_LOCK
     @synchronized(self) {
-        if (self.isCancelled) {
+        if (_cancelled) {
             return;
         }
-        self.cancelled = YES;
+        _cancelled = YES;
         if (self.cacheOperation) {
             [self.cacheOperation cancel];
             self.cacheOperation = nil;
