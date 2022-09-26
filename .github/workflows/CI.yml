@@ -126,19 +126,19 @@ jobs:
       - name: Test - ${{ matrix.iosDestination }}
         run: |
           set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests iOS" -destination "${{ matrix.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests iOS" -destination "${{ matrix.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
           
       - name: Test - ${{ matrix.macOSDestination }}
         run: |
           set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Mac" -destination "${{ matrix.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Mac" -destination "${{ matrix.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
     
       - name: Test - ${{ matrix.tvOSDestination }}
         run: |
           set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ matrix.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ matrix.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
           
       - name: Code Coverage
