@@ -1,3 +1,9 @@
+## [5.13.4 - 5.13 Crash Fix, on Sep 26th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.4)
+See [all tickets marked for the 5.13.4 release](https://github.com/SDWebImage/SDWebImage/milestone/101)
+
+### Fixes
+- Fix the potential out of bounds crash for ImageIO incremental animation decoding (like GIF) #3408
+
 ## [5.13.3 - 5.13 Crash Fix, on Sep 19th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.3)
 See [all tickets marked for the 5.13.3 release](https://github.com/SDWebImage/SDWebImage/milestone/100)
 
