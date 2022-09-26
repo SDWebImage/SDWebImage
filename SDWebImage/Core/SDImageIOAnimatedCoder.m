@@ -331,7 +331,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     if (decodeFirstFrame || count <= 1) {
         animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize forceDecode:NO options:nil];
     } else {
-        NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
+        NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:count];
         
         for (size_t i = 0; i < count; i++) {
             UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize forceDecode:NO options:nil];

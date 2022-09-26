@@ -173,7 +173,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return nil;
     }
     
-    NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
+    NSMutableArray<SDImageFrame *> *frames;
     NSUInteger frameCount = 0;
     
 #if SD_UIKIT || SD_WATCH
@@ -182,6 +182,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (frameCount == 0) {
         return nil;
     }
+    frames = [NSMutableArray arrayWithCapacity:frameCount];
     
     NSTimeInterval avgDuration = animatedImage.duration / frameCount;
     if (avgDuration == 0) {
@@ -223,6 +224,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (frameCount == 0) {
         return nil;
     }
+    frames = [NSMutableArray arrayWithCapacity:frameCount];
     CGFloat scale = animatedImage.scale;
     
     for (size_t i = 0; i < frameCount; i++) {

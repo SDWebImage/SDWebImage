@@ -85,9 +85,10 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         UIImage *animatedImage;
 #if SD_UIKIT || SD_WATCH
         // `UIAnimatedImage` images share the same size and scale.
-        NSMutableArray<UIImage *> *scaledImages = [NSMutableArray array];
+        NSArray<UIImage *> *images = image.images;
+        NSMutableArray<UIImage *> *scaledImages = [NSMutableArray arrayWithCapacity:images.count];
         
-        for (UIImage *tempImage in image.images) {
+        for (UIImage *tempImage in images) {
             UIImage *tempScaledImage = [[UIImage alloc] initWithCGImage:tempImage.CGImage scale:scale orientation:tempImage.imageOrientation];
             [scaledImages addObject:tempScaledImage];
         }
