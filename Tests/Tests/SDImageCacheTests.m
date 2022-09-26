@@ -217,9 +217,11 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     __block BOOL callced = NO;
     SDImageCacheToken *token = [SDImageCache.sharedImageCache queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         callced = true;
-        [expectation fulfill]; // callback once fulfill once
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^{
+            [expectation fulfill]; // callback once fulfill once
+        });
     }];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^{
         expect(callced).beFalsy();
         [token cancel]; // sync
         expect(callced).beTruthy();
