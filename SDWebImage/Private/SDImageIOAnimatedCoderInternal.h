@@ -7,6 +7,7 @@
 */
 
 #import <Foundation/Foundation.h>
+#import <ImageIO/ImageIO.h>
 #import "SDImageIOAnimatedCoder.h"
 
 // AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation

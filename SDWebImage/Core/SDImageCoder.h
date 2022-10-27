@@ -44,6 +44,22 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodePreserveAs
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeThumbnailPixelSize;
 
+/**
+ A NSString value indicating the source image's file extension. Example: "jpg", "nef", "tif", don't prefix the dot
+ Some image file format share the same data structure but has different tag explanation, like TIFF and NEF/SRW, see https://en.wikipedia.org/wiki/TIFF
+ Changing the file extension cause the different image result. The coder (like ImageIO) may use file extension to choose the correct parser
+ @note However, different UTType may share the same file extension, like `public.jpeg` and `public.jpeg-2000` both use `.jpg`. If you want detail control, use `TypeIdentifierHint` below
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeFileExtensionHint;
+
+/**
+ A NSString value (UTI) indicating the source image's file extension. Example: "public.jpeg-2000", "com.nikon.raw-image", "public.tiff"
+ Some image file format share the same data structure but has different tag explanation, like TIFF and NEF/SRW, see https://en.wikipedia.org/wiki/TIFF
+ Changing the file extension cause the different image result. The coder (like ImageIO) may use file extension to choose the correct parser
+ @note If you provide `TypeIdentifierHint`, the `FileExtensionHint` option above will be ignored (because UTType has high priority)
+ @note If you really don't want any hint which effect the image result, pass `NSNull.null` instead
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeTypeIdentifierHint;
 
 // These options are for image encoding
 /**

@@ -263,6 +263,15 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageP
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageThumbnailPixelSize;
 
 /**
+ A NSString value (UTI) indicating the source image's file extension. Example: "public.jpeg-2000", "com.nikon.raw-image", "public.tiff"
+ Some image file format share the same data structure but has different tag explanation, like TIFF and NEF/SRW, see https://en.wikipedia.org/wiki/TIFF
+ Changing the file extension cause the different image result. The coder (like ImageIO) may use file extension to choose the correct parser
+ @note If you don't provide this option, we will use the `URL.path` as file extension to calculate the UTI hint
+ @note If you really don't want any hint which effect the image result, pass `NSNull.null` instead
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageTypeIdentifierHint;
+
+/**
  A SDImageCacheType raw value which specify the source of cache to query. Specify `SDImageCacheTypeDisk` to query from disk cache only; `SDImageCacheTypeMemory` to query from memory only. And `SDImageCacheTypeAll` to query from both memory cache and disk cache. Specify `SDImageCacheTypeNone` is invalid and totally ignore the cache query.
  If not provide or the value is invalid, we will use `SDImageCacheTypeAll`. (NSNumber)
  */

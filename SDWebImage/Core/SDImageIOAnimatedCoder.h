@@ -7,7 +7,6 @@
 */
 
 #import <Foundation/Foundation.h>
-#import <ImageIO/ImageIO.h>
 #import "SDImageCoder.h"
 
 /**
