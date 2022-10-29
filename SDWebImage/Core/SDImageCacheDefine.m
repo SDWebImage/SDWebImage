@@ -13,6 +13,37 @@
 #import "UIImage+Metadata.h"
 #import "SDInternalMacros.h"
 
+static NSArray<NSString *>* GetKnownContextOptions(void) {
+    static NSArray<NSString *> *knownContextOptions;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        knownContextOptions =
+        [NSArray arrayWithObjects:
+         SDWebImageContextSetImageOperationKey,
+         SDWebImageContextCustomManager,
+         SDWebImageContextImageCache,
+         SDWebImageContextImageLoader,
+         SDWebImageContextImageCoder,
+         SDWebImageContextImageTransformer,
+         SDWebImageContextImageScaleFactor,
+         SDWebImageContextImagePreserveAspectRatio,
+         SDWebImageContextImageThumbnailPixelSize,
+         SDWebImageContextQueryCacheType,
+         SDWebImageContextStoreCacheType,
+         SDWebImageContextOriginalQueryCacheType,
+         SDWebImageContextOriginalStoreCacheType,
+         SDWebImageContextOriginalImageCache,
+         SDWebImageContextAnimatedImageClass,
+         SDWebImageContextDownloadRequestModifier,
+         SDWebImageContextDownloadResponseModifier,
+         SDWebImageContextDownloadDecryptor,
+         SDWebImageContextCacheKeyFilter,
+         SDWebImageContextCacheSerializer
+         , nil];
+    });
+    return knownContextOptions;
+}
+
 SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext * _Nullable context, SDWebImageOptions options, NSString * _Nonnull cacheKey) {
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
@@ -34,7 +65,10 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     mutableCoderOptions[SDImageCoderDecodeScaleFactor] = @(scale);
     mutableCoderOptions[SDImageCoderDecodePreserveAspectRatio] = preserveAspectRatioValue;
     mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
-    mutableCoderOptions[SDImageCoderWebImageContext] = context;
+    // Hack to remove all known context options before SDWebImage 5.14.0
+    SDImageCoderMutableOptions *mutableContext = [NSMutableDictionary dictionaryWithDictionary:context];
+    [mutableContext removeObjectsForKeys:GetKnownContextOptions()];
+    mutableCoderOptions[SDImageCoderWebImageContext] = [mutableContext copy];
     SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
     
     return coderOptions;
