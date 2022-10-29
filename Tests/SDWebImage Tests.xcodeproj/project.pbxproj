@@ -98,6 +98,9 @@
 		32B99EAD203B36690017FD66 /* SDWebImagePrefetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */; };
 		32B99EAE203B366C0017FD66 /* SDWebCacheCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */; };
 		32E6F0321F3A1B4700A945E6 /* SDWebImageTestCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestCoder.m */; };
+		32F788A3290D252200B57A1C /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
+		32F788A4290D252200B57A1C /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
+		32F788A5290D252200B57A1C /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
 		37D122881EC48B5E00D98CEB /* SDMockFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D122871EC48B5E00D98CEB /* SDMockFileManager.m */; };
 		433BBBB51D7EF5C00086B6E9 /* SDImageCoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDImageCoderTests.m */; };
 		433BBBB71D7EF8200086B6E9 /* TestImage.gif in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB61D7EF8200086B6E9 /* TestImage.gif */; };
@@ -158,6 +161,7 @@
 		32B99E96203B2DF90017FD66 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32E6F0301F3A1B4700A945E6 /* SDWebImageTestCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestCoder.h; sourceTree = "<group>"; };
 		32E6F0311F3A1B4700A945E6 /* SDWebImageTestCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestCoder.m; sourceTree = "<group>"; };
+		32F788A2290D252200B57A1C /* TestImage.nef */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImage.nef; sourceTree = "<group>"; };
 		37D122861EC48B5E00D98CEB /* SDMockFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMockFileManager.h; sourceTree = "<group>"; };
 		37D122871EC48B5E00D98CEB /* SDMockFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDMockFileManager.m; sourceTree = "<group>"; };
 		433BBBB41D7EF5C00086B6E9 /* SDImageCoderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCoderTests.m; sourceTree = "<group>"; };
@@ -270,6 +274,7 @@
 				327A418B211D660600495442 /* TestImage.heic */,
 				32905E63211D786E00460FCF /* TestImage.heif */,
 				3234306123E2BAC800C290C8 /* TestImage.pdf */,
+				32F788A2290D252200B57A1C /* TestImage.nef */,
 				327054E1206CEFF3006EA328 /* TestImageAnimated.apng */,
 				3297A09E23374D1600814590 /* TestImageAnimated.heic */,
 				32515F9824AF1919005E8F79 /* TestImageAnimated.webp */,
@@ -474,6 +479,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32F788A5290D252200B57A1C /* TestImage.nef in Resources */,
 				6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				3299228D2365DC6C00EAFD97 /* TestImageAnimated.apng in Resources */,
 				3299228B2365DC6C00EAFD97 /* TestImage.heic in Resources */,
@@ -499,6 +505,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32F788A4290D252200B57A1C /* TestImage.nef in Resources */,
 				6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
@@ -524,6 +531,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32F788A3290D252200B57A1C /* TestImage.nef in Resources */,
 				327A418C211D660600495442 /* TestImage.heic in Resources */,
 				6B181A1B265757ED00BD06B3 /* TestAnimatedImageMemory.webp in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,

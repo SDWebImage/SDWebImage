@@ -396,6 +396,38 @@
     expect(size8).equal(CGSizeMake(999, 999));
 }
 
+- (void)test25ThatBMPWorks {
+    NSURL *bmpURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"bmp"];
+    [self verifyCoder:[SDImageIOCoder sharedCoder]
+    withLocalImageURL:bmpURL
+     supportsEncoding:YES
+       encodingFormat:SDImageFormatBMP
+      isAnimatedImage:NO
+        isVectorImage:NO];
+}
+
+- (void)test26ThatRawImageTypeHintWorks {
+    NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"nef"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    
+    // 1. Test without hint will use TIFF's IFD#0, which size should always be 160x120, see: http://lclevy.free.fr/nef/
+    UIImage *image1 = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+    expect(image1.size).equal(CGSizeMake(160, 120));
+    expect(image1.sd_imageFormat).equal(SDImageFormatTIFF);
+    
+#if SD_MAC || SD_IOS
+    // 2. Test with NEF file extension should be NEF
+    UIImage *image2 = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeFileExtensionHint : @"nef"}];
+    expect(image2.size).equal(CGSizeMake(3008, 2000));
+    expect(image2.sd_imageFormat).equal(SDImageFormatRAW);
+    
+    // 3. Test with UTType hint should be NEF
+    UIImage *image3 = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeTypeIdentifierHint : @"com.nikon.raw-image"}];
+    expect(image3.size).equal(CGSizeMake(3008, 2000));
+    expect(image3.sd_imageFormat).equal(SDImageFormatRAW);
+#endif
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

@@ -73,6 +73,7 @@
                     @"https://s2.ax1x.com/2019/11/01/KHYIgJ.gif",
                     @"https://raw.githubusercontent.com/icons8/flat-color-icons/master/pdf/stack_of_photos.pdf",
                     @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png",
+                    @"https://res.cloudinary.com/dwpjzbyux/raw/upload/v1666474070/RawDemo/raw_vebed5.NEF",
                     @"http://via.placeholder.com/200x200.jpg",
                     nil];
 

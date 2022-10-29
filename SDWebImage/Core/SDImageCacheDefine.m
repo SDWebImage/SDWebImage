@@ -28,12 +28,16 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     if (context[SDWebImageContextImageThumbnailPixelSize]) {
         thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     }
+    NSString *typeIdentifierHint = context[SDWebImageContextImageTypeIdentifierHint];
+    NSString *fileExtensionHint = cacheKey.pathExtension; // without dot
     
-    SDImageCoderMutableOptions *mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:2];
+    SDImageCoderMutableOptions *mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:6];
     mutableCoderOptions[SDImageCoderDecodeFirstFrameOnly] = @(decodeFirstFrame);
     mutableCoderOptions[SDImageCoderDecodeScaleFactor] = @(scale);
     mutableCoderOptions[SDImageCoderDecodePreserveAspectRatio] = preserveAspectRatioValue;
     mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
+    mutableCoderOptions[SDImageCoderDecodeTypeIdentifierHint] = typeIdentifierHint;
+    mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
     mutableCoderOptions[SDImageCoderWebImageContext] = context;
     SDImageCoderOptions *coderOptions = [mutableCoderOptions copy];
     

@@ -134,6 +134,7 @@ SDWebImageContextOption const SDWebImageContextImageTransformer = @"imageTransfo
 SDWebImageContextOption const SDWebImageContextImageScaleFactor = @"imageScaleFactor";
 SDWebImageContextOption const SDWebImageContextImagePreserveAspectRatio = @"imagePreserveAspectRatio";
 SDWebImageContextOption const SDWebImageContextImageThumbnailPixelSize = @"imageThumbnailPixelSize";
+SDWebImageContextOption const SDWebImageContextImageTypeIdentifierHint = @"imageTypeIdentifierHint";
 SDWebImageContextOption const SDWebImageContextQueryCacheType = @"queryCacheType";
 SDWebImageContextOption const SDWebImageContextStoreCacheType = @"storeCacheType";
 SDWebImageContextOption const SDWebImageContextOriginalQueryCacheType = @"originalQueryCacheType";
