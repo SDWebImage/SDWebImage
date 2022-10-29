@@ -91,7 +91,9 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeEmbedThumb
  A SDWebImageContext object which hold the original context options from top-level API. (SDWebImageContext)
  This option is ignored for all built-in coders and take no effect.
  But this may be useful for some custom coders, because some business logic may dependent on things other than image or image data information only.
+ Only the unknown context from top-level API (See SDWebImageDefine.h) may be passed in during image loading.
  See `SDWebImageContext` for more detailed information.
+ @warning This option will be removed in 5.14.0
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext API_DEPRECATED("The coder component will be seperated from Core subspec in the future. Update your code to not rely on this context option.", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 

@@ -538,6 +538,18 @@
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
 }
 
+- (void)test20ThatContextPassedToLoaderDoesNotContainsBuiltIn {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"The SDImageCoderWebImageContext should contains only unknown context to avoid retain cycle"];
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/502x502.png"];
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageScaleFactor : @(2), @"Foo": @"Bar"} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        SDImageCoderOptions *decodeOptions = image.sd_decodeOptions;
+        SDWebImageContext *retrievedContext = decodeOptions[SDImageCoderWebImageContext];
+        expect(retrievedContext[@"Foo"]).equal(@"Bar");
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
