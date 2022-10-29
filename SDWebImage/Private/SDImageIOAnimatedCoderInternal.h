@@ -25,6 +25,8 @@
 #define kSDUTTypeSVG   ((__bridge CFStringRef)@"public.svg-image")
 #define kSDUTTypeGIF   ((__bridge CFStringRef)@"com.compuserve.gif")
 #define kSDUTTypePDF   ((__bridge CFStringRef)@"com.adobe.pdf")
+#define kSDUTTypeBMP   ((__bridge CFStringRef)@"com.microsoft.bmp")
+#define kSDUTTypeRAW   ((__bridge CFStringRef)@"public.camera-raw-image")
 
 @interface SDImageIOAnimatedCoder ()
 

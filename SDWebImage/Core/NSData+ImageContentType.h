@@ -25,6 +25,8 @@ static const SDImageFormat SDImageFormatHEIC      = 5;
 static const SDImageFormat SDImageFormatHEIF      = 6;
 static const SDImageFormat SDImageFormatPDF       = 7;
 static const SDImageFormat SDImageFormatSVG       = 8;
+static const SDImageFormat SDImageFormatBMP       = 9;
+static const SDImageFormat SDImageFormatRAW       = 10;
 
 /**
  NSData category about the image content type and UTI.
