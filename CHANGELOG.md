@@ -1,3 +1,9 @@
+## [5.13.5 - 5.13 Fix, on Oct 29th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.5)
+See [all tickets marked for the 5.13.4 release](https://github.com/SDWebImage/SDWebImage/milestone/103)
+
+### Fixes
+- Quick fix the issue that UIImage.sd_decodeOptions cause retain cycle when pass custom cache in context option #3420 #3371
+
 ## [5.13.4 - 5.13 Crash Fix, on Sep 26th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.4)
 See [all tickets marked for the 5.13.4 release](https://github.com/SDWebImage/SDWebImage/milestone/101)
 
