@@ -207,7 +207,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 };
 
 
-#pragma mark - Context Options
+#pragma mark - Manager Context Options
 
 /**
  A String to be used as the operation key for view category to store the image load operation. This is used for view instance which supports different image loading process. If nil, will use the class name as operation key. (NSString *)
@@ -244,6 +244,16 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageC
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageTransformer;
 
+#pragma mark - Image Decoder Context Options
+
+/**
+ A Dictionary (SDImageCoderOptions) value, which pass the extra decoding options to the SDImageCoder. Introduced in SDWebImage 5.14.0
+ You can pass additional decoding related options to the decoder, extensible and control by you. And pay attention this dictionary may be retained by decoded image via `UIImage.sd_decodeOptions` 
+ This context option replace the deprecated `SDImageCoderWebImageContext`, which may cause retain cycle (cache -> image -> options -> context -> cache)
+ @note There are already individual options below like `.imageScaleFactor`, `.imagePreserveAspectRatio`, each of individual options will override the same filed for this dictionary.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageDecodeOptions;
+
 /**
  A CGFloat raw value which specify the image scale factor. The number should be greater than or equal to 1.0. If not provide or the number is invalid, we will use the cache key to specify the scale factor. (NSNumber)
  */
@@ -270,6 +280,8 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageT
  @note If you really don't want any hint which effect the image result, pass `NSNull.null` instead
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageTypeIdentifierHint;
+
+#pragma mark - Cache Context Options
 
 /**
  A SDImageCacheType raw value which specify the source of cache to query. Specify `SDImageCacheTypeDisk` to query from disk cache only; `SDImageCacheTypeMemory` to query from memory only. And `SDImageCacheTypeAll` to query from both memory cache and disk cache. Specify `SDImageCacheTypeNone` is invalid and totally ignore the cache query.
@@ -308,6 +320,8 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextOrigin
  This can be used to improve animated images rendering performance (especially memory usage on big animated images) with `SDAnimatedImageView` (Class).
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextAnimatedImageClass;
+
+#pragma mark - Download Context Options
 
 /**
  A id<SDWebImageDownloaderRequestModifier> instance to modify the image download request. It's used for downloader to modify the original request from URL and options. If you provide one, it will ignore the `requestModifier` in downloader and use provided one instead. (id<SDWebImageDownloaderRequestModifier>)

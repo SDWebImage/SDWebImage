@@ -131,6 +131,7 @@ SDWebImageContextOption const SDWebImageContextImageCache = @"imageCache";
 SDWebImageContextOption const SDWebImageContextImageLoader = @"imageLoader";
 SDWebImageContextOption const SDWebImageContextImageCoder = @"imageCoder";
 SDWebImageContextOption const SDWebImageContextImageTransformer = @"imageTransformer";
+SDWebImageContextOption const SDWebImageContextImageDecodeOptions = @"imageDecodeOptions";
 SDWebImageContextOption const SDWebImageContextImageScaleFactor = @"imageScaleFactor";
 SDWebImageContextOption const SDWebImageContextImagePreserveAspectRatio = @"imagePreserveAspectRatio";
 SDWebImageContextOption const SDWebImageContextImageThumbnailPixelSize = @"imageThumbnailPixelSize";

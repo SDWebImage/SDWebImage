@@ -538,13 +538,16 @@
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
 }
 
-- (void)test20ThatContextPassedToLoaderDoesNotContainsBuiltIn {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"The SDImageCoderWebImageContext should contains only unknown context to avoid retain cycle"];
+- (void)test20ThatContextPassDecodeOptionsWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"The SDWebImageContextImageDecodeOptions should passed to the coder"];
     NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/502x502.png"];
-    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageScaleFactor : @(2), @"Foo": @"Bar"} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    SDImageCoderOptions *originalDecodeOptions = @{@"Foo": @"Bar", SDImageCoderDecodeScaleFactor : @(2)}; // This will be override
+    
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageScaleFactor : @(1), SDWebImageContextImageDecodeOptions : originalDecodeOptions} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         SDImageCoderOptions *decodeOptions = image.sd_decodeOptions;
-        SDWebImageContext *retrievedContext = decodeOptions[SDImageCoderWebImageContext];
-        expect(retrievedContext[@"Foo"]).equal(@"Bar");
+        expect(decodeOptions.count).beGreaterThan(originalDecodeOptions.count);
+        expect(decodeOptions[@"Foo"]).equal(@"Bar");
+        expect(decodeOptions[SDImageCoderDecodeScaleFactor]).equal(1);
         [expectation fulfill];
     }];
     [self waitForExpectationsWithCommonTimeout];
