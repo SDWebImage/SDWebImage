@@ -67,6 +67,11 @@
 @property (nonatomic, assign) BOOL sd_isIncremental;
 
 /**
+ A bool value indicating that the image is transformed from original image, so the image data may not always match original download one.
+ */
+@property (nonatomic, assign) BOOL sd_isTransformed;
+
+/**
  A dictionary value contains the decode options when decoded from SDWebImage loading system (say, `SDImageCacheDecodeImageData/SDImageLoaderDecode[Progressive]ImageData`)
  It may not always available and only image decoding related options will be saved. (including [.decodeScaleFactor, .decodeThumbnailPixelSize, .decodePreserveAspectRatio, .decodeFirstFrameOnly])
  @note This is used to identify and check the image from downloader when multiple different request (which want different image thumbnail size, image class, etc) share the same URLOperation.

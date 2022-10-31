@@ -29,6 +29,10 @@
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
 
+- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
+                        decodeOptions:(nullable SDImageCoderOptions *)decodeOptions;
+
 - (BOOL)cancel:(nullable id)token;
 
 @property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
@@ -159,6 +163,21 @@
  */
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock;
+
+/**
+ *  Adds handlers for progress and completion, and optional decode options (which need another image other than the initial one). Returns a token that can be passed to -cancel: to cancel this set of
+ *  callbacks.
+ *
+ *  @param progressBlock  the block executed when a new chunk of data arrives.
+ *                        @note the progress block is executed on a background queue
+ *  @param completedBlock the block executed when the download is done.
+ *                        @note the completed block is executed on the main queue for success. If errors are found, there is a chance the block will be executed on a background queue
+ *  @param decodeOptions The optional decode options, used when in thumbnail decoding for current completion block callback. For example, request <url1, {thumbnail: 100x100}> and then <url1, {thumbnail: 200x200}>, we may callback these two completion block with different size.
+ *  @return the token to use to cancel this set of handlers
+ */
+- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
+                        decodeOptions:(nullable SDImageCoderOptions *)decodeOptions;
 
 /**
  *  Cancels a set of callbacks. Once all callbacks are canceled, the operation is cancelled.

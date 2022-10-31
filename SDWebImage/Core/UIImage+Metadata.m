@@ -184,6 +184,15 @@
     return value.boolValue;
 }
 
+- (void)setSd_isTransformed:(BOOL)sd_isTransformed {
+    objc_setAssociatedObject(self, @selector(sd_isTransformed), @(sd_isTransformed), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)sd_isTransformed {
+    NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isTransformed));
+    return value.boolValue;
+}
+
 - (void)setSd_decodeOptions:(SDImageCoderOptions *)sd_decodeOptions {
     objc_setAssociatedObject(self, @selector(sd_decodeOptions), sd_decodeOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
