@@ -241,6 +241,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageC
 
 /**
  A id<SDImageTransformer> instance which conforms `SDImageTransformer` protocol. It's used for image transform after the image load finished and store the transformed image to cache. If you provide one, it will ignore the `transformer` in manager and use provided one instead. If you pass NSNull, the transformer feature will be disabled. (id<SDImageTransformer>)
+ @note When this value is used, we will trigger image transform after downloaded, and the callback's data **will be nil** (because this time the data saved to disk does not match the image return to you. If you need full size data, query the cache with full size url key)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageTransformer;
 
