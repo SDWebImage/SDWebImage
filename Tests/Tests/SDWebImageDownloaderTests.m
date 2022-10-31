@@ -768,6 +768,30 @@
     }];
 }
 
+- (void)test30ThatDifferentThumbnailLoadShouldCallbackDifferentSize {
+    // We move the logic into SDWebImageDownloaderOperation, which decode each callback's thumbnail size with different decoding pipeline, and callback independently
+    // Note the progressiveLoad does not support this and always callback first size
+    
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/501x501.png"];
+    NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
+    for (int i = 490; i < 500; i++) {
+        // 490x490, ..., 499x499
+        CGSize thumbnailSize = CGSizeMake(i, i);
+        NSString *thumbnailKey = SDThumbnailedKeyForKey(fullSizeKey, thumbnailSize, YES);
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:thumbnailKey];
+        XCTestExpectation *expectation = [self expectationWithDescription:[NSString stringWithFormat:@"Different thumbnail loading for same URL should callback different image size: (%dx%d)", i, i]];
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:url.absoluteString];
+        [SDWebImageDownloader.sharedDownloader downloadImageWithURL:url options:0 context:@{SDWebImageContextImageThumbnailPixelSize : @(thumbnailSize)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+            expect(image.size).equal(thumbnailSize);
+            
+            [expectation fulfill];
+        }];
+    }
+    
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)test30CustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];

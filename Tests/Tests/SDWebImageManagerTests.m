@@ -510,8 +510,8 @@
 
 - (void)test19ThatDifferentThumbnailLoadShouldCallbackDifferentSize {
     // 3. Current SDWebImageDownloader use the **URL** as primiary key to bind operation, however, different loading pipeline may ask different image size for same URL, this design does not match
-    // We use a hack logic to do a re-decode check when the callback image's decode options does not match the loading pipeline provided, it will re-decode the full data with global queue :)
-    // Ugly unless we re-define the design of SDWebImageDownloader, maybe change that `addHandlersForProgress` with context options args as well. Different context options need different callback image
+    // We move the logic into SDWebImageDownloaderOperation, which decode each callback's thumbnail size with different decoding pipeline, and callback independently
+    // Note the progressiveLoad does not support this and always callback first size
     
     NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/501x501.png"];
     NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
