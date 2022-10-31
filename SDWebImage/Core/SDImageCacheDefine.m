@@ -31,7 +31,11 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
         thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     }
     NSString *typeIdentifierHint = context[SDWebImageContextImageTypeIdentifierHint];
-    NSString *fileExtensionHint = cacheKey.pathExtension; // without dot
+    NSString *fileExtensionHint;
+    if (!typeIdentifierHint) {
+        // UTI has high priority
+        fileExtensionHint = cacheKey.pathExtension; // without dot
+    }
     
     // First check if user provided decode options
     SDImageCoderMutableOptions *mutableCoderOptions;
