@@ -13,6 +13,8 @@
 #import "UIImage+Metadata.h"
 #import "SDInternalMacros.h"
 
+#import <CoreServices/CoreServices.h>
+
 SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext * _Nullable context, SDWebImageOptions options, NSString * _Nonnull cacheKey) {
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
@@ -29,7 +31,11 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
         thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
     }
     NSString *typeIdentifierHint = context[SDWebImageContextImageTypeIdentifierHint];
-    NSString *fileExtensionHint = cacheKey.pathExtension; // without dot
+    NSString *fileExtensionHint;
+    if (!typeIdentifierHint) {
+        // UTI has high priority
+        fileExtensionHint = cacheKey.pathExtension; // without dot
+    }
     
     // First check if user provided decode options
     SDImageCoderMutableOptions *mutableCoderOptions;
@@ -48,6 +54,27 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
     
     return [mutableCoderOptions copy];
+}
+
+void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableContext, SDWebImageOptions * _Nonnull mutableOptions, SDImageCoderOptions * _Nonnull decodeOptions) {
+    if ([decodeOptions[SDImageCoderDecodeFirstFrameOnly] boolValue]) {
+        *mutableOptions |= SDWebImageDecodeFirstFrameOnly;
+    } else {
+        *mutableOptions &= ~SDWebImageDecodeFirstFrameOnly;
+    }
+    
+    mutableContext[SDWebImageContextImageScaleFactor] = decodeOptions[SDImageCoderDecodeScaleFactor];
+    mutableContext[SDWebImageContextImagePreserveAspectRatio] = decodeOptions[SDImageCoderDecodePreserveAspectRatio];
+    mutableContext[SDWebImageContextImageThumbnailPixelSize] = decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
+    
+    NSString *typeIdentifierHint = decodeOptions[SDImageCoderDecodeTypeIdentifierHint];
+    if (!typeIdentifierHint) {
+        NSString *fileExtensionHint = decodeOptions[SDImageCoderDecodeFileExtensionHint];
+        if (fileExtensionHint) {
+            typeIdentifierHint = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtensionHint, NULL);
+        }
+    }
+    mutableContext[SDWebImageContextImageTypeIdentifierHint] = typeIdentifierHint;
 }
 
 UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {

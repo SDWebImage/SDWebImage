@@ -409,7 +409,16 @@ static NSString * _defaultDiskCacheDirectory;
         SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
         shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
     }
-    if (context[SDWebImageContextImageThumbnailPixelSize]) {
+    CGSize thumbnailSize = CGSizeZero;
+    NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
+#if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+#else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+#endif
+    }
+    if (thumbnailSize.width > 0 && thumbnailSize.height > 0) {
         // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
         shouldCacheToMomery = NO;
     }
@@ -626,7 +635,16 @@ static NSString * _defaultDiskCacheDirectory;
                 SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
                 shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
             }
-            if (context[SDWebImageContextImageThumbnailPixelSize]) {
+            CGSize thumbnailSize = CGSizeZero;
+            NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
+            if (thumbnailSizeValue != nil) {
+        #if SD_MAC
+                thumbnailSize = thumbnailSizeValue.sizeValue;
+        #else
+                thumbnailSize = thumbnailSizeValue.CGSizeValue;
+        #endif
+            }
+            if (thumbnailSize.width > 0 && thumbnailSize.height > 0) {
                 // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
                 shouldCacheToMomery = NO;
             }

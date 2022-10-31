@@ -67,6 +67,12 @@
 
 - (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
                             completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock {
+    return [self addHandlersForProgress:progressBlock completed:completedBlock decodeOptions:nil];
+}
+
+- (nullable id)addHandlersForProgress:(nullable SDWebImageDownloaderProgressBlock)progressBlock
+                            completed:(nullable SDWebImageDownloaderCompletedBlock)completedBlock
+                        decodeOptions:(nullable SDImageCoderOptions *)decodeOptions {
     if (completedBlock) {
         [self.completedBlocks addObject:completedBlock];
     }
