@@ -23,6 +23,11 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
+// Only assert on Debug mode and Simulator
+#define SD_CHECK_CGIMAGE_RETAIN_SOURCE DEBUG && TARGET_OS_SIMULATOR && \
+    ((__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_15_0)) || \
+    ((__TV_OS_VERSION_MAX_ALLOWED >= __TVOS_15_0))
+
 // This strip the un-wanted CGImageProperty, like the internal CGImageSourceRef in iOS 15+
 // However, CGImageCreateCopy still keep those CGImageProperty, not suit for our use case
 static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
