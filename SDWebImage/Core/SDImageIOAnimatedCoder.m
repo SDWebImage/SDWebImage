@@ -309,6 +309,8 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
 #endif
     CGImageRelease(imageRef);
+    image.sd_isDecoded = isDecoded;
+    
     return image;
 }
 
