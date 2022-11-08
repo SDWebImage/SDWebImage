@@ -558,6 +558,50 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test21ThatQueryOriginalDiskCacheFromThumbnailShouldNotWriteBackDiskCache {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Using original disk cache to do thumbnail decoding or transformer, should not save back disk data again"];
+    
+    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/503x503.png"];
+    NSString *originalKey = url.absoluteString;
+    // 1. Store the disk data to original cache
+    CGSize fullSize = CGSizeMake(503, 503);
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:fullSize];
+    UIImage *fullSizeImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        CGContextSetRGBFillColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
+        CGContextFillRect(context, CGRectMake(0, 0, fullSize.width, fullSize.height));
+    }];
+    NSData *fullSizeData = fullSizeImage.sd_imageData;
+    [SDImageCache.sharedImageCache storeImageDataToDisk:fullSizeData forKey:originalKey];
+    
+    // 2. Query thumbnail size, should hit full disk cache instead of download
+    SDWebImageContext *context = @{
+        SDWebImageContextImageThumbnailPixelSize: @(CGSizeMake(100, 100)),
+        SDWebImageContextOriginalQueryCacheType: @(SDImageCacheTypeAll),
+        SDWebImageContextOriginalStoreCacheType: @(SDImageCacheTypeDisk),
+        SDWebImageContextQueryCacheType: @(SDImageCacheTypeAll),
+        SDWebImageContextStoreCacheType: @(SDImageCacheTypeAll) // these 4 are all default values
+    };
+    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url context:context]; // Thumbnail key
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(cacheType).equal(SDImageCacheTypeDisk);
+        expect(data).beNil(); // Currently, the thumbnailed and transformed image always data is nil, to avoid confuse user (the image and data represent no longer match)
+        expect(image.size.width).equal(100);
+        expect(image.size.height).equal(100);
+        // 3. Check full size disk cache again, should equal to original stored one
+        NSData *currentFullSizeData = [SDImageCache.sharedImageCache diskImageDataForKey:originalKey];
+        expect(currentFullSizeData).equal(fullSizeData);
+        // 4. Some extra check that thumbnailed image should store to disk/memory as well to wait for next time query
+        expect([SDImageCache.sharedImageCache diskImageDataExistsWithKey:key]).beTruthy();
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:key]).beTruthy();
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
     return [testBundle pathForResource:@"TestImage" ofType:@"jpg"];
