@@ -1,3 +1,31 @@
+## [5.14.0 - Meet DecodeOptions, on Nov 8th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.0)
+See [all tickets marked for the 5.14.0 release](https://github.com/SDWebImage/SDWebImage/milestone/102)
+
+### Behavior Changes
+- Introduce `SDWebImageContextImageDecodeOptions`, deprecate `SDImageCoderWebImageContext` #3421
+- - Note the deprecated `SDImageCoderWebImageContext` is no longer used. Update your codebase to use `SDWebImageContextImageDecodeOptions` to pass extra information from manager to coder. Loaded image will also store the same information in `image.sd_decodeOptions`
+- Refactor the hack when multiple different thumbnail image requests for same url called at the same time #3423
+- - Now the SDWebImageDownloader can callback each thumbnail request for same url with the correct image size as well (previously can't)
+- - Now if manager's callback image is thumbnail (`image.sd_isThumbnail == YES`), or transformed (`image.sd_isTransformed == YES`), the callback data will be nil. This because the image does not match downloaded data actually. If you really need original full size data, query the disk cache again using the original key. You may need `SDWebImageWaitStoreCache` options as well. (previously behavior is undefined, may callback with full size data, or encoded small size data, or even nil)
+
+### Features
+
+#### Coder
+- Support use url.path or custom UTI hint passed to ImageIO, solve the TIFF/NEF/SRW raw image decoding with wrong size #3419
+- - Note from 5.14.0, we may pass the file extension to coder as a UTI hint
+- Added `SDImageCoderDecodeUseLazyDecoding` to control whether to use lazy-decoding for ImageIO #3425
+- - Note from 5.14.0, by default we enable lazy decoding for static image coder, disable lazy decoding for animated image coder, suitable for most cases. If you want, pass `.decodeUseLazyDecoding = YES` to context option `.imageDecodeOptions`
+
+### Performance
+- Introduce new workaround to strip CGImage retained CGImageSource on iOS 15 #3425 #3387
+- - Note this also fix the limitation that you can not use lazy-decoding for animated image on iOS 15+. Pass `.decodeUseLazyDecoding = YES` to context option `.imageDecodeOptions`
+- Replace conformsToProtocol call with appropriate respondsToSelector check to improve performance #3429
+- Fix del redundant autoreleasepool #3388
+
+### Fixes
+- Avoid store again when origin disk cache hit during Thumbnail or Transformer with smaller pixel size #3428 #3395
+- Add the possible nullable logic check when the force-decode/copy failed #3427
+
 ## [5.13.5 - 5.13 Fix, on Oct 29th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.13.5)
 See [all tickets marked for the 5.13.4 release](https://github.com/SDWebImage/SDWebImage/milestone/103)
 
