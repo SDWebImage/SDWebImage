@@ -565,6 +565,13 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
+    // If the original cacheType is disk, since we don't need to store the original data again
+    // Strip the disk from the originalStoreCacheType
+    if (cacheType == SDImageCacheTypeDisk) {
+        if (originalStoreCacheType == SDImageCacheTypeDisk) originalStoreCacheType = SDImageCacheTypeNone;
+        if (originalStoreCacheType == SDImageCacheTypeAll) originalStoreCacheType = SDImageCacheTypeMemory;
+    }
+    
     // Get original cache key generation without transformer
     NSString *key = [self originalCacheKeyForURL:url context:context];
     if (finished && cacheSerializer && (originalStoreCacheType == SDImageCacheTypeDisk || originalStoreCacheType == SDImageCacheTypeAll)) {
