@@ -61,6 +61,19 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeFileExtens
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeTypeIdentifierHint;
 
+/**
+ A BOOL value indicating whether to use lazy-decoding. Defaults to NO on animated image coder, but defaults to YES on static image coder.
+ CGImageRef, this image object typically support lazy-decoding, via the `CGDataProviderCreateDirectAccess` or `CGDataProviderCreateSequential`
+ Which allows you to provide a lazy-called callback to access bitmap buffer, so that you can achieve lazy-decoding when consumer actually need bitmap buffer
+ UIKit on iOS use heavy on this and ImageIO codec prefers to lazy-decoding for common Hardware-Accelerate format like JPEG/PNG/HEIC
+ But however, the consumer may access bitmap buffer when running on main queue, like CoreAnimation layer render image. So this is a trade-off
+ You can force us to disable the lazy-decoding and always allocate bitmap buffer on RAM, but this may have higher ratio of OOM (out of memory)
+ @note The default value is NO for animated image coder (means `animatedImageFrameAtIndex:`)
+ @note The default value is YES for static image coder (means `decodedImageWithData:`)
+ @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeUseLazyDecoding;
+
 // These options are for image encoding
 /**
  A Boolean value indicating whether to encode the first frame only for animated image during encoding. (NSNumber). If not provide, encode animated image if need.

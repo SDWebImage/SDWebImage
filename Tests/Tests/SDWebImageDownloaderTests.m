@@ -345,19 +345,22 @@
 - (void)test17ThatMinimumProgressIntervalWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Minimum progress interval"];
     SDWebImageDownloaderConfig *config = SDWebImageDownloaderConfig.defaultDownloaderConfig;
-    config.minimumProgressInterval = 0.51; // This will make the progress only callback twice (once is 51%, another is 100%)
+    config.minimumProgressInterval = 0.51; // This will make the progress only callback at most 4 times (-1, 0%, 51%, 100%)
     SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
     NSURL *imageURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_1.jpg"];
     __block NSUInteger allProgressCount = 0; // All progress (including operation start / first HTTP response, etc)
+    __block BOOL completed = NO;
     [downloader downloadImageWithURL:imageURL options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         allProgressCount++;
     } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if (completed) {
+            return;
+        }
         if (allProgressCount > 0) {
             [expectation fulfill];
-            allProgressCount = 0;
-            return;
+            completed = YES;
         } else {
-            XCTFail(@"Progress callback more than once");
+            XCTFail(@"Completed callback before progress update");
         }
     }];
      

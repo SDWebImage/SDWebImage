@@ -77,14 +77,17 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     }
     if (image) {
         BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
-        if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
+        BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
+        if (lazyDecode) {
+            // lazyDecode = NO means we should not forceDecode, highest priority
+            shouldDecode = NO;
+        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
         } else if (image.sd_isAnimated) {
             // animated image do not decode
             shouldDecode = NO;
         }
-        
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
@@ -157,7 +160,11 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     }
     if (image) {
         BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
-        if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
+        BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
+        if (lazyDecode) {
+            // lazyDecode = NO means we should not forceDecode, highest priority
+            shouldDecode = NO;
+        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
         } else if (image.sd_isAnimated) {
@@ -167,10 +174,10 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         if (shouldDecode) {
             image = [SDImageCoderHelper decodedImageWithImage:image];
         }
-        // mark the image as progressive (completed one are not mark as progressive)
-        image.sd_isIncremental = !finished;
         // assign the decode options, to let manager check whether to re-decode if needed
         image.sd_decodeOptions = coderOptions;
+        // mark the image as progressive (completed one are not mark as progressive)
+        image.sd_isIncremental = !finished;
     }
     
     return image;

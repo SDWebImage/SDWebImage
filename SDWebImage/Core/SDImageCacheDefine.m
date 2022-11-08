@@ -116,7 +116,11 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     }
     if (image) {
         BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
-        if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
+        BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
+        if (lazyDecode) {
+            // lazyDecode = NO means we should not forceDecode, highest priority
+            shouldDecode = NO;
+        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
             // `SDAnimatedImage` do not decode
             shouldDecode = NO;
         } else if (image.sd_isAnimated) {
