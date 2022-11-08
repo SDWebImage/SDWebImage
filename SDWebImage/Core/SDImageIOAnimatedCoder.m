@@ -23,8 +23,8 @@ static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizati
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
-// Only assert on Debug mode and Simulator
-#define SD_CHECK_CGIMAGE_RETAIN_SOURCE DEBUG && TARGET_OS_SIMULATOR && \
+// Only assert on Debug mode
+#define SD_CHECK_CGIMAGE_RETAIN_SOURCE DEBUG && \
     ((__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_15_0)) || \
     ((__TV_OS_VERSION_MAX_ALLOWED >= __TVOS_15_0))
 
@@ -300,10 +300,12 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         }
     }
 #if SD_CHECK_CGIMAGE_RETAIN_SOURCE
-    // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
-    // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
-    extern CGImageSourceRef CGImageGetImageSource(CGImageRef);
-    NSCAssert(!CGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+    if (@available(iOS 15, tvOS 15, *)) {
+        // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
+        // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
+        extern CGImageSourceRef CGImageGetImageSource(CGImageRef);
+        NSCAssert(!CGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+    }
 #endif
     
 #if SD_UIKIT || SD_WATCH
