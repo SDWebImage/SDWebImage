@@ -170,7 +170,7 @@ static id<SDImageLoader> _defaultImageLoader;
     id<SDImageTransformer> transformer = self.transformer;
     if (context[SDWebImageContextImageTransformer]) {
         transformer = context[SDWebImageContextImageTransformer];
-        if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+        if ([transformer isEqual:NSNull.null]) {
             transformer = nil;
         }
     }
@@ -286,10 +286,8 @@ static id<SDImageLoader> _defaultImageLoader;
                             progress:(nullable SDImageLoaderProgressBlock)progressBlock
                            completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use
-    id<SDImageCache> imageCache;
-    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-        imageCache = context[SDWebImageContextImageCache];
-    } else {
+    id<SDImageCache> imageCache = context[SDWebImageContextImageCache];
+    if (!imageCache) {
         imageCache = self.imageCache;
     }
     // Get the query cache type
@@ -338,14 +336,11 @@ static id<SDImageLoader> _defaultImageLoader;
                                     progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                    completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use, choose standalone original cache firstly
-    id<SDImageCache> imageCache;
-    if ([context[SDWebImageContextOriginalImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-        imageCache = context[SDWebImageContextOriginalImageCache];
-    } else {
+    id<SDImageCache> imageCache = context[SDWebImageContextOriginalImageCache];
+    if (!imageCache) {
         // if no standalone cache available, use default cache
-        if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-            imageCache = context[SDWebImageContextImageCache];
-        } else {
+        imageCache = context[SDWebImageContextImageCache];
+        if (!imageCache) {
             imageCache = self.imageCache;
         }
     }
@@ -401,10 +396,8 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     // Grab the image loader to use
-    id<SDImageLoader> imageLoader;
-    if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
-        imageLoader = context[SDWebImageContextImageLoader];
-    } else {
+    id<SDImageLoader> imageLoader = context[SDWebImageContextImageLoader];
+    if (!imageLoader) {
         imageLoader = self.imageLoader;
     }
     
@@ -488,7 +481,7 @@ static id<SDImageLoader> _defaultImageLoader;
                                 finished:(BOOL)finished
                                completed:(nullable SDInternalCompletionBlock)completedBlock {
     id<SDImageTransformer> transformer = context[SDWebImageContextImageTransformer];
-    if (![transformer conformsToProtocol:@protocol(SDImageTransformer)]) {
+    if ([transformer isEqual:NSNull.null]) {
         transformer = nil;
     }
     // transformer check
@@ -546,14 +539,11 @@ static id<SDImageLoader> _defaultImageLoader;
                                        finished:(BOOL)finished
                                       completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use, choose standalone original cache firstly
-    id<SDImageCache> imageCache;
-    if ([context[SDWebImageContextOriginalImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-        imageCache = context[SDWebImageContextOriginalImageCache];
-    } else {
+    id<SDImageCache> imageCache = context[SDWebImageContextOriginalImageCache];
+    if (!imageCache) {
         // if no standalone cache available, use default cache
-        if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-            imageCache = context[SDWebImageContextImageCache];
-        } else {
+        imageCache = context[SDWebImageContextImageCache];
+        if (!imageCache) {
             imageCache = self.imageCache;
         }
     }
@@ -605,10 +595,8 @@ static id<SDImageLoader> _defaultImageLoader;
                                  finished:(BOOL)finished
                                 completed:(nullable SDInternalCompletionBlock)completedBlock {
     // Grab the image cache to use
-    id<SDImageCache> imageCache;
-    if ([context[SDWebImageContextImageCache] conformsToProtocol:@protocol(SDImageCache)]) {
-        imageCache = context[SDWebImageContextImageCache];
-    } else {
+    id<SDImageCache> imageCache = context[SDWebImageContextImageCache];
+    if (!imageCache) {
         imageCache = self.imageCache;
     }
     BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
@@ -704,10 +692,8 @@ static id<SDImageLoader> _defaultImageLoader;
                               error:(nonnull NSError *)error
                             options:(SDWebImageOptions)options
                             context:(nullable SDWebImageContext *)context {
-    id<SDImageLoader> imageLoader;
-    if ([context[SDWebImageContextImageLoader] conformsToProtocol:@protocol(SDImageLoader)]) {
-        imageLoader = context[SDWebImageContextImageLoader];
-    } else {
+    id<SDImageLoader> imageLoader = context[SDWebImageContextImageLoader];
+    if (!imageLoader) {
         imageLoader = self.imageLoader;
     }
     // Check whether we should block failed url

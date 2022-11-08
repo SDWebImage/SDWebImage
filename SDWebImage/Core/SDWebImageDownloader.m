@@ -353,9 +353,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     
     // Operation Class
     Class operationClass = self.config.operationClass;
-    if (operationClass && [operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperation)]) {
-        // Custom operation class
-    } else {
+    if (!operationClass) {
         operationClass = [SDWebImageDownloaderOperation class];
     }
     NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options context:context];

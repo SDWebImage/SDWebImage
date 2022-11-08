@@ -47,10 +47,8 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     CGFloat scale = [coderOptions[SDImageCoderDecodeScaleFactor] doubleValue];
     
     // Grab the image coder
-    id<SDImageCoder> imageCoder;
-    if ([context[SDWebImageContextImageCoder] conformsToProtocol:@protocol(SDImageCoder)]) {
-        imageCoder = context[SDWebImageContextImageCoder];
-    } else {
+    id<SDImageCoder> imageCoder = context[SDWebImageContextImageCoder];
+    if (!imageCoder) {
         imageCoder = [SDImageCodersManager sharedManager];
     }
     
@@ -80,12 +78,6 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
         if (lazyDecode) {
             // lazyDecode = NO means we should not forceDecode, highest priority
-            shouldDecode = NO;
-        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            // `SDAnimatedImage` do not decode
-            shouldDecode = NO;
-        } else if (image.sd_isAnimated) {
-            // animated image do not decode
             shouldDecode = NO;
         }
         if (shouldDecode) {
@@ -120,7 +112,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     if (!progressiveCoder) {
         id<SDProgressiveImageCoder> imageCoder = context[SDWebImageContextImageCoder];
         // Check the progressive coder if provided
-        if ([imageCoder conformsToProtocol:@protocol(SDProgressiveImageCoder)]) {
+        if ([imageCoder respondsToSelector:@selector(initIncrementalWithOptions:)]) {
             progressiveCoder = [[[imageCoder class] alloc] initIncrementalWithOptions:coderOptions];
         } else {
             // We need to create a new instance for progressive decoding to avoid conflicts
@@ -143,7 +135,7 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     if (!decodeFirstFrame) {
         // check whether we should use `SDAnimatedImage`
         Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
-        if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
+        if ([animatedImageClass isSubclassOfClass:[UIImage class]] && [animatedImageClass conformsToProtocol:@protocol(SDAnimatedImage)] && [progressiveCoder respondsToSelector:@selector(animatedImageFrameAtIndex:)]) {
             image = [[animatedImageClass alloc] initWithAnimatedCoder:(id<SDAnimatedImageCoder>)progressiveCoder scale:scale];
             if (image) {
                 // Progressive decoding does not preload frames
@@ -163,12 +155,6 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
         if (lazyDecode) {
             // lazyDecode = NO means we should not forceDecode, highest priority
-            shouldDecode = NO;
-        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            // `SDAnimatedImage` do not decode
-            shouldDecode = NO;
-        } else if (image.sd_isAnimated) {
-            // animated image do not decode
             shouldDecode = NO;
         }
         if (shouldDecode) {
