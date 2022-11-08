@@ -197,6 +197,19 @@
     objc_setAssociatedObject(self, @selector(sd_decodeOptions), sd_decodeOptions, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+-(BOOL)sd_isThumbnail {
+    CGSize thumbnailSize = CGSizeZero;
+    NSValue *thumbnailSizeValue = self.sd_decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
+    if (thumbnailSizeValue != nil) {
+    #if SD_MAC
+        thumbnailSize = thumbnailSizeValue.sizeValue;
+    #else
+        thumbnailSize = thumbnailSizeValue.CGSizeValue;
+    #endif
+    }
+    return thumbnailSize.width > 0 && thumbnailSize.height > 0;
+}
+
 - (SDImageCoderOptions *)sd_decodeOptions {
     SDImageCoderOptions *value = objc_getAssociatedObject(self, @selector(sd_decodeOptions));
     if ([value isKindOfClass:NSDictionary.class]) {

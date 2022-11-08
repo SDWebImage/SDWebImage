@@ -72,6 +72,12 @@
 @property (nonatomic, assign) BOOL sd_isTransformed;
 
 /**
+ A bool value indicating that the image is using thumbnail decode with smaller size, so the image data may not always match original download one.
+ @note This just check `sd_decodeOptions[.decodeThumbnailPixelSize] > CGSize.zero`
+ */
+@property (nonatomic, assign, readonly) BOOL sd_isThumbnail;
+
+/**
  A dictionary value contains the decode options when decoded from SDWebImage loading system (say, `SDImageCacheDecodeImageData/SDImageLoaderDecode[Progressive]ImageData`)
  It may not always available and only image decoding related options will be saved. (including [.decodeScaleFactor, .decodeThumbnailPixelSize, .decodePreserveAspectRatio, .decodeFirstFrameOnly])
  @note This is used to identify and check the image is from thumbnail decoding, and the callback's data **will be nil** (because this time the data saved to disk does not match the image return to you. If you need full size data, query the cache with full size url key)

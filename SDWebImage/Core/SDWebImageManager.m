@@ -489,19 +489,10 @@ static id<SDImageLoader> _defaultImageLoader;
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
     shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
     // thumbnail check
-    CGSize thumbnailSize = CGSizeZero;
-    NSValue *thumbnailSizeValue = originalImage.sd_decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
-    if (thumbnailSizeValue != nil) {
-#if SD_MAC
-        thumbnailSize = thumbnailSizeValue.sizeValue;
-#else
-        thumbnailSize = thumbnailSizeValue.CGSizeValue;
-#endif
-    }
-    BOOL shouldEncodeThumbnail = thumbnailSize.width > 0 && thumbnailSize.height > 0;
+    BOOL isThumbnail = originalImage.sd_isThumbnail;
     NSData *cacheData = originalData;
     UIImage *cacheImage = originalImage;
-    if (shouldEncodeThumbnail) {
+    if (isThumbnail) {
         cacheData = nil; // thumbnail don't store full size data
         originalImage = nil; // thumbnail don't have full size image
     }
