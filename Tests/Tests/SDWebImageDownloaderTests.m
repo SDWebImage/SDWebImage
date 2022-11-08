@@ -84,7 +84,11 @@
     NSURL *imageURL2 = [NSURL URLWithString:kTestPNGURL];
     NSURL *imageURL3 = [NSURL URLWithString:kTestGIFURL];
     // we try to set a usual NSOperation as operation class. Should not work
-    downloader.config.operationClass = [NSOperation class];
+    @try {
+        downloader.config.operationClass = [NSOperation class];
+    } @catch (NSException *exception) {
+        expect(exception).notTo.beNil();
+    }
     SDWebImageDownloadToken *token = [downloader downloadImageWithURL:imageURL1 options:0 progress:nil completed:nil];
     NSOperation<SDWebImageDownloaderOperation> *operation = token.downloadOperation;
     expect([operation class]).to.equal([SDWebImageDownloaderOperation class]);

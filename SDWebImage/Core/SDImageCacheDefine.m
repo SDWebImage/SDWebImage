@@ -94,10 +94,8 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     CGFloat scale = [coderOptions[SDImageCoderDecodeScaleFactor] doubleValue];
     
     // Grab the image coder
-    id<SDImageCoder> imageCoder;
-    if ([context[SDWebImageContextImageCoder] conformsToProtocol:@protocol(SDImageCoder)]) {
-        imageCoder = context[SDWebImageContextImageCoder];
-    } else {
+    id<SDImageCoder> imageCoder = context[SDWebImageContextImageCoder];
+    if (!imageCoder) {
         imageCoder = [SDImageCodersManager sharedManager];
     }
     
@@ -127,12 +125,6 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
         if (lazyDecode) {
             // lazyDecode = NO means we should not forceDecode, highest priority
-            shouldDecode = NO;
-        } else if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
-            // `SDAnimatedImage` do not decode
-            shouldDecode = NO;
-        } else if (image.sd_isAnimated) {
-            // animated image do not decode
             shouldDecode = NO;
         }
         if (shouldDecode) {

@@ -7,6 +7,7 @@
  */
 
 #import "SDWebImageDownloaderConfig.h"
+#import "SDWebImageDownloaderOperation.h"
 
 static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
 
@@ -46,6 +47,13 @@ static SDWebImageDownloaderConfig * _defaultDownloaderConfig;
     config.acceptableContentTypes = self.acceptableContentTypes;
     
     return config;
+}
+
+- (void)setOperationClass:(Class)operationClass {
+    if (operationClass) {
+        NSAssert([operationClass isSubclassOfClass:[NSOperation class]] && [operationClass conformsToProtocol:@protocol(SDWebImageDownloaderOperation)], @"Custom downloader operation class must subclass NSOperation and conform to `SDWebImageDownloaderOperation` protocol");
+    }
+    _operationClass = operationClass;
 }
 
 
