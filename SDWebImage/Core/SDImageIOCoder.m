@@ -124,7 +124,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         // Check file extension and convert to UTI, from: https://stackoverflow.com/questions/1506251/getting-an-uniform-type-identifier-for-a-given-extension
         NSString *fileExtensionHint = options[SDImageCoderDecodeFileExtensionHint];
         if (fileExtensionHint) {
-            typeIdentifierHint = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtensionHint, NULL);
+            typeIdentifierHint = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtensionHint, kUTTypeImage);
+            // Ignore dynamic UTI
+            if (UTTypeIsDynamic((__bridge CFStringRef)typeIdentifierHint)) {
+                typeIdentifierHint = nil;
+            }
         }
     } else if ([typeIdentifierHint isEqual:NSNull.null]) {
         // Hack if user don't want to imply file extension

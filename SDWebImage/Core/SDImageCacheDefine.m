@@ -35,6 +35,10 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     if (!typeIdentifierHint) {
         // UTI has high priority
         fileExtensionHint = cacheKey.pathExtension; // without dot
+        if (fileExtensionHint.length == 0) {
+            // Ignore file extension which is empty
+            fileExtensionHint = nil;
+        }
     }
     
     // First check if user provided decode options
@@ -71,7 +75,11 @@ void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableCont
     if (!typeIdentifierHint) {
         NSString *fileExtensionHint = decodeOptions[SDImageCoderDecodeFileExtensionHint];
         if (fileExtensionHint) {
-            typeIdentifierHint = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtensionHint, NULL);
+            typeIdentifierHint = (__bridge_transfer NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)fileExtensionHint, kUTTypeImage);
+            // Ignore dynamic UTI
+            if (UTTypeIsDynamic((__bridge CFStringRef)typeIdentifierHint)) {
+                typeIdentifierHint = nil;
+            }
         }
     }
     mutableContext[SDWebImageContextImageTypeIdentifierHint] = typeIdentifierHint;
