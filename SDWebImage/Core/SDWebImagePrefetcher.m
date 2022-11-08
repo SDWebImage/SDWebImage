@@ -111,6 +111,7 @@
 
 - (void)startPrefetchWithToken:(SDWebImagePrefetchToken * _Nonnull)token {
     for (NSURL *url in token.urls) {
+        @autoreleasepool {
             @weakify(self);
             SDAsyncBlockOperation *prefetchOperation = [SDAsyncBlockOperation blockOperationWithBlock:^(SDAsyncBlockOperation * _Nonnull asyncOperation) {
                 @strongify(self);
@@ -152,6 +153,7 @@
             [token.prefetchOperations addPointer:(__bridge void *)prefetchOperation];
             SD_UNLOCK(token->_prefetchOperationsLock);
             [self.prefetchQueue addOperation:prefetchOperation];
+        }
     }
 }
 
