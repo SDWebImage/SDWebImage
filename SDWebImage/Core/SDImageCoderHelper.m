@@ -141,13 +141,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     for (size_t i = 0; i < frameCount; i++) {
-        @autoreleasepool {
-            SDImageFrame *frame = frames[i];
-            NSTimeInterval frameDuration = frame.duration;
-            CGImageRef frameImageRef = frame.image.CGImage;
-            NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyGIFDictionary : @{(__bridge NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
-            CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
-        }
+        SDImageFrame *frame = frames[i];
+        NSTimeInterval frameDuration = frame.duration;
+        CGImageRef frameImageRef = frame.image.CGImage;
+        NSDictionary *frameProperties = @{(__bridge NSString *)kCGImagePropertyGIFDictionary : @{(__bridge NSString *)kCGImagePropertyGIFDelayTime : @(frameDuration)}};
+        CGImageDestinationAddImage(imageDestination, frameImageRef, (__bridge CFDictionaryRef)frameProperties);
     }
     // Finalize the destination.
     if (CGImageDestinationFinalize(imageDestination) == NO) {
@@ -228,14 +226,12 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     CGFloat scale = animatedImage.scale;
     
     for (size_t i = 0; i < frameCount; i++) {
-        @autoreleasepool {
-            // NSBitmapImageRep need to manually change frame. "Good taste" API
-            [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
-            NSTimeInterval frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] doubleValue];
-            NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
-            SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
-            [frames addObject:frame];
-        }
+        // NSBitmapImageRep need to manually change frame. "Good taste" API
+        [bitmapImageRep setProperty:NSImageCurrentFrame withValue:@(i)];
+        NSTimeInterval frameDuration = [[bitmapImageRep valueForProperty:NSImageCurrentFrameDuration] doubleValue];
+        NSImage *frameImage = [[NSImage alloc] initWithCGImage:bitmapImageRep.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
+        SDImageFrame *frame = [SDImageFrame frameWithImage:frameImage duration:frameDuration];
+        [frames addObject:frame];
     }
 #endif
     
@@ -585,19 +581,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         sourceTile.size.height += sourceSeemOverlap;
         destTile.size.height += kDestSeemOverlap;
         for( int y = 0; y < iterations; ++y ) {
-            @autoreleasepool {
-                sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap;
-                destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + kDestSeemOverlap);
-                sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
-                if( y == iterations - 1 && remainder ) {
-                    float dify = destTile.size.height;
-                    destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale;
-                    dify -= destTile.size.height;
-                    destTile.origin.y = MIN(0, destTile.origin.y + dify);
-                }
-                CGContextDrawImage( destContext, destTile, sourceTileImageRef );
-                CGImageRelease( sourceTileImageRef );
+            sourceTile.origin.y = y * sourceTileHeightMinusOverlap + sourceSeemOverlap;
+            destTile.origin.y = destResolution.height - (( y + 1 ) * sourceTileHeightMinusOverlap * imageScale + kDestSeemOverlap);
+            sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
+            if( y == iterations - 1 && remainder ) {
+                float dify = destTile.size.height;
+                destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale;
+                dify -= destTile.size.height;
+                destTile.origin.y = MIN(0, destTile.origin.y + dify);
             }
+            CGContextDrawImage( destContext, destTile, sourceTileImageRef );
+            CGImageRelease( sourceTileImageRef );
         }
         
         CGImageRef destImageRef = CGBitmapContextCreateImage(destContext);
