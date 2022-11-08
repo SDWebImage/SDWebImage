@@ -269,9 +269,11 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         } else {
             // `CGImageSourceCreateThumbnailAtIndex` take only pixel dimension, if not `preserveAspectRatio`, we should manual scale to the target size
             CGImageRef scaledImageRef = [SDImageCoderHelper CGImageCreateScaled:imageRef size:thumbnailSize];
-            CGImageRelease(imageRef);
-            imageRef = scaledImageRef;
-            isDecoded = YES;
+            if (scaledImageRef) {
+                CGImageRelease(imageRef);
+                imageRef = scaledImageRef;
+                isDecoded = YES;
+            }
         }
     }
     // Check whether output CGImage is decoded
@@ -279,17 +281,19 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         if (!isDecoded) {
             // Use CoreGraphics to trigger immediately decode
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
-            CGImageRelease(imageRef);
-            imageRef = decodedImageRef;
-            isDecoded = YES;
+            if (decodedImageRef) {
+                CGImageRelease(imageRef);
+                imageRef = decodedImageRef;
+                isDecoded = YES;
+            }
         }
     } else {
         // iOS 15+, CGImageRef now retains CGImageSourceRef internally. To workaround its thread-safe issue, we have to strip CGImageSourceRef, using Force-Decode (or have to use SPI `CGImageSetImageSource`), See: https://github.com/SDWebImage/SDWebImage/issues/3273
         if (@available(iOS 15, tvOS 15, *)) {
             // User pass `lazyDecode == YES`, but we still have to strip the CGImageSourceRef
-            if (imageRef) {
-                // CGImageRef newImageRef = CGImageCreateCopy(imageRef);
-                CGImageRef newImageRef = SDCGImageCreateCopy(imageRef);
+            // CGImageRef newImageRef = CGImageCreateCopy(imageRef); // This one does not strip the CGImageProperty
+            CGImageRef newImageRef = SDCGImageCreateCopy(imageRef);
+            if (newImageRef) {
                 CGImageRelease(imageRef);
                 imageRef = newImageRef;
             }
