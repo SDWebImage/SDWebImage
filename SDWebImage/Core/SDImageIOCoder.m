@@ -57,7 +57,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 #pragma mark - Bitmap PDF representation
-- (UIImage *)createBitmapPDFWithData:(nonnull NSData *)data pageNumber:(NSUInteger)pageNumber targetSize:(CGSize)targetSize preserveAspectRatio:(BOOL)preserveAspectRatio {
++ (UIImage *)createBitmapPDFWithData:(nonnull NSData *)data pageNumber:(NSUInteger)pageNumber targetSize:(CGSize)targetSize preserveAspectRatio:(BOOL)preserveAspectRatio {
     NSParameterAssert(data);
     UIImage *image;
     
@@ -168,7 +168,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             }
         }
 #endif
-        image = [self createBitmapPDFWithData:data pageNumber:pageNumber targetSize:thumbnailSize preserveAspectRatio:preserveAspectRatio];
+        image = [self.class createBitmapPDFWithData:data pageNumber:pageNumber targetSize:thumbnailSize preserveAspectRatio:preserveAspectRatio];
         image.sd_imageFormat = SDImageFormatPDF;
         return image;
     }
