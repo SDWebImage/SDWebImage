@@ -70,7 +70,7 @@
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification {
     [_fetchQueue cancelAllOperations];
-    [_fetchQueue addOperationWithBlock:^{
+    NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
         NSNumber *currentFrameIndex = @(self.currentFrameIndex);
         SD_LOCK(self->_lock);
         NSArray *keys = self.frameBuffer.allKeys;
@@ -82,6 +82,7 @@
         }
         SD_UNLOCK(self->_lock);
     }];
+    [_fetchQueue addOperation:operation];
 }
 
 #pragma mark - Private
