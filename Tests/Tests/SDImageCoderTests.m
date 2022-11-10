@@ -11,12 +11,6 @@
 #import "UIColor+SDHexString.h"
 #import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
-@interface SDImageIOCoder ()
-
-+ (CGRect)boxRectFromPDFFData:(nonnull NSData *)data;
-
-@end
-
 @interface SDWebImageDecoderTests : SDTestCase
 
 @end
@@ -484,7 +478,7 @@ withLocalImageURL:(NSURL *)imageUrl
     expect(pixelHeight).beGreaterThan(0);
     // check vector format should use 72 DPI
     if (isVector) {
-        CGRect boxRect = [SDImageIOCoder boxRectFromPDFFData:inputImageData];
+        CGRect boxRect = [self boxRectFromPDFData:inputImageData];
         expect(boxRect.size.width).beGreaterThan(0);
         expect(boxRect.size.height).beGreaterThan(0);
         // Since 72 DPI is 1:1 from inch size to pixel size
@@ -562,6 +556,31 @@ withLocalImageURL:(NSURL *)imageUrl
     NSArray *thumbnailImages = imageProperties[(__bridge NSString *)kCGImagePropertyThumbnailImages];
     
     return thumbnailImages;
+}
+
+#pragma mark - Utils
+- (CGRect)boxRectFromPDFData:(nonnull NSData *)data {
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+    if (!provider) {
+        return CGRectZero;
+    }
+    CGPDFDocumentRef document = CGPDFDocumentCreateWithProvider(provider);
+    CGDataProviderRelease(provider);
+    if (!document) {
+        return CGRectZero;
+    }
+    
+    // `CGPDFDocumentGetPage` page number is 1-indexed.
+    CGPDFPageRef page = CGPDFDocumentGetPage(document, 1);
+    if (!page) {
+        CGPDFDocumentRelease(document);
+        return CGRectZero;
+    }
+    
+    CGRect boxRect = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+    CGPDFDocumentRelease(document);
+    
+    return boxRect;
 }
 
 @end

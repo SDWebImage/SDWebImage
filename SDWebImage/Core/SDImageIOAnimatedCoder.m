@@ -18,8 +18,6 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreServices/CoreServices.h>
 
-// Specify DPI for vector format in CGImageSource, like PDF
-static NSString * kSDCGImageSourceRasterizationDPI = @"kCGImageSourceRasterizationDPI";
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
 
@@ -568,6 +566,12 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         return nil;
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+#if SD_UIKIT || SD_WATCH
+    CGImagePropertyOrientation exifOrientation = [SDImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
+#else
+    CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
+#endif
+    properties[(__bridge NSString *)kCGImagePropertyOrientation] = @(exifOrientation);
     // Encoding Options
     double compressionQuality = 1;
     if (options[SDImageCoderEncodeCompressionQuality]) {
