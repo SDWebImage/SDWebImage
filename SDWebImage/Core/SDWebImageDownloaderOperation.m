@@ -244,7 +244,10 @@
             self.coderQueue.qualityOfService = NSQualityOfServiceDefault;
         }
         [self.dataTask resume];
-        NSArray<SDWebImageDownloaderOperationToken *> *tokens = [self.callbackTokens copy];
+        NSArray<SDWebImageDownloaderOperationToken *> *tokens;
+        @synchronized (self) {
+            tokens = [self.callbackTokens copy];
+        }
         for (SDWebImageDownloaderOperationToken *token in tokens) {
             if (token.progressBlock) {
                 token.progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
