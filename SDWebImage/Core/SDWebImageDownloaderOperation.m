@@ -158,11 +158,11 @@
             [self.callbackTokens removeObjectIdenticalTo:token];
         }
         SDWebImageDownloaderCompletedBlock completedBlock = ((SDWebImageDownloaderOperationToken *)token).completedBlock;
-        dispatch_main_async_safe(^{
-            if (completedBlock) {
+        if (completedBlock) {
+            dispatch_main_async_safe(^{
                 completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}], YES);
-            }
-        });
+            });
+        }
     }
     return shouldCancel;
 }
@@ -244,7 +244,10 @@
             self.coderQueue.qualityOfService = NSQualityOfServiceDefault;
         }
         [self.dataTask resume];
-        NSArray<SDWebImageDownloaderOperationToken *> *tokens = [self.callbackTokens copy];
+        NSArray<SDWebImageDownloaderOperationToken *> *tokens;
+        @synchronized (self) {
+            tokens = [self.callbackTokens copy];
+        }
         for (SDWebImageDownloaderOperationToken *token in tokens) {
             if (token.progressBlock) {
                 token.progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
@@ -694,11 +697,12 @@ didReceiveResponse:(NSURLResponse *)response
         tokens = [self.callbackTokens copy];
     }
     for (SDWebImageDownloaderOperationToken *token in tokens) {
-        dispatch_main_async_safe(^{
-            if (token.completedBlock) {
-                token.completedBlock(image, imageData, error, finished);
-            }
-        });
+        SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
+        if (completedBlock) {
+            dispatch_main_async_safe(^{
+                completedBlock(image, imageData, error, finished);
+            });
+        }
     }
 }
 
@@ -707,11 +711,12 @@ didReceiveResponse:(NSURLResponse *)response
                            imageData:(nullable NSData *)imageData
                                error:(nullable NSError *)error
                             finished:(BOOL)finished {
-    dispatch_main_async_safe(^{
-        if (token.completedBlock) {
-            token.completedBlock(image, imageData, error, finished);
-        }
-    });
+    SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
+    if (completedBlock) {
+        dispatch_main_async_safe(^{
+            completedBlock(image, imageData, error, finished);
+        });
+    }
 }
 
 @end
