@@ -40,12 +40,13 @@
         }
         self.cancelled = YES;
         
-        dispatch_main_async_safe(^{
-            if (self.doneBlock) {
-                self.doneBlock(nil, nil, SDImageCacheTypeNone);
-                self.doneBlock = nil;
-            }
-        });
+        SDImageCacheQueryCompletionBlock doneBlock = self.doneBlock;
+        self.doneBlock = nil;
+        if (doneBlock) {
+            dispatch_main_async_safe(^{
+                doneBlock(nil, nil, SDImageCacheTypeNone);
+            });
+        }
     }
 }
 

@@ -158,11 +158,11 @@
             [self.callbackTokens removeObjectIdenticalTo:token];
         }
         SDWebImageDownloaderCompletedBlock completedBlock = ((SDWebImageDownloaderOperationToken *)token).completedBlock;
-        dispatch_main_async_safe(^{
-            if (completedBlock) {
+        if (completedBlock) {
+            dispatch_main_async_safe(^{
                 completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}], YES);
-            }
-        });
+            });
+        }
     }
     return shouldCancel;
 }
@@ -697,11 +697,12 @@ didReceiveResponse:(NSURLResponse *)response
         tokens = [self.callbackTokens copy];
     }
     for (SDWebImageDownloaderOperationToken *token in tokens) {
-        dispatch_main_async_safe(^{
-            if (token.completedBlock) {
-                token.completedBlock(image, imageData, error, finished);
-            }
-        });
+        SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
+        if (completedBlock) {
+            dispatch_main_async_safe(^{
+                completedBlock(image, imageData, error, finished);
+            });
+        }
     }
 }
 
@@ -710,11 +711,12 @@ didReceiveResponse:(NSURLResponse *)response
                            imageData:(nullable NSData *)imageData
                                error:(nullable NSError *)error
                             finished:(BOOL)finished {
-    dispatch_main_async_safe(^{
-        if (token.completedBlock) {
-            token.completedBlock(image, imageData, error, finished);
-        }
-    });
+    SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
+    if (completedBlock) {
+        dispatch_main_async_safe(^{
+            completedBlock(image, imageData, error, finished);
+        });
+    }
 }
 
 @end

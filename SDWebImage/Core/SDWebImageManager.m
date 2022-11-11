@@ -672,11 +672,11 @@ static id<SDImageLoader> _defaultImageLoader;
                               cacheType:(SDImageCacheType)cacheType
                                finished:(BOOL)finished
                                     url:(nullable NSURL *)url {
-    dispatch_main_async_safe(^{
-        if (completionBlock) {
+    if (completionBlock) {
+        dispatch_main_async_safe(^{
             completionBlock(image, data, error, cacheType, finished, url);
-        }
-    });
+        });
+    }
 }
 
 - (BOOL)shouldBlockFailedURLWithURL:(nonnull NSURL *)url

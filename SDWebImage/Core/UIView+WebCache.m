@@ -229,12 +229,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 #if SD_UIKIT || SD_MAC
         [self sd_stopImageIndicator];
 #endif
-        dispatch_main_async_safe(^{
-            if (completedBlock) {
+        if (completedBlock) {
+            dispatch_main_async_safe(^{
                 NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorInvalidURL userInfo:@{NSLocalizedDescriptionKey : @"Image url is nil"}];
                 completedBlock(nil, nil, error, SDImageCacheTypeNone, YES, url);
-            }
-        });
+            });
+        }
     }
     
     return operation;
