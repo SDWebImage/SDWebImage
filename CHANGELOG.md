@@ -1,3 +1,11 @@
+## [5.14.1 - 5.14 Crash Fix, on Nov 11th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.1)
+See [all tickets marked for the 5.14.1 release](https://github.com/SDWebImage/SDWebImage/milestone/103)
+
+### Fixes
+- Fix the iOS 12 crash because the underlyingQueue is nil #3434 #3433
+- Fix the missing lock for callbackTokens which may cause thread-safe issue #3439 #3438
+- Use CoreGraphics to decode PDF instead of ImageIO to solve iOS 16's issue #3436
+
 ## [5.14.0 - Meet DecodeOptions, on Nov 8th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.0)
 See [all tickets marked for the 5.14.0 release](https://github.com/SDWebImage/SDWebImage/milestone/102)
 
