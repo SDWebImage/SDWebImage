@@ -173,9 +173,8 @@
 		53761299155AB74D005750A4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		5376129B155AB74D005750A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		5376129D155AB74D005750A4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		537612A1155AB74D005750A4 /* SDWebImage Demo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SDWebImage Demo-Info.plist"; sourceTree = "<group>"; };
+		537612A1155AB74D005750A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		537612A5155AB74D005750A4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		537612A7155AB74D005750A4 /* SDWebImage Demo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SDWebImage Demo-Prefix.pch"; sourceTree = "<group>"; };
 		537612A8155AB74D005750A4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		537612A9155AB74D005750A4 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		537612AB155AB74D005750A4 /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
@@ -393,9 +392,8 @@
 		537612A0155AB74D005750A4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				537612A1155AB74D005750A4 /* SDWebImage Demo-Info.plist */,
+				537612A1155AB74D005750A4 /* Info.plist */,
 				537612A5155AB74D005750A4 /* main.m */,
-				537612A7155AB74D005750A4 /* SDWebImage Demo-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1031,8 +1029,7 @@
 			baseConfigurationReference = 789EDF4244C66933FDF3E181 /* Pods-SDWebImage iOS Demo.debug.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
-				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
+				INFOPLIST_FILE = "SDWebImage Demo/Info.plist";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1044,8 +1041,7 @@
 			baseConfigurationReference = 0829378FA7103DD8649CCCF3 /* Pods-SDWebImage iOS Demo.release.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "SDWebImage Demo/SDWebImage Demo-Prefix.pch";
-				INFOPLIST_FILE = "SDWebImage Demo/SDWebImage Demo-Info.plist";
+				INFOPLIST_FILE = "SDWebImage Demo/Info.plist";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -18,13 +18,15 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreServices/CoreServices.h>
 
+#if SD_CHECK_CGIMAGE_RETAIN_SOURCE
+#import <dlfcn.h>
+
+// SPI to check thread safe during Example and Test
+static CGImageSourceRef (*SDCGImageGetImageSource)(CGImageRef);
+#endif
+
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
-
-// Only assert on Debug mode
-#define SD_CHECK_CGIMAGE_RETAIN_SOURCE DEBUG && \
-    ((__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_15_0)) || \
-    ((__TV_OS_VERSION_MAX_ALLOWED >= __TVOS_15_0))
 
 // This strip the un-wanted CGImageProperty, like the internal CGImageSourceRef in iOS 15+
 // However, CGImageCreateCopy still keep those CGImageProperty, not suit for our use case
@@ -301,8 +303,13 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     if (@available(iOS 15, tvOS 15, *)) {
         // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
         // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
-        extern CGImageSourceRef CGImageGetImageSource(CGImageRef);
-        NSCAssert(!CGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            SDCGImageGetImageSource = dlsym(RTLD_DEFAULT, "CGImageGetImageSource");
+        });
+        if (SDCGImageGetImageSource) {
+            NSCAssert(!SDCGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+        }
     }
 #endif
     
