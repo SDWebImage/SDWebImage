@@ -64,3 +64,20 @@ target 'Tests TV' do
   platform :tvos, '9.0'
   all_test_pods
 end
+
+# Inject macro during SDWebImage Demo and Tests
+post_install do |installer_representation|
+  installer_representation.generated_pod_targets.each do |target|
+    if target.pod_name == "SDWebImage"
+      build_settings = target.build_settings
+      build_settings.each do |configuration, build_setting|
+        if configuration == :debug
+          config = build_setting.xcconfig
+          old_value = config.attributes['GCC_PREPROCESSOR_DEFINITIONS']
+          config.attributes['GCC_PREPROCESSOR_DEFINITIONS'] = old_value + ' SD_CHECK_CGIMAGE_RETAIN_SOURCE=1'
+          config.save_as(target.xcconfig_path(configuration))
+        end
+      end
+    end
+  end
+end
