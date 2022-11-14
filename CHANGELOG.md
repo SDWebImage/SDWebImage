@@ -1,5 +1,11 @@
+## [5.14.2 - 5.14 Fix, on Nov 11th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.2)
+See [all tickets marked for the 5.14.2 release](https://github.com/SDWebImage/SDWebImage/milestone/105)
+
+### Fixes
+- Move the `SD_CHECK_CGIMAGE_RETAIN_SOURCE` assertion to SDWebImage Demo and Tests only #3443 #3442 #3441
+
 ## [5.14.1 - 5.14 Crash Fix, on Nov 11th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.1)
-See [all tickets marked for the 5.14.1 release](https://github.com/SDWebImage/SDWebImage/milestone/103)
+See [all tickets marked for the 5.14.1 release](https://github.com/SDWebImage/SDWebImage/milestone/104)
 
 ### Fixes
 - Fix the iOS 12 crash because the underlyingQueue is nil #3434 #3433
