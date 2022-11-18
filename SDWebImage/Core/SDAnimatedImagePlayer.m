@@ -255,7 +255,16 @@
         nextFrameIndex = self.shouldReverse ? (currentFrameIndex - 1) : (currentFrameIndex + 1);
         nextFrameIndex %= totalFrameCount;
     }
+    NSInteger frameBufferCount = 0;
+    SD_LOCK(_lock);
+    frameBufferCount = self.frameBuffer.count;
+    SD_UNLOCK(_lock);
     
+    if (totalFrameCount > 3 &&
+        frameBufferCount != totalFrameCount &&
+        (frameBufferCount % 4) == 3) {
+        [self calculateMaxBufferCount];
+    }
     
     // Check if we need to display new frame firstly
     BOOL bufferFull = NO;
