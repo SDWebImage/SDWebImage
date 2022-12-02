@@ -297,7 +297,10 @@
         NSTimeInterval currentDuration = [self.animatedProvider animatedImageDurationAtIndex:currentFrameIndex];
         currentDuration = currentDuration / playbackRate;
         if (self.currentTime < currentDuration) {
-            // Current frame timestamp not reached, return
+            // Current frame timestamp not reached, prefetch frame in advance.
+            [self prefetchFrameAtIndex:currentFrameIndex
+                             nextIndex:nextFrameIndex
+                            bufferFull:bufferFull];
             return;
         }
         
@@ -332,15 +335,25 @@
         return;
     }
     
-    // Check if we should prefetch next frame or current frame
-    // When buffer miss, means the decode speed is slower than render speed, we fetch current miss frame
-    // Or, most cases, the decode speed is faster than render speed, we fetch next frame
-    NSUInteger fetchFrameIndex = self.bufferMiss? currentFrameIndex : nextFrameIndex;
-    UIImage *fetchFrame;
-    SD_LOCK(_lock);
-    fetchFrame = self.bufferMiss? nil : self.frameBuffer[@(nextFrameIndex)];
-    SD_UNLOCK(_lock);
-    
+    [self prefetchFrameAtIndex:currentFrameIndex
+                     nextIndex:nextFrameIndex
+                    bufferFull:bufferFull];
+}
+
+// Check if we should prefetch next frame or current frame
+// When buffer miss, means the decode speed is slower than render speed, we fetch current miss frame
+// Or, most cases, the decode speed is faster than render speed, we fetch next frame
+- (void)prefetchFrameAtIndex:(NSUInteger)currentIndex
+                   nextIndex:(NSUInteger)nextIndex
+                  bufferFull:(BOOL)bufferFull {
+    NSUInteger fetchFrameIndex = currentIndex;
+    UIImage *fetchFrame = nil;
+    if (!self.bufferMiss) {
+        fetchFrameIndex = nextIndex;
+        SD_LOCK(_lock);
+        fetchFrame = self.frameBuffer[@(nextIndex)];
+        SD_UNLOCK(_lock);
+    }
     if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
         // Prefetch next frame in background queue
         id<SDAnimatedImageProvider> animatedProvider = self.animatedProvider;
