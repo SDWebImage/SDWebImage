@@ -145,18 +145,16 @@
     
     if (!self.currentFrame && [self.animatedProvider isKindOfClass:[UIImage class]]) {
         UIImage *image = (UIImage *)self.animatedProvider;
-        // Use the poster image if available
+        // Cache the poster image if available, but should not callback to avoid caller thread issues
         #if SD_MAC
         UIImage *posterFrame = [[NSImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:kCGImagePropertyOrientationUp];
         #else
         UIImage *posterFrame = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
         #endif
         if (posterFrame) {
-            self.currentFrame = posterFrame;
             SD_LOCK(self->_lock);
-            self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
+            self.frameBuffer[@(self.currentFrameIndex)] = posterFrame;
             SD_UNLOCK(self->_lock);
-            [self handleFrameChange];
         }
     }
     
