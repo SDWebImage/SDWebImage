@@ -152,6 +152,8 @@
         UIImage *posterFrame = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
         #endif
         if (posterFrame) {
+            // HACK: The first frame should not check duration and immediately display
+            self.needsDisplayWhenImageBecomesAvailable = YES;
             SD_LOCK(self->_lock);
             self.frameBuffer[@(self.currentFrameIndex)] = posterFrame;
             SD_UNLOCK(self->_lock);
