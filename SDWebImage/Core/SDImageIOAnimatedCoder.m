@@ -218,7 +218,22 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     return frameDuration;
 }
 
-+ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode options:(NSDictionary *)options {
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage {
+    // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
+    NSDictionary *options;
+    if (animatedImage) {
+        if (!lazyDecode) {
+            options = @{
+                // image decoding and caching should happen at image creation time.
+                (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
+            };
+        } else {
+            options = @{
+                // image decoding will happen at rendering time
+                (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(NO),
+            };
+        }
+    }
     // Some options need to pass to `CGImageSourceCopyPropertiesAtIndex` before `CGImageSourceCreateImageAtIndex`, or ImageIO will ignore them because they parse once :)
     // Parse the image properties
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)options);
@@ -287,7 +302,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
                 isDecoded = YES;
             }
         }
-    } else {
+    } else if (animatedImage) {
         // iOS 15+, CGImageRef now retains CGImageSourceRef internally. To workaround its thread-safe issue, we have to strip CGImageSourceRef, using Force-Decode (or have to use SPI `CGImageSetImageSource`), See: https://github.com/SDWebImage/SDWebImage/issues/3273
         if (@available(iOS 15, tvOS 15, *)) {
             // User pass `lazyDecode == YES`, but we still have to strip the CGImageSourceRef
@@ -297,21 +312,19 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
                 CGImageRelease(imageRef);
                 imageRef = newImageRef;
             }
-        }
-    }
 #if SD_CHECK_CGIMAGE_RETAIN_SOURCE
-    if (@available(iOS 15, tvOS 15, *)) {
-        // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
-        // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            SDCGImageGetImageSource = dlsym(RTLD_DEFAULT, "CGImageGetImageSource");
-        });
-        if (SDCGImageGetImageSource) {
-            NSCAssert(!SDCGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+            // Assert here to check CGImageRef should not retain the CGImageSourceRef and has possible thread-safe issue (this is behavior on iOS 15+)
+            // If assert hit, fire issue to https://github.com/SDWebImage/SDWebImage/issues and we update the condition for this behavior check
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                SDCGImageGetImageSource = dlsym(RTLD_DEFAULT, "CGImageGetImageSource");
+            });
+            if (SDCGImageGetImageSource) {
+                NSCAssert(!SDCGImageGetImageSource(imageRef), @"Animated Coder created CGImageRef should not retain CGImageSourceRef, which may cause thread-safe issue without lock");
+            }
+#endif
         }
     }
-#endif
     
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation imageOrientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:exifOrientation];
@@ -412,12 +425,12 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || count <= 1) {
-        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode options:nil];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:count];
         
         for (size_t i = 0; i < count; i++) {
-            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode options:nil];
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
             if (!image) {
                 continue;
             }
@@ -473,7 +486,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
             preserveAspectRatio = preserveAspectRatioValue.boolValue;
         }
         _preserveAspectRatio = preserveAspectRatio;
-        BOOL lazyDecode = YES; // Defaults YES for static image coder
+        BOOL lazyDecode = NO; // Defaults NO for animated image coder
         NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
         if (lazyDecodeValue != nil) {
             lazyDecode = lazyDecodeValue.boolValue;
@@ -533,7 +546,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode options:nil];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -695,6 +708,12 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
             preserveAspectRatio = preserveAspectRatioValue.boolValue;
         }
         _preserveAspectRatio = preserveAspectRatio;
+        BOOL lazyDecode = NO; // Defaults NO for animated image coder
+        NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
+        if (lazyDecodeValue != nil) {
+            lazyDecode = lazyDecodeValue.boolValue;
+        }
+        _lazyDecode = lazyDecode;
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -785,24 +804,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
 }
 
 - (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
-    NSDictionary *options;
-    BOOL lazyDecode = NO; // Defaults NO for animated image coder
-    NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
-    if (lazyDecodeValue != nil) {
-        lazyDecode = lazyDecodeValue.boolValue;
-    }
-    if (!lazyDecode) {
-        options = @{
-            (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(NO),
-            (__bridge NSString *)kCGImageSourceShouldCache : @(NO)
-        };
-    } else {
-        options = @{
-            (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
-            (__bridge NSString *)kCGImageSourceShouldCache : @(YES) // Always cache to reduce CPU usage
-        };
-    }
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:lazyDecode options:options];
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES];
     if (!image) {
         return nil;
     }
