@@ -109,13 +109,15 @@ static NSString * _defaultDiskCacheDirectory;
     if ((self = [super init])) {
         NSAssert(ns, @"Cache namespace should not be nil");
         
-        // Create IO serial queue
-        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", DISPATCH_QUEUE_SERIAL);
-        
         if (!config) {
             config = SDImageCacheConfig.defaultCacheConfig;
         }
         _config = [config copy];
+        
+        // Create IO queue
+        dispatch_queue_attr_t ioQueueAttributes = _config.ioQueueAttributes;
+        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", ioQueueAttributes);
+        NSAssert(_ioQueue, @"The IO queue should not be nil. Your configured `ioQueueAttributes` may be wrong");
         
         // Init the memory cache
         NSAssert([config.memoryCacheClass conformsToProtocol:@protocol(SDMemoryCache)], @"Custom memory cache class must conform to `SDMemoryCache` protocol");
