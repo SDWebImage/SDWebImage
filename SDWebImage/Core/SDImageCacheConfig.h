@@ -128,6 +128,15 @@ typedef NS_ENUM(NSUInteger, SDImageCacheConfigExpireType) {
 @property (strong, nonatomic, nullable) NSFileManager *fileManager;
 
 /**
+ * The dispatch queue attr for ioQueue. You can config the QoS and concurrent/serial to internal IO queue. The ioQueue is used by SDImageCache to access read/write for disk data.
+ * Defaults we use `DISPATCH_QUEUE_SERIAL`(NULL), to use serial dispatch queue to ensure single access for disk data. It's safe but may be slow.
+ * @note You can override this to use `DISPATCH_QUEUE_CONCURRENT`, use concurrent queue.
+ * @warning **MAKE SURE** to keep `diskCacheWritingOptions` to use `NSDataWritingAtomic`, or concurrent queue may cause corrupted disk data (because multiple threads read/write same file without atomic is not IO-safe).
+ * @note This value does not support dynamic changes. Which means further modification on this value after cache initialized has no effect.
+ */
+@property (strong, nonatomic, nullable) dispatch_queue_attr_t ioQueueAttributes;
+
+/**
  * The custom memory cache class. Provided class instance must conform to `SDMemoryCache` protocol to allow usage.
  * Defaults to built-in `SDMemoryCache` class.
  * @note This value does not support dynamic changes. Which means further modification on this value after cache initialized has no effect.
