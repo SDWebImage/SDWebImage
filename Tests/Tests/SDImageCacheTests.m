@@ -650,6 +650,27 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)test48CacheUseConcurrentIOQueue {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache concurrent ioQueue"];
+    expectation.expectedFulfillmentCount = 2;
+    
+    SDImageCacheConfig *config = [SDImageCacheConfig new];
+    dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_BACKGROUND, 0);
+    config.ioQueueAttributes = attr;
+    
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Concurrent" diskCacheDirectory:@"/" config:config];
+    NSData *pngData = [NSData dataWithContentsOfFile:[self testPNGPath]];
+    [cache queryCacheOperationForKey:@"Key1" done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+        expect(data).beNil();
+        [expectation fulfill];
+    }];
+    [cache storeImageData:pngData forKey:@"Key1" completion:^{
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test49SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
