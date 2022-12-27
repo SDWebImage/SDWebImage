@@ -1,3 +1,14 @@
+## [5.14.3 - 5.14 Opt, on Dec 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.3)
+See [all tickets marked for the 5.14.3 release](https://github.com/SDWebImage/SDWebImage/milestone/106)
+
+### Performance
+- Added ioQueueAttributes to use concurrent or control QoS for image cache internal IO Queue #3460
+- When frame timestamp not reached, we should prefetch frame in advance for image render #3452
+
+### Fixes
+- Fix the iOS 15+ force-decode hack break Apple's HEIF and JPEG YUV420 optimization #3461
+- The poster image should not trigger a frameChange callback #3459
+
 ## [5.14.2 - 5.14 Fix, on Nov 11th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.2)
 See [all tickets marked for the 5.14.2 release](https://github.com/SDWebImage/SDWebImage/milestone/105)
 
