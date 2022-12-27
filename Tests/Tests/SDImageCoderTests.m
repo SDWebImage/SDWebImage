@@ -363,14 +363,7 @@
             SDImageCoderEncodeMaxPixelSize: @(thumbnailSize)
     }];
     UIImage *encodedImage = [UIImage sd_imageWithData:encodedData];
-    // Encode keep aspect ratio, but will use scale down instead of scale up if we strip the image-io related info (to fix some Apple's bug)
-    // See more in `SDCGImageCreateCopy`
-    expect(image.sd_isDecoded).beFalsy();
-    if (@available(iOS 15, tvOS 15, *)) {
-        expect(encodedImage.size).equal(CGSizeMake(4000, 2628));
-    } else {
-        expect(encodedImage.size).equal(CGSizeMake(4000, 2629));
-    }
+    expect(encodedImage.size).equal(CGSizeMake(4000, 2629));
 }
 
 - (void)test24ThatScaleSizeCalculation {
