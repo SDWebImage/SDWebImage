@@ -222,6 +222,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetIma
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager API_DEPRECATED("Use individual context option like .imageCache, .imageLoader and .imageTransformer instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
+ 
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCallbackQueue;
+
+/**
  A id<SDImageCache> instance which conforms to `SDImageCache` protocol. It's used to override the image manager's cache during the image loading pipeline.
  In other word, if you just want to specify a custom cache during image loading, you don't need to re-create a dummy SDWebImageManager instance with the cache. If not provided, use the image manager's cache (id<SDImageCache>)
  */

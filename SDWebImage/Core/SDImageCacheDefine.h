@@ -123,6 +123,25 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
 /**
+ Store the image into image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
+
+ @param image The image to store
+ @param imageData The image data to be used for disk storage
+ @param key The image cache key
+ @param options A mask to specify options to use for this store
+ @param context The context options to use. Pass `.storeCacheType` to control cache type, pass `.callbackQueue` to control callback queue
+ @param cacheType The image store op cache type
+ @param completionBlock A block executed after the operation is finished
+ */
+- (void)storeImage:(nullable UIImage *)image
+         imageData:(nullable NSData *)imageData
+            forKey:(nullable NSString *)key
+           options:(SDWebImageOptions)options
+           context:(nullable SDWebImageContext *)context
+         cacheType:(SDImageCacheType)cacheType
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+
+/**
  Remove the image from image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
 
  @param key The image cache key
