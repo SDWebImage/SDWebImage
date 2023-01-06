@@ -55,12 +55,12 @@ static void SDReleaseBlock(void *context) {
     return queue;
 }
 
-- (void)sync:(SDWebImageNoParamsBlock)block {
+- (void)sync:(dispatch_block_t)block {
     if (!block) return;
     dispatch_sync(self.queue, block);
 }
 
-- (void)syncSafe:(SDWebImageNoParamsBlock)block {
+- (void)syncSafe:(dispatch_block_t)block {
     if (!block) return;
     // Special handle for main queue, faster
     const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
@@ -78,12 +78,12 @@ static void SDReleaseBlock(void *context) {
     }
 }
 
-- (void)async:(SDWebImageNoParamsBlock)block {
+- (void)async:(dispatch_block_t)block {
     if (!block) return;
     dispatch_async(self.queue, block);
 }
 
-- (void)asyncSafe:(SDWebImageNoParamsBlock)block {
+- (void)asyncSafe:(dispatch_block_t)block {
     if (!block) return;
     // Special handle for main queue, faster
     const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);

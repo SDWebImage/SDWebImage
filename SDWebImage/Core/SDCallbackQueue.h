@@ -7,7 +7,7 @@
  */
 
 
-#import "SDWebImageDefine.h"
+#import "SDWebImageCompat.h"
 
 /// SDCallbackQueue is a wrapper used to control how the completionBlock should perform on queues, used by our `Cache`/`Manager`/`Loader`.
 /// Useful when you call SDWebImage in non-main queue and want to avoid it callback into main queue, which may cause issue.
@@ -28,20 +28,20 @@
 
 /// Submits a block for execution and returns after that block finishes executing.
 /// - Parameter block: The block that contains the work to perform.
-- (void)sync:(nullable SDWebImageNoParamsBlock)block;
+- (void)sync:(nullable dispatch_block_t)block;
 
 /// Submits a block for execution and returns after that block finishes executing. When the current enqueued queue matching the callback queue, call the block immediately.
 /// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
 /// - Parameter block: The block that contains the work to perform.
-- (void)syncSafe:(nullable SDWebImageNoParamsBlock)block;
+- (void)syncSafe:(nullable dispatch_block_t)block;
 
 /// Schedules a block asynchronously for execution.
 /// - Parameter block: The block that contains the work to perform.
-- (void)async:(nullable SDWebImageNoParamsBlock)block;
+- (void)async:(nullable dispatch_block_t)block;
 
 /// Schedules a block asynchronously for execution. When the current enqueued queue matching the callback queue, call the block immediately.
 /// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
 /// - Parameter block: The block that contains the work to perform.
-- (void)asyncSafe:(nullable SDWebImageNoParamsBlock)block;
+- (void)asyncSafe:(nullable dispatch_block_t)block;
 
 @end
