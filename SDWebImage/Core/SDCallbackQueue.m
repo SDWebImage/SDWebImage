@@ -55,13 +55,11 @@ static void SDReleaseBlock(void *context) {
     return queue;
 }
 
-- (void)sync:(dispatch_block_t)block {
-    if (!block) return;
+- (void)sync:(nonnull NS_NOESCAPE dispatch_block_t)block {
     dispatch_sync(self.queue, block);
 }
 
-- (void)syncSafe:(dispatch_block_t)block {
-    if (!block) return;
+- (void)syncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block {
     // Special handle for main queue, faster
     const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
     if (currentLabel && currentLabel == dispatch_queue_get_label(dispatch_get_main_queue())) {
@@ -78,13 +76,11 @@ static void SDReleaseBlock(void *context) {
     }
 }
 
-- (void)async:(dispatch_block_t)block {
-    if (!block) return;
+- (void)async:(nonnull NS_NOESCAPE dispatch_block_t)block {
     dispatch_async(self.queue, block);
 }
 
-- (void)asyncSafe:(dispatch_block_t)block {
-    if (!block) return;
+- (void)asyncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block {
     // Special handle for main queue, faster
     const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
     if (currentLabel && currentLabel == dispatch_queue_get_label(dispatch_get_main_queue())) {

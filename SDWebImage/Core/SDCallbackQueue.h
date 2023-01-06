@@ -28,20 +28,20 @@
 
 /// Submits a block for execution and returns after that block finishes executing.
 /// - Parameter block: The block that contains the work to perform.
-- (void)sync:(nullable dispatch_block_t)block;
+- (void)sync:(nonnull NS_NOESCAPE dispatch_block_t)block;
 
 /// Submits a block for execution and returns after that block finishes executing. When the current enqueued queue matching the callback queue, call the block immediately.
 /// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
 /// - Parameter block: The block that contains the work to perform.
-- (void)syncSafe:(nullable dispatch_block_t)block;
+- (void)syncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block;
 
 /// Schedules a block asynchronously for execution.
 /// - Parameter block: The block that contains the work to perform.
-- (void)async:(nullable dispatch_block_t)block;
+- (void)async:(nonnull NS_NOESCAPE dispatch_block_t)block;
 
 /// Schedules a block asynchronously for execution. When the current enqueued queue matching the callback queue, call the block immediately.
 /// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
 /// - Parameter block: The block that contains the work to perform.
-- (void)asyncSafe:(nullable dispatch_block_t)block;
+- (void)asyncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block;
 
 @end
