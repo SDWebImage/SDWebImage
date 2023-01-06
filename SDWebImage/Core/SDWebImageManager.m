@@ -539,7 +539,6 @@ static id<SDImageLoader> _defaultImageLoader;
             imageCache = self.imageCache;
         }
     }
-    BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     // the original store image cache type
     SDImageCacheType originalStoreCacheType = SDImageCacheTypeDisk;
     if (context[SDWebImageContextOriginalStoreCacheType]) {
@@ -561,7 +560,7 @@ static id<SDImageLoader> _defaultImageLoader;
             @autoreleasepool {
                 NSData *newOriginalData = [cacheSerializer cacheDataWithImage:originalImage originalData:originalData imageURL:url];
                 // Store original image and data
-                [self storeImage:originalImage imageData:newOriginalData forKey:key imageCache:imageCache cacheType:originalStoreCacheType finished:finished waitStoreCache:waitStoreCache completion:^{
+                [self storeImage:originalImage imageData:newOriginalData forKey:key options:options context:context imageCache:imageCache cacheType:originalStoreCacheType finished:finished completion:^{
                     // Continue store cache process, transformed data is nil
                     [self callStoreCacheProcessForOperation:operation url:url options:options context:context image:cacheImage data:cacheData cacheType:cacheType finished:finished completed:completedBlock];
                 }];
@@ -569,7 +568,7 @@ static id<SDImageLoader> _defaultImageLoader;
         });
     } else {
         // Store original image and data
-        [self storeImage:originalImage imageData:originalData forKey:key imageCache:imageCache cacheType:originalStoreCacheType finished:finished waitStoreCache:waitStoreCache completion:^{
+        [self storeImage:originalImage imageData:originalData forKey:key options:options context:context imageCache:imageCache cacheType:originalStoreCacheType finished:finished completion:^{
             // Continue store cache process, transformed data is nil
             [self callStoreCacheProcessForOperation:operation url:url options:options context:context image:cacheImage data:cacheData cacheType:cacheType finished:finished completed:completedBlock];
         }];
@@ -591,7 +590,6 @@ static id<SDImageLoader> _defaultImageLoader;
     if (!imageCache) {
         imageCache = self.imageCache;
     }
-    BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     // the target image store cache type
     SDImageCacheType storeCacheType = SDImageCacheTypeAll;
     if (context[SDWebImageContextStoreCacheType]) {
@@ -605,13 +603,13 @@ static id<SDImageLoader> _defaultImageLoader;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             NSData *newData = [cacheSerializer cacheDataWithImage:image originalData:data imageURL:url];
             // Store image and data
-            [self storeImage:image imageData:newData forKey:key imageCache:imageCache cacheType:storeCacheType finished:finished waitStoreCache:waitStoreCache completion:^{
+            [self storeImage:image imageData:newData forKey:key options:options context:context imageCache:imageCache cacheType:storeCacheType finished:finished completion:^{
                 [self callCompletionBlockForOperation:operation completion:completedBlock image:image data:data error:nil cacheType:cacheType finished:finished queue:context[SDWebImageContextCallbackQueue] url:url];
             }];
         });
     } else {
         // Store image and data
-        [self storeImage:image imageData:data forKey:key imageCache:imageCache cacheType:storeCacheType finished:finished waitStoreCache:waitStoreCache completion:^{
+        [self storeImage:image imageData:data forKey:key options:options context:context imageCache:imageCache cacheType:storeCacheType finished:finished completion:^{
             [self callCompletionBlockForOperation:operation completion:completedBlock image:image data:data error:nil cacheType:cacheType finished:finished queue:context[SDWebImageContextCallbackQueue] url:url];
         }];
     }
@@ -631,11 +629,13 @@ static id<SDImageLoader> _defaultImageLoader;
 - (void)storeImage:(nullable UIImage *)image
          imageData:(nullable NSData *)data
             forKey:(nullable NSString *)key
+           options:(SDWebImageOptions)options
+           context:(nullable SDWebImageContext *)context
         imageCache:(nonnull id<SDImageCache>)imageCache
          cacheType:(SDImageCacheType)cacheType
           finished:(BOOL)finished
-    waitStoreCache:(BOOL)waitStoreCache
         completion:(nullable SDWebImageNoParamsBlock)completion {
+    BOOL waitStoreCache = SD_OPTIONS_CONTAINS(options, SDWebImageWaitStoreCache);
     // Ignore progressive data cache
     if (!finished) {
         if (completion) {
@@ -644,7 +644,7 @@ static id<SDImageLoader> _defaultImageLoader;
         return;
     }
     // Check whether we should wait the store cache finished. If not, callback immediately
-    [imageCache storeImage:image imageData:data forKey:key cacheType:cacheType completion:^{
+    [imageCache storeImage:image imageData:data forKey:key options:options context:context cacheType:cacheType completion:^{
         if (waitStoreCache) {
             if (completion) {
                 completion();
