@@ -21,6 +21,7 @@
 @property (nonatomic, strong, nullable, readwrite) NSString *key;
 @property (nonatomic, assign, getter=isCancelled) BOOL cancelled;
 @property (nonatomic, copy, nullable) SDImageCacheQueryCompletionBlock doneBlock;
+@property (nonatomic, strong, nullable) SDCallbackQueue *queue;
 
 @end
 
@@ -44,9 +45,9 @@
         SDImageCacheQueryCompletionBlock doneBlock = self.doneBlock;
         self.doneBlock = nil;
         if (doneBlock) {
-            dispatch_main_async_safe(^{
+            [(self.queue ?: SDCallbackQueue.mainQueue) asyncSafe:^{
                 doneBlock(nil, nil, SDImageCacheTypeNone);
-            });
+            }];
         }
     }
 }
@@ -609,14 +610,15 @@ static NSString * _defaultDiskCacheDirectory;
     }
     
     // Second check the disk cache...
+    SDCallbackQueue *queue = context[SDWebImageContextCallbackQueue];
     SDImageCacheToken *operation = [[SDImageCacheToken alloc] initWithDoneBlock:doneBlock];
     operation.key = key;
+    operation.queue = queue;
     // Check whether we need to synchronously query disk
     // 1. in-memory cache hit & memoryDataSync
     // 2. in-memory cache miss & diskDataSync
     BOOL shouldQueryDiskSync = ((image && options & SDImageCacheQueryMemoryDataSync) ||
                                 (!image && options & SDImageCacheQueryDiskDataSync));
-    SDCallbackQueue *queue = context[SDWebImageContextCallbackQueue];
     NSData* (^queryDiskDataBlock)(void) = ^NSData* {
         @synchronized (operation) {
             if (operation.isCancelled) {

@@ -158,12 +158,7 @@
         @synchronized (self) {
             [self.callbackTokens removeObjectIdenticalTo:token];
         }
-        SDWebImageDownloaderCompletedBlock completedBlock = ((SDWebImageDownloaderOperationToken *)token).completedBlock;
-        if (completedBlock) {
-            dispatch_main_async_safe(^{
-                completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}], YES);
-            });
-        }
+        [self callCompletionBlockWithToken:token image:nil imageData:nil error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}] finished:YES];
     }
     return shouldCancel;
 }

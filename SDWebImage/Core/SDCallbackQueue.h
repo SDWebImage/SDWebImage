@@ -9,24 +9,39 @@
 
 #import "SDWebImageDefine.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
+/// SDCallbackQueue is a wrapper used to control how the completionBlock should perform on queues, used by our `Cache`/`Manager`/`Loader`.
+/// Useful when you call SDWebImage in non-main queue and want to avoid it callback into main queue, which may cause issue.
 @interface SDCallbackQueue : NSObject
 
+/// The shared main queue. This is the default value, has the same effect when passing `nil` to `SDWebImageContextCallbackQueue`
 @property (nonnull, class, readonly) SDCallbackQueue *mainQueue;
 
-@property (nonnull, class, readonly) SDCallbackQueue *callerQueue;
+/// The caller current queue. Using `dispatch_get_current_queue`. This is not a dynamic value and only keep the first call time queue.
+@property (nonnull, class, readonly) SDCallbackQueue *currentQueue;
 
+/// The global concurrent queue (user-initiated QoS). Using `dispatch_get_global_queue`.
 @property (nonnull, class, readonly) SDCallbackQueue *globalQueue;
 
-+ (SDCallbackQueue *)dispatchQueue:(dispatch_queue_t)queue;
+/// Create the callback queue with a GCD queue
+/// - Parameter queue: The GCD queue, should not be NULL
+- (nonnull instancetype)initWithDispatchQueue:(nonnull dispatch_queue_t)queue;
 
-- (void)sync:(SDWebImageNoParamsBlock)block;
+/// Submits a block for execution and returns after that block finishes executing.
+/// - Parameter block: The block that contains the work to perform.
+- (void)sync:(nullable SDWebImageNoParamsBlock)block;
 
-- (void)async:(SDWebImageNoParamsBlock)block;
+/// Submits a block for execution and returns after that block finishes executing. When the current enqueued queue matching the callback queue, call the block immediately.
+/// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
+/// - Parameter block: The block that contains the work to perform.
+- (void)syncSafe:(nullable SDWebImageNoParamsBlock)block;
 
-- (void)asyncSafe:(SDWebImageNoParamsBlock)block;
+/// Schedules a block asynchronously for execution.
+/// - Parameter block: The block that contains the work to perform.
+- (void)async:(nullable SDWebImageNoParamsBlock)block;
+
+/// Schedules a block asynchronously for execution. When the current enqueued queue matching the callback queue, call the block immediately.
+/// @warning This will not works when using `dispatch_set_target_queue` or recursive queue context.
+/// - Parameter block: The block that contains the work to perform.
+- (void)asyncSafe:(nullable SDWebImageNoParamsBlock)block;
 
 @end
-
-NS_ASSUME_NONNULL_END

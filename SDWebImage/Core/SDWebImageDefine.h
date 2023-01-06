@@ -222,7 +222,11 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextSetIma
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCustomManager API_DEPRECATED("Use individual context option like .imageCache, .imageLoader and .imageTransformer instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
- 
+ A `SDCallbackQueue` instance which controls the `Cache`/`Manager`/`Loader`'s callback queue for their completionBlock.
+ This is useful for user who call these 3 components in non-main queue and want to avoid callback in main queue.
+ @note For UI callback (`sd_setImageWithURL`), we will still use main queue to dispatch, means if you specify a global queue, it will enqueue from the global queue to main queue.
+ @note This does not effect the components' working queue (for example, `Cache` still query disk on internal ioQueue, `Loader` still do network on URLSessionConfiguration.delegateQueue), change those config if you need.
+ Defaults to nil. Which means main queue.
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextCallbackQueue;
 
