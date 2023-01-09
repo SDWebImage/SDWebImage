@@ -81,22 +81,23 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
 
  @param key The image cache key
  @param options A mask to specify options to use for this query
- @param context A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ @param context A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold. Pass `.callbackQueue` to control callback queue
  @param completionBlock The completion block. Will not get called if the operation is cancelled
  @return The operation for this query
  */
 - (nullable id<SDWebImageOperation>)queryImageForKey:(nullable NSString *)key
                                              options:(SDWebImageOptions)options
                                              context:(nullable SDWebImageContext *)context
-                                          completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock;
+                                          completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock API_DEPRECATED_WITH_REPLACEMENT("queryImageForKey:options:context:cacheType:completion:", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
+@optional
 /**
  Query the cached image from image cache for given key. The operation can be used to cancel the query.
  If image is cached in memory, completion is called synchronously, else asynchronously and depends on the options arg (See `SDWebImageQueryDiskSync`)
 
  @param key The image cache key
  @param options A mask to specify options to use for this query
- @param context A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ @param context A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold. Pass `.callbackQueue` to control callback queue
  @param cacheType Specify where to query the cache from. By default we use `.all`, which means both memory cache and disk cache. You can choose to query memory only or disk only as well. Pass `.none` is invalid and callback with nil immediately.
  @param completionBlock The completion block. Will not get called if the operation is cancelled
  @return The operation for this query
@@ -107,6 +108,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
                                            cacheType:(SDImageCacheType)cacheType
                                           completion:(nullable SDImageCacheQueryCompletionBlock)completionBlock;
 
+@required
 /**
  Store the image into image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
 
@@ -120,8 +122,9 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
          cacheType:(SDImageCacheType)cacheType
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock API_DEPRECATED_WITH_REPLACEMENT("storeImage:imageData:forKey:options:context:cacheType:completion:", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));;
 
+@optional
 /**
  Store the image into image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
 
@@ -129,7 +132,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
  @param imageData The image data to be used for disk storage
  @param key The image cache key
  @param options A mask to specify options to use for this store
- @param context The context options to use. Pass `.storeCacheType` to control cache type, pass `.callbackQueue` to control callback queue
+ @param context The context options to use. Pass `.callbackQueue` to control callback queue
  @param cacheType The image store op cache type
  @param completionBlock A block executed after the operation is finished
  */
@@ -141,6 +144,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
          cacheType:(SDImageCacheType)cacheType
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
+@required
 /**
  Remove the image from image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
 

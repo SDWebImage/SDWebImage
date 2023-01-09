@@ -65,8 +65,6 @@ static NSString * _defaultDiskCacheDirectory;
 @property (nonatomic, copy, readwrite, nonnull) NSString *diskCachePath;
 @property (nonatomic, strong, nullable) dispatch_queue_t ioQueue;
 
-- (void)storeImage:(nullable UIImage *)image imageData:(nullable NSData *)imageData forKey:(nullable NSString *)key options:(SDWebImageOptions)options context:(nullable SDWebImageContext *)context cacheType:(SDImageCacheType)cacheType completion:(nullable SDWebImageNoParamsBlock)completionBlock;
-
 @end
 
 

@@ -644,13 +644,23 @@ static id<SDImageLoader> _defaultImageLoader;
         return;
     }
     // Check whether we should wait the store cache finished. If not, callback immediately
-    [imageCache storeImage:image imageData:data forKey:key options:options context:context cacheType:cacheType completion:^{
-        if (waitStoreCache) {
-            if (completion) {
-                completion();
+    if ([imageCache respondsToSelector:@selector(storeImage:imageData:forKey:options:context:cacheType:completion:)]) {
+        [imageCache storeImage:image imageData:data forKey:key options:options context:context cacheType:cacheType completion:^{
+            if (waitStoreCache) {
+                if (completion) {
+                    completion();
+                }
             }
-        }
-    }];
+        }];
+    } else {
+        [imageCache storeImage:image imageData:data forKey:key cacheType:cacheType completion:^{
+            if (waitStoreCache) {
+                if (completion) {
+                    completion();
+                }
+            }
+        }];
+    }
     if (!waitStoreCache) {
         if (completion) {
             completion();
