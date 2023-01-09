@@ -660,12 +660,18 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Concurrent" diskCacheDirectory:@"/" config:config];
     NSData *pngData = [NSData dataWithContentsOfFile:[self testPNGPath]];
-    [cache queryCacheOperationForKey:@"Key1" done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
-        expect(data).beNil();
-        [expectation fulfill];
-    }];
-    [cache storeImageData:pngData forKey:@"Key1" completion:^{
-        [expectation fulfill];
+    // Added test case for custom queue
+    [SDCallbackQueue.globalQueue async:^{
+        SDWebImageContext *context = @{SDWebImageContextCallbackQueue : SDCallbackQueue.currentQueue};
+        expect(NSThread.isMainThread).beFalsy();
+        [cache queryCacheOperationForKey:@"Key1" options:0 context:context done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+            expect(data).beNil();
+            expect(NSThread.isMainThread).beFalsy();
+            [expectation fulfill];
+        }];
+        [cache storeImageData:pngData forKey:@"Key1" completion:^{
+            [expectation fulfill];
+        }];
     }];
     
     [self waitForExpectationsWithCommonTimeout];
