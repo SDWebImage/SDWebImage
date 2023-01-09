@@ -25,7 +25,7 @@
 		320CAE172086F50500CFFC80 /* SDWebImageError.h in Headers */ = {isa = PBXBuildFile; fileRef = 320CAE132086F50500CFFC80 /* SDWebImageError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		320CAE1B2086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
 		320CAE1D2086F50500CFFC80 /* SDWebImageError.m in Sources */ = {isa = PBXBuildFile; fileRef = 320CAE142086F50500CFFC80 /* SDWebImageError.m */; };
-		321117A9296573680001FC2C /* SDCallbackQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 321117A7296573680001FC2C /* SDCallbackQueue.h */; };
+		321117A9296573680001FC2C /* SDCallbackQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 321117A7296573680001FC2C /* SDCallbackQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321117AA296573680001FC2C /* SDCallbackQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 321117A8296573680001FC2C /* SDCallbackQueue.m */; };
 		321B37832083290E00C0EA77 /* SDImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 321B377D2083290D00C0EA77 /* SDImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		321B37872083290E00C0EA77 /* SDImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 321B377E2083290D00C0EA77 /* SDImageLoader.m */; };
@@ -69,6 +69,7 @@
 		324DF4B6200A14DC008A84CC /* SDWebImageDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = 324DF4B2200A14DC008A84CC /* SDWebImageDefine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		324DF4BA200A14DC008A84CC /* SDWebImageDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 324DF4B3200A14DC008A84CC /* SDWebImageDefine.m */; };
 		324DF4BC200A14DC008A84CC /* SDWebImageDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 324DF4B3200A14DC008A84CC /* SDWebImageDefine.m */; };
+		325074F2296C546D00B730CF /* SDCallbackQueue.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 321117A7296573680001FC2C /* SDCallbackQueue.h */; };
 		3250C9EE2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 3250C9EC2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3250C9EF2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */; };
 		3250C9F02355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3250C9ED2355D9DA0093A896 /* SDWebImageDownloaderDecryptor.m */; };
@@ -319,6 +320,7 @@
 			dstPath = include/SDWebImage;
 			dstSubfolderSpec = 16;
 			files = (
+				325074F2296C546D00B730CF /* SDCallbackQueue.h in Copy Headers */,
 				32D9EE4B24AF259B00EAFDF4 /* SDImageAWebPCoder.h in Copy Headers */,
 				328E9DE523A61DD30051C893 /* SDGraphicsImageRenderer.h in Copy Headers */,
 				325F7CCD2389467800AEDFCC /* UIImage+ExtendedCacheData.h in Copy Headers */,
