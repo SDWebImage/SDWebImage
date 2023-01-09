@@ -154,6 +154,43 @@
     expect(scaledImage.scale).equal(2);
 }
 
+- (void)testSDCallbackQueue {
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"SDCallbackQueue SafeExecute works"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"SDCallbackQueue Dispatch works"];
+    dispatch_queue_t queue = dispatch_queue_create("testSDCallbackQueue", NULL);
+    SDCallbackQueue *callbackQueue = [[SDCallbackQueue alloc] initWithDispatchQueue:queue];
+    __block BOOL called1 = NO;
+    [callbackQueue sync:^{
+        called1 = YES;
+    }];
+    expect(called1).beTruthy();
+    
+    __block BOOL called2 = NO;
+    callbackQueue.policy = SDCallbackPolicySafeExecute;
+    dispatch_async(queue, ^{
+        // Should execute in sync
+        [callbackQueue async:^{
+            called2 = YES;
+            [expectation1 fulfill];
+        }];
+        expect(called2).beTruthy();
+    });
+    
+    SDCallbackQueue *callbackQueue2 = [[SDCallbackQueue alloc] initWithDispatchQueue:queue];
+    __block BOOL called3 = NO;
+    callbackQueue2.policy = SDCallbackPolicyDispatch;
+    dispatch_async(queue, ^{
+        // Should execute in async
+        [callbackQueue2 async:^{
+            called3 = YES;
+            [expectation2 fulfill];
+        }];
+        expect(called3).beFalsy();
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
+}
+
 - (void)testInternalMacro {
     @weakify(self);
     @onExit {

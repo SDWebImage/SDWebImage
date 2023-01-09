@@ -15,7 +15,7 @@ typedef NS_ENUM(NSUInteger, SDCallbackPolicy) {
     SDCallbackPolicySafeExecute = 0,
     /// Follow async/sync using the correspond `dispatch_async`/`dispatch_sync` to dispatch block on queue
     SDCallbackPolicyDispatch = 1,
-    /// Ignore any async/sync and just directly invoke `block` in current queue (without `dispatch_async/dispatch_sync`)
+    /// Ignore any async/sync and just directly invoke `block` in current queue (without `dispatch_async`/`dispatch_sync`)
     SDCallbackPolicyInvoke = 2
 };
 
@@ -35,9 +35,11 @@ typedef NS_ENUM(NSUInteger, SDCallbackPolicy) {
 /// The current queue's callback policy, defaults to `SDCallbackPolicySafeExecute`, which behaves like the old macro  `dispatch_main_async_safe`
 @property (assign, readwrite) SDCallbackPolicy policy;
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
 /// Create the callback queue with a GCD queue
 /// - Parameter queue: The GCD queue, should not be NULL
-- (nonnull instancetype)initWithDispatchQueue:(nonnull dispatch_queue_t)queue;
+- (nonnull instancetype)initWithDispatchQueue:(nonnull dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Execution Entry
 
