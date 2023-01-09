@@ -8,8 +8,15 @@
 
 #import "SDWebImagePrefetcher.h"
 #import "SDAsyncBlockOperation.h"
+#import "SDCallbackQueue.h"
 #import "SDInternalMacros.h"
 #import <stdatomic.h>
+
+@interface SDCallbackQueue ()
+
+@property (nonatomic, strong, nonnull) dispatch_queue_t queue;
+
+@end
 
 @interface SDWebImagePrefetchToken () {
     @public
@@ -30,6 +37,8 @@
 @property (nonatomic, strong) NSPointerArray *loadOperations;
 @property (nonatomic, strong) NSPointerArray *prefetchOperations;
 @property (nonatomic, weak) SDWebImagePrefetcher *prefetcher;
+@property (nonatomic, assign) SDWebImageOptions options;
+@property (nonatomic, copy, nullable) SDWebImageContext *context;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherCompletionBlock completionBlock;
 @property (nonatomic, copy, nullable) SDWebImagePrefetcherProgressBlock progressBlock;
 
@@ -40,6 +49,7 @@
 @property (strong, nonatomic, nonnull) SDWebImageManager *manager;
 @property (strong, atomic, nonnull) NSMutableSet<SDWebImagePrefetchToken *> *runningTokens;
 @property (strong, nonatomic, nonnull) NSOperationQueue *prefetchQueue;
+@property (strong, nonatomic, nullable) SDCallbackQueue *callbackQueue;
 
 @end
 
@@ -63,7 +73,6 @@
         _manager = manager;
         _runningTokens = [NSMutableSet set];
         _options = SDWebImageLowPriority;
-        _delegateQueue = dispatch_get_main_queue();
         _prefetchQueue = [NSOperationQueue new];
         self.maxConcurrentPrefetchCount = 3;
     }
@@ -78,12 +87,31 @@
     return self.prefetchQueue.maxConcurrentOperationCount;
 }
 
+- (void)setDelegateQueue:(dispatch_queue_t)delegateQueue {
+    // Deprecate and translate to SDCallbackQueue
+    _callbackQueue = [[SDCallbackQueue alloc] initWithDispatchQueue:delegateQueue];
+    _callbackQueue.policy = SDCallbackPolicyDispatch;
+}
+
+- (dispatch_queue_t)delegateQueue {
+    // Deprecate and translate to SDCallbackQueue
+    return (_callbackQueue ?: SDCallbackQueue.mainQueue).queue;
+}
+
 #pragma mark - Prefetch
 - (nullable SDWebImagePrefetchToken *)prefetchURLs:(nullable NSArray<NSURL *> *)urls {
     return [self prefetchURLs:urls progress:nil completed:nil];
 }
 
 - (nullable SDWebImagePrefetchToken *)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+                                          progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
+                                         completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock {
+    return [self prefetchURLs:urls options:self.options context:self.context progress:progressBlock completed:completionBlock];
+}
+
+- (nullable SDWebImagePrefetchToken *)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+                                           options:(SDWebImageOptions)options
+                                           context:(nullable SDWebImageContext *)context
                                           progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
                                          completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock {
     if (!urls || urls.count == 0) {
@@ -95,6 +123,8 @@
     SDWebImagePrefetchToken *token = [SDWebImagePrefetchToken new];
     token.prefetcher = self;
     token.urls = urls;
+    token.options = options;
+    token.context = context;
     token->_skippedCount = 0;
     token->_finishedCount = 0;
     token->_totalCount = token.urls.count;
@@ -117,7 +147,7 @@
             if (!self || asyncOperation.isCancelled) {
                 return;
             }
-            id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:self.options context:self.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            id<SDWebImageOperation> operation = [self.manager loadImageWithURL:url options:token.options context:token.context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
                 @strongify(self);
                 if (!self) {
                     return;
@@ -173,14 +203,18 @@
     NSUInteger tokenTotalCount = [self tokenTotalCount];
     NSUInteger finishedCount = atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
     NSUInteger totalCount = token->_totalCount;
-    dispatch_async(self.delegateQueue, ^{
+    SDCallbackQueue *queue = token.context[SDWebImageContextCallbackQueue];
+    if (!queue) {
+        queue = self.callbackQueue;
+    }
+    [(queue ?: SDCallbackQueue.mainQueue) async:^{
         if (shouldCallDelegate) {
             [self.delegate imagePrefetcher:self didPrefetchURL:url finishedCount:tokenFinishedCount totalCount:tokenTotalCount];
         }
         if (token.progressBlock) {
             token.progressBlock(finishedCount, totalCount);
         }
-    });
+    }];
 }
 
 - (void)callCompletionBlockForToken:(SDWebImagePrefetchToken *)token {
@@ -192,14 +226,18 @@
     NSUInteger tokenSkippedCount = [self tokenSkippedCount];
     NSUInteger finishedCount = atomic_load_explicit(&(token->_finishedCount), memory_order_relaxed);
     NSUInteger skippedCount = atomic_load_explicit(&(token->_skippedCount), memory_order_relaxed);
-    dispatch_async(self.delegateQueue, ^{
+    SDCallbackQueue *queue = token.context[SDWebImageContextCallbackQueue];
+    if (!queue) {
+        queue = self.callbackQueue;
+    }
+    [(queue ?: SDCallbackQueue.mainQueue) async:^{
         if (shoulCallDelegate) {
             [self.delegate imagePrefetcher:self didFinishWithTotalCount:tokenTotalCount skippedCount:tokenSkippedCount];
         }
         if (token.completionBlock) {
             token.completionBlock(finishedCount, skippedCount);
         }
-    });
+    }];
 }
 
 #pragma mark - Helper
