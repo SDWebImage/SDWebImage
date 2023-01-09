@@ -20,6 +20,27 @@ static void SDReleaseBlock(void *context) {
     CFRelease(context);
 }
 
+static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Nonnull block, BOOL async) {
+    // Special handle for main queue, faster
+    const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+    if (currentLabel && currentLabel == dispatch_queue_get_label(dispatch_get_main_queue())) {
+        block();
+        return;
+    }
+    // Check specific to detect queue equal
+    void *specific = dispatch_queue_get_specific(queue, SDCallbackQueueKey);
+    void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
+    if (specific && currentSpecific && CFGetTypeID(specific) == CFUUIDGetTypeID() && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
+        block();
+    } else {
+        if (async) {
+            dispatch_async(queue, block);
+        } else {
+            dispatch_sync(queue, block);
+        }
+    }
+}
+
 @implementation SDCallbackQueue
 
 - (instancetype)initWithDispatchQueue:(dispatch_queue_t)queue {
@@ -56,44 +77,30 @@ static void SDReleaseBlock(void *context) {
 }
 
 - (void)sync:(nonnull NS_NOESCAPE dispatch_block_t)block {
-    dispatch_sync(self.queue, block);
-}
-
-- (void)syncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block {
-    // Special handle for main queue, faster
-    const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    if (currentLabel && currentLabel == dispatch_queue_get_label(dispatch_get_main_queue())) {
-        block();
-        return;
-    }
-    // Check specific to detect queue equal
-    void *specific = dispatch_queue_get_specific(self.queue, SDCallbackQueueKey);
-    void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
-    if (specific && currentSpecific && CFGetTypeID(specific) == CFUUIDGetTypeID() && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
-        block();
-    } else {
-        dispatch_sync(self.queue, block);
+    switch (self.policy) {
+        case SDCallbackPolicySafeExecute:
+            SDSafeExecute(self.queue, block, NO);
+            break;
+        case SDCallbackPolicyDispatch:
+            dispatch_sync(self.queue, block);
+            break;
+        case SDCallbackPolicyInvoke:
+            block();
+            break;
     }
 }
 
 - (void)async:(nonnull NS_NOESCAPE dispatch_block_t)block {
-    dispatch_async(self.queue, block);
-}
-
-- (void)asyncSafe:(nonnull NS_NOESCAPE dispatch_block_t)block {
-    // Special handle for main queue, faster
-    const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-    if (currentLabel && currentLabel == dispatch_queue_get_label(dispatch_get_main_queue())) {
-        block();
-        return;
-    }
-    // Check specific to detect queue equal
-    void *specific = dispatch_queue_get_specific(self.queue, SDCallbackQueueKey);
-    void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
-    if (specific && currentSpecific && CFGetTypeID(specific) == CFUUIDGetTypeID() && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
-        block();
-    } else {
-        dispatch_async(self.queue, block);
+    switch (self.policy) {
+        case SDCallbackPolicySafeExecute:
+            SDSafeExecute(self.queue, block, YES);
+            break;
+        case SDCallbackPolicyDispatch:
+            dispatch_async(self.queue, block);
+            break;
+        case SDCallbackPolicyInvoke:
+            block();
+            break;
     }
 }
 

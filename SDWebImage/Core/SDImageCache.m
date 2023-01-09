@@ -45,7 +45,7 @@
         SDImageCacheQueryCompletionBlock doneBlock = self.doneBlock;
         self.doneBlock = nil;
         if (doneBlock) {
-            [(self.queue ?: SDCallbackQueue.mainQueue) asyncSafe:^{
+            [(self.queue ?: SDCallbackQueue.mainQueue) async:^{
                 doneBlock(nil, nil, SDImageCacheTypeNone);
             }];
         }

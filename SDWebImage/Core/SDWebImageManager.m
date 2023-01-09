@@ -676,7 +676,7 @@ static id<SDImageLoader> _defaultImageLoader;
                                   queue:(nullable SDCallbackQueue *)queue
                                     url:(nullable NSURL *)url {
     if (completionBlock) {
-        [(queue ?: SDCallbackQueue.mainQueue) asyncSafe:^{
+        [(queue ?: SDCallbackQueue.mainQueue) async:^{
             completionBlock(image, data, error, cacheType, finished, url);
         }];
     }

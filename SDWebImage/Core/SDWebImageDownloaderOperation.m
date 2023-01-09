@@ -696,7 +696,7 @@ didReceiveResponse:(NSURLResponse *)response
         SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
         if (completedBlock) {
             SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
-            [(queue ?: SDCallbackQueue.mainQueue) asyncSafe:^{
+            [(queue ?: SDCallbackQueue.mainQueue) async:^{
                 completedBlock(image, imageData, error, finished);
             }];
         }
@@ -711,7 +711,7 @@ didReceiveResponse:(NSURLResponse *)response
     SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
     if (completedBlock) {
         SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
-        [(queue ?: SDCallbackQueue.mainQueue) asyncSafe:^{
+        [(queue ?: SDCallbackQueue.mainQueue) async:^{
             completedBlock(image, imageData, error, finished);
         }];
     }
