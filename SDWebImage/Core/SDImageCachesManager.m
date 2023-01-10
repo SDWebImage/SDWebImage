@@ -130,6 +130,10 @@
 }
 
 - (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
+    [self storeImage:image imageData:imageData forKey:key options:0 context:nil cacheType:cacheType completion:completionBlock];
+}
+
+- (void)storeImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key options:(SDWebImageOptions)options context:(SDWebImageContext *)context cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock {
     if (!key) {
         return;
     }
@@ -138,28 +142,28 @@
     if (count == 0) {
         return;
     } else if (count == 1) {
-        [caches.firstObject storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock];
+        [caches.firstObject storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock];
         return;
     }
     switch (self.storeOperationPolicy) {
         case SDImageCachesManagerOperationPolicyHighestOnly: {
             id<SDImageCache> cache = caches.lastObject;
-            [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock];
+            [cache storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock];
         }
             break;
         case SDImageCachesManagerOperationPolicyLowestOnly: {
             id<SDImageCache> cache = caches.firstObject;
-            [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock];
+            [cache storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock];
         }
             break;
         case SDImageCachesManagerOperationPolicyConcurrent: {
             SDImageCachesManagerOperation *operation = [SDImageCachesManagerOperation new];
             [operation beginWithTotalCount:caches.count];
-            [self concurrentStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:caches.reverseObjectEnumerator operation:operation];
+            [self concurrentStoreImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock enumerator:caches.reverseObjectEnumerator operation:operation];
         }
             break;
         case SDImageCachesManagerOperationPolicySerial: {
-            [self serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:caches.reverseObjectEnumerator];
+            [self serialStoreImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock enumerator:caches.reverseObjectEnumerator];
         }
             break;
         default:
@@ -315,11 +319,11 @@
     }
 }
 
-- (void)concurrentStoreImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock enumerator:(NSEnumerator<id<SDImageCache>> *)enumerator operation:(SDImageCachesManagerOperation *)operation {
+- (void)concurrentStoreImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key options:(SDWebImageOptions)options context:(SDWebImageContext *)context cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock enumerator:(NSEnumerator<id<SDImageCache>> *)enumerator operation:(SDImageCachesManagerOperation *)operation {
     NSParameterAssert(enumerator);
     NSParameterAssert(operation);
     for (id<SDImageCache> cache in enumerator) {
-        [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:^{
+        [cache storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:^{
             if (operation.isCancelled) {
                 // Cancelled
                 return;
@@ -462,7 +466,7 @@
     }];
 }
 
-- (void)serialStoreImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock enumerator:(NSEnumerator<id<SDImageCache>> *)enumerator {
+- (void)serialStoreImage:(UIImage *)image imageData:(NSData *)imageData forKey:(NSString *)key options:(SDWebImageOptions)options context:(SDWebImageContext *)context cacheType:(SDImageCacheType)cacheType completion:(SDWebImageNoParamsBlock)completionBlock enumerator:(NSEnumerator<id<SDImageCache>> *)enumerator {
     NSParameterAssert(enumerator);
     id<SDImageCache> cache = enumerator.nextObject;
     if (!cache) {
@@ -473,10 +477,10 @@
         return;
     }
     @weakify(self);
-    [cache storeImage:image imageData:imageData forKey:key cacheType:cacheType completion:^{
+    [cache storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:^{
         @strongify(self);
         // Next
-        [self serialStoreImage:image imageData:imageData forKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
+        [self serialStoreImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
 }
 

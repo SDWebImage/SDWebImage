@@ -76,20 +76,23 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
 
 /**
  * The options for prefetcher. Defaults to SDWebImageLowPriority.
+ * @deprecated Prefetcher is designed to be used shared and should not effect others. So in 5.15.0 we added API  `prefetchURLs:options:context:`. If you want global control, try to use `SDWebImageOptionsProcessor` in manager level.
  */
-@property (nonatomic, assign) SDWebImageOptions options;
+@property (nonatomic, assign) SDWebImageOptions options API_DEPRECATED("Use individual prefetch options param instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
  * The context for prefetcher. Defaults to nil.
+ * @deprecated Prefetcher is designed to be used shared and should not effect others. So in 5.15.0 we added API  `prefetchURLs:options:context:`. If you want global control, try to use `SDWebImageOptionsProcessor` in `SDWebImageManager.optionsProcessor`.
  */
-@property (nonatomic, copy, nullable) SDWebImageContext *context;
+@property (nonatomic, copy, nullable) SDWebImageContext *context API_DEPRECATED("Use individual prefetch context param instead", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
  * Queue options for prefetcher when call the progressBlock, completionBlock and delegate methods. Defaults to Main Queue.
- * @note The call is asynchronously to avoid blocking target queue.
+ * @deprecated 5.15.0 introduce SDCallbackQueue, use that is preferred and has higher priority. The set/get to this property will translate to that instead.
+ * @note The call is asynchronously to avoid blocking target queue. (see SDCallbackPolicyDispatch)
  * @note The delegate queue should be set before any prefetching start and may not be changed during prefetching to avoid thread-safe problem.
  */
-@property (strong, nonatomic, nonnull) dispatch_queue_t delegateQueue;
+@property (strong, nonatomic, nonnull) dispatch_queue_t delegateQueue API_DEPRECATED("Use SDWebImageContextCallbackQueue context param instead, see SDCallbackQueue", macos(10.10, 10.10), ios(8.0, 8.0), tvos(9.0, 9.0), watchos(2.0, 2.0));
 
 /**
  * The delegate for the prefetcher. Defaults to nil.
@@ -131,6 +134,28 @@ typedef void(^SDWebImagePrefetcherCompletionBlock)(NSUInteger noOfFinishedUrls, 
  * @return the token to cancel the current prefetching.
  */
 - (nullable SDWebImagePrefetchToken *)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+                                          progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
+                                         completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock;
+
+/**
+ * Assign list of URLs to let SDWebImagePrefetcher to queue the prefetching. It based on the image manager so the image may from the cache and network according to the `options` property.
+ * Prefetching is separate to each other, which means the progressBlock and completionBlock you provide is bind to the prefetching for the list of urls.
+ * Attention that call this will not cancel previous fetched urls. You should keep the token return by this to cancel or cancel all the prefetch.
+ *
+ * @param urls            list of URLs to prefetch
+ * @param options         The options to use when downloading the image. @see SDWebImageOptions for the possible values.
+ * @param context         A context contains different options to perform specify changes or processes, see `SDWebImageContextOption`. This hold the extra objects which `options` enum can not hold.
+ * @param progressBlock   block to be called when progress updates;
+ *                        first parameter is the number of completed (successful or not) requests,
+ *                        second parameter is the total number of images originally requested to be prefetched
+ * @param completionBlock block to be called when the current prefetching is completed
+ *                        first param is the number of completed (successful or not) requests,
+ *                        second parameter is the number of skipped requests
+ * @return the token to cancel the current prefetching.
+ */
+- (nullable SDWebImagePrefetchToken *)prefetchURLs:(nullable NSArray<NSURL *> *)urls
+                                           options:(SDWebImageOptions)options
+                                           context:(nullable SDWebImageContext *)context
                                           progress:(nullable SDWebImagePrefetcherProgressBlock)progressBlock
                                          completed:(nullable SDWebImagePrefetcherCompletionBlock)completionBlock;
 

@@ -12,6 +12,7 @@
 #import "SDWebImageDownloaderResponseModifier.h"
 #import "SDWebImageDownloaderDecryptor.h"
 #import "SDImageCacheDefine.h"
+#import "SDCallbackQueue.h"
 
 // A handler to represent individual request
 @interface SDWebImageDownloaderOperationToken : NSObject
@@ -157,12 +158,7 @@
         @synchronized (self) {
             [self.callbackTokens removeObjectIdenticalTo:token];
         }
-        SDWebImageDownloaderCompletedBlock completedBlock = ((SDWebImageDownloaderOperationToken *)token).completedBlock;
-        if (completedBlock) {
-            dispatch_main_async_safe(^{
-                completedBlock(nil, nil, [NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}], YES);
-            });
-        }
+        [self callCompletionBlockWithToken:token image:nil imageData:nil error:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorCancelled userInfo:@{NSLocalizedDescriptionKey : @"Operation cancelled by user during sending the request"}] finished:YES];
     }
     return shouldCancel;
 }
@@ -689,9 +685,9 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 - (void)callCompletionBlocksWithImage:(nullable UIImage *)image
-                           imageData:(nullable NSData *)imageData
-                               error:(nullable NSError *)error
-                            finished:(BOOL)finished {
+                            imageData:(nullable NSData *)imageData
+                                error:(nullable NSError *)error
+                             finished:(BOOL)finished {
     NSArray<SDWebImageDownloaderOperationToken *> *tokens;
     @synchronized (self) {
         tokens = [self.callbackTokens copy];
@@ -699,9 +695,10 @@ didReceiveResponse:(NSURLResponse *)response
     for (SDWebImageDownloaderOperationToken *token in tokens) {
         SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
         if (completedBlock) {
-            dispatch_main_async_safe(^{
+            SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
+            [(queue ?: SDCallbackQueue.mainQueue) async:^{
                 completedBlock(image, imageData, error, finished);
-            });
+            }];
         }
     }
 }
@@ -713,9 +710,10 @@ didReceiveResponse:(NSURLResponse *)response
                             finished:(BOOL)finished {
     SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
     if (completedBlock) {
-        dispatch_main_async_safe(^{
+        SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
+        [(queue ?: SDCallbackQueue.mainQueue) async:^{
             completedBlock(image, imageData, error, finished);
-        });
+        }];
     }
 }
 
