@@ -270,7 +270,7 @@ static NSString * _defaultDiskCacheDirectory;
                         format = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage] ? SDImageFormatPNG : SDImageFormatJPEG;
                     }
                 }
-                data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
+                data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:context[SDWebImageContextImageEncodeOptions]];
             }
             [self _storeImageDataToDisk:data forKey:key];
             [self _archivedDataWithImage:image forKey:key];
