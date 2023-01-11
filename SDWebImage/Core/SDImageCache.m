@@ -250,38 +250,47 @@ static NSString * _defaultDiskCacheDirectory;
         }
         return;
     }
+    NSData *data = imageData;
+    if (!data && [image respondsToSelector:@selector(animatedImageData)]) {
+        // If image is custom animated image class, prefer its original animated data
+        data = [((id<SDAnimatedImage>)image) animatedImageData];
+    }
     SDCallbackQueue *queue = context[SDWebImageContextCallbackQueue];
-    dispatch_async(self.ioQueue, ^{
-        @autoreleasepool {
-            NSData *data = imageData;
-            if (!data && [image respondsToSelector:@selector(animatedImageData)]) {
-                // If image is custom animated image class, prefer its original animated data
-                data = [((id<SDAnimatedImage>)image) animatedImageData];
-            }
-            if (!data && image) {
-                // Check image's associated image format, may return .undefined
-                SDImageFormat format = image.sd_imageFormat;
-                if (format == SDImageFormatUndefined) {
-                    // If image is animated, use GIF (APNG may be better, but has bugs before macOS 10.14)
-                    if (image.sd_isAnimated) {
-                        format = SDImageFormatGIF;
-                    } else {
-                        // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
-                        format = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage] ? SDImageFormatPNG : SDImageFormatJPEG;
-                    }
+    if (!data && image) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            // Check image's associated image format, may return .undefined
+            SDImageFormat format = image.sd_imageFormat;
+            if (format == SDImageFormatUndefined) {
+                // If image is animated, use GIF (APNG may be better, but has bugs before macOS 10.14)
+                if (image.sd_isAnimated) {
+                    format = SDImageFormatGIF;
+                } else {
+                    // If we do not have any data to detect image format, check whether it contains alpha channel to use PNG or JPEG format
+                    format = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage] ? SDImageFormatPNG : SDImageFormatJPEG;
                 }
-                data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:context[SDWebImageContextImageEncodeOptions]];
             }
+            NSData *data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:context[SDWebImageContextImageEncodeOptions]];
+            dispatch_async(self.ioQueue, ^{
+                [self _storeImageDataToDisk:data forKey:key];
+                [self _archivedDataWithImage:image forKey:key];
+                if (completionBlock) {
+                    [(queue ?: SDCallbackQueue.mainQueue) async:^{
+                        completionBlock();
+                    }];
+                }
+            });
+        });
+    } else {
+        dispatch_async(self.ioQueue, ^{
             [self _storeImageDataToDisk:data forKey:key];
             [self _archivedDataWithImage:image forKey:key];
-        }
-        
-        if (completionBlock) {
-            [(queue ?: SDCallbackQueue.mainQueue) async:^{
-                completionBlock();
-            }];
-        }
-    });
+            if (completionBlock) {
+                [(queue ?: SDCallbackQueue.mainQueue) async:^{
+                    completionBlock();
+                }];
+            }
+        });
+    }
 }
 
 - (void)_archivedDataWithImage:(UIImage *)image forKey:(NSString *)key {
