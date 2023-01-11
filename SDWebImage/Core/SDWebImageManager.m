@@ -499,18 +499,16 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     if (shouldTransformImage) {
+        // transformed cache key
+        NSString *key = [self cacheKeyForURL:url context:context];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            @autoreleasepool {
-                // transformed cache key
-                NSString *key = [self cacheKeyForURL:url context:context];
-                // Case that transformer on thumbnail, which this time need full pixel image
-                UIImage *transformedImage = [transformer transformedImageWithImage:cacheImage forKey:key];
-                if (transformedImage) {
-                    transformedImage.sd_isTransformed = YES;
-                    [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:transformedImage originalData:originalData cacheData:nil cacheType:cacheType finished:finished completed:completedBlock];
-                } else {
-                    [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:cacheImage originalData:originalData cacheData:cacheData cacheType:cacheType finished:finished completed:completedBlock];
-                }
+            // Case that transformer on thumbnail, which this time need full pixel image
+            UIImage *transformedImage = [transformer transformedImageWithImage:cacheImage forKey:key];
+            if (transformedImage) {
+                transformedImage.sd_isTransformed = YES;
+                [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:transformedImage originalData:originalData cacheData:nil cacheType:cacheType finished:finished completed:completedBlock];
+            } else {
+                [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:cacheImage originalData:originalData cacheData:cacheData cacheType:cacheType finished:finished completed:completedBlock];
             }
         });
     } else {
