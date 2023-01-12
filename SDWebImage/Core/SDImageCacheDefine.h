@@ -122,7 +122,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
          imageData:(nullable NSData *)imageData
             forKey:(nullable NSString *)key
          cacheType:(SDImageCacheType)cacheType
-        completion:(nullable SDWebImageNoParamsBlock)completionBlock API_DEPRECATED_WITH_REPLACEMENT("storeImage:imageData:forKey:options:context:cacheType:completion:", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));;
+        completion:(nullable SDWebImageNoParamsBlock)completionBlock API_DEPRECATED_WITH_REPLACEMENT("storeImage:imageData:forKey:options:context:cacheType:completion:", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 @optional
 /**
@@ -144,7 +144,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
          cacheType:(SDImageCacheType)cacheType
         completion:(nullable SDWebImageNoParamsBlock)completionBlock;
 
-@required
+#pragma mark - Deprecated because SDWebImageManager does not use these APIs
 /**
  Remove the image from image cache for the given key. If cache type is memory only, completion is called synchronously, else asynchronously.
 
@@ -154,7 +154,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
  */
 - (void)removeImageForKey:(nullable NSString *)key
                 cacheType:(SDImageCacheType)cacheType
-               completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+               completion:(nullable SDWebImageNoParamsBlock)completionBlock API_DEPRECATED("No longer use. Cast to cache instance and call its API", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
  Check if image cache contains the image for the given key (does not load the image). If image is cached in memory, completion is called synchronously, else asynchronously.
@@ -165,7 +165,7 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
  */
 - (void)containsImageForKey:(nullable NSString *)key
                   cacheType:(SDImageCacheType)cacheType
-                 completion:(nullable SDImageCacheContainsCompletionBlock)completionBlock;
+                 completion:(nullable SDImageCacheContainsCompletionBlock)completionBlock API_DEPRECATED("No longer use. Cast to cache instance and call its API", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 /**
  Clear all the cached images for image cache. If cache type is memory only, completion is called synchronously, else asynchronously.
@@ -174,6 +174,6 @@ FOUNDATION_EXPORT void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _N
  @param completionBlock A block executed after the operation is finished
  */
 - (void)clearWithCacheType:(SDImageCacheType)cacheType
-                completion:(nullable SDWebImageNoParamsBlock)completionBlock;
+                completion:(nullable SDWebImageNoParamsBlock)completionBlock API_DEPRECATED("No longer use. Cast to cache instance and call its API", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
 
 @end

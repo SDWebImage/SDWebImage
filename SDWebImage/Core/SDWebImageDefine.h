@@ -296,6 +296,13 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageT
 #pragma mark - Cache Context Options
 
 /**
+ A Dictionary (SDImageCoderOptions) value, which pass the extra encode options to the SDImageCoder. Introduced in SDWebImage 5.15.0
+ You can pass encode options like `compressionQuality`, `maxFileSize`, `maxPixelSize` to control the encoding related thing, this is used inside `SDImageCache` during store logic.
+ @note For developer who use custom cache protocol (not SDImageCache instance), they need to upgrade and use these options for encoding.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageEncodeOptions;
+
+/**
  A SDImageCacheType raw value which specify the source of cache to query. Specify `SDImageCacheTypeDisk` to query from disk cache only; `SDImageCacheTypeMemory` to query from memory only. And `SDImageCacheTypeAll` to query from both memory cache and disk cache. Specify `SDImageCacheTypeNone` is invalid and totally ignore the cache query.
  If not provide or the value is invalid, we will use `SDImageCacheTypeAll`. (NSNumber)
  */
