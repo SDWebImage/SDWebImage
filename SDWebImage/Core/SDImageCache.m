@@ -220,7 +220,7 @@ static NSString * _defaultDiskCacheDirectory;
             forKey:(nullable NSString *)key
             toDisk:(BOOL)toDisk
         completion:(nullable SDWebImageNoParamsBlock)completionBlock {
-    return [self storeImage:image imageData:imageData forKey:key options:0 context:nil cacheType:(toDisk ? SDImageCacheTypeDisk : SDImageCacheTypeMemory) completion:completionBlock];
+    [self storeImage:image imageData:imageData forKey:key options:0 context:nil cacheType:(toDisk ? SDImageCacheTypeAll : SDImageCacheTypeMemory) completion:completionBlock];
 }
 
 - (void)storeImage:(nullable UIImage *)image
