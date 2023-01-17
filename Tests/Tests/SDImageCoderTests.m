@@ -140,7 +140,7 @@
     expect(maxEncodedData).notTo.beNil();
     expect(maxEncodedData.length).beGreaterThan(limitFileSize);
     // 0 quality (smallest)
-    NSData *minEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeCompressionQuality : @(0)}];
+    NSData *minEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeCompressionQuality : @(0.01)}]; // Seems 0 has some bugs in old macOS
     expect(minEncodedData).notTo.beNil();
     expect(minEncodedData.length).beLessThan(limitFileSize);
     NSData *limitEncodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:SDImageFormatJPEG options:@{SDImageCoderEncodeMaxFileSize : @(limitFileSize)}];
