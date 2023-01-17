@@ -1,3 +1,25 @@
+## [5.15.0 - Performance Enhancement, on Jan 17th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.0)
+See [all tickets marked for the 5.15.0 release](https://github.com/SDWebImage/SDWebImage/milestone/108)
+
+### Features
+
+#### Encoder
+- Added encodeWithFrames API for animation encoding in custom coder, better for usage #3469
+- - Previously you have to wrap `SDImageFrame` array into temp image object for encoding, this cause wrap/unwrap performance cost (even bad on macOS because it implicit triggers temp GIF encoding). Now you can directly pass it into new `encodedDataWithFrames:` APIs.
+
+#### Decoder
+- Update the decode solution to allows CoreGraphics avoid using any UIKit method #3468
+
+#### Cache
+- Seperate the SDImageCache encode queue and IO queue to match waitStoreCache behavior #3466
+- - Now, the encode process does not block IO queue and query disk cache faster. Previously `SDWebImageWaitStoreCache` is useless when you use transformer or cache serializer. Now you MUST pass this if you want to query disk cache inside completionBlock.
+
+#### Manager/Cache/Loader
+- Added context option callbackQueue and SDCallbackQueue wrapper for advanced user to control which queue to callback #3465 #3457
+- - If you want SDWebImage callback your completion in current non-main queue, pass `.context[.callbackQueue] = .current`
+- Added SDWebImageContextImageEncodeOptions to pass encode options like compression quality to SDImageCache storeImage API #3466
+- - The re-encode and store cache logic happens if you use transformer or custom cache serializer, now you can pass the encode options.
+
 ## [5.14.3 - 5.14 Opt, on Dec 27th, 2022](https://github.com/rs/SDWebImage/releases/tag/5.14.3)
 See [all tickets marked for the 5.14.3 release](https://github.com/SDWebImage/SDWebImage/milestone/106)
 
