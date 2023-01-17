@@ -16,6 +16,11 @@
 #import "SDImageHEICCoder.h"
 #import "SDImageAWebPCoder.h"
 
+@interface SDAnimatedImageRep ()
+/// This wrap the animated image frames for legacy animated image coder API (`encodedDataWithImage:`).
+@property (nonatomic, readwrite, weak) NSArray<SDImageFrame *> *frames;
+@end
+
 @implementation SDAnimatedImageRep {
     CGImageSourceRef _imageSource;
 }

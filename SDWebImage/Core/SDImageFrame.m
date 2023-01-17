@@ -17,11 +17,17 @@
 
 @implementation SDImageFrame
 
+- (instancetype)initWithImage:(UIImage *)image duration:(NSTimeInterval)duration {
+    self = [super init];
+    if (self) {
+        _image = image;
+        _duration = duration;
+    }
+    return self;
+}
+
 + (instancetype)frameWithImage:(UIImage *)image duration:(NSTimeInterval)duration {
-    SDImageFrame *frame = [[SDImageFrame alloc] init];
-    frame.image = image;
-    frame.duration = duration;
-    
+    SDImageFrame *frame = [[SDImageFrame alloc] initWithImage:image duration:duration];
     return frame;
 }
 

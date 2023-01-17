@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "SDWebImageCompat.h"
 #import "NSData+ImageContentType.h"
+#import "SDImageFrame.h"
 
 typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
@@ -171,7 +172,8 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext 
 
 /**
  Encode the image to image data.
- @note This protocol may supports encode animated image frames. You can use `+[SDImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames.
+ @note This protocol may supports encode animated image frames. You can use `+[SDImageCoderHelper framesFromAnimatedImage:]` to assemble an animated image with frames. But this consume time is not always reversible. In 5.15.0, we introduce `encodedDataWithFrames` API for better animated image encoding. Use that instead.
+ @note Which means, this just forward to `encodedDataWithFrames([SDImageFrame(image: image, duration: 0], image.sd_imageLoopCount))`
 
  @param image The image to be encoded
  @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible
@@ -182,6 +184,21 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderWebImageContext 
                                    format:(SDImageFormat)format
                                   options:(nullable SDImageCoderOptions *)options;
 
+#pragma mark - Animated Encoding
+@optional
+/**
+ Encode the animated image frames to image data.
+
+ @param frames The animated image frames to be encoded, should be at least 1 element, or it will fallback to static image encode.
+ @param loopCount The final animated image loop count. 0 means infinity loop. This config ignore each frame's `sd_imageLoopCount`
+ @param format The image format to encode, you should note `SDImageFormatUndefined` format is also  possible
+ @param options A dictionary containing any encoding options. Pass @{SDImageCoderEncodeCompressionQuality: @(1)} to specify compression quality.
+ @return The encoded image data
+ */
+- (nullable NSData *)encodedDataWithFrames:(nonnull NSArray<SDImageFrame *>*)frames
+                                 loopCount:(NSUInteger)loopCount
+                                    format:(SDImageFormat)format
+                                   options:(nullable SDImageCoderOptions *)options;
 @end
 
 #pragma mark - Progressive Coder

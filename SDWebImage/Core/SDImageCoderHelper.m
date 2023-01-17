@@ -94,6 +94,13 @@ static CGFloat kDestImageLimitBytes = 30.f * kBytesPerMB;
 
 static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to overlap the seems where tiles meet.
 
+#if SD_MAC
+@interface SDAnimatedImageRep (Private)
+/// This wrap the animated image frames for legacy animated image coder API (`encodedDataWithImage:`).
+@property (nonatomic, readwrite, weak) NSArray<SDImageFrame *> *frames;
+@end
+#endif
+
 @implementation SDImageCoderHelper
 
 + (UIImage *)animatedImageWithFrames:(NSArray<SDImageFrame *> *)frames {
@@ -159,6 +166,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     SDAnimatedImageRep *imageRep = [[SDAnimatedImageRep alloc] initWithData:imageData];
     NSSize size = NSMakeSize(imageRep.pixelsWide / scale, imageRep.pixelsHigh / scale);
     imageRep.size = size;
+    imageRep.frames = frames; // Weak assign to avoid effect lazy semantic of NSBitmapImageRep
     animatedImage = [[NSImage alloc] initWithSize:size];
     [animatedImage addRepresentation:imageRep];
 #endif
@@ -211,6 +219,14 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     NSRect imageRect = NSMakeRect(0, 0, animatedImage.size.width, animatedImage.size.height);
     NSImageRep *imageRep = [animatedImage bestRepresentationForRect:imageRect context:nil hints:nil];
+    // Check weak assigned frames firstly
+    if ([imageRep isKindOfClass:[SDAnimatedImageRep class]]) {
+        SDAnimatedImageRep *animatedImageRep = (SDAnimatedImageRep *)imageRep;
+        if (animatedImageRep.frames) {
+            return animatedImageRep.frames;
+        }
+    }
+    
     NSBitmapImageRep *bitmapImageRep;
     if ([imageRep isKindOfClass:[NSBitmapImageRep class]]) {
         bitmapImageRep = (NSBitmapImageRep *)imageRep;
@@ -235,7 +251,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
 #endif
     
-    return frames;
+    return [frames copy];
 }
 
 + (CGColorSpaceRef)colorSpaceGetDeviceRGB {
