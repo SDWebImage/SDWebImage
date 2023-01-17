@@ -251,7 +251,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
 #endif
     
-    return frames;
+    return [frames copy];
 }
 
 + (CGColorSpaceRef)colorSpaceGetDeviceRGB {
