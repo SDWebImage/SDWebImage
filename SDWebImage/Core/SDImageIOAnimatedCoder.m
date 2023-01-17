@@ -555,19 +555,31 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     if (!image) {
         return nil;
     }
+    if (format != self.class.imageFormat) {
+        return nil;
+    }
+    
+    NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
+    if (!frames || frames.count == 0) {
+        SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:0];
+        frames = @[frame];
+    }
+    return [self encodedDataWithFrames:frames loopCount:image.sd_imageLoopCount format:format options:options];
+}
+
+- (NSData *)encodedDataWithFrames:(NSArray<SDImageFrame *> *)frames loopCount:(NSUInteger)loopCount format:(SDImageFormat)format options:(SDImageCoderOptions *)options {
+    UIImage *image = frames.firstObject.image; // Primary image
+    if (!image) {
+        return nil;
+    }
     CGImageRef imageRef = image.CGImage;
     if (!imageRef) {
         // Earily return, supports CGImage only
         return nil;
     }
     
-    if (format != self.class.imageFormat) {
-        return nil;
-    }
-    
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
-    NSArray<SDImageFrame *> *frames = [SDImageCoderHelper framesFromAnimatedImage:image];
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
     // The `CGImageDestinationCreateWithData` will log a warning when count is 0, use 1 instead.
@@ -630,12 +642,11 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     properties[(__bridge NSString *)kCGImageDestinationEmbedThumbnail] = @(embedThumbnail);
     
     BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
-    if (encodeFirstFrame || frames.count == 0) {
+    if (encodeFirstFrame || frames.count <= 1) {
         // for static single images
         CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {
         // for animated images
-        NSUInteger loopCount = image.sd_imageLoopCount;
         NSDictionary *containerProperties = @{
             self.class.dictionaryProperty: @{self.class.loopCountProperty : @(loopCount)}
         };
