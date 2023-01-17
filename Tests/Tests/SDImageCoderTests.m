@@ -422,6 +422,32 @@
 #endif
 }
 
+- (void)test27ThatEncodeWithFramesWorks {
+    // Mock
+    NSMutableArray<SDImageFrame *> *frames = [NSMutableArray array];
+    NSUInteger frameCount = 5;
+    for (size_t i = 0; i < frameCount; i++) {
+        CGSize size = CGSizeMake(100, 100);
+        SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size];
+        UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+            CGContextSetRGBFillColor(context, 1.0 / i, 0.0, 0.0, 1.0);
+            CGContextSetRGBStrokeColor(context, 1.0 / i, 0.0, 0.0, 1.0);
+            CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+        }];
+        SDImageFrame *frame = [SDImageFrame frameWithImage:image duration:0.1];
+        [frames addObject:frame];
+    }
+    
+    // Test old API
+    UIImage *animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
+    NSData *data = [SDImageGIFCoder.sharedCoder encodedDataWithImage:animatedImage format:SDImageFormatGIF options:nil];
+    expect(data).notTo.beNil();
+    
+    // Test new API
+    NSData *data2 = [SDImageGIFCoder.sharedCoder encodedDataWithFrames:frames loopCount:0 format:SDImageFormatGIF options:nil];
+    expect(data2).notTo.beNil();
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
