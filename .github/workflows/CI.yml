@@ -19,7 +19,7 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -57,7 +57,7 @@ jobs:
         macCatalystDestination: ["platform=macOS,arch=x86_64,variant=Mac Catalyst"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -104,7 +104,7 @@ jobs:
         tvOSDestination: ["platform=tvOS Simulator,name=Apple TV 4K"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -159,7 +159,7 @@ jobs:
       SCHEME_NAME: SDWebImage
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
