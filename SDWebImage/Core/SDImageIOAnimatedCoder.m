@@ -409,7 +409,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)creatingOptions);
     if (!source) {
         // Try again without UTType hint, the call site from user may provide the wrong UTType
-        source = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)creatingOptions);
+        source = CGImageSourceCreateWithData((__bridge CFDataRef)data, nil);
     }
     if (!source) {
         return nil;

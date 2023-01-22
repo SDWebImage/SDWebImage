@@ -202,7 +202,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)creatingOptions);
     if (!source) {
         // Try again without UTType hint, the call site from user may provide the wrong UTType
-        source = CGImageSourceCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)creatingOptions);
+        source = CGImageSourceCreateWithData((__bridge CFDataRef)data, nil);
     }
     if (!source) {
         return nil;
