@@ -10,8 +10,6 @@
 
 @interface SDAsyncBlockOperation ()
 
-@property (assign, nonatomic, getter = isExecuting) BOOL executing;
-@property (assign, nonatomic, getter = isFinished) BOOL finished;
 @property (nonatomic, copy, nonnull) SDAsyncBlock executionBlock;
 
 @end
