@@ -219,7 +219,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, [self.class imageOptionsFromDownloaderOptions:options], cacheKey);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     // There is a case that the operation may be marked as finished or cancelled, but not been removed from `self.URLOperations`.
-    if (!operation || operation.isFinished || operation.isCancelled) {
+    if (!operation || operation.isFinished || operation.isCancelled || operation.isTransferFinished) {
         operation = [self createDownloaderOperationWithUrl:url options:options context:context];
         if (!operation) {
             SD_UNLOCK(_operationsLock);
