@@ -174,7 +174,7 @@
 - (void)test11ThatCancelWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel"];
     
-    NSURL *imageURL = [NSURL URLWithString:@"http://via.placeholder.com/1000x1000.png"];
+    NSURL *imageURL = [NSURL URLWithString:@"https://via.placeholder.com/1000x1000.png"];
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
                                           expect(error).notTo.beNil();
@@ -680,7 +680,7 @@
             expect(metric.fetchStartDate).notTo.beNil();
             expect(metric.connectStartDate).notTo.beNil();
             expect(metric.connectEndDate).notTo.beNil();
-            expect(metric.networkProtocolName).equal(@"http/1.1");
+            expect(metric.networkProtocolName).equal(@"h2");
             expect(metric.resourceFetchType).equal(NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad);
             expect(metric.isProxyConnection).beFalsy();
             expect(metric.isReusedConnection).beFalsy();
@@ -779,7 +779,7 @@
     // We move the logic into SDWebImageDownloaderOperation, which decode each callback's thumbnail size with different decoding pipeline, and callback independently
     // Note the progressiveLoad does not support this and always callback first size
     
-    NSURL *url = [NSURL URLWithString:@"http://via.placeholder.com/501x501.png"];
+    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/501x501.png"];
     NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
     for (int i = 490; i < 500; i++) {
@@ -799,8 +799,39 @@
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 5 handler:nil];
 }
 
+- (void)test31ThatMultipleRequestForSameURLNeverSkipCallback {
+    // See #3475
+    // When multiple download request for same URL, the SDWebImageDownloader will try to `Re-use` URLSessionTask to avoid duplicate actual network request
+    // However, if caller submit too frequently in another queue, we should stop attaching more callback once the URLSessionTask `didCompleteWithError:` is called
+    NSURL *url = [NSURL fileURLWithPath:[self testPNGPath]];
+    NSMutableArray<XCTestExpectation *> *expectations = [NSMutableArray arrayWithCapacity:100];
+    __block void (^recursiveBlock)(int);
+    void (^mainBlock)(int) = ^(int i) {
+        if (i > 200) return;
+        NSString *desc = [NSString stringWithFormat:@"Local url with index %d not callback!", i];
+        XCTestExpectation *expectation = [self expectationWithDescription:desc];
+        [expectations addObject:expectation];
+        // Delay 0.01s ~ 0.99s for each download request, simulate the real-world call site
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(i * 10000000ull)), dispatch_get_main_queue(), ^{
+            [SDWebImageDownloader.sharedDownloader downloadImageWithURL:url completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+                if (image) {
+                    NSLog(@"Local url callback with index: %d", i);
+                    [expectation fulfill];
+                } else {
+                    XCTFail(@"Something went wrong: %@", error.description);
+                }
+            }];
+        });
+        recursiveBlock(i+1);
+    };
+    recursiveBlock = mainBlock;
+    recursiveBlock(0);
+    
+    [self waitForExpectations:expectations timeout:kAsyncTestTimeout * 2];
+}
+
 #pragma mark - SDWebImageLoader
-- (void)test30CustomImageLoaderWorks {
+- (void)testCustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];
@@ -820,7 +851,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
-- (void)test31ThatLoadersManagerWorks {
+- (void)testThatLoadersManagerWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Loaders manager not works"];
     SDWebImageTestLoader *loader = [[SDWebImageTestLoader alloc] init];
     SDImageLoadersManager *manager = [[SDImageLoadersManager alloc] init];

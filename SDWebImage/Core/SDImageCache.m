@@ -63,7 +63,7 @@ static NSString * _defaultDiskCacheDirectory;
 @property (nonatomic, strong, readwrite, nonnull) id<SDDiskCache> diskCache;
 @property (nonatomic, copy, readwrite, nonnull) SDImageCacheConfig *config;
 @property (nonatomic, copy, readwrite, nonnull) NSString *diskCachePath;
-@property (nonatomic, strong, nullable) dispatch_queue_t ioQueue;
+@property (nonatomic, strong, nonnull) dispatch_queue_t ioQueue;
 
 @end
 
@@ -118,7 +118,7 @@ static NSString * _defaultDiskCacheDirectory;
         
         // Create IO queue
         dispatch_queue_attr_t ioQueueAttributes = _config.ioQueueAttributes;
-        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", ioQueueAttributes);
+        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache.ioQueue", ioQueueAttributes);
         NSAssert(_ioQueue, @"The IO queue should not be nil. Your configured `ioQueueAttributes` may be wrong");
         
         // Init the memory cache
@@ -508,10 +508,6 @@ static NSString * _defaultDiskCacheDirectory;
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
     NSData *data = [self diskImageDataForKey:key];
-    return [self diskImageForKey:key data:data];
-}
-
-- (nullable UIImage *)diskImageForKey:(nullable NSString *)key data:(nullable NSData *)data {
     return [self diskImageForKey:key data:data options:0 context:nil];
 }
 
