@@ -518,7 +518,7 @@ didReceiveResponse:(NSURLResponse *)response
     if (dataOperation) {
         @synchronized (dataOperation) {
             // Mark the downloader operation `isCompleted = YES`, no longer re-use this operation when new request comes in
-            SDWebImageDownloaderOperationSetCompleted(dataOperation, true);
+            SDWebImageDownloaderOperationSetCompleted(dataOperation, YES);
         }
     }
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {

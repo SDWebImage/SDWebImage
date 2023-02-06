@@ -249,9 +249,9 @@
     } else if (self.playbackMode == SDAnimatedImagePlaybackModeBounce ||
                self.playbackMode == SDAnimatedImagePlaybackModeReversedBounce) {
         if (currentFrameIndex == 0) {
-            self.shouldReverse = false;
+            self.shouldReverse = NO;
         } else if (currentFrameIndex == totalFrameCount - 1) {
-            self.shouldReverse = true;
+            self.shouldReverse = YES;
         }
         nextFrameIndex = self.shouldReverse ? (currentFrameIndex - 1) : (currentFrameIndex + 1);
         nextFrameIndex %= totalFrameCount;
