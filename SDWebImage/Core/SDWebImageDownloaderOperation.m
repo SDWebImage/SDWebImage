@@ -14,6 +14,8 @@
 #import "SDImageCacheDefine.h"
 #import "SDCallbackQueue.h"
 
+BOOL SDWebImageDownloaderOperationGetCompleted(id<SDWebImageDownloaderOperation> operation); // Private currently, mark open if needed
+
 // A handler to represent individual request
 @interface SDWebImageDownloaderOperationToken : NSObject
 
@@ -74,7 +76,6 @@
 @property (strong, nonatomic, readwrite, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 @property (strong, nonatomic, nonnull) dispatch_queue_t coderQueue; // the serial operation queue to do image decoding
-@property (assign, readwrite) BOOL isTransferFinished; // Whether current operation's network transfer is finished (actually, `didCompleteWithError` already been called)
 
 @property (strong, nonatomic, nonnull) NSMapTable<SDImageCoderOptions *, UIImage *> *imageMap; // each variant of image is weak-referenced to avoid too many re-decode during downloading
 #if SD_UIKIT
@@ -472,7 +473,7 @@ didReceiveResponse:(NSURLResponse *)response
                 return;
             }
             // When cancelled or transfer finished (`didCompleteWithError`), cancel the progress callback, only completed block is called and enough
-            if (self.isCancelled || self.isTransferFinished) {
+            if (self.isCancelled || SDWebImageDownloaderOperationGetCompleted(self)) {
                 return;
             }
             UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, NO, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
@@ -512,7 +513,6 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     // If we already cancel the operation or anything mark the operation finished, don't callback twice
     if (self.isFinished) return;
-    self.isTransferFinished = YES;
     
     NSArray<SDWebImageDownloaderOperationToken *> *tokens;
     @synchronized (self) {
@@ -599,14 +599,11 @@ didReceiveResponse:(NSURLResponse *)response
                         });
                     }
                     // call [self done] after all completed block was dispatched
-                    dispatch_barrier_async(self.coderQueue, ^{
+                    dispatch_async(self.coderQueue, ^{
                         @strongify(self);
                         if (!self) {
                             return;
                         }
-                        [self done];
-                    });
-                    dispatch_async(self.coderQueue, ^{
                         [self done];
                     });
                 }

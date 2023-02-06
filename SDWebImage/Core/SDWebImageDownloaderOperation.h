@@ -35,8 +35,6 @@
 
 - (BOOL)cancel:(nullable id)token;
 
-@property (assign, readonly) BOOL isTransferFinished;
-
 @property (strong, nonatomic, readonly, nullable) NSURLRequest *request;
 @property (strong, nonatomic, readonly, nullable) NSURLResponse *response;
 
@@ -57,10 +55,6 @@
  The download operation class for SDWebImageDownloader.
  */
 @interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation>
-
-/// Whether the operation's network data transfer is finished. This is used by downloader to decide whether to call `addHandlersForProgress:`, or create a new operation instead.
-/// @note You must implements this or this will cause downloader attach new handlers for a already finished operation, may cause some callback missing.
-@property (assign, readonly) BOOL isTransferFinished;
 
 /**
  * The request used by the operation's task.

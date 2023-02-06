@@ -13,6 +13,7 @@
 #import "SDWebImageCacheKeyFilter.h"
 #import "SDImageCacheDefine.h"
 #import "SDInternalMacros.h"
+#import "objc/runtime.h"
 
 NSNotificationName const SDWebImageDownloadStartNotification = @"SDWebImageDownloadStartNotification";
 NSNotificationName const SDWebImageDownloadReceiveResponseNotification = @"SDWebImageDownloadReceiveResponseNotification";
@@ -20,6 +21,22 @@ NSNotificationName const SDWebImageDownloadStopNotification = @"SDWebImageDownlo
 NSNotificationName const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
 
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
+static void * SDWebImageDownloaderOperationKey = &SDWebImageDownloaderOperationKey;
+
+BOOL SDWebImageDownloaderOperationGetCompleted(id<SDWebImageDownloaderOperation> operation) {
+    NSCParameterAssert(operation);
+    NSNumber *value = objc_getAssociatedObject(operation, SDWebImageDownloaderOperationKey);
+    if (value) {
+        return value.boolValue;
+    } else {
+        return NO;
+    }
+}
+
+void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation> operation, BOOL isCompleted) {
+    NSCParameterAssert(operation);
+    objc_setAssociatedObject(operation, SDWebImageDownloaderOperationKey, @(isCompleted), OBJC_ASSOCIATION_RETAIN);
+}
 
 @interface SDWebImageDownloadToken ()
 
@@ -219,7 +236,8 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, [self.class imageOptionsFromDownloaderOptions:options], cacheKey);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     // There is a case that the operation may be marked as finished or cancelled, but not been removed from `self.URLOperations`.
-    if (!operation || operation.isFinished || operation.isCancelled || operation.isTransferFinished) {
+    BOOL shouldNotReuseOperation = !operation || operation.isFinished || operation.isCancelled || SDWebImageDownloaderOperationGetCompleted(operation);
+    if (shouldNotReuseOperation) {
         operation = [self createDownloaderOperationWithUrl:url options:options context:context];
         if (!operation) {
             SD_UNLOCK(_operationsLock);
@@ -499,6 +517,10 @@ didReceiveResponse:(NSURLResponse *)response
     
     // Identify the operation that runs this task and pass it the delegate method
     NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
+    if (dataOperation) {
+        // Mark the downloader operation `isCompleted = YES`, no longer re-use this operation when new request comes in
+        SDWebImageDownloaderOperationSetCompleted(dataOperation, true);
+    }
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
         [dataOperation URLSession:session task:task didCompleteWithError:error];
     }
