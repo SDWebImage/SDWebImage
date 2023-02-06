@@ -118,7 +118,7 @@ static NSString * _defaultDiskCacheDirectory;
         
         // Create IO queue
         dispatch_queue_attr_t ioQueueAttributes = _config.ioQueueAttributes;
-        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache", ioQueueAttributes);
+        _ioQueue = dispatch_queue_create("com.hackemist.SDImageCache.ioQueue", ioQueueAttributes);
         NSAssert(_ioQueue, @"The IO queue should not be nil. Your configured `ioQueueAttributes` may be wrong");
         
         // Init the memory cache

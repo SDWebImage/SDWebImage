@@ -116,7 +116,7 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
         [_config addObserver:self forKeyPath:NSStringFromSelector(@selector(maxConcurrentDownloads)) options:0 context:SDWebImageDownloaderContext];
         _downloadQueue = [NSOperationQueue new];
         _downloadQueue.maxConcurrentOperationCount = _config.maxConcurrentDownloads;
-        _downloadQueue.name = @"com.hackemist.SDWebImageDownloader";
+        _downloadQueue.name = @"com.hackemist.SDWebImageDownloader.downloadQueue";
         _URLOperations = [NSMutableDictionary new];
         NSMutableDictionary<NSString *, NSString *> *headerDictionary = [NSMutableDictionary dictionary];
         NSString *userAgent = nil;

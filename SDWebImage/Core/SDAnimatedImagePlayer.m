@@ -90,6 +90,7 @@
     if (!_fetchQueue) {
         _fetchQueue = [[NSOperationQueue alloc] init];
         _fetchQueue.maxConcurrentOperationCount = 1;
+        _fetchQueue.name = @"com.hackemist.SDAnimatedImagePlayer.fetchQueue";
     }
     return _fetchQueue;
 }
