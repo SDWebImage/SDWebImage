@@ -334,7 +334,7 @@ BOOL SDWebImageDownloaderOperationGetCompleted(id<SDWebImageDownloaderOperation>
     [self didChangeValueForKey:@"isExecuting"];
 }
 
-- (BOOL)isConcurrent {
+- (BOOL)isAsynchronous {
     return YES;
 }
 
