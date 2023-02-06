@@ -223,7 +223,6 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
         return nil;
     }
     
-    SD_LOCK(_operationsLock);
     id downloadOperationCancelToken;
     // When different thumbnail size download with same url, we need to make sure each callback called with desired size
     id<SDWebImageCacheKeyFilter> cacheKeyFilter = context[SDWebImageContextCacheKeyFilter];
@@ -234,9 +233,17 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
         cacheKey = url.absoluteString;
     }
     SDImageCoderOptions *decodeOptions = SDGetDecodeOptionsFromContext(context, [self.class imageOptionsFromDownloaderOptions:options], cacheKey);
+    SD_LOCK(_operationsLock);
     NSOperation<SDWebImageDownloaderOperation> *operation = [self.URLOperations objectForKey:url];
     // There is a case that the operation may be marked as finished or cancelled, but not been removed from `self.URLOperations`.
-    BOOL shouldNotReuseOperation = !operation || operation.isFinished || operation.isCancelled || SDWebImageDownloaderOperationGetCompleted(operation);
+    BOOL shouldNotReuseOperation;
+    if (operation) {
+        @synchronized (operation) {
+            shouldNotReuseOperation = operation.isFinished || operation.isCancelled || SDWebImageDownloaderOperationGetCompleted(operation);
+        }
+    } else {
+        shouldNotReuseOperation = YES;
+    }
     if (shouldNotReuseOperation) {
         operation = [self createDownloaderOperationWithUrl:url options:options context:context];
         if (!operation) {
@@ -268,15 +275,6 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
         // So we lock the operation here, and in `SDWebImageDownloaderOperation`, we use `@synchonzied (self)`, to ensure the thread safe between these two classes.
         @synchronized (operation) {
             downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock decodeOptions:decodeOptions];
-        }
-        if (!operation.isExecuting) {
-            if (options & SDWebImageDownloaderHighPriority) {
-                operation.queuePriority = NSOperationQueuePriorityHigh;
-            } else if (options & SDWebImageDownloaderLowPriority) {
-                operation.queuePriority = NSOperationQueuePriorityLow;
-            } else {
-                operation.queuePriority = NSOperationQueuePriorityNormal;
-            }
         }
     }
     SD_UNLOCK(_operationsLock);
@@ -518,8 +516,10 @@ didReceiveResponse:(NSURLResponse *)response
     // Identify the operation that runs this task and pass it the delegate method
     NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
     if (dataOperation) {
-        // Mark the downloader operation `isCompleted = YES`, no longer re-use this operation when new request comes in
-        SDWebImageDownloaderOperationSetCompleted(dataOperation, true);
+        @synchronized (dataOperation) {
+            // Mark the downloader operation `isCompleted = YES`, no longer re-use this operation when new request comes in
+            SDWebImageDownloaderOperationSetCompleted(dataOperation, true);
+        }
     }
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
         [dataOperation URLSession:session task:task didCompleteWithError:error];
