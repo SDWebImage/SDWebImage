@@ -36,7 +36,7 @@
     }
 }
 
-- (BOOL)isConcurrent {
+- (BOOL)isAsynchronous {
     return YES;
 }
 
