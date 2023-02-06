@@ -1,3 +1,16 @@
+## [5.15.1 - Race Condition Fix, on Feb 6th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.1)
+See [all tickets marked for the 5.15.1 release](https://github.com/SDWebImage/SDWebImage/milestone/109)
+
+### Fixes
+- Ensure the Downloader and DownloaderOperation callback the completion in atomic and never miss one #3477
+- - This fix a long-term issue when multiple download request for same URL at the same time, some callbacks will missing. After fix, this will cause a brand new HTTP request but never miss any callbacks.
+- Fix the issue the fallback logic of ImageIO Source should avoid passing any UTI hint #3473
+- Try to fix the SDAsyncBlockOperation's race condition #3479 #3275
+- Avoid compiler generate the wrong property attribute with non-atomic #3474
+
+### Performance
+- Remove the unused extra copy for SDAnimatedImage data initializer #3480
+
 ## [5.15.0 - Performance Enhancement, on Jan 17th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.0)
 See [all tickets marked for the 5.15.0 release](https://github.com/SDWebImage/SDWebImage/milestone/108)
 
