@@ -7,8 +7,11 @@ coverage:
     project:
       default: off
       ios:
-        flags: ios
+        flags:
+          - ios
       macos:
-        flags: macos
+        flags:
+          - macos
       tvos:
-        flags: tvos
+        flags:
+          - tvos

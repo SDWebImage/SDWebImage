@@ -94,9 +94,11 @@ jobs:
   Test:
     name: Unit Test
     runs-on: macos-11
+    environment: codecov
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       matrix:
         iosDestination: ["platform=iOS Simulator,name=iPhone 13 Pro"]
