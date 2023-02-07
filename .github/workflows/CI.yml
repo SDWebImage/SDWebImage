@@ -97,6 +97,7 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       matrix:
         iosDestination: ["platform=iOS Simulator,name=iPhone 13 Pro"]
@@ -146,9 +147,9 @@ jobs:
           set -o pipefail
           export PATH="/usr/local/opt/curl/bin:$PATH"
           curl --version
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
+          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
+          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
           
   Build:
     name: Build Library
