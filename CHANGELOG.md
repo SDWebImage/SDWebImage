@@ -1,3 +1,12 @@
+## [5.15.2 - Race Condition Fix, on Feb 7th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.2)
+See [all tickets marked for the 5.15.2 release](https://github.com/SDWebImage/SDWebImage/milestone/110)
+
+### Fixes
+- Fix the atomic logic between downloader and operation again #3483
+
+### Warnings
+- Code garden to change Objc bool from true/false to YES/NO #3484
+
 ## [5.15.1 - Race Condition Fix, on Feb 6th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.1)
 See [all tickets marked for the 5.15.1 release](https://github.com/SDWebImage/SDWebImage/milestone/109)
 
