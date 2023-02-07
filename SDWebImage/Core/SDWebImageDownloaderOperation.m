@@ -477,8 +477,10 @@ didReceiveResponse:(NSURLResponse *)response
                     return;
                 }
                 // When cancelled or transfer finished (`didCompleteWithError`), cancel the progress callback, only completed block is called and enough
-                if (self.isCancelled || SDWebImageDownloaderOperationGetCompleted(self)) {
-                    return;
+                @synchronized (self) {
+                    if (self.isCancelled || SDWebImageDownloaderOperationGetCompleted(self)) {
+                        return;
+                    }
                 }
                 UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, NO, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                 if (image) {
