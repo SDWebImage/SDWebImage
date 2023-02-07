@@ -233,7 +233,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
     __block BOOL callced = NO;
     SDImageCacheToken *token = [SDImageCache.sharedImageCache queryCacheOperationForKey:key done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
-        callced = true;
+        callced = YES;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0), dispatch_get_main_queue(), ^{
             [expectation fulfill]; // callback once fulfill once
         });

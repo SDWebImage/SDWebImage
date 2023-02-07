@@ -680,7 +680,7 @@ static BOOL _isCalled;
     player.playbackMode = SDAnimatedImagePlaybackModeBounce;
 
     __block NSInteger i = 0;
-    __block BOOL flag = false;
+    __block BOOL flag = NO;
     __block NSUInteger cnt = 0;
     __weak typeof(imageView) wimageView = imageView;
     [player setAnimationFrameHandler:^(NSUInteger index, UIImage * _Nonnull frame) {
@@ -689,10 +689,10 @@ static BOOL _isCalled;
         
         if (index >= player.totalFrameCount - 1) {
             cnt++;
-            flag = true;
+            flag = YES;
         } else if (cnt != 0 && index == 0) {
             cnt++;
-            flag = false;
+            flag = NO;
         }
         
         if (!flag) {
@@ -745,7 +745,7 @@ static BOOL _isCalled;
             flag = false;
         } else if (index == 0) {
             cnt++;
-            flag = true;
+            flag = YES;
         }
         
         if (flag) {
