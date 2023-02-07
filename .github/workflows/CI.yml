@@ -108,6 +108,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Echo
+        run: echo "${CODECOV_TOKEN}"
+
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
         
@@ -148,9 +151,9 @@ jobs:
           set -o pipefail
           export PATH="/usr/local/opt/curl/bin:$PATH"
           curl --version
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
-          bash <(curl -s https://codecov.io/bash) -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
+          bash <(curl -s https://codecov.io/bash) -t "${CODECOV_TOKEN}" -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
+          bash <(curl -s https://codecov.io/bash) -t "${CODECOV_TOKEN}" -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
+          bash <(curl -s https://codecov.io/bash) -t "${CODECOV_TOKEN}" -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
           
   Build:
     name: Build Library
