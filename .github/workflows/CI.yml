@@ -108,7 +108,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Echo
-        run: echo "${CODECOV_TOKEN}"
+        run: |
+          echo "WTF?${CODECOV_TOKEN}?FTW"
+          echo -n ${CODECOV_TOKEN} | md5
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
