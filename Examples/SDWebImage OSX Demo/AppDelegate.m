@@ -30,6 +30,12 @@
         // For HEIC animated image. Animated image is new introduced in iOS 13, but it contains performance issue for now.
         [[SDImageCodersManager sharedManager] addCoder:[SDImageHEICCoder sharedCoder]];
     }
+    
+    NSStoryboard *mainStoryboard = [NSStoryboard storyboardWithName:@"Main" bundle:nil];
+    NSWindowController *initialController = [mainStoryboard instantiateControllerWithIdentifier:@"MainWindowController"];
+    self.windowController = initialController;
+    [initialController showWindow:self];
+    [initialController.window makeKeyAndOrderFront:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
