@@ -14,6 +14,8 @@
 
 This library provides an async image downloader with cache support. For convenience, we added categories for UI elements like `UIImageView`, `UIButton`, `MKAnnotationView`.
 
+Note: `SD` is the prefix for **Simple Design** (which is the team name in Daily Motion company from the author Olivier Poitrey)
+
 ## Features
 
 - [x] Categories for `UIImageView`, `UIButton`, `MKAnnotationView` adding web image and cache management
