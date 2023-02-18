@@ -26,7 +26,7 @@ static void * SDWebImageDownloaderOperationKey = &SDWebImageDownloaderOperationK
 BOOL SDWebImageDownloaderOperationGetCompleted(id<SDWebImageDownloaderOperation> operation) {
     NSCParameterAssert(operation);
     NSNumber *value = objc_getAssociatedObject(operation, SDWebImageDownloaderOperationKey);
-    if (value) {
+    if (value != nil) {
         return value.boolValue;
     } else {
         return NO;

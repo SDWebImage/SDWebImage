@@ -116,9 +116,14 @@ static CFTimeInterval CACurrentMediaTime(void)
         // Supports Pro display 120Hz
         CGDirectDisplayID display = CVDisplayLinkGetCurrentCGDisplay(_displayLink);
         CGDisplayModeRef mode = CGDisplayCopyDisplayMode(display);
-        double refreshRate = CGDisplayModeGetRefreshRate(mode);
-        if (refreshRate > 0) {
-            duration = 1.0 / refreshRate;
+        if (mode) {
+            double refreshRate = CGDisplayModeGetRefreshRate(mode);
+            if (refreshRate > 0) {
+                duration = 1.0 / refreshRate;
+            } else {
+                duration = kSDDisplayLinkInterval;
+            }
+            CGDisplayModeRelease(mode);
         } else {
             duration = kSDDisplayLinkInterval;
         }
