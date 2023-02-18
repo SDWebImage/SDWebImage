@@ -830,6 +830,35 @@
     [self waitForExpectations:expectations timeout:kAsyncTestTimeout * 2];
 }
 
+
+- (void)test31ThatMultipleRequestForSameURLFailedCallback {
+    // See #3493, silly bug
+    NSURL *url = [NSURL fileURLWithPath:@"/dev/null"]; // Always fail url
+    NSMutableArray<XCTestExpectation *> *expectations = [NSMutableArray arrayWithCapacity:100];
+    __block void (^recursiveBlock)(int);
+    void (^mainBlock)(int) = ^(int i) {
+        if (i > 200) return;
+        NSString *desc = [NSString stringWithFormat:@"Failed url with index %d should callback error", i];
+        XCTestExpectation *expectation = [self expectationWithDescription:desc];
+        [expectations addObject:expectation];
+        // Delay 0.01s ~ 0.99s for each download request, simulate the real-world call site
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(i * 10000000ull)), dispatch_get_main_queue(), ^{
+            [SDWebImageDownloader.sharedDownloader downloadImageWithURL:url completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+                if (error) {
+                    expect(error.code).equal(SDWebImageErrorBadImageData);
+                    [expectation fulfill];
+                }
+            }];
+        });
+        recursiveBlock(i+1);
+    };
+    recursiveBlock = mainBlock;
+    recursiveBlock(0);
+    
+    [self waitForExpectations:expectations timeout:kAsyncTestTimeout * 2];
+}
+
+
 #pragma mark - SDWebImageLoader
 - (void)testCustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];
