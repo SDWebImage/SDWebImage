@@ -1,3 +1,10 @@
+## [5.15.3 - Promotion Fix, on Feb 18th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.3)
+See [all tickets marked for the 5.15.3 release](https://github.com/SDWebImage/SDWebImage/milestone/111)
+
+### Fixes
+- Fix the issue when multiple request for same url failed, the completedBlock will callback more times #3497 #3493
+- Try to fix the SDAnimatedImageView playback speed issue in Promotion devices (iPhone Pro) #3496 #3491
+
 ## [5.15.2 - Race Condition Fix, on Feb 7th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.2)
 See [all tickets marked for the 5.15.2 release](https://github.com/SDWebImage/SDWebImage/milestone/110)
 
