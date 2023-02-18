@@ -706,10 +706,13 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     if (CGImageGetBitsPerPixel(imageRef) != 32 ||
         CGImageGetBitsPerComponent(imageRef) != 8 ||
         !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
-        SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
-        [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
-        imageRef = SDGraphicsGetImageFromCurrentImageContext().CGImage;
-        SDGraphicsEndImageContext();
+        SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+        format.scale = self.scale;
+        format.opaque = NO;
+        SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:self.size format:format];
+        imageRef = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+            [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+        }].CGImage;
     }
     
     vImage_Buffer effect = {}, scratch = {};

@@ -12,6 +12,7 @@
 #import "UIImage+Metadata.h"
 #import "SDImageGraphics.h"
 #import "SDImageIOAnimatedCoderInternal.h"
+#import "SDGraphicsImageRenderer.h"
 
 #import <ImageIO/ImageIO.h>
 #import <CoreServices/CoreServices.h>
@@ -95,22 +96,22 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGAffineTransform scaleTransform = CGAffineTransformMakeScale(xScale, yScale);
     CGAffineTransform transform = CGPDFPageGetDrawingTransform(page, box, drawRect, 0, preserveAspectRatio);
     
-    SDGraphicsBeginImageContextWithOptions(targetRect.size, NO, 0);
-    CGContextRef context = SDGraphicsGetCurrentContext();
-    
+    SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
+    format.opaque = NO;
+    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:targetRect.size format:format];
+    image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+        
 #if SD_UIKIT || SD_WATCH
-    // Core Graphics coordinate system use the bottom-left, UIKit use the flipped one
-    CGContextTranslateCTM(context, 0, targetRect.size.height);
-    CGContextScaleCTM(context, 1, -1);
+        // Core Graphics coordinate system use the bottom-left, UIKit use the flipped one
+        CGContextTranslateCTM(context, 0, targetRect.size.height);
+        CGContextScaleCTM(context, 1, -1);
 #endif
-    
-    CGContextConcatCTM(context, scaleTransform);
-    CGContextConcatCTM(context, transform);
-    
-    CGContextDrawPDFPage(context, page);
-    
-    image = SDGraphicsGetImageFromCurrentImageContext();
-    SDGraphicsEndImageContext();
+        
+        CGContextConcatCTM(context, scaleTransform);
+        CGContextConcatCTM(context, transform);
+        
+        CGContextDrawPDFPage(context, page);
+    }];
     
     CGPDFDocumentRelease(document);
     
