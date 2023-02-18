@@ -6,11 +6,8 @@
  * file that was distributed with this source code.
  */
 
-#import <Cocoa/Cocoa.h>
+#import "WindowController.h"
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
-
-@property (strong, nonatomic) NSWindowController *windowController;
+@implementation WindowController
 
 @end
-

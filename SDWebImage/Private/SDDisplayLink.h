@@ -15,7 +15,7 @@
 
 @property (readonly, nonatomic, weak, nullable) id target;
 @property (readonly, nonatomic, assign, nonnull) SEL selector;
-@property (readonly, nonatomic) CFTimeInterval duration;
+@property (readonly, nonatomic) NSTimeInterval duration; // elapsed time in seconds of previous callback. (or it's first callback, use the time between `start` and callback). Always zero when display link not running
 @property (readonly, nonatomic) BOOL isRunning;
 
 + (nonnull instancetype)displayLinkWithTarget:(nonnull id)target selector:(nonnull SEL)sel;
