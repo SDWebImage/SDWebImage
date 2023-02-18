@@ -48,8 +48,6 @@
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Display Link Stop"];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Display Link Start"];
     SDDisplayLink *displayLink = [SDDisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidRefresh:)];
-    NSTimeInterval duration = displayLink.duration; // Initial value
-    expect(duration).equal(1.0 / 60);
     [displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
     [displayLink start];
     expect(displayLink.isRunning).beTruthy();

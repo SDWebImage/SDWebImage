@@ -10,6 +10,8 @@
 #import "SDWeakProxy.h"
 #if SD_MAC
 #import <CoreVideo/CoreVideo.h>
+#elif SD_IOS || SD_TV
+#import <QuartzCore/QuartzCore.h>
 #endif
 #include <mach/mach_time.h>
 
@@ -92,14 +94,14 @@ static CFTimeInterval CACurrentMediaTime(void)
 }
 
 - (NSTimeInterval)duration {
-    NSTimeInterval duration;
+    NSTimeInterval duration = 0;
 #if SD_MAC
     CVTimeStamp outputTime = self.outputTime;
     double periodPerSecond = (double)outputTime.videoTimeScale * outputTime.rateScalar;
-    duration = (double)outputTime.videoRefreshPeriod / periodPerSecond;
+    if (periodPerSecond > 0) {
+        duration = (double)outputTime.videoRefreshPeriod / periodPerSecond;
+    }
 #else
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // iOS 10+/watchOS use `nextTime`
     if (@available(iOS 10.0, tvOS 10.0, watchOS 2.0, *)) {
         duration = self.nextFireTime - CACurrentMediaTime();
@@ -108,8 +110,25 @@ static CFTimeInterval CACurrentMediaTime(void)
         duration = CACurrentMediaTime() - self.previousFireTime;
     }
 #endif
+    // When system sleep, the targetTimestamp will mass up, fallback refresh rate
     if (duration < 0) {
+#if SD_MAC
+        // Supports Pro display 120Hz
+        CGDirectDisplayID display = CVDisplayLinkGetCurrentCGDisplay(_displayLink);
+        CGDisplayModeRef mode = CGDisplayCopyDisplayMode(display);
+        double refreshRate = CGDisplayModeGetRefreshRate(mode);
+        if (refreshRate > 0) {
+            duration = 1.0 / refreshRate;
+        } else {
+            duration = kSDDisplayLinkInterval;
+        }
+#elif SD_IOS || SD_TV
+        // Fallback
+        duration = self.displayLink.duration;
+#else
+        // Watch always 60Hz
         duration = kSDDisplayLinkInterval;
+#endif
     }
     return duration;
 }
