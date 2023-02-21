@@ -45,10 +45,10 @@ typedef NS_ENUM(NSUInteger, SDCallbackPolicy) {
 
 /// Submits a block for execution and returns after that block finishes executing.
 /// - Parameter block: The block that contains the work to perform.
-- (void)sync:(nonnull NS_NOESCAPE dispatch_block_t)block;
+- (void)sync:(nonnull dispatch_block_t)block;
 
 /// Schedules a block asynchronously for execution.
 /// - Parameter block: The block that contains the work to perform.
-- (void)async:(nonnull NS_NOESCAPE dispatch_block_t)block;
+- (void)async:(nonnull dispatch_block_t)block;
 
 @end

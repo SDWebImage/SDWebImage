@@ -79,7 +79,7 @@ static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block
     return queue;
 }
 
-- (void)sync:(nonnull NS_NOESCAPE dispatch_block_t)block {
+- (void)sync:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
             SDSafeExecute(self.queue, block, NO);
@@ -93,7 +93,7 @@ static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block
     }
 }
 
-- (void)async:(nonnull NS_NOESCAPE dispatch_block_t)block {
+- (void)async:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
             SDSafeExecute(self.queue, block, YES);
