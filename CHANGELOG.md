@@ -1,3 +1,10 @@
+## [5.15.4 - Hotfix, on Feb 21st, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.4)
+See [all tickets marked for the 5.15.4 release](https://github.com/SDWebImage/SDWebImage/milestone/112)
+
+### Fixes
+- Fix the crash because of wrong usage of NS_NOESCAPE for SDCallbackQueue async block, should matching DispatchQueue #3500
+- - This crash only occurs in specified version of clang compiler. But still recommended to update
+
 ## [5.15.3 - Promotion Fix, on Feb 18th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.3)
 See [all tickets marked for the 5.15.3 release](https://github.com/SDWebImage/SDWebImage/milestone/111)
 
