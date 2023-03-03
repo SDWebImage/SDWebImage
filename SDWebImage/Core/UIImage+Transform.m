@@ -701,15 +701,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
 #endif
     
     CGImageRef imageRef = self.CGImage;
-    
-    //convert to BGRA if it isn't
-    if (CGImageGetBitsPerPixel(imageRef) != 32 ||
-        CGImageGetBitsPerComponent(imageRef) != 8 ||
-        !((CGImageGetBitmapInfo(imageRef) & kCGBitmapAlphaInfoMask))) {
-        SDGraphicsBeginImageContextWithOptions(self.size, NO, self.scale);
-        [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
-        imageRef = SDGraphicsGetImageFromCurrentImageContext().CGImage;
-        SDGraphicsEndImageContext();
+    if (!imageRef) {
+        return nil;
     }
     
     vImage_Buffer effect = {}, scratch = {};
@@ -726,7 +719,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     };
     
     vImage_Error err;
-    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImageNoFlags);
+    err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImageNoFlags); // vImage will convert to format we requests, no need `vImageConvert`
     if (err != kvImageNoError) {
         NSLog(@"UIImage+Transform error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@", err, self);
         return nil;
@@ -740,6 +733,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     input = &effect;
     output = &scratch;
     
+    // See: https://developer.apple.com/library/archive/samplecode/UIImageEffects/Introduction/Intro.html
     if (hasBlur) {
         // A description of how to compute the box kernel width from the Gaussian
         // radius (aka standard deviation) appears in the SVG spec:
@@ -756,19 +750,16 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         if (inputRadius - 2.0 < __FLT_EPSILON__) inputRadius = 2.0;
         uint32_t radius = floor(inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5);
         radius |= 1; // force radius to be odd so that the three box-blur methodology works.
-        int iterations;
-        if (blurRadius * scale < 0.5) iterations = 1;
-        else if (blurRadius * scale < 1.5) iterations = 2;
-        else iterations = 3;
         NSInteger tempSize = vImageBoxConvolve_ARGB8888(input, output, NULL, 0, 0, radius, radius, NULL, kvImageGetTempBufferSize | kvImageEdgeExtend);
         void *temp = malloc(tempSize);
-        for (int i = 0; i < iterations; i++) {
-            vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
-            vImage_Buffer *tmp = input;
-            input = output;
-            output = tmp;
-        }
+        vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
+        vImageBoxConvolve_ARGB8888(output, input, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
+        vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
         free(temp);
+        
+        vImage_Buffer *tmp = input;
+        input = output;
+        output = tmp;
     }
     
     CGImageRef effectCGImage = NULL;
