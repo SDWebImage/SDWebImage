@@ -1,3 +1,10 @@
+## [5.15.5 - Fix, on Mar 3rd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.5)
+See [all tickets marked for the 5.15.5 release](https://github.com/SDWebImage/SDWebImage/milestone/113)
+
+### Fixes
+- Protect the disk operation when input key is nil and cause exception #3505 #3504
+- Fix the blur effect logic by avoid color convert and always use three box-blur methodology #3506
+
 ## [5.15.4 - Hotfix, on Feb 21st, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.4)
 See [all tickets marked for the 5.15.4 release](https://github.com/SDWebImage/SDWebImage/milestone/112)
 
