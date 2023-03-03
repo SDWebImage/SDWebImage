@@ -419,6 +419,9 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 - (nullable UIImage *)imageFromDiskCacheForKey:(nullable NSString *)key options:(SDImageCacheOptions)options context:(nullable SDWebImageContext *)context {
+    if (!key) {
+        return nil;
+    }
     NSData *data = [self diskImageDataForKey:key];
     UIImage *diskImage = [self diskImageForKey:key data:data options:options context:context];
     
@@ -507,6 +510,9 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 - (nullable UIImage *)diskImageForKey:(nullable NSString *)key {
+    if (!key) {
+        return nil;
+    }
     NSData *data = [self diskImageDataForKey:key];
     return [self diskImageForKey:key data:data options:0 context:nil];
 }
@@ -521,7 +527,7 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 - (void)_unarchiveObjectWithImage:(UIImage *)image forKey:(NSString *)key {
-    if (!image) {
+    if (!image || !key) {
         return;
     }
     // Check extended data
@@ -721,7 +727,7 @@ static NSString * _defaultDiskCacheDirectory;
 }
 
 - (void)removeImageForKey:(nullable NSString *)key fromMemory:(BOOL)fromMemory fromDisk:(BOOL)fromDisk withCompletion:(nullable SDWebImageNoParamsBlock)completion {
-    if (key == nil) {
+    if (!key) {
         return;
     }
 
