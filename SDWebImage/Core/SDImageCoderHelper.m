@@ -371,18 +371,18 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         .renderingIntent = CGImageGetRenderingIntent(cgImage)
     };
     
-    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
+    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoAllocate);
     if (a_ret != kvImageNoError) return NULL;
     output_buffer.width = MAX(size.width, 0);
     output_buffer.height = MAX(size.height, 0);
     output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
-    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
+    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height); // `malloc` by ourself, vImage do not allocate again (using kvImageNoAllocate)
     if (!output_buffer.data) return NULL;
     
     vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
     if (ret != kvImageNoError) return NULL;
-    
-    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoFlags, &ret);
+    // callback is NULL, means vImage call `free` when CGImageRelease, safe
+    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoAllocate, &ret);
     if (ret != kvImageNoError) {
         CGImageRelease(outputImage);
         return NULL;
