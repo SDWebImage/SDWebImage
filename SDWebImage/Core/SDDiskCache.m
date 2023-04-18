@@ -43,6 +43,8 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     } else {
         self.fileManager = [NSFileManager new];
     }
+  
+    [self createDirectory];
 }
 
 - (BOOL)containsDataForKey:(NSString *)key {
@@ -80,9 +82,6 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 - (void)setData:(NSData *)data forKey:(NSString *)key {
     NSParameterAssert(data);
     NSParameterAssert(key);
-    if (![self.fileManager fileExistsAtPath:self.diskCachePath]) {
-        [self createDirectory];
-    }
     
     // get cache Path for image key
     NSString *cachePathForKey = [self cachePathForKey:key];
