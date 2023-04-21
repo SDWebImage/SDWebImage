@@ -861,9 +861,6 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDImageCache *cache2 = [[SDImageCache alloc] initWithNamespace:@"cache2"];
     cachesManager.caches = @[cache1, cache2];
     
-    [[NSFileManager defaultManager] removeItemAtPath:cache1.diskCachePath error:nil];
-    [[NSFileManager defaultManager] removeItemAtPath:cache2.diskCachePath error:nil];
-    
     NSString *kSerialTestImageKey = @"kSerialTestImageKey";
     
     // Serial
