@@ -43,6 +43,8 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     } else {
         self.fileManager = [NSFileManager new];
     }
+  
+    [self createDirectory];
 }
 
 - (BOOL)containsDataForKey:(NSString *)key {
@@ -80,9 +82,6 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 - (void)setData:(NSData *)data forKey:(NSString *)key {
     NSParameterAssert(data);
     NSParameterAssert(key);
-    if (![self.fileManager fileExistsAtPath:self.diskCachePath]) {
-        [self.fileManager createDirectoryAtPath:self.diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];
-    }
     
     // get cache Path for image key
     NSString *cachePathForKey = [self cachePathForKey:key];
@@ -90,12 +89,6 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     NSURL *fileURL = [NSURL fileURLWithPath:cachePathForKey isDirectory:NO];
     
     [data writeToURL:fileURL options:self.config.diskCacheWritingOptions error:nil];
-    
-    // disable iCloud backup
-    if (self.config.shouldDisableiCloud) {
-        // ignore iCloud backup resource value error
-        [fileURL setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
-    }
 }
 
 - (NSData *)extendedDataForKey:(NSString *)key {
@@ -131,10 +124,20 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 
 - (void)removeAllData {
     [self.fileManager removeItemAtPath:self.diskCachePath error:nil];
-    [self.fileManager createDirectoryAtPath:self.diskCachePath
-            withIntermediateDirectories:YES
-                             attributes:nil
-                                  error:NULL];
+    [self createDirectory];
+}
+
+- (void)createDirectory {
+  [self.fileManager createDirectoryAtPath:self.diskCachePath
+          withIntermediateDirectories:YES
+                           attributes:nil
+                                error:NULL];
+  
+  // disable iCloud backup
+  if (self.config.shouldDisableiCloud) {
+      // ignore iCloud backup resource value error
+      [[NSURL fileURLWithPath:self.diskCachePath isDirectory:YES] setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
+  }
 }
 
 - (void)removeExpiredData {
@@ -285,6 +288,11 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         }
         // New directory does not exist, rename directory
         [self.fileManager moveItemAtPath:srcPath toPath:dstPath error:nil];
+        // disable iCloud backup
+        if (self.config.shouldDisableiCloud) {
+            // ignore iCloud backup resource value error
+            [[NSURL fileURLWithPath:dstPath isDirectory:YES] setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
+        }
     } else {
         // New directory exist, merge the files
         NSDirectoryEnumerator *dirEnumerator = [self.fileManager enumeratorAtPath:srcPath];
