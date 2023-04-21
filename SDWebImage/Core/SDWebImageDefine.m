@@ -13,7 +13,7 @@
 
 #pragma mark - Image scale
 
-static inline NSArray<NSNumber *> * _Nonnull SDImageScaleFactors() {
+static inline NSArray<NSNumber *> * _Nonnull SDImageScaleFactors(void) {
     return @[@2, @3];
 }
 
