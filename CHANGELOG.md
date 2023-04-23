@@ -1,3 +1,16 @@
+## [5.15.6 - Fix watchOS, on Apr 23rd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.5)
+See [all tickets marked for the 5.15.6 release](https://github.com/SDWebImage/SDWebImage/milestone/114)
+
+### Performance
+- Small improvements to SDDiskCache write perf #3517
+- - Note this slightly change the bahavior when you manual grab the `SDImageCache.diskCachePath` and remove it without creating new directory, next disk cache write operation will fail, before the restart of App.
+
+### Fixes
+- Revert the SDDisplayLink for watchOS, fix the animated image duration bug #3520 #3511
+
+### Warnings
+- Fix the warning of C function with no param #3519
+
 ## [5.15.5 - Fix, on Mar 3rd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.5)
 See [all tickets marked for the 5.15.5 release](https://github.com/SDWebImage/SDWebImage/milestone/113)
 
