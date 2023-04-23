@@ -19,18 +19,6 @@
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
 #endif
 
-#if SD_WATCH
-static CFTimeInterval CACurrentMediaTime(void)
-{
-    mach_timebase_info_data_t timebase;
-    mach_timebase_info(&timebase);
-
-    uint64_t time = mach_absolute_time();
-    double seconds = (double)time * (double)timebase.numer / (double)timebase.denom / 1e9;
-    return seconds;
-}
-#endif
-
 #define kSDDisplayLinkInterval 1.0 / 60
 
 @interface SDDisplayLink ()
@@ -101,13 +89,19 @@ static CFTimeInterval CACurrentMediaTime(void)
     if (periodPerSecond > 0) {
         duration = (double)outputTime.videoRefreshPeriod / periodPerSecond;
     }
-#else
+#elif SD_UIKIT
     // iOS 10+/watchOS use `nextTime`
-    if (@available(iOS 10.0, tvOS 10.0, watchOS 2.0, *)) {
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
         duration = self.nextFireTime - CACurrentMediaTime();
     } else {
         // iOS 9 use `previousTime`
         duration = CACurrentMediaTime() - self.previousFireTime;
+    }
+#else
+    if (self.nextFireTime != 0) {
+        // `CFRunLoopTimerGetNextFireDate`: This time could be a date in the past if a run loop has not been able to process the timer since the firing time arrived.
+        // Don't rely on this, always calculate based on elapsed time
+        duration = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink) - self.nextFireTime;
     }
 #endif
     // When system sleep, the targetTimestamp will mass up, fallback refresh rate
@@ -230,13 +224,13 @@ static CFTimeInterval CACurrentMediaTime(void)
         self.previousFireTime = self.displayLink.timestamp;
     }
 #endif
-#if SD_WATCH
-    self.nextFireTime = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
-#endif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [_target performSelector:_selector withObject:self];
 #pragma clang diagnostic pop
+#if SD_WATCH
+    self.nextFireTime = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
+#endif
 }
 
 @end
