@@ -668,11 +668,17 @@ static NSString * _defaultDiskCacheDirectory;
                 // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
                 shouldCacheToMomery = NO;
             }
+            // Special case: If user query image in list for the same URL, to avoid decode and write **same** image object into disk cache multiple times, we query and check memory cache here again.
+            if (shouldCacheToMomery && self.config.shouldCacheImagesInMemory) {
+                diskImage = [self.memoryCache objectForKey:key];
+            }
             // decode image data only if in-memory cache missed
-            diskImage = [self diskImageForKey:key data:diskData options:options context:context];
-            if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
-                NSUInteger cost = diskImage.sd_memoryCost;
-                [self.memoryCache setObject:diskImage forKey:key cost:cost];
+            if (!diskImage) {
+                diskImage = [self diskImageForKey:key data:diskData options:options context:context];
+                if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
+                    NSUInteger cost = diskImage.sd_memoryCost;
+                    [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                }
             }
         }
         return diskImage;
