@@ -57,6 +57,11 @@
     return player;
 }
 
+- (void)dealloc {
+    // Dereference the frame pool, when zero the frame pool for provider will dealloc
+    [SDImageFramePool unregisterProvider:self.animatedProvider];
+}
+
 #pragma mark - Private
 
 - (SDDisplayLink *)displayLink {
