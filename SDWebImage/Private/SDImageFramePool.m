@@ -33,6 +33,7 @@
     return providerFramePoolMap;
 }
 
+#pragma mark - Life Cycle
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -40,8 +41,21 @@
         _fetchQueue = [[NSOperationQueue alloc] init];
         _fetchQueue.maxConcurrentOperationCount = 1;
         _fetchQueue.name = @"com.hackemist.SDImageFramePool.fetchQueue";
+#if SD_UIKIT
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
     }
     return self;
+}
+
+- (void)dealloc {
+#if SD_UIKIT
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif
+}
+
+- (void)didReceiveMemoryWarning:(NSNotification *)notification {
+    [self removeAllFrames];
 }
 
 + (instancetype)registerProvider:(id<SDAnimatedImageProvider>)provider {
@@ -71,7 +85,9 @@
         NSUInteger frameCount = self.frameBuffer.count;
         if (frameCount > self.maxBufferCount) {
             // Remove the frame buffer if need
-            self.frameBuffer[@(index)] = nil;
+            // TODO, use LRU or better algorithm to detect which frames to clear
+            self.frameBuffer[@(index - 1)] = nil;
+            self.frameBuffer[@(index + 1)] = nil;
         }
     }
     
