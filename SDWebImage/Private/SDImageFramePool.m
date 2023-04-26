@@ -146,11 +146,4 @@
     }
 }
 
-- (NSMutableDictionary<NSNumber *,UIImage *> *)frameBuffer {
-    if (!_frameBuffer) {
-        _frameBuffer = [NSMutableDictionary dictionary];
-    }
-    return _frameBuffer;
-}
-
 @end

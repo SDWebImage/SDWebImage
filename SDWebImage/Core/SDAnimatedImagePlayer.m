@@ -17,7 +17,7 @@
     NSRunLoopMode _runLoopMode;
 }
 
-@property (atomic, strong) SDImageFramePool *framePool;
+@property (nonatomic, strong) SDImageFramePool *framePool;
 
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
 @property (nonatomic, assign, readwrite) NSUInteger currentFrameIndex;
@@ -339,7 +339,6 @@
         maxBufferCount = 1;
     }
     
-    printf("current maxBufferCount: %lu\n", (unsigned long)maxBufferCount);
     self.framePool.maxBufferCount = maxBufferCount;
 }
 
