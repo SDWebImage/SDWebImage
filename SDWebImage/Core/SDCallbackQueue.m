@@ -20,7 +20,9 @@ static void SDReleaseBlock(void *context) {
     CFRelease(context);
 }
 
-static void SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Nonnull block, BOOL async) {
+static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonnull block, BOOL async) {
+    // Extendc gcd queue's life cycle
+    dispatch_queue_t queue = callbackQueue.queue;
     // Special handle for main queue label only (custom queue can have the same label)
     const char *label = dispatch_queue_get_label(queue);
     if (label && label == dispatch_queue_get_label(dispatch_get_main_queue())) {
@@ -84,7 +86,7 @@ static void SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Non
 - (void)sync:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
-            SDSafeExecute(self.queue, block, NO);
+            SDSafeExecute(self, block, NO);
             break;
         case SDCallbackPolicyDispatch:
             dispatch_sync(self.queue, block);
@@ -98,7 +100,7 @@ static void SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Non
 - (void)async:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
-            SDSafeExecute(self.queue, block, YES);
+            SDSafeExecute(self, block, YES);
             break;
         case SDCallbackPolicyDispatch:
             dispatch_async(self.queue, block);
