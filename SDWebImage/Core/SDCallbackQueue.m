@@ -32,15 +32,17 @@ static void SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Non
     }
     // Check specific to detect queue equal
     void *specific = dispatch_queue_get_specific(queue, SDCallbackQueueKey);
-    void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
-    if (specific && currentSpecific && CFGetTypeID(specific) == CFUUIDGetTypeID() && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
-        block();
-    } else {
-        if (async) {
-            dispatch_async(queue, block);
-        } else {
-            dispatch_sync(queue, block);
+    if (specific && CFGetTypeID(specific) == CFUUIDGetTypeID()) {
+        void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
+        if (currentSpecific && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
+            block();
+            return;
         }
+    }
+    if (async) {
+        dispatch_async(queue, block);
+    } else {
+        dispatch_sync(queue, block);
     }
 }
 
