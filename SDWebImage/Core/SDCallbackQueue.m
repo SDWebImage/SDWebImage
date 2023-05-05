@@ -20,7 +20,7 @@ static void SDReleaseBlock(void *context) {
     CFRelease(context);
 }
 
-static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Nonnull block, BOOL async) {
+static void SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Nonnull block, BOOL async) {
     // Special handle for main queue label only (custom queue can have the same label)
     const char *label = dispatch_queue_get_label(queue);
     if (label && label == dispatch_queue_get_label(dispatch_get_main_queue())) {
