@@ -1,4 +1,13 @@
-## [5.15.6 - Fix watchOS, on Apr 23rd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.5)
+## [5.15.7 - Fix Crash, on May 6th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.7)
+See [all tickets marked for the 5.15.7 release](https://github.com/SDWebImage/SDWebImage/milestone/115)
+
+### Fixes
+- Try to solve the strange dispatch group crash in SDSafeExecute by removing inline #3526
+
+### Performance
+- Opt when multiple same URLs queried in parallel, which may cause duplicated decode and store disk operation #3523
+
+## [5.15.6 - Fix watchOS, on Apr 23rd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.6)
 See [all tickets marked for the 5.15.6 release](https://github.com/SDWebImage/SDWebImage/milestone/114)
 
 ### Performance
