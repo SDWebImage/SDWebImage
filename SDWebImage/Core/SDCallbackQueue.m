@@ -20,7 +20,9 @@ static void SDReleaseBlock(void *context) {
     CFRelease(context);
 }
 
-static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block_t _Nonnull block, BOOL async) {
+static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonnull block, BOOL async) {
+    // Extendc gcd queue's life cycle
+    dispatch_queue_t queue = callbackQueue.queue;
     // Special handle for main queue label only (custom queue can have the same label)
     const char *label = dispatch_queue_get_label(queue);
     if (label && label == dispatch_queue_get_label(dispatch_get_main_queue())) {
@@ -32,15 +34,17 @@ static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block
     }
     // Check specific to detect queue equal
     void *specific = dispatch_queue_get_specific(queue, SDCallbackQueueKey);
-    void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
-    if (specific && currentSpecific && CFGetTypeID(specific) == CFUUIDGetTypeID() && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
-        block();
-    } else {
-        if (async) {
-            dispatch_async(queue, block);
-        } else {
-            dispatch_sync(queue, block);
+    if (specific && CFGetTypeID(specific) == CFUUIDGetTypeID()) {
+        void *currentSpecific = dispatch_get_specific(SDCallbackQueueKey);
+        if (currentSpecific && CFGetTypeID(currentSpecific) == CFUUIDGetTypeID() && CFEqual(specific, currentSpecific)) {
+            block();
+            return;
         }
+    }
+    if (async) {
+        dispatch_async(queue, block);
+    } else {
+        dispatch_sync(queue, block);
     }
 }
 
@@ -82,7 +86,7 @@ static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block
 - (void)sync:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
-            SDSafeExecute(self.queue, block, NO);
+            SDSafeExecute(self, block, NO);
             break;
         case SDCallbackPolicyDispatch:
             dispatch_sync(self.queue, block);
@@ -96,7 +100,7 @@ static void inline SDSafeExecute(dispatch_queue_t _Nonnull queue, dispatch_block
 - (void)async:(nonnull dispatch_block_t)block {
     switch (self.policy) {
         case SDCallbackPolicySafeExecute:
-            SDSafeExecute(self.queue, block, YES);
+            SDSafeExecute(self, block, YES);
             break;
         case SDCallbackPolicyDispatch:
             dispatch_async(self.queue, block);
