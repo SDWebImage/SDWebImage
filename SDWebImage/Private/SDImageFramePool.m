@@ -22,6 +22,9 @@
 
 @end
 
+// Lock to ensure atomic behavior
+SD_LOCK_DECLARE_STATIC(_providerFramePoolMapLock);
+
 @implementation SDImageFramePool
 
 + (NSMapTable *)providerFramePoolMap {
@@ -58,7 +61,14 @@
     [self removeAllFrames];
 }
 
++ (void)initialize {
+    // Lock to ensure atomic behavior
+    SD_LOCK_INIT(_providerFramePoolMapLock);
+}
+
 + (instancetype)registerProvider:(id<SDAnimatedImageProvider>)provider {
+    // Lock to ensure atomic behavior
+    SD_LOCK(_providerFramePoolMapLock);
     SDImageFramePool *framePool = [self.providerFramePoolMap objectForKey:provider];
     if (!framePool) {
         framePool = [[SDImageFramePool alloc] init];
@@ -66,18 +76,23 @@
         [self.providerFramePoolMap setObject:framePool forKey:provider];
     }
     framePool.registerCount += 1;
+    SD_UNLOCK(_providerFramePoolMapLock);
     return framePool;
 }
 
 + (void)unregisterProvider:(id<SDAnimatedImageProvider>)provider {
+    // Lock to ensure atomic behavior
+    SD_LOCK(_providerFramePoolMapLock);
     SDImageFramePool *framePool = [self.providerFramePoolMap objectForKey:provider];
     if (!framePool) {
+        SD_UNLOCK(_providerFramePoolMapLock);
         return;
     }
     framePool.registerCount -= 1;
     if (framePool.registerCount == 0) {
         [self.providerFramePoolMap removeObjectForKey:provider];
     }
+    SD_UNLOCK(_providerFramePoolMapLock);
 }
 
 - (void)prefetchFrameAtIndex:(NSUInteger)index {
