@@ -45,6 +45,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void)dealloc {
 #if SD_MAC
     if (_displayLink) {
+        CVDisplayLinkStop(_displayLink);
         CVDisplayLinkRelease(_displayLink);
         _displayLink = NULL;
     }
@@ -62,14 +63,15 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     if (self) {
         _target = target;
         _selector = sel;
+        // CA/CV/NSTimer will retain to the target, we need to break this using weak proxy
+        SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
 #if SD_MAC
         CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
-        CVDisplayLinkSetOutputCallback(_displayLink, DisplayLinkCallback, (__bridge void *)self);
+        // Simulate retain for target, the target is weak proxy to self
+        CVDisplayLinkSetOutputCallback(_displayLink, DisplayLinkCallback, (__bridge_retained void *)weakProxy);
 #elif SD_IOS || SD_TV
-        SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
         _displayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(displayLinkDidRefresh:)];
 #else
-        SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
         _displayLink = [NSTimer timerWithTimeInterval:kSDDisplayLinkInterval target:weakProxy selector:@selector(displayLinkDidRefresh:) userInfo:nil repeats:YES];
 #endif
     }
@@ -238,7 +240,9 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 #if SD_MAC
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
     // CVDisplayLink callback is not on main queue
+    // Actually `SDWeakProxy` but not `SDDisplayLink`
     SDDisplayLink *object = (__bridge SDDisplayLink *)displayLinkContext;
+    if (!object) return kCVReturnSuccess;
     // CVDisplayLink does not use runloop, but we can provide similar behavior for modes
     // May use `default` runloop to avoid extra callback when in `eventTracking` (mouse drag, scroll) or `modalPanel` (modal panel)
     NSString *runloopMode = object.runloopMode;
