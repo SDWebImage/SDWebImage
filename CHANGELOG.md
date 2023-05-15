@@ -1,3 +1,12 @@
+## [5.15.8 - Fix macOS Crash, on May 15th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.8)
+See [all tickets marked for the 5.15.8 release](https://github.com/SDWebImage/SDWebImage/milestone/117)
+
+### Fixes
+- Try to fix macOS SDDisplayLink crash because of accessing the deallocated objc pointer during CVDisplayLinkRef callback #3531
+
+### Changes
+- Update the implementation SDScaledImageForScaleFactor to support SDAnimatedImage #3535
+
 ## [5.15.7 - Fix Crash, on May 6th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.7)
 See [all tickets marked for the 5.15.7 release](https://github.com/SDWebImage/SDWebImage/milestone/115)
 
