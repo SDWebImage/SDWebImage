@@ -23,7 +23,7 @@
     }
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
-                               options:SDWebImageProgressiveLoad];
+                               options:SDWebImageProgressiveLoad | SDWebImageScaleDownLargeImages];
     self.imageView.shouldCustomLoopCount = YES;
     self.imageView.animationRepeatCount = 0;
 }
