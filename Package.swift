@@ -35,6 +35,12 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("Core"),
                 .headerSearchPath("Private")
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-application-extension"])
+            ],
+            linkerSettings: [
+                .unsafeFlags(["-Xlinker", "-application_extension"])
             ]
         ),
         .target(
