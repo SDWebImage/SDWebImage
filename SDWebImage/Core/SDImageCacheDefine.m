@@ -18,14 +18,14 @@
 SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext * _Nullable context, SDWebImageOptions options, NSString * _Nonnull cacheKey) {
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
-    CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey);
+    CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey); // Use cache key to detect scale
     NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
     NSValue *thumbnailSizeValue;
     BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
-    if (shouldScaleDown) {
-        CGFloat thumbnailPixels = SDImageCoderHelper.defaultScaleDownLimitBytes / 4;
-        CGFloat dimension = ceil(sqrt(thumbnailPixels));
-        thumbnailSizeValue = @(CGSizeMake(dimension, dimension));
+    NSNumber *scaleDownLimitBytesValue = context[SDWebImageContextImageScaleDownLimitBytes];
+    if (!scaleDownLimitBytesValue && shouldScaleDown) {
+        // Use the default limit bytes
+        scaleDownLimitBytesValue = @(SDImageCoderHelper.defaultScaleDownLimitBytes);
     }
     if (context[SDWebImageContextImageThumbnailPixelSize]) {
         thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
@@ -56,6 +56,7 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
     mutableCoderOptions[SDImageCoderDecodeTypeIdentifierHint] = typeIdentifierHint;
     mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
+    mutableCoderOptions[SDImageCoderDecodeScaleDownLimitBytes] = scaleDownLimitBytesValue;
     
     return [mutableCoderOptions copy];
 }
@@ -70,6 +71,7 @@ void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableCont
     mutableContext[SDWebImageContextImageScaleFactor] = decodeOptions[SDImageCoderDecodeScaleFactor];
     mutableContext[SDWebImageContextImagePreserveAspectRatio] = decodeOptions[SDImageCoderDecodePreserveAspectRatio];
     mutableContext[SDWebImageContextImageThumbnailPixelSize] = decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
+    mutableContext[SDWebImageContextImageScaleDownLimitBytes] = decodeOptions[SDImageCoderDecodeScaleDownLimitBytes];
     
     NSString *typeIdentifierHint = decodeOptions[SDImageCoderDecodeTypeIdentifierHint];
     if (!typeIdentifierHint) {
