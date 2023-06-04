@@ -8,9 +8,13 @@
 
 #import "SDWebImageCompat.h"
 
+/// The scale mode to apply when image drawing on a container with different sizes.
 typedef NS_ENUM(NSUInteger, SDImageScaleMode) {
+    /// The option to scale the content to fit the size of itself by changing the aspect ratio of the content if necessary.
     SDImageScaleModeFill = 0,
+    /// The option to scale the content to fit the size of the view by maintaining the aspect ratio. Any remaining area of the view’s bounds is transparent.
     SDImageScaleModeAspectFit = 1,
+    /// The option to scale the content to fill the size of the view. Some portion of the content may be clipped to fill the view’s bounds.
     SDImageScaleModeAspectFill = 2
 };
 

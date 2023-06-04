@@ -9,6 +9,7 @@
 
 #import "SDWebImageCompat.h"
 
+/// An error domain represent SDWebImage loading system with custom codes
 FOUNDATION_EXPORT NSErrorDomain const _Nonnull SDWebImageErrorDomain;
 
 /// The response instance for invalid download response (NSURLResponse *)

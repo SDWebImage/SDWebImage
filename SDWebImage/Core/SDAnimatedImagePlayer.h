@@ -10,6 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDImageCoder.h"
 
+/// Animated image playback mode
 typedef NS_ENUM(NSUInteger, SDAnimatedImagePlaybackMode) {
     /**
      * From first to last frame and stop or next loop.

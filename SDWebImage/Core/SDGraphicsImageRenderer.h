@@ -17,11 +17,17 @@
  For others (macOS/watchOS or iOS/tvOS 10-), these method use the `SDImageGraphics.h` to implements the same behavior (but without dynamic bitmap support)
 */
 
+/// A closure for drawing an image.
 typedef void (^SDGraphicsImageDrawingActions)(CGContextRef _Nonnull context);
+/// Constants that specify the color range of the image renderer context.
 typedef NS_ENUM(NSInteger, SDGraphicsImageRendererFormatRange) {
+    /// The image renderer context doesn’t specify a color range.
     SDGraphicsImageRendererFormatRangeUnspecified = -1,
+    /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.
     SDGraphicsImageRendererFormatRangeAutomatic = 0,
+    /// The image renderer context supports wide color.
     SDGraphicsImageRendererFormatRangeExtended,
+    /// The image renderer context doesn’t support extended colors.
     SDGraphicsImageRendererFormatRangeStandard
 };
 

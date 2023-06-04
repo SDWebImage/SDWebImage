@@ -95,9 +95,13 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     SDWebImageDownloaderMatchAnimatedImageClass = 1 << 12,
 };
 
+/// Posed when URLSessionTask started (`resume` called))
 FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadStartNotification;
+/// Posed when URLSessionTask get HTTP response (`didReceiveResponse:completionHandler:` called)
 FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadReceiveResponseNotification;
+/// Posed when URLSessionTask stoped (`didCompleteWithError:` with error or `cancel` called)
 FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadStopNotification;
+/// Posed when URLSessionTask finished with success  (`didCompleteWithError:` without error)
 FOUNDATION_EXPORT NSNotificationName _Nonnull const SDWebImageDownloadFinishNotification;
 
 typedef SDImageLoaderProgressBlock SDWebImageDownloaderProgressBlock;

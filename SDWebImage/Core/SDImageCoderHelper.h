@@ -10,6 +10,7 @@
 #import "SDWebImageCompat.h"
 #import "SDImageFrame.h"
 
+/// The options controls how we force pre-draw the image (to avoid lazy-decoding). Which need OS's framework compatibility
 typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
     /// automatically choose the solution based on image format, hardware, OS version. This keep balance for compatibility and performance. Default after SDWebImage 5.13.0
     SDImageCoderDecodeSolutionAutomatic,
