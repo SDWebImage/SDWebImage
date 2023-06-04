@@ -130,6 +130,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * (from 5.16.0) This will actually translate to use context option `SDWebImageContextImageScaleDownLimitBytes`, which check and calculate the thumbnail pixel size occupied small than limit bytes (including animated image)
      * (from 5.5.0) This flags effect the progressive and animated images as well
      * @note If you need detail controls, it's better to use context option `imageScaleDownBytes` instead.
+     * @warning This does not effect the cache key. So which means, this will effect the global cache even next time you query without this option. Pay attention when you use this on global options (It's always recommended to use request-level option for different pipeline)
      */
     SDWebImageScaleDownLargeImages = 1 << 11,
     
@@ -302,6 +303,7 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageT
  4. Else, use the full pixel decoding (small than limit bytes)
  5. Whatever result, this does not effect the animated/static behavior of image. So even if you set `limitBytes = 1 && frameCount = 100`, we will stll create animated image with each frame `1x1` pixel size.
  @note This option has higher priority than `.imageThumbnailPixelSize`
+ @warning This does not effect the cache key. So which means, this will effect the global cache even next time you query without this option. Pay attention when you use this on global options (It's always recommended to use request-level option for different pipeline)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageScaleDownLimitBytes;
 
