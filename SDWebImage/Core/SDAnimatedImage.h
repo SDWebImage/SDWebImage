@@ -107,8 +107,26 @@
 
 // By default, animated image frames are returned by decoding just in time without keeping into memory. But you can choose to preload them into memory as well, See the description in `SDAnimatedImage` protocol.
 // After preloaded, there is no huge difference on performance between this and UIImage's `animatedImageWithImages:duration:`. But UIImage's animation have some issues such like blanking and pausing during segue when using in `UIImageView`. It's recommend to use only if need.
+/**
+ Pre-load all animated image frame into memory. Then later frame image request can directly return the frame for index without decoding.
+ This method may be called on background thread.
+ 
+ @note If one image instance is shared by lots of imageViews, the CPU performance for large animated image will drop down because the request frame index will be random (not in order) and the decoder should take extra effort to keep it re-entrant. You can use this to reduce CPU usage if need. Attention this will consume more memory usage.
+ */
 - (void)preloadAllFrames;
+
+/**
+ Unload all animated image frame from memory if are already pre-loaded. Then later frame image request need decoding. You can use this to free up the memory usage if need.
+ */
 - (void)unloadAllFrames;
+/**
+ Returns a Boolean value indicating whether all animated image frames are already pre-loaded into memory.
+ */
 @property (nonatomic, assign, readonly, getter=isAllFramesLoaded) BOOL allFramesLoaded;
+/**
+ Return the animated image coder if the image is created with `initWithAnimatedCoder:scale:` method.
+ @note We use this with animated coder which conforms to `SDProgressiveImageCoder` for progressive animation decoding.
+ */
+@property (nonatomic, strong, readonly, nullable) id<SDAnimatedImageCoder> animatedCoder;
 
 @end
