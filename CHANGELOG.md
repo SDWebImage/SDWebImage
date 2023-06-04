@@ -1,3 +1,20 @@
+## [5.16.0 - Limit Bytes && Frame Pool, on Jun 4th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.16.0)
+See [all tickets marked for the 5.16.0 release](https://github.com/SDWebImage/SDWebImage/milestone/116)
+
+### Features
+#### Animated Image
+- Performance: Introduce frame pool for SDAnimatedImage playback. Solve when multiple image view references the same URL image cause un-wanted decode which waste RAM/CPU #3524
+- - Note this currently does not expose the frame pool API. Fire issue if  you're facing issues about this change.
+
+#### Decoder
+- Introduce the automatically calculation of thumbnail (include animated/static image) using SDImageCoderDecodeScaleDownLimitBytes #3537
+- - This calculation of the UIKit-based animated image frame count as well (only `UIAnimatedImage`, not `SDAnimatedImage`, because `SDAnimatedImage` manage frames dynamically). Fire issue if you're facing issues about this change.
+- - The `.scaleDownLargeImages` implementation has switched to use this instead of `.thumbnailPixelSize` (5.5.0 - 5.16.0)
+- - Note this introduce new API and need Coder Plugin update (like WebP/AVIF)
+
+### Documentations
+- Update some comments to allows SwiftDocC generate better page #3547
+
 ## [5.15.8 - Fix macOS Crash, on May 15th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.15.8)
 See [all tickets marked for the 5.15.8 release](https://github.com/SDWebImage/SDWebImage/milestone/117)
 
