@@ -10,24 +10,24 @@
 #import "NSImage+Compatibility.h"
 #import "SDDisplayLink.h"
 #import "SDDeviceHelper.h"
+#import "SDImageFramePool.h"
 #import "SDInternalMacros.h"
 
 @interface SDAnimatedImagePlayer () {
-    SD_LOCK_DECLARE(_lock);
     NSRunLoopMode _runLoopMode;
 }
+
+@property (nonatomic, strong) SDImageFramePool *framePool;
 
 @property (nonatomic, strong, readwrite) UIImage *currentFrame;
 @property (nonatomic, assign, readwrite) NSUInteger currentFrameIndex;
 @property (nonatomic, assign, readwrite) NSUInteger currentLoopCount;
 @property (nonatomic, strong) id<SDAnimatedImageProvider> animatedProvider;
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIImage *> *frameBuffer;
+@property (nonatomic, assign) NSUInteger currentFrameBytes;
 @property (nonatomic, assign) NSTimeInterval currentTime;
 @property (nonatomic, assign) BOOL bufferMiss;
 @property (nonatomic, assign) BOOL needsDisplayWhenImageBecomesAvailable;
 @property (nonatomic, assign) BOOL shouldReverse;
-@property (nonatomic, assign) NSUInteger maxBufferCount;
-@property (nonatomic, strong) NSOperationQueue *fetchQueue;
 @property (nonatomic, strong) SDDisplayLink *displayLink;
 
 @end
@@ -47,10 +47,7 @@
         self.totalLoopCount = provider.animatedImageLoopCount;
         self.animatedProvider = provider;
         self.playbackRate = 1.0;
-        SD_LOCK_INIT(_lock);
-#if SD_UIKIT
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
+        self.framePool = [SDImageFramePool registerProvider:provider];
     }
     return self;
 }
@@ -60,47 +57,12 @@
     return player;
 }
 
-#pragma mark - Life Cycle
-
 - (void)dealloc {
-#if SD_UIKIT
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif
-}
-
-- (void)didReceiveMemoryWarning:(NSNotification *)notification {
-    [_fetchQueue cancelAllOperations];
-    NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-        NSNumber *currentFrameIndex = @(self.currentFrameIndex);
-        SD_LOCK(self->_lock);
-        NSArray *keys = self.frameBuffer.allKeys;
-        // only keep the next frame for later rendering
-        for (NSNumber * key in keys) {
-            if (![key isEqualToNumber:currentFrameIndex]) {
-                [self.frameBuffer removeObjectForKey:key];
-            }
-        }
-        SD_UNLOCK(self->_lock);
-    }];
-    [_fetchQueue addOperation:operation];
+    // Dereference the frame pool, when zero the frame pool for provider will dealloc
+    [SDImageFramePool unregisterProvider:self.animatedProvider];
 }
 
 #pragma mark - Private
-- (NSOperationQueue *)fetchQueue {
-    if (!_fetchQueue) {
-        _fetchQueue = [[NSOperationQueue alloc] init];
-        _fetchQueue.maxConcurrentOperationCount = 1;
-        _fetchQueue.name = @"com.hackemist.SDAnimatedImagePlayer.fetchQueue";
-    }
-    return _fetchQueue;
-}
-
-- (NSMutableDictionary<NSNumber *,UIImage *> *)frameBuffer {
-    if (!_frameBuffer) {
-        _frameBuffer = [NSMutableDictionary dictionary];
-    }
-    return _frameBuffer;
-}
 
 - (SDDisplayLink *)displayLink {
     if (!_displayLink) {
@@ -153,11 +115,11 @@
         UIImage *posterFrame = [[UIImage alloc] initWithCGImage:image.CGImage scale:image.scale orientation:image.imageOrientation];
         #endif
         if (posterFrame) {
+            // Calculate max buffer size
+            [self calculateMaxBufferCountWithFrame:posterFrame];
             // HACK: The first frame should not check duration and immediately display
             self.needsDisplayWhenImageBecomesAvailable = YES;
-            SD_LOCK(self->_lock);
-            self.frameBuffer[@(self.currentFrameIndex)] = posterFrame;
-            SD_UNLOCK(self->_lock);
+            [self.framePool setFrame:posterFrame atIndex:self.currentFrameIndex];
         }
     }
     
@@ -174,9 +136,7 @@
 }
 
 - (void)clearFrameBuffer {
-    SD_LOCK(_lock);
-    [_frameBuffer removeAllObjects];
-    SD_UNLOCK(_lock);
+    [self.framePool removeAllFrames];
 }
 
 #pragma mark - Animation Control
@@ -184,12 +144,9 @@
     [self.displayLink start];
     // Setup frame
     [self setupCurrentFrame];
-    // Calculate max buffer size
-    [self calculateMaxBufferCount];
 }
 
 - (void)stopPlaying {
-    [_fetchQueue cancelAllOperations];
     // Using `_displayLink` here because when UIImageView dealloc, it may trigger `[self stopAnimating]`, we already release the display link in SDAnimatedImageView's dealloc method.
     [_displayLink stop];
     // We need to reset the frame status, but not trigger any handle. This can ensure next time's playing status correct.
@@ -197,7 +154,6 @@
 }
 
 - (void)pausePlaying {
-    [_fetchQueue cancelAllOperations];
     [_displayLink stop];
 }
 
@@ -259,26 +215,11 @@
     
     
     // Check if we need to display new frame firstly
-    BOOL bufferFull = NO;
     if (self.needsDisplayWhenImageBecomesAvailable) {
-        UIImage *currentFrame;
-        SD_LOCK(_lock);
-        currentFrame = self.frameBuffer[@(currentFrameIndex)];
-        SD_UNLOCK(_lock);
+        UIImage *currentFrame = [self.framePool frameAtIndex:currentFrameIndex];
         
         // Update the current frame
         if (currentFrame) {
-            SD_LOCK(_lock);
-            // Remove the frame buffer if need
-            if (self.frameBuffer.count > self.maxBufferCount) {
-                self.frameBuffer[@(currentFrameIndex)] = nil;
-            }
-            // Check whether we can stop fetch
-            if (self.frameBuffer.count == totalFrameCount) {
-                bufferFull = YES;
-            }
-            SD_UNLOCK(_lock);
-            
             // Update the current frame immediately
             self.currentFrame = currentFrame;
             [self handleFrameChange];
@@ -300,8 +241,7 @@
         if (self.currentTime < currentDuration) {
             // Current frame timestamp not reached, prefetch frame in advance.
             [self prefetchFrameAtIndex:currentFrameIndex
-                             nextIndex:nextFrameIndex
-                            bufferFull:bufferFull];
+                             nextIndex:nextFrameIndex];
             return;
         }
         
@@ -337,43 +277,29 @@
     }
     
     [self prefetchFrameAtIndex:currentFrameIndex
-                     nextIndex:nextFrameIndex
-                    bufferFull:bufferFull];
+                     nextIndex:nextFrameIndex];
 }
 
 // Check if we should prefetch next frame or current frame
 // When buffer miss, means the decode speed is slower than render speed, we fetch current miss frame
 // Or, most cases, the decode speed is faster than render speed, we fetch next frame
 - (void)prefetchFrameAtIndex:(NSUInteger)currentIndex
-                   nextIndex:(NSUInteger)nextIndex
-                  bufferFull:(BOOL)bufferFull {
+                   nextIndex:(NSUInteger)nextIndex {
     NSUInteger fetchFrameIndex = currentIndex;
     UIImage *fetchFrame = nil;
     if (!self.bufferMiss) {
         fetchFrameIndex = nextIndex;
-        SD_LOCK(_lock);
-        fetchFrame = self.frameBuffer[@(nextIndex)];
-        SD_UNLOCK(_lock);
+        fetchFrame = [self.framePool frameAtIndex:nextIndex];
     }
-    if (!fetchFrame && !bufferFull && self.fetchQueue.operationCount == 0) {
-        // Prefetch next frame in background queue
-        id<SDAnimatedImageProvider> animatedProvider = self.animatedProvider;
-        @weakify(self);
-        NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-            @strongify(self);
-            if (!self) {
-                return;
-            }
-            UIImage *frame = [animatedProvider animatedImageFrameAtIndex:fetchFrameIndex];
-
-            BOOL isAnimating = self.displayLink.isRunning;
-            if (isAnimating) {
-                SD_LOCK(self->_lock);
-                self.frameBuffer[@(fetchFrameIndex)] = frame;
-                SD_UNLOCK(self->_lock);
-            }
-        }];
-        [self.fetchQueue addOperation:operation];
+    BOOL bufferFull = NO;
+    if (self.framePool.currentFrameCount == self.totalFrameCount) {
+        bufferFull = YES;
+    }
+    if (!fetchFrame && !bufferFull) {
+        // Calculate max buffer size
+        [self calculateMaxBufferCountWithFrame:self.currentFrame];
+        // Prefetch next frame
+        [self.framePool prefetchFrameAtIndex:fetchFrameIndex];
     }
 }
 
@@ -390,9 +316,17 @@
 }
 
 #pragma mark - Util
-- (void)calculateMaxBufferCount {
-    NSUInteger bytes = CGImageGetBytesPerRow(self.currentFrame.CGImage) * CGImageGetHeight(self.currentFrame.CGImage);
-    if (bytes == 0) bytes = 1024;
+- (void)calculateMaxBufferCountWithFrame:(nonnull UIImage *)frame {
+    NSUInteger bytes = self.currentFrameBytes;
+    if (bytes == 0) {
+        bytes = CGImageGetBytesPerRow(frame.CGImage) * CGImageGetHeight(frame.CGImage);
+        if (bytes == 0) {
+            bytes = 1024;
+        } else {
+            // Cache since most animated image each frame bytes is the same
+            self.currentFrameBytes = bytes;
+        }
+    }
     
     NSUInteger max = 0;
     if (self.maxBufferSize > 0) {
@@ -410,7 +344,7 @@
         maxBufferCount = 1;
     }
     
-    self.maxBufferCount = maxBufferCount;
+    self.framePool.maxBufferCount = maxBufferCount;
 }
 
 + (NSString *)defaultRunLoopMode {

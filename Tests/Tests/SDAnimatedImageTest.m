@@ -9,6 +9,7 @@
 
 #import "SDTestCase.h"
 #import "SDInternalMacros.h"
+#import "SDImageFramePool.h"
 #import <KVOController/KVOController.h>
 #import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
@@ -59,7 +60,7 @@ static BOOL _isCalled;
 
 @interface SDAnimatedImagePlayer ()
 
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIImage *> *frameBuffer;
+@property (nonatomic, strong) SDImageFramePool *framePool;
 
 @end
 
@@ -382,7 +383,7 @@ static BOOL _isCalled;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
-        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.framePool.currentFrameCount).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
     });
     
@@ -392,7 +393,7 @@ static BOOL _isCalled;
 #else
         imageView.animates = NO;
 #endif
-        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.framePool.currentFrameCount).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
         
         [imageView removeFromSuperview];
@@ -420,7 +421,7 @@ static BOOL _isCalled;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 0.5s is not finished, frame index should not be 0
-        expect(imageView.player.frameBuffer.count).beGreaterThan(0);
+        expect(imageView.player.framePool.currentFrameCount).beGreaterThan(0);
         expect(imageView.currentFrameIndex).beGreaterThan(0);
     });
     
@@ -430,7 +431,7 @@ static BOOL _isCalled;
 #else
         imageView.animates = NO;
 #endif
-        expect(imageView.player.frameBuffer.count).equal(0);
+        expect(imageView.player.framePool.currentFrameCount).equal(0);
         
         [imageView removeFromSuperview];
         [expectation fulfill];
