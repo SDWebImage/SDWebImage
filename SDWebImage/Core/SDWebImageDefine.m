@@ -23,20 +23,7 @@ inline CGFloat SDImageScaleFactorForKey(NSString * _Nullable key) {
     if (!key) {
         return scale;
     }
-    // Check if target OS support scale
-#if SD_WATCH
-    if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)])
-#elif SD_UIKIT
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
-#elif SD_MAC
-    NSScreen *mainScreen = nil;
-    if (@available(macOS 10.12, *)) {
-        mainScreen = [NSScreen mainScreen];
-    } else {
-        mainScreen = [NSScreen screens].firstObject;
-    }
-    if ([mainScreen respondsToSelector:@selector(backingScaleFactor)])
-#endif
+    // Now all OS supports retina display scale system
     {
         // a@2x.png -> 8
         if (key.length >= 8) {

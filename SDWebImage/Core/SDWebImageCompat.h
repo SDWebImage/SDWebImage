@@ -47,6 +47,12 @@
     #define SD_WATCH 0
 #endif
 
+// Supports Xcode 14 to suppress warning
+#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
+    #define SD_VISION 1
+#endif
+#endif
 
 #if SD_MAC
     #import <AppKit/AppKit.h>
