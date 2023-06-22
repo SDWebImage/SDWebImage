@@ -258,7 +258,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+        colorSpace = CGColorSpaceCreateDeviceRGB();
     });
     return colorSpace;
 }

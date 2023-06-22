@@ -24,7 +24,9 @@ inline CGFloat SDImageScaleFactorForKey(NSString * _Nullable key) {
         return scale;
     }
     // Check if target OS support scale
-#if SD_WATCH
+#if SD_VISION
+    if (true)
+#elif SD_WATCH
     if ([[WKInterfaceDevice currentDevice] respondsToSelector:@selector(screenScale)])
 #elif SD_UIKIT
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])

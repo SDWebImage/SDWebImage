@@ -41,7 +41,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)commonInit {
-    self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
     self.indicatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 }
 #pragma clang diagnostic pop
@@ -79,6 +79,7 @@
 
 @implementation SDWebImageActivityIndicator (Conveniences)
 
+#if !SD_VISION
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + (SDWebImageActivityIndicator *)grayIndicator {
@@ -134,6 +135,7 @@
 #endif
     return indicator;
 }
+#endif
 
 + (SDWebImageActivityIndicator *)largeIndicator {
     SDWebImageActivityIndicator *indicator = [SDWebImageActivityIndicator new];
@@ -141,7 +143,7 @@
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge;
     } else {
-        indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+        indicator.indicatorView.activityIndicatorViewStyle = 0;
     }
 #else
     indicator.indicatorView.controlSize = NSControlSizeRegular;
@@ -156,7 +158,7 @@
     if (@available(iOS 13.0, tvOS 13.0, *)) {
         indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleMedium;
     } else {
-        indicator.indicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+        indicator.indicatorView.activityIndicatorViewStyle = 1;
     }
 #else
     indicator.indicatorView.controlSize = NSControlSizeSmall;

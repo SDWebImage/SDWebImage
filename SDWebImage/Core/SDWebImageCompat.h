@@ -47,6 +47,11 @@
     #define SD_WATCH 0
 #endif
 
+#if TARGET_OS_XR
+    #define SD_VISION 1
+#else
+    #define SD_VISION 0
+#endif
 
 #if SD_MAC
     #import <AppKit/AppKit.h>
