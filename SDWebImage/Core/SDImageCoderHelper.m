@@ -376,7 +376,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     output_buffer.width = MAX(size.width, 0);
     output_buffer.height = MAX(size.height, 0);
     output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
-    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
+    output_buffer.data = calloc(output_buffer.rowBytes, output_buffer.height);
     if (!output_buffer.data) return NULL;
     
     vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);

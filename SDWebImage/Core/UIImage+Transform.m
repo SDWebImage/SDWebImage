@@ -751,7 +751,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         uint32_t radius = floor(inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5);
         radius |= 1; // force radius to be odd so that the three box-blur methodology works.
         NSInteger tempSize = vImageBoxConvolve_ARGB8888(input, output, NULL, 0, 0, radius, radius, NULL, kvImageGetTempBufferSize | kvImageEdgeExtend);
-        void *temp = malloc(tempSize);
+        void *temp = calloc(1, tempSize);
         vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
         vImageBoxConvolve_ARGB8888(output, input, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);
         vImageBoxConvolve_ARGB8888(input, output, temp, 0, 0, radius, radius, NULL, kvImageEdgeExtend);

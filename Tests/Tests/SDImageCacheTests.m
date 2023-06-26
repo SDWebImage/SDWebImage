@@ -594,7 +594,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     expect(diskCache.totalCount).equal(0);
     // 20KB -> maxDiskSize
     NSUInteger length = 20;
-    void *bytes = malloc(length);
+    void *bytes = calloc(1, length);
     NSData *data = [NSData dataWithBytes:bytes length:length];
     free(bytes);
     [diskCache setData:data forKey:@"20KB"];
@@ -606,7 +606,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     // 1KB with 5s -> maxDiskAge
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDDiskCache removeExpireData timeout"];
     length = 1;
-    bytes = malloc(length);
+    bytes = calloc(1, length);
     data = [NSData dataWithBytes:bytes length:length];
     free(bytes);
     [diskCache setData:data forKey:@"1KB"];
