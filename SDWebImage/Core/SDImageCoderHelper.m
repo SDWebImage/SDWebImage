@@ -19,10 +19,6 @@
 #import "SDInternalMacros.h"
 #import <Accelerate/Accelerate.h>
 
-static inline size_t SDByteAlign(size_t size, size_t alignment) {
-    return ((size + (alignment - 1)) / alignment) * alignment;
-}
-
 #if SD_UIKIT
 static inline UIImage *SDImageDecodeUIKit(UIImage *image) {
     // See: https://developer.apple.com/documentation/uikit/uiimage/3750834-imagebypreparingfordisplay
@@ -71,6 +67,42 @@ static inline BOOL SDImageSupportsHardwareHEVCDecoder(void) {
     return supportsHardware;
 }
 #endif
+
+static UIImage * _Nonnull SDImageGetAlphaDummyImage(void) {
+    static dispatch_once_t onceToken;
+    static UIImage *dummyImage;
+    dispatch_once(&onceToken, ^{
+        SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
+        format.scale = 1;
+        format.opaque = NO;
+        CGSize size = CGSizeMake(1, 1);
+        SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+        dummyImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+            CGContextSetFillColorWithColor(context, UIColor.redColor.CGColor);
+            CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+        }];
+        NSCAssert(dummyImage, @"The sample alpha image (1x1 pixels) returns nil, OS bug ?");
+    });
+    return dummyImage;
+}
+
+static UIImage * _Nonnull SDImageGetNonAlphaDummyImage(void) {
+    static dispatch_once_t onceToken;
+    static UIImage *dummyImage;
+    dispatch_once(&onceToken, ^{
+        SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
+        format.scale = 1;
+        format.opaque = YES;
+        CGSize size = CGSizeMake(1, 1);
+        SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+        dummyImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
+            CGContextSetFillColorWithColor(context, UIColor.redColor.CGColor);
+            CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
+        }];
+        NSCAssert(dummyImage, @"The sample non-alpha image (1x1 pixels) returns nil, OS bug ?");
+    });
+    return dummyImage;
+}
 
 static SDImageCoderDecodeSolution kDefaultDecodeSolution = SDImageCoderDecodeSolutionAutomatic;
 
@@ -263,6 +295,26 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return colorSpace;
 }
 
++ (size_t)preferredByteAlignment {
+    // Actually the page size of system
+    static int __pageSize = 0;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        __pageSize = getpagesize();
+    });
+    return __pageSize;
+}
+
++ (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha {
+    CGImageRef cgImage;
+    if (containsAlpha) {
+        cgImage = SDImageGetAlphaDummyImage().CGImage;
+    } else {
+        cgImage = SDImageGetNonAlphaDummyImage().CGImage;
+    }
+    return CGImageGetBitmapInfo(cgImage);
+}
+
 + (BOOL)CGImageContainsAlpha:(CGImageRef)cgImage {
     if (!cgImage) {
         return NO;
@@ -307,16 +359,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
-    CGBitmapInfo bitmapInfo;
-    if (hasAlpha) {
-        // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
-        // BGRA8888
-        bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
-    } else {
-        // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
-        // RGB888
-        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
-    }
+    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
     CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
     if (!context) {
         return NULL;
@@ -351,16 +395,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
-    CGBitmapInfo bitmapInfo;
-    if (hasAlpha) {
-        // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
-        // BGRA8888
-        bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
-    } else {
-        // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
-        // RGB888
-        bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
-    }
+    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
@@ -563,16 +599,8 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Check #3330 for more detail about why this bitmap is choosen.
-        CGBitmapInfo bitmapInfo;
-        if (hasAlpha) {
-            // iPhone GPU prefer to use BGRA8888, see: https://forums.raywenderlich.com/t/why-mtlpixelformat-bgra8unorm/53489
-            // BGRA8888
-            bitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
-        } else {
-            // BGR888 previously works on iOS 8~iOS 14, however, iOS 15+ will result a black image. FB9958017
-            // RGB888
-            bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNoneSkipLast;
-        }
+        // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
+        CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
         CGContextRef destContext = CGBitmapContextCreate(NULL,
                                                          destResolution.width,
                                                          destResolution.height,

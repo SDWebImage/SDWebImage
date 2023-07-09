@@ -20,6 +20,14 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
     SDImageCoderDecodeSolutionUIKit
 };
 
+/// Byte alignment the bytes size with alignment
+/// - Parameters:
+///   - size: The bytes size
+///   - alignment: The alignment, in bytes
+static inline size_t SDByteAlign(size_t size, size_t alignment) {
+    return ((size + (alignment - 1)) / alignment) * alignment;
+}
+
 /**
  Provide some common helper methods for building the image decoder/encoder.
  */
@@ -45,15 +53,31 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
  */
 + (NSArray<SDImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
 
+#pragma mark - Preferred Rendering Format
+/// For coders who use `CGImageCreate`, use the information below to create an effient CGImage which can be render on GPU without Core Animation's extra copy (`CA::Render::copy_image`), which can be debugged using `Color Copied Image` in Xcode Instruments
+/// `CGImageCreate`'s `bytesPerRow`, `space`, `bitmapInfo` params should use the information below.
 /**
  Return the shared device-dependent RGB color space. This follows The Get Rule.
- On iOS, it's created with deviceRGB (if available, use sRGB).
- On macOS, it's from the screen colorspace (if failed, use deviceRGB)
  Because it's shared, you should not retain or release this object.
+ Typically is sRGB, the color space defaults to rendering on Apple's devices.
  
  @return The device-dependent RGB color space
  */
 + (CGColorSpaceRef _Nonnull)colorSpaceGetDeviceRGB CF_RETURNS_NOT_RETAINED;
+
+/**
+ From v5.17.0, this returns the byte alignment used for bytesPerRow(stride) **Preferred from current hardward && OS using runtime detection**
+ Typically is 64, the system page size.
+ @note To calculate the bytesPerRow, use the formula `SDByteAlign(width * (bitsPerPixel / 8), alignment)`
+ */
++ (size_t)preferredByteAlignment;
+
+/**
+ From v5.17.0, this returns the bitmap info **Preferred from current hardward && OS using runtime detection**
+ Typically is pre-multiplied RGBA8888 for alpha image, RGBX8888 for non-alpha image.
+ @param containsAlpha Whether the image to render contains alpha channel
+ */
++ (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha;
 
 /**
  Check whether CGImage contains alpha channel.
