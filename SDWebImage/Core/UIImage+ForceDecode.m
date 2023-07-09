@@ -20,19 +20,26 @@
     } else {
         // Assume only CGImage based can use lazy decoding
         CGImageRef cgImage = self.CGImage;
-        if (cgImage) {
-            CFStringRef uttype = CGImageGetUTType(self.CGImage);
-            if (uttype) {
-                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
-                return NO;
-            } else {
-                // Thumbnail or CGBitmapContext drawn image
+        if (!cgImage) {
+            // Assume others as non-decoded
+            return NO;
+        }
+        CFStringRef uttype = CGImageGetUTType(self.CGImage);
+        if (uttype) {
+            // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+            return NO;
+        } else {
+            // Now, let's check if the CGImage is byte-aligned (not aligned will cause extra copy)
+            size_t bytesPerRow = CGImageGetBytesPerRow(cgImage);
+            if (SDByteAlign(bytesPerRow, [SDImageCoderHelper preferredByteAlignment]) == bytesPerRow) {
+                // byte aligned, OK
                 return YES;
+            } else {
+                // not aligned, still need force-decode
+                return NO;
             }
         }
     }
-    // Assume others as non-decoded
-    return NO;
 }
 
 - (void)setSd_isDecoded:(BOOL)sd_isDecoded {

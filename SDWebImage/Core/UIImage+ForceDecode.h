@@ -15,6 +15,12 @@
 
 /**
  A bool value indicating whether the image has already been decoded. This can help to avoid extra force decode.
+ Force decode is used for 2 cases:
+ -- 1. for ImageIO created image (via `CGImageCreateWithImageSource` SPI), it's lazy and we trigger the decode before rendering
+ -- 2. for non-ImageIO created image (via `CGImageCreate` API), we can ensure it's alignment is suitable to render on screen without copy by CoreAnimation
+ @note For coder plugin developer, always use the SDImageCoderHelper's `colorSpaceGetDeviceRGB`/`preferredByteAlignment`/`preferredBitmapInfo:` to create CGImage.
+ @note For more information why force decode, see: https://github.com/path/FastImageCache#byte-alignment
+ @note The defaults value is calculated based on UIImage's CGImage status. Do not assume it's always work as expected. Set the value to `true` if you don't need force decode
  */
 @property (nonatomic, assign) BOOL sd_isDecoded;
 
