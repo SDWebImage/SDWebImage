@@ -80,6 +80,13 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 + (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha;
 
 /**
+ Check whether CGImage is hardware supported to rendering on screen, without the trigger of `CA::Render::copy_image`
+ You can debug the copied image by using Xcode's `Color Copied Image`, the copied image will turn Cyan and occupy double RAM for bitmap buffer.
+ Typically, when the CGImage's using the method above (`colorspace` / `byteAlignment` / `bitmapInfo`) can render withtout the copy.
+ */
++ (BOOL)CGImageIsHardwareSupported:(_Nonnull CGImageRef)cgImage;
+
+/**
  Check whether CGImage contains alpha channel.
  
  @param cgImage The CGImage

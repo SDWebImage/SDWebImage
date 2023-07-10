@@ -17,7 +17,10 @@
 #import "SDInternalMacros.h"
 #import "SDGraphicsImageRenderer.h"
 #import "SDInternalMacros.h"
+#import "SDDeviceHelper.h"
 #import <Accelerate/Accelerate.h>
+
+#define kCGColorSpaceDeviceRGB @"kCGColorSpaceDeviceRGB"
 
 #if SD_UIKIT
 static inline UIImage *SDImageDecodeUIKit(UIImage *image) {
@@ -296,13 +299,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (size_t)preferredByteAlignment {
-    // Actually the page size of system
-    static int __pageSize = 0;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        __pageSize = getpagesize();
-    });
-    return __pageSize;
+    // https://github.com/path/FastImageCache#byte-alignment
+    // A properly aligned bytes-per-row value must be a multiple of 8 pixels × bytes per pixel.
+    // return [SDDeviceHelper cacheLineSize]; // Seems not the CPU cache line size
+    return 32;
 }
 
 + (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha {
@@ -313,6 +313,36 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         cgImage = SDImageGetNonAlphaDummyImage().CGImage;
     }
     return CGImageGetBitmapInfo(cgImage);
+}
+
++ (BOOL)CGImageIsHardwareSupported:(CGImageRef)cgImage {
+    BOOL supported = YES;
+    // 1. Check byte alignment
+    size_t bytesPerRow = CGImageGetBytesPerRow(cgImage);
+    if (SDByteAlign(bytesPerRow, [SDImageCoderHelper preferredByteAlignment]) == bytesPerRow) {
+        // byte aligned, OK
+        supported &= YES;
+    } else {
+        // not aligned
+        supported &= NO;
+    }
+    if (!supported) return supported;
+    
+    // 2. Check color space
+    if (@available(iOS 10.0, tvOS 10.0, macOS 10.6, watchOS 3.0, *)) {
+        CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
+        NSString *colorspaceName = (__bridge_transfer NSString *)CGColorSpaceCopyName(colorspace);
+        // Seems sRGB/deviceRGB always supported, P3 not always
+        if ([colorspaceName isEqualToString:(__bridge NSString *)kCGColorSpaceSRGB] || [colorspaceName isEqualToString:kCGColorSpaceDeviceRGB]) {
+            supported &= YES;
+        } else {
+            supported &= NO;
+        }
+        return supported;
+    } else {
+        // Fallback on earlier versions
+        return supported;
+    }
 }
 
 + (BOOL)CGImageContainsAlpha:(CGImageRef)cgImage {

@@ -20,25 +20,22 @@
     } else {
         // Assume only CGImage based can use lazy decoding
         CGImageRef cgImage = self.CGImage;
-        if (!cgImage) {
-            // Assume others as non-decoded
-            return NO;
-        }
-        CFStringRef uttype = CGImageGetUTType(self.CGImage);
-        if (uttype) {
-            // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
-            return NO;
-        } else {
-            // Now, let's check if the CGImage is byte-aligned (not aligned will cause extra copy)
-            size_t bytesPerRow = CGImageGetBytesPerRow(cgImage);
-            if (SDByteAlign(bytesPerRow, [SDImageCoderHelper preferredByteAlignment]) == bytesPerRow) {
-                // byte aligned, OK
-                return YES;
+        BOOL isDecoded;
+        if (cgImage) {
+            CFStringRef uttype = CGImageGetUTType(self.CGImage);
+            if (uttype) {
+                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+                isDecoded = NO;
             } else {
-                // not aligned, still need force-decode
-                return NO;
+                // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
+                isDecoded = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
             }
+        } else {
+            // Assume others as non-decoded
+            isDecoded = NO;
         }
+        objc_setAssociatedObject(self, @selector(sd_isDecoded), @(isDecoded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        return isDecoded;
     }
 }
 

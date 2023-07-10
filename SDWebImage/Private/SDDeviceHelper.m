@@ -8,6 +8,7 @@
 
 #import "SDDeviceHelper.h"
 #import <mach/mach.h>
+#import <sys/sysctl.h>
 
 @implementation SDDeviceHelper
 
@@ -27,6 +28,20 @@
     kern = host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size);
     if (kern != KERN_SUCCESS) return 0;
     return vm_stat.free_count * page_size;
+}
+
++ (size_t)cacheLineSize {
+    size_t size;
+    sysctlbyname("hw.cachelinesize", NULL, &size, NULL, 0);
+    char *info = malloc(size);
+    sysctlbyname("hw.cachelinesize", info, &size, NULL, 0);
+    if (strlen(info)) {
+        // hardcode
+        return 64;
+    }
+    char *end;
+    long result = strtol(info, &end, 10);
+    return result;
 }
 
 @end
