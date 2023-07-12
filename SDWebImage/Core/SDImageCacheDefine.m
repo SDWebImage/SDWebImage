@@ -124,6 +124,10 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
     }
     if (image) {
         SDImageForceDecodePolicy policy = SDImageForceDecodePolicyAutomatic;
+        NSNumber *polivyValue = context[SDWebImageContextImageForceDecodePolicy];
+        if (polivyValue != nil) {
+            policy = polivyValue.unsignedIntegerValue;
+        }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

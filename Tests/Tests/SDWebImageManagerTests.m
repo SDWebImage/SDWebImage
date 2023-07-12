@@ -10,6 +10,7 @@
 #import "SDWebImageTestTransformer.h"
 #import "SDWebImageTestCache.h"
 #import "SDWebImageTestLoader.h"
+#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
 // Keep strong references for object
 @interface SDObjectContainer<ObjectType> : NSObject
@@ -317,7 +318,7 @@
 - (void)test13ThatScaleDownLargeImageEXIFOrientationImage {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages works on EXIF orientation image"];
     NSURL *originalImageURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"];
-    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages | SDWebImageAvoidDecodeImage progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();
 #if SD_UIKIT
         UIImageOrientation orientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:kCGImagePropertyOrientationUpMirrored];
@@ -617,6 +618,39 @@
         [expectation fulfill];
     }];
     
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test22ThatForceDecodePolicyAutomatic {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Automatic policy with ICC profile colorspace image should force-decode"];
+    NSURL *url = [NSURL URLWithString:@"http://photodb.illusdolphin.net/media/15292/browsertest.jpg"];
+    SDImageCoderHelper.defaultDecodeSolution = SDImageCoderDecodeSolutionCoreGraphics; // Temp set
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromLoaderOnly context:@{SDWebImageContextImageForceDecodePolicy : @(SDImageForceDecodePolicyAutomatic)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.sd_isDecoded).beTruthy();
+        CGImageRef cgImage = image.CGImage;
+        CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
+        expect(colorspace).equal([SDImageCoderHelper colorSpaceGetDeviceRGB]);
+        // Revert back
+        SDImageCoderHelper.defaultDecodeSolution = SDImageCoderDecodeSolutionAutomatic;
+        
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test22ThatForceDecodePolicyAlways {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Always policy with WebP image (libwebp) should force-decode"];
+    NSURL *url = [NSURL URLWithString:@"https://www.gstatic.com/webp/gallery/4.webp"];
+    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromLoaderOnly context:@{SDWebImageContextImageCoder : SDImageWebPCoder.sharedCoder, SDWebImageContextImageForceDecodePolicy : @(SDImageForceDecodePolicyAlways)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+        expect(image).notTo.beNil();
+        expect(image.sd_isDecoded).beTruthy();
+        CGImageRef cgImage = image.CGImage;
+        CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
+        expect(colorspace).equal([SDImageCoderHelper colorSpaceGetDeviceRGB]);
+        
+        [expectation fulfill];
+    }];
     [self waitForExpectationsWithCommonTimeout];
 }
 
