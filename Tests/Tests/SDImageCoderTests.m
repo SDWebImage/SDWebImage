@@ -470,8 +470,19 @@
     CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
     XCTAssert(cgImage);
     BOOL result = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
-    // Since it's 32 bytes aligned, return false
+    // Since it's 32 bytes aligned, return true
     XCTAssertTrue(result);
+    // Let's force-decode to check again
+#if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
+#endif
+    UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+    // Check policy works, since it's supported by CA hardware, which return the input image object, using pointer compare
+    XCTAssertTrue(image == newImage);
+    BOOL newResult = [SDImageCoderHelper CGImageIsHardwareSupported:newImage.CGImage];
+    XCTAssertTrue(newResult);
 }
 
 - (void)test28ThatDoTriggerCACopyImage {
@@ -499,8 +510,15 @@
     // Since it's not 32 bytes aligned, return false
     XCTAssertFalse(result);
     // Let's force-decode to check again
-    CGImageRef newCGImage = [SDImageCoderHelper CGImageCreateDecoded:cgImage];
-    BOOL newResult = [SDImageCoderHelper CGImageIsHardwareSupported:newCGImage];
+#if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
+#endif
+    UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+    // Check policy works, since it's not supported by CA hardware, which return the different image object
+    XCTAssertFalse(image == newImage);
+    BOOL newResult = [SDImageCoderHelper CGImageIsHardwareSupported:newImage.CGImage];
     XCTAssertTrue(newResult);
 }
 
