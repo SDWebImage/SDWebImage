@@ -671,6 +671,8 @@ didReceiveResponse:(NSURLResponse *)response
 }
 
 #pragma mark Helper methods
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + (SDWebImageOptions)imageOptionsFromDownloaderOptions:(SDWebImageDownloaderOptions)downloadOptions {
     SDWebImageOptions options = 0;
     if (downloadOptions & SDWebImageDownloaderScaleDownLargeImages) options |= SDWebImageScaleDownLargeImages;
@@ -681,6 +683,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     return options;
 }
+#pragma clang diagnostic pop
 
 - (BOOL)shouldContinueWhenAppEntersBackground {
     return SD_OPTIONS_CONTAINS(self.options, SDWebImageDownloaderContinueInBackground);

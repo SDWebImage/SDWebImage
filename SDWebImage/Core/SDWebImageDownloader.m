@@ -288,6 +288,8 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
 }
 
 #pragma mark Helper methods
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 + (SDWebImageOptions)imageOptionsFromDownloaderOptions:(SDWebImageDownloaderOptions)downloadOptions {
     SDWebImageOptions options = 0;
     if (downloadOptions & SDWebImageDownloaderScaleDownLargeImages) options |= SDWebImageScaleDownLargeImages;
@@ -298,6 +300,7 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
     
     return options;
 }
+#pragma clang diagnostic pop
 
 - (nullable NSOperation<SDWebImageDownloaderOperation> *)createDownloaderOperationWithUrl:(nonnull NSURL *)url
                                                                                   options:(SDWebImageDownloaderOptions)options
@@ -625,6 +628,8 @@ didReceiveResponse:(NSURLResponse *)response
     return YES;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (id<SDWebImageOperation>)requestImageWithURL:(NSURL *)url options:(SDWebImageOptions)options context:(SDWebImageContext *)context progress:(SDImageLoaderProgressBlock)progressBlock completed:(SDImageLoaderCompletedBlock)completedBlock {
     UIImage *cachedImage = context[SDWebImageContextLoaderCachedImage];
     
@@ -651,6 +656,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     return [self downloadImageWithURL:url options:downloaderOptions context:context progress:progressBlock completed:completedBlock];
 }
+#pragma clang diagnostic pop
 
 - (BOOL)shouldBlockFailedURLWithURL:(NSURL *)url error:(NSError *)error {
     return [self shouldBlockFailedURLWithURL:url error:error options:0 context:nil];

@@ -20,7 +20,7 @@
  -- 2. for non-ImageIO created image (via `CGImageCreate` API), we can ensure it's alignment is suitable to render on screen without copy by CoreAnimation
  @note For coder plugin developer, always use the SDImageCoderHelper's `colorSpaceGetDeviceRGB`/`preferredByteAlignment`/`preferredBitmapInfo:` to create CGImage.
  @note For more information why force decode, see: https://github.com/path/FastImageCache#byte-alignment
- @note The defaults value is calculated based on UIImage's CGImage status. Do not assume it's always work as expected. Set the value to `true` if you don't need force decode
+ @note From v5.17.0, the default value is always NO. Use `SDImageForceDecodePolicy` to control complicated policy.
  */
 @property (nonatomic, assign) BOOL sd_isDecoded;
 

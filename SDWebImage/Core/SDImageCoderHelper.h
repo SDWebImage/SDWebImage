@@ -20,6 +20,19 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
     SDImageCoderDecodeSolutionUIKit
 };
 
+/// The policy to force-decode the origin CGImage (produced by Image Coder Plugin)
+/// Some CGImage may be lazy, or not lazy, but need extra copy to render on screen
+/// The force-decode step help to `pre-process` to get the best suitable CGImage to render, which can increase frame rate
+/// The downside is that force-decode may consume RAM and CPU, and may loss the `lazy` support (lazy CGImage can be purged when memory warning, and re-created if need), see more: `SDImageCoderDecodeUseLazyDecoding`
+typedef NS_ENUM(NSUInteger, SDImageForceDecodePolicy) {
+    /// Based on input CGImage's colorspace, alignment, bitmapinfo, if it may trigger `CA::copy_image` extra copy, we will force-decode, else don't
+    SDImageForceDecodePolicyAutomatic,
+    /// Never force decode input CGImage
+    SDImageForceDecodePolicyNever,
+    /// Always force decode input CGImage (only once)
+    SDImageForceDecodePolicyAlways
+};
+
 /// Byte alignment the bytes size with alignment
 /// - Parameters:
 ///   - size: The bytes size
@@ -144,9 +157,18 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 /**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image. On iOS 15+, this may use `UIImage.preparingForDisplay()` to use CMPhoto for better performance than the old solution.
  @param image The image to be decoded
+ @note This translate to `decodedImageWithImage:policy:` with automatic policy
  @return The decoded image
  */
 + (UIImage * _Nullable)decodedImageWithImage:(UIImage * _Nullable)image;
+
+/**
+ Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image. On iOS 15+, this may use `UIImage.preparingForDisplay()` to use CMPhoto for better performance than the old solution.
+ @param image The image to be decoded
+ @param policy The force decode policy to decode image, will effect the check whether input image need decode
+ @return The decoded image
+ */
++ (UIImage * _Nullable)decodedImageWithImage:(UIImage * _Nullable)image policy:(SDImageForceDecodePolicy)policy;
 
 /**
  Return the decoded and probably scaled down image by the provided image. If the image pixels bytes size large than the limit bytes, will try to scale down. Or just works as `decodedImageWithImage:`, never scale up.
@@ -154,9 +176,21 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 
  @param image The image to be decoded and scaled down
  @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @note This translate to `decodedAndScaledDownImageWithImage:limitBytes:policy:` with automatic policy
  @return The decoded and probably scaled down image
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
+
+/**
+ Return the decoded and probably scaled down image by the provided image. If the image pixels bytes size large than the limit bytes, will try to scale down. Or just works as `decodedImageWithImage:`, never scale up.
+ @warning You should not pass too small bytes, the suggestion value should be larger than 1MB. Even we use Tile Decoding to avoid OOM, however, small bytes will consume much more CPU time because we need to iterate more times to draw each tile.
+
+ @param image The image to be decoded and scaled down
+ @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @param policy The force decode policy to decode image, will effect the check whether input image need decode
+ @return The decoded and probably scaled down image
+ */
++ (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes policy:(SDImageForceDecodePolicy)policy;
 
 /**
  Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.

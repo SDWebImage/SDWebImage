@@ -172,8 +172,9 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, we will decode the image in the background during cache query and download from the network. This can help to improve performance because when rendering image on the screen, it need to be firstly decoded. But this happen on the main queue by Core Animation.
      * However, this process may increase the memory usage as well. If you are experiencing an issue due to excessive memory consumption, This flag can prevent decode the image.
      * @note 5.14.0 introduce `SDImageCoderDecodeUseLazyDecoding`, use that for better control from codec, instead of post-processing. Which acts the similar like this option but works for SDAnimatedImage as well (this one does not)
+     * @deprecated Deprecated in v5.17.0, if you don't want force-decode, pass [.imageForceDecodePolicy] = [SDImageForceDecodePolicy.never] in context option
      */
-    SDWebImageAvoidDecodeImage = 1 << 18,
+    SDWebImageAvoidDecodeImage API_DEPRECATED("Use SDWebImageContextImageForceDecodePolicy instead", macos(10.10, 10.10), ios(8.0, 8.0), tvos(9.0, 9.0), watchos(2.0, 2.0)) = 1 << 18,
     
     /**
      * By default, we decode the animated image. This flag can force decode the first frame only and produce the static image.
@@ -255,6 +256,15 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageC
  @note When this value is used, we will trigger image transform after downloaded, and the callback's data **will be nil** (because this time the data saved to disk does not match the image return to you. If you need full size data, query the cache with full size url key)
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageTransformer;
+
+#pragma mark - Force Decode Options
+
+/**
+ A  NSNumber instance which store the`SDImageForceDecodePolicy` enum. This is used to control how current image loading should force-decode the decoded image (CGImage, typically). See more what's force-decode means in `SDImageForceDecodePolicy` comment.
+ Defaults to `SDImageForceDecodePolicyAutomatic`, which will detect the input CGImage's metadata, and only force-decode if the input CGImage can not directly render on screen (need extra CoreAnimation Copied Image and increase RAM usage).
+ @note If you want to always the force-decode for this image request, pass `SDImageForceDecodePolicyAlways`, for example, some WebP images which does not created by ImageIO.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageForceDecodePolicy;
 
 #pragma mark - Image Decoder Context Options
 

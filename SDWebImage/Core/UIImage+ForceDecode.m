@@ -15,28 +15,7 @@
 
 - (BOOL)sd_isDecoded {
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isDecoded));
-    if (value != nil) {
-        return value.boolValue;
-    } else {
-        // Assume only CGImage based can use lazy decoding
-        CGImageRef cgImage = self.CGImage;
-        BOOL isDecoded;
-        if (cgImage) {
-            CFStringRef uttype = CGImageGetUTType(self.CGImage);
-            if (uttype) {
-                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
-                isDecoded = NO;
-            } else {
-                // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
-                isDecoded = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
-            }
-        } else {
-            // Assume others as non-decoded
-            isDecoded = NO;
-        }
-        objc_setAssociatedObject(self, @selector(sd_isDecoded), @(isDecoded), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        return isDecoded;
-    }
+    return [value boolValue];
 }
 
 - (void)setSd_isDecoded:(BOOL)sd_isDecoded {

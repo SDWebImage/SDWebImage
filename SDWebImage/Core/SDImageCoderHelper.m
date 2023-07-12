@@ -508,7 +508,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
-    if (![self shouldDecodeImage:image]) {
+    return [self decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+}
+
++ (UIImage *)decodedImageWithImage:(UIImage *)image policy:(SDImageForceDecodePolicy)policy {
+    if (![self shouldDecodeImage:image policy:policy]) {
         return image;
     }
     
@@ -565,7 +569,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes {
-    if (![self shouldDecodeImage:image]) {
+    return [self decodedAndScaledDownImageWithImage:image limitBytes:bytes policy:SDImageForceDecodePolicyAutomatic];
+}
+
++ (UIImage *)decodedAndScaledDownImageWithImage:(UIImage *)image limitBytes:(NSUInteger)bytes policy:(SDImageForceDecodePolicy)policy {
+    if (![self shouldDecodeImage:image policy:policy]) {
         return image;
     }
     
@@ -804,10 +812,16 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
 
 #pragma mark - Helper Function
-+ (BOOL)shouldDecodeImage:(nullable UIImage *)image {
++ (BOOL)shouldDecodeImage:(nullable UIImage *)image policy:(SDImageForceDecodePolicy)policy {
     // Prevent "CGBitmapContextCreateImage: invalid context 0x0" error
     if (image == nil) {
         return NO;
+    }
+    // Check policy (never/always)
+    if (policy == SDImageForceDecodePolicyNever) {
+        return NO;
+    } else if (policy == SDImageForceDecodePolicyAlways) {
+        return YES;
     }
     // Avoid extra decode
     if (image.sd_isDecoded) {
@@ -821,7 +835,20 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (image.sd_isVector) {
         return NO;
     }
-    
+    // Check policy (automatic)
+    CGImageRef cgImage = image.CGImage;
+    if (cgImage) {
+        CFStringRef uttype = CGImageGetUTType(cgImage);
+        if (uttype) {
+            // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+            return YES;
+        } else {
+            // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
+            BOOL isSupported = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
+            return !isSupported;
+        }
+    }
+
     return YES;
 }
 
