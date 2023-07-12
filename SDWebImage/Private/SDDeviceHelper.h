@@ -14,6 +14,5 @@
 
 + (NSUInteger)totalMemory;
 + (NSUInteger)freeMemory;
-+ (size_t)cacheLineSize;
 
 @end

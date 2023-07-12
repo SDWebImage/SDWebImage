@@ -301,7 +301,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 + (size_t)preferredByteAlignment {
     // https://github.com/path/FastImageCache#byte-alignment
     // A properly aligned bytes-per-row value must be a multiple of 8 pixels × bytes per pixel.
-    // return [SDDeviceHelper cacheLineSize]; // Seems not the CPU cache line size
     return 32;
 }
 
