@@ -1,3 +1,16 @@
+## [5.17.0 - Reduce RAM with Force Decode, on Jul 13th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.17.0)
+See [all tickets marked for the 5.17.0 release](https://github.com/SDWebImage/SDWebImage/milestone/118)
+
+### Performance
+- Refactory the logic to handle force decode logic to avoid CA copy frame buffer, introduce SDImageForceDecodePolicy detailed control #3559 #3417
+- - This fix the issue that non-ImageIO coder (means, WebPCoder) will cause CA to copy bitmap buffers and increase memory usage.
+- - You can still custom the behavior using the new `SDImageForceDecodePolicy`, defaults to automatic.
+- For coder plugin who want to opt-in to avoid `CA::copy_image`, use the new `preferredPixelFormat:` and to do bytes alignment and colorspace convert.
+
+### Fixes
+- Fix macOS bug that SDImageCoderDecodeScaleDownLimitBytes still use the AnimatedImageRep and beyond the byte limit #3561
+- Change macOS `sd_colorAtPoint/sd_colorsWithRect` which may loss colorspace information. Now it correctly convert to sRGB colorspace always.
+
 ## [5.16.0 - Limit Bytes && Frame Pool, on Jun 4th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.16.0)
 See [all tickets marked for the 5.16.0 release](https://github.com/SDWebImage/SDWebImage/milestone/116)
 
