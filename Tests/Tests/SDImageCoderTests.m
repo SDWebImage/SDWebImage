@@ -478,6 +478,7 @@
 #else
     UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
 #endif
+    CGImageRelease(cgImage);
     UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
     // Check policy works, since it's supported by CA hardware, which return the input image object, using pointer compare
     XCTAssertTrue(image == newImage);
@@ -515,6 +516,7 @@
 #else
     UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
 #endif
+    CGImageRelease(cgImage);
     UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
     // Check policy works, since it's not supported by CA hardware, which return the different image object
     XCTAssertFalse(image == newImage);

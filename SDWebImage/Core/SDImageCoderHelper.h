@@ -72,7 +72,7 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 /**
  Return the shared device-dependent RGB color space. This follows The Get Rule.
  Because it's shared, you should not retain or release this object.
- Typically is sRGB, the color space defaults to rendering on Apple's devices.
+ Typically is sRGB for iOS, screen color space (like Color LCD) for macOS.
  
  @return The device-dependent RGB color space
  */
@@ -80,7 +80,7 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 
 /**
  From v5.17.0, this returns the byte alignment used for bytesPerRow(stride) **Preferred from current hardward && OS using runtime detection**
- Typically is 64, the system page size.
+ Typically is 32, the 8 pixels bytesPerRow.
  @note To calculate the bytesPerRow, use the formula `SDByteAlign(width * (bitsPerPixel / 8), alignment)`
  */
 + (size_t)preferredByteAlignment;

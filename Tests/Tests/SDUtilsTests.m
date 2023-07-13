@@ -124,12 +124,15 @@
     CGSize size = CGSizeMake(100, 100);
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
     UIColor *color = UIColor.redColor;
+    NSLog(@"Draw Color ColorSpace: %@", color.CGColor);
     UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
         CGContextSetFillColorWithColor(context, [color CGColor]);
         CGContextFillRect(context, CGRectMake(0, 0, size.width, size.height));
     }];
     expect(image.scale).equal(format.scale);
-    expect([image sd_colorAtPoint:CGPointMake(50, 50)].sd_hexString).equal(color.sd_hexString);
+    UIColor *testColor = [image sd_colorAtPoint:CGPointMake(50, 50)];
+    NSLog(@"Draw Color ColorSpace: %@", testColor.CGColor);
+    expect(testColor.sd_hexString).equal(color.sd_hexString);
     
     UIColor *grayscaleColor = UIColor.blackColor;
     UIImage *grayscaleImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
