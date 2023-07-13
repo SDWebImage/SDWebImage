@@ -455,19 +455,21 @@
     size_t bitsPerComponent = 8;
     size_t components = 4;
     size_t bitsPerPixel = bitsPerComponent * components;
-    size_t bytesPerRow = SDByteAlign(bitsPerPixel / 8 * width, SDImageCoderHelper.preferredByteAlignment);
+    size_t bytesPerRow = SDByteAlign(bitsPerPixel / 8 * width, [SDImageCoderHelper preferredPixelFormat:YES].alignment);
     size_t size = bytesPerRow * height;
     uint8_t bitmap[size];
     for (size_t i = 0; i < size; i++) {
         bitmap[i] = 255;
     }
     CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:YES];
-    CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, bitmap, size, NULL);
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:YES].bitmapInfo;
+    CFDataRef data = CFDataCreate(NULL, bitmap, size);
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CFRelease(data);
     BOOL shouldInterpolate = YES;
     CGColorRenderingIntent intent = kCGRenderingIntentDefault;
     CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+    CGDataProviderRelease(provider);
     XCTAssert(cgImage);
     BOOL result = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
     // Since it's 32 bytes aligned, return true
@@ -500,12 +502,14 @@
         bitmap[i] = 255;
     }
     CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:YES];
-    CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, bitmap, size, NULL);
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:YES].bitmapInfo;
+    CFDataRef data = CFDataCreate(NULL, bitmap, size);
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CFRelease(data);
     BOOL shouldInterpolate = YES;
     CGColorRenderingIntent intent = kCGRenderingIntentDefault;
     CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+    CGDataProviderRelease(provider);
     XCTAssert(cgImage);
     BOOL result = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
     // Since it's not 32 bytes aligned, return false

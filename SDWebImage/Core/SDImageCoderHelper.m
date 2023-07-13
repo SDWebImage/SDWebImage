@@ -308,27 +308,36 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return colorSpace;
 }
 
-+ (size_t)preferredByteAlignment {
-    // https://github.com/path/FastImageCache#byte-alignment
-    // A properly aligned bytes-per-row value must be a multiple of 8 pixels × bytes per pixel.
-    return 32;
-}
-
-+ (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha {
++ (SDImagePixelFormat)preferredPixelFormat:(BOOL)containsAlpha {
     CGImageRef cgImage;
     if (containsAlpha) {
         cgImage = SDImageGetAlphaDummyImage().CGImage;
     } else {
         cgImage = SDImageGetNonAlphaDummyImage().CGImage;
     }
-    return CGImageGetBitmapInfo(cgImage);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(cgImage);
+    size_t bitsPerPixel = 8;
+    if (SD_OPTIONS_CONTAINS(bitmapInfo, kCGBitmapFloatComponents)) {
+        bitsPerPixel = 16;
+    }
+    size_t components = 4; // Hardcode now
+    // https://github.com/path/FastImageCache#byte-alignment
+    // A properly aligned bytes-per-row value must be a multiple of 8 pixels × bytes per pixel.
+    size_t alignment = (bitsPerPixel / 8) * components * 8;
+    SDImagePixelFormat pixelFormat = {
+        .bitmapInfo = bitmapInfo,
+        .alignment = alignment
+    };
+    return pixelFormat;
 }
 
 + (BOOL)CGImageIsHardwareSupported:(CGImageRef)cgImage {
     BOOL supported = YES;
     // 1. Check byte alignment
     size_t bytesPerRow = CGImageGetBytesPerRow(cgImage);
-    if (SDByteAlign(bytesPerRow, [SDImageCoderHelper preferredByteAlignment]) == bytesPerRow) {
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    SDImagePixelFormat pixelFormat = [self preferredPixelFormat:hasAlpha];
+    if (SDByteAlign(bytesPerRow, pixelFormat.alignment) == bytesPerRow) {
         // byte aligned, OK
         supported &= YES;
     } else {
@@ -405,7 +414,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
     // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
     CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
     if (!context) {
         return NULL;
@@ -441,7 +450,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
     // Check #3330 for more detail about why this bitmap is choosen.
     // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
         .bitsPerComponent = 8,
         .bitsPerPixel = 32,
@@ -653,7 +662,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
         // Check #3330 for more detail about why this bitmap is choosen.
         // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-        CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
+        CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
         CGContextRef destContext = CGBitmapContextCreate(NULL,
                                                          destResolution.width,
                                                          destResolution.height,

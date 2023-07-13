@@ -34,7 +34,6 @@ static CGContextRef SDCGContextCreateBitmapContext(CGSize size, BOOL opaque, CGF
     // Check #3330 for more detail about why this bitmap is choosen.
     // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
     // However, macOS's runtime detection will also call this function, cause recursive, so still hardcode here
-//    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredBitmapInfo:hasAlpha];
     CGBitmapInfo bitmapInfo;
     if (!opaque) {
         // [NSImage imageWithSize:flipped:drawingHandler:] returns float(16-bits) RGBA8888 on alpha image, which we don't need

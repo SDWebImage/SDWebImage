@@ -41,6 +41,15 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
     return ((size + (alignment - 1)) / alignment) * alignment;
 }
 
+/// The pixel format about the information to call `CGImageCreate` suitable for current hardware rendering
+/// 
+typedef struct SDImagePixelFormat {
+    /// Typically is pre-multiplied RGBA8888 for alpha image, RGBX8888 for non-alpha image.
+    CGBitmapInfo bitmapInfo;
+    /// Typically is 32, the 8 pixels bytesPerRow.
+    size_t alignment;
+} SDImagePixelFormat;
+
 /**
  Provide some common helper methods for building the image decoder/encoder.
  */
@@ -79,23 +88,15 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 + (CGColorSpaceRef _Nonnull)colorSpaceGetDeviceRGB CF_RETURNS_NOT_RETAINED;
 
 /**
- From v5.17.0, this returns the byte alignment used for bytesPerRow(stride) **Preferred from current hardward && OS using runtime detection**
- Typically is 32, the 8 pixels bytesPerRow.
- @note To calculate the bytesPerRow, use the formula `SDByteAlign(width * (bitsPerPixel / 8), alignment)`
- */
-+ (size_t)preferredByteAlignment;
-
-/**
- From v5.17.0, this returns the bitmap info **Preferred from current hardward && OS using runtime detection**
- Typically is pre-multiplied RGBA8888 for alpha image, RGBX8888 for non-alpha image.
+ Tthis returns the pixel format **Preferred from current hardward && OS using runtime detection**
  @param containsAlpha Whether the image to render contains alpha channel
  */
-+ (CGBitmapInfo)preferredBitmapInfo:(BOOL)containsAlpha;
++ (SDImagePixelFormat)preferredPixelFormat:(BOOL)containsAlpha;
 
 /**
  Check whether CGImage is hardware supported to rendering on screen, without the trigger of `CA::Render::copy_image`
  You can debug the copied image by using Xcode's `Color Copied Image`, the copied image will turn Cyan and occupy double RAM for bitmap buffer.
- Typically, when the CGImage's using the method above (`colorspace` / `byteAlignment` / `bitmapInfo`) can render withtout the copy.
+ Typically, when the CGImage's using the method above (`colorspace` / `alignment` / `bitmapInfo`) can render withtout the copy.
  */
 + (BOOL)CGImageIsHardwareSupported:(_Nonnull CGImageRef)cgImage;
 
