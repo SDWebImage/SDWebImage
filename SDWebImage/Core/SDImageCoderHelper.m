@@ -816,11 +816,9 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (image == nil) {
         return NO;
     }
-    // Check policy (never/always)
+    // Check policy (never)
     if (policy == SDImageForceDecodePolicyNever) {
         return NO;
-    } else if (policy == SDImageForceDecodePolicyAlways) {
-        return YES;
     }
     // Avoid extra decode
     if (image.sd_isDecoded) {
@@ -834,17 +832,22 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (image.sd_isVector) {
         return NO;
     }
-    // Check policy (automatic)
-    CGImageRef cgImage = image.CGImage;
-    if (cgImage) {
-        CFStringRef uttype = CGImageGetUTType(cgImage);
-        if (uttype) {
-            // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
-            return YES;
-        } else {
-            // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
-            BOOL isSupported = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
-            return !isSupported;
+    // Check policy (always)
+    if (policy == SDImageForceDecodePolicyAlways) {
+        return YES;
+    } else {
+        // Check policy (automatic)
+        CGImageRef cgImage = image.CGImage;
+        if (cgImage) {
+            CFStringRef uttype = CGImageGetUTType(cgImage);
+            if (uttype) {
+                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+                return YES;
+            } else {
+                // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
+                BOOL isSupported = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
+                return !isSupported;
+            }
         }
     }
 
