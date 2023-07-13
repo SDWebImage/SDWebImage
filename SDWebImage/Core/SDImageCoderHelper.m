@@ -20,7 +20,7 @@
 #import "SDDeviceHelper.h"
 #import <Accelerate/Accelerate.h>
 
-#define kCGColorSpaceDeviceRGB @"kCGColorSpaceDeviceRGB"
+#define kCGColorSpaceDeviceRGB CFSTR("kCGColorSpaceDeviceRGB")
 
 #if SD_UIKIT
 static inline UIImage *SDImageDecodeUIKit(UIImage *image) {
@@ -293,7 +293,17 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+#if SD_MAC
+        NSScreen *mainScreen = nil;
+        if (@available(macOS 10.12, *)) {
+            mainScreen = [NSScreen mainScreen];
+        } else {
+            mainScreen = [NSScreen screens].firstObject;
+        }
+        colorSpace = mainScreen.colorSpace.CGColorSpace;
+#else
         colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+#endif
     });
     return colorSpace;
 }
@@ -328,19 +338,25 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!supported) return supported;
     
     // 2. Check color space
-    if (@available(iOS 10.0, tvOS 10.0, macOS 10.6, watchOS 3.0, *)) {
-        CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
-        NSString *colorspaceName = (__bridge_transfer NSString *)CGColorSpaceCopyName(colorspace);
-        // Seems sRGB/deviceRGB always supported, P3 not always
-        if ([colorspaceName isEqualToString:(__bridge NSString *)kCGColorSpaceSRGB] || [colorspaceName isEqualToString:kCGColorSpaceDeviceRGB]) {
-            supported &= YES;
-        } else {
-            supported &= NO;
-        }
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
+    CGColorSpaceRef perferredColorSpace = [self colorSpaceGetDeviceRGB];
+    if (colorSpace == perferredColorSpace) {
         return supported;
     } else {
-        // Fallback on earlier versions
-        return supported;
+        if (@available(iOS 10.0, tvOS 10.0, macOS 10.6, watchOS 3.0, *)) {
+            NSString *colorspaceName = (__bridge_transfer NSString *)CGColorSpaceCopyName(colorSpace);
+            // Seems sRGB/deviceRGB always supported, P3 not always
+            if ([colorspaceName isEqualToString:(__bridge NSString *)kCGColorSpaceDeviceRGB]
+                || [colorspaceName isEqualToString:(__bridge NSString *)kCGColorSpaceSRGB]) {
+                supported &= YES;
+            } else {
+                supported &= NO;
+            }
+            return supported;
+        } else {
+            // Fallback on earlier versions
+            return supported;
+        }
     }
 }
 
