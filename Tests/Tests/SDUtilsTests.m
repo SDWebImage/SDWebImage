@@ -132,7 +132,7 @@
     expect(image.scale).equal(format.scale);
     UIColor *testColor = [image sd_colorAtPoint:CGPointMake(50, 50)];
     NSLog(@"Test Color ColorSpace: %@", testColor.CGColor);
-    expect(testColor.redComponent).equal(color.sd_hexString);
+    expect(testColor.sd_hexString).equal(color.sd_hexString);
     
     UIColor *grayscaleColor = UIColor.blackColor;
     UIImage *grayscaleImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
