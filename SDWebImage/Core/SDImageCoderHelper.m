@@ -428,6 +428,19 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return CGSizeMake(resultWidth, resultHeight);
 }
 
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize limitBytes:(NSUInteger)limitBytes bytesPerPixel:(NSUInteger)bytesPerPixel frameCount:(NSUInteger)frameCount {
+    if (CGSizeEqualToSize(imageSize, CGSizeZero)) return CGSizeMake(1, 1);
+    NSUInteger totalFramePixelSize = limitBytes / bytesPerPixel / (frameCount ?: 1);
+    CGFloat ratio = imageSize.height / imageSize.width;
+    CGFloat width = sqrt(totalFramePixelSize / ratio);
+    CGFloat height = width * ratio;
+    width = MAX(1, floor(width));
+    height = MAX(1, floor(height));
+    CGSize size = CGSizeMake(width, height);
+    
+    return size;
+}
+
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
     if (![self shouldDecodeImage:image]) {
         return image;

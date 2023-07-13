@@ -104,6 +104,12 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
  */
 + (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize preserveAspectRatio:(BOOL)preserveAspectRatio shouldScaleUp:(BOOL)shouldScaleUp;
 
+/// Calculate the limited image size with the bytes, when using `SDImageCoderDecodeScaleDownLimitBytes`. This preserve aspect ratio and never scale up
+/// @param imageSize The image size (in pixel or point defined by caller)
+/// @param limitBytes The limit bytes
+/// @param bytesPerPixel The bytes per pixel
+/// @param frameCount The image frame count, 0 means 1 frame as well
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize limitBytes:(NSUInteger)limitBytes bytesPerPixel:(NSUInteger)bytesPerPixel frameCount:(NSUInteger)frameCount;
 /**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image. On iOS 15+, this may use `UIImage.preparingForDisplay()` to use CMPhoto for better performance than the old solution.
  @param image The image to be decoded

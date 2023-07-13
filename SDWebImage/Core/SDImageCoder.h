@@ -83,6 +83,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeUseLazyDec
  3. If the `framePixelSize < originalImagePixelSize`, then do thumbnail decoding (see `SDImageCoderDecodeThumbnailPixelSize`) use the `framePixelSize` and `preseveAspectRatio = YES`
  4. Else, use the full pixel decoding (small than limit bytes)
  5. Whatever result, this does not effect the animated/static behavior of image. So even if you set `limitBytes = 1 && frameCount = 100`, we will stll create animated image with each frame `1x1` pixel size.
+ @note You can use the logic from `+[SDImageCoder scaledSizeWithImageSize:limitBytes:bytesPerPixel:frameCount:]`
  @note This option has higher priority than `.decodeThumbnailPixelSize`
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleDownLimitBytes;
