@@ -57,7 +57,7 @@ static inline CGRect SDCGRectFitWithScaleMode(CGRect rect, CGSize size, SDImageS
     return rect;
 }
 
-static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel, CGBitmapInfo bitmapInfo) {
+static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel, CGBitmapInfo bitmapInfo, CGColorSpaceRef cgColorSpace) {
     // Get alpha info, byteOrder info
     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
     CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
@@ -135,11 +135,18 @@ static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel, CGBitmapInfo bit
         default:
             break;
     }
-    
+#if SD_MAC
+    // Mac supports ColorSync, to ensure the same bahvior, we convert color to sRGB
+    NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
+    CGFloat components[2] = {w, a};
+    NSColor *color = [NSColor colorWithColorSpace:colorSpace components:components count:2];
+    return [color colorUsingColorSpace:NSColorSpace.genericGamma22GrayColorSpace];
+#else
     return [UIColor colorWithWhite:w alpha:a];
+#endif
 }
 
-static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmapInfo) {
+static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmapInfo, CGColorSpaceRef cgColorSpace) {
     // Get alpha info, byteOrder info
     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
     CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
@@ -150,8 +157,10 @@ static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmap
         case kCGBitmapByteOrderDefault: {
             byteOrderNormal = YES;
         } break;
+        case kCGBitmapByteOrder16Little:
         case kCGBitmapByteOrder32Little: {
         } break;
+        case kCGBitmapByteOrder16Big:
         case kCGBitmapByteOrder32Big: {
             byteOrderNormal = YES;
         } break;
@@ -242,8 +251,15 @@ static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmap
         default:
             break;
     }
-    
+#if SD_MAC
+    // Mac supports ColorSync, to ensure the same bahvior, we convert color to sRGB
+    NSColorSpace *colorSpace = [[NSColorSpace alloc] initWithCGColorSpace:cgColorSpace];
+    CGFloat components[4] = {r, g, b, a};
+    NSColor *color = [NSColor colorWithColorSpace:colorSpace components:components count:4];
+    return [color colorUsingColorSpace:NSColorSpace.sRGBColorSpace];
+#else
     return [UIColor colorWithRed:r green:g blue:b alpha:a];
+#endif
 }
 
 #if SD_UIKIT || SD_MAC
@@ -558,6 +574,9 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         CGImageRelease(imageRef);
         return nil;
     }
+    // Get color space for transform
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(imageRef);
+    
     // greyscale
     if (components == 2) {
         Pixel_88 pixel = {0};
@@ -565,7 +584,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         CFRelease(data);
         CGImageRelease(imageRef);
         // Convert to color
-        return SDGetColorFromGrayscale(pixel, bitmapInfo);
+        return SDGetColorFromGrayscale(pixel, bitmapInfo, colorSpace);
     } else if (components == 3 || components == 4) {
         // RGB/RGBA
         Pixel_8888 pixel = {0};
@@ -573,7 +592,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         CFRelease(data);
         CGImageRelease(imageRef);
         // Convert to color
-        return SDGetColorFromRGBA(pixel, bitmapInfo);
+        return SDGetColorFromRGBA(pixel, bitmapInfo, colorSpace);
     } else {
         NSLog(@"Unsupported components: %zu", components);
         CFRelease(data);
@@ -637,6 +656,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     // Convert to color
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     NSMutableArray<UIColor *> *colors = [NSMutableArray arrayWithCapacity:CGRectGetWidth(rect) * CGRectGetHeight(rect)];
+    // ColorSpace
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(imageRef);
     for (size_t index = start; index < end; index += components) {
         if (index >= row * bytesPerRow + col * components) {
             // Index beyond the end of current row, go next row
@@ -648,14 +669,14 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         UIColor *color;
         if (components == 2) {
             Pixel_88 pixel = {pixels[index], pixel[index+1]};
-            color = SDGetColorFromGrayscale(pixel, bitmapInfo);
+            color = SDGetColorFromGrayscale(pixel, bitmapInfo, colorSpace);
         } else {
             if (components == 3) {
                 Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], 0};
-                color = SDGetColorFromRGBA(pixel, bitmapInfo);
+                color = SDGetColorFromRGBA(pixel, bitmapInfo, colorSpace);
             } else if (components == 4) {
                 Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
-                color = SDGetColorFromRGBA(pixel, bitmapInfo);
+                color = SDGetColorFromRGBA(pixel, bitmapInfo, colorSpace);
             } else {
                 NSLog(@"Unsupported components: %zu", components);
             }

@@ -15,24 +15,7 @@
 
 - (BOOL)sd_isDecoded {
     NSNumber *value = objc_getAssociatedObject(self, @selector(sd_isDecoded));
-    if (value != nil) {
-        return value.boolValue;
-    } else {
-        // Assume only CGImage based can use lazy decoding
-        CGImageRef cgImage = self.CGImage;
-        if (cgImage) {
-            CFStringRef uttype = CGImageGetUTType(self.CGImage);
-            if (uttype) {
-                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
-                return NO;
-            } else {
-                // Thumbnail or CGBitmapContext drawn image
-                return YES;
-            }
-        }
-    }
-    // Assume others as non-decoded
-    return NO;
+    return [value boolValue];
 }
 
 - (void)setSd_isDecoded:(BOOL)sd_isDecoded {

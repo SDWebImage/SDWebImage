@@ -448,6 +448,86 @@
     expect(data2).notTo.beNil();
 }
 
+- (void)test28ThatNotTriggerCACopyImage {
+    // 10 * 8 pixels, RGBA8888
+    size_t width = 10;
+    size_t height = 8;
+    size_t bitsPerComponent = 8;
+    size_t components = 4;
+    size_t bitsPerPixel = bitsPerComponent * components;
+    size_t bytesPerRow = SDByteAlign(bitsPerPixel / 8 * width, [SDImageCoderHelper preferredPixelFormat:YES].alignment);
+    size_t size = bytesPerRow * height;
+    uint8_t bitmap[size];
+    for (size_t i = 0; i < size; i++) {
+        bitmap[i] = 255;
+    }
+    CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:YES].bitmapInfo;
+    CFDataRef data = CFDataCreate(NULL, bitmap, size);
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CFRelease(data);
+    BOOL shouldInterpolate = YES;
+    CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+    CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+    CGDataProviderRelease(provider);
+    XCTAssert(cgImage);
+    BOOL result = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
+    // Since it's 32 bytes aligned, return true
+    XCTAssertTrue(result);
+    // Let's force-decode to check again
+#if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
+#endif
+    CGImageRelease(cgImage);
+    UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+    // Check policy works, since it's supported by CA hardware, which return the input image object, using pointer compare
+    XCTAssertTrue(image == newImage);
+    BOOL newResult = [SDImageCoderHelper CGImageIsHardwareSupported:newImage.CGImage];
+    XCTAssertTrue(newResult);
+}
+
+- (void)test28ThatDoTriggerCACopyImage {
+    // 10 * 8 pixels, RGBA8888
+    size_t width = 10;
+    size_t height = 8;
+    size_t bitsPerComponent = 8;
+    size_t components = 4;
+    size_t bitsPerPixel = bitsPerComponent * components;
+    size_t bytesPerRow = bitsPerPixel / 8 * width;
+    size_t size = bytesPerRow * height;
+    uint8_t bitmap[size];
+    for (size_t i = 0; i < size; i++) {
+        bitmap[i] = 255;
+    }
+    CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:YES].bitmapInfo;
+    CFDataRef data = CFDataCreate(NULL, bitmap, size);
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CFRelease(data);
+    BOOL shouldInterpolate = YES;
+    CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+    CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+    CGDataProviderRelease(provider);
+    XCTAssert(cgImage);
+    BOOL result = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
+    // Since it's not 32 bytes aligned, return false
+    XCTAssertFalse(result);
+    // Let's force-decode to check again
+#if SD_MAC
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#else
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage scale:1 orientation:UIImageOrientationUp];
+#endif
+    CGImageRelease(cgImage);
+    UIImage *newImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+    // Check policy works, since it's not supported by CA hardware, which return the different image object
+    XCTAssertFalse(image == newImage);
+    BOOL newResult = [SDImageCoderHelper CGImageIsHardwareSupported:newImage.CGImage];
+    XCTAssertTrue(newResult);
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

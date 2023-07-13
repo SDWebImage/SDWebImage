@@ -74,15 +74,19 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         image = [imageCoder decodedImageWithData:imageData options:coderOptions];
     }
     if (image) {
-        BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
-        BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
-        if (lazyDecode) {
-            // lazyDecode = NO means we should not forceDecode, highest priority
-            shouldDecode = NO;
+        SDImageForceDecodePolicy policy = SDImageForceDecodePolicyAutomatic;
+        NSNumber *polivyValue = context[SDWebImageContextImageForceDecodePolicy];
+        if (polivyValue != nil) {
+            policy = polivyValue.unsignedIntegerValue;
         }
-        if (shouldDecode) {
-            image = [SDImageCoderHelper decodedImageWithImage:image];
+        // TODO: Deprecated, remove in SD 6.0...
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage)) {
+            policy = SDImageForceDecodePolicyNever;
         }
+#pragma clang diagnostic pop
+        image = [SDImageCoderHelper decodedImageWithImage:image policy:policy];
         // assign the decode options, to let manager check whether to re-decode if needed
         image.sd_decodeOptions = coderOptions;
     }
@@ -151,15 +155,19 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         image = [progressiveCoder incrementalDecodedImageWithOptions:coderOptions];
     }
     if (image) {
-        BOOL shouldDecode = !SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage);
-        BOOL lazyDecode = [coderOptions[SDImageCoderDecodeUseLazyDecoding] boolValue];
-        if (lazyDecode) {
-            // lazyDecode = NO means we should not forceDecode, highest priority
-            shouldDecode = NO;
+        SDImageForceDecodePolicy policy = SDImageForceDecodePolicyAutomatic;
+        NSNumber *polivyValue = context[SDWebImageContextImageForceDecodePolicy];
+        if (polivyValue != nil) {
+            policy = polivyValue.unsignedIntegerValue;
         }
-        if (shouldDecode) {
-            image = [SDImageCoderHelper decodedImageWithImage:image];
+        // TODO: Deprecated, remove in SD 6.0...
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (SD_OPTIONS_CONTAINS(options, SDWebImageAvoidDecodeImage)) {
+            policy = SDImageForceDecodePolicyNever;
         }
+#pragma clang diagnostic pop
+        image = [SDImageCoderHelper decodedImageWithImage:image policy:policy];
         // assign the decode options, to let manager check whether to re-decode if needed
         image.sd_decodeOptions = coderOptions;
         // mark the image as progressive (completed one are not mark as progressive)

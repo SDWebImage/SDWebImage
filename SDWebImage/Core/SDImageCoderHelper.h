@@ -20,6 +20,36 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
     SDImageCoderDecodeSolutionUIKit
 };
 
+/// The policy to force-decode the origin CGImage (produced by Image Coder Plugin)
+/// Some CGImage may be lazy, or not lazy, but need extra copy to render on screen
+/// The force-decode step help to `pre-process` to get the best suitable CGImage to render, which can increase frame rate
+/// The downside is that force-decode may consume RAM and CPU, and may loss the `lazy` support (lazy CGImage can be purged when memory warning, and re-created if need), see more: `SDImageCoderDecodeUseLazyDecoding`
+typedef NS_ENUM(NSUInteger, SDImageForceDecodePolicy) {
+    /// Based on input CGImage's colorspace, alignment, bitmapinfo, if it may trigger `CA::copy_image` extra copy, we will force-decode, else don't
+    SDImageForceDecodePolicyAutomatic,
+    /// Never force decode input CGImage
+    SDImageForceDecodePolicyNever,
+    /// Always force decode input CGImage (only once)
+    SDImageForceDecodePolicyAlways
+};
+
+/// Byte alignment the bytes size with alignment
+/// - Parameters:
+///   - size: The bytes size
+///   - alignment: The alignment, in bytes
+static inline size_t SDByteAlign(size_t size, size_t alignment) {
+    return ((size + (alignment - 1)) / alignment) * alignment;
+}
+
+/// The pixel format about the information to call `CGImageCreate` suitable for current hardware rendering
+/// 
+typedef struct SDImagePixelFormat {
+    /// Typically is pre-multiplied RGBA8888 for alpha image, RGBX8888 for non-alpha image.
+    CGBitmapInfo bitmapInfo;
+    /// Typically is 32, the 8 pixels bytesPerRow.
+    size_t alignment;
+} SDImagePixelFormat;
+
 /**
  Provide some common helper methods for building the image decoder/encoder.
  */
@@ -45,15 +75,30 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
  */
 + (NSArray<SDImageFrame *> * _Nullable)framesFromAnimatedImage:(UIImage * _Nullable)animatedImage NS_SWIFT_NAME(frames(from:));
 
+#pragma mark - Preferred Rendering Format
+/// For coders who use `CGImageCreate`, use the information below to create an effient CGImage which can be render on GPU without Core Animation's extra copy (`CA::Render::copy_image`), which can be debugged using `Color Copied Image` in Xcode Instruments
+/// `CGImageCreate`'s `bytesPerRow`, `space`, `bitmapInfo` params should use the information below.
 /**
  Return the shared device-dependent RGB color space. This follows The Get Rule.
- On iOS, it's created with deviceRGB (if available, use sRGB).
- On macOS, it's from the screen colorspace (if failed, use deviceRGB)
  Because it's shared, you should not retain or release this object.
+ Typically is sRGB for iOS, screen color space (like Color LCD) for macOS.
  
  @return The device-dependent RGB color space
  */
 + (CGColorSpaceRef _Nonnull)colorSpaceGetDeviceRGB CF_RETURNS_NOT_RETAINED;
+
+/**
+ Tthis returns the pixel format **Preferred from current hardward && OS using runtime detection**
+ @param containsAlpha Whether the image to render contains alpha channel
+ */
++ (SDImagePixelFormat)preferredPixelFormat:(BOOL)containsAlpha;
+
+/**
+ Check whether CGImage is hardware supported to rendering on screen, without the trigger of `CA::Render::copy_image`
+ You can debug the copied image by using Xcode's `Color Copied Image`, the copied image will turn Cyan and occupy double RAM for bitmap buffer.
+ Typically, when the CGImage's using the method above (`colorspace` / `alignment` / `bitmapInfo`) can render withtout the copy.
+ */
++ (BOOL)CGImageIsHardwareSupported:(_Nonnull CGImageRef)cgImage;
 
 /**
  Check whether CGImage contains alpha channel.
@@ -113,9 +158,18 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
 /**
  Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image. On iOS 15+, this may use `UIImage.preparingForDisplay()` to use CMPhoto for better performance than the old solution.
  @param image The image to be decoded
+ @note This translate to `decodedImageWithImage:policy:` with automatic policy
  @return The decoded image
  */
 + (UIImage * _Nullable)decodedImageWithImage:(UIImage * _Nullable)image;
+
+/**
+ Return the decoded image by the provided image. This one unlike `CGImageCreateDecoded:`, will not decode the image which contains alpha channel or animated image. On iOS 15+, this may use `UIImage.preparingForDisplay()` to use CMPhoto for better performance than the old solution.
+ @param image The image to be decoded
+ @param policy The force decode policy to decode image, will effect the check whether input image need decode
+ @return The decoded image
+ */
++ (UIImage * _Nullable)decodedImageWithImage:(UIImage * _Nullable)image policy:(SDImageForceDecodePolicy)policy;
 
 /**
  Return the decoded and probably scaled down image by the provided image. If the image pixels bytes size large than the limit bytes, will try to scale down. Or just works as `decodedImageWithImage:`, never scale up.
@@ -123,9 +177,21 @@ typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
 
  @param image The image to be decoded and scaled down
  @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @note This translate to `decodedAndScaledDownImageWithImage:limitBytes:policy:` with automatic policy
  @return The decoded and probably scaled down image
  */
 + (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes;
+
+/**
+ Return the decoded and probably scaled down image by the provided image. If the image pixels bytes size large than the limit bytes, will try to scale down. Or just works as `decodedImageWithImage:`, never scale up.
+ @warning You should not pass too small bytes, the suggestion value should be larger than 1MB. Even we use Tile Decoding to avoid OOM, however, small bytes will consume much more CPU time because we need to iterate more times to draw each tile.
+
+ @param image The image to be decoded and scaled down
+ @param bytes The limit bytes size. Provide 0 to use the build-in limit.
+ @param policy The force decode policy to decode image, will effect the check whether input image need decode
+ @return The decoded and probably scaled down image
+ */
++ (UIImage * _Nullable)decodedAndScaledDownImageWithImage:(UIImage * _Nullable)image limitBytes:(NSUInteger)bytes policy:(SDImageForceDecodePolicy)policy;
 
 /**
  Control the default force decode solution. Available solutions  in `SDImageCoderDecodeSolution`.
