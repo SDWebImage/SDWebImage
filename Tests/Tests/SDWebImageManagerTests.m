@@ -309,7 +309,7 @@
         }
     }];
     
-    [self waitForExpectationsWithTimeout:100 handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
         SDImageCoderHelper.defaultScaleDownLimitBytes = defaultLimitBytes;
     }];
 }

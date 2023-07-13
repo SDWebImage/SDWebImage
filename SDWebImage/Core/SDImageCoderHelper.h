@@ -42,7 +42,6 @@ static inline size_t SDByteAlign(size_t size, size_t alignment) {
 }
 
 /// The pixel format about the information to call `CGImageCreate` suitable for current hardware rendering
-/// 
 typedef struct SDImagePixelFormat {
     /// Typically is pre-multiplied RGBA8888 for alpha image, RGBX8888 for non-alpha image.
     CGBitmapInfo bitmapInfo;
