@@ -721,7 +721,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             sourceTileImageRef = CGImageCreateWithImageInRect( sourceImageRef, sourceTile );
             if( y == iterations - 1 && remainder ) {
                 float dify = destTile.size.height;
-                destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale;
+                destTile.size.height = CGImageGetHeight( sourceTileImageRef ) * imageScale + kDestSeemOverlap;
                 dify -= destTile.size.height;
                 destTile.origin.y = MIN(0, destTile.origin.y + dify);
             }

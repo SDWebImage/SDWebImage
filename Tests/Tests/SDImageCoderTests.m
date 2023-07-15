@@ -96,11 +96,13 @@
     expect(decodedImage.size.height).to.equal(1);
 }
 
-- (void)test07ThatDecodeAndScaleDownAlwaysCompleteRendering {
+-(void)test07ThatDecodeAndScaleDownAlwaysCompleteRendering {
     // Check that when the height of the image used is not evenly divisible by the height of the tile, the output image can also be rendered completely.
     
+    // Check that when the height of the image used will led to loss of precision. the output image can also be rendered completely,
+    
     UIColor *imageColor = UIColor.blackColor;
-    CGSize imageSize = CGSizeMake(3024, 4032);
+    CGSize imageSize = CGSizeMake(1029, 1029);
     CGRect imageRect = CGRectMake(0, 0, imageSize.width, imageSize.height);
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = 1;
@@ -110,9 +112,11 @@
         CGContextFillRect(context, imageRect);
     }];
     
-    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:20 * 1024 * 1024];
-    UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(0, decodedImage.size.height - 1)];
-    expect(testColor.sd_hexString).equal(imageColor.sd_hexString);
+    UIImage *decodedImage = [UIImage sd_decodedAndScaledDownImageWithImage:image limitBytes:1 * 1024 * 1024];
+    UIColor *testColor1 = [decodedImage sd_colorAtPoint:CGPointMake(0, decodedImage.size.height - 1)];
+    UIColor *testColor2 = [decodedImage sd_colorAtPoint:CGPointMake(0, decodedImage.size.height - 9)];
+    expect(testColor1.sd_hexString).equal(imageColor.sd_hexString);
+    expect(testColor2.sd_hexString).equal(imageColor.sd_hexString);
 }
 
 - (void)test08ThatEncodeAlphaImageToJPGWithBackgroundColor {
