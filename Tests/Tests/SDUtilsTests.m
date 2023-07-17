@@ -123,6 +123,12 @@
 #endif
     CGSize size = CGSizeMake(100, 100);
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
+#if SD_MAC
+    // GitHub action's Mac does not connect to a display, so the ImageRenderer color space is wrong :(
+    if (NSProcessInfo.processInfo.environment[@"GITHUB_ACTIONS"]) {
+        return;
+    }
+#endif
     UIColor *color = UIColor.redColor;
     NSLog(@"Draw Color ColorSpace: %@", color.CGColor);
     UIImage *image = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
