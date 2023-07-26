@@ -32,7 +32,7 @@
 #if SD_MAC
     NSRect imageRect = NSMakeRect(0, 0, self.size.width, self.size.height);
     NSImageRep *imageRep = [self bestRepresentationForRect:imageRect context:nil hints:nil];
-    // Check weak assigned frames firstly
+    // Check weak animated data firstly
     if ([imageRep isKindOfClass:[SDAnimatedImageRep class]]) {
         SDAnimatedImageRep *animatedImageRep = (SDAnimatedImageRep *)imageRep;
         NSData *imageData = [animatedImageRep animatedImageData];
