@@ -19,6 +19,7 @@
 @interface SDAnimatedImageRep ()
 /// This wrap the animated image frames for legacy animated image coder API (`encodedDataWithImage:`).
 @property (nonatomic, readwrite, weak) NSArray<SDImageFrame *> *frames;
+@property (nonatomic, assign, readwrite) SDImageFormat animatedImageFormat;
 @end
 
 @implementation SDAnimatedImageRep {
@@ -33,9 +34,12 @@
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  SDAnimatedImageRep *imageRep = [super copyWithZone:zone];
-  CFRetain(imageRep->_imageSource);
-  return imageRep;
+    SDAnimatedImageRep *imageRep = [super copyWithZone:zone];
+    // super will copy all ivars
+    if (imageRep->_imageSource) {
+        CFRetain(imageRep->_imageSource);
+    }
+    return imageRep;
 }
 
 // `NSBitmapImageRep`'s `imageRepWithData:` is not designed initializer
@@ -63,15 +67,19 @@
         if (!type) {
             return self;
         }
+        _animatedImageData = data; // CGImageSource will retain the data internally, no extra copy
+        SDImageFormat format = SDImageFormatUndefined;
         if (CFStringCompare(type, kSDUTTypeGIF, 0) == kCFCompareEqualTo) {
             // GIF
             // Fix the `NSBitmapImageRep` GIF loop count calculation issue
             // Which will use 0 when there are no loop count information metadata in GIF data
+            format = SDImageFormatGIF;
             NSUInteger loopCount = [SDImageGIFCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
         } else if (CFStringCompare(type, kSDUTTypePNG, 0) == kCFCompareEqualTo) {
             // APNG
             // Do initialize about frame count, current frame/duration and loop count
+            format = SDImageFormatPNG;
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
             NSUInteger loopCount = [SDImageAPNGCoder imageLoopCountWithSource:imageSource];
@@ -79,6 +87,7 @@
         } else if (CFStringCompare(type, kSDUTTypeHEICS, 0) == kCFCompareEqualTo) {
             // HEIC
             // Do initialize about frame count, current frame/duration and loop count
+            format = SDImageFormatHEIC;
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
             NSUInteger loopCount = [SDImageHEICCoder imageLoopCountWithSource:imageSource];
@@ -86,11 +95,15 @@
         } else if (CFStringCompare(type, kSDUTTypeWebP, 0) == kCFCompareEqualTo) {
             // WebP
             // Do initialize about frame count, current frame/duration and loop count
+            format = SDImageFormatWebP;
             [self setProperty:NSImageFrameCount withValue:@(frameCount)];
             [self setProperty:NSImageCurrentFrame withValue:@(0)];
             NSUInteger loopCount = [SDImageAWebPCoder imageLoopCountWithSource:imageSource];
             [self setProperty:NSImageLoopCount withValue:@(loopCount)];
+        } else {
+            format = [NSData sd_imageFormatForImageData:data];
         }
+        _animatedImageFormat = format;
     }
     return self;
 }
