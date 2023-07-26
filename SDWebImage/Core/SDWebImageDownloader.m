@@ -21,22 +21,6 @@ NSNotificationName const SDWebImageDownloadStopNotification = @"SDWebImageDownlo
 NSNotificationName const SDWebImageDownloadFinishNotification = @"SDWebImageDownloadFinishNotification";
 
 static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
-static void * SDWebImageDownloaderOperationKey = &SDWebImageDownloaderOperationKey;
-
-BOOL SDWebImageDownloaderOperationGetCompleted(id<SDWebImageDownloaderOperation> operation) {
-    NSCParameterAssert(operation);
-    NSNumber *value = objc_getAssociatedObject(operation, SDWebImageDownloaderOperationKey);
-    if (value != nil) {
-        return value.boolValue;
-    } else {
-        return NO;
-    }
-}
-
-void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation> operation, BOOL isCompleted) {
-    NSCParameterAssert(operation);
-    objc_setAssociatedObject(operation, SDWebImageDownloaderOperationKey, @(isCompleted), OBJC_ASSOCIATION_RETAIN);
-}
 
 @interface SDWebImageDownloadToken ()
 
@@ -239,7 +223,7 @@ void SDWebImageDownloaderOperationSetCompleted(id<SDWebImageDownloaderOperation>
     BOOL shouldNotReuseOperation;
     if (operation) {
         @synchronized (operation) {
-            shouldNotReuseOperation = operation.isFinished || operation.isCancelled || SDWebImageDownloaderOperationGetCompleted(operation);
+            shouldNotReuseOperation = operation.isFinished || operation.isCancelled;
         }
     } else {
         shouldNotReuseOperation = YES;
@@ -518,12 +502,6 @@ didReceiveResponse:(NSURLResponse *)response
     
     // Identify the operation that runs this task and pass it the delegate method
     NSOperation<SDWebImageDownloaderOperation> *dataOperation = [self operationWithTask:task];
-    if (dataOperation) {
-        @synchronized (dataOperation) {
-            // Mark the downloader operation `isCompleted = YES`, no longer re-use this operation when new request comes in
-            SDWebImageDownloaderOperationSetCompleted(dataOperation, YES);
-        }
-    }
     if ([dataOperation respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
         [dataOperation URLSession:session task:task didCompleteWithError:error];
     }
