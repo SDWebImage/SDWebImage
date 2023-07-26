@@ -69,7 +69,9 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         context = [mutableContext copy];
     }
     self.sd_latestOperationKey = validOperationKey;
-    [self sd_cancelImageLoadOperationWithKey:validOperationKey];
+    if (url.absoluteString != self.sd_imageURL.absoluteString) {
+        [self sd_cancelImageLoadOperationWithKey:validOperationKey];
+    }
     self.sd_imageURL = url;
     
     SDWebImageManager *manager = context[SDWebImageContextCustomManager];
