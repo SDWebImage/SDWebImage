@@ -446,6 +446,14 @@
     UIImage *animatedImage = [SDImageCoderHelper animatedImageWithFrames:frames];
     NSData *data = [SDImageGIFCoder.sharedCoder encodedDataWithImage:animatedImage format:SDImageFormatGIF options:nil];
     expect(data).notTo.beNil();
+
+#if SD_MAC
+    // Test implementation use SDAnimatedImageRep
+    SDAnimatedImageRep *rep = (SDAnimatedImageRep *)animatedImage.representations.firstObject;
+    expect([rep isKindOfClass:SDAnimatedImageRep.class]);
+    expect(rep.animatedImageData).equal(data);
+    expect(rep.animatedImageFormat).equal(SDImageFormatGIF);
+#endif
     
     // Test new API
     NSData *data2 = [SDImageGIFCoder.sharedCoder encodedDataWithFrames:frames loopCount:0 format:SDImageFormatGIF options:nil];

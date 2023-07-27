@@ -88,6 +88,7 @@
 
 /**
  Current animated image format.
+ @note This format is only valid when `animatedImageData` not nil
  */
 @property (nonatomic, assign, readonly) SDImageFormat animatedImageFormat;
 
