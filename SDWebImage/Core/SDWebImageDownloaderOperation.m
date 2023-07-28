@@ -343,18 +343,17 @@
 // if all tokens have been processed call [self done].
 - (void)checkDoneWithImageData:(NSData *)imageData
                 finishedTokens:(NSArray<SDWebImageDownloaderOperationToken *> *)finishedTokens {
-    NSMutableArray<SDWebImageDownloaderOperationToken *> *tokens;
     @synchronized (self) {
-        tokens = [self.callbackTokens mutableCopy];
-    }
-    [finishedTokens enumerateObjectsUsingBlock:^(SDWebImageDownloaderOperationToken * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [tokens removeObjectIdenticalTo:obj];
-    }];
-    if (tokens.count == 0) {
-        [self done];
-    } else {
-        // If there are new tokens added during the decoding operation, the decoding operation is supplemented with these new tokens.
-        [self startCoderOperationWithImageData:imageData pendingTokens:tokens finishedTokens:finishedTokens];
+        NSMutableArray<SDWebImageDownloaderOperationToken *> *tokens = [self.callbackTokens mutableCopy];
+        [finishedTokens enumerateObjectsUsingBlock:^(SDWebImageDownloaderOperationToken * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [tokens removeObjectIdenticalTo:obj];
+        }];
+        if (tokens.count == 0) {
+            [self done];
+        } else {
+            // If there are new tokens added during the decoding operation, the decoding operation is supplemented with these new tokens.
+            [self startCoderOperationWithImageData:imageData pendingTokens:tokens finishedTokens:finishedTokens];
+        }
     }
 }
 
