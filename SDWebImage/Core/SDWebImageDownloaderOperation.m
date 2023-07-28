@@ -342,19 +342,19 @@
 // Check for unprocessed tokens.
 // if all tokens have been processed call [self done].
 - (void)checkDoneWithImageData:(NSData *)imageData
-                  finisdTokens:(NSArray<SDWebImageDownloaderOperationToken *> *)finisdTokens {
+                finishedTokens:(NSArray<SDWebImageDownloaderOperationToken *> *)finishedTokens {
     NSMutableArray<SDWebImageDownloaderOperationToken *> *tokens;
     @synchronized (self) {
         tokens = [self.callbackTokens mutableCopy];
     }
-    [finisdTokens enumerateObjectsUsingBlock:^(SDWebImageDownloaderOperationToken * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [finishedTokens enumerateObjectsUsingBlock:^(SDWebImageDownloaderOperationToken * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [tokens removeObjectIdenticalTo:obj];
     }];
     if (tokens.count == 0) {
         [self done];
     } else {
         // If there are new tokens added during the decoding operation, the decoding operation is supplemented with these new tokens.
-        [self startCoderOperationWithImageData:imageData pendingTokens:tokens finishedTokens:finisdTokens];
+        [self startCoderOperationWithImageData:imageData pendingTokens:tokens finishedTokens:finishedTokens];
     }
 }
 
@@ -412,7 +412,7 @@
         }
         // Check for new tokens added during the decode operation.
         [self checkDoneWithImageData:imageData
-                        finisdTokens:[finishedTokens arrayByAddingObjectsFromArray:pendingTokens]];
+                      finishedTokens:[finishedTokens arrayByAddingObjectsFromArray:pendingTokens]];
     };
     if (@available(iOS 13, tvOS 13, macOS 10.15, watchOS 6, *)) {
         // seems faster than `addOperationWithBlock`
