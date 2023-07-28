@@ -434,45 +434,102 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!cgImage) {
         return NULL;
     }
+    if (size.width == 0 || size.height == 0) {
+        return NULL;
+    }
     size_t width = CGImageGetWidth(cgImage);
     size_t height = CGImageGetHeight(cgImage);
     if (width == size.width && height == size.height) {
+        // Already same size
         CGImageRetain(cgImage);
         return cgImage;
     }
-    
+    size_t bitsPerComponent = CGImageGetBitsPerComponent(cgImage);
+    size_t bitsPerPixel = CGImageGetBitsPerPixel(cgImage);
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
+    CGColorRenderingIntent renderingIntent = CGImageGetRenderingIntent(cgImage);
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(cgImage);
+    CGBitmapInfo bitmapInfo = (uint32_t)alphaInfo;
+    uint32_t components = 4; // Input convert to alpha
+    if (alphaInfo == kCGImageAlphaNone) {
+        // Convert RGB8/16/F -> ARGB8/16/F
+        bitmapInfo = (uint32_t)kCGImageAlphaFirst;
+    } else if (alphaInfo == kCGImageAlphaOnly) {
+        // Alpha only, simple to 1 channel
+        components = 1;
+    }
+    if (bitsPerComponent == 32) {
+        bitmapInfo |= kCGBitmapByteOrder32Host;
+    } else if (bitsPerComponent == 16) {
+        bitmapInfo |= kCGBitmapByteOrder16Host;
+    } else if (bitsPerComponent == 8) {
+        bitmapInfo |= kCGBitmapByteOrderDefault;
+    } else {
+        // Unsupported
+        return NULL;
+    }
     __block vImage_Buffer input_buffer = {}, output_buffer = {};
     @onExit {
         if (input_buffer.data) free(input_buffer.data);
         if (output_buffer.data) free(output_buffer.data);
     };
-    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
-    // Check #3330 for more detail about why this bitmap is choosen.
-    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
+    // Always provide alpha channel
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
-        .bitsPerComponent = 8,
-        .bitsPerPixel = 32,
-        .colorSpace = NULL,
+        .bitsPerComponent = (uint32_t)bitsPerComponent,
+        .bitsPerPixel = (uint32_t)bitsPerComponent * components,
+        .colorSpace = colorSpace,
         .bitmapInfo = bitmapInfo,
         .version = 0,
         .decode = NULL,
-        .renderingIntent = CGImageGetRenderingIntent(cgImage)
+        .renderingIntent = renderingIntent
     };
-    
-    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
-    if (a_ret != kvImageNoError) return NULL;
-    output_buffer.width = MAX(size.width, 0);
-    output_buffer.height = MAX(size.height, 0);
-    output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
-    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
+    // input
+    vImage_Error ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
+    if (ret != kvImageNoError) return NULL;
+    // output
+    vImageBuffer_Init(&output_buffer, size.height, size.width, (uint32_t)bitsPerComponent * components, kvImageNoFlags);
     if (!output_buffer.data) return NULL;
     
-    vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+    if (components == 4) {
+        if (bitsPerComponent == 32) {
+            ret = vImageScale_ARGBFFFF(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageScale_ARGB16U(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        }
+    } else {
+        if (bitsPerComponent == 32) {
+            ret = vImageScale_PlanarF(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageScale_Planar16U(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageScale_Planar8(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        }
+    }
     if (ret != kvImageNoError) return NULL;
     
-    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoFlags, &ret);
+    // Convert back to non-alpha for RGB input to preserve pixel format
+    if (alphaInfo == kCGImageAlphaNone) {
+        // in-place, no extra allocation
+        if (bitsPerComponent == 32) {
+            ret = vImageConvert_ARGBFFFFtoRGBFFF(&output_buffer, &output_buffer, kvImageNoFlags);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageConvert_ARGB16UtoRGB16U(&output_buffer, &output_buffer, kvImageNoFlags);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageConvert_ARGB8888toRGB888(&output_buffer, &output_buffer, kvImageNoFlags);
+        }
+    }
+    vImage_CGImageFormat output_format = (vImage_CGImageFormat) {
+        .bitsPerComponent = (uint32_t)bitsPerComponent,
+        .bitsPerPixel = (uint32_t)bitsPerPixel,
+        .colorSpace = colorSpace,
+        .bitmapInfo = CGImageGetBitmapInfo(cgImage),
+        .version = 0,
+        .decode = NULL,
+        .renderingIntent = renderingIntent
+    };
+    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &output_format, NULL, NULL, kvImageNoFlags, &ret);
     if (ret != kvImageNoError) {
         CGImageRelease(outputImage);
         return NULL;
