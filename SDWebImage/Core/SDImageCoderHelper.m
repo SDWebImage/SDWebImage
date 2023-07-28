@@ -445,28 +445,35 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         return cgImage;
     }
     size_t bitsPerComponent = CGImageGetBitsPerComponent(cgImage);
+    if (bitsPerComponent != 8 && bitsPerComponent != 16 && bitsPerComponent != 32) {
+        // Unsupported
+        return NULL;
+    }
     size_t bitsPerPixel = CGImageGetBitsPerPixel(cgImage);
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
     CGColorRenderingIntent renderingIntent = CGImageGetRenderingIntent(cgImage);
-    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(cgImage);
-    CGBitmapInfo bitmapInfo = (uint32_t)alphaInfo;
-    uint32_t components = 4; // Input convert to alpha
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(cgImage);
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGImageByteOrderInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    CGBitmapInfo alphaBitmapInfo = (uint32_t)byteOrderInfo;
+    
+    // Input need to convert with alpha
     if (alphaInfo == kCGImageAlphaNone) {
         // Convert RGB8/16/F -> ARGB8/16/F
-        bitmapInfo = (uint32_t)kCGImageAlphaFirst;
-    } else if (alphaInfo == kCGImageAlphaOnly) {
+        alphaBitmapInfo |= kCGImageAlphaFirst;
+    } else {
+        alphaBitmapInfo |= alphaInfo;
+    }
+    uint32_t components;
+    if (alphaInfo == kCGImageAlphaOnly) {
         // Alpha only, simple to 1 channel
         components = 1;
-    }
-    if (bitsPerComponent == 32) {
-        bitmapInfo |= kCGBitmapByteOrder32Host;
-    } else if (bitsPerComponent == 16) {
-        bitmapInfo |= kCGBitmapByteOrder16Host;
-    } else if (bitsPerComponent == 8) {
-        bitmapInfo |= kCGBitmapByteOrderDefault;
     } else {
-        // Unsupported
-        return NULL;
+        components = 4;
+    }
+    if (SD_OPTIONS_CONTAINS(bitmapInfo, kCGBitmapFloatComponents)) {
+        // Keep float components
+        alphaBitmapInfo |= kCGBitmapFloatComponents;
     }
     __block vImage_Buffer input_buffer = {}, output_buffer = {};
     @onExit {
@@ -478,7 +485,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         .bitsPerComponent = (uint32_t)bitsPerComponent,
         .bitsPerPixel = (uint32_t)bitsPerComponent * components,
         .colorSpace = colorSpace,
-        .bitmapInfo = bitmapInfo,
+        .bitmapInfo = alphaBitmapInfo,
         .version = 0,
         .decode = NULL,
         .renderingIntent = renderingIntent
@@ -519,12 +526,13 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         } else if (bitsPerComponent == 8) {
             ret = vImageConvert_ARGB8888toRGB888(&output_buffer, &output_buffer, kvImageNoFlags);
         }
+        if (ret != kvImageNoError) return NULL;
     }
     vImage_CGImageFormat output_format = (vImage_CGImageFormat) {
         .bitsPerComponent = (uint32_t)bitsPerComponent,
         .bitsPerPixel = (uint32_t)bitsPerPixel,
         .colorSpace = colorSpace,
-        .bitmapInfo = CGImageGetBitmapInfo(cgImage),
+        .bitmapInfo = bitmapInfo,
         .version = 0,
         .decode = NULL,
         .renderingIntent = renderingIntent
