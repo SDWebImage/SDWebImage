@@ -131,6 +131,8 @@ typedef struct SDImagePixelFormat {
  Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.
  It will detect whether the image size matching the scale size, if not, stretch the image to the target size.
  @note If you need to keep aspect ratio, you can calculate the scale size by using `scaledSizeWithImageSize` first.
+ @note This scale does not change bits per components (which means RGB888 in, RGB888 out), supports 8/16/32(float) bpc. But the method in UIImage+Transform does not gurantee this.
+ @note All supported CGImage pixel format: https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_context/dq_context.html#//apple_ref/doc/uid/TP30001066-CH203-BCIBHHBB
  
  @param cgImage The CGImage
  @param size The scale size in pixel.

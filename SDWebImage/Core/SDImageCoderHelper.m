@@ -434,45 +434,110 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!cgImage) {
         return NULL;
     }
+    if (size.width == 0 || size.height == 0) {
+        return NULL;
+    }
     size_t width = CGImageGetWidth(cgImage);
     size_t height = CGImageGetHeight(cgImage);
     if (width == size.width && height == size.height) {
+        // Already same size
         CGImageRetain(cgImage);
         return cgImage;
     }
+    size_t bitsPerComponent = CGImageGetBitsPerComponent(cgImage);
+    if (bitsPerComponent != 8 && bitsPerComponent != 16 && bitsPerComponent != 32) {
+        // Unsupported
+        return NULL;
+    }
+    size_t bitsPerPixel = CGImageGetBitsPerPixel(cgImage);
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
+    CGColorRenderingIntent renderingIntent = CGImageGetRenderingIntent(cgImage);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(cgImage);
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGImageByteOrderInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    CGBitmapInfo alphaBitmapInfo = (uint32_t)byteOrderInfo;
     
+    // Input need to convert with alpha
+    if (alphaInfo == kCGImageAlphaNone) {
+        // Convert RGB8/16/F -> ARGB8/16/F
+        alphaBitmapInfo |= kCGImageAlphaFirst;
+    } else {
+        alphaBitmapInfo |= alphaInfo;
+    }
+    uint32_t components;
+    if (alphaInfo == kCGImageAlphaOnly) {
+        // Alpha only, simple to 1 channel
+        components = 1;
+    } else {
+        components = 4;
+    }
+    if (SD_OPTIONS_CONTAINS(bitmapInfo, kCGBitmapFloatComponents)) {
+        // Keep float components
+        alphaBitmapInfo |= kCGBitmapFloatComponents;
+    }
     __block vImage_Buffer input_buffer = {}, output_buffer = {};
     @onExit {
         if (input_buffer.data) free(input_buffer.data);
         if (output_buffer.data) free(output_buffer.data);
     };
-    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
-    // Check #3330 for more detail about why this bitmap is choosen.
-    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
+    // Always provide alpha channel
     vImage_CGImageFormat format = (vImage_CGImageFormat) {
-        .bitsPerComponent = 8,
-        .bitsPerPixel = 32,
-        .colorSpace = NULL,
+        .bitsPerComponent = (uint32_t)bitsPerComponent,
+        .bitsPerPixel = (uint32_t)bitsPerComponent * components,
+        .colorSpace = colorSpace,
+        .bitmapInfo = alphaBitmapInfo,
+        .version = 0,
+        .decode = NULL,
+        .renderingIntent = renderingIntent
+    };
+    // input
+    vImage_Error ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
+    if (ret != kvImageNoError) return NULL;
+    // output
+    vImageBuffer_Init(&output_buffer, size.height, size.width, (uint32_t)bitsPerComponent * components, kvImageNoFlags);
+    if (!output_buffer.data) return NULL;
+    
+    if (components == 4) {
+        if (bitsPerComponent == 32) {
+            ret = vImageScale_ARGBFFFF(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageScale_ARGB16U(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        }
+    } else {
+        if (bitsPerComponent == 32) {
+            ret = vImageScale_PlanarF(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageScale_Planar16U(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageScale_Planar8(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
+        }
+    }
+    if (ret != kvImageNoError) return NULL;
+    
+    // Convert back to non-alpha for RGB input to preserve pixel format
+    if (alphaInfo == kCGImageAlphaNone) {
+        // in-place, no extra allocation
+        if (bitsPerComponent == 32) {
+            ret = vImageConvert_ARGBFFFFtoRGBFFF(&output_buffer, &output_buffer, kvImageNoFlags);
+        } else if (bitsPerComponent == 16) {
+            ret = vImageConvert_ARGB16UtoRGB16U(&output_buffer, &output_buffer, kvImageNoFlags);
+        } else if (bitsPerComponent == 8) {
+            ret = vImageConvert_ARGB8888toRGB888(&output_buffer, &output_buffer, kvImageNoFlags);
+        }
+        if (ret != kvImageNoError) return NULL;
+    }
+    vImage_CGImageFormat output_format = (vImage_CGImageFormat) {
+        .bitsPerComponent = (uint32_t)bitsPerComponent,
+        .bitsPerPixel = (uint32_t)bitsPerPixel,
+        .colorSpace = colorSpace,
         .bitmapInfo = bitmapInfo,
         .version = 0,
         .decode = NULL,
-        .renderingIntent = CGImageGetRenderingIntent(cgImage)
+        .renderingIntent = renderingIntent
     };
-    
-    vImage_Error a_ret = vImageBuffer_InitWithCGImage(&input_buffer, &format, NULL, cgImage, kvImageNoFlags);
-    if (a_ret != kvImageNoError) return NULL;
-    output_buffer.width = MAX(size.width, 0);
-    output_buffer.height = MAX(size.height, 0);
-    output_buffer.rowBytes = SDByteAlign(output_buffer.width * 4, 64);
-    output_buffer.data = malloc(output_buffer.rowBytes * output_buffer.height);
-    if (!output_buffer.data) return NULL;
-    
-    vImage_Error ret = vImageScale_ARGB8888(&input_buffer, &output_buffer, NULL, kvImageHighQualityResampling);
-    if (ret != kvImageNoError) return NULL;
-    
-    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &format, NULL, NULL, kvImageNoFlags, &ret);
+    CGImageRef outputImage = vImageCreateCGImageFromBuffer(&output_buffer, &output_format, NULL, NULL, kvImageNoFlags, &ret);
     if (ret != kvImageNoError) {
         CGImageRelease(outputImage);
         return NULL;

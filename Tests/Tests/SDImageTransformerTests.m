@@ -11,6 +11,75 @@
 #import "UIColor+SDHexString.h"
 #import <CoreImage/CoreImage.h>
 
+static void SDAssertCGImagePixelFormatEqual(CGImageRef image1, CGImageRef image2) {
+    CGBitmapInfo bitmapInfo1 = CGImageGetBitmapInfo(image1);
+    CGBitmapInfo bitmapInfo2 = CGImageGetBitmapInfo(image2);
+    XCTAssertEqual(bitmapInfo1, bitmapInfo2);
+    // alphaInfo && byteOrderInfo && pixelFomat are just calculation of bitmapInfo
+    XCTAssertEqual(CGImageGetColorSpace(image1), CGImageGetColorSpace(image2));
+    XCTAssertEqual(CGImageGetBitsPerPixel(image1), CGImageGetBitsPerPixel(image2));
+    XCTAssertEqual(CGImageGetBitsPerComponent(image1), CGImageGetBitsPerComponent(image2));
+    XCTAssertEqual(CGImageGetRenderingIntent(image1), CGImageGetRenderingIntent(image2));
+    XCTAssertEqual(CGImageGetShouldInterpolate(image1), CGImageGetShouldInterpolate(image2));
+}
+
+// TODO: Current sd_colorAtPoint: support 8-bits only, 16bits and float color will fail...
+// So I write this `SDAssertCGImageFirstComponentWhite` :(
+static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelType) {
+    CGDataProviderRef provider = CGImageGetDataProvider(image);
+    CFDataRef data = CGDataProviderCopyData(provider);
+    if (pixelType == kCVPixelFormatType_128RGBAFloat) {
+        float *buffer = (float *)CFDataGetBytePtr(data);
+        float r = buffer[0];
+        float g = buffer[1];
+        float b = buffer[2];
+        float a = buffer[3];
+        XCTAssertEqual(r, 1.0);
+        XCTAssertEqual(g, 1.0);
+        XCTAssertEqual(b, 1.0);
+        XCTAssertEqual(a, 1.0);
+    } else if (pixelType == kCVPixelFormatType_64RGBALE) {
+        uint16_t *buffer = (uint16_t *)CFDataGetBytePtr(data);
+        uint16_t r = buffer[0];
+        uint16_t g = buffer[1];
+        uint16_t b = buffer[2];
+        uint16_t a = buffer[3];
+        XCTAssertEqual(r, UINT16_MAX);
+        XCTAssertEqual(g, UINT16_MAX);
+        XCTAssertEqual(b, UINT16_MAX);
+        XCTAssertEqual(a, UINT16_MAX);
+    } else if (pixelType == kCVPixelFormatType_32ARGB) {
+        uint8_t *buffer = (uint8_t *)CFDataGetBytePtr(data);
+        uint8_t a = buffer[0];
+        uint8_t r = buffer[1];
+        uint8_t g = buffer[2];
+        uint8_t b = buffer[3];
+        XCTAssertEqual(a, UINT8_MAX);
+        XCTAssertEqual(r, UINT8_MAX);
+        XCTAssertEqual(g, UINT8_MAX);
+        XCTAssertEqual(b, UINT8_MAX);
+    } else if (pixelType == kCVPixelFormatType_24RGB) {
+        uint8_t *buffer = (uint8_t *)CFDataGetBytePtr(data);
+        uint8_t r = buffer[0];
+        uint8_t g = buffer[1];
+        uint8_t b = buffer[2];
+        XCTAssertEqual(r, UINT8_MAX);
+        XCTAssertEqual(g, UINT8_MAX);
+        XCTAssertEqual(b, UINT8_MAX);
+    } else if (pixelType == kCVPixelFormatType_48RGB) {
+        uint16_t *buffer = (uint16_t *)CFDataGetBytePtr(data);
+        uint16_t r = buffer[0];
+        uint16_t g = buffer[1];
+        uint16_t b = buffer[2];
+        XCTAssertEqual(r, UINT16_MAX);
+        XCTAssertEqual(g, UINT16_MAX);
+        XCTAssertEqual(b, UINT16_MAX);
+    } else {
+        XCTFail(@"Should not hit here");
+    }
+    CFRelease(data);
+}
+
 @interface SDImageTransformerTests : SDTestCase
 
 @property (nonatomic, strong) UIImage *testImageCG;
@@ -415,6 +484,169 @@
     UIColor *testColor = [decodedImage sd_colorAtPoint:CGPointMake(100, 100)];
     // Should not be black color
     expect([[testColor sd_hexString] isEqualToString:UIColor.blackColor.sd_hexString]).beFalsy();
+}
+
+- (void)test22CGImageCreateScaledWithSize {
+    size_t width = 100;
+    size_t height = 100;
+    size_t scaledWidth = 50;
+    size_t scaledHeight = 50;
+    // RGB888
+    CGImageRef RGB888Image = ^(){
+        size_t bitsPerComponent = 8;
+        size_t components = 3;
+        size_t bitsPerPixel = bitsPerComponent * components;
+        size_t bytesPerRow = bitsPerPixel / 8 * width;
+        size_t size = bytesPerRow * height;
+        size_t count = width * height * components;
+        uint8_t bitmap[count];
+        for (size_t i = 0; i < count; i++) {
+            bitmap[i] = UINT8_MAX;
+        }
+        CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+        CGBitmapInfo bitmapInfo = kCGImageAlphaNone | kCGBitmapByteOrderDefault;
+        CFDataRef data = CFDataCreate(NULL, (UInt8 *)bitmap, size);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CFRelease(data);
+        BOOL shouldInterpolate = YES;
+        CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+        CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+        CGDataProviderRelease(provider);
+        return cgImage;
+    }();
+    CGImageRef RGB888Scaled = [SDImageCoderHelper CGImageCreateScaled:RGB888Image size:CGSizeMake(scaledWidth, scaledHeight)];
+    XCTAssertEqual(CGImageGetWidth(RGB888Scaled), scaledWidth);
+    XCTAssertEqual(CGImageGetHeight(RGB888Scaled), scaledHeight);
+    SDAssertCGImagePixelFormatEqual(RGB888Scaled, RGB888Image);
+    SDAssertCGImageFirstComponentWhite(RGB888Scaled, kCVPixelFormatType_24RGB);
+
+    // RGB16161616
+    CGImageRef RGB161616Image = ^(){
+        size_t bitsPerComponent = 16;
+        size_t components = 3;
+        size_t bitsPerPixel = bitsPerComponent * components;
+        size_t bytesPerRow = bitsPerPixel / 8 * width;
+        size_t size = bytesPerRow * height;
+        size_t count = width * height * components;
+        uint16_t bitmap[count];
+        for (size_t i = 0; i < count; i++) {
+            bitmap[i] = UINT16_MAX;
+        }
+        CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+        CGBitmapInfo bitmapInfo = kCGImageAlphaNone | kCGBitmapByteOrder16Host;
+        CFDataRef data = CFDataCreate(NULL, (UInt8 *)bitmap, size);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CFRelease(data);
+        BOOL shouldInterpolate = YES;
+        CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+        CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+        CGDataProviderRelease(provider);
+        return cgImage;
+    }();
+    CGImageRef RGB161616Scaled = [SDImageCoderHelper CGImageCreateScaled:RGB161616Image size:CGSizeMake(scaledWidth, scaledHeight)];
+    XCTAssertEqual(CGImageGetWidth(RGB161616Scaled), scaledWidth);
+    XCTAssertEqual(CGImageGetHeight(RGB161616Scaled), scaledHeight);
+    SDAssertCGImagePixelFormatEqual(RGB161616Scaled, RGB161616Image);
+    SDAssertCGImageFirstComponentWhite(RGB161616Scaled, kCVPixelFormatType_48RGB);
+    
+    // ARGB8888
+    CGImageRef ARGB8888Image = ^(){
+        size_t bitsPerComponent = 8;
+        size_t components = 4;
+        size_t bitsPerPixel = bitsPerComponent * components;
+        size_t bytesPerRow = bitsPerPixel / 8 * width;
+        size_t size = bytesPerRow * height;
+        size_t count = width * height * components;
+        uint8_t bitmap[count];
+        for (size_t i = 0; i < count; i++) {
+            bitmap[i] = UINT8_MAX;
+        }
+        CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+        CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrderDefault;
+        CFDataRef data = CFDataCreate(NULL, (UInt8 *)bitmap, size);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CFRelease(data);
+        BOOL shouldInterpolate = YES;
+        CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+        CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+        CGDataProviderRelease(provider);
+        return cgImage;
+    }();
+    CGImageRef ARGB8888Scaled = [SDImageCoderHelper CGImageCreateScaled:ARGB8888Image size:CGSizeMake(scaledWidth, scaledHeight)];
+    XCTAssertEqual(CGImageGetWidth(ARGB8888Scaled), scaledWidth);
+    XCTAssertEqual(CGImageGetHeight(ARGB8888Scaled), scaledHeight);
+    SDAssertCGImagePixelFormatEqual(ARGB8888Scaled, ARGB8888Image);
+    SDAssertCGImageFirstComponentWhite(ARGB8888Scaled, kCVPixelFormatType_32ARGB);
+    
+    // RGBA16161616
+    CGImageRef RGBA16161616Image = ^(){
+        size_t bitsPerComponent = 16;
+        size_t components = 4;
+        size_t bitsPerPixel = bitsPerComponent * components;
+        size_t bytesPerRow = bitsPerPixel / 8 * width;
+        size_t size = bytesPerRow * height;
+        size_t count = width * height * components;
+        uint16_t bitmap[count];
+        for (size_t i = 0; i < count; i++) {
+            bitmap[i] = UINT16_MAX;
+        }
+        CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+        CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder16Host;
+        CFDataRef data = CFDataCreate(NULL, (UInt8 *)bitmap, size);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CFRelease(data);
+        BOOL shouldInterpolate = YES;
+        CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+        CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+        CGDataProviderRelease(provider);
+        return cgImage;
+    }();
+    CGImageRef RGBA16161616Scaled = [SDImageCoderHelper CGImageCreateScaled:RGBA16161616Image size:CGSizeMake(scaledWidth, scaledHeight)];
+    XCTAssertEqual(CGImageGetWidth(RGBA16161616Scaled), scaledWidth);
+    XCTAssertEqual(CGImageGetHeight(RGBA16161616Scaled), scaledHeight);
+    SDAssertCGImagePixelFormatEqual(RGBA16161616Scaled, RGBA16161616Image);
+    SDAssertCGImageFirstComponentWhite(RGBA16161616Scaled, kCVPixelFormatType_64RGBALE);
+    
+    // RGBAFFFF
+    CGImageRef RGBAFFFFImage = ^(){
+        size_t bitsPerComponent = 32;
+        size_t components = 4;
+        size_t bitsPerPixel = bitsPerComponent * components;
+        size_t bytesPerRow = bitsPerPixel / 8 * width;
+        size_t size = bytesPerRow * height;
+        size_t count = width * height * components;
+        float bitmap[count];
+        for (size_t i = 0; i < count; i++) {
+            bitmap[i] = 1.0;
+        }
+        CGColorSpaceRef colorspace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+        CGBitmapInfo bitmapInfo = kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Host | kCGBitmapFloatComponents;
+        CFDataRef data = CFDataCreate(NULL, (UInt8 *)bitmap, size);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CFRelease(data);
+        BOOL shouldInterpolate = YES;
+        CGColorRenderingIntent intent = kCGRenderingIntentDefault;
+        CGImageRef cgImage = CGImageCreate(width, height, bitsPerComponent, bitsPerPixel, bytesPerRow, colorspace, bitmapInfo, provider, NULL, shouldInterpolate, intent);
+        CGDataProviderRelease(provider);
+        return cgImage;
+    }();
+    CGImageRef RGBAFFFFScaled = [SDImageCoderHelper CGImageCreateScaled:RGBAFFFFImage size:CGSizeMake(scaledWidth, scaledHeight)];
+    XCTAssertEqual(CGImageGetWidth(RGBAFFFFScaled), scaledWidth);
+    XCTAssertEqual(CGImageGetHeight(RGBAFFFFScaled), scaledHeight);
+    SDAssertCGImagePixelFormatEqual(RGBAFFFFScaled, RGBAFFFFImage);
+    SDAssertCGImageFirstComponentWhite(RGBAFFFFScaled, kCVPixelFormatType_128RGBAFloat);
+    
+    // Cleanup and check by human eyes using preview, all should be white image
+    CGImageRelease(RGB888Image);
+    CGImageRelease(RGB888Scaled);
+    CGImageRelease(RGB161616Image);
+    CGImageRelease(RGB161616Scaled);
+    CGImageRelease(ARGB8888Image);
+    CGImageRelease(ARGB8888Scaled);
+    CGImageRelease(RGBA16161616Image);
+    CGImageRelease(RGBA16161616Scaled);
+    CGImageRelease(RGBAFFFFImage);
+    CGImageRelease(RGBAFFFFScaled);
 }
 
 #pragma mark - Helper
