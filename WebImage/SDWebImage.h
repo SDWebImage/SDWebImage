@@ -40,6 +40,7 @@ FOUNDATION_EXPORT const unsigned char SDWebImageVersionString[];
 #import <SDWebImage/UIButton+WebCache.h>
 #import <SDWebImage/SDWebImagePrefetcher.h>
 #import <SDWebImage/UIView+WebCacheOperation.h>
+#import <SDWebImage/UIView+WebCacheState.h>
 #import <SDWebImage/UIImage+Metadata.h>
 #import <SDWebImage/UIImage+MultiFormat.h>
 #import <SDWebImage/UIImage+MemoryCacheCost.h>

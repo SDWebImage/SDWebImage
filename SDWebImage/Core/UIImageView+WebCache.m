@@ -9,6 +9,7 @@
 #import "UIImageView+WebCache.h"
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCache.h"
 
 @implementation UIImageView (WebCache)
@@ -62,6 +63,16 @@
                                    completedBlock(image, error, cacheType, imageURL);
                                }
                            }];
+}
+
+#pragma mark - State
+
+- (NSURL *)sd_currentImageURL {
+    return [self sd_imageLoadStateForKey:nil].url;
+}
+
+- (void)sd_cancelCurrentImageLoad {
+    return [self sd_cancelImageLoadOperationWithKey:nil];
 }
 
 @end

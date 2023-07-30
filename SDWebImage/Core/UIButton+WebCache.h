@@ -21,6 +21,7 @@
 
 /**
  * Get the current image URL.
+ * This simply translate to `[self sd_imageURLForState:self.state]` from v5.17.0
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
 
@@ -30,6 +31,13 @@
  * @param state Which state you want to know the URL for. The values are described in UIControlState.
  */
 - (nullable NSURL *)sd_imageURLForState:(UIControlState)state;
+
+/**
+ * Get the image operation key for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nonnull NSString *)sd_imageOperationKeyForState:(UIControlState)state;
 
 /**
  * Set the button `image` with an `url`.
@@ -201,6 +209,13 @@
  * Get the current background image URL.
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentBackgroundImageURL;
+
+/**
+ * Get the background image operation key for a control state.
+ *
+ * @param state Which state you want to know the URL for. The values are described in UIControlState.
+ */
+- (nonnull NSString *)sd_backgroundImageOperationKeyForState:(UIControlState)state;
 
 /**
  * Get the background image URL for a control state.

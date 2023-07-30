@@ -12,10 +12,9 @@
 
 #import "objc/runtime.h"
 #import "UIView+WebCacheOperation.h"
+#import "UIView+WebCacheState.h"
 #import "UIView+WebCache.h"
 #import "SDInternalMacros.h"
-
-static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageOperation";
 
 @implementation NSButton (WebCache)
 
@@ -59,7 +58,6 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
                    context:(nullable SDWebImageContext *)context
                   progress:(nullable SDImageLoaderProgressBlock)progressBlock
                  completed:(nullable SDExternalCompletionBlock)completedBlock {
-    self.sd_currentImageURL = url;
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
                              options:options
@@ -113,15 +111,13 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
                             context:(nullable SDWebImageContext *)context
                            progress:(nullable SDImageLoaderProgressBlock)progressBlock
                           completed:(nullable SDExternalCompletionBlock)completedBlock {
-    self.sd_currentAlternateImageURL = url;
-    
     SDWebImageMutableContext *mutableContext;
     if (context) {
         mutableContext = [context mutableCopy];
     } else {
         mutableContext = [NSMutableDictionary dictionary];
     }
-    mutableContext[SDWebImageContextSetImageOperationKey] = SDAlternateImageOperationKey;
+    mutableContext[SDWebImageContextSetImageOperationKey] = @keypath(self, alternateImage);
     @weakify(self);
     [self sd_internalSetImageWithURL:url
                     placeholderImage:placeholder
@@ -142,29 +138,23 @@ static NSString * const SDAlternateImageOperationKey = @"NSButtonAlternateImageO
 #pragma mark - Cancel
 
 - (void)sd_cancelCurrentImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:NSStringFromClass([self class])];
+    [self sd_cancelImageLoadOperationWithKey:nil];
 }
 
 - (void)sd_cancelCurrentAlternateImageLoad {
-    [self sd_cancelImageLoadOperationWithKey:SDAlternateImageOperationKey];
+    [self sd_cancelImageLoadOperationWithKey:@keypath(self, alternateImage)];
 }
 
-#pragma mark - Private
+#pragma mark - State
 
 - (NSURL *)sd_currentImageURL {
-    return objc_getAssociatedObject(self, @selector(sd_currentImageURL));
+    return [self sd_imageLoadStateForKey:nil].url;
 }
 
-- (void)setSd_currentImageURL:(NSURL *)sd_currentImageURL {
-    objc_setAssociatedObject(self, @selector(sd_currentImageURL), sd_currentImageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
+#pragma mark - Alternate State
 
 - (NSURL *)sd_currentAlternateImageURL {
-    return objc_getAssociatedObject(self, @selector(sd_currentAlternateImageURL));
-}
-
-- (void)setSd_currentAlternateImageURL:(NSURL *)sd_currentAlternateImageURL {
-    objc_setAssociatedObject(self, @selector(sd_currentAlternateImageURL), sd_currentAlternateImageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    return [self sd_imageLoadStateForKey:@keypath(self, alternateImage)].url;
 }
 
 @end

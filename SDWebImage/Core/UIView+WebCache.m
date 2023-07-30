@@ -18,14 +18,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 @implementation UIView (WebCache)
 
-- (nullable NSURL *)sd_imageURL {
-    return objc_getAssociatedObject(self, @selector(sd_imageURL));
-}
-
-- (void)setSd_imageURL:(NSURL * _Nullable)sd_imageURL {
-    objc_setAssociatedObject(self, @selector(sd_imageURL), sd_imageURL, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
 - (nullable NSString *)sd_latestOperationKey {
     return objc_getAssociatedObject(self, @selector(sd_latestOperationKey));
 }
@@ -34,8 +26,15 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     objc_setAssociatedObject(self, @selector(sd_latestOperationKey), sd_latestOperationKey, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+#pragma mark - State
+
+- (NSURL *)sd_imageURL {
+    return [self sd_imageLoadStateForKey:self.sd_latestOperationKey].url;
+}
+
 - (NSProgress *)sd_imageProgress {
-    NSProgress *progress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+    SDWebImageLoadState *loadState = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
+    NSProgress *progress = loadState.progress;
     if (!progress) {
         progress = [[NSProgress alloc] initWithParent:nil userInfo:nil];
         self.sd_imageProgress = progress;
@@ -44,7 +43,15 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 }
 
 - (void)setSd_imageProgress:(NSProgress *)sd_imageProgress {
-    objc_setAssociatedObject(self, @selector(sd_imageProgress), sd_imageProgress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (!sd_imageProgress) {
+        return;
+    }
+    SDWebImageLoadState *loadState = [self sd_imageLoadStateForKey:self.sd_latestOperationKey];
+    if (!loadState) {
+        loadState = [SDWebImageLoadState new];
+    }
+    loadState.progress = sd_imageProgress;
+    [self sd_setImageLoadState:loadState forKey:self.sd_latestOperationKey];
 }
 
 - (nullable id<SDWebImageOperation>)sd_internalSetImageWithURL:(nullable NSURL *)url
@@ -70,7 +77,12 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     }
     self.sd_latestOperationKey = validOperationKey;
     [self sd_cancelImageLoadOperationWithKey:validOperationKey];
-    self.sd_imageURL = url;
+    SDWebImageLoadState *loadState = [self sd_imageLoadStateForKey:validOperationKey];
+    if (!loadState) {
+        loadState = [SDWebImageLoadState new];
+    }
+    loadState.url = url;
+    [self sd_setImageLoadState:loadState forKey:validOperationKey];
     
     SDWebImageManager *manager = context[SDWebImageContextCustomManager];
     if (!manager) {
@@ -103,7 +115,7 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     
     if (url) {
         // reset the progress
-        NSProgress *imageProgress = objc_getAssociatedObject(self, @selector(sd_imageProgress));
+        NSProgress *imageProgress = loadState.progress;
         if (imageProgress) {
             imageProgress.totalUnitCount = 0;
             imageProgress.completedUnitCount = 0;
@@ -242,7 +254,6 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
 
 - (void)sd_cancelCurrentImageLoad {
     [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
-    self.sd_latestOperationKey = nil;
 }
 
 - (void)sd_setImage:(UIImage *)image imageData:(NSData *)imageData basedOnClassOrViaCustomSetImageBlock:(SDSetImageBlock)setImageBlock cacheType:(SDImageCacheType)cacheType imageURL:(NSURL *)imageURL {
