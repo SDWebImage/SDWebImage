@@ -21,7 +21,7 @@
 
 /**
  * Get the current image URL.
- * This simply translate to `[self sd_imageURLForState:self.state]` from v5.17.0
+ * This simply translate to `[self sd_imageURLForState:self.state]` from v5.18.0
  */
 @property (nonatomic, strong, readonly, nullable) NSURL *sd_currentImageURL;
 

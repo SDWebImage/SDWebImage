@@ -32,7 +32,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
  *
  * @note You can use method `UIView+WebCacheOperation` to investigate different queries' operation.
  * @note For the history version compatible, when current UIView has property exactly called `image`, the operation key will use `NSStringFromClass(self.class)`. Include `UIImageView.image/NSImageView.image/NSButton.image` (without `UIButton`)
- * @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), check their header to call correct API, like `UIButton sd_imageURLForState:`
+ * @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), check their header to call correct API, like `-[UIButton sd_imageOperationKeyForState:]`
  */
 @property (nonatomic, strong, readonly, nullable) NSString *sd_latestOperationKey;
 
@@ -40,7 +40,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 
 /**
  * Get the current image URL.
- * This simply translate to `[self sd_imageLoadStateForKey:self.sd_latestOperationKey].url` from v5.17.0
+ * This simply translate to `[self sd_imageLoadStateForKey:self.sd_latestOperationKey].url` from v5.18.0
  *
  * @note Note that because of the limitations of categories this property can get out of sync if you use setImage: directly.
  * @warning This property should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_imageLoadStateForKey:` instead. See `UIView+WebCacheState.h` for more information.
@@ -92,7 +92,7 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
 
 /**
  * Cancel the current image load
- * This simply translate to `[self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey]` from v5.17.0
+ * This simply translate to `[self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey]` from v5.18.0
  * 
  * @warning This method should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_cancelImageLoadOperationWithKey:` instead. See `UIView+WebCacheOperation.h` for more information.
  */

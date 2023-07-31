@@ -9,7 +9,6 @@
 #import "UIView+WebCacheState.h"
 #import "objc/runtime.h"
 
-static char loadStateKey;
 typedef NSMutableDictionary<NSString *, SDWebImageLoadState *> SDStatesDictionary;
 
 @implementation SDWebImageLoadState
@@ -19,10 +18,10 @@ typedef NSMutableDictionary<NSString *, SDWebImageLoadState *> SDStatesDictionar
 @implementation UIView (WebCacheState)
 
 - (SDStatesDictionary *)sd_imageLoadStateDictionary {
-    SDStatesDictionary *states = objc_getAssociatedObject(self, &loadStateKey);
+    SDStatesDictionary *states = objc_getAssociatedObject(self, @selector(sd_imageLoadStateDictionary));
     if (!states) {
         states = [NSMutableDictionary dictionary];
-        objc_setAssociatedObject(self, &loadStateKey, states, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(sd_imageLoadStateDictionary), states, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return states;
 }
