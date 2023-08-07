@@ -179,6 +179,13 @@ static id<SDImageLoader> _defaultImageLoader;
         key = SDTransformedKeyForKey(key, transformer.transformerKey);
     }
     
+    // Animated Image Class
+    Class animatedImageClass = context[SDWebImageContextAnimatedImageClass];
+    if (animatedImageClass != nil && animatedImageClass != UIImage.class) {
+        NSString *className = NSStringFromClass(animatedImageClass);
+        key = SDTransformedKeyForKey(key, className);
+    }
+    
     return key;
 }
 
