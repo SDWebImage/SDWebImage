@@ -553,7 +553,7 @@ didReceiveResponse:(NSURLResponse *)response
         NSData *imageData = self.imageData;
         
         // keep maximum one progressive decode process during download
-        if (self.coderQueue.operationCount == 0) {
+        if (imageData && self.coderQueue.operationCount == 0) {
             // NSOperation have autoreleasepool, don't need to create extra one
             @weakify(self);
             [self.coderQueue addOperationWithBlock:^{
@@ -632,7 +632,6 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         if (tokens.count > 0) {
             NSData *imageData = self.imageData;
-            self.imageData = nil;
             // data decryptor
             if (imageData && self.decryptor) {
                 imageData = [self.decryptor decryptedDataWithData:imageData response:self.response];
