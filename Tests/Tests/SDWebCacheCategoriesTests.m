@@ -306,13 +306,38 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)testUIViewAutoCancelImage {
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+    SDWebImageCombinedOperation *op1 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
+    SDWebImageCombinedOperation *op2 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
+    // op1 should be automatically cancelled
+    expect(op1.isCancelled).beTruthy();
+    expect(op2.isCancelled).beFalsy();
+}
+
+- (void)testUIViewAvoidAutoCancelImage {
+    UIView *imageView = [[UIView alloc] init];
+    NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
+    SDWebImageCombinedOperation *op1 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
+    SDWebImageCombinedOperation *op2 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:SDWebImageAvoidAutoCancelImage context:nil setImageBlock:nil progress:nil completed:nil];
+    // opt1 should not be automatically cancelled
+    expect(op1.isCancelled).beFalsy();
+    expect(op2.isCancelled).beFalsy();
+}
+
 - (void)testUIViewCancelCurrentImageLoad {
     UIView *imageView = [[UIView alloc] init];
     NSURL *originalImageURL = [NSURL URLWithString:kTestJPEGURL];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
     [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
-    [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
+    SDWebImageCombinedOperation *op1 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
     [imageView sd_cancelCurrentImageLoad];
+    expect(op1.isCancelled).beTruthy();
     NSString *operationKey = NSStringFromClass(UIView.class);
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
 }
