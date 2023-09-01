@@ -107,6 +107,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * of the placeholder image until after the image has finished loading.
      * @note This is used to treate placeholder as an **Error Placeholder** but not **Loading Placeholder** by defaults. if the image loading is cancelled or error, the placeholder will be always set.
      * @note Therefore, if you want both **Error Placeholder** and **Loading Placeholder** exist, use `SDWebImageAvoidAutoSetImage` to manually set the two placeholders and final loaded image by your hand depends on loading result.
+     * @note This options is UI level options, has no usage on ImageManager or other components.
      */
     SDWebImageDelayPlaceholder = 1 << 8,
     
@@ -120,6 +121,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * By default, image is added to the imageView after download. But in some cases, we want to
      * have the hand before setting the image (apply a filter or add it with cross-fade animation for instance)
      * Use this flag if you want to manually set the image in the completion when success
+     * @note This options is UI level options, has no usage on ImageManager or other components.
      */
     SDWebImageAvoidAutoSetImage = 1 << 10,
     
@@ -165,6 +167,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     /**
      * By default, when you use `SDWebImageTransition` to do some view transition after the image load finished, this transition is only applied for image when the callback from manager is asynchronous (from network, or disk cache query)
      * This mask can force to apply view transition for any cases, like memory cache query, or sync disk cache query.
+     * @note This options is UI level options, has no usage on ImageManager or other components.
      */
     SDWebImageForceTransition = 1 << 17,
     
@@ -206,7 +209,15 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * We usually don't apply transform on vector images, because vector images supports dynamically changing to any size, rasterize to a fixed size will loss details. To modify vector images, you can process the vector data at runtime (such as modifying PDF tag / SVG element).
      * Use this flag to transform them anyway.
      */
-    SDWebImageTransformVectorImage = 1 << 23
+    SDWebImageTransformVectorImage = 1 << 23,
+    
+    /**
+     * By defaults, when you use UI-level category like `sd_setImageWithURL:` on UIImageView, it will cancel the loading image requests.
+     * However, some users may choose to not cancel the loading image requests and always start new pipeline.
+     * Use this flag to disable automatic cancel behavior.
+     * @note This options is UI level options, has no usage on ImageManager or other components.
+     */
+    SDWebImageAvoidAutoCancelImage = 1 << 24,
 };
 
 
