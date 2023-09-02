@@ -1,3 +1,25 @@
+## [5.18.0 - VisionOS and more, on Sep 2nd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.0)
+See [all tickets marked for the 5.18.0 release](https://github.com/SDWebImage/SDWebImage/milestone/119)
+
+### VisionOS
+- Support to build for visionOS (no package manager support) #3556
+- - Note this does not include CocoaPods/SwiftPM support. You need Xcode 15+ Beta to open SDWebImage project and build by yourself
+
+### Features
+#### UI Category
+- Added SDWebImageAvoidAutoCancelImage to avoid cancel loading image requests for the same operation key #3592 @mTz0206 
+- Add better support for stateful view (UIButton) for image URL/progres s state management #3576
+
+#### Downloader
+- Fix redundant requests for the same url during decoding time #3572 @Mervin1024
+
+#### Decoder
+- Expose the data and format when SDAnimatedImageRep created with APNG/GIF/WebP/HEICS #3573
+- Fix the CGImageCreateScaled to support 16/32 bit depth CGImage (RGB161616) and always preserve pixel format info #3575
+
+### Fixes
+- Add extra check for empty data during URLSession data callback #3587
+
 ## [5.17.0 - Reduce RAM with Force Decode, on Jul 13th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.17.0)
 See [all tickets marked for the 5.17.0 release](https://github.com/SDWebImage/SDWebImage/milestone/118)
 
