@@ -76,7 +76,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
         context = [mutableContext copy];
     }
     self.sd_latestOperationKey = validOperationKey;
-    [self sd_cancelImageLoadOperationWithKey:validOperationKey];
+    if (!(SD_OPTIONS_CONTAINS(options, SDWebImageAvoidAutoCancelImage))) {
+        // cancel previous loading for the same set-image operation key by default
+        [self sd_cancelImageLoadOperationWithKey:validOperationKey];
+    }
     SDWebImageLoadState *loadState = [self sd_imageLoadStateForKey:validOperationKey];
     if (!loadState) {
         loadState = [SDWebImageLoadState new];
