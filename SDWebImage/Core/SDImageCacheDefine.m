@@ -23,7 +23,7 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     NSValue *thumbnailSizeValue;
     BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
     NSNumber *scaleDownLimitBytesValue = context[SDWebImageContextImageScaleDownLimitBytes];
-    if (!scaleDownLimitBytesValue && shouldScaleDown) {
+    if (scaleDownLimitBytesValue == nil && shouldScaleDown) {
         // Use the default limit bytes
         scaleDownLimitBytesValue = @(SDImageCoderHelper.defaultScaleDownLimitBytes);
     }

@@ -210,10 +210,10 @@ SDKROOT = macosx
 SKIP_INSTALL = YES
 
 // The list of supported platforms from which a base SDK can be used. This setting is used if the product can be built for multiple platforms using different SDKs.
-SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchsimulator watchos appletvsimulator appletvos
+SUPPORTED_PLATFORMS = macosx iphoneos iphonesimulator watchsimulator watchos appletvsimulator appletvos xrsimulator xros
 
 // The build system uses the selected device to set the correct value for the `UIDeviceFamily` key it adds to the target's `Info.plist` file. This also drives the --target-device flag to actool, which determines the idioms selected during catalog compilation for iOS platforms.
-TARGETED_DEVICE_FAMILY = 1,2,3,4
+TARGETED_DEVICE_FAMILY = 1,2,3,4,5,6,7
 
 // Code will load on this and later versions of tvOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
 TVOS_DEPLOYMENT_TARGET = 9.0
@@ -223,6 +223,9 @@ VERSIONING_SYSTEM = apple-generic
 
 // Code will load on this and later versions of watchOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
 WATCHOS_DEPLOYMENT_TARGET = 2.0
+
+// Code will load on this and later versions of visionOS. Framework APIs that are unavailable in earlier versions will be weak-linked; your code should check for null function pointers or specific system versions before calling newer APIs.
+XROS_DEPLOYMENT_TARGET = 1.0
 
 // macOS Catalyst support
 SUPPORTS_MACCATALYST = YES

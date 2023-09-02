@@ -37,6 +37,14 @@ Note: `SD` is the prefix for **Simple Design** (which is the team name in Daily 
 - [x] Modern Objective-C and better Swift support 
 - [x] Performances!
 
+## For Apple visionOS
+
+From 5.18.0, SDWebImage can be compiled for visionOS platform. However, it's still in beta and may contains issues unlike the stable iOS UIKit support. Welcome to have a try and [report issue](https://github.com/SDWebImage/SDWebImage/issues).
+
+To build on visionOS, currently we only support the standard Xcode integration. Which means, open that `SDWebImage.xcodeproj` (Xcode 15+), then choose the target to build as library, framework or XCFramework (supports static and dynamic), and integrate to your visionOS App.
+
+Once the visionOS toolchain is stable, we will add the package manager support later (include CocoaPods and SwiftPM).
+
 ## Supported Image Formats
 
 - Image formats supported by Apple system (JPEG, PNG, TIFF, BMP, ...), including [GIF](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#gif-coder)/[APNG](https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#apng-coder) animated image
