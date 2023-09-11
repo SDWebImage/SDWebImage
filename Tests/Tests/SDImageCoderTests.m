@@ -540,6 +540,24 @@
     XCTAssertTrue(newResult);
 }
 
+- (void)test29ThatJFIFDecodeOrientationShouldNotApplyTwice {
+    NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestJFIF" withExtension:@"jpg"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    
+    UIImage *image = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+#if SD_UIKIT
+    UIImageOrientation orientation = image.imageOrientation;
+    expect(orientation).equal(UIImageOrientationUp);
+#endif
+    
+    // Manual test again for Apple's API
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, nil);
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);
+    NSUInteger exifOrientation = [properties[(__bridge NSString *)kCGImagePropertyOrientation] unsignedIntegerValue];
+    CFRelease(source);
+    expect(exifOrientation).equal(kCGImagePropertyOrientationDown);
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

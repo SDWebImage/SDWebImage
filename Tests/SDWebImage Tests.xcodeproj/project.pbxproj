@@ -38,6 +38,9 @@
 		32648067250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		32648068250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		32648069250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
+		3264CD172AAB1E23001E338B /* TestJFIF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3264CD162AAB1E23001E338B /* TestJFIF.jpg */; };
+		3264CD182AAB1E23001E338B /* TestJFIF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3264CD162AAB1E23001E338B /* TestJFIF.jpg */; };
+		3264CD192AAB1E23001E338B /* TestJFIF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3264CD162AAB1E23001E338B /* TestJFIF.jpg */; };
 		3264FF2F205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		3264FF30205D42CB00F6BD48 /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
 		326E69472334C0C300B7252C /* TestLoopCount.gif in Resources */ = {isa = PBXBuildFile; fileRef = 326E69462334C0C200B7252C /* TestLoopCount.gif */; };
@@ -141,6 +144,7 @@
 		32515F9824AF1919005E8F79 /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
 		32648066250232F7004FA0FC /* 1@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "1@2x.gif"; sourceTree = "<group>"; };
+		3264CD162AAB1E23001E338B /* TestJFIF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TestJFIF.jpg; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
 		3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestTransformer.m; sourceTree = "<group>"; };
 		326E69462334C0C200B7252C /* TestLoopCount.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = TestLoopCount.gif; sourceTree = "<group>"; };
@@ -264,6 +268,7 @@
 				32648066250232F7004FA0FC /* 1@2x.gif */,
 				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
 				324047432271956F007C53E1 /* TestEXIF.png */,
+				3264CD162AAB1E23001E338B /* TestJFIF.jpg */,
 				321F310D27D0DC490042B274 /* TestImage.bmp */,
 				433BBBB61D7EF8200086B6E9 /* TestImage.gif */,
 				326E69462334C0C200B7252C /* TestLoopCount.gif */,
@@ -481,6 +486,7 @@
 			files = (
 				32F788A5290D252200B57A1C /* TestImage.nef in Resources */,
 				6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
+				3264CD192AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				3299228D2365DC6C00EAFD97 /* TestImageAnimated.apng in Resources */,
 				3299228B2365DC6C00EAFD97 /* TestImage.heic in Resources */,
 				329922872365DC6C00EAFD97 /* TestLoopCount.gif in Resources */,
@@ -507,6 +513,7 @@
 			files = (
 				32F788A4290D252200B57A1C /* TestImage.nef in Resources */,
 				6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
+				3264CD182AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
@@ -533,6 +540,7 @@
 			files = (
 				32F788A3290D252200B57A1C /* TestImage.nef in Resources */,
 				327A418C211D660600495442 /* TestImage.heic in Resources */,
+				3264CD172AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				6B181A1B265757ED00BD06B3 /* TestAnimatedImageMemory.webp in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
