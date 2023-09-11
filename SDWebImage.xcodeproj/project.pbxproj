@@ -1132,18 +1132,10 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
-				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/macosx/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/watchos/SDWebImage.framework",
-				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/maccatalyst/SDWebImage.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')\nXCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')\n\nmkdir -p $(SRCROOT)/build\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\" \"maccatalyst\")\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\n    if [[ $CURRENT_PLATFORM == *\"simulator\" ]]; then\n        xcodebuild build -project \"SDWebImage.xcodeproj\" -sdk \"${CURRENT_PLATFORM}\" -scheme \"SDWebImage\" -configuration \"Debug\" -derivedDataPath \"${SRCROOT}/build/DerivedData\" CONFIGURATION_BUILD_DIR=\"${SRCROOT}/build/${CURRENT_PLATFORM}/\"\n    else\n    # macOS Catalyst\n    if [[ $CURRENT_PLATFORM == \"maccatalyst\" ]]; then\n        if [[ $XCODE_VERSION_MAJOR -lt 11 ]]; then\n            # Xcode 10 does not support macOS Catalyst\n            continue\n        else\n            xcodebuild archive -project \"SDWebImage.xcodeproj\" -scheme \"SDWebImage\" -configuration \"Release\" -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' -archivePath \"${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.xcarchive\" -derivedDataPath \"${SRCROOT}/build/DerivedData\" SKIP_INSTALL=NO\n        fi\n    else\n        xcodebuild archive -project \"SDWebImage.xcodeproj\" -sdk \"${CURRENT_PLATFORM}\" -scheme \"SDWebImage\" -configuration \"Release\" -archivePath \"${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.xcarchive\" SKIP_INSTALL=NO\n    fi\n    mv \"${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.xcarchive/Products/Library/Frameworks/SDWebImage.framework\" \"${SRCROOT}/build/${CURRENT_PLATFORM}/\"\n    mv \"${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.xcarchive/dSYMs/SDWebImage.framework.dSYM\" \"${SRCROOT}/build/${CURRENT_PLATFORM}/\"\n    rm -rf \"${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.xcarchive/\"\n    fi\ndone\n";
+			shellScript = "sh ${SRCROOT}/Scripts/build-frameworks.sh\n";
 		};
 		326CA51422BA25F70033A92F /* Create XCFramework */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1153,24 +1145,15 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
-				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/macosx/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/watchos/SDWebImage.framework",
-				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/maccatalyst/SDWebImage.framework",
 			);
 			name = "Create XCFramework";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/build/SDWebImage.xcframework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')\nXCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')\n\nif [ $XCODE_VERSION_MAJOR -lt 11 ]\nthen\n    echo \"Xcode 10 does not support xcframework. You can still use the individual framework for each platform.\"\n    open -a Finder \"${SRCROOT}/build/\"\n    exit 0\nfi\n\ndeclare -a PLATFORMS=(\"iphoneos\" \"iphonesimulator\" \"macosx\" \"appletvos\" \"appletvsimulator\" \"watchos\" \"watchsimulator\" \"maccatalyst\")\nCOMMAND_ARGS=\"\"\nfor CURRENT_PLATFORM in \"${PLATFORMS[@]}\"\ndo\n    COMMAND_ARGS=\"${COMMAND_ARGS} -framework ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework\"\ndone\n\n# Combine XCFramework\nxcodebuild -create-xcframework $COMMAND_ARGS -output \"${SRCROOT}/build/SDWebImage.xcframework\"\nopen -a Finder \"${SRCROOT}/build/SDWebImage.xcframework\"\n";
+			shellScript = "sh ${SRCROOT}/Scripts/create-xcframework.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
