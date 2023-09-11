@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -o pipefail
+
 XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')
 XCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')
 if [ -z "$SRCROOT" ]
@@ -14,12 +17,18 @@ then
     exit 0
 fi
 
-declare -a PLATFORMS=("iphoneos" "iphonesimulator" "macosx" "appletvos" "appletvsimulator" "watchos" "watchsimulator")
+mkdir -p "${SRCROOT}/build"
+PLATFORMS=("iOS" "iOSSimulator" "macOS" "tvOS" "tvOSSimulator" "watchOS" "watchOSSimulator")
+
+if [ $XCODE_VERSION_MAJOR -ge 11 ]
+then
+    PLATFORMS+=("macCatalyst")
+fi
 
 if [ $XCODE_VERSION_MAJOR -ge 15 ]
 then
-    PLATFORMS+=("xros")
-    PLATFORMS+=("xrsimulator")
+    PLATFORMS+=("visionOS")
+    PLATFORMS+=("visionOSSimulator")
 fi
 
 COMMAND_ARGS=""
