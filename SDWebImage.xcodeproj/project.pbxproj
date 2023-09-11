@@ -1132,16 +1132,6 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
-				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/macosx/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/watchos/SDWebImage.framework",
-				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/maccatalyst/SDWebImage.framework",
-				"$(SRCROOT)/build/xros/SDWebImage.framework",
-				"$(SRCROOT)/build/xrsimulator/SDWebImage.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1155,22 +1145,11 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/build/iphoneos/SDWebImage.framework",
-				"$(SRCROOT)/build/iphonesimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/macosx/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvos/SDWebImage.framework",
-				"$(SRCROOT)/build/appletvsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/watchos/SDWebImage.framework",
-				"$(SRCROOT)/build/watchsimulator/SDWebImage.framework",
-				"$(SRCROOT)/build/maccatalyst/SDWebImage.framework",
-				"$(SRCROOT)/build/xros/SDWebImage.framework",
-				"$(SRCROOT)/build/xrsimulator/SDWebImage.framework",
 			);
 			name = "Create XCFramework";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/build/SDWebImage.xcframework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
