@@ -41,9 +41,11 @@ Note: `SD` is the prefix for **Simple Design** (which is the team name in Daily 
 
 From 5.18.0, SDWebImage can be compiled for visionOS platform. However, it's still in beta and may contains issues unlike the stable iOS UIKit support. Welcome to have a try and [report issue](https://github.com/SDWebImage/SDWebImage/issues).
 
-To build on visionOS, currently we only support the standard Xcode integration. Which means, open that `SDWebImage.xcodeproj` (Xcode 15+), then choose the target to build as library, framework or XCFramework (supports static and dynamic), and integrate to your visionOS App.
+To build on visionOS, currently we only support the standard Xcode integration.
 
-Once the visionOS toolchain is stable, we will add the package manager support later (include CocoaPods and SwiftPM).
+See `Installation with Swift Package Manager` and `Manual Installation Guide` below.
+
+Once the visionOS toolchain is stable, we will add the other package manager support later (include CocoaPods).
 
 ## Supported Image Formats
 
@@ -287,7 +289,31 @@ let package = Package(
 
 ### Manual Installation Guide
 
-See more on [Manual install Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide#manual-installation-guide)
++ Check your command line Xcode version
+
+```
+sudo xcode-select -s /path/to/Xcode.app
+```
+
+or
+
+```
+export DEVELOPER_DIR=/path/to/Xcode.app/Contents/Developer
+```
+
++ Run the script to build frameworks
+
+```
+./Scripts/build-frameworks.sh
+```
+
++ Run the script to merge XCFramework
+
+```
+./Scripts/create-xcframework.sh
+```
+
+See more on wiki: [Manual install Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide#manual-installation-guide)
 
 ### Import headers in your source files
 
