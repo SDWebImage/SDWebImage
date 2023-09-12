@@ -237,6 +237,8 @@
 		32E67311235765B500DB4987 /* SDDisplayLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 32E6730F235765B500DB4987 /* SDDisplayLink.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		32E67312235765B500DB4987 /* SDDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E67310235765B500DB4987 /* SDDisplayLink.m */; };
 		32E67313235765B500DB4987 /* SDDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E67310235765B500DB4987 /* SDDisplayLink.m */; };
+		32EABAE62AB04CCD0004EB48 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3286569B2AB045DC00E0BDB7 /* PrivacyInfo.xcprivacy */; };
+		32EABAE72AB04CCE0004EB48 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3286569B2AB045DC00E0BDB7 /* PrivacyInfo.xcprivacy */; };
 		32EB6D8E206D132E005CAEF6 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 320224BA203979BA00E9F285 /* SDAnimatedImageRep.m */; };
 		32EB6D91206D132E005CAEF6 /* SDAnimatedImageRep.m in Sources */ = {isa = PBXBuildFile; fileRef = 320224BA203979BA00E9F285 /* SDAnimatedImageRep.m */; };
 		32F21B5320788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 32F21B4F20788D8C0036B1D5 /* SDWebImageDownloaderRequestModifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -465,6 +467,7 @@
 		327054D2206CD8B3006EA328 /* SDImageAPNGCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDImageAPNGCoder.h; path = Core/SDImageAPNGCoder.h; sourceTree = "<group>"; };
 		327054D3206CD8B3006EA328 /* SDImageAPNGCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDImageAPNGCoder.m; path = Core/SDImageAPNGCoder.m; sourceTree = "<group>"; };
 		327F2E82245AE1650075F846 /* SDWebImageOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SDWebImageOperation.m; path = Core/SDWebImageOperation.m; sourceTree = "<group>"; };
+		3286569B2AB045DC00E0BDB7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3287E6CD244C0C1400007311 /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+WebCache.m"; sourceTree = "<group>"; };
 		3287E6CE244C0C1400007311 /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+WebCache.h"; sourceTree = "<group>"; };
 		328BB69A2081FED200760D6C /* SDWebImageCacheKeyFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDWebImageCacheKeyFilter.h; path = Core/SDWebImageCacheKeyFilter.h; sourceTree = "<group>"; };
@@ -751,6 +754,7 @@
 		4A2CAE011AB4BB5400B6BC39 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3286569B2AB045DC00E0BDB7 /* PrivacyInfo.xcprivacy */,
 				4A2CAE021AB4BB5400B6BC39 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -1106,6 +1110,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32EABAE62AB04CCD0004EB48 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,6 +1118,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32EABAE72AB04CCE0004EB48 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
