@@ -269,9 +269,9 @@ static NSString * _defaultDiskCacheDirectory;
                     format = [SDImageCoderHelper CGImageContainsAlpha:image.CGImage] ? SDImageFormatPNG : SDImageFormatJPEG;
                 }
             }
-            NSData *data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:context[SDWebImageContextImageEncodeOptions]];
+            NSData *encodedData = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:context[SDWebImageContextImageEncodeOptions]];
             dispatch_async(self.ioQueue, ^{
-                [self _storeImageDataToDisk:data forKey:key];
+                [self _storeImageDataToDisk:encodedData forKey:key];
                 [self _archivedDataWithImage:image forKey:key];
                 if (completionBlock) {
                     [(queue ?: SDCallbackQueue.mainQueue) async:^{
