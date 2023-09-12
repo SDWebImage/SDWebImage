@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -32,6 +32,7 @@ let package = Package(
             dependencies: [],
             path: "SDWebImage",
             sources: ["Core", "Private"],
+            resources: [.copy("Resources/PrivacyInfo.xcprivacy")],
             cSettings: [
                 .headerSearchPath("Core"),
                 .headerSearchPath("Private")
@@ -41,7 +42,8 @@ let package = Package(
             name: "SDWebImageMapKit",
             dependencies: ["SDWebImage"],
             path: "SDWebImageMapKit",
-            sources: ["MapKit"]
+            sources: ["MapKit"],
+            resources: [.copy("Resources/PrivacyInfo.xcprivacy")]
         )
     ]
 )

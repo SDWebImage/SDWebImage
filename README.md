@@ -335,7 +335,14 @@ At this point your workspace should build without error. If you are having probl
 community can help you solve it.
 
 ## Data Collection Practices
-As required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
+
+From Xcode 15, we provide the new `PrivacyInfo.xcprivacy` file for privacy details, see [Describing data use in privacy manifests](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_data_use_in_privacy_manifests?language=objc)
+
+You can exports the privacy report after archive your App by integrate SDWebImage via SwiftPM/XCFramework (Note: CocoaPods does not support currently).
+
+For old version, as required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
+
+
 
 ## Author
 - [Olivier Poitrey](https://github.com/rs)
