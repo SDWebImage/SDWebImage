@@ -1,3 +1,16 @@
+## [5.18.1 - Privacy Manifest, on Sep 12, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.1)
+See [all tickets marked for the 5.18.1 release](https://github.com/SDWebImage/SDWebImage/milestone/120)
+
+### Project
+- Added the visionOS support for "Build XCFramework" script target #3598
+- Added xcprivacy to framework target and SPM #3600
+
+### Fixes
+- Fix the JFIF image orientation bug (which does not use EXIF but JFIF metadata) #3597
+
+### Warnings
+- Fix one warning because local variable shadows the variable outside of block #3599
+
 ## [5.18.0 - VisionOS and more, on Sep 2nd, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.0)
 See [all tickets marked for the 5.18.0 release](https://github.com/SDWebImage/SDWebImage/milestone/119)
 
