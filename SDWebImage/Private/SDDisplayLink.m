@@ -197,7 +197,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     self.displayLink.paused = NO;
 #else
     if (self.displayLink.isValid) {
-        [self.displayLink fire];
+        // Do nothing
     } else {
         SDWeakProxy *weakProxy = [SDWeakProxy proxyWithTarget:self];
         self.displayLink = [NSTimer timerWithTimeInterval:kSDDisplayLinkInterval target:weakProxy selector:@selector(displayLinkDidRefresh:) userInfo:nil repeats:YES];
