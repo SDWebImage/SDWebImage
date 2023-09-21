@@ -1,4 +1,10 @@
-## [5.18.1 - Privacy Manifest, on Sep 12, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.1)
+## [5.18.2 - 5.18 Fix, on Sep 21st, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.2)
+See [all tickets marked for the 5.18.2 release](https://github.com/SDWebImage/SDWebImage/milestone/121)
+
+### Fixes
+- Fix the SDDisplayLink on watchOS does not behave like other platform #3607
+
+## [5.18.1 - Privacy Manifest, on Sep 12th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.1)
 See [all tickets marked for the 5.18.1 release](https://github.com/SDWebImage/SDWebImage/milestone/120)
 
 ### Project
