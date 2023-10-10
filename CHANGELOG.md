@@ -1,3 +1,13 @@
+## [5.18.3 - 5.18 Fix, on Oct 10th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.3)
+See [all tickets marked for the 5.18.3 release](https://github.com/SDWebImage/SDWebImage/milestone/122)
+
+### Project
+- Update the TargetConditionals check for visionOS on Xcode 15.1 #3620
+
+### Fixes
+- Update the convenient API for case when user encode the format the same as image format, provide better quick return #3617
+- Try to remove the unused NSNotification object filter, do filter by ourself #3619
+
 ## [5.18.2 - 5.18 Fix, on Sep 21st, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.2)
 See [all tickets marked for the 5.18.2 release](https://github.com/SDWebImage/SDWebImage/milestone/121)
 
