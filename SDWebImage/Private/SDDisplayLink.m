@@ -10,7 +10,7 @@
 #import "SDWeakProxy.h"
 #if SD_MAC
 #import <CoreVideo/CoreVideo.h>
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
 #import <QuartzCore/QuartzCore.h>
 #endif
 #include <mach/mach_time.h>
@@ -30,7 +30,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 @property (nonatomic, assign) CVDisplayLinkRef displayLink;
 @property (nonatomic, assign) CVTimeStamp outputTime;
 @property (nonatomic, copy) NSRunLoopMode runloopMode;
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
 @property (nonatomic, strong) CADisplayLink *displayLink;
 #else
 @property (nonatomic, strong) NSTimer *displayLink;
@@ -49,7 +49,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         CVDisplayLinkRelease(_displayLink);
         _displayLink = NULL;
     }
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     [_displayLink invalidate];
     _displayLink = nil;
 #else
@@ -69,7 +69,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         CVDisplayLinkCreateWithActiveCGDisplays(&_displayLink);
         // Simulate retain for target, the target is weak proxy to self
         CVDisplayLinkSetOutputCallback(_displayLink, DisplayLinkCallback, (__bridge_retained void *)weakProxy);
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
         _displayLink = [CADisplayLink displayLinkWithTarget:weakProxy selector:@selector(displayLinkDidRefresh:)];
 #else
         _displayLink = [NSTimer timerWithTimeInterval:kSDDisplayLinkInterval target:weakProxy selector:@selector(displayLinkDidRefresh:) userInfo:nil repeats:YES];
@@ -123,7 +123,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         } else {
             duration = kSDDisplayLinkInterval;
         }
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
         // Fallback
         duration = self.displayLink.duration;
 #else
@@ -137,7 +137,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (BOOL)isRunning {
 #if SD_MAC
     return CVDisplayLinkIsRunning(self.displayLink);
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     return !self.displayLink.isPaused;
 #else
     return self.displayLink.isValid;
@@ -150,7 +150,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     }
 #if SD_MAC
     self.runloopMode = mode;
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     [self.displayLink addToRunLoop:runloop forMode:mode];
 #else
     self.runloop = runloop;
@@ -173,7 +173,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     }
 #if SD_MAC
     self.runloopMode = nil;
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     [self.displayLink removeFromRunLoop:runloop forMode:mode];
 #else
     self.runloop = nil;
@@ -193,7 +193,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void)start {
 #if SD_MAC
     CVDisplayLinkStart(self.displayLink);
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     self.displayLink.paused = NO;
 #else
     if (self.displayLink.isValid) {
@@ -209,7 +209,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void)stop {
 #if SD_MAC
     CVDisplayLinkStop(self.displayLink);
-#elif SD_IOS || SD_TV
+#elif SD_UIKIT
     self.displayLink.paused = YES;
 #else
     [self.displayLink invalidate];
@@ -219,7 +219,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 - (void)displayLinkDidRefresh:(id)displayLink {
-#if SD_IOS || SD_TV
+#if SD_UIKIT
     if (@available(iOS 10.0, tvOS 10.0, *)) {
         self.nextFireTime = self.displayLink.targetTimestamp;
     } else {
