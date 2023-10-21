@@ -114,7 +114,19 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 
 - (instancetype)initWithContentsOfFile:(NSString *)path {
     NSData *data = [NSData dataWithContentsOfFile:path];
-    return [self initWithData:data scale:SDImageScaleFromPath(path)];
+    if (!data) {
+        return nil;
+    }
+    CGFloat scale = SDImageScaleFromPath(path);
+    // path extension may be useful for coder like raw-image
+    NSString *fileExtensionHint = path.pathExtension; // without dot
+    if (fileExtensionHint.length == 0) {
+        // Ignore file extension which is empty
+        fileExtensionHint = nil;
+    }
+    SDImageCoderMutableOptions *mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:1];
+    mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
+    return [self initWithData:data scale:scale options:[mutableCoderOptions copy]];
 }
 
 - (instancetype)initWithData:(NSData *)data {
@@ -130,12 +142,17 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
         return nil;
     }
     id<SDAnimatedImageCoder> animatedCoder = nil;
+    SDImageCoderMutableOptions *mutableCoderOptions;
+    if (options != nil) {
+        mutableCoderOptions = [NSMutableDictionary dictionaryWithDictionary:options];
+    } else {
+        mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:1];
+    }
+    mutableCoderOptions[SDImageCoderDecodeScaleFactor] = @(scale);
+    options = [mutableCoderOptions copy];
     for (id<SDImageCoder>coder in [SDImageCodersManager sharedManager].coders.reverseObjectEnumerator) {
         if ([coder conformsToProtocol:@protocol(SDAnimatedImageCoder)]) {
             if ([coder canDecodeFromData:data]) {
-                if (!options) {
-                    options = @{SDImageCoderDecodeScaleFactor : @(scale)};
-                }
                 animatedCoder = [[[coder class] alloc] initWithAnimatedImageData:data options:options];
                 break;
             }
