@@ -623,6 +623,49 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return CGSizeMake(resultWidth, resultHeight);
 }
 
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize scaleMode:(SDImageScaleMode)scaleMode {
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat resultWidth;
+    CGFloat resultHeight;
+    
+    if (width <= 0 || height <= 0 || scaleSize.width <= 0 || scaleSize.height <= 0) {
+        // Protect
+        resultWidth = width;
+        resultHeight = height;
+    } else {
+        // Scale to fit, choose the smallest edge
+        if (scaleMode == SDImageScaleModeAspectFit) {
+            CGFloat pixelRatio = width / height;
+            CGFloat scaleRatio = scaleSize.width / scaleSize.height;
+            if (pixelRatio > scaleRatio) {
+                resultWidth = scaleSize.width;
+                resultHeight = ceil(scaleSize.width / pixelRatio);
+            } else {
+                resultHeight = scaleSize.height;
+                resultWidth = ceil(scaleSize.height * pixelRatio);
+            }
+        } else if (scaleMode == SDImageScaleModeAspectFill) {
+            // Scale to fill, choose the longest edge
+            CGFloat pixelRatio = width / height;
+            CGFloat scaleRatio = scaleSize.width / scaleSize.height;
+            if (pixelRatio > scaleRatio) {
+                resultHeight = scaleSize.height;
+                resultWidth = ceil(scaleSize.height * pixelRatio);
+            } else {
+                resultWidth = scaleSize.width;
+                resultHeight = ceil(scaleSize.width / pixelRatio);
+            }
+        } else{
+            // Stretch
+            resultWidth = scaleSize.width;
+            resultHeight = scaleSize.height;
+        }
+    }
+    
+    return CGSizeMake(resultWidth, resultHeight);
+}
+
 + (CGSize)scaledSizeWithImageSize:(CGSize)imageSize limitBytes:(NSUInteger)limitBytes bytesPerPixel:(NSUInteger)bytesPerPixel frameCount:(NSUInteger)frameCount {
     if (CGSizeEqualToSize(imageSize, CGSizeZero)) return CGSizeMake(1, 1);
     NSUInteger totalFramePixelSize = limitBytes / bytesPerPixel / (frameCount ?: 1);

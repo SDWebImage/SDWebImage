@@ -15,11 +15,14 @@
 
 #import <CoreServices/CoreServices.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext * _Nullable context, SDWebImageOptions options, NSString * _Nonnull cacheKey) {
     BOOL decodeFirstFrame = SD_OPTIONS_CONTAINS(options, SDWebImageDecodeFirstFrameOnly);
     NSNumber *scaleValue = context[SDWebImageContextImageScaleFactor];
     CGFloat scale = scaleValue.doubleValue >= 1 ? scaleValue.doubleValue : SDImageScaleFactorForKey(cacheKey); // Use cache key to detect scale
     NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
+    NSNumber *scaleModeValue = context[SDWebImageContextImageScaleMode];
     NSValue *thumbnailSizeValue;
     BOOL shouldScaleDown = SD_OPTIONS_CONTAINS(options, SDWebImageScaleDownLargeImages);
     NSNumber *scaleDownLimitBytesValue = context[SDWebImageContextImageScaleDownLimitBytes];
@@ -53,6 +56,7 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     mutableCoderOptions[SDImageCoderDecodeFirstFrameOnly] = @(decodeFirstFrame);
     mutableCoderOptions[SDImageCoderDecodeScaleFactor] = @(scale);
     mutableCoderOptions[SDImageCoderDecodePreserveAspectRatio] = preserveAspectRatioValue;
+    mutableCoderOptions[SDImageCoderDecodeScaleMode] = scaleModeValue;
     mutableCoderOptions[SDImageCoderDecodeThumbnailPixelSize] = thumbnailSizeValue;
     mutableCoderOptions[SDImageCoderDecodeTypeIdentifierHint] = typeIdentifierHint;
     mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
@@ -70,6 +74,7 @@ void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableCont
     
     mutableContext[SDWebImageContextImageScaleFactor] = decodeOptions[SDImageCoderDecodeScaleFactor];
     mutableContext[SDWebImageContextImagePreserveAspectRatio] = decodeOptions[SDImageCoderDecodePreserveAspectRatio];
+    mutableContext[SDWebImageContextImageScaleMode] = decodeOptions[SDImageCoderDecodeScaleMode];
     mutableContext[SDWebImageContextImageThumbnailPixelSize] = decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
     mutableContext[SDWebImageContextImageScaleDownLimitBytes] = decodeOptions[SDImageCoderDecodeScaleDownLimitBytes];
     
@@ -86,6 +91,7 @@ void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableCont
     }
     mutableContext[SDWebImageContextImageTypeIdentifierHint] = typeIdentifierHint;
 }
+#pragma clang diagnostic pop
 
 UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSString * _Nonnull cacheKey, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
     NSCParameterAssert(imageData);

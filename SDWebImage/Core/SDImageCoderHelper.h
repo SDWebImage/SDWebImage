@@ -10,6 +10,16 @@
 #import "SDWebImageCompat.h"
 #import "SDImageFrame.h"
 
+/// The scale mode to apply when image drawing on a container with different sizes.
+typedef NS_ENUM(NSUInteger, SDImageScaleMode) {
+    /// The option to scale the content to fit the size of itself by changing the aspect ratio of the content if necessary.
+    SDImageScaleModeFill = 0,
+    /// The option to scale the content to fit the size of the view by maintaining the aspect ratio. Any remaining area of the view’s bounds is transparent.
+    SDImageScaleModeAspectFit = 1,
+    /// The option to scale the content to fill the size of the view. Some portion of the content may be clipped to fill the view’s bounds.
+    SDImageScaleModeAspectFill = 2
+};
+
 /// The options controls how we force pre-draw the image (to avoid lazy-decoding). Which need OS's framework compatibility
 typedef NS_ENUM(NSUInteger, SDImageCoderDecodeSolution) {
     /// automatically choose the solution based on image format, hardware, OS version. This keep balance for compatibility and performance. Default after SDWebImage 5.13.0
@@ -154,7 +164,13 @@ typedef struct SDImagePixelFormat {
  @param preserveAspectRatio Whether or not to preserve aspect ratio
  @param shouldScaleUp Whether or not to scale up (or scale down only)
  */
-+ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize preserveAspectRatio:(BOOL)preserveAspectRatio shouldScaleUp:(BOOL)shouldScaleUp;
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize preserveAspectRatio:(BOOL)preserveAspectRatio shouldScaleUp:(BOOL)shouldScaleUp API_DEPRECATED_WITH_REPLACEMENT("scaledSizeWithImageSize:scaleSize:scaleMode:", macos(10.10, API_TO_BE_DEPRECATED), ios(8.0, API_TO_BE_DEPRECATED), tvos(9.0, API_TO_BE_DEPRECATED), watchos(2.0, API_TO_BE_DEPRECATED));
+
+/// Scale the image size based on provided scale size and scale mode.
+/// @param imageSize The image size (in pixel or point defined by caller)
+/// @param scaleSize The scale size (in pixel or point defined by caller)
+/// @param scaleMode The image scale mode to use. If `.aspectFill` the returned size will be larger than the image size
++ (CGSize)scaledSizeWithImageSize:(CGSize)imageSize scaleSize:(CGSize)scaleSize scaleMode:(SDImageScaleMode)scaleMode;
 
 /// Calculate the limited image size with the bytes, when using `SDImageCoderDecodeScaleDownLimitBytes`. This preserve aspect ratio and never scale up
 /// @param imageSize The image size (in pixel or point defined by caller)

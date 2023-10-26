@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
 #import "SDImageIOAnimatedCoder.h"
+#import "SDImageCoderHelper.h"
 
 // AVFileTypeHEIC/AVFileTypeHEIF is defined in AVFoundation via iOS 11, we use this without import AVFoundation
 #define kSDUTTypeHEIC  ((__bridge CFStringRef)@"public.heic")
@@ -32,7 +33,7 @@
 
 + (NSTimeInterval)frameDurationAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source;
 + (NSUInteger)imageLoopCountWithSource:(nonnull CGImageSourceRef)source;
-+ (nullable UIImage *)createFrameAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage;
++ (nullable UIImage *)createFrameAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source scale:(CGFloat)scale thumbnailSize:(CGSize)thumbnailSize scaleMode:(SDImageScaleMode)scaleMode lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage;
 + (BOOL)canEncodeToFormat:(SDImageFormat)format;
 + (BOOL)canDecodeFromFormat:(SDImageFormat)format;
 
