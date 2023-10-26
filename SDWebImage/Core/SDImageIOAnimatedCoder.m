@@ -70,8 +70,8 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     NSUInteger _frameCount;
     NSArray<SDImageIOCoderFrame *> *_frames;
     BOOL _finished;
-    BOOL _preserveAspectRatio;
     CGSize _thumbnailSize;
+    SDImageScaleMode _scaleMode;
     NSUInteger _limitBytes;
     BOOL _lazyDecode;
 }
@@ -217,7 +217,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     return frameDuration;
 }
 
-+ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage {
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale thumbnailSize:(CGSize)thumbnailSize  scaleMode:(SDImageScaleMode)scaleMode lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
     NSDictionary *options;
     if (animatedImage) {
@@ -253,9 +253,10 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     if (createFullImage) {
         imageRef = CGImageSourceCreateImageAtIndex(source, index, (__bridge CFDictionaryRef)[decodingOptions copy]);
     } else {
-        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(preserveAspectRatio);
+        BOOL shouldTransform = (scaleMode != SDImageScaleModeFill);
+        decodingOptions[(__bridge NSString *)kCGImageSourceCreateThumbnailWithTransform] = @(shouldTransform);
         CGFloat maxPixelSize;
-        if (preserveAspectRatio) {
+        if (shouldTransform) {
             CGFloat pixelRatio = pixelWidth / pixelHeight;
             CGFloat thumbnailRatio = thumbnailSize.width / thumbnailSize.height;
             if (pixelRatio > thumbnailRatio) {
@@ -276,7 +277,8 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     BOOL isDecoded = NO;
     // Thumbnail image post-process
     if (!createFullImage) {
-        if (preserveAspectRatio) {
+        BOOL shouldTransform = (scaleMode != SDImageScaleModeFill);
+        if (shouldTransform) {
             // kCGImageSourceCreateThumbnailWithTransform will apply EXIF transform as well, we should not apply twice
             exifOrientation = kCGImagePropertyOrientationUp;
         } else {
@@ -360,12 +362,19 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         thumbnailSize = thumbnailSizeValue.CGSizeValue;
 #endif
     }
-    
-    BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
     NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
     if (preserveAspectRatioValue != nil) {
-        preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
     }
+    NSNumber *scaleModeValue = options[SDImageCoderDecodeScaleMode];
+    if (scaleModeValue != nil) {
+        scaleMode = scaleModeValue.unsignedIntegerValue;
+    }
+#pragma clang diagnostic pop
     
     BOOL lazyDecode = YES; // Defaults YES for static image coder
     NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
@@ -438,17 +447,17 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:limitBytes bytesPerPixel:4 frameCount:frameCount];
         // Override thumbnail size
         thumbnailSize = framePixelSize;
-        preserveAspectRatio = YES;
+        scaleMode = SDImageScaleModeAspectFit;
     }
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || frameCount <= 1) {
-        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale thumbnailSize:thumbnailSize scaleMode:scaleMode lazyDecode:lazyDecode animatedImage:NO];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:frameCount];
         
         for (size_t i = 0; i < frameCount; i++) {
-            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale thumbnailSize:thumbnailSize scaleMode:scaleMode lazyDecode:lazyDecode animatedImage:NO];
             if (!image) {
                 continue;
             }
@@ -498,12 +507,20 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     #endif
         }
         _thumbnailSize = thumbnailSize;
-        BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
         NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
-            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
         }
-        _preserveAspectRatio = preserveAspectRatio;
+        NSNumber *scaleModeValue = options[SDImageCoderDecodeScaleMode];
+        if (scaleModeValue != nil) {
+            scaleMode = scaleModeValue.unsignedIntegerValue;
+        }
+#pragma clang diagnostic pop
+        _scaleMode = scaleMode;
         NSUInteger limitBytes = 0;
         NSNumber *limitBytesValue = options[SDImageCoderDecodeScaleDownLimitBytes];
         if (limitBytesValue != nil) {
@@ -561,7 +578,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:_limitBytes bytesPerPixel:4 frameCount:_frameCount];
         // Override thumbnail size
         _thumbnailSize = framePixelSize;
-        _preserveAspectRatio = YES;
+        _scaleMode = SDImageScaleModeAspectFit;
     }
 }
 
@@ -576,7 +593,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale thumbnailSize:_thumbnailSize scaleMode:_scaleMode lazyDecode:_lazyDecode animatedImage:NO];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -743,12 +760,20 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
     #endif
         }
         _thumbnailSize = thumbnailSize;
-        BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
         NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
-            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
         }
-        _preserveAspectRatio = preserveAspectRatio;
+        NSNumber *scaleModeValue = options[SDImageCoderDecodeScaleMode];
+        if (scaleModeValue != nil) {
+            scaleMode = scaleModeValue.unsignedIntegerValue;
+        }
+#pragma clang diagnostic pop
+        _scaleMode = scaleMode;
         NSUInteger limitBytes = 0;
         NSNumber *limitBytesValue = options[SDImageCoderDecodeScaleDownLimitBytes];
         if (limitBytesValue != nil) {
@@ -766,7 +791,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
             CGSize framePixelSize = [SDImageCoderHelper scaledSizeWithImageSize:imageSize limitBytes:_limitBytes bytesPerPixel:4 frameCount:_frameCount];
             // Override thumbnail size
             _thumbnailSize = framePixelSize;
-            _preserveAspectRatio = YES;
+            _scaleMode = SDImageScaleModeAspectFit;
         }
         BOOL lazyDecode = NO; // Defaults NO for animated image coder
         NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
@@ -864,7 +889,7 @@ static CGImageRef __nullable SDCGImageCreateCopy(CGImageRef cg_nullable image) {
 }
 
 - (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES];
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale thumbnailSize:_thumbnailSize scaleMode:_scaleMode lazyDecode:_lazyDecode animatedImage:YES];
     if (!image) {
         return nil;
     }

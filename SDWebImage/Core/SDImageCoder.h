@@ -32,15 +32,23 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleFacto
 /**
  A Boolean value indicating whether to keep the original aspect ratio when generating thumbnail images (or bitmap images from vector format).
  Defaults to YES.
+ @deprecated This was deprecated after 5.19.0 and translate into `SDImageCoderDecodeScaleMode`. `YES` translate to `.aspectFit` and `NO` translate to `.fill`. If you need the `.aspectFill` use the new options instead.
  @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
  */
-FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodePreserveAspectRatio;
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodePreserveAspectRatio API_DEPRECATED("Use SDImageCoderDecodeScaleMode instead", macos(10.10, 10.10), ios(8.0, 8.0), tvos(9.0, 9.0), watchos(2.0, 2.0));
 
 /**
- A CGSize value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.preserveAspectRatio`) the value size.
+ A `SDImageScale` value (NSNumber) indicating the scale mode during thumbnail decoding. The scaled size will use the `
+ Defaults to `.aspectFit`.
+ @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleMode;
+
+/**
+ A CGSize value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.scaleMode`) the value size.
  Defaults to CGSizeZero, which means no thumbnail generation at all.
  @note Supports for animated image as well.
- @note When you pass `.preserveAspectRatio == NO`, the thumbnail image is stretched to match each dimension. When `.preserveAspectRatio == YES`, the thumbnail image's width is limited to pixel size's width, the thumbnail image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
+ @note When you pass `.aspectFit` or `.aspectFill`, the thumbnail image is stretched to match each dimension. When `.fill`, the thumbnail image's width is limited to pixel size's width, the thumbnail image's height is limited to pixel size's height. Note in `.aspectFill` the image size may be larger than pixel size.
  @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeThumbnailPixelSize;
