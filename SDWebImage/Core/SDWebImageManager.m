@@ -159,12 +159,20 @@ static id<SDImageLoader> _defaultImageLoader;
 #else
         thumbnailSize = thumbnailSizeValue.CGSizeValue;
 #endif
-        BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
         NSNumber *preserveAspectRatioValue = context[SDWebImageContextImagePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
-            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
         }
-        key = SDThumbnailedKeyForKey(key, thumbnailSize, preserveAspectRatio);
+        NSNumber *scaleModeValue = context[SDWebImageContextImageScaleMode];
+        if (scaleModeValue != nil) {
+            scaleMode = scaleModeValue.unsignedIntegerValue;
+        }
+#pragma clang diagnostic pop
+        key = SDThumbnailedKeyForKey(key, thumbnailSize, scaleMode);
     }
     
     // Transformer Key Appending
