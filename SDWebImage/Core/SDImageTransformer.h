@@ -22,11 +22,12 @@ FOUNDATION_EXPORT NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullab
  Return the thumbnailed cache key which applied with specify thumbnailSize and preserveAspectRatio control.
  @param key The original cache key
  @param thumbnailPixelSize The thumbnail pixel size
- @param preserveAspectRatio The preserve aspect ratio option
+ @param scaleMode The image scale mode to use. History this arg use `preserveAspectRatio`
  @return The thumbnailed cache key
  @note If you have both transformer and thumbnail applied for image, call `SDThumbnailedKeyForKey` firstly and then with `SDTransformedKeyForKey`.`
+ @note Before 5.19.0, we construct key with `preserveAspectRatio` arg and `YES` for 1, `NO` for 0. After 5.19.0 it still use `.aspectFit` for 1, `.fill` for 0, match the exits cache key.
  */
-FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, BOOL preserveAspectRatio);
+FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, SDImageScaleMode scaleMode);
 
 /**
  A transformer protocol to transform the image load from cache or from download.
