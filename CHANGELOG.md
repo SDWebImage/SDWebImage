@@ -1,3 +1,10 @@
+## [5.18.4 - 5.18 Fix, on Oct 27th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.4)
+See [all tickets marked for the 5.18.4 release](https://github.com/SDWebImage/SDWebImage/milestone/124)
+
+### Changes
+- SDAnimatedImage now supports static image like JPEG data #3626 #3625
+-  - Previous version the initializer will return nil and has to use UIImage/NSImage instead
+
 ## [5.18.3 - 5.18 Fix, on Oct 10th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.3)
 See [all tickets marked for the 5.18.3 release](https://github.com/SDWebImage/SDWebImage/milestone/122)
 
