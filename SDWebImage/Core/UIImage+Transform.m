@@ -68,8 +68,10 @@ static inline UIColor * SDGetColorFromGrayscale(Pixel_88 pixel, CGBitmapInfo bit
         case kCGBitmapByteOrderDefault: {
             byteOrderNormal = YES;
         } break;
+        case kCGBitmapByteOrder16Little:
         case kCGBitmapByteOrder32Little: {
         } break;
+        case kCGBitmapByteOrder16Big:
         case kCGBitmapByteOrder32Big: {
             byteOrderNormal = YES;
         } break;
