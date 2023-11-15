@@ -558,6 +558,21 @@
     expect(exifOrientation).equal(kCGImagePropertyOrientationDown);
 }
 
+- (void)test30ThatImageIOPNGPluginBuggyWorkaround {
+    // See: #3634
+    NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"IndexedPNG" withExtension:@"png"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    
+    UIImage *decodedImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+    UIColor *testColor1 = [decodedImage sd_colorAtPoint:CGPointMake(100, 1)];
+    CGFloat r1, g1, b1, a1;
+    [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    expect(r1).beCloseToWithin(0.60, 0.01);
+    expect(g1).beCloseToWithin(0.91, 0.01);
+    expect(b1).beCloseToWithin(0.91, 0.01);
+    expect(a1).beCloseToWithin(0.20, 0.01);
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
