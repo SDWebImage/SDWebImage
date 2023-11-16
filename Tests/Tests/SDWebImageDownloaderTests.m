@@ -13,7 +13,7 @@
 #import "SDWebImageTestLoader.h"
 #import <compression.h>
 
-#define kPlaceholderTestURLTemplate @"https://via.placeholder.com/10000x%d.png"
+#define kPlaceholderTestURLTemplate @"https://placehold.co/10000x%d.png"
 
 /**
  *  Category for SDWebImageDownloader so we can access the operationClass
@@ -174,7 +174,7 @@
 - (void)test11ThatCancelWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Cancel"];
     
-    NSURL *imageURL = [NSURL URLWithString:@"https://via.placeholder.com/1000x1000.png"];
+    NSURL *imageURL = [NSURL URLWithString:@"https://placehold.co/1000x1000.png"];
     SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader]
                                       downloadImageWithURL:imageURL options:0 progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
                                           expect(error).notTo.beNil();
@@ -779,7 +779,7 @@
     // We move the logic into SDWebImageDownloaderOperation, which decode each callback's thumbnail size with different decoding pipeline, and callback independently
     // Note the progressiveLoad does not support this and always callback first size
     
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/501x501.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/501x501.png"];
     NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
     for (int i = 490; i < 500; i++) {

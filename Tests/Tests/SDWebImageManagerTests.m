@@ -106,7 +106,7 @@
 
 - (void)test07ThatLoadImageWithSDWebImageRefreshCachedWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image download twice with SDWebImageRefresh failed"];
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://via.placeholder.com/10x10.png"];
+    NSURL *originalImageURL = [NSURL URLWithString:@"https://placehold.co/10x10.png"];
     __block BOOL firstCompletion = NO;
     [[SDWebImageManager sharedManager] loadImageWithURL:originalImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).toNot.beNil();
@@ -116,7 +116,7 @@
         // Because we call completion before remove the operation from queue, so need a dispatch to avoid get the same operation again. Attention this trap.
         // One way to solve this is use another `NSURL instance` because we use `NSURL` as key but not `NSString`. However, this is implementation detail and no guarantee in the future.
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSURL *newImageURL = [NSURL URLWithString:@"https://via.placeholder.com/10x10.png"];
+            NSURL *newImageURL = [NSURL URLWithString:@"https://placehold.co/10x10.png"];
             [[SDWebImageManager sharedManager] loadImageWithURL:newImageURL options:SDWebImageRefreshCached progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
                 expect(image2).toNot.beNil();
                 expect(error2).to.beNil();
@@ -133,7 +133,7 @@
 
 - (void)test08ThatImageTransformerWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/80x60.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/80x60.png"];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
@@ -294,7 +294,7 @@
 
 - (void)test13ThatScaleDownLargeImageUseThumbnailDecoding {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages should translate to thumbnail decoding"];
-    NSURL *originalImageURL = [NSURL URLWithString:@"https://via.placeholder.com/2000x2000.png"]; // Max size for this API
+    NSURL *originalImageURL = [NSURL URLWithString:@"https://placehold.co/2000x2000.png"]; // Max size for this API
     NSUInteger defaultLimitBytes = SDImageCoderHelper.defaultScaleDownLimitBytes;
     SDImageCoderHelper.defaultScaleDownLimitBytes = 1000 * 1000 * 4; // Limit 1000x1000 pixel
     // From v5.5.0, the `SDWebImageScaleDownLargeImages` translate to `SDWebImageContextImageThumbnailPixelSize`, and works for progressive loading
@@ -317,9 +317,11 @@
 - (void)test13ThatScaleDownLargeImageEXIFOrientationImage {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDWebImageScaleDownLargeImages works on EXIF orientation image"];
     NSURL *originalImageURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_2.jpg"];
-    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    [SDWebImageManager.sharedManager loadImageWithURL:originalImageURL options:SDWebImageScaleDownLargeImages context:@{SDWebImageContextImageForceDecodePolicy : @(SDImageForceDecodePolicyNever)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();
 #if SD_UIKIT
+        // The UIGraphicsImageRenderer will correct image to Up(1) orientation
+        // So we disable that to test the behavior
         UIImageOrientation orientation = [SDImageCoderHelper imageOrientationFromEXIFOrientation:kCGImagePropertyOrientationUpMirrored];
         expect(image.imageOrientation).equal(orientation);
 #endif
@@ -336,7 +338,7 @@
 
 - (void)test14ThatCustomCacheAndLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom Cache and Loader during manger query"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/100x100.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/100x100.png"];
     SDWebImageContext *context = @{
         SDWebImageContextImageCache : SDWebImageTestCache.sharedCache,
         SDWebImageContextImageLoader : SDWebImageTestLoader.sharedLoader
@@ -360,7 +362,7 @@
 
 - (void)test15ThatQueryCacheTypeWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image query cache type works"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/101x101.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/101x101.png"];
     NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     NSData *testImageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
     [SDImageCache.sharedImageCache storeImageDataToDisk:testImageData forKey:key];
@@ -383,7 +385,7 @@
 
 - (void)test15ThatOriginalQueryCacheTypeWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image original query cache type with transformer works"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/102x102.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/102x102.png"];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     NSString *originalKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
@@ -419,7 +421,7 @@
 
 - (void)test16ThatTransformerUseDifferentCacheForOriginalAndTransformedImage {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer use different cache instance for original image and transformed image works"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/103x103.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/103x103.png"];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
     NSString *originalKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
@@ -505,7 +507,7 @@
         CGContextFillRect(context, CGRectMake(0, 0, fullSize.width, fullSize.height));
     }];
     expect(fullSizeImage.size).equal(fullSize);
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/500x500.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/500x500.png"];
     NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     NSData *fullSizeData = fullSizeImage.sd_imageData;
     [SDImageCache.sharedImageCache storeImageDataToDisk:fullSizeData forKey:fullSizeKey];
@@ -535,7 +537,7 @@
     // We move the logic into SDWebImageDownloaderOperation, which decode each callback's thumbnail size with different decoding pipeline, and callback independently
     // Note the progressiveLoad does not support this and always callback first size
     
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/501x501.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/501x501.png"];
     NSString *fullSizeKey = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
     for (int i = 490; i < 500; i++) {
@@ -563,7 +565,7 @@
 
 - (void)test20ThatContextPassDecodeOptionsWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"The SDWebImageContextImageDecodeOptions should passed to the coder"];
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/502x502.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/502x502.png"];
     SDImageCoderOptions *originalDecodeOptions = @{@"Foo": @"Bar", SDImageCoderDecodeScaleFactor : @(2)}; // This will be override
     
     [SDWebImageManager.sharedManager loadImageWithURL:url options:0 context:@{SDWebImageContextImageScaleFactor : @(1), SDWebImageContextImageDecodeOptions : originalDecodeOptions} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
@@ -579,7 +581,7 @@
 - (void)test21ThatQueryOriginalDiskCacheFromThumbnailShouldNotWriteBackDiskCache {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Using original disk cache to do thumbnail decoding or transformer, should not save back disk data again"];
     
-    NSURL *url = [NSURL URLWithString:@"https://via.placeholder.com/503x503.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/503x503.png"];
     NSString *originalKey = url.absoluteString;
     // 1. Store the disk data to original cache
     CGSize fullSize = CGSizeMake(503, 503);

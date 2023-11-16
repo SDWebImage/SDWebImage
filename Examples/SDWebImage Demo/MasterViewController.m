@@ -74,7 +74,7 @@
                     @"https://raw.githubusercontent.com/icons8/flat-color-icons/master/pdf/stack_of_photos.pdf",
                     @"https://nr-platform.s3.amazonaws.com/uploads/platform/published_extension/branding_icon/275/AmazonS3.png",
                     @"https://res.cloudinary.com/dwpjzbyux/raw/upload/v1666474070/RawDemo/raw_vebed5.NEF",
-                    @"https://via.placeholder.com/200x200.jpg",
+                    @"https://placehold.co/200x200.jpg",
                     nil];
 
         for (int i=1; i<25; i++) {
