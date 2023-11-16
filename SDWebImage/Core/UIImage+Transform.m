@@ -169,7 +169,32 @@ static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmap
         default: break;
     }
     switch (alphaInfo) {
-        case kCGImageAlphaPremultipliedFirst:
+        case kCGImageAlphaPremultipliedFirst: {
+            if (byteOrderNormal) {
+                // ARGB8888-premultiplied
+                a = pixel[0] / 255.0;
+                r = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                b = pixel[3] / 255.0;
+                if (a > 0) {
+                    r /= a;
+                    g /= a;
+                    b /= a;
+                }
+            } else {
+                // BGRA8888-premultiplied
+                b = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                r = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+                if (a > 0) {
+                    r /= a;
+                    g /= a;
+                    b /= a;
+                }
+            }
+            break;
+        }
         case kCGImageAlphaFirst: {
             if (byteOrderNormal) {
                 // ARGB8888
@@ -186,7 +211,32 @@ static inline UIColor * SDGetColorFromRGBA(Pixel_8888 pixel, CGBitmapInfo bitmap
             }
         }
             break;
-        case kCGImageAlphaPremultipliedLast:
+        case kCGImageAlphaPremultipliedLast: {
+            if (byteOrderNormal) {
+                // RGBA8888-premultiplied
+                r = pixel[0] / 255.0;
+                g = pixel[1] / 255.0;
+                b = pixel[2] / 255.0;
+                a = pixel[3] / 255.0;
+                if (a > 0) {
+                    r /= a;
+                    g /= a;
+                    b /= a;
+                }
+            } else {
+                // ABGR8888-premultiplied
+                a = pixel[0] / 255.0;
+                b = pixel[1] / 255.0;
+                g = pixel[2] / 255.0;
+                r = pixel[3] / 255.0;
+                if (a > 0) {
+                    r /= a;
+                    g /= a;
+                    b /= a;
+                }
+            }
+            break;
+        }
         case kCGImageAlphaLast: {
             if (byteOrderNormal) {
                 // RGBA8888
@@ -546,9 +596,11 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     }
     
     // Check point
-    CGFloat width = CGImageGetWidth(imageRef);
-    CGFloat height = CGImageGetHeight(imageRef);
-    if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) {
+    size_t width = CGImageGetWidth(imageRef);
+    size_t height = CGImageGetHeight(imageRef);
+    size_t x = point.x;
+    size_t y = point.y;
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         CGImageRelease(imageRef);
         return nil;
     }
@@ -570,7 +622,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     size_t components = CGImageGetBitsPerPixel(imageRef) / CGImageGetBitsPerComponent(imageRef);
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     
-    CFRange range = CFRangeMake(bytesPerRow * point.y + components * point.x, components);
+    CFRange range = CFRangeMake(bytesPerRow * y + components * x, components);
     if (CFDataGetLength(data) < range.location + range.length) {
         CFRelease(data);
         CGImageRelease(imageRef);
@@ -620,8 +672,8 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     }
     
     // Check rect
-    CGFloat width = CGImageGetWidth(imageRef);
-    CGFloat height = CGImageGetHeight(imageRef);
+    size_t width = CGImageGetWidth(imageRef);
+    size_t height = CGImageGetHeight(imageRef);
     if (CGRectGetWidth(rect) <= 0 || CGRectGetHeight(rect) <= 0 || CGRectGetMinX(rect) < 0 || CGRectGetMinY(rect) < 0 || CGRectGetMaxX(rect) > width || CGRectGetMaxY(rect) > height) {
         CGImageRelease(imageRef);
         return nil;

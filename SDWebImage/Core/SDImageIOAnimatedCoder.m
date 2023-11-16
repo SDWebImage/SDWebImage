@@ -184,10 +184,10 @@ static CGImageRef SDImageIOPNGPluginBuggyCreateWorkaround(CGImageRef cgImage) CF
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(cgImage);
     CGImageAlphaInfo alphaInfo = (bitmapInfo & kCGBitmapAlphaInfoMask);
     CGImageAlphaInfo newAlphaInfo = alphaInfo;
-    if (alphaInfo == kCGImageAlphaPremultipliedLast) {
-        newAlphaInfo = kCGImageAlphaLast;
-    } else if (alphaInfo == kCGImageAlphaPremultipliedFirst) {
-        newAlphaInfo = kCGImageAlphaFirst;
+    if (alphaInfo == kCGImageAlphaLast) {
+        newAlphaInfo = kCGImageAlphaPremultipliedLast;
+    } else if (alphaInfo == kCGImageAlphaFirst) {
+        newAlphaInfo = kCGImageAlphaPremultipliedFirst;
     }
     if (newAlphaInfo != alphaInfo) {
         CGBitmapInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
@@ -244,6 +244,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 #endif
             }
         }
+        CFRelease(source);
+        CGImageRelease(cgImage);
     });
     
     return isBuggy;

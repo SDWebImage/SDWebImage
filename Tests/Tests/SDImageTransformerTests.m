@@ -247,16 +247,15 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
     // Check left color, should be blurred
     UIColor *leftColor = [blurredImage sd_colorAtPoint:CGPointMake(80, 150)];
     // Hard-code from the output, allows a little deviation because of blur diffs between OS versions :)
-    // rgba(114, 27, 23, 0.75)
-    UIColor *expectedColor = [UIColor colorWithRed:114.0/255.0 green:27.0/255.0 blue:23.0/255.0 alpha:0.75];
+    UIColor *expectedColor = [UIColor colorWithRed:0.59 green:0.14 blue:0.12 alpha:0.75];
     CGFloat r1, g1, b1, a1;
     CGFloat r2, g2, b2, a2;
     [leftColor getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
     [expectedColor getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
-    expect(r1).beCloseToWithin(r2, 2.0/255.0);
-    expect(g1).beCloseToWithin(g2, 2.0/255.0);
-    expect(b1).beCloseToWithin(b2, 2.0/255.0);
-    expect(a1).beCloseToWithin(a2, 2.0/255.0);
+    expect(r1).beCloseToWithin(r2, 0.01);
+    expect(g1).beCloseToWithin(g2, 0.01);
+    expect(b1).beCloseToWithin(b2, 0.01);
+    expect(a1).beCloseToWithin(a2, 0.01);
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 20)];
     UIColor *bottomCenterColor = [blurredImage sd_colorAtPoint:CGPointMake(150, 280)];
