@@ -1,3 +1,18 @@
+## [5.18.5 - iOS 17 Workaround, on Nov 16th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.5)
+See [all tickets marked for the 5.18.5 release](https://github.com/SDWebImage/SDWebImage/milestone/125)
+
+### Fixes
+- Introduce the hacky workaround for iOS 17/macOS 14 ImageIO indexed color png decode (Apple's bug) #3634
+- - This will use runtime detection (accurate and safe), and fix the wrong CGImageAlphaInfo when created from PNG using ImageIO decoder. Currently bug exists on iOS 17.0-17.2
+- - Please help to fire radar to Apple, let them fix this problem as soon as possible.
+- Fix the iOS 17 UIKit issue that UIImageView entering the background will reset CALayer's contents, which cause SDAnimatedImageView render issue (out-of-sync) #3636
+- Fix the sd_colorAtPoint/sd_colorsWithRect return wrong value on pre-multiplied CGImage #3637
+- - Previous version this may return the premultiplied color, which is wrong. Should always return the un-premultiplied color.
+
+### Tests
+- [Unit test] Use placehold.co to replace the down site via.placeholder.com #3639
+
+
 ## [5.18.4 - 5.18 Fix, on Oct 27th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.4)
 See [all tickets marked for the 5.18.4 release](https://github.com/SDWebImage/SDWebImage/milestone/124)
 
