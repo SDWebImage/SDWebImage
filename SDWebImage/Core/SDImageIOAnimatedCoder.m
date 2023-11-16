@@ -208,7 +208,7 @@ static CGImageRef SDImageIOPNGPluginBuggyCreateWorkaround(CGImageRef cgImage) CF
 static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     // See: #3605 FB13322459
     // ImageIO on iOS 17 (17.0~17.2), there is one serious problem on ImageIO PNG plugin. The decode result for indexed color PNG use the wrong CGImageAlphaInfo
-    // The returned CGImageAlphaInfo is alpha last, but the actual bitmap data is premultiplied alpha first, which cause many runtime render bug.
+    // The returned CGImageAlphaInfo is alpha last, but the actual bitmap data is premultiplied alpha last, which cause many runtime render bug.
     // So, we do a hack workaround:
     // 1. Decode a indexed color PNG in runtime
     // 2. If the bitmap is premultiplied alpha, then assume it's buggy
