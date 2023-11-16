@@ -34,9 +34,9 @@
 - (void)test02PrefetchMultipleImages {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Correct prefetch of multiple images"];
     
-    NSArray *imageURLs = @[@"https://via.placeholder.com/20x20.jpg",
-                           @"https://via.placeholder.com/30x30.jpg",
-                           @"https://via.placeholder.com/40x40.jpg"];
+    NSArray *imageURLs = @[@"https://placehold.co/20x20.jpg",
+                           @"https://placehold.co/30x30.jpg",
+                           @"https://placehold.co/40x40.jpg"];
     
     __block NSUInteger numberOfPrefetched = 0;
     
@@ -72,10 +72,10 @@
 - (void)test04PrefetchWithMultipleArrayDifferentQueueWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Prefetch with multiple array at different queue failed"];
     
-    NSArray *imageURLs1 = @[@"https://via.placeholder.com/20x20.jpg",
-                            @"https://via.placeholder.com/30x30.jpg"];
-    NSArray *imageURLs2 = @[@"https://via.placeholder.com/30x30.jpg",
-                           @"https://via.placeholder.com/40x40.jpg"];
+    NSArray *imageURLs1 = @[@"https://placehold.co/20x20.jpg",
+                            @"https://placehold.co/30x30.jpg"];
+    NSArray *imageURLs2 = @[@"https://placehold.co/30x30.jpg",
+                           @"https://placehold.co/40x40.jpg"];
     dispatch_queue_t queue1 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     dispatch_queue_t queue2 = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     __block int numberOfPrefetched1 = 0;
@@ -120,7 +120,7 @@
     // This test also test large URLs and thread-safe problem. You can tested with 2000 urls and get the correct result locally. However, due to the limit of CI, 20 is enough.
     NSMutableArray<NSURL *> *imageURLs = [NSMutableArray arrayWithCapacity:20];
     for (size_t i = 1; i <= 20; i++) {
-        NSString *url = [NSString stringWithFormat:@"https://via.placeholder.com/%zux%zu.jpg", i, i];
+        NSString *url = [NSString stringWithFormat:@"https://placehold.co/%zux%zu.jpg", i, i];
         [imageURLs addObject:[NSURL URLWithString:url]];
     }
     self.prefetcher = [SDWebImagePrefetcher new];
@@ -141,9 +141,9 @@
 }
 
 - (void)test06PrefetchCancelToken {
-    NSArray *imageURLs = @[@"https://via.placeholder.com/20x20.jpg",
-                           @"https://via.placeholder.com/30x30.jpg",
-                           @"https://via.placeholder.com/40x40.jpg"];
+    NSArray *imageURLs = @[@"https://placehold.co/20x20.jpg",
+                           @"https://placehold.co/30x30.jpg",
+                           @"https://placehold.co/40x40.jpg"];
     SDWebImagePrefetcher *prefetcher = [[SDWebImagePrefetcher alloc] init];
     SDWebImagePrefetchToken *token = [prefetcher prefetchURLs:imageURLs];
     expect(prefetcher.runningTokens.count).equal(1);
@@ -154,9 +154,9 @@
 - (void)test07DownloaderCancelDuringPrefetching {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Downloader cancel during prefetch should not hung up"];
     
-    NSArray *imageURLs = @[@"https://via.placeholder.com/5000x5000.jpg",
-                           @"https://via.placeholder.com/6000x6000.jpg",
-                           @"https://via.placeholder.com/7000x7000.jpg"];
+    NSArray *imageURLs = @[@"https://placehold.co/5000x5000.jpg",
+                           @"https://placehold.co/6000x6000.jpg",
+                           @"https://placehold.co/7000x7000.jpg"];
     for (NSString *url in imageURLs) {
         [SDImageCache.sharedImageCache removeImageFromDiskForKey:url];
     }
