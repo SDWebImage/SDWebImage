@@ -17,7 +17,9 @@
 
 #if SD_MAC
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext);
-#else
+#endif
+
+#if SD_UIKIT
 static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `previous` fire time (only for CADisplayLink)
 #endif
 
@@ -91,6 +93,8 @@ static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `
     return displayLink;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (NSTimeInterval)duration {
     NSTimeInterval duration = 0;
 #if SD_MAC
@@ -155,6 +159,7 @@ static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `
     }
     return duration;
 }
+#pragma clang diagnostic pop
 
 - (BOOL)isRunning {
 #if SD_MAC
@@ -240,6 +245,8 @@ static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `
     self.nextFireTime = 0;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 - (void)displayLinkDidRefresh:(id)displayLink {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -256,6 +263,7 @@ static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `
     self.nextFireTime = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.displayLink);
 #endif
 }
+#pragma clang diagnostic pop
 
 @end
 
