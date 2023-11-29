@@ -272,10 +272,10 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         return kCVReturnSuccess;
     }
     CVTimeStamp outputTime = inOutputTime ? *inOutputTime : *inNow;
-    __weak SDDisplayLink *weakObject = object;
+    // `SDWeakProxy` is weak, so it's safe to dispatch to main queue without leak
     dispatch_async(dispatch_get_main_queue(), ^{
-        weakObject.outputTime = outputTime;
-        [weakObject displayLinkDidRefresh:(__bridge id)(displayLink)];
+        object.outputTime = outputTime;
+        [object displayLinkDidRefresh:(__bridge id)(displayLink)];
     });
     return kCVReturnSuccess;
 }
