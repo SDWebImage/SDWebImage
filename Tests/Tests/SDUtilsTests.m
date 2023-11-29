@@ -16,6 +16,8 @@
 
 @interface SDUtilsTests : SDTestCase
 
+@property (nonatomic) NSTimeInterval duration;
+
 @end
 
 @implementation SDUtilsTests
@@ -53,6 +55,8 @@
     expect(displayLink.isRunning).beTruthy();
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         expect(displayLink.isRunning).beTruthy();
+        NSTimeInterval duration = self.duration; // Should be 1, 200ms accuracy
+        expect(duration).beCloseToWithin(1, 0.2);
         [displayLink stop];
     });
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -70,8 +74,7 @@
 
 - (void)displayLinkDidRefresh:(SDDisplayLink *)displayLink {
     NSTimeInterval duration = displayLink.duration; // Running value
-    expect(duration).beGreaterThan(0.001); /// 60Hz ~ 120Hz
-    expect(duration).beLessThan(0.02);
+    self.duration += duration;
 }
 
 - (void)testSDFileAttributeHelper {
