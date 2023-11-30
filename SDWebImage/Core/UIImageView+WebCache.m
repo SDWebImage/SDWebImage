@@ -68,11 +68,11 @@
 #pragma mark - State
 
 - (NSURL *)sd_currentImageURL {
-    return [self sd_imageLoadStateForKey:nil].url;
+    return [self sd_imageLoadStateForKey:self.sd_latestOperationKey].url;
 }
 
 - (void)sd_cancelCurrentImageLoad {
-    return [self sd_cancelImageLoadOperationWithKey:nil];
+    return [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
 }
 
 @end
