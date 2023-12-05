@@ -1,3 +1,9 @@
+## [5.18.6 - ProMotion/Vision Fix, on Dec 5th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.6)
+See [all tickets marked for the 5.18.6 release](https://github.com/SDWebImage/SDWebImage/milestone/126)
+
+### Fixes
+- Use the new solution for CADisplayLink duration calculation and fix 90Hz/120Hz display (iPhone Pro or Vision Pro) #3644 #3579
+
 ## [5.18.5 - iOS 17 Workaround, on Nov 16th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.5)
 See [all tickets marked for the 5.18.5 release](https://github.com/SDWebImage/SDWebImage/milestone/125)
 
