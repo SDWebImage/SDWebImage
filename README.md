@@ -338,9 +338,9 @@ community can help you solve it.
 
 From Xcode 15, we provide the new `PrivacyInfo.xcprivacy` file for privacy details, see [Describing data use in privacy manifests](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_data_use_in_privacy_manifests?language=objc)
 
-You can exports the privacy report after archive your App by integrate SDWebImage via SwiftPM/XCFramework (Note: CocoaPods does not support currently).
+You can exports the privacy report after archive your App by integrate SDWebImage via SwiftPM/XCFramework or CocoaPods (`use_framework` set to true).
 
-For old version, as required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
+For old version or if you're using static ar archive, as required by the [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/), here's SDWebImage's list of [Data Collection Practices](https://sdwebimage.github.io/DataCollection/index.html).
 
 
 
