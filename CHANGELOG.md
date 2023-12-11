@@ -1,3 +1,10 @@
+## [5.18.7 - CocoaPods Privacy Manifest, on Dec 11th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.7)
+See [all tickets marked for the 5.18.7 release](https://github.com/SDWebImage/SDWebImage/milestone/127)
+
+### Project
+- Added xcprivacy manifest to CocoaPods #3649
+- - Now all the 3 integration supports the privacy manifest. Check README about usage.
+
 ## [5.18.6 - ProMotion/Vision Fix, on Dec 5th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.6)
 See [all tickets marked for the 5.18.6 release](https://github.com/SDWebImage/SDWebImage/milestone/126)
 
