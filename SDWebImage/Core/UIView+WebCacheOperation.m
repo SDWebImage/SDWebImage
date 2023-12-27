@@ -29,52 +29,56 @@ typedef NSMapTable<NSString *, id<SDWebImageOperation>> SDOperationsDictionary;
 
 - (nullable id<SDWebImageOperation>)sd_imageLoadOperationForKey:(nullable NSString *)key  {
     id<SDWebImageOperation> operation;
-    if (key) {
-        SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
-        @synchronized (self) {
-            operation = [operationDictionary objectForKey:key];
-        }
+    if (!key) {
+        key = NSStringFromClass(self.class);
+    }
+    SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
+    @synchronized (self) {
+        operation = [operationDictionary objectForKey:key];
     }
     return operation;
 }
 
 - (void)sd_setImageLoadOperation:(nullable id<SDWebImageOperation>)operation forKey:(nullable NSString *)key {
-    if (key) {
-        if (operation) {
-            SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
-            @synchronized (self) {
-                [operationDictionary setObject:operation forKey:key];
-            }
+    if (!key) {
+        key = NSStringFromClass(self.class);
+    }
+    if (operation) {
+        SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
+        @synchronized (self) {
+            [operationDictionary setObject:operation forKey:key];
         }
     }
 }
 
 - (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key {
-    if (key) {
-        // Cancel in progress downloader from queue
-        SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
-        id<SDWebImageOperation> operation;
-        
-        @synchronized (self) {
-            operation = [operationDictionary objectForKey:key];
+    if (!key) {
+        key = NSStringFromClass(self.class);
+    }
+    // Cancel in progress downloader from queue
+    SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
+    id<SDWebImageOperation> operation;
+    
+    @synchronized (self) {
+        operation = [operationDictionary objectForKey:key];
+    }
+    if (operation) {
+        if ([operation respondsToSelector:@selector(cancel)]) {
+            [operation cancel];
         }
-        if (operation) {
-            if ([operation respondsToSelector:@selector(cancel)]) {
-                [operation cancel];
-            }
-            @synchronized (self) {
-                [operationDictionary removeObjectForKey:key];
-            }
+        @synchronized (self) {
+            [operationDictionary removeObjectForKey:key];
         }
     }
 }
 
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key {
-    if (key) {
-        SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
-        @synchronized (self) {
-            [operationDictionary removeObjectForKey:key];
-        }
+    if (!key) {
+        key = NSStringFromClass(self.class);
+    }
+    SDOperationsDictionary *operationDictionary = [self sd_operationDictionary];
+    @synchronized (self) {
+        [operationDictionary removeObjectForKey:key];
     }
 }
 

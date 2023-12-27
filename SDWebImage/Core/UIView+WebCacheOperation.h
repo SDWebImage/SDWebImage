@@ -20,14 +20,16 @@
  *
  *  @param key key for identifying the operations
  *  @return the image load operation
+ *  @note If key is nil, means using the NSStringFromClass(self.class) instead, match the behavior of `operation key`
  */
 - (nullable id<SDWebImageOperation>)sd_imageLoadOperationForKey:(nullable NSString *)key;
 
 /**
  *  Set the image load operation (storage in a UIView based weak map table)
  *
- *  @param operation the operation
+ *  @param operation the operation, should not be nil or no-op will perform
  *  @param key       key for storing the operation
+ *  @note If key is nil, means using the NSStringFromClass(self.class) instead, match the behavior of `operation key`
  */
 - (void)sd_setImageLoadOperation:(nullable id<SDWebImageOperation>)operation forKey:(nullable NSString *)key;
 
@@ -35,13 +37,15 @@
  *  Cancel the operation for the current UIView and key
  *
  *  @param key key for identifying the operations
+ *  @note If key is nil, means using the NSStringFromClass(self.class) instead, match the behavior of `operation key`
  */
 - (void)sd_cancelImageLoadOperationWithKey:(nullable NSString *)key;
 
 /**
  *  Just remove the operation corresponding to the current UIView and key without cancelling them
  *
- *  @param key key for identifying the operations
+ *  @param key key for identifying the operations.
+ *  @note If key is nil, means using the NSStringFromClass(self.class) instead, match the behavior of `operation key`
  */
 - (void)sd_removeImageLoadOperationWithKey:(nullable NSString *)key;
 
