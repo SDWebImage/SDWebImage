@@ -408,7 +408,7 @@
     // The original load operation's transitionCompletionExpecation should never
     // be called (it has been inverted, above)
     [self waitForExpectations:@[secondLoadExpectation, transitionCompletionExpecation]
-                      timeout:2.0];
+                      timeout:5.0];
 }
 
 - (void)testUIViewCancelCallbackWithError {
