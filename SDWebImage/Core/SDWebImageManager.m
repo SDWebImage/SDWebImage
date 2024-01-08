@@ -304,12 +304,7 @@ static id<SDImageLoader> _defaultImageLoader;
         NSString *key = [self cacheKeyForURL:url context:context];
         // to avoid the SDImageCache's sync logic use the mismatched cache key
         // we should strip the `thumbnail` related context
-        SDWebImageMutableContext *mutableContext;
-        if (context) {
-            mutableContext = [context mutableCopy];
-        } else {
-            mutableContext = [NSMutableDictionary dictionary];
-        }
+        SDWebImageMutableContext *mutableContext = [context mutableCopy];
         mutableContext[SDWebImageContextImageThumbnailPixelSize] = nil;
         mutableContext[SDWebImageContextImagePreserveAspectRatio] = nil;
         @weakify(operation);

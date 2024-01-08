@@ -17,6 +17,14 @@
 #import "SDCallbackQueue.h"
 #import "SDImageTransformer.h" // TODO, remove this
 
+// TODO, remove this
+static BOOL SDIsThumbnailKey(NSString *key) {
+    if ([key rangeOfString:@"-Thumbnail("].location != NSNotFound) {
+        return YES;
+    }
+    return NO;
+}
+
 @interface SDImageCacheToken ()
 
 @property (nonatomic, strong, nullable, readwrite) NSString *key;
@@ -526,6 +534,7 @@ static NSString * _defaultDiskCacheDirectory;
     // However, caller (like SDWebImageManager) will query full key, with thumbnail size, and get thubmnail image
     // We should add a check here, currently it's a hack
     if (diskImage.sd_isThumbnail) {
+        NSAssert(!SDIsThumbnailKey(key), @"The input cache key %@ should not be thumbnail key", key);
         SDImageCoderOptions *options = diskImage.sd_decodeOptions;
         CGSize thumbnailSize = CGSizeZero;
         NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
