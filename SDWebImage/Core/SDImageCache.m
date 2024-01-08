@@ -15,6 +15,7 @@
 #import "UIImage+Metadata.h"
 #import "UIImage+ExtendedCacheData.h"
 #import "SDCallbackQueue.h"
+#import "SDImageTransformer.h" // TODO, remove this
 
 @interface SDImageCacheToken ()
 
@@ -430,22 +431,9 @@ static NSString * _defaultDiskCacheDirectory;
         SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
         shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
     }
-    CGSize thumbnailSize = CGSizeZero;
-    NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
-    if (thumbnailSizeValue != nil) {
-#if SD_MAC
-        thumbnailSize = thumbnailSizeValue.sizeValue;
-#else
-        thumbnailSize = thumbnailSizeValue.CGSizeValue;
-#endif
-    }
-    if (thumbnailSize.width > 0 && thumbnailSize.height > 0) {
-        // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
-        shouldCacheToMomery = NO;
-    }
-    if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
-        NSUInteger cost = diskImage.sd_memoryCost;
-        [self.memoryCache setObject:diskImage forKey:key cost:cost];
+    if (shouldCacheToMomery) {
+        // check if we need sync logic
+        [self _syncDiskToMemoryWithImage:diskImage forKey:key];
     }
 
     return diskImage;
@@ -524,6 +512,42 @@ static NSString * _defaultDiskCacheDirectory;
     UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
     [self _unarchiveObjectWithImage:image forKey:key];
     return image;
+}
+
+- (void)_syncDiskToMemoryWithImage:(UIImage *)diskImage forKey:(NSString *)key {
+    // earily check
+    if (!self.config.shouldCacheImagesInMemory) {
+        return;
+    }
+    if (!diskImage) {
+        return;
+    }
+    // The disk -> memory sync logic, which should only store thumbnail image with thumbnail key
+    // However, caller (like SDWebImageManager) will query full key, with thumbnail size, and get thubmnail image
+    // We should add a check here, currently it's a hack
+    if (diskImage.sd_isThumbnail) {
+        SDImageCoderOptions *options = diskImage.sd_decodeOptions;
+        CGSize thumbnailSize = CGSizeZero;
+        NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
+        if (thumbnailSizeValue != nil) {
+    #if SD_MAC
+            thumbnailSize = thumbnailSizeValue.sizeValue;
+    #else
+            thumbnailSize = thumbnailSizeValue.CGSizeValue;
+    #endif
+        }
+        BOOL preserveAspectRatio = YES;
+        NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
+        if (preserveAspectRatioValue != nil) {
+            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        }
+        // Calculate the actual thumbnail key
+        NSString *thumbnailKey = SDThumbnailedKeyForKey(key, thumbnailSize, preserveAspectRatio);
+        // Override the sync key
+        key = thumbnailKey;
+    }
+    NSUInteger cost = diskImage.sd_memoryCost;
+    [self.memoryCache setObject:diskImage forKey:key cost:cost];
 }
 
 - (void)_unarchiveObjectWithImage:(UIImage *)image forKey:(NSString *)key {
@@ -655,19 +679,6 @@ static NSString * _defaultDiskCacheDirectory;
                 SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
                 shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
             }
-            CGSize thumbnailSize = CGSizeZero;
-            NSValue *thumbnailSizeValue = context[SDWebImageContextImageThumbnailPixelSize];
-            if (thumbnailSizeValue != nil) {
-        #if SD_MAC
-                thumbnailSize = thumbnailSizeValue.sizeValue;
-        #else
-                thumbnailSize = thumbnailSizeValue.CGSizeValue;
-        #endif
-            }
-            if (thumbnailSize.width > 0 && thumbnailSize.height > 0) {
-                // Query full size cache key which generate a thumbnail, should not write back to full size memory cache
-                shouldCacheToMomery = NO;
-            }
             // Special case: If user query image in list for the same URL, to avoid decode and write **same** image object into disk cache multiple times, we query and check memory cache here again.
             if (shouldCacheToMomery && self.config.shouldCacheImagesInMemory) {
                 diskImage = [self.memoryCache objectForKey:key];
@@ -675,9 +686,9 @@ static NSString * _defaultDiskCacheDirectory;
             // decode image data only if in-memory cache missed
             if (!diskImage) {
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
-                if (shouldCacheToMomery && diskImage && self.config.shouldCacheImagesInMemory) {
-                    NSUInteger cost = diskImage.sd_memoryCost;
-                    [self.memoryCache setObject:diskImage forKey:key cost:cost];
+                // check if we need sync logic
+                if (shouldCacheToMomery) {
+                    [self _syncDiskToMemoryWithImage:diskImage forKey:key];
                 }
             }
         }
