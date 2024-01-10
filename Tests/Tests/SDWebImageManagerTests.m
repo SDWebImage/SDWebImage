@@ -482,11 +482,15 @@
     [SDImageCache.sharedImageCache queryCacheOperationForKey:fullSizeKey options:0 context:@{SDWebImageContextImageThumbnailPixelSize : @(thumbnailSize)} done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         expect(image.size).equal(thumbnailSize);
         expect(cacheType).equal(SDImageCacheTypeDisk);
-        // Currently, thumbnail decoding does not write back to the original key's memory cache
-        // But this may change in the future once I change the API for `SDImageCacheProtocol`
-        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:fullSizeKey]).beNil();
-        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:thumbnailKey]).beNil();
+        // Check the full image should not be in memory cache (because we have only full data + thumbnail image)
+        // Check the thumbnail image should be in memory cache (because we have only full data + thumbnail image)
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:fullSizeKey].size).equal(CGSizeZero);
+        expect([SDImageCache.sharedImageCache imageFromDiskCacheForKey:fullSizeKey]).notTo.beNil();
+        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:thumbnailKey].size).equal(thumbnailSize);
+        expect([SDImageCache.sharedImageCache imageFromDiskCacheForKey:thumbnailKey]).beNil();
         
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:fullSizeKey];
+        [SDImageCache.sharedImageCache removeImageFromMemoryForKey:thumbnailKey];
         [expectation fulfill];
     }];
     
