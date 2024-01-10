@@ -11,6 +11,7 @@
 #import "SDImageGraphics.h"
 #import "SDGraphicsImageRenderer.h"
 #import "NSBezierPath+SDRoundedCorners.h"
+#import "SDInternalMacros.h"
 #import <Accelerate/Accelerate.h>
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
@@ -648,7 +649,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
         // Convert to color
         return SDGetColorFromRGBA(pixel, bitmapInfo, colorSpace);
     } else {
-        NSLog(@"Unsupported components: %zu", components);
+        SD_LOG("Unsupported components: %zu", components);
         CFRelease(data);
         CGImageRelease(imageRef);
         return nil;
@@ -732,7 +733,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
                 Pixel_8888 pixel = {pixels[index], pixels[index+1], pixels[index+2], pixels[index+3]};
                 color = SDGetColorFromRGBA(pixel, bitmapInfo, colorSpace);
             } else {
-                NSLog(@"Unsupported components: %zu", components);
+                SD_LOG("Unsupported components: %zu", components);
             }
         }
         if (color) {
@@ -796,12 +797,12 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     vImage_Error err;
     err = vImageBuffer_InitWithCGImage(&effect, &format, NULL, imageRef, kvImageNoFlags); // vImage will convert to format we requests, no need `vImageConvert`
     if (err != kvImageNoError) {
-        NSLog(@"UIImage+Transform error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@", err, self);
+        SD_LOG("UIImage+Transform error: vImageBuffer_InitWithCGImage returned error code %zi for inputImage: %@", err, self);
         return nil;
     }
     err = vImageBuffer_Init(&scratch, effect.height, effect.width, format.bitsPerPixel, kvImageNoFlags);
     if (err != kvImageNoError) {
-        NSLog(@"UIImage+Transform error: vImageBuffer_Init returned error code %zi for inputImage: %@", err, self);
+        SD_LOG("UIImage+Transform error: vImageBuffer_Init returned error code %zi for inputImage: %@", err, self);
         return nil;
     }
     

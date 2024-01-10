@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <os/lock.h>
 #import <libkern/OSAtomic.h>
+#import <os/log.h>
 #import "SDmetamacros.h"
 
 #define SD_USE_OS_UNFAIR_LOCK TARGET_OS_MACCATALYST ||\
@@ -76,6 +77,13 @@ else OSSpinLockUnlock(&lock##_deprecated);
 
 #ifndef SD_SEL_SPI
 #define SD_SEL_SPI(name) NSSelectorFromString([NSString stringWithFormat:@"_%@", SD_NSSTRING(name)])
+#endif
+
+extern os_log_t sd_getDefaultLog(void);
+
+#ifndef SD_LOG
+#define SD_LOG(_log, ...) if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, watchOS 3.0, *)) os_log(sd_getDefaultLog(), _log, ##__VA_ARGS__); \
+else NSLog(@(_log), ##__VA_ARGS__);
 #endif
 
 #ifndef weakify

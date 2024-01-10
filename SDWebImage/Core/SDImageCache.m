@@ -7,6 +7,7 @@
  */
 
 #import "SDImageCache.h"
+#import "SDInternalMacros.h"
 #import "NSImage+Compatibility.h"
 #import "SDImageCodersManager.h"
 #import "SDImageCoderHelper.h"
@@ -316,7 +317,7 @@ static NSString * _defaultDiskCacheDirectory;
         NSError *error;
         extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject requiringSecureCoding:NO error:&error];
         if (error) {
-            NSLog(@"NSKeyedArchiver archive failed with error: %@", error);
+            SD_LOG("NSKeyedArchiver archive failed with error: %@", error);
         }
     } else {
         @try {
@@ -325,7 +326,7 @@ static NSString * _defaultDiskCacheDirectory;
             extendedData = [NSKeyedArchiver archivedDataWithRootObject:extendedObject];
 #pragma clang diagnostic pop
         } @catch (NSException *exception) {
-            NSLog(@"NSKeyedArchiver archive failed with exception: %@", exception);
+            SD_LOG("NSKeyedArchiver archive failed with exception: %@", exception);
         }
     }
     if (extendedData) {
@@ -574,7 +575,7 @@ static NSString * _defaultDiskCacheDirectory;
         unarchiver.requiresSecureCoding = NO;
         extendedObject = [unarchiver decodeTopLevelObjectForKey:NSKeyedArchiveRootObjectKey error:&error];
         if (error) {
-            NSLog(@"NSKeyedUnarchiver unarchive failed with error: %@", error);
+            SD_LOG("NSKeyedUnarchiver unarchive failed with error: %@", error);
         }
     } else {
         @try {
@@ -583,7 +584,7 @@ static NSString * _defaultDiskCacheDirectory;
             extendedObject = [NSKeyedUnarchiver unarchiveObjectWithData:extendedData];
 #pragma clang diagnostic pop
         } @catch (NSException *exception) {
-            NSLog(@"NSKeyedUnarchiver unarchive failed with exception: %@", exception);
+            SD_LOG("NSKeyedUnarchiver unarchive failed with exception: %@", exception);
         }
     }
     image.sd_extendedObject = extendedObject;

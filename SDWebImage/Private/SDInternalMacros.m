@@ -8,6 +8,15 @@
 
 #import "SDInternalMacros.h"
 
+os_log_t sd_getDefaultLog(void) {
+    static dispatch_once_t onceToken;
+    static os_log_t log;
+    dispatch_once(&onceToken, ^{
+        log = os_log_create("com.hackemist.SDWebImage", "Default");
+    });
+    return log;
+}
+
 void sd_executeCleanupBlock (__strong sd_cleanupBlock_t *block) {
     (*block)();
 }
