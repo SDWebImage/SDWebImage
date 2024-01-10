@@ -1,3 +1,17 @@
+## [5.18.9 - 5.8 Bugfix, on Jan 10th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.9)
+See [all tickets marked for the 5.18.9 release](https://github.com/SDWebImage/SDWebImage/milestone/129)
+
+### Fixes
+
+- Fix that PNG indexed color fix does not enable on Release Build configuration #3659 #3658
+- - The fix was introduced in 5.18.5, but accidentally only enabled in Debug configuration :)
+- Fix the behavior that query thumbnail from full size data does not sync back the thumbnail image into memory cache #3657 #3656
+- - The bug was introduced in 5.14.0, please upgrade if you use thumbnail decoding.
+- Temp remove the assert when thumbnail cache key used with thumbnail context , this may be changed later #3661
+
+### Project
+- Using os_log for our all log to replace the NSLog #3660
+
 ## [5.18.8 - 5.8 Patch, on Dec 27th, 2023](https://github.com/rs/SDWebImage/releases/tag/5.18.8)
 See [all tickets marked for the 5.18.8 release](https://github.com/SDWebImage/SDWebImage/milestone/128)
 
