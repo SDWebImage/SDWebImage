@@ -344,12 +344,14 @@
 
 - (void)testUIViewCancelCurrentImageLoadWithTransition {
     UIView *imageView = [[UIView alloc] init];
-    NSURL *firstImageUrl = [NSURL URLWithString:kTestJPEGURL];
-    NSURL *secondImageUrl = [NSURL URLWithString:kTestPNGURL];
+    NSURL *firstImageUrl = [NSURL URLWithString:@"https://placehold.co/201x201.jpg"];
+    NSURL *secondImageUrl = [NSURL URLWithString:@"https://placehold.co/201x201.png"];
 
     // First, reset our caches
-    [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
-    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestPNGURL];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:firstImageUrl.absoluteString];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:firstImageUrl.absoluteString];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:secondImageUrl.absoluteString];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:secondImageUrl.absoluteString];
 
     // Next, lets put our second image into memory, so that the next time
     // we load it, it will come from memory, and thus shouldUseTransition will be NO
