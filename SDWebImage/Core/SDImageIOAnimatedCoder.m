@@ -238,10 +238,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
                 // Correct value
                 isBuggy = NO;
             } else {
-#if DEBUG
                 NSLog(@"Detected the current OS's ImageIO PNG Decoder is buggy on indexed color PNG. Perform workaround solution...");
                 isBuggy = YES;
-#endif
             }
         }
         CFRelease(source);
