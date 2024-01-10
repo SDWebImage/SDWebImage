@@ -79,7 +79,7 @@ else OSSpinLockUnlock(&lock##_deprecated);
 #define SD_SEL_SPI(name) NSSelectorFromString([NSString stringWithFormat:@"_%@", SD_NSSTRING(name)])
 #endif
 
-extern os_log_t sd_getDefaultLog(void);
+FOUNDATION_EXPORT os_log_t sd_getDefaultLog(void);
 
 #ifndef SD_LOG
 #define SD_LOG(_log, ...) if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, watchOS 3.0, *)) os_log(sd_getDefaultLog(), _log, ##__VA_ARGS__); \
