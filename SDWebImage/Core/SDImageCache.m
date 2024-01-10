@@ -533,8 +533,7 @@ static NSString * _defaultDiskCacheDirectory;
     // The disk -> memory sync logic, which should only store thumbnail image with thumbnail key
     // However, caller (like SDWebImageManager) will query full key, with thumbnail size, and get thubmnail image
     // We should add a check here, currently it's a hack
-    if (diskImage.sd_isThumbnail) {
-        NSAssert(!SDIsThumbnailKey(key), @"The input cache key %@ should not be thumbnail key", key);
+    if (diskImage.sd_isThumbnail && !SDIsThumbnailKey(key)) {
         SDImageCoderOptions *options = diskImage.sd_decodeOptions;
         CGSize thumbnailSize = CGSizeZero;
         NSValue *thumbnailSizeValue = options[SDImageCoderDecodeThumbnailPixelSize];
