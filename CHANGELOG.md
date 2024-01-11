@@ -1,3 +1,10 @@
+## [5.18.10 - 5.8 Patch, on Jan 11th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.10)
+See [all tickets marked for the 5.18.10 release](https://github.com/SDWebImage/SDWebImage/milestone/130)
+
+### Warning
+
+- Fix the warning during clang-analyze #3664 #3663
+
 ## [5.18.9 - 5.8 Bugfix, on Jan 10th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.9)
 See [all tickets marked for the 5.18.9 release](https://github.com/SDWebImage/SDWebImage/milestone/129)
 
