@@ -229,7 +229,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         NSCParameterAssert(source);
         CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil);
         NSCParameterAssert(cgImage);
-        uint8_t r, g, b, a = 0;
+        uint8_t r, g, b, a;
+        r = g = b = a = 0;
         BOOL success = SDLoadOnePixelBitmapBuffer(cgImage, &r, &g, &b, &a);
         if (!success) {
             isBuggy = NO; // Impossible...
@@ -238,7 +239,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
                 // Correct value
                 isBuggy = NO;
             } else {
-                SD_LOG("Detected the current OS's ImageIO PNG Decoder is buggy on indexed color PNG. Perform workaround solution...");
+                SD_LOG("%@", @"Detected the current OS's ImageIO PNG Decoder is buggy on indexed color PNG. Perform workaround solution...");
                 isBuggy = YES;
             }
         }
