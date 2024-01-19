@@ -313,6 +313,13 @@ export DEVELOPER_DIR=/path/to/Xcode.app/Contents/Developer
 ./Scripts/create-xcframework.sh
 ```
 
++ Use your own certificate to sign XCFramework
+
+```
+// https://developer.apple.com/support/third-party-SDK-requirements/
+codesign --timestamp -v --sign "your own certificate" SDWebImage.xcframework
+```
+
 See more on wiki: [Manual install Guide](https://github.com/SDWebImage/SDWebImage/wiki/Installation-Guide#manual-installation-guide)
 
 ### Import headers in your source files
