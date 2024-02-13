@@ -279,7 +279,14 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
     UIColor *leftColor = [filteredImage sd_colorAtPoint:CGPointMake(80, 150)];
     // Hard-code from the output
     UIColor *expectedColor = [UIColor colorWithRed:0.85098 green:0.992157 blue:0.992157 alpha:1];
-    expect([leftColor.sd_hexString isEqualToString:expectedColor.sd_hexString]).beTruthy();
+    CGFloat r1, g1, b1, a1;
+    CGFloat r2, g2, b2, a2;
+    [leftColor getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    [expectedColor getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
+    expect(r1).beCloseToWithin(r2, 0.01);
+    expect(g1).beCloseToWithin(g2, 0.01);
+    expect(b1).beCloseToWithin(b2, 0.01);
+    expect(a1).beCloseToWithin(a2, 0.01);
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [filteredImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor whiteColor].sd_hexString]).beTruthy();

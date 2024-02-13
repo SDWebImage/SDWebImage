@@ -12,8 +12,6 @@
 
 @interface SDWebCacheCategoriesTests : SDTestCase
 
-@property (nonatomic, strong) UIWindow *window;
-
 @end
 
 @implementation SDWebCacheCategoriesTests
@@ -545,12 +543,12 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"UIView indicator does not work"];
     
     UIImageView *imageView = [[UIImageView alloc] init];
+#if SD_IOS
     imageView.sd_imageIndicator = SDWebImageActivityIndicator.grayIndicator;
     // Cover each convience method, finally use progress indicator for test
     imageView.sd_imageIndicator = SDWebImageActivityIndicator.grayLargeIndicator;
     imageView.sd_imageIndicator = SDWebImageActivityIndicator.whiteIndicator;
     imageView.sd_imageIndicator = SDWebImageActivityIndicator.whiteLargeIndicator;
-#if SD_IOS
     imageView.sd_imageIndicator = SDWebImageProgressIndicator.barIndicator;
 #endif
     imageView.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
@@ -623,17 +621,6 @@
 }
 
 #pragma mark - Helper
-- (UIWindow *)window {
-    if (!_window) {
-        UIScreen *mainScreen = [UIScreen mainScreen];
-#if SD_UIKIT
-        _window = [[UIWindow alloc] initWithFrame:mainScreen.bounds];
-#else
-        _window = [[NSWindow alloc] initWithContentRect:mainScreen.frame styleMask:0 backing:NSBackingStoreBuffered defer:NO screen:mainScreen];
-#endif
-    }
-    return _window;
-}
 
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];

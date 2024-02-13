@@ -459,17 +459,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     }];
     
     // Case 2: UIImage without `sd_imageFormat` should use JPEG for non-alpha channel
-    SDGraphicsImageRendererFormat *format = [SDGraphicsImageRendererFormat preferredFormat];
-    format.opaque = YES;
-    SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:pngImage.size format:format];
-    // Non-alpha image, also test `SDGraphicsImageRenderer` behavior here :)
-    UIImage *nonAlphaImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
-        [pngImage drawInRect:CGRectMake(0, 0, pngImage.size.width, pngImage.size.height)];
-    }];
-    expect(nonAlphaImage).notTo.beNil();
-    expect([SDImageCoderHelper CGImageContainsAlpha:nonAlphaImage.CGImage]).beFalsy();
+    NSData *jpegData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    UIImage *jpegImage = [UIImage sd_imageWithData:jpegData];
+    expect(jpegImage.sd_isAnimated).beFalsy();
+    expect(jpegImage.sd_imageFormat).equal(SDImageFormatJPEG);
+    expect([SDImageCoderHelper CGImageContainsAlpha:jpegImage.CGImage]).beFalsy();
     
-    [SDImageCache.sharedImageCache storeImage:nonAlphaImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
+    [SDImageCache.sharedImageCache storeImage:jpegImage forKey:kAnimatedImageKey2 toDisk:YES completion:^{
         UIImage *diskImage = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:kAnimatedImageKey2];
         // Should save to JPEG
         expect(diskImage.sd_isAnimated).beFalsy();

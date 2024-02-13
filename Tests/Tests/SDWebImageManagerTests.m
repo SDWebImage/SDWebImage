@@ -10,7 +10,9 @@
 #import "SDWebImageTestTransformer.h"
 #import "SDWebImageTestCache.h"
 #import "SDWebImageTestLoader.h"
+#if __has_include(<SDWebImageWebPCoder/SDWebImageWebPCoder.h>)
 #import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
+#endif
 
 // Keep strong references for object
 @interface SDObjectContainer<ObjectType> : NSObject
@@ -644,6 +646,7 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+#if __has_include(<SDWebImageWebPCoder/SDWebImageWebPCoder.h>)
 - (void)test22ThatForceDecodePolicyAlways {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Always policy with WebP image (libwebp) should force-decode"];
     NSURL *url = [NSURL URLWithString:@"https://www.gstatic.com/webp/gallery/4.webp"];
@@ -658,6 +661,7 @@
     }];
     [self waitForExpectationsWithCommonTimeout];
 }
+#endif
 
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];

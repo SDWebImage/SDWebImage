@@ -6,6 +6,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '9.0'
   s.tvos.deployment_target = '9.0'
   s.watchos.deployment_target = '2.0'
+  s.visionos.deployment_target = "1.0"
 
   s.license = 'MIT'
   s.summary = 'Asynchronous image downloader with cache support with an UIImageView category.'
@@ -40,6 +41,7 @@ Pod::Spec.new do |s|
     mk.osx.deployment_target = '10.11'
     mk.ios.deployment_target = '9.0'
     mk.tvos.deployment_target = '9.0'
+    mk.visionos.deployment_target = "1.0"
     mk.source_files = 'SDWebImageMapKit/MapKit/*.{h,m}'
     mk.framework = 'MapKit'
     mk.dependency 'SDWebImage/Core'

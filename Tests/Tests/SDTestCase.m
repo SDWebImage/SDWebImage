@@ -27,4 +27,23 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:handler];
 }
 
+#pragma mark - Helper
+- (UIWindow *)window {
+    if (!_window) {
+#if SD_UIKIT
+#if SD_VISION
+        CGSize screenSize = CGSizeMake(1280, 720); // https://developer.apple.com/design/human-interface-guidelines/windows#visionOS
+        CGRect screenFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
+#else
+        UIScreen *mainScreen = [UIScreen mainScreen];
+        CGRect screenFrame = mainScreen.bounds;
+#endif
+        _window = [[UIWindow alloc] initWithFrame:screenFrame];
+#else
+        _window = [[NSWindow alloc] initWithContentRect:mainScreen.frame styleMask:0 backing:NSBackingStoreBuffered defer:NO screen:mainScreen];
+#endif
+    }
+    return _window;
+}
+
 @end

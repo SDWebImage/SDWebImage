@@ -11,7 +11,6 @@
 #import "SDInternalMacros.h"
 #import "SDImageFramePool.h"
 #import <KVOController/KVOController.h>
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
 
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
 
@@ -65,8 +64,6 @@ static BOOL _isCalled;
 @end
 
 @interface SDAnimatedImageTest : SDTestCase
-
-@property (nonatomic, strong) UIWindow *window;
 
 @end
 
@@ -769,12 +766,7 @@ static BOOL _isCalled;
 
 - (void)test36AnimatedImageMemoryCost {
     if (@available(iOS 14, tvOS 14, macOS 11, watchOS 7, *)) {
-#if SD_TV
-        /// TV OS does not support ImageIO's webp.
-        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
-#else
         [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
-#endif
         UIImage *image = [UIImage sd_imageWithData:[NSData dataWithContentsOfFile:[self testMemotyCostImagePath]]];
         NSUInteger cost = [image sd_memoryCost];
 #if SD_UIKIT
@@ -793,17 +785,6 @@ static BOOL _isCalled;
 }
 
 #pragma mark - Helper
-- (UIWindow *)window {
-    if (!_window) {
-        UIScreen *mainScreen = [UIScreen mainScreen];
-#if SD_UIKIT
-        _window = [[UIWindow alloc] initWithFrame:mainScreen.bounds];
-#else
-        _window = [[NSWindow alloc] initWithContentRect:mainScreen.frame styleMask:0 backing:NSBackingStoreBuffered defer:NO screen:mainScreen];
-#endif
-    }
-    return _window;
-}
 
 - (NSString *)testGIFPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];
