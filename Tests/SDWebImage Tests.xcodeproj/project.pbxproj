@@ -27,7 +27,6 @@
 		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		324047442271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
 		324047452271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
-		32464A8C2B7B0FF2006BE70E /* Tests_Vision.m in Sources */ = {isa = PBXBuildFile; fileRef = 32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */; };
 		32464A902B7B1833006BE70E /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		32464A912B7B1833006BE70E /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
 		32464A922B7B1833006BE70E /* TestImage.heic in Resources */ = {isa = PBXBuildFile; fileRef = 327A418B211D660600495442 /* TestImage.heic */; };
@@ -184,7 +183,6 @@
 		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
 		324047432271956F007C53E1 /* TestEXIF.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestEXIF.png; sourceTree = "<group>"; };
 		32464A892B7B0FF2006BE70E /* Tests Vision.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests Vision.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests_Vision.m; sourceTree = "<group>"; };
 		32515F9724AF1919005E8F79 /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
 		32515F9824AF1919005E8F79 /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
@@ -308,7 +306,6 @@
 		32464A8A2B7B0FF2006BE70E /* Tests Vision */ = {
 			isa = PBXGroup;
 			children = (
-				32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */,
 			);
 			path = "Tests Vision";
 			sourceTree = "<group>";
@@ -872,7 +869,6 @@
 				32464AB52B7B1845006BE70E /* SDCategoriesTests.m in Sources */,
 				32464AAA2B7B1845006BE70E /* SDWebImageTestDownloadOperation.m in Sources */,
 				32464AA62B7B1845006BE70E /* SDMockFileManager.m in Sources */,
-				32464A8C2B7B0FF2006BE70E /* Tests_Vision.m in Sources */,
 				32464AA52B7B1845006BE70E /* SDWebImageManagerTests.m in Sources */,
 				32464AB22B7B1845006BE70E /* SDWebImageTestCache.m in Sources */,
 				32464AAD2B7B1845006BE70E /* SDWebImageTestTransformer.m in Sources */,
@@ -1014,7 +1010,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tests Vision/Info.plist";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -1077,7 +1073,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tests Vision/Info.plist";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;

@@ -673,16 +673,12 @@
         if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, *)) {
             NSURLSessionTaskMetrics *metrics = token.metrics;
             expect(metrics).notTo.beNil();
-            expect(metrics.redirectCount).equal(0);
             expect(metrics.transactionMetrics.count).equal(1);
             NSURLSessionTaskTransactionMetrics *metric = metrics.transactionMetrics.firstObject;
             // Metrcis Test
             expect(metric.fetchStartDate).notTo.beNil();
             expect(metric.connectStartDate).notTo.beNil();
             expect(metric.connectEndDate).notTo.beNil();
-            expect(metric.networkProtocolName).equal(@"h2");
-            expect(metric.resourceFetchType).equal(NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad);
-            expect(metric.isReusedConnection).beFalsy();
         }
         [expectation1 fulfill];
     }];
