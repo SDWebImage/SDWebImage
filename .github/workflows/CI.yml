@@ -14,9 +14,9 @@ permissions:
 jobs:
   Pods:
     name: Cocoapods Lint
-    runs-on: macos-11
+    runs-on: macos-13
     env:
-      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,14 +40,15 @@ jobs:
           
   Demo:
     name: Run Demo
-    runs-on: macos-11
+    runs-on: macos-13
     env:
-      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       OSXSCHEME: SDWebImage OSX Demo
       iOSSCHEME: SDWebImage iOS Demo
       TVSCHEME: SDWebImage TV Demo
       WATCHSCHEME: SDWebImage Watch Demo
+      VISIONSCHEME: SDWebImage Vision Demo
     strategy:
       matrix:
         iosDestination: ["name=iPhone 13 Pro"]
@@ -55,6 +56,7 @@ jobs:
         watchOSDestination: ["platform=watchOS Simulator,name=Apple Watch Series 7 - 45mm"]
         macOSDestination: ["platform=macOS"]
         macCatalystDestination: ["platform=macOS,arch=x86_64,variant=Mac Catalyst"]
+        visionOSDestination: ["platform=visionOS Simulator,name=Apple Vision Pro"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -90,12 +92,17 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.WATCHSCHEME }}" -destination "${{ matrix.watchOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
-          
+
+      - name: Run demo for Vision
+        run: |
+          set -o pipefail
+          xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "${{ env.VISIONSCHEME }}" -destination "${{ matrix.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+
   Test:
     name: Unit Test
-    runs-on: macos-11
+    runs-on: macos-13
     env:
-      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
@@ -103,6 +110,7 @@ jobs:
         iosDestination: ["platform=iOS Simulator,name=iPhone 13 Pro"]
         macOSDestination: ["platform=macOS,arch=x86_64"]
         tvOSDestination: ["platform=tvOS Simulator,name=Apple TV 4K"]
+        visionOSDestination: ["platform=visionOS Simulator,name=Apple Vision Pro"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -141,6 +149,12 @@ jobs:
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ matrix.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
+
+      - name: Test - ${{ matrix.visionOSDestination }}
+        run: |
+          set -o pipefail
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Vision" -destination "${{ matrix.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
+          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/visionOS
           
       - name: Code Coverage
         run: |
@@ -150,12 +164,13 @@ jobs:
           bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
           bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
           bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
+          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/visionOS' -J '^SDWebImage$' -c -X gcov -F visionos
           
   Build:
     name: Build Library
-    runs-on: macos-11
+    runs-on: macos-13
     env:
-      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
       PROJECT_NAME: SDWebImage.xcodeproj
       SCHEME_NAME: SDWebImage
     steps:
@@ -183,14 +198,15 @@ jobs:
       - name: Build as static library
         run: |
           set -o pipefail
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage static" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "SDWebImage static" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
           rm -rf ~/Library/Developer/Xcode/DerivedData/
       - name: Build as dynamic frameworks
         run: |
           set -o pipefail
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk macosx -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk appletvsimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk watchsimulator -configuration Release | xcpretty -c
-          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" -configuration Release | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk macosx -configuration Debug | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk iphonesimulator PLATFORM_NAME=iphonesimulator -configuration Debug | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk appletvsimulator -configuration Debug | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk watchsimulator -configuration Debug | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" -configuration Debug | xcpretty -c
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}" -sdk xrsimulator -configuration Debug | xcpretty -c
           rm -rf ~/Library/Developer/Xcode/DerivedData/
