@@ -33,10 +33,10 @@ jobs:
       - name: Install Xcpretty
         run: gem install xcpretty --no-document --quiet
         
-      - name: Pod Update.
+      - name: Pod Update
         run: pod repo update --silent
         
-      - name: Pod Install.
+      - name: Pod Install
         run: pod install
 
       - name: Run SDWebImage podspec lint
@@ -44,8 +44,8 @@ jobs:
           set -o pipefail
           pod lib lint SDWebImage.podspec --allow-warnings --skip-tests
           
-  Pods:
-    name: Cocoapods Demo/Test
+  Demo:
+    name: Cocoapods Demo
     runs-on: macos-13
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
@@ -103,31 +103,66 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage Vision Demo" -destination "${{ env.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
+
+  Test:
+    name: Unit Test
+    runs-on: macos-13
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      WORKSPACE_NAME: SDWebImage.xcworkspace
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      iosDestination: platform=iOS Simulator,name=iPhone 15 Pro
+      macOSDestination: platform=macOS,arch=x86_64
+      macCatalystDestination: platform=macOS,arch=x86_64,variant=Mac Catalyst
+      tvOSDestination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Series 9 (45mm)
+      visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare VisionOS
+        run: |
+          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+          xcodebuild -downloadPlatform visionOS
+
+      - name: Install Cocoapods
+        run: gem install cocoapods --no-document --quiet
         
+      - name: Install Xcpretty
+        run: gem install xcpretty --no-document --quiet
+        
+      - name: Pod Update
+        run: pod repo update --silent
+        
+      - name: Pod Install
+        run: pod install
+
       - name: Clean DerivedData
         run: |
           rm -rf ~/Library/Developer/Xcode/DerivedData/
           mkdir DerivedData
         
-      - name: Test - ${{ env.iosDestination }}
+      - name: Test for iOS
         run: |
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests iOS" -destination "${{ env.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
           
-      - name: Test - ${{ env.macOSDestination }}
+      - name: Test for macOS
         run: |
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Mac" -destination "${{ env.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
     
-      - name: Test - ${{ env.tvOSDestination }}
+      - name: Test for tvOS
         run: |
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ env.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
           mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
 
-      - name: Test - ${{ env.visionOSDestination }}
+      - name: Test for visionOS
         run: |
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Vision" -destination "${{ env.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
