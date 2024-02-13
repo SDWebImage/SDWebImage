@@ -74,12 +74,14 @@
                     return SDImageFormatPDF;
                 }
             }
+            break;
         }
         case 0x3C: {
             // Check end with SVG tag
             if ([data rangeOfData:[kSVGTagEnd dataUsingEncoding:NSUTF8StringEncoding] options:NSDataSearchBackwards range: NSMakeRange(data.length - MIN(100, data.length), MIN(100, data.length))].location != NSNotFound) {
                 return SDImageFormatSVG;
             }
+            break;
         }
     }
     return SDImageFormatUndefined;
