@@ -10,6 +10,11 @@ def watch_example_pods
   pod 'SDWebImageWebPCoder', :git => 'https://github.com/SDWebImage/SDWebImageWebPCoder.git', :branch => 'master'
 end
 
+def vision_example_pods
+  pod 'SDWebImage/MapKit', :path => './'
+  pod 'SDWebImageSwiftUI', :git => 'https://github.com/SDWebImage/SDWebImageSwiftUI.git', :branch => 'master'
+end
+
 def all_test_pods
   pod 'SDWebImage/MapKit', :path => './'
   pod 'Expecta'
@@ -44,6 +49,12 @@ target 'SDWebImage Watch Demo Extension' do
   project example_project_path
   platform :watchos, '2.0'
   watch_example_pods
+end
+
+target 'SDWebImage Vision Demo' do
+  project example_project_path
+  platform :visionos, '1.0'
+  vision_example_pods
 end
 
 # Test Project
