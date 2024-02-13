@@ -31,12 +31,12 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
 - (UIWindow *)window {
     if (!_window) {
 #if SD_UIKIT
-#if SD_IOS
-        UIScreen *mainScreen = [UIScreen mainScreen];
-        CGRect screenFrame = mainScreen.bounds;
-#else
+#if SD_VISION
         CGSize screenSize = CGSizeMake(1280, 720); // https://developer.apple.com/design/human-interface-guidelines/windows#visionOS
         CGRect screenFrame = CGRectMake(0, 0, screenSize.width, screenSize.height);
+#else
+        UIScreen *mainScreen = [UIScreen mainScreen];
+        CGRect screenFrame = mainScreen.bounds;
 #endif
         _window = [[UIWindow alloc] initWithFrame:screenFrame];
 #else
