@@ -27,6 +27,45 @@
 		323B8E2020862322008952BE /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
 		324047442271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
 		324047452271956F007C53E1 /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
+		32464A8C2B7B0FF2006BE70E /* Tests_Vision.m in Sources */ = {isa = PBXBuildFile; fileRef = 32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */; };
+		32464A902B7B1833006BE70E /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
+		32464A912B7B1833006BE70E /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
+		32464A922B7B1833006BE70E /* TestImage.heic in Resources */ = {isa = PBXBuildFile; fileRef = 327A418B211D660600495442 /* TestImage.heic */; };
+		32464A932B7B1833006BE70E /* TestImageAnimated.heic in Resources */ = {isa = PBXBuildFile; fileRef = 3297A09E23374D1600814590 /* TestImageAnimated.heic */; };
+		32464A942B7B1833006BE70E /* TestJFIF.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3264CD162AAB1E23001E338B /* TestJFIF.jpg */; };
+		32464A952B7B1833006BE70E /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9724AF1919005E8F79 /* TestImageStatic.webp */; };
+		32464A962B7B1833006BE70E /* TestImage.gif in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB61D7EF8200086B6E9 /* TestImage.gif */; };
+		32464A972B7B1833006BE70E /* TestImage.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 321F310D27D0DC490042B274 /* TestImage.bmp */; };
+		32464A982B7B1833006BE70E /* TestLoopCount.gif in Resources */ = {isa = PBXBuildFile; fileRef = 326E69462334C0C200B7252C /* TestLoopCount.gif */; };
+		32464A992B7B1833006BE70E /* TestEXIF.png in Resources */ = {isa = PBXBuildFile; fileRef = 324047432271956F007C53E1 /* TestEXIF.png */; };
+		32464A9A2B7B1833006BE70E /* TestImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBB81D7EF8260086B6E9 /* TestImage.png */; };
+		32464A9B2B7B1833006BE70E /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
+		32464A9C2B7B1833006BE70E /* TestImage.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3234306123E2BAC800C290C8 /* TestImage.pdf */; };
+		32464A9D2B7B1833006BE70E /* TestImageAnimated.apng in Resources */ = {isa = PBXBuildFile; fileRef = 327054E1206CEFF3006EA328 /* TestImageAnimated.apng */; };
+		32464A9E2B7B1833006BE70E /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9824AF1919005E8F79 /* TestImageAnimated.webp */; };
+		32464A9F2B7B1833006BE70E /* IndexedPNG.png in Resources */ = {isa = PBXBuildFile; fileRef = 3278F5E12B04C1AC0004A6EE /* IndexedPNG.png */; };
+		32464AA02B7B1833006BE70E /* TestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5F7F38AC1AE2A77A00B0E330 /* TestImage.jpg */; };
+		32464AA12B7B1833006BE70E /* MonochromeTestImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */; };
+		32464AA22B7B1833006BE70E /* TestImageLarge.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 43828A441DA67F9900000E62 /* TestImageLarge.jpg */; };
+		32464AA32B7B1833006BE70E /* TestImage.heif in Resources */ = {isa = PBXBuildFile; fileRef = 32905E63211D786E00460FCF /* TestImage.heif */; };
+		32464AA42B7B1833006BE70E /* TestImageLarge.png in Resources */ = {isa = PBXBuildFile; fileRef = 320224F62440C39B00E5B29D /* TestImageLarge.png */; };
+		32464AA52B7B1845006BE70E /* SDWebImageManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D6A195476AC00390AB0 /* SDWebImageManagerTests.m */; };
+		32464AA62B7B1845006BE70E /* SDMockFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D122871EC48B5E00D98CEB /* SDMockFileManager.m */; };
+		32464AA72B7B1845006BE70E /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
+		32464AA82B7B1845006BE70E /* SDUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3222417E2272F808002429DB /* SDUtilsTests.m */; };
+		32464AA92B7B1845006BE70E /* SDWebImageTestLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 323B8E1E20862322008952BE /* SDWebImageTestLoader.m */; };
+		32464AAA2B7B1845006BE70E /* SDWebImageTestDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3226ECBA20754F7700FAFACF /* SDWebImageTestDownloadOperation.m */; };
+		32464AAB2B7B1845006BE70E /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
+		32464AAC2B7B1845006BE70E /* SDTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D7AF05F1F329763000083C2 /* SDTestCase.m */; };
+		32464AAD2B7B1845006BE70E /* SDWebImageTestTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3264FF2E205D42CB00F6BD48 /* SDWebImageTestTransformer.m */; };
+		32464AAE2B7B1845006BE70E /* SDWebImageTestCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestCoder.m */; };
+		32464AAF2B7B1845006BE70E /* SDWebImagePrefetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */; };
+		32464AB02B7B1845006BE70E /* SDWebCacheCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */; };
+		32464AB12B7B1845006BE70E /* SDAnimatedImageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A571552037DB2D002EDAAE /* SDAnimatedImageTest.m */; };
+		32464AB22B7B1845006BE70E /* SDWebImageTestCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 328BB6DC20825E9800760D6C /* SDWebImageTestCache.m */; };
+		32464AB32B7B1845006BE70E /* SDImageCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DA248D68195475D800390AB0 /* SDImageCacheTests.m */; };
+		32464AB42B7B1845006BE70E /* SDImageCoderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 433BBBB41D7EF5C00086B6E9 /* SDImageCoderTests.m */; };
+		32464AB52B7B1845006BE70E /* SDCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B99E8A203AF8690017FD66 /* SDCategoriesTests.m */; };
 		32515F9924AF1919005E8F79 /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9724AF1919005E8F79 /* TestImageStatic.webp */; };
 		32515F9A24AF1919005E8F79 /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9724AF1919005E8F79 /* TestImageStatic.webp */; };
 		32515F9B24AF1919005E8F79 /* TestImageStatic.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9724AF1919005E8F79 /* TestImageStatic.webp */; };
@@ -121,6 +160,7 @@
 		6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */ = {isa = PBXBuildFile; fileRef = 6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */; };
 		6FD27F0B29D57A4AACB56EA8 /* Pods_Tests_TV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B18D772CFF936546772B836 /* Pods_Tests_TV.framework */; };
 		8C71262F36B4B9A4EA9BD000 /* Pods_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD978FDEC70C6C3978DA4D56 /* Pods_Tests_iOS.framework */; };
+		97A6B676B89A44368345A1A0 /* Pods_Tests_Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A356608C341F465A482F0D7B /* Pods_Tests_Vision.framework */; };
 		B77B223649B05D013FE6E310 /* Pods_Tests_Mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61030057F379B8F1D44EBF88 /* Pods_Tests_Mac.framework */; };
 		DA248D57195472AA00390AB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D56195472AA00390AB0 /* XCTest.framework */; };
 		DA248D59195472AA00390AB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA248D58195472AA00390AB0 /* Foundation.framework */; };
@@ -143,6 +183,8 @@
 		323B8E1D20862322008952BE /* SDWebImageTestLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestLoader.h; sourceTree = "<group>"; };
 		323B8E1E20862322008952BE /* SDWebImageTestLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestLoader.m; sourceTree = "<group>"; };
 		324047432271956F007C53E1 /* TestEXIF.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TestEXIF.png; sourceTree = "<group>"; };
+		32464A892B7B0FF2006BE70E /* Tests Vision.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests Vision.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests_Vision.m; sourceTree = "<group>"; };
 		32515F9724AF1919005E8F79 /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
 		32515F9824AF1919005E8F79 /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
@@ -188,6 +230,8 @@
 		6700DBD9C45B00AB5F77472A /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
 		6B181A1A265757ED00BD06B3 /* TestAnimatedImageMemory.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestAnimatedImageMemory.webp; sourceTree = "<group>"; };
 		6CB13D7A081654B2E4018F53 /* Pods-Tests TV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests TV.release.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests TV/Pods-Tests TV.release.xcconfig"; sourceTree = "<group>"; };
+		91BF87534CBFBD8B623FCB53 /* Pods-Tests Vision.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests Vision.release.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests Vision/Pods-Tests Vision.release.xcconfig"; sourceTree = "<group>"; };
+		A356608C341F465A482F0D7B /* Pods_Tests_Vision.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tests_Vision.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC6C6328775701B5AAEEF4FF /* Pods-Tests Mac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests Mac.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests Mac/Pods-Tests Mac.debug.xcconfig"; sourceTree = "<group>"; };
 		D80C63148416AADCBDD7FABA /* Pods-Tests iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests iOS.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests iOS/Pods-Tests iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		DA248D53195472AA00390AB0 /* Tests iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -202,9 +246,18 @@
 		EADD19E9219915E300804BB0 /* Module-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Module-Release.xcconfig"; sourceTree = "<group>"; };
 		EADD19EC219915E300804BB0 /* Module-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Module-Debug.xcconfig"; sourceTree = "<group>"; };
 		EADD19EE219915E300804BB0 /* Module-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Module-Shared.xcconfig"; sourceTree = "<group>"; };
+		FBF6247C616460B91BF8C188 /* Pods-Tests Vision.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests Vision.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-Tests Vision/Pods-Tests Vision.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		32464A862B7B0FF2006BE70E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97A6B676B89A44368345A1A0 /* Pods_Tests_Vision.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		329922272365D9A100EAFD97 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -246,8 +299,18 @@
 				6CB13D7A081654B2E4018F53 /* Pods-Tests TV.release.xcconfig */,
 				D80C63148416AADCBDD7FABA /* Pods-Tests iOS.debug.xcconfig */,
 				4DCBA1DEFE6C68C4A83C9B9E /* Pods-Tests iOS.release.xcconfig */,
+				FBF6247C616460B91BF8C188 /* Pods-Tests Vision.debug.xcconfig */,
+				91BF87534CBFBD8B623FCB53 /* Pods-Tests Vision.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		32464A8A2B7B0FF2006BE70E /* Tests Vision */ = {
+			isa = PBXGroup;
+			children = (
+				32464A8B2B7B0FF2006BE70E /* Tests_Vision.m */,
+			);
+			path = "Tests Vision";
 			sourceTree = "<group>";
 		};
 		3299222B2365D9A100EAFD97 /* Tests TV */ = {
@@ -301,6 +364,7 @@
 				DA248D5C195472AA00390AB0 /* Tests */,
 				32B99E93203B2DF90017FD66 /* Tests Mac */,
 				3299222B2365D9A100EAFD97 /* Tests TV */,
+				32464A8A2B7B0FF2006BE70E /* Tests Vision */,
 				DA248D55195472AA00390AB0 /* Frameworks */,
 				DA248D54195472AA00390AB0 /* Products */,
 				07C2B07CECA5631B430A737D /* Pods */,
@@ -313,6 +377,7 @@
 				DA248D53195472AA00390AB0 /* Tests iOS.xctest */,
 				32B99E92203B2DF90017FD66 /* Tests Mac.xctest */,
 				3299222A2365D9A100EAFD97 /* Tests TV.xctest */,
+				32464A892B7B0FF2006BE70E /* Tests Vision.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -326,6 +391,7 @@
 				61030057F379B8F1D44EBF88 /* Pods_Tests_Mac.framework */,
 				5B18D772CFF936546772B836 /* Pods_Tests_TV.framework */,
 				DD978FDEC70C6C3978DA4D56 /* Pods_Tests_iOS.framework */,
+				A356608C341F465A482F0D7B /* Pods_Tests_Vision.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -389,6 +455,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		32464A882B7B0FF2006BE70E /* Tests Vision */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32464A8F2B7B0FF2006BE70E /* Build configuration list for PBXNativeTarget "Tests Vision" */;
+			buildPhases = (
+				16AFAEFC9D9B9B933D4D324D /* [CP] Check Pods Manifest.lock */,
+				32464A852B7B0FF2006BE70E /* Sources */,
+				32464A862B7B0FF2006BE70E /* Frameworks */,
+				32464A872B7B0FF2006BE70E /* Resources */,
+				E5421880D8024D66B726F168 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Tests Vision";
+			productName = "Tests Vision";
+			productReference = 32464A892B7B0FF2006BE70E /* Tests Vision.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		329922292365D9A100EAFD97 /* Tests TV */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 329922312365D9A100EAFD97 /* Build configuration list for PBXNativeTarget "Tests TV" */;
@@ -454,6 +539,10 @@
 			attributes = {
 				LastUpgradeCheck = 1020;
 				TargetAttributes = {
+					32464A882B7B0FF2006BE70E = {
+						CreatedOnToolsVersion = 15.2;
+						ProvisioningStyle = Automatic;
+					};
 					329922292365D9A100EAFD97 = {
 						CreatedOnToolsVersion = 11.1;
 						ProvisioningStyle = Automatic;
@@ -480,11 +569,40 @@
 				DA248D52195472AA00390AB0 /* Tests iOS */,
 				32B99E91203B2DF90017FD66 /* Tests Mac */,
 				329922292365D9A100EAFD97 /* Tests TV */,
+				32464A882B7B0FF2006BE70E /* Tests Vision */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		32464A872B7B0FF2006BE70E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32464A902B7B1833006BE70E /* 1@2x.gif in Resources */,
+				32464AA22B7B1833006BE70E /* TestImageLarge.jpg in Resources */,
+				32464A912B7B1833006BE70E /* TestImage.nef in Resources */,
+				32464A942B7B1833006BE70E /* TestJFIF.jpg in Resources */,
+				32464A9B2B7B1833006BE70E /* TestAnimatedImageMemory.webp in Resources */,
+				32464A992B7B1833006BE70E /* TestEXIF.png in Resources */,
+				32464A922B7B1833006BE70E /* TestImage.heic in Resources */,
+				32464A9D2B7B1833006BE70E /* TestImageAnimated.apng in Resources */,
+				32464A9F2B7B1833006BE70E /* IndexedPNG.png in Resources */,
+				32464AA02B7B1833006BE70E /* TestImage.jpg in Resources */,
+				32464A932B7B1833006BE70E /* TestImageAnimated.heic in Resources */,
+				32464A9A2B7B1833006BE70E /* TestImage.png in Resources */,
+				32464A9C2B7B1833006BE70E /* TestImage.pdf in Resources */,
+				32464A9E2B7B1833006BE70E /* TestImageAnimated.webp in Resources */,
+				32464A972B7B1833006BE70E /* TestImage.bmp in Resources */,
+				32464AA32B7B1833006BE70E /* TestImage.heif in Resources */,
+				32464AA12B7B1833006BE70E /* MonochromeTestImage.jpg in Resources */,
+				32464AA42B7B1833006BE70E /* TestImageLarge.png in Resources */,
+				32464A962B7B1833006BE70E /* TestImage.gif in Resources */,
+				32464A952B7B1833006BE70E /* TestImageStatic.webp in Resources */,
+				32464A982B7B1833006BE70E /* TestLoopCount.gif in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		329922282365D9A100EAFD97 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -598,22 +716,40 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests iOS/Pods-Tests iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-iOS/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-iOS/SDWebImageWebPCoder.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp-iOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-iOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-iOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests iOS/Pods-Tests iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		16AFAEFC9D9B9B933D4D324D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Tests Vision-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		3742A83C8569610075078F4D /* [CP] Check Pods Manifest.lock */ = {
@@ -642,16 +778,12 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests TV/Pods-Tests TV-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-tvOS/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-tvOS/SDWebImageWebPCoder.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp-tvOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-tvOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-tvOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
@@ -690,16 +822,12 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-macOS/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder-macOS/SDWebImageWebPCoder.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp-macOS/libwebp.framework",
 				"${BUILT_PRODUCTS_DIR}/Expecta-macOS/Expecta.framework",
 				"${BUILT_PRODUCTS_DIR}/KVOController-macOS/KVOController.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
 			);
@@ -708,9 +836,56 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests Mac/Pods-Tests Mac-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		E5421880D8024D66B726F168 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Tests Vision/Pods-Tests Vision-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/SDWebImage-Core-MapKit-visionOS/SDWebImage.framework",
+				"${BUILT_PRODUCTS_DIR}/Expecta-visionOS/Expecta.framework",
+				"${BUILT_PRODUCTS_DIR}/KVOController-visionOS/KVOController.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Expecta.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Tests Vision/Pods-Tests Vision-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		32464A852B7B0FF2006BE70E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32464AAB2B7B1845006BE70E /* SDWebImageDownloaderTests.m in Sources */,
+				32464AAC2B7B1845006BE70E /* SDTestCase.m in Sources */,
+				32464AA72B7B1845006BE70E /* SDImageTransformerTests.m in Sources */,
+				32464AAE2B7B1845006BE70E /* SDWebImageTestCoder.m in Sources */,
+				32464AB52B7B1845006BE70E /* SDCategoriesTests.m in Sources */,
+				32464AAA2B7B1845006BE70E /* SDWebImageTestDownloadOperation.m in Sources */,
+				32464AA62B7B1845006BE70E /* SDMockFileManager.m in Sources */,
+				32464A8C2B7B0FF2006BE70E /* Tests_Vision.m in Sources */,
+				32464AA52B7B1845006BE70E /* SDWebImageManagerTests.m in Sources */,
+				32464AB22B7B1845006BE70E /* SDWebImageTestCache.m in Sources */,
+				32464AAD2B7B1845006BE70E /* SDWebImageTestTransformer.m in Sources */,
+				32464AAF2B7B1845006BE70E /* SDWebImagePrefetcherTests.m in Sources */,
+				32464AB02B7B1845006BE70E /* SDWebCacheCategoriesTests.m in Sources */,
+				32464AB12B7B1845006BE70E /* SDAnimatedImageTest.m in Sources */,
+				32464AB42B7B1845006BE70E /* SDImageCoderTests.m in Sources */,
+				32464AA92B7B1845006BE70E /* SDWebImageTestLoader.m in Sources */,
+				32464AA82B7B1845006BE70E /* SDUtilsTests.m in Sources */,
+				32464AB32B7B1845006BE70E /* SDImageCacheTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		329922262365D9A100EAFD97 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -786,6 +961,138 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		32464A8D2B7B0FF2006BE70E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FBF6247C616460B91BF8C188 /* Pods-Tests Vision.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.Tests-Vision";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = xros;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 1.0;
+			};
+			name = Debug;
+		};
+		32464A8E2B7B0FF2006BE70E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 91BF87534CBFBD8B623FCB53 /* Pods-Tests Vision.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.Tests-Vision";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = xros;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 1.0;
+			};
+			name = Release;
+		};
 		3299222F2365D9A100EAFD97 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5B0011ED58CC9998E68ECCE3 /* Pods-Tests TV.debug.xcconfig */;
@@ -887,6 +1194,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		32464A8F2B7B0FF2006BE70E /* Build configuration list for PBXNativeTarget "Tests Vision" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32464A8D2B7B0FF2006BE70E /* Debug */,
+				32464A8E2B7B0FF2006BE70E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		329922312365D9A100EAFD97 /* Build configuration list for PBXNativeTarget "Tests TV" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

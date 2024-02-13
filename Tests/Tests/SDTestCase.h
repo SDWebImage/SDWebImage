@@ -29,7 +29,9 @@ FOUNDATION_EXPORT NSString * _Nonnull const kTestAPNGPURL;
 
 @interface SDTestCase : XCTestCase
 
+@property (nonatomic, strong, null_resettable) UIWindow *window;
+
 - (void)waitForExpectationsWithCommonTimeout;
-- (void)waitForExpectationsWithCommonTimeoutUsingHandler:(nullable XCWaitCompletionHandler)handler;
+- (void)waitForExpectationsWithCommonTimeoutUsingHandler:(nullable XCWaitCompletionHandler)handler; 
 
 @end

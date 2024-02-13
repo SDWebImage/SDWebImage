@@ -17,9 +17,9 @@ end
 
 def all_test_pods
   pod 'SDWebImage/MapKit', :path => './'
-  pod 'Expecta'
-  pod 'KVOController'
-  pod 'SDWebImageWebPCoder', :git => 'https://github.com/SDWebImage/SDWebImageWebPCoder.git', :branch => 'master'
+  # These two Pods seems no longer maintained...
+  pod 'Expecta', :podspec => 'Tests/Expecta.podspec'
+  pod 'KVOController', :podspec => 'Tests/KVOController.podspec'
 end
 
 example_project_path = 'Examples/SDWebImage Demo'
@@ -73,6 +73,12 @@ end
 target 'Tests TV' do
   project test_project_path
   platform :tvos, '9.0'
+  all_test_pods
+end
+
+target 'Tests Vision' do
+  project test_project_path
+  platform :visionos, '1.0'
   all_test_pods
 end
 

@@ -113,7 +113,11 @@
     // Main Screen
     SDGraphicsImageRendererFormat *format = SDGraphicsImageRendererFormat.preferredFormat;
 #if SD_UIKIT
+#if SD_VISION
+    CGFloat screenScale = UITraitCollection.currentTraitCollection.displayScale;
+#else
     CGFloat screenScale = [UIScreen mainScreen].scale;
+#endif
 #elif SD_MAC
     CGFloat screenScale = [NSScreen mainScreen].backingScaleFactor;
 #endif

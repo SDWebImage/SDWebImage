@@ -9,7 +9,9 @@
 
 #import "SDTestCase.h"
 #import "UIColor+SDHexString.h"
+#if __has_include(<SDWebImageWebPCoder/SDWebImageWebPCoder.h>)
 #import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
+#endif
 
 @interface SDWebImageDecoderTests : SDTestCase
 

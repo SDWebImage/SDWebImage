@@ -5,3 +5,9 @@
 
 // This is a list of paths to folders to be searched by the compiler for included or imported header files when compiling C, Objective-C, C++, or Objective-C++. Paths are delimited by whitespace, so any paths with spaces in them need to be properly quoted.
 HEADER_SEARCH_PATHS = $(inherited) "$(SRCROOT)/../SDWebImage/Private"
+
+// Warns when a quoted include is used instead of a framework style include in a framework header.
+CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
+
+// If enabled, the build system will sandbox user scripts to disallow undeclared input/output dependencies.
+ENABLE_USER_SCRIPT_SANDBOXING = NO
