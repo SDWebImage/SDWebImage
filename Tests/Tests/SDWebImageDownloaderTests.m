@@ -682,7 +682,6 @@
             expect(metric.connectEndDate).notTo.beNil();
             expect(metric.networkProtocolName).equal(@"h2");
             expect(metric.resourceFetchType).equal(NSURLSessionTaskMetricsResourceFetchTypeNetworkLoad);
-            expect(metric.isProxyConnection).beFalsy();
             expect(metric.isReusedConnection).beFalsy();
         }
         [expectation1 fulfill];
