@@ -1,3 +1,10 @@
+## [5.18.11 - 5.8 Patch, on Feb 13th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.11)
+See [all tickets marked for the 5.18.11 release](https://github.com/SDWebImage/SDWebImage/milestone/131)
+
+### Fixes
+
+- Add missing break keyword while converting NSData to SDImageFormat #3672 @adamwangxx
+
 ## [5.18.10 - 5.8 Patch, on Jan 11th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.10)
 See [all tickets marked for the 5.18.10 release](https://github.com/SDWebImage/SDWebImage/milestone/130)
 
