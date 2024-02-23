@@ -14,18 +14,12 @@ permissions:
 jobs:
   Lint:
     name: Cocoapods Lint
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Prepare VisionOS
-        run: |
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -46,7 +40,7 @@ jobs:
           
   Demo:
     name: Cocoapods Demo
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
@@ -60,12 +54,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Prepare VisionOS
-        run: |
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -106,7 +94,7 @@ jobs:
 
   Test:
     name: Unit Test
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
@@ -120,12 +108,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Prepare VisionOS
-        run: |
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -180,7 +162,7 @@ jobs:
           
   Build:
     name: Build Library
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
       PROJECT_NAME: SDWebImage.xcodeproj
@@ -188,12 +170,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Prepare VisionOS
-        run: |
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
 
       - name: Build the SwiftPM
         run: |
