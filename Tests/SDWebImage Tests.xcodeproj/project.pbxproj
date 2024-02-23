@@ -141,6 +141,10 @@
 		32B99EAC203B36650017FD66 /* SDWebImageDownloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C51E819B46E370092B5E6 /* SDWebImageDownloaderTests.m */; };
 		32B99EAD203B36690017FD66 /* SDWebImagePrefetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C1D01D97F80F007E863A /* SDWebImagePrefetcherTests.m */; };
 		32B99EAE203B366C0017FD66 /* SDWebCacheCategoriesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4369C2731D9804B1007E863A /* SDWebCacheCategoriesTests.m */; };
+		32C268282B888A4100CA29AE /* RGBA16PNG.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C268272B888A4100CA29AE /* RGBA16PNG.png */; };
+		32C268292B888A4100CA29AE /* RGBA16PNG.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C268272B888A4100CA29AE /* RGBA16PNG.png */; };
+		32C2682A2B888A4100CA29AE /* RGBA16PNG.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C268272B888A4100CA29AE /* RGBA16PNG.png */; };
+		32C2682B2B888A4100CA29AE /* RGBA16PNG.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C268272B888A4100CA29AE /* RGBA16PNG.png */; };
 		32E6F0321F3A1B4700A945E6 /* SDWebImageTestCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6F0311F3A1B4700A945E6 /* SDWebImageTestCoder.m */; };
 		32F788A3290D252200B57A1C /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
 		32F788A4290D252200B57A1C /* TestImage.nef in Resources */ = {isa = PBXBuildFile; fileRef = 32F788A2290D252200B57A1C /* TestImage.nef */; };
@@ -207,6 +211,7 @@
 		32B99E8A203AF8690017FD66 /* SDCategoriesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDCategoriesTests.m; sourceTree = "<group>"; };
 		32B99E92203B2DF90017FD66 /* Tests Mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tests Mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32B99E96203B2DF90017FD66 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		32C268272B888A4100CA29AE /* RGBA16PNG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RGBA16PNG.png; sourceTree = "<group>"; };
 		32E6F0301F3A1B4700A945E6 /* SDWebImageTestCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestCoder.h; sourceTree = "<group>"; };
 		32E6F0311F3A1B4700A945E6 /* SDWebImageTestCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageTestCoder.m; sourceTree = "<group>"; };
 		32F788A2290D252200B57A1C /* TestImage.nef */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImage.nef; sourceTree = "<group>"; };
@@ -331,6 +336,7 @@
 			children = (
 				32648066250232F7004FA0FC /* 1@2x.gif */,
 				3278F5E12B04C1AC0004A6EE /* IndexedPNG.png */,
+				32C268272B888A4100CA29AE /* RGBA16PNG.png */,
 				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
 				324047432271956F007C53E1 /* TestEXIF.png */,
 				3264CD162AAB1E23001E338B /* TestJFIF.jpg */,
@@ -580,6 +586,7 @@
 				32464AA22B7B1833006BE70E /* TestImageLarge.jpg in Resources */,
 				32464A912B7B1833006BE70E /* TestImage.nef in Resources */,
 				32464A942B7B1833006BE70E /* TestJFIF.jpg in Resources */,
+				32C2682B2B888A4100CA29AE /* RGBA16PNG.png in Resources */,
 				32464A9B2B7B1833006BE70E /* TestAnimatedImageMemory.webp in Resources */,
 				32464A992B7B1833006BE70E /* TestEXIF.png in Resources */,
 				32464A922B7B1833006BE70E /* TestImage.heic in Resources */,
@@ -608,6 +615,7 @@
 				6BC1C210270F073A003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				3264CD192AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				3299228D2365DC6C00EAFD97 /* TestImageAnimated.apng in Resources */,
+				32C2682A2B888A4100CA29AE /* RGBA16PNG.png in Resources */,
 				3299228B2365DC6C00EAFD97 /* TestImage.heic in Resources */,
 				329922872365DC6C00EAFD97 /* TestLoopCount.gif in Resources */,
 				3299228C2365DC6C00EAFD97 /* TestImage.heif in Resources */,
@@ -636,6 +644,7 @@
 				6BC1C20F270F0193003FFAB1 /* TestAnimatedImageMemory.webp in Resources */,
 				3264CD182AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				327054E3206CEFF3006EA328 /* TestImageAnimated.apng in Resources */,
+				32C268292B888A4100CA29AE /* RGBA16PNG.png in Resources */,
 				32B99EA3203B31360017FD66 /* TestImage.gif in Resources */,
 				324047452271956F007C53E1 /* TestEXIF.png in Resources */,
 				32B99EA4203B31360017FD66 /* TestImage.jpg in Resources */,
@@ -664,6 +673,7 @@
 				327A418C211D660600495442 /* TestImage.heic in Resources */,
 				3264CD172AAB1E23001E338B /* TestJFIF.jpg in Resources */,
 				6B181A1B265757ED00BD06B3 /* TestAnimatedImageMemory.webp in Resources */,
+				32C268282B888A4100CA29AE /* RGBA16PNG.png in Resources */,
 				5F7F38AD1AE2A77A00B0E330 /* TestImage.jpg in Resources */,
 				32905E64211D786E00460FCF /* TestImage.heif in Resources */,
 				43828A451DA67F9900000E62 /* TestImageLarge.jpg in Resources */,

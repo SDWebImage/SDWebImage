@@ -573,6 +573,17 @@
     expect(g1).beCloseToWithin(0.91, 0.01);
     expect(b1).beCloseToWithin(0.91, 0.01);
     expect(a1).beCloseToWithin(0.20, 0.01);
+    
+    // RGBA 16 bits PNG should not workaround
+    url = [[NSBundle bundleForClass:[self class]] URLForResource:@"RGBA16PNG" withExtension:@"png"];
+    data = [NSData dataWithContentsOfURL:url];
+    decodedImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+    testColor1 = [decodedImage sd_colorAtPoint:CGPointMake(100, 1)];
+    [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    expect(r1).beCloseToWithin(0.60, 0.01);
+    expect(g1).beCloseToWithin(0.60, 0.01);
+    expect(b1).beCloseToWithin(0.33, 0.01);
+    expect(a1).beCloseToWithin(0.33, 0.01);
 }
 
 #pragma mark - Utils
