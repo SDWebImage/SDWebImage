@@ -1,3 +1,17 @@
+## [5.19 - CocoaPods X VisionOS, on Feb 25th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.0)
+See [all tickets marked for the 5.19.0 release](https://github.com/SDWebImage/SDWebImage/milestone/123)
+
+### Project
+- [Part 2]Added the official visionOS support with CocoaPods, include Demo/Tests/CI #3673
+- This need CocoaPods 1.13.0+
+- Next: We'll bump other SDWebImage.org Pods, like `SDWebImageSwiftUI`, `SDWebImageWebPCoder`, `libwebp` on CocoaPods with the visionOS podspec support.
+
+### Features
+- Added SDWebImageWaitTransition to wait for transition finished and then callback completedBlock #3680
+
+### Changes
+- Formally deprecate `sd_cancelCurrentImageLoad` on UIView category, which cause misunderstanding for the same overloaded method in UIImageView category #3654
+
 ## [5.18.12 - 5.8 Patch, on Feb 24th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.12)
 See [all tickets marked for the 5.18.12 release](https://github.com/SDWebImage/SDWebImage/milestone/132)
 
