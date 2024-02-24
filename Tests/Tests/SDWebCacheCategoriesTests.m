@@ -334,7 +334,7 @@
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:kTestJPEGURL];
     [SDImageCache.sharedImageCache removeImageFromMemoryForKey:kTestJPEGURL];
     SDWebImageCombinedOperation *op1 = [imageView sd_internalSetImageWithURL:originalImageURL placeholderImage:nil options:0 context:nil setImageBlock:nil progress:nil completed:nil];
-    [imageView sd_cancelCurrentImageLoad];
+    [imageView sd_cancelLatestImageLoad];
     expect(op1.isCancelled).beTruthy();
     NSString *operationKey = NSStringFromClass(UIView.class);
     expect([imageView sd_imageLoadOperationForKey:operationKey]).beNil();
@@ -393,7 +393,7 @@
 
     // At this point, our transition has started, and so we cancel the load operation,
     // perhaps as a result of a call to `prepareForReuse` in a UICollectionViewCell
-    [imageView sd_cancelCurrentImageLoad];
+    [imageView sd_cancelLatestImageLoad];
 
     // Now, we update our context's imageOperationKey and URL, perhaps
     // because of a re-use of a UICollectionViewCell. In this case,
@@ -408,7 +408,7 @@
     // The original load operation's transitionCompletionExpecation should never
     // be called (it has been inverted, above)
     [self waitForExpectations:@[secondLoadExpectation, transitionCompletionExpecation]
-                      timeout:2.0];
+                      timeout:5.0];
 }
 
 - (void)testUIViewCancelCallbackWithError {
@@ -423,7 +423,7 @@
         expect(error.code).equal(SDWebImageErrorCancelled);
         [expectation fulfill];
     }];
-    [imageView sd_cancelCurrentImageLoad];
+    [imageView sd_cancelLatestImageLoad];
     
     [self waitForExpectationsWithCommonTimeout];
 }

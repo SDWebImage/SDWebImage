@@ -255,6 +255,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
     return operation;
 }
 
+- (void)sd_cancelLatestImageLoad {
+    [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
+}
+
 - (void)sd_cancelCurrentImageLoad {
     [self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey];
 }

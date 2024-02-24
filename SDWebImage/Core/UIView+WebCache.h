@@ -91,12 +91,19 @@ typedef void(^SDSetImageBlock)(UIImage * _Nullable image, NSData * _Nullable ima
                                                      completed:(nullable SDInternalCompletionBlock)completedBlock;
 
 /**
- * Cancel the current image load
- * This simply translate to `[self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey]` from v5.18.0
- * 
- * @warning This method should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_cancelImageLoadOperationWithKey:` instead. See `UIView+WebCacheOperation.h` for more information.
+ * Cancel the latest image load, using the `sd_latestOperationKey` as operation key
+ * This simply translate to `[self sd_cancelImageLoadOperationWithKey:self.sd_latestOperationKey]`
  */
-- (void)sd_cancelCurrentImageLoad;
+- (void)sd_cancelLatestImageLoad;
+
+/**
+ * Cancel the current image load, for single state view.
+ * This actually does not cancel current loading, because stateful view can load multiple images at the same time (like UIButton, each state can load different images). Just behave the same as `sd_cancelLatestImageLoad`
+ *
+ * @warning This method should be only used for single state view, like `UIImageView` without highlighted state. For stateful view like `UIBUtton` (one view can have multiple images loading), use `sd_cancelImageLoadOperationWithKey:` instead. See `UIView+WebCacheOperation.h` for more information.
+ * @deprecated Use `sd_cancelLatestImageLoad` instead. Which don't cause overload method misunderstanding (`UIImageView+WebCache` provide the same API as this one, but does not do the same thing). This API will be totally removed in v6.0 due to this.
+ */
+- (void)sd_cancelCurrentImageLoad API_DEPRECATED_WITH_REPLACEMENT("sd_cancelLatestImageLoad", macos(10.10, 10.10), ios(8.0, 8.0), tvos(9.0, 9.0), watchos(2.0, 2.0));
 
 #if SD_UIKIT || SD_MAC
 
