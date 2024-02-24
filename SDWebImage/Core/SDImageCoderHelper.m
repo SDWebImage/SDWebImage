@@ -316,14 +316,14 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         cgImage = SDImageGetNonAlphaDummyImage().CGImage;
     }
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(cgImage);
-    size_t bitsPerPixel = 8;
+    size_t bitsPerComponent = 8;
     if (SD_OPTIONS_CONTAINS(bitmapInfo, kCGBitmapFloatComponents)) {
-        bitsPerPixel = 16;
+      bitsPerComponent = 16;
     }
     size_t components = 4; // Hardcode now
     // https://github.com/path/FastImageCache#byte-alignment
     // A properly aligned bytes-per-row value must be a multiple of 8 pixels × bytes per pixel.
-    size_t alignment = (bitsPerPixel / 8) * components * 8;
+    size_t alignment = (bitsPerComponent / 8) * components * 8;
     SDImagePixelFormat pixelFormat = {
         .bitmapInfo = bitmapInfo,
         .alignment = alignment

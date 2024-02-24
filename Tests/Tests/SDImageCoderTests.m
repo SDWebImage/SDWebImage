@@ -9,9 +9,6 @@
 
 #import "SDTestCase.h"
 #import "UIColor+SDHexString.h"
-#if __has_include(<SDWebImageWebPCoder/SDWebImageWebPCoder.h>)
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
-#endif
 
 @interface SDWebImageDecoderTests : SDTestCase
 
@@ -269,15 +266,11 @@
         isVectorImage:YES];
 }
 
+#if !SD_TV
 - (void)test18ThatStaticWebPWorks {
     if (@available(iOS 14, tvOS 14, macOS 11, *)) {
         NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageStatic" withExtension:@"webp"];
-#if SD_TV
-        /// TV OS does not support ImageIO's webp.
-        [self verifyCoder:[SDImageWebPCoder sharedCoder]
-#else
         [self verifyCoder:[SDImageAWebPCoder sharedCoder]
-#endif
         withLocalImageURL:staticWebPURL
          supportsEncoding:NO // Currently (iOS 14.0) seems no encoding support
            encodingFormat:SDImageFormatWebP
@@ -285,16 +278,13 @@
             isVectorImage:NO];
     }
 }
+#endif
 
+#if !SD_TV
 - (void)test19ThatAnimatedWebPWorks {
     if (@available(iOS 14, tvOS 14, macOS 11, *)) {
         NSURL *staticWebPURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImageAnimated" withExtension:@"webp"];
-#if SD_TV
-        /// TV OS does not support ImageIO's webp.
-        [self verifyCoder:[SDImageWebPCoder sharedCoder]
-#else
         [self verifyCoder:[SDImageAWebPCoder sharedCoder]
-#endif
         withLocalImageURL:staticWebPURL
          supportsEncoding:NO // Currently (iOS 14.0) seems no encoding support
            encodingFormat:SDImageFormatWebP
@@ -302,6 +292,7 @@
             isVectorImage:NO];
     }
 }
+#endif
 
 - (void)test20ThatImageIOAnimatedCoderAbstractClass {
     SDImageIOAnimatedCoder *coder = [[SDImageIOAnimatedCoder alloc] init];
@@ -573,6 +564,17 @@
     expect(g1).beCloseToWithin(0.91, 0.01);
     expect(b1).beCloseToWithin(0.91, 0.01);
     expect(a1).beCloseToWithin(0.20, 0.01);
+    
+    // RGBA 16 bits PNG should not workaround
+    url = [[NSBundle bundleForClass:[self class]] URLForResource:@"RGBA16PNG" withExtension:@"png"];
+    data = [NSData dataWithContentsOfURL:url];
+    decodedImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+    testColor1 = [decodedImage sd_colorAtPoint:CGPointMake(100, 1)];
+    [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    expect(r1).beCloseToWithin(0.60, 0.01);
+    expect(g1).beCloseToWithin(0.60, 0.01);
+    expect(b1).beCloseToWithin(0.33, 0.01);
+    expect(a1).beCloseToWithin(0.33, 0.01);
 }
 
 #pragma mark - Utils

@@ -39,7 +39,9 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
         CGRect screenFrame = mainScreen.bounds;
 #endif
         _window = [[UIWindow alloc] initWithFrame:screenFrame];
-#else
+#endif // UIKit
+#if SD_MAC
+        UIScreen *mainScreen = [UIScreen mainScreen];
         _window = [[NSWindow alloc] initWithContentRect:mainScreen.frame styleMask:0 backing:NSBackingStoreBuffered defer:NO screen:mainScreen];
 #endif
     }

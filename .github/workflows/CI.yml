@@ -99,12 +99,24 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      iosDestination: platform=iOS Simulator,name=iPhone 15 Pro
-      macOSDestination: platform=macOS,arch=x86_64
-      macCatalystDestination: platform=macOS,arch=x86_64,variant=Mac Catalyst
-      tvOSDestination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
-      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Series 9 (45mm)
-      visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
+    # use matrix to generate jobs for each platform
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS, macOS, tvOS, visionOS]
+        include:
+          - platform: iOS
+            destination: platform=iOS Simulator,name=iPhone 15 Pro
+            scheme: iOS
+          - platform: macOS
+            destination: platform=macOS,arch=x86_64
+            scheme: Mac
+          - platform: tvOS
+            destination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+            scheme: TV
+          - platform: visionOS
+            destination: platform=visionOS Simulator,name=Apple Vision Pro
+            scheme: Vision
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -126,39 +138,18 @@ jobs:
           rm -rf ~/Library/Developer/Xcode/DerivedData/
           mkdir DerivedData
         
-      - name: Test for iOS
+      - name: Run test
         run: |
           set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests iOS" -destination "${{ env.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
-          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/iOS
-          
-      - name: Test for macOS
-        run: |
-          set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Mac" -destination "${{ env.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
-          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/macOS
-    
-      - name: Test for tvOS
-        run: |
-          set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests TV" -destination "${{ env.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
-          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/tvOS
-
-      - name: Test for visionOS
-        run: |
-          set -o pipefail
-          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests Vision" -destination "${{ env.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
-          mv ~/Library/Developer/Xcode/DerivedData/ ./DerivedData/visionOS
+          xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests ${{ matrix.scheme }}" -destination "${{ matrix.destination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
+          mv ~/Library/Developer/Xcode/DerivedData/ "./DerivedData/{{ matrix.platform }}"
           
       - name: Code Coverage
         run: |
           set -o pipefail
           export PATH="/usr/local/opt/curl/bin:$PATH"
           curl --version
-          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/macOS' -J '^SDWebImage$' -c -X gcov -F macos
-          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/iOS' -J '^SDWebImage$' -c -X gcov -F ios
-          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/tvOS' -J '^SDWebImage$' -c -X gcov -F tvos
-          bash <(curl -s https://codecov.io/bash) -v -D './DerivedData/visionOS' -J '^SDWebImage$' -c -X gcov -F visionos
+          bash <(curl -s https://codecov.io/bash) -v -D "./DerivedData/{{ matrix.platform }}" -J '^SDWebImage$' -c -X gcov -F "{{ matrix.platform }}"
           
   Build:
     name: Build Library
