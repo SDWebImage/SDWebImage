@@ -218,6 +218,15 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
      * @note This options is UI level options, has no usage on ImageManager or other components.
      */
     SDWebImageAvoidAutoCancelImage = 1 << 24,
+    
+    /**
+     * By defaults, for `SDWebImageTransition`, we just submit to UI transition and inmeediatelly callback the final `completedBlock` (`SDExternalCompletionBlock/SDInternalCompletionBlock`).
+     * This may cause un-wanted behavior if you do another transition inside `completedBlock`, because the previous transition is still runnning and un-cancellable, which mass-up the UI status.
+     * For this case, you can pass this option, we will delay the final callback, until your transition end. So when you inside `completedBlock`, no any transition is running on image view and safe to submit new transition.
+     * @note Currently we do not support `pausable/cancellable` transition. But possible in the future by using the https://developer.apple.com/documentation/uikit/uiviewpropertyanimator.
+     * @note If you have complicated transition animation, just use `SDWebImageManager` and do UI state management by yourself, do not use the top-level API (`sd_setImageWithURL:`)
+     */
+    SDWebImageWaitTransition = 1 << 25,
 };
 
 
