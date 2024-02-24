@@ -39,13 +39,13 @@ Note: `SD` is the prefix for **Simple Design** (which is the team name in Daily 
 
 ## For Apple visionOS
 
-From 5.18.0, SDWebImage can be compiled for visionOS platform. However, it's still in beta and may contains issues unlike the stable iOS UIKit support. Welcome to have a try and [report issue](https://github.com/SDWebImage/SDWebImage/issues).
+From 5.19+, SDWebImage supports visionOS on all Package Managers (include CocoaPods/Carthage/SPM). Upgrade the related tools if you're facing issues.
+
+For 5.18+, SDWebImage can be compiled for visionOS platform. However, it's still in beta and may contains issues unlike the stable iOS UIKit support. Welcome to have a try and [report issue](https://github.com/SDWebImage/SDWebImage/issues).
 
 To build on visionOS, currently we only support the standard Xcode integration.
 
 See `Installation with Swift Package Manager` and `Manual Installation Guide` below.
-
-Once the visionOS toolchain is stable, we will add the other package manager support later (include CocoaPods).
 
 ## Supported Image Formats
 
