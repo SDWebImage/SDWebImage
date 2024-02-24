@@ -108,15 +108,19 @@ jobs:
           - platform: iOS
             destination: platform=iOS Simulator,name=iPhone 15 Pro
             scheme: iOS
+            flag: ios
           - platform: macOS
             destination: platform=macOS,arch=x86_64
             scheme: Mac
+            flag: macos
           - platform: tvOS
             destination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
             scheme: TV
+            flag: tvos
           # - platform: visionOS
           #   destination: platform=visionOS Simulator,name=Apple Vision Pro
           #   scheme: Vision
+          #   flag: visionos
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -152,7 +156,7 @@ jobs:
           set -o pipefail
           export PATH="/usr/local/opt/curl/bin:$PATH"
           curl --version
-          bash <(curl -s https://codecov.io/bash) -v -D "./DerivedData/${{ matrix.platform }}" -J '^SDWebImage$' -c -X gcov -F "${{ matrix.platform }}"
+          bash <(curl -s https://codecov.io/bash) -v -D "./DerivedData/${{ matrix.platform }}" -J '^SDWebImage$' -c -X gcov -F "${{ matrix.flag }}"
           
   Build:
     name: Build Library
