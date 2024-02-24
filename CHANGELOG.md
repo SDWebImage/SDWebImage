@@ -1,3 +1,10 @@
+## [5.18.12 - 5.8 Patch, on Feb 24th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.12)
+See [all tickets marked for the 5.18.12 release](https://github.com/SDWebImage/SDWebImage/milestone/132)
+
+### Fixes
+
+- Fix the issue that iOS 17 indexed PNG workaround breaks the 16bit RGBA PNG #3678
+
 ## [5.18.11 - 5.8 Patch, on Feb 13th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.18.11)
 See [all tickets marked for the 5.18.11 release](https://github.com/SDWebImage/SDWebImage/milestone/131)
 
