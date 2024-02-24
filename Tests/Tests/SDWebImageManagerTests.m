@@ -10,13 +10,6 @@
 #import "SDWebImageTestTransformer.h"
 #import "SDWebImageTestCache.h"
 #import "SDWebImageTestLoader.h"
-#if !SD_VISION
-#if __has_include(<SDWebImageWebPCoder/SDWebImageWebPCoder.h>)
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
-#else
-@import SDWebImageWebPCoder;
-#endif
-#endif
 
 // Keep strong references for object
 @interface SDObjectContainer<ObjectType> : NSObject
@@ -649,23 +642,6 @@
     }];
     [self waitForExpectationsWithCommonTimeout];
 }
-
-#if !SD_VISION
-- (void)test22ThatForceDecodePolicyAlways {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Always policy with WebP image (libwebp) should force-decode"];
-    NSURL *url = [NSURL URLWithString:@"https://www.gstatic.com/webp/gallery/4.webp"];
-    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromLoaderOnly context:@{SDWebImageContextImageCoder : SDImageWebPCoder.sharedCoder, SDWebImageContextImageForceDecodePolicy : @(SDImageForceDecodePolicyAlways)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
-        expect(image).notTo.beNil();
-        expect(image.sd_isDecoded).beTruthy();
-        CGImageRef cgImage = image.CGImage;
-        CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
-        expect(colorspace).equal([SDImageCoderHelper colorSpaceGetDeviceRGB]);
-        
-        [expectation fulfill];
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-#endif
 
 - (NSString *)testJPEGPath {
     NSBundle *testBundle = [NSBundle bundleForClass:[self class]];

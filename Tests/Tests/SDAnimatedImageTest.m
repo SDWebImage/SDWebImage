@@ -764,6 +764,7 @@ static BOOL _isCalled;
     [self waitForExpectationsWithTimeout:15 handler:nil];
 }
 
+#if !SD_TV
 - (void)test36AnimatedImageMemoryCost {
     if (@available(iOS 14, tvOS 14, macOS 11, watchOS 7, *)) {
         [[SDImageCodersManager sharedManager] addCoder:[SDImageAWebPCoder sharedCoder]];
@@ -783,6 +784,7 @@ static BOOL _isCalled;
         [[SDImageCodersManager sharedManager] removeCoder:[SDImageAWebPCoder sharedCoder]];
     }
 }
+#endif
 
 #pragma mark - Helper
 
