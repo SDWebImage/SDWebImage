@@ -103,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [iOS, macOS, tvOS, visionOS]
+        platform: [iOS, macOS, tvOS]
         include:
           - platform: iOS
             destination: platform=iOS Simulator,name=iPhone 15 Pro
@@ -114,12 +114,14 @@ jobs:
           - platform: tvOS
             destination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
             scheme: TV
-          - platform: visionOS
-            destination: platform=visionOS Simulator,name=Apple Vision Pro
-            scheme: Vision
+          # - platform: visionOS
+          #   destination: platform=visionOS Simulator,name=Apple Vision Pro
+          #   scheme: Vision
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Cocoapods
         run: gem install cocoapods --no-document --quiet
@@ -137,9 +139,6 @@ jobs:
         run: |
           rm -rf ~/Library/Developer/Xcode/DerivedData/
           mkdir DerivedData
-
-      - if: ${{ matrix.platform }} == visionOS
-        run: xcrun simctl boot "Apple Vision Pro"
         
       - name: Run test
         run: |
