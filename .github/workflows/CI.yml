@@ -101,6 +101,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     # use matrix to generate jobs for each platform
     strategy:
+      fail-fast: false
       matrix:
         platform: [iOS, macOS, tvOS, visionOS]
         include:
