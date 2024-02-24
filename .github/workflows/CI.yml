@@ -137,19 +137,22 @@ jobs:
         run: |
           rm -rf ~/Library/Developer/Xcode/DerivedData/
           mkdir DerivedData
+
+      - if: ${{ matrix.platform }} == 'visionOS'
+        run: xcrun simctl boot "Apple Vision Pro"
         
       - name: Run test
         run: |
           set -o pipefail
           xcodebuild test -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests ${{ matrix.scheme }}" -destination "${{ matrix.destination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
-          mv ~/Library/Developer/Xcode/DerivedData/ "./DerivedData/{{ matrix.platform }}"
+          mv ~/Library/Developer/Xcode/DerivedData/ "./DerivedData/${{ matrix.platform }}"
           
       - name: Code Coverage
         run: |
           set -o pipefail
           export PATH="/usr/local/opt/curl/bin:$PATH"
           curl --version
-          bash <(curl -s https://codecov.io/bash) -v -D "./DerivedData/{{ matrix.platform }}" -J '^SDWebImage$' -c -X gcov -F "{{ matrix.platform }}"
+          bash <(curl -s https://codecov.io/bash) -v -D "./DerivedData/${{ matrix.platform }}" -J '^SDWebImage$' -c -X gcov -F "${{ matrix.platform }}"
           
   Build:
     name: Build Library
