@@ -26,6 +26,9 @@ typedef NSString * _Nullable(^SDWebImageCacheKeyFilterBlock)(NSURL * _Nonnull ur
  */
 @interface SDWebImageCacheKeyFilter : NSObject <SDWebImageCacheKeyFilter>
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 - (nonnull instancetype)initWithBlock:(nonnull SDWebImageCacheKeyFilterBlock)block;
 + (nonnull instancetype)cacheKeyFilterWithBlock:(nonnull SDWebImageCacheKeyFilterBlock)block;
 
