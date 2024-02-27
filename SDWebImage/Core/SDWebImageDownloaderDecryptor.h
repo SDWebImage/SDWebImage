@@ -38,6 +38,9 @@ A downloader response modifier class with block.
 /// @param block A block to control decrypt logic
 + (nonnull instancetype)decryptorWithBlock:(nonnull SDWebImageDownloaderDecryptorBlock)block;
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 @end
 
 /// Convenience way to create decryptor for common data encryption.

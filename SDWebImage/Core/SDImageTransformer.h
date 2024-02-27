@@ -69,6 +69,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, copy, readonly, nonnull) NSArray<id<SDImageTransformer>> *transformers;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithTransformers:(nonnull NSArray<id<SDImageTransformer>> *)transformers;
 
 @end
@@ -109,6 +111,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, strong, readonly, nullable) UIColor *borderColor;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithRadius:(CGFloat)cornerRadius corners:(SDRectCorner)corners borderWidth:(CGFloat)borderWidth borderColor:(nullable UIColor *)borderColor;
 
 @end
@@ -129,6 +133,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) SDImageScaleMode scaleMode;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithSize:(CGSize)size scaleMode:(SDImageScaleMode)scaleMode;
 
 @end
@@ -144,6 +150,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) CGRect rect;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithRect:(CGRect)rect;
 
 @end
@@ -164,6 +172,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) BOOL vertical;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithHorizontal:(BOOL)horizontal vertical:(BOOL)vertical;
 
 @end
@@ -185,6 +195,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) BOOL fitSize;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithAngle:(CGFloat)angle fitSize:(BOOL)fitSize;
 
 @end
@@ -202,6 +214,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, strong, readonly, nonnull) UIColor *tintColor;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithColor:(nonnull UIColor *)tintColor;
 
 @end
@@ -219,6 +233,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, assign, readonly) CGFloat blurRadius;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithRadius:(CGFloat)blurRadius;
 
 @end
@@ -235,6 +251,8 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @property (nonatomic, strong, readonly, nonnull) CIFilter *filter;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 + (nonnull instancetype)transformerWithFilter:(nonnull CIFilter *)filter;
 
 @end
