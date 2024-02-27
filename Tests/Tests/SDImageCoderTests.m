@@ -541,6 +541,8 @@
 #if SD_UIKIT
     UIImageOrientation orientation = image.imageOrientation;
     expect(orientation).equal(UIImageOrientationUp);
+#else
+    expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
 #endif
     
     // Manual test again for Apple's API
