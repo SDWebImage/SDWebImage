@@ -37,6 +37,9 @@ typedef NSURLResponse * _Nullable (^SDWebImageDownloaderResponseModifierBlock)(N
 /// @param block A block to control modifier logic
 + (nonnull instancetype)responseModifierWithBlock:(nonnull SDWebImageDownloaderResponseModifierBlock)block;
 
+- (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
+
 @end
 
 /**

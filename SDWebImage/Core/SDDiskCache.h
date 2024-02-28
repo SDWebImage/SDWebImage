@@ -129,6 +129,7 @@
 @property (nonatomic, strong, readonly, nonnull) SDImageCacheConfig *config;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)new  NS_UNAVAILABLE;
 
 /**
  Move the cache directory from old location to new location, the old location will be removed after finish.

@@ -94,6 +94,9 @@ static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonn
         case SDCallbackPolicyInvoke:
             block();
             break;
+        default:
+            SDSafeExecute(self, block, NO);
+            break;
     }
 }
 
@@ -107,6 +110,9 @@ static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonn
             break;
         case SDCallbackPolicyInvoke:
             block();
+            break;
+        default:
+            SDSafeExecute(self, block, YES);
             break;
     }
 }
