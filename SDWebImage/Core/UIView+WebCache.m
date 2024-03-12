@@ -61,6 +61,10 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                                                  setImageBlock:(nullable SDSetImageBlock)setImageBlock
                                                       progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                                      completed:(nullable SDInternalCompletionBlock)completedBlock {
+    // if url is NSString and shouldUseWeakMemoryCache is true, [cacheKeyForURL:context] will crash.
+    if ([url isKindOfClass:NSString.class]) {
+        url = [NSURL URLWithString:(NSString *)url];
+    }
     if (context) {
         // copy to avoid mutable object
         context = [context copy];
