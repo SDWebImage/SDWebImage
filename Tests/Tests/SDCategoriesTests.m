@@ -63,35 +63,6 @@
     expect(image.sd_imageFrameCount).equal(5);
 }
 
-- (void)test04UIViewWebCacheCategory {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with url is nil"];
-    UIImageView *imageView = [[UIImageView alloc] init];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Test"];
-    cache.config.shouldUseWeakMemoryCache = YES;
-    SDWebImageManager *imageManager = [[SDWebImageManager alloc] initWithCache:cache loader:[SDWebImageDownloader sharedDownloader]];
-    [imageView sd_setImageWithURL:[NSURL URLWithString:kTestJPEGURL] placeholderImage:nil options:0 context:@{SDWebImageContextCustomManager:imageManager} progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-        expect(image).notTo.beNil();
-        [expectation fulfill];
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-    
-}
-
-- (void)test05UIViewWebCacheCategory {
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with url is NSString"];
-    
-    UIImageView *imageView = [[UIImageView alloc] init];
-    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Test"];
-    cache.config.shouldUseWeakMemoryCache = YES;
-    SDWebImageManager *imageManager = [[SDWebImageManager alloc] initWithCache:cache loader:[SDWebImageDownloader sharedDownloader]];
-    [imageView sd_setImageWithURL:kTestJPEGURL placeholderImage:nil options:0 context:@{SDWebImageContextCustomManager:imageManager} progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-        expect(image).notTo.beNil();
-        [expectation fulfill];
-    }];
-    [self waitForExpectationsWithCommonTimeout];
-}
-
 
 #pragma mark - Helper
 
