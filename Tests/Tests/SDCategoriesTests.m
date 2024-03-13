@@ -63,7 +63,6 @@
     expect(image.sd_imageFrameCount).equal(5);
 }
 
-
 #pragma mark - Helper
 
 - (NSString *)testJPEGPath {
