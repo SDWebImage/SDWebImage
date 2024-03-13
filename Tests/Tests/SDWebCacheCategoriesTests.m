@@ -635,7 +635,7 @@
     
 }
 
-// test url is NSString
+// test url is NSString.
 - (void)testUIViewImageUrlForStringWorks {
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Completion is called with url is NSString"];
