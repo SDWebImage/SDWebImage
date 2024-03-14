@@ -61,6 +61,18 @@ const int64_t SDWebImageProgressUnitCountUnknown = 1LL;
                                                  setImageBlock:(nullable SDSetImageBlock)setImageBlock
                                                       progress:(nullable SDImageLoaderProgressBlock)progressBlock
                                                      completed:(nullable SDInternalCompletionBlock)completedBlock {
+    
+    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, Xcode won't
+    // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
+    //  if url is NSString and shouldUseWeakMemoryCache is true, [cacheKeyForURL:context] will crash. just for a  global protect.
+    if ([url isKindOfClass:NSString.class]) {
+        url = [NSURL URLWithString:(NSString *)url];
+    }
+    // Prevents app crashing on argument type error like sending NSNull instead of NSURL
+    if (![url isKindOfClass:NSURL.class]) {
+        url = nil;
+    }
+    
     if (context) {
         // copy to avoid mutable object
         context = [context copy];
