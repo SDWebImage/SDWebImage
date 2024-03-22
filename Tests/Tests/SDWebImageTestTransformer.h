@@ -11,6 +11,8 @@
 
 @interface SDWebImageTestTransformer : NSObject <SDImageTransformer>
 
+@property (nonatomic, assign) BOOL preserveImageMetadata;
+
 @property (nonatomic, strong, nullable) UIImage *testImage;
 
 @end

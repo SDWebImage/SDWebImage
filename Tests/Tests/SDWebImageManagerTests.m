@@ -132,10 +132,16 @@
 
 - (void)test08ThatImageTransformerWork {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
-    NSURL *url = [NSURL URLWithString:@"https://placehold.co/80x60.png"];
+    NSURL *url = [NSURL URLWithString:@"https://placehold.co/80x60.jpg"];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
+    transformer.preserveImageMetadata = NO; // test metadata
+    NSData *extData = [@"Foobar" dataUsingEncoding:NSUTF8StringEncoding];
     
-    transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    CGSize transformSize = CGSizeMake(40, 30);
+    UIImage *testImage = [[[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]] sd_resizedImageWithSize:transformSize scaleMode:SDImageScaleModeFill];
+    testImage.sd_imageFormat = SDImageFormatJPEG;
+    testImage.sd_extendedObject = extData;
+    transformer.testImage = testImage;
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Transformer"];
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
     NSString *key = [manager cacheKeyForURL:url];
@@ -150,6 +156,12 @@
     SDImageCoderOptions *encodeOptions = @{SDImageCoderEncodeMaxPixelSize : @(CGSizeMake(40, 30))};
     [manager loadImageWithURL:url options:SDWebImageTransformAnimatedImage | SDWebImageTransformVectorImage | SDWebImageWaitStoreCache context:@{SDWebImageContextImageEncodeOptions : encodeOptions} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).equal(transformer.testImage);
+        // Test metadata
+        expect(image.size).equal(transformSize);
+        expect(image.sd_isTransformed).equal(YES);
+        expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
+        expect(image.sd_extendedObject).equal(extData);
+        
         // Query the encoded data again
         NSData *encodedData = [cache diskImageDataForKey:transformedKey];
         UIImage *encodedImage = [UIImage sd_imageWithData:encodedData];
