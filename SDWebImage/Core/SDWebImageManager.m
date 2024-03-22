@@ -511,6 +511,15 @@ static id<SDImageLoader> _defaultImageLoader;
             UIImage *transformedImage = [transformer transformedImageWithImage:cacheImage forKey:key];
             if (transformedImage) {
                 transformedImage.sd_isTransformed = YES;
+                // We need keep some metadata from the full size image when needed
+                // Because most of our transformer does not care about these information
+                BOOL preserveImageMetadata = YES;
+                if ([transformer respondsToSelector:@selector(preserveImageMetadata)]) {
+                    preserveImageMetadata = transformer.preserveImageMetadata;
+                }
+                if (preserveImageMetadata) {
+                    SDImageCopyAssociatedObject(cacheImage, transformedImage);
+                }
                 [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:transformedImage originalData:originalData cacheData:nil cacheType:cacheType finished:finished completed:completedBlock];
             } else {
                 [self callStoreOriginCacheProcessForOperation:operation url:url options:options context:context originalImage:originalImage cacheImage:cacheImage originalData:originalData cacheData:cacheData cacheType:cacheType finished:finished completed:completedBlock];
