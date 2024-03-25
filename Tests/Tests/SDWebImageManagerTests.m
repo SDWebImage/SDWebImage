@@ -134,12 +134,12 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Image transformer work"];
     NSURL *url = [NSURL URLWithString:@"https://placehold.co/80x60.jpg"];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
-    transformer.preserveImageMetadata = NO; // test metadata
+    transformer.preserveImageMetadata = YES; // preserve metadata
     NSData *extData = [@"Foobar" dataUsingEncoding:NSUTF8StringEncoding];
     
     CGSize transformSize = CGSizeMake(40, 30);
     UIImage *testImage = [[[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]] sd_resizedImageWithSize:transformSize scaleMode:SDImageScaleModeFill];
-    testImage.sd_imageFormat = SDImageFormatJPEG;
+    testImage.sd_imageFormat = SDImageFormatUndefined;
     testImage.sd_extendedObject = extData;
     transformer.testImage = testImage;
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Transformer"];
@@ -159,8 +159,8 @@
         // Test metadata
         expect(image.size).equal(transformSize);
         expect(image.sd_isTransformed).equal(YES);
-        expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
-        expect(image.sd_extendedObject).equal(extData);
+        expect(image.sd_imageFormat).equal(SDImageFormatJPEG); // override from full image
+        expect(image.sd_extendedObject).beNil(); // override from full image
         
         // Query the encoded data again
         NSData *encodedData = [cache diskImageDataForKey:transformedKey];
@@ -268,6 +268,7 @@
     SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
     SDWebImageTestTransformer *transformer = [[SDWebImageTestTransformer alloc] init];
     transformer.testImage = [[UIImage alloc] initWithContentsOfFile:[self testJPEGPath]];
+    transformer.preserveImageMetadata = NO; // the transformed image should not inherite any attribute from original one
     manager.transformer = transformer;
     
     // test: original image -> disk only, transformed image -> memory only
