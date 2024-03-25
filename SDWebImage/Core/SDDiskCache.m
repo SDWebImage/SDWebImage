@@ -268,8 +268,11 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 
 - (NSUInteger)totalCount {
     NSUInteger count = 0;
-    NSDirectoryEnumerator<NSString *> *fileEnumerator = [self.fileManager enumeratorAtPath:self.diskCachePath];
-    count = fileEnumerator.allObjects.count;
+    @autoreleasepool {
+        NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
+        NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:diskCacheURL includingPropertiesForKeys:@[] options:(NSDirectoryEnumerationOptions)0 errorHandler:nil];
+        count = fileEnumerator.allObjects.count;
+    }
     return count;
 }
 
