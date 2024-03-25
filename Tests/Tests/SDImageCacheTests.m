@@ -568,9 +568,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:newDefaultPath config:config];
     [diskCache moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
     
-    // Expect a.png into new path
-    BOOL exist = [fileManager fileExistsAtPath:[newDefaultPath stringByAppendingPathComponent:@"a.png"]];
-    expect(exist).beTruthy();
+    // Expect a.png into new path and oldDefaultPath is deleted
+    BOOL isDirectory = NO;
+    BOOL newFileExist = [fileManager fileExistsAtPath:[newDefaultPath stringByAppendingPathComponent:@"a.png"] isDirectory:&isDirectory];
+    BOOL oldDefaultPathExist = [fileManager fileExistsAtPath:oldDefaultPath];
+    expect(newFileExist).beTruthy();
+    expect(isDirectory).beFalsy();
+    expect(oldDefaultPathExist).beFalsy();
 }
 
 - (void)test45DiskCacheRemoveExpiredData {

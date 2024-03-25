@@ -72,9 +72,22 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 }
 
 - (void)removeAllData {
-    for (NSString *path in [self.fileManager subpathsAtPath:self.cachePath]) {
-        NSString *filePath = [self.cachePath stringByAppendingPathComponent:path];
-        [self.fileManager removeItemAtPath:filePath error:nil];
+    NSURL *srcURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
+    NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
+    if (@available (iOS 13, *)) {
+        // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator
+        // to always produce file path URLs relative to the directoryURL. This can reduce
+        // the size of each URL object returned during enumeration.
+        options |= NSDirectoryEnumerationProducesRelativePathURLs;
+    }
+    NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:srcURL
+                                                  includingPropertiesForKeys:@[]
+                                                                     options:options
+                                                                errorHandler:NULL];
+    for (NSURL *url in fileEnumerator) {
+        @autoreleasepool {
+            [self.fileManager removeItemAtURL:url error:nil];
+        }
     }
 }
 
@@ -84,11 +97,28 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 
 - (void)removeExpiredData {
     NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxDiskAge];
-    for (NSString *fileName in [self.fileManager enumeratorAtPath:self.cachePath]) {
-        NSString *filePath = [self.cachePath stringByAppendingPathComponent:fileName];
-        NSDate *modificationDate = [[self.fileManager attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileModificationDate];
-        if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
-            [self.fileManager removeItemAtPath:filePath error:nil];
+    NSURL *diskCacheURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
+    NSArray<NSString *> *resourceKeys = @[NSURLIsDirectoryKey, NSURLAttributeModificationDateKey];
+    NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:diskCacheURL
+                                                   includingPropertiesForKeys:resourceKeys
+                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                 errorHandler:NULL];
+    
+    for (NSURL *fileURL in fileEnumerator) {
+        @autoreleasepool {
+            NSError *error;
+            NSDictionary<NSString *, id> *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:&error];
+            
+            // Skip directories and errors.
+            if (error || !resourceValues || [resourceValues[NSURLIsDirectoryKey] boolValue]) {
+                continue;;
+            }
+            
+            // Remove files that are older than the expiration date;
+            NSDate *modifiedDate = resourceValues[NSURLAttributeModificationDateKey];
+            if (expirationDate && [[modifiedDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
+                [self.fileManager removeItemAtURL:fileURL error:nil];
+            }
         }
     }
 }
@@ -98,14 +128,37 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 }
 
 - (NSUInteger)totalCount {
-    return [self.fileManager contentsOfDirectoryAtPath:self.cachePath error:nil].count;
+    NSUInteger count = 0;
+    @autoreleasepool {
+        count = [self.fileManager contentsOfDirectoryAtPath:self.cachePath error:nil].count;
+    }
+    return count;
 }
 
 - (NSUInteger)totalSize {
     NSUInteger size = 0;
-    for (NSString *fileName in [self.fileManager enumeratorAtPath:self.cachePath]) {
-        NSString *filePath = [self.cachePath stringByAppendingPathComponent:fileName];
-        size += [[[self.fileManager attributesOfItemAtPath:filePath error:nil] objectForKey:NSFileSize] unsignedIntegerValue];
+    NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
+    if (@available (iOS 13, *)) {
+        // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator 
+        // to always produce file path URLs relative to the directoryURL. This can reduce 
+        // the size of each URL object returned during enumeration.
+        options |= NSDirectoryEnumerationProducesRelativePathURLs;
+    }
+    
+    @autoreleasepool {
+        NSURL *pathURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
+        NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:pathURL
+                                                  includingPropertiesForKeys:@[NSURLFileSizeKey]
+                                                                     options:options
+                                                                errorHandler:NULL];
+        
+        for (NSURL *fileURL in fileEnumerator) {
+            @autoreleasepool {
+                NSNumber *fileSize;
+                [fileURL getResourceValue:&fileSize forKey:NSURLFileSizeKey error:NULL];
+                size += fileSize.unsignedIntegerValue;
+            }
+        }
     }
     return size;
 }
