@@ -14,8 +14,20 @@
 static void SDAssertCGImagePixelFormatEqual(CGImageRef image1, CGImageRef image2) {
     CGBitmapInfo bitmapInfo1 = CGImageGetBitmapInfo(image1);
     CGBitmapInfo bitmapInfo2 = CGImageGetBitmapInfo(image2);
-    XCTAssertEqual(bitmapInfo1, bitmapInfo2);
-    // alphaInfo && byteOrderInfo && pixelFomat are just calculation of bitmapInfo
+//    XCTAssertEqual(bitmapInfo1, bitmapInfo2);
+    CGImageAlphaInfo alphaInfo1 = bitmapInfo1 & kCGBitmapAlphaInfoMask;
+    CGImageAlphaInfo alphaInfo2 = bitmapInfo2 & kCGBitmapAlphaInfoMask;
+    XCTAssertEqual(alphaInfo1, alphaInfo2);
+    CGImageByteOrderInfo byteOrderInfo1 = bitmapInfo1 & kCGBitmapByteOrderMask;
+    CGImageByteOrderInfo byteOrderInfo2 = bitmapInfo2 & kCGBitmapByteOrderMask;
+    // Note: Known issue that iOS 17.0~17.2 contains BUG that vImage convert CGImage does not keep byteOrder for 16bit
+    // The Buggy API is: `vImageCreateCGImageFromBuffer`, the `format`'s bitmap info will be ignored.
+    if (byteOrderInfo1 != byteOrderInfo2) {
+        NSLog(@"SDAssertCGImagePixelFormatEqual: mismatched byte order info, maybe Apple's Bug on iOS 17.0-17.2");
+    }
+    if (@available(iOS 12.0, tvOS 12.0, macOS 10.14, watchOS 5.0, *)) {
+        XCTAssertEqual(CGImageGetPixelFormatInfo(image1), CGImageGetPixelFormatInfo(image2));
+    }
     XCTAssertEqual(CGImageGetColorSpace(image1), CGImageGetColorSpace(image2));
     XCTAssertEqual(CGImageGetBitsPerPixel(image1), CGImageGetBitsPerPixel(image2));
     XCTAssertEqual(CGImageGetBitsPerComponent(image1), CGImageGetBitsPerComponent(image2));
