@@ -247,20 +247,12 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     // those objects(ex. NSPathStore2/_NSCFString/NSConcreteData) created during traversal.
     // Even worse, those objects are added into AutoreleasePool, in background threads, 
     // the time to release those objects is undifined(according to the usage of CPU)
-    // It will truely consumes a lot of VM, up to cause OOMs. 
-    NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
-    if (@available (iOS 13, *)) {
-        // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator 
-        // to always produce file path URLs relative to the directoryURL. This can reduce 
-        // the size of each URL object returned during enumeration.
-        options |= NSDirectoryEnumerationProducesRelativePathURLs;
-    }
-    
+    // It will truely consumes a lot of VM, up to cause OOMs.
     @autoreleasepool {
         NSURL *pathURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:pathURL
                                                   includingPropertiesForKeys:@[NSURLFileSizeKey]
-                                                                     options:options
+                                                                     options:(NSDirectoryEnumerationOptions)0
                                                                 errorHandler:NULL];
         
         for (NSURL *fileURL in fileEnumerator) {
@@ -320,18 +312,10 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         }
     } else {
         // New directory exist, merge the files
-        NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
-        if (@available (iOS 13, *)) {
-            // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator
-            // to always produce file path URLs relative to the directoryURL. This can reduce
-            // the size of each URL object returned during enumeration.
-            options |= NSDirectoryEnumerationProducesRelativePathURLs;
-        }
-        
         NSURL *srcURL = [NSURL fileURLWithPath:srcPath isDirectory:YES];
         NSDirectoryEnumerator<NSURL *> *srcDirEnumerator = [self.fileManager enumeratorAtURL:srcURL
                                                                includingPropertiesForKeys:@[]
-                                                                                  options:options
+                                                                                  options:(NSDirectoryEnumerationOptions)0
                                                                              errorHandler:NULL];
         for (NSURL *url in srcDirEnumerator) {
             @autoreleasepool {

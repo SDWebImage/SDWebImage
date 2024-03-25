@@ -73,16 +73,9 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 
 - (void)removeAllData {
     NSURL *srcURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
-    NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
-    if (@available (iOS 13, *)) {
-        // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator
-        // to always produce file path URLs relative to the directoryURL. This can reduce
-        // the size of each URL object returned during enumeration.
-        options |= NSDirectoryEnumerationProducesRelativePathURLs;
-    }
     NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:srcURL
                                                   includingPropertiesForKeys:@[]
-                                                                     options:options
+                                                                     options:(NSDirectoryEnumerationOptions)0
                                                                 errorHandler:NULL];
     for (NSURL *url in fileEnumerator) {
         @autoreleasepool {
@@ -137,19 +130,11 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 
 - (NSUInteger)totalSize {
     NSUInteger size = 0;
-    NSDirectoryEnumerationOptions options = (NSDirectoryEnumerationOptions)0;
-    if (@available (iOS 13, *)) {
-        // NSDirectoryEnumerationProducesRelativePathURLs causes the NSDirectoryEnumerator 
-        // to always produce file path URLs relative to the directoryURL. This can reduce 
-        // the size of each URL object returned during enumeration.
-        options |= NSDirectoryEnumerationProducesRelativePathURLs;
-    }
-    
     @autoreleasepool {
         NSURL *pathURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
         NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:pathURL
                                                   includingPropertiesForKeys:@[NSURLFileSizeKey]
-                                                                     options:options
+                                                                     options:(NSDirectoryEnumerationOptions)0
                                                                 errorHandler:NULL];
         
         for (NSURL *fileURL in fileEnumerator) {

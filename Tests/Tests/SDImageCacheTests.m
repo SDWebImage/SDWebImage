@@ -563,7 +563,13 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     NSString *newDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"com.hackemist.SDImageCache"] stringByAppendingPathComponent:@"default"];
     NSString *oldDefaultPath = [[[self userCacheDirectory] stringByAppendingPathComponent:@"default"] stringByAppendingPathComponent:@"com.hackemist.SDWebImageCache.default"];
     [fileManager createDirectoryAtPath:oldDefaultPath withIntermediateDirectories:YES attributes:nil error:nil];
-    [fileManager createFileAtPath:[oldDefaultPath stringByAppendingPathComponent:@"a.png"] contents:[NSData dataWithContentsOfFile:[self testPNGPath]] attributes:nil];
+    
+    // Create 100 files to Migrate
+    for (NSUInteger i = 0; i < 100; i++) {
+        NSString *fileName = [NSString stringWithFormat:@"a%@.png", @(i)];
+        [fileManager createFileAtPath:[oldDefaultPath stringByAppendingPathComponent:fileName] contents:[NSData dataWithContentsOfFile:[self testPNGPath]] attributes:nil];
+    }
+    
     // Call migration
     SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:newDefaultPath config:config];
     [diskCache moveCacheDirectoryFromPath:oldDefaultPath toPath:newDefaultPath];
