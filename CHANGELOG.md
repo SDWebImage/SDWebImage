@@ -1,3 +1,16 @@
+## [5.19.1 - 5.9 Patch, on Mar 26th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.1)
+See [all tickets marked for the 5.19.1 release](https://github.com/SDWebImage/SDWebImage/milestone/133)
+
+### Features
+- Allows the transformer to preserve the UIImage metadata like image format #3688
+- Add a protect when NSString passed into sd_setImageWithURL API (which should be NSURL instance) #3686
+
+### Performance
+- Replace NSFileManager.enumeratorAtPath with enumeratorAtURL for performance and RAM saving #3690
+
+### Warnings
+- mark SDWebImageCacheKeyFilter default initializer unavailable & add missing default case of SDCallbackQueue sync/async function #3683
+
 ## [5.19 - CocoaPods X VisionOS, on Feb 25th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.0)
 See [all tickets marked for the 5.19.0 release](https://github.com/SDWebImage/SDWebImage/milestone/123)
 
