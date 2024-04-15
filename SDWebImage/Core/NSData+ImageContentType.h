@@ -15,18 +15,18 @@
  For custom coder plugin, it can also extern the enum for supported format. See `SDImageCoder` for more detailed information.
  */
 typedef NSInteger SDImageFormat NS_TYPED_EXTENSIBLE_ENUM;
-static const SDImageFormat SDImageFormatUndefined = -1;
-static const SDImageFormat SDImageFormatJPEG      = 0;
-static const SDImageFormat SDImageFormatPNG       = 1;
-static const SDImageFormat SDImageFormatGIF       = 2;
-static const SDImageFormat SDImageFormatTIFF      = 3;
-static const SDImageFormat SDImageFormatWebP      = 4;
-static const SDImageFormat SDImageFormatHEIC      = 5;
-static const SDImageFormat SDImageFormatHEIF      = 6;
-static const SDImageFormat SDImageFormatPDF       = 7;
-static const SDImageFormat SDImageFormatSVG       = 8;
-static const SDImageFormat SDImageFormatBMP       = 9;
-static const SDImageFormat SDImageFormatRAW       = 10;
+extern const SDImageFormat SDImageFormatUndefined;
+extern const SDImageFormat SDImageFormatJPEG;
+extern const SDImageFormat SDImageFormatPNG;
+extern const SDImageFormat SDImageFormatGIF;
+extern const SDImageFormat SDImageFormatTIFF;
+extern const SDImageFormat SDImageFormatWebP;
+extern const SDImageFormat SDImageFormatHEIC;
+extern const SDImageFormat SDImageFormatHEIF;
+extern const SDImageFormat SDImageFormatPDF;
+extern const SDImageFormat SDImageFormatSVG;
+extern const SDImageFormat SDImageFormatBMP;
+extern const SDImageFormat SDImageFormatRAW;
 
 /**
  NSData category about the image content type and UTI.

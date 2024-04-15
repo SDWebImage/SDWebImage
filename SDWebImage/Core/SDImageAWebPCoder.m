@@ -42,12 +42,11 @@ static NSString * kSDCGImagePropertyWebPUnclampedDelayTime = @"UnclampedDelayTim
 #pragma mark - SDImageCoder
 
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
-    switch ([NSData sd_imageFormatForImageData:data]) {
-        case SDImageFormatWebP:
-            // Check WebP decoding compatibility
-            return [self.class canDecodeFromFormat:SDImageFormatWebP];
-        default:
-            return NO;
+    if ([NSData sd_imageFormatForImageData:data] == SDImageFormatWebP) {
+        // Check WebP decoding compatibility
+        return [self.class canDecodeFromFormat:SDImageFormatWebP];
+    } else {
+        return NO;
     }
 }
 
@@ -56,12 +55,11 @@ static NSString * kSDCGImagePropertyWebPUnclampedDelayTime = @"UnclampedDelayTim
 }
 
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    switch (format) {
-        case SDImageFormatWebP:
-            // Check WebP encoding compatibility
-            return [self.class canEncodeToFormat:SDImageFormatWebP];
-        default:
-            return NO;
+    if (format == SDImageFormatWebP) {
+        // Check WebP encoding compatibility
+        return [self.class canEncodeToFormat:SDImageFormatWebP];
+    } else {
+        return NO;
     }
 }
 
