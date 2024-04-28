@@ -435,12 +435,12 @@ static NSString * _defaultDiskCacheDirectory;
     NSData *data = [self diskImageDataForKey:key];
     UIImage *diskImage = [self diskImageForKey:key data:data options:options context:context];
     
-    BOOL shouldCacheToMomery = YES;
+    BOOL shouldCacheToMemory = YES;
     if (context[SDWebImageContextStoreCacheType]) {
         SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
-        shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+        shouldCacheToMemory = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
     }
-    if (shouldCacheToMomery) {
+    if (shouldCacheToMemory) {
         // check if we need sync logic
         [self _syncDiskToMemoryWithImage:diskImage forKey:key];
     }
@@ -683,20 +683,20 @@ static NSString * _defaultDiskCacheDirectory;
             // the image is from in-memory cache, but need image data
             diskImage = image;
         } else if (diskData) {
-            BOOL shouldCacheToMomery = YES;
+            BOOL shouldCacheToMemory = YES;
             if (context[SDWebImageContextStoreCacheType]) {
                 SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
-                shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+                shouldCacheToMemory = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
             }
             // Special case: If user query image in list for the same URL, to avoid decode and write **same** image object into disk cache multiple times, we query and check memory cache here again.
-            if (shouldCacheToMomery && self.config.shouldCacheImagesInMemory) {
+            if (shouldCacheToMemory && self.config.shouldCacheImagesInMemory) {
                 diskImage = [self.memoryCache objectForKey:key];
             }
             // decode image data only if in-memory cache missed
             if (!diskImage) {
                 diskImage = [self diskImageForKey:key data:diskData options:options context:context];
                 // check if we need sync logic
-                if (shouldCacheToMomery) {
+                if (shouldCacheToMemory) {
                     [self _syncDiskToMemoryWithImage:diskImage forKey:key];
                 }
             }
