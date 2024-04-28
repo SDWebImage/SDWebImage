@@ -435,12 +435,12 @@ static NSString * _defaultDiskCacheDirectory;
     NSData *data = [self diskImageDataForKey:key];
     UIImage *diskImage = [self diskImageForKey:key data:data options:options context:context];
     
-    BOOL shouldCacheToMomery = YES;
+    BOOL shouldCacheToMemory = YES;
     if (context[SDWebImageContextStoreCacheType]) {
         SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
-        shouldCacheToMomery = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
+        shouldCacheToMemory = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
     }
-    if (shouldCacheToMomery) {
+    if (shouldCacheToMemory) {
         // check if we need sync logic
         [self _syncDiskToMemoryWithImage:diskImage forKey:key];
     }
