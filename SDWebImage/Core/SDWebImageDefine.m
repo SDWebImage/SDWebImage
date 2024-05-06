@@ -84,7 +84,11 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
             }
         }
     }
-    if (!scaledImage && image.sd_isAnimated) {
+    if (scaledImage) {
+        SDImageCopyAssociatedObject(image, scaledImage);
+        return scaledImage;
+    }
+    if (image.sd_isAnimated) {
         UIImage *animatedImage;
 #if SD_UIKIT || SD_WATCH
         // `UIAnimatedImage` images share the same size and scale.
@@ -120,9 +124,12 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
     }
-    SDImageCopyAssociatedObject(image, scaledImage);
+    if (scaledImage) {
+        SDImageCopyAssociatedObject(image, scaledImage);
+        return scaledImage;
+    }
     
-    return scaledImage;
+    return nil;
 }
 
 #pragma mark - Context option

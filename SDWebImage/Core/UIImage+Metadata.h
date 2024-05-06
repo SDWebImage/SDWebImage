@@ -38,7 +38,7 @@
  * Returns the underlaying `NSBitmapImageRep` or `SDAnimatedImageRep` frame count.
  * Returns 1 for static image.
  * SDAnimatedImage:
- * Returns `animatedImageFrameCount`
+ * Returns `animatedImageFrameCount` for animated image, 1 for static image.
  */
 @property (nonatomic, assign, readonly) NSUInteger sd_imageFrameCount;
 
