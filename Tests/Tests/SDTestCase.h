@@ -30,6 +30,7 @@ FOUNDATION_EXPORT NSString * _Nonnull const kTestAPNGPURL;
 @interface SDTestCase : XCTestCase
 
 @property (nonatomic, strong, null_resettable) UIWindow *window;
+@property (nonatomic, readonly, class, getter=isCI) BOOL CI; // Check if GitHub CI
 
 - (void)waitForExpectationsWithCommonTimeout;
 - (void)waitForExpectationsWithCommonTimeoutUsingHandler:(nullable XCWaitCompletionHandler)handler; 

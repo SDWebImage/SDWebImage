@@ -27,6 +27,19 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
     [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:handler];
 }
 
++ (BOOL)isCI {
+    // https://docs.github.com/en/actions/learn-github-actions/variables
+    NSDictionary *env = NSProcessInfo.processInfo.environment;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSLog(@"printenv: %@", env.description);
+    });
+    if ([[env valueForKey:@"CI"] isEqualToString:@"true"]) {
+        return YES;
+    }
+    return NO;
+}
+
 #pragma mark - Helper
 - (UIWindow *)window {
     if (!_window) {

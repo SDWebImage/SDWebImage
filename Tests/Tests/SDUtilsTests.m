@@ -132,7 +132,7 @@
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
 #if SD_MAC
     // GitHub action's Mac does not connect to a display, so the ImageRenderer color space is wrong :(
-    if (NSProcessInfo.processInfo.environment[@"GITHUB_ACTIONS"]) {
+    if (SDTestCase.isCI) {
         return;
     }
 #endif
