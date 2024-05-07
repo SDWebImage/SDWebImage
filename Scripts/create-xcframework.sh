@@ -38,5 +38,5 @@ do
 done
 
 # Combine XCFramework
+echo "Create XCFramework"
 xcodebuild -create-xcframework $COMMAND_ARGS -output "${SRCROOT}/build/SDWebImage.xcframework"
-open -a Finder "${SRCROOT}/build/SDWebImage.xcframework"
