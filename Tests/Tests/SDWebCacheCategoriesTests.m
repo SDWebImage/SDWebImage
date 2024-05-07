@@ -644,7 +644,7 @@
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Test"];
     cache.config.shouldUseWeakMemoryCache = YES;
     SDWebImageManager *imageManager = [[SDWebImageManager alloc] initWithCache:cache loader:[SDWebImageDownloader sharedDownloader]];
-    [imageView sd_setImageWithURL:kTestJPEGURL placeholderImage:nil options:0 context:@{SDWebImageContextCustomManager:imageManager} progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+    [imageView sd_setImageWithURL:(NSURL *)kTestJPEGURL placeholderImage:nil options:0 context:@{SDWebImageContextCustomManager:imageManager} progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();
         [expectation fulfill];
     }];

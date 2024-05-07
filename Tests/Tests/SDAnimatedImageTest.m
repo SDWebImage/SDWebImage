@@ -786,6 +786,22 @@ static BOOL _isCalled;
 }
 #endif
 
+- (void)test37AnimatedImageWithStaticDataBehavior {
+    UIImage *image = [[SDAnimatedImage alloc] initWithData:[self testJPEGData]];
+    // UIImage+Metadata.h
+    expect(image).notTo.beNil();
+    expect(image.sd_isAnimated).beFalsy();
+    expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
+    expect(image.sd_imageFrameCount).equal(1);
+    expect(image.sd_imageLoopCount).equal(0);
+    // SDImageCoderHelper.h
+    UIImage *decodedImage = [SDImageCoderHelper decodedImageWithImage:image policy:SDImageForceDecodePolicyAutomatic];
+    expect(decodedImage).notTo.equal(image);
+    // SDWebImageDefine.h
+    UIImage *scaledImage = SDScaledImageForScaleFactor(2.0, image);
+    expect(scaledImage).notTo.equal(image);
+}
+
 #pragma mark - Helper
 
 - (NSString *)testGIFPath {

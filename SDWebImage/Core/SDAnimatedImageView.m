@@ -129,12 +129,12 @@
     
     // We need call super method to keep function. This will impliedly call `setNeedsDisplay`. But we have no way to avoid this when using animated image. So we call `setNeedsDisplay` again at the end.
     super.image = image;
-    if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)]) {
+    if ([image.class conformsToProtocol:@protocol(SDAnimatedImage)] && [(id<SDAnimatedImage>)image animatedImageFrameCount] > 1) {
         if (!self.player) {
             id<SDAnimatedImageProvider> provider;
             // Check progressive loading
             if (self.isProgressive) {
-                provider = [self progressiveAnimatedCoderForImage:image];
+                provider = [(id<SDAnimatedImage>)image animatedCoder];
             } else {
                 provider = (id<SDAnimatedImage>)image;
             }

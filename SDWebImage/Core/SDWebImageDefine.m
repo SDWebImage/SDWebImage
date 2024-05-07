@@ -83,9 +83,10 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
                 scaledImage = [[image.class alloc] initWithData:data scale:scale];
             }
         }
-        if (scaledImage) {
-            return scaledImage;
-        }
+    }
+    if (scaledImage) {
+        SDImageCopyAssociatedObject(image, scaledImage);
+        return scaledImage;
     }
     if (image.sd_isAnimated) {
         UIImage *animatedImage;
@@ -100,7 +101,6 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         }
         
         animatedImage = [UIImage animatedImageWithImages:scaledImages duration:image.duration];
-        animatedImage.sd_imageLoopCount = image.sd_imageLoopCount;
 #else
         // Animated GIF for `NSImage` need to grab `NSBitmapImageRep`;
         NSRect imageRect = NSMakeRect(0, 0, image.size.width, image.size.height);
@@ -124,9 +124,12 @@ inline UIImage * _Nullable SDScaledImageForScaleFactor(CGFloat scale, UIImage * 
         scaledImage = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:kCGImagePropertyOrientationUp];
 #endif
     }
-    SDImageCopyAssociatedObject(image, scaledImage);
+    if (scaledImage) {
+        SDImageCopyAssociatedObject(image, scaledImage);
+        return scaledImage;
+    }
     
-    return scaledImage;
+    return nil;
 }
 
 #pragma mark - Context option

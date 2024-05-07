@@ -24,6 +24,8 @@
  * NSImage currently only support animated via `NSBitmapImageRep`(GIF) or `SDAnimatedImageRep`(APNG/GIF/WebP) unlike UIImage.
  * The getter of this property will get the loop count from animated imageRep
  * The setter of this property will set the loop count from animated imageRep
+ * SDAnimatedImage:
+ * Returns `animatedImageLoopCount`
  */
 @property (nonatomic, assign) NSUInteger sd_imageLoopCount;
 
@@ -35,6 +37,8 @@
  * AppKit:
  * Returns the underlaying `NSBitmapImageRep` or `SDAnimatedImageRep` frame count.
  * Returns 1 for static image.
+ * SDAnimatedImage:
+ * Returns `animatedImageFrameCount` for animated image, 1 for static image.
  */
 @property (nonatomic, assign, readonly) NSUInteger sd_imageFrameCount;
 
@@ -42,7 +46,9 @@
  * UIKit:
  * Check the `images` array property.
  * AppKit:
- * NSImage currently only support animated via GIF imageRep unlike UIImage. It will check the imageRep's frame count.
+ * NSImage currently only support animated via GIF imageRep unlike UIImage. It will check the imageRep's frame count > 1.
+ * SDAnimatedImage:
+ * Check `animatedImageFrameCount` > 1
  */
 @property (nonatomic, assign, readonly) BOOL sd_isAnimated;
 
@@ -51,6 +57,8 @@
  * Check the `isSymbolImage` property. Also check the system PDF(iOS 11+) && SVG(iOS 13+) support.
  * AppKit:
  * NSImage supports PDF && SVG && EPS imageRep, check the imageRep class.
+ * SDAnimatedImage:
+ * Returns `NO`
  */
 @property (nonatomic, assign, readonly) BOOL sd_isVector;
 
@@ -58,6 +66,7 @@
  * The image format represent the original compressed image data format.
  * If you don't manually specify a format, this information is retrieve from CGImage using `CGImageGetUTType`, which may return nil for non-CG based image. At this time it will return `SDImageFormatUndefined` as default value.
  * @note Note that because of the limitations of categories this property can get out of sync if you create another instance with CGImage or other methods.
+ * @note For `SDAnimatedImage`, returns `animatedImageFormat` when animated, or fallback when static.
  */
 @property (nonatomic, assign) SDImageFormat sd_imageFormat;
 
