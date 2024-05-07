@@ -49,7 +49,7 @@ jobs:
       macOSDestination: platform=macOS,arch=x86_64
       macCatalystDestination: platform=macOS,arch=x86_64,variant=Mac Catalyst
       tvOSDestination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
-      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Series 9 (45mm)
+      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Ultra (49mm)
       visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
     steps:
       - name: Checkout
