@@ -13,6 +13,7 @@
 			buildPhases = (
 				326CA51322BA1A270033A92F /* Build Frameworks */,
 				326CA51422BA25F70033A92F /* Create XCFramework */,
+				32F4EC0E2BEA18C400EAADD2 /* Sign XCFramework */,
 			);
 			dependencies = (
 			);
@@ -1161,6 +1162,24 @@
 			shellPath = /bin/sh;
 			shellScript = "sh ${SRCROOT}/Scripts/create-xcframework.sh\n";
 		};
+		32F4EC0E2BEA18C400EAADD2 /* Sign XCFramework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Sign XCFramework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "sh ${SRCROOT}/Scripts/sign-xcframework.sh\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1342,7 +1361,6 @@
 		326CA50D22BA14EF0033A92F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1350,7 +1368,6 @@
 		326CA50E22BA14EF0033A92F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

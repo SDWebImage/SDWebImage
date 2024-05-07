@@ -5,6 +5,8 @@ set -o pipefail
 
 XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')
 XCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')
+XCODE_VERSION_MINOR=$(echo $XCODE_VERSION | awk -F '.' '{print $2}')
+XCODE_VERSION_PATCH=$(echo $XCODE_VERSION | awk -F '.' '{print $3}')
 if [ -z "$SRCROOT" ]
 then
     SRCROOT=$(pwd)
@@ -18,7 +20,7 @@ then
     PLATFORMS+=("macCatalyst")
 fi
 
-if [ $XCODE_VERSION_MAJOR -ge 15 ]
+if [[ ($XCODE_VERSION_MAJOR -gt 15) || ($XCODE_VERSION_MAJOR -eq 15 && $XCODE_VERSION_MINOR -ge 2) ]]
 then
     PLATFORMS+=("visionOS")
     PLATFORMS+=("visionOSSimulator")
@@ -39,5 +41,11 @@ do
         DESTINATION="generic/platform=${CURRENT_PLATFORM_OS} Simulator"
     fi
 
-    xcodebuild build -project "SDWebImage.xcodeproj" -destination "${DESTINATION}" -scheme "SDWebImage" -configuration "Release" -derivedDataPath "${SRCROOT}/build/DerivedData" CONFIGURATION_BUILD_DIR="${SRCROOT}/build/${CURRENT_PLATFORM}/"
+    if [[ $MACH_O_TYPE == "staticlib" ]]; then
+        XCCCONFIG_PATH="${SRCROOT}/Configs/Static.xcconfig"
+    else
+        XCCCONFIG_PATH="${SRCROOT}/Configs/Dynamic.xcconfig"
+    fi
+
+    xcodebuild build -project "SDWebImage.xcodeproj" -destination "${DESTINATION}" -scheme "SDWebImage" -configuration "Release" -xcconfig "${XCCCONFIG_PATH}" -derivedDataPath "${SRCROOT}/build/DerivedData" CONFIGURATION_BUILD_DIR="${SRCROOT}/build/${CURRENT_PLATFORM}/"
 done
