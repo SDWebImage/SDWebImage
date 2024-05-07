@@ -1,0 +1,54 @@
+name: "SDWebImage CD"
+
+on:
+  push:
+    # Pattern matched against refs/tags
+    tags:        
+      - '*'
+
+jobs:
+  Release:
+    name: Release XCFramework
+    runs-on: macos-14
+    env:
+      CODESIGN_KEY_BASE64: "${{ secrets.CODESIGN_KEY_BASE64 }}"
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+    strategy:
+      fail-fast: true
+      matrix:
+        linkage: [dynamic, static]
+        include:
+          - linkage: dynamic
+            MACH_O_TYPE: mh_dylib
+          - linkage: static
+            MACH_O_TYPE: staticlib
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build XCFramework
+        run: |
+          set -o pipefail
+          export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
+          ./Scripts/build-frameworks.sh
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
+
+      - name: Create XCFramework
+        run: |
+          set -o pipefail
+          ./Scripts/create-xcframework.sh
+          ./Scripts/sign-xcframework.sh
+
+      - name: Archive XCFramework
+        run: |
+          cd build
+          zip -r SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage.xcframework
+          cd ../
+          rm -rf build
+
+      - uses: softprops/action-gh-release@v0.1.15
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_REPOSITORY: "${{ github.repository }}"
+        with:
+          files: "SDWebImage-${{ matrix.linkage }}.xcframework.zip"
