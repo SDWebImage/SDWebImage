@@ -1,0 +1,52 @@
+name: "SDWebImage Release"
+
+on:
+  push:
+    # Pattern matched against refs/tags
+    tags:        
+      - '*'
+
+jobs:
+  Release:
+    name: Release XCFramework
+    runs-on: macos-14
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      PROJECT_NAME: SDWebImage.xcodeproj
+      SCHEME_NAME: SDWebImage XCFramework
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build dynamic XCFramework
+        run: |
+          set -o pipefail
+          export MACH_O_TYPE=mh_dylib
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}"
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
+
+      - name: Archive dynamic XCFramework
+        run: |
+          cd "${{ github.workspace }}"
+          zip -y -r SDWebImage-dynamic.xcframework.zip build/SDWebImage.xcframework
+          rm -rf build
+
+      - name: Build static XCFramework
+        run: |
+          set -o pipefail
+          export MACH_O_TYPE=staticlib
+          xcodebuild build -project "${{ env.PROJECT_NAME }}" -scheme "${{ env.SCHEME_NAME }}"
+          rm -rf ~/Library/Developer/Xcode/DerivedData/
+
+      - name: Archive static XCFramework
+        run: |
+          cd "${{ github.workspace }}"
+          zip -y -r SDWebImage-static.xcframework.zip build/SDWebImage.xcframework
+          rm -rf build
+
+      - uses: softprops/action-gh-release@v0.1.15
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_REPOSITORY: "${{ github.repository }}"
+        with:
+          files: ["${{ github.workspace }}/SDWebImage-dynamic.xcframework.zip", "${{ github.workspace }}/SDWebImage-static.xcframework.zip"]
