@@ -36,6 +36,7 @@ jobs:
       - name: Create XCFramework
         run: |
           set -o pipefail
+          export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
           ./Scripts/create-xcframework.sh
           ./Scripts/sign-xcframework.sh
 

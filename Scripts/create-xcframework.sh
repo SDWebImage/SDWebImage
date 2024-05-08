@@ -37,6 +37,9 @@ COMMAND_ARGS=""
 for CURRENT_PLATFORM in "${PLATFORMS[@]}"
 do
     COMMAND_ARGS="${COMMAND_ARGS} -framework ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework"
+    if [[ $MACH_O_TYPE != "staticlib" ]]; then
+        COMMAND_ARGS="${COMMAND_ARGS} -debug-symbols ${SRCROOT}/build/${CURRENT_PLATFORM}/SDWebImage.framework.dSYM"
+    fi
 done
 
 # Combine XCFramework
