@@ -207,10 +207,11 @@ In order to clean up things and make our core project do less things, we decided
 
 ## Installation
 
-There are four ways to use SDWebImage in your project:
+There are 5 ways to use SDWebImage in your project:
 - using CocoaPods
 - using Carthage
 - using Swift Package Manager
+- download binary XCFramework
 - manual install (build frameworks or embed Xcode Project)
 
 ### Installation with CocoaPods
@@ -270,6 +271,12 @@ If this is your first time using Carthage in the project, you'll need to go thro
 
 > NOTE: At this time, Carthage does not provide a way to build only specific repository subcomponents (or equivalent of CocoaPods's subspecs). All components and their dependencies will be built with the above command. However, you don't need to copy frameworks you aren't using into your project. For instance, if you aren't using `SDWebImageMapKit`, feel free to delete that framework from the Carthage Build directory after `carthage update` completes.
 
+> NOTE: [Apple requires SDWebImage contains signatures](https://developer.apple.com/support/third-party-SDK-requirements/). So, by default the `carthage build` binary framework does not do codesign, this will cause validation error. You can sign yourself with the Apple Developer Program identity, or using the binary framework:
+
+```
+binary "https://github.com/SDWebImage/SDWebImage/raw/master/SDWebImage.json"
+```
+
 ### Installation with Swift Package Manager (Xcode 11+)
 
 [Swift Package Manager](https://swift.org/package-manager/) (SwiftPM) is a tool for managing the distribution of Swift code as well as C-family dependency. From Xcode 11, SwiftPM got natively integrated with Xcode.
@@ -289,6 +296,29 @@ let package = Package(
     // ...
 )
 ```
+
+### Download binary XCFramework
+
+From 5.19.2, SDWebImage provide the canonical official binary XCFramework on [GitHub release pages](https://github.com/SDWebImage/SDWebImage/releases).
+
++ Download XCFramework
+
+You can choose to download `SDWebImage-dynamic.xcframework.zip` for dynamic linked one, or `SDWebImage-static.xcframework.zip` for static-linked one.
+
++ Integrate to Xcode Project
+
+Drag the unzipped `.xcframework` into your Xcode Project's Framework tab.
+
++ Verify signature of binary XCFramework
+
+From Xcode 15 Apple will verify the signature of binary XCFramework, to avoid supply chain attack.
+
+The certifacate is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer)
+
+The public key is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.pem)
+
+See more: [Verifying the origin of your XCFrameworks](https://developer.apple.com/documentation/Xcode/verifying-the-origin-of-your-xcframeworks)
+
 
 ### Manual Installation Guide
 
