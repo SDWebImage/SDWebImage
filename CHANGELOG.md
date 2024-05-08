@@ -10,6 +10,7 @@ See [all tickets marked for the 5.19.2 release](https://github.com/SDWebImage/SD
 - - This is the canonical release of binary framework. Import [certifacate](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer) and verify the [public key](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.pem) when you download the binary framework from unknown sources to avoid supply chain attack.
 - - For Carthage user who build its own SDWebImage binary framwork, you must sign yourself.
 - - See more in https://developer.apple.com/documentation/Xcode/verifying-the-origin-of-your-xcframeworks
+- Fix CocoaPods resource bundle when using only `SDWebImage/Core`
 
 ## [5.19.1 - 5.9 Patch, on Mar 26th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.1)
 See [all tickets marked for the 5.19.1 release](https://github.com/SDWebImage/SDWebImage/milestone/133)
