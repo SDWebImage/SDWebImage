@@ -313,6 +313,8 @@ Drag the unzipped `.xcframework` into your Xcode Project's Framework tab.
 
 From Xcode 15 Apple will verify the signature of binary XCFramework, to avoid supply chain attack.
 
+The fingerprint currently should be `FC 3B 10 13 86 34 4C 50 DB 70 2A 9A D1 01 6F B5 1A 3E CC 8B 9D A9 B7 AE 47 A0 48 D4 D0 63 39 83`
+
 The certificate is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer)
 
 The public key is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.pem)
