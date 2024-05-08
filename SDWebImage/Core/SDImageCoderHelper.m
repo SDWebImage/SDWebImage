@@ -290,22 +290,23 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 }
 
 + (CGColorSpaceRef)colorSpaceGetDeviceRGB {
+#if SD_MAC
+    NSScreen *mainScreen = nil;
+    if (@available(macOS 10.12, *)) {
+        mainScreen = [NSScreen mainScreen];
+    } else {
+        mainScreen = [NSScreen screens].firstObject;
+    }
+    CGColorSpaceRef colorSpace = mainScreen.colorSpace.CGColorSpace;
+    return colorSpace;
+#else
     static CGColorSpaceRef colorSpace;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#if SD_MAC
-        NSScreen *mainScreen = nil;
-        if (@available(macOS 10.12, *)) {
-            mainScreen = [NSScreen mainScreen];
-        } else {
-            mainScreen = [NSScreen screens].firstObject;
-        }
-        colorSpace = mainScreen.colorSpace.CGColorSpace;
-#else
         colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-#endif
     });
     return colorSpace;
+#endif
 }
 
 + (SDImagePixelFormat)preferredPixelFormat:(BOOL)containsAlpha {

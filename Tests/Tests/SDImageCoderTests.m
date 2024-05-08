@@ -217,7 +217,7 @@
 - (void)test14ThatHEIFWorks {
     if (@available(iOS 11, tvOS 11, macOS 10.13, *)) {
         NSURL *heifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heif"];
-        BOOL supportsEncoding = !SDTestCase.isCI; // GitHub Action Mac env currently does not support HEIC encoding
+        BOOL supportsEncoding = NO; // public.heif UTI alwsays return false, use public.heic
         [self verifyCoder:[SDImageIOCoder sharedCoder]
         withLocalImageURL:heifURL
          supportsEncoding:supportsEncoding
