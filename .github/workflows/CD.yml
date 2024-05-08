@@ -45,6 +45,7 @@ jobs:
           cd build
           zip -r SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage.xcframework
           cd ../
+          mv build/SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage-${{ matrix.linkage }}.xcframework.zip
           rm -rf build
 
       - uses: softprops/action-gh-release@v0.1.15

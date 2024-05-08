@@ -1,3 +1,16 @@
+## [5.19.2 - Canonical Binary XCFramework, on Mar 26th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.2)
+See [all tickets marked for the 5.19.2 release](https://github.com/SDWebImage/SDWebImage/milestone/134)
+
+### Fixes
+- Fix some regression when SDAnimatedImage created with static format like JPEG #3708
+- Fix that colorSpaceGetDeviceRGB cache the color space even when active display changed #3712
+
+### Project
+- Added GitHub action to release XCFramework which is self-signed #3711 #3709
+- - This is the canonical release of binary framework. Import [certifacate](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer) and verify the [public key](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.pem) when you download the binary framework from unknown sources to avoid supply chain attack.
+- - For Carthage user who build its own SDWebImage binary framwork, you must sign yourself.
+- - See more in https://developer.apple.com/documentation/Xcode/verifying-the-origin-of-your-xcframeworks
+
 ## [5.19.1 - 5.9 Patch, on Mar 26th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.1)
 See [all tickets marked for the 5.19.1 release](https://github.com/SDWebImage/SDWebImage/milestone/133)
 
