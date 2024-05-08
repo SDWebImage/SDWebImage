@@ -313,7 +313,7 @@ Drag the unzipped `.xcframework` into your Xcode Project's Framework tab.
 
 From Xcode 15 Apple will verify the signature of binary XCFramework, to avoid supply chain attack.
 
-The certifacate is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer)
+The certificate is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.cer)
 
 The public key is stored in the repo [here](https://github.com/SDWebImage/SDWebImage/blob/master/Certificate/SDWebImage%20Signing%20Certificate.pem)
 

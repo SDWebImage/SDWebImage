@@ -43,7 +43,7 @@ jobs:
       - name: Archive XCFramework
         run: |
           cd build
-          zip -r SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage.xcframework
+          zip -r -y SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage.xcframework
           cd ../
           mv build/SDWebImage-${{ matrix.linkage }}.xcframework.zip SDWebImage-${{ matrix.linkage }}.xcframework.zip
           rm -rf build
