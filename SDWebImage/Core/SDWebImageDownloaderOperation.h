@@ -40,7 +40,7 @@
 
 @optional
 @property (strong, nonatomic, readonly, nullable) NSURLSessionTask *dataTask;
-@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 // These operation-level config was inherited from downloader. See `SDWebImageDownloaderConfig` for documentation.
 @property (strong, nonatomic, nullable) NSURLCredential *credential;
@@ -75,7 +75,7 @@
  * The collected metrics from `-URLSession:task:didFinishCollectingMetrics:`.
  * This can be used to collect the network metrics like download duration, DNS lookup duration, SSL handshake duration, etc. See Apple's documentation: https://developer.apple.com/documentation/foundation/urlsessiontaskmetrics
  */
-@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macosx(10.12), ios(10.0), watchos(3.0), tvos(10.0));
+@property (strong, nonatomic, readonly, nullable) NSURLSessionTaskMetrics *metrics API_AVAILABLE(macos(10.12), ios(10.0), watchos(3.0), tvos(10.0));
 
 /**
  * The credential used for authentication challenges in `-URLSession:task:didReceiveChallenge:completionHandler:`.
