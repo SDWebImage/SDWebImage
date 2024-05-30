@@ -1,3 +1,9 @@
+## [5.19.3 - 5.19 Patch, on May 30th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.3)
+See [all tickets marked for the 5.19.3 release](https://github.com/SDWebImage/SDWebImage/milestone/135)
+
+### Fixes
+- Fix the detection of SVGImageRep on macOS AppKit #3716
+
 ## [5.19.2 - Canonical Binary XCFramework, on Mar 26th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.2)
 See [all tickets marked for the 5.19.2 release](https://github.com/SDWebImage/SDWebImage/milestone/134)
 
