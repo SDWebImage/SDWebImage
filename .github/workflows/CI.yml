@@ -1,4 +1,4 @@
-name: "SDWebImage CI"
+name: "Testing SDWebImage CI"
 
 on:
   workflow_dispatch:
