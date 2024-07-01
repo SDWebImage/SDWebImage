@@ -141,6 +141,12 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     if (!data || data.length == 0) {
         return nil;
     }
+    // Vector image does not supported, guard firstly
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    if (format == SDImageFormatSVG || format == SDImageFormatPDF) {
+        return nil;
+    }
+    
     id<SDAnimatedImageCoder> animatedCoder = nil;
     SDImageCoderMutableOptions *mutableCoderOptions;
     if (options != nil) {
@@ -165,6 +171,10 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
         // Static Image (Before 5.19 this code path return nil)
         UIImage *image = [[SDImageCodersManager sharedManager] decodedImageWithData:data options:options];
         if (!image) {
+            return nil;
+        }
+        // Vector image does not supported, guard secondly
+        if (image.sd_isVector) {
             return nil;
         }
 #if SD_MAC
