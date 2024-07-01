@@ -75,9 +75,9 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
     }
     if (image) {
         SDImageForceDecodePolicy policy = SDImageForceDecodePolicyAutomatic;
-        NSNumber *polivyValue = context[SDWebImageContextImageForceDecodePolicy];
-        if (polivyValue != nil) {
-            policy = polivyValue.unsignedIntegerValue;
+        NSNumber *policyValue = context[SDWebImageContextImageForceDecodePolicy];
+        if (policyValue != nil) {
+            policy = policyValue.unsignedIntegerValue;
         }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push
@@ -156,9 +156,9 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
     }
     if (image) {
         SDImageForceDecodePolicy policy = SDImageForceDecodePolicyAutomatic;
-        NSNumber *polivyValue = context[SDWebImageContextImageForceDecodePolicy];
-        if (polivyValue != nil) {
-            policy = polivyValue.unsignedIntegerValue;
+        NSNumber *policyValue = context[SDWebImageContextImageForceDecodePolicy];
+        if (policyValue != nil) {
+            policy = policyValue.unsignedIntegerValue;
         }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push
