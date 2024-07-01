@@ -1,3 +1,9 @@
+## [5.19.4 - 5.19 Patch, on Jul 1st, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.4)
+See [all tickets marked for the 5.19.4 release](https://github.com/SDWebImage/SDWebImage/milestone/136)
+
+### Fixes
+- Fix the issue that SDAnimatedImage breaks the vector on macOS #3724
+
 ## [5.19.3 - 5.19 Patch, on May 30th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.3)
 See [all tickets marked for the 5.19.3 release](https://github.com/SDWebImage/SDWebImage/milestone/135)
 

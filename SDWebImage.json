@@ -1,4 +1,5 @@
 {
 	"5.19.2": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.2/SDWebImage-dynamic.xcframework.zip",
-	"5.19.3": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.3/SDWebImage-dynamic.xcframework.zip"
+	"5.19.3": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.3/SDWebImage-dynamic.xcframework.zip",
+    "5.19.4": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.4/SDWebImage-dynamic.xcframework.zip"
 }
