@@ -72,7 +72,7 @@
 
 // This class override these methods from UIImage(NSImage), and it supports NSSecureCoding.
 // You should use these methods to create a new animated image. Use other methods just call super instead.
-// @note Before 5.19, these initializer will return nil for static image (when all candidate SDAnimatedImageCoder returns nil instance), like JPEG data. After 5.19, these initializer will retry for static image as well, so JPEG data will return non-nil instance.
+// @note Before 5.19, these initializer will return nil for static image (when all candidate SDAnimatedImageCoder returns nil instance), like JPEG data. After 5.19, these initializer will retry for static image as well, so JPEG data will return non-nil instance. For vector image(PDF/SVG), always return nil.
 // @note When the animated image frame count <= 1, all the `SDAnimatedImageProvider` protocol methods will return nil or 0 value, you'd better check the frame count before usage and keep fallback.
 + (nullable instancetype)imageNamed:(nonnull NSString *)name; // Cache in memory, no Asset Catalog support
 #if __has_include(<UIKit/UITraitCollection.h>)
