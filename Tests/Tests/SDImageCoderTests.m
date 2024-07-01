@@ -575,6 +575,23 @@
     expect(a1).beCloseToWithin(0.33, 0.01);
 }
 
+- (void)test31ThatSVGShouldUseNativeImageClass {
+    NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"svg"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    SDAnimatedImage *animatedImage = [SDAnimatedImage imageWithData:data];
+    expect(animatedImage).beNil();
+    UIImage *image = [UIImage sd_imageWithData:data];
+    Class SVGCoderClass = NSClassFromString(@"SDImageSVGCoder");
+    if (SVGCoderClass && [SVGCoderClass sharedCoder]) {
+        expect(image).notTo.beNil();
+        // Vector version
+        expect(image.sd_isVector).beTruthy();
+    } else {
+        // Platform does not support SVG
+        expect(image).beNil();
+    }
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder
