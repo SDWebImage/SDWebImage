@@ -832,11 +832,11 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     }
     
     NSMutableData *imageData = [NSMutableData data];
-    CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
+    NSString *imageUTType = self.class.imageUTType;
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
     // The `CGImageDestinationCreateWithData` will log a warning when count is 0, use 1 instead.
-    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, frames.count ?: 1, NULL);
+    CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, (__bridge CFStringRef)imageUTType, frames.count ?: 1, NULL);
     if (!imageDestination) {
         // Handle failure.
         return nil;
@@ -921,6 +921,11 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     }
     
     CFRelease(imageDestination);
+    
+    // In some beta version, ImageIO `CGImageDestinationFinalize` returns success, but the data buffer is 0 bytes length.
+    if (imageData.length == 0) {
+        return nil;
+    }
     
     return [imageData copy];
 }
