@@ -75,7 +75,11 @@ static NSString * kSDCGImagePropertyHEICSUnclampedDelayTime = @"UnclampedDelayTi
 }
 
 + (NSString *)imageUTType {
-    return (__bridge NSString *)kSDUTTypeHEIC;
+    // See: https://nokiatech.github.io/heif/technical.html
+    // Actually HEIC has another concept called `non-timed Image Sequence`, which can be encoded using `public.heic`
+    // But current SDWebImage does not has this design, I don't know whether there are use case for this
+    // So we just replace and always use `timed Image Sequence`, means, animated image for encoding
+    return (__bridge NSString *)kSDUTTypeHEICS;
 }
 
 + (NSString *)dictionaryProperty {
