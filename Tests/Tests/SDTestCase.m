@@ -14,7 +14,7 @@ const int64_t kMinDelayNanosecond = NSEC_PER_MSEC * 100; // 0.1s
 NSString *const kTestJPEGURL = @"https://placehold.co/50x50.jpg";
 NSString *const kTestProgressiveJPEGURL = @"https://raw.githubusercontent.com/ibireme/YYImage/master/Demo/YYImageDemo/mew_progressive.jpg";
 NSString *const kTestPNGURL = @"https://placehold.co/50x50.png";
-NSString *const kTestGIFURL = @"https://media.giphy.com/media/UEsrLdv7ugRTq/giphy.gif";
+NSString *const kTestGIFURL = @"https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_%28large%29.gif";
 NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons/1/14/Animated_PNG_example_bouncing_beach_ball.png";
 
 @implementation SDTestCase
