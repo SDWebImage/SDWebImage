@@ -19,6 +19,7 @@
  For UIKit: use `-startAnimating`, `-stopAnimating` to control animating. `isAnimating` to check animation state.
  For AppKit: use `-setAnimates:` to control animating, `animates` to check animation state. This view is layer-backed.
  */
+NS_SWIFT_UI_ACTOR
 @interface SDAnimatedImageView : UIImageView
 /**
  The internal animation player.
