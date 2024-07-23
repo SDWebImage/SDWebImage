@@ -847,7 +847,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 #else
     CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
 #endif
-    properties[(__bridge NSString *)kCGImagePropertyOrientation] = @(exifOrientation);
+    if (exifOrientation != kCGImagePropertyOrientationUp) {
+        properties[(__bridge NSString *)kCGImagePropertyOrientation] = @(exifOrientation);
+    }
     // Encoding Options
     double compressionQuality = 1;
     if (options[SDImageCoderEncodeCompressionQuality]) {
