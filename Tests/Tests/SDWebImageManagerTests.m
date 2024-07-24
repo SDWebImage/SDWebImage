@@ -640,7 +640,8 @@
 
 - (void)test22ThatForceDecodePolicyAutomatic {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Automatic policy with ICC profile colorspace image should force-decode"];
-    NSURL *url = [NSURL URLWithString:@"http://photodb.illusdolphin.net/media/15292/browsertest.jpg"];
+    NSString * testImagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"TestICCProfile" ofType:@"jpg"];
+    NSURL *url = [NSURL fileURLWithPath:testImagePath];
     SDImageCoderHelper.defaultDecodeSolution = SDImageCoderDecodeSolutionCoreGraphics; // Temp set
     [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromLoaderOnly context:@{SDWebImageContextImageForceDecodePolicy : @(SDImageForceDecodePolicyAutomatic)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).notTo.beNil();

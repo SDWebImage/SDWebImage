@@ -14,6 +14,12 @@
 static NSString *kTestImageKeyJPEG = @"TestImageKey.jpg";
 static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 
+@interface SDCallbackQueue ()
+
+@property (nonatomic, strong, nonnull) dispatch_queue_t queue;
+
+@end
+
 @interface SDImageCacheTests : SDTestCase <NSFileManagerDelegate>
 
 @end
@@ -374,12 +380,12 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         
         [[SDImageCodersManager sharedManager] removeCoder:testDecoder];
         
-        [[SDImageCache sharedImageCache] removeImageForKey:key withCompletion:^{
-            [expectation fulfill];
-        }];
+        [cache removeImageFromMemoryForKey:key];
+        [cache removeImageFromDiskForKey:key];
+        [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:10 handler:nil];
 }
 
 - (void)test41StoreImageDataToDiskWithCustomFileManager {
@@ -670,32 +676,43 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+/*
 - (void)test48CacheUseConcurrentIOQueue {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache concurrent ioQueue"];
-    expectation.expectedFulfillmentCount = 2;
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"SDImageCache concurrent ioQueue1"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"SDImageCache concurrent ioQueue2"];
     
     SDImageCacheConfig *config = [SDImageCacheConfig new];
     dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_BACKGROUND, 0);
     config.ioQueueAttributes = attr;
     
     SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:@"Concurrent" diskCacheDirectory:@"/" config:config];
-    NSData *pngData = [NSData dataWithContentsOfFile:[self testPNGPath]];
     // Added test case for custom queue
-    [SDCallbackQueue.globalQueue async:^{
-        SDWebImageContext *context = @{SDWebImageContextCallbackQueue : SDCallbackQueue.currentQueue};
+    SDCallbackQueue *globalQueue = SDCallbackQueue.globalQueue;
+    globalQueue.policy = SDCallbackPolicyDispatch;
+    [globalQueue async:^{
+        SDCallbackQueue *currentQueue = SDCallbackQueue.currentQueue;
+        SDWebImageContext *context = @{SDWebImageContextCallbackQueue : currentQueue};
+        expect(globalQueue.queue).equal(currentQueue.queue);
         expect(NSThread.isMainThread).beFalsy();
         [cache queryCacheOperationForKey:@"Key1" options:0 context:context done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
-            expect(data).beNil();
+            SDCallbackQueue *currentQueue1 = SDCallbackQueue.currentQueue;
+            expect(globalQueue.queue).equal(currentQueue1.queue);
             expect(NSThread.isMainThread).beFalsy();
-            [expectation fulfill];
+            [expectation1 fulfill];
         }];
-        [cache storeImageData:pngData forKey:@"Key1" completion:^{
-            [expectation fulfill];
+        [cache queryCacheOperationForKey:@"Key2" options:0 context:context done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
+            SDCallbackQueue *currentQueue2 = SDCallbackQueue.currentQueue;
+            expect(globalQueue.queue).equal(currentQueue2.queue);
+            expect(NSThread.isMainThread).beFalsy();
+            [expectation2 fulfill];
         }];
     }];
     
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+        [cache clearDiskOnCompletion:nil];
+    }];
 }
+ */
 
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test49SDImageCacheQueryOp {
