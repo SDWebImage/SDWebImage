@@ -1,3 +1,17 @@
+## [5.19.5 - Swift 6 Compatible, on Jul 24th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.5)
+See [all tickets marked for the 5.19.5 release](https://github.com/SDWebImage/SDWebImage/milestone/137)
+
+### Fixes
+- Fix our HEIC coder to encode timed image sequences instead of non-timed image gallery for HEIC encoding #3727
+- - If you have use case to encode static multi-frame HEIC image, use ImageIO directly. SDWebImage currenly always assume multi-frame image to be animated.
+
+### Project
+- Use the new macro from Swift compiler and SDK to mark the UIImage/UIImageView subclass matching what they designed to be #3731
+- - This solve the Xcode 16 Beta issue when trun on Swift 6 mode with strict concurrency.
+
+### Tests
+- Try to re-enable the HEIC encoding test and visionOS xctest #3728
+
 ## [5.19.4 - 5.19 Patch, on Jul 1st, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.4)
 See [all tickets marked for the 5.19.4 release](https://github.com/SDWebImage/SDWebImage/milestone/136)
 
