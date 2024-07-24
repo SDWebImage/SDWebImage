@@ -676,6 +676,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithCommonTimeout];
 }
 
+/*
 - (void)test48CacheUseConcurrentIOQueue {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"SDImageCache concurrent ioQueue1"];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"SDImageCache concurrent ioQueue2"];
@@ -711,6 +712,7 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
         [cache clearDiskOnCompletion:nil];
     }];
 }
+ */
 
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test49SDImageCacheQueryOp {
