@@ -325,7 +325,7 @@ static BOOL _isCalled;
 - (void)test23AnimatedImageViewCategoryProgressive {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category progressive"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    NSURL *testURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/onevcat/APNGKit/2.2.0/Tests/APNGKitTests/Resources/General/APNG-cube.apng"];
+    NSURL *testURL = [NSURL URLWithString:@"https://media.giphy.com/media/UEsrLdv7ugRTq/giphy.gif"];
     [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:testURL.absoluteString];
     [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageProgressiveLoad progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
