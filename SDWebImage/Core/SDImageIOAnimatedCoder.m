@@ -479,7 +479,6 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (!imageRef) {
         return nil;
     }
-    BOOL isDecoded = NO;
     // Thumbnail image post-process
     if (!createFullImage) {
         if (preserveAspectRatio) {
@@ -491,19 +490,19 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             if (scaledImageRef) {
                 CGImageRelease(imageRef);
                 imageRef = scaledImageRef;
-                isDecoded = YES;
             }
         }
     }
     // Check whether output CGImage is decoded
+    BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
     if (!lazyDecode) {
-        if (!isDecoded) {
-            // Use CoreGraphics to trigger immediately decode
+        if (isLazy) {
+            // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
             if (decodedImageRef) {
                 CGImageRelease(imageRef);
                 imageRef = decodedImageRef;
-                isDecoded = YES;
+                isLazy = NO;
             }
         }
     } else if (animatedImage) {
@@ -545,7 +544,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:exifOrientation];
 #endif
     CGImageRelease(imageRef);
-    image.sd_isDecoded = isDecoded;
+    image.sd_isDecoded = !isLazy;
     
     return image;
 }

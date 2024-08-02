@@ -353,6 +353,10 @@
     CGSize imageSize = image.size;
     expect(imageSize.width).equal(400);
     expect(imageSize.height).equal(263);
+    // `CGImageSourceCreateThumbnailAtIndex` should always produce non-lazy CGImage
+    CGImageRef cgImage = image.CGImage;
+    expect([SDImageCoderHelper CGImageIsLazy:cgImage]).beFalsy();
+    expect(image.sd_isDecoded).beTruthy();
 }
 
 - (void)test23ThatThumbnailEncodeCalculation {
@@ -360,6 +364,10 @@
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
     UIImage *image = [SDImageIOCoder.sharedCoder decodedImageWithData:testImageData options:nil];
     expect(image.size).equal(CGSizeMake(5250, 3450));
+    // `CGImageSourceCreateImageAtIndex` should always produce lazy CGImage
+    CGImageRef cgImage = image.CGImage;
+    expect([SDImageCoderHelper CGImageIsLazy:cgImage]).beTruthy();
+    expect(image.sd_isDecoded).beFalsy();
     CGSize thumbnailSize = CGSizeMake(4000, 4000); // 3450 < 4000 < 5250
     NSData *encodedData = [SDImageIOCoder.sharedCoder encodedDataWithImage:image format:SDImageFormatJPEG options:@{
             SDImageCoderEncodeMaxPixelSize: @(thumbnailSize)

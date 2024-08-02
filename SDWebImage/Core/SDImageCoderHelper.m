@@ -381,6 +381,45 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     return hasAlpha;
 }
 
++ (BOOL)CGImageIsLazy:(CGImageRef)cgImage {
+    if (!cgImage) {
+        return NO;
+    }
+    // CoreGraphics use CGImage's C struct filed (offset 0xd8 on iOS 17.0)
+    // But since the description of `CGImageRef` always contains the `[DP]` (DataProvider) and `[IP]` (ImageProvider), we can use this as a hint
+    NSString *description = (__bridge_transfer NSString *)CFCopyDescription(cgImage);
+    if (description) {
+        // Solution 1: Parse the description to get provider
+        // <CGImage 0x10740ffe0> (IP) -> YES
+        // <CGImage 0x10740ffe0> (DP) -> NO
+        NSArray<NSString *> *lines = [description componentsSeparatedByString:@"\n"];
+        if (lines.count > 0) {
+            NSString *firstLine = lines[0];
+            NSRange startRange = [firstLine rangeOfString:@"("];
+            NSRange endRange = [firstLine rangeOfString:@")"];
+            if (startRange.location != NSNotFound && endRange.location != NSNotFound) {
+                NSRange resultRange = NSMakeRange(startRange.location + 1, endRange.location - startRange.location - 1);
+                NSString *providerString = [firstLine substringWithRange:resultRange];
+                if ([providerString isEqualToString:@"IP"]) {
+                    return YES;
+                } else if ([providerString isEqualToString:@"DP"]) {
+                    return NO;
+                } else {
+                    // New cases ? fallback
+                }
+            }
+        }
+    }
+    // Solution 2: Use UTI metadata
+    CFStringRef uttype = CGImageGetUTType(cgImage);
+    if (uttype) {
+        // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier` metadata for lazy decoded CGImage
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 + (CGImageRef)CGImageCreateDecoded:(CGImageRef)cgImage {
     return [self CGImageCreateDecoded:cgImage orientation:kCGImagePropertyOrientationUp];
 }
@@ -930,12 +969,13 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         // Check policy (automatic)
         CGImageRef cgImage = image.CGImage;
         if (cgImage) {
-            CFStringRef uttype = CGImageGetUTType(cgImage);
-            if (uttype) {
-                // Only ImageIO can set `com.apple.ImageIO.imageSourceTypeIdentifier`
+            // Check if it's lazy CGImage wrapper or not
+            BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:cgImage];
+            if (isLazy) {
+                // Lazy CGImage should trigger force decode before rendering
                 return YES;
             } else {
-                // Now, let's check if the CGImage is hardware supported (not byte-aligned will cause extra copy)
+                // Now, let's check if this non-lazy CGImage is hardware supported (not byte-aligned will cause extra copy)
                 BOOL isSupported = [SDImageCoderHelper CGImageIsHardwareSupported:cgImage];
                 return !isSupported;
             }
