@@ -1,3 +1,12 @@
+## [5.19.6 - Thumbnail performance, on Sep 7th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.6)
+See [all tickets marked for the 5.19.5 release](https://github.com/SDWebImage/SDWebImage/milestone/138)
+
+### Performance
+- Use the better way to detect lazy/non-lazy CGImage. Only do force decoding for lazy image (avoid thumbnail image been decoded twice) #3736
+
+### Fixes
+- Remove the unused code for iOS 10 polyfill #3735
+
 ## [5.19.5 - Swift 6 Compatible, on Jul 24th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.5)
 See [all tickets marked for the 5.19.5 release](https://github.com/SDWebImage/SDWebImage/milestone/137)
 
