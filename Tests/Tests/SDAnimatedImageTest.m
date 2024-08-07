@@ -352,13 +352,19 @@ static BOOL _isCalled;
 - (void)test24AnimatedImageViewCategoryDiskCache {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category disk cache"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
-    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
+    NSURL *testURL = [NSURL URLWithString:@"https://foobar.non-exists.org/bizbuz.gif"];
+    NSString *testKey = testURL.absoluteString;
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testKey];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:testKey];
+    NSData *imageData = [self testGIFData];
+    [SDImageCache.sharedImageCache storeImageDataToDisk:imageData forKey:testKey];
     [imageView sd_setImageWithURL:testURL placeholderImage:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
         expect(cacheType).equal(SDImageCacheTypeDisk);
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
+        [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testKey];
+        [SDImageCache.sharedImageCache removeImageFromDiskForKey:testKey];
         [expectation fulfill];
     }];
     [self waitForExpectationsWithCommonTimeout];

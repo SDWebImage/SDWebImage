@@ -123,11 +123,7 @@
 #endif
     expect(format.scale).equal(screenScale);
     expect(format.opaque).beFalsy();
-#if SD_UIKIT
     expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeAutomatic);
-#elif SD_MAC
-    expect(format.preferredRange).equal(SDGraphicsImageRendererFormatRangeStandard);
-#endif
     CGSize size = CGSizeMake(100, 100);
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:size format:format];
 #if SD_MAC
