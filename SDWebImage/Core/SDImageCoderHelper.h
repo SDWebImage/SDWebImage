@@ -108,6 +108,12 @@ typedef struct SDImagePixelFormat {
 + (BOOL)CGImageContainsAlpha:(_Nonnull CGImageRef)cgImage;
 
 /**
+ Detect whether the CGImage is lazy and not-yet decoded. (lazy means, only when the caller access the underlying bitmap buffer via provider like `CGDataProviderCopyData` or `CGDataProviderRetainBytePtr`, the decoder will allocate memory, it's a lazy allocation)
+ The implementation use the Core Graphics internal to check whether the CGImage is `CGImageProvider` based, or `CGDataProvider` based. The `CGDataProvider` based is treated as non-lazy.
+ */
++ (BOOL)CGImageIsLazy:(_Nonnull CGImageRef)cgImage;
+
+/**
  Create a decoded CGImage by the provided CGImage. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
  @note This actually call `CGImageCreateDecoded:orientation:` with the Up orientation.
