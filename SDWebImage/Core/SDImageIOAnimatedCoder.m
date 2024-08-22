@@ -27,8 +27,6 @@ static CGImageSourceRef (*SDCGImageGetImageSource)(CGImageRef);
 
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
-// Avoid ImageIO translate JFIF orientation to EXIF orientation which cause bug because returned CGImage already apply the orientation transform
-static NSString * kSDCGImageSourceSkipMetadata = @"kCGImageSourceSkipMetadata";
 
 // This strip the un-wanted CGImageProperty, like the internal CGImageSourceRef in iOS 15+
 // However, CGImageCreateCopy still keep those CGImageProperty, not suit for our use case
@@ -440,12 +438,13 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         }
     }
     // Parse the image properties
-    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, (__bridge CFDictionaryRef)@{kSDCGImageSourceSkipMetadata : @(YES)});
+    NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, index, NULL);
     CGFloat pixelWidth = [properties[(__bridge NSString *)kCGImagePropertyPixelWidth] doubleValue];
     CGFloat pixelHeight = [properties[(__bridge NSString *)kCGImagePropertyPixelHeight] doubleValue];
-    CGImagePropertyOrientation exifOrientation = (CGImagePropertyOrientation)[properties[(__bridge NSString *)kCGImagePropertyOrientation] unsignedIntegerValue];
-    if (!exifOrientation) {
-        exifOrientation = kCGImagePropertyOrientationUp;
+    CGImagePropertyOrientation exifOrientation = kCGImagePropertyOrientationUp;
+    NSNumber *exifOrientationValue = properties[(__bridge NSString *)kCGImagePropertyOrientation];
+    if (exifOrientationValue != NULL) {
+        exifOrientation = [exifOrientationValue unsignedIntValue];
     }
 
     NSMutableDictionary *decodingOptions;

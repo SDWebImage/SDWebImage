@@ -547,15 +547,23 @@
 }
 
 - (void)test29ThatJFIFDecodeOrientationShouldNotApplyTwice {
+    // I don't think this is SDWebImage's issue, it's Apple's ImgeIO Bug, but user complain about this: #3594
+    // In W3C standard, JFIF should always be orientation up, and should not contains EXIF orientation
+    // But some bad image editing tool will generate this kind of image :(
     NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestJFIF" withExtension:@"jpg"];
     NSData *data = [NSData dataWithContentsOfURL:url];
     
     UIImage *image = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
+    expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
 #if SD_UIKIT
     UIImageOrientation orientation = image.imageOrientation;
-    expect(orientation).equal(UIImageOrientationUp);
-#else
-    expect(image.sd_imageFormat).equal(SDImageFormatJPEG);
+    expect(orientation).equal(UIImageOrientationDown);
+#endif
+    
+    UIImage *systemImage = [[UIImage alloc] initWithData:data];
+#if SD_UIKIT
+    orientation = image.imageOrientation;
+    expect(orientation).equal(UIImageOrientationDown);
 #endif
     
     // Manual test again for Apple's API
