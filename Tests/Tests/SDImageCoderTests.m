@@ -566,6 +566,19 @@
     expect(orientation).equal(UIImageOrientationDown);
 #endif
     
+    // Check bitmap color equal, between our usage of ImageIO decoder and Apple system inernal
+    // So, this means, even Apple has bugs, we have bugs too :)
+    UIColor *testColor1 = [image sd_colorAtPoint:CGPointMake(1, 1)];
+    UIColor *testColor2 = [systemImage sd_colorAtPoint:CGPointMake(1, 1)];
+    CGFloat r1, g1, b1, a1;
+    CGFloat r2, g2, b2, a2;
+    [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    [testColor2 getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
+    expect(r1).beCloseToWithin(r2, 0.01);
+    expect(g1).beCloseToWithin(g2, 0.01);
+    expect(b1).beCloseToWithin(b2, 0.01);
+    expect(a1).beCloseToWithin(a2, 0.01);
+    
     // Manual test again for Apple's API
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, nil);
     NSDictionary *properties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(source, 0, nil);

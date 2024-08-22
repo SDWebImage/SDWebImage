@@ -714,6 +714,27 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
 }
  */
 
+- (void)test49DiskCacheKeyForInvalidURL {
+    NSURL *url1 = [NSURL URLWithString:@"http://e.hiphotos.baidu.com/image/pic/item/a1ec08fa513d2697e542494057fbb2fb4316d81e.jpg00%00"];
+    expect([url1.pathExtension hasSuffix:@"\0"]).beTruthy(); // Test Foundation API behavior here
+    expect(url1).notTo.beNil();
+    NSString *key1 = [SDWebImageManager.sharedManager cacheKeyForURL:url1];
+    expect(key1).notTo.beNil();
+    NSString *path1 = [SDImageCache.sharedImageCache.diskCache cachePathForKey:key1];
+    NSString *ext1 = path1.pathExtension;
+    expect(ext1).equal(@"jpg00");
+    
+    NSURL *url2 = [NSURL URLWithString:@"https://maps.googleapis.com/maps/api/staticmap?center=48.8566,2.3522&format=png&maptype=roadmap&scale=2&size=375x200&zoom=15"];
+    expect(url2.pathExtension.length).equal(0); // Test Foundation API behavior here
+    expect(url2).notTo.beNil();
+    NSString *key2 = [SDWebImageManager.sharedManager cacheKeyForURL:url2];
+    expect(key2).notTo.beNil();
+    NSString *path2 = [SDImageCache.sharedImageCache.diskCache cachePathForKey:key2];
+    expect(path2).notTo.beNil();
+    NSString *ext2 = path2.pathExtension;
+    expect(ext2).equal(@"");
+}
+
 #pragma mark - SDImageCache & SDImageCachesManager
 - (void)test49SDImageCacheQueryOp {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SDImageCache query op works"];
