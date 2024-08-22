@@ -64,6 +64,11 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
 - (NSData *)dataForKey:(NSString *)key {
     NSParameterAssert(key);
     NSString *filePath = [self cachePathForKey:key];
+    // if filePath is nil or (null)，framework will crash with this：
+    // Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[_NSPlaceholderData initWithContentsOfFile:options:maxLength:error:]: nil file argument'
+    if (filePath == nil || [@"(null)" isEqualToString: filePath]) {
+        return nil;
+    }
     NSData *data = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
         return data;
