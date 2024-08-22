@@ -3,5 +3,6 @@
 	"5.19.3": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.3/SDWebImage-dynamic.xcframework.zip",
     "5.19.4": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.4/SDWebImage-dynamic.xcframework.zip",
     "5.19.5": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.5/SDWebImage-dynamic.xcframework.zip",
-    "5.19.6": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.6/SDWebImage-dynamic.xcframework.zip"
+    "5.19.6": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.6/SDWebImage-dynamic.xcframework.zip",
+    "5.19.7": "https://github.com/SDWebImage/SDWebImage/releases/download/5.19.7/SDWebImage-dynamic.xcframework.zip"
 }

@@ -1,3 +1,11 @@
+## [5.19.7 - 5.19 fix, on Sep 22th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.7)
+See [all tickets marked for the 5.19.7 release](https://github.com/SDWebImage/SDWebImage/milestone/139)
+
+### Fixes
+- Fix the thumbnail decoding on JPEG which contains EXIF orientation, use the new way to workaround JFIF bug #3743
+- Fix the crash when some special urls cause the cache path return nil and crash #3740
+- Fix the issue that some URL which has percent-encoding with \0 will cause nil cache path #3744
+
 ## [5.19.6 - Thumbnail performance, on Sep 7th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.6)
 See [all tickets marked for the 5.19.5 release](https://github.com/SDWebImage/SDWebImage/milestone/138)
 
