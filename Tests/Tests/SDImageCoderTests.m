@@ -562,12 +562,12 @@
     
     UIImage *systemImage = [[UIImage alloc] initWithData:data];
 #if SD_UIKIT
-    orientation = image.imageOrientation;
+    orientation = systemImage.imageOrientation;
     expect(orientation).equal(UIImageOrientationDown);
 #endif
     
-    // Check bitmap color equal, between our usage of ImageIO decoder and Apple system inernal
-    // So, this means, even Apple has bugs, we have bugs too :)
+    // Check bitmap color equal, between our usage of ImageIO decoder and Apple system API behavior
+    // So, this means, if Apple has bugs, we have bugs too, it's not our fault :)
     UIColor *testColor1 = [image sd_colorAtPoint:CGPointMake(1, 1)];
     UIColor *testColor2 = [systemImage sd_colorAtPoint:CGPointMake(1, 1)];
     CGFloat r1, g1, b1, a1;
