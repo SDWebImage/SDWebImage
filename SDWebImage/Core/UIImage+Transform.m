@@ -566,7 +566,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
     CGFloat scale = self.scale;
     
     // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
-    CGBlendMode blendMode = kCGBlendModeSourceAtop;
+    CGBlendMode blendMode = kCGBlendModeSourceIn;
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = scale;
