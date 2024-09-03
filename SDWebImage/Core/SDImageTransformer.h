@@ -223,11 +223,14 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
  The tint color.
  */
 @property (nonatomic, strong, readonly, nonnull) UIColor *tintColor;
+/// The blend mode, defaults to `sourceAtop` if you use the old initializer
+@property (nonatomic, assign, readonly) CGBlendMode blendMode;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
 + (nonnull instancetype)new  NS_UNAVAILABLE;
 
 + (nonnull instancetype)transformerWithColor:(nonnull UIColor *)tintColor;
++ (nonnull instancetype)transformerWithColor:(nonnull UIColor *)tintColor blendMode:(CGBlendMode)blendMode;
 
 @end
 

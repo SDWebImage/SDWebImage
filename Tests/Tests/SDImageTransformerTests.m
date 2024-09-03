@@ -242,6 +242,10 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
+    
+    UIImage *tintedSourceInImage = [testImage sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceOut];
+    centerColor = [tintedSourceInImage sd_colorAtPoint:CGPointMake(150, 150)];
+    expect([centerColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }
 
 - (void)test07UIImageTransformBlurCG {
@@ -353,7 +357,7 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
                       @"SDImageRoundCornerTransformer(50.000000,18446744073709551615,1.000000,#ff000000)",
                       @"SDImageFlippingTransformer(1,1)",
                       @"SDImageCroppingTransformer({0.000000,0.000000,50.000000,50.000000})",
-                      @"SDImageTintTransformer(#00000000)",
+                      @"SDImageTintTransformer(#00000000,20)",
                       @"SDImageBlurTransformer(5.000000)",
                       @"SDImageFilterTransformer(CIColorInvert)"
                       ];
