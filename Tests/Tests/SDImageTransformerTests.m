@@ -243,7 +243,7 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
     UIColor *topCenterColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
     
-    UIImage *tintedSourceInImage = [testImage sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceOut];
+    UIImage *tintedSourceInImage = [testImage sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceIn];
     centerColor = [tintedSourceInImage sd_colorAtPoint:CGPointMake(150, 150)];
     expect([centerColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
 }

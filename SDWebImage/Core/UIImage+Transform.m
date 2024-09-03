@@ -659,7 +659,9 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
                 } else {
                     clearColor = [[CIColor alloc] initWithColor:UIColor.clearColor];
                 }
-                ciImage = [CIImage imageWithColor:clearColor];
+                colorImage = [CIImage imageWithColor:clearColor];
+                colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
+                ciImage = colorImage;
             } else if (blendMode == kCGBlendModeCopy) {
                 // R = S
                 ciImage = colorImage;
@@ -675,12 +677,14 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
             } else if (blendMode == kCGBlendModePlusDarker) {
                 // R = MAX(0, (1 - D) + (1 - S))
                 // (1 - D)
-                CIFilter *filter1 = [CIFilter filterWithName:@"CIColorInvert"];
+                CIFilter *filter1 = [CIFilter filterWithName:@"CIColorControls"];
                 [filter1 setValue:ciImage forKey:kCIInputImageKey];
+                [filter1 setValue:@(-0.5) forKey:kCIInputBrightnessKey];
                 ciImage = filter1.outputImage;
                 // (1 - S)
-                CIFilter *filter2 = [CIFilter filterWithName:@"CIColorInvert"];
+                CIFilter *filter2 = [CIFilter filterWithName:@"CIColorControls"];
                 [filter2 setValue:colorImage forKey:kCIInputImageKey];
+                [filter2 setValue:@(-0.5) forKey:kCIInputBrightnessKey];
                 colorImage = filter2.outputImage;
                 // +
                 CIFilter *filter = [CIFilter filterWithName:@"CIAdditionCompositing"];
