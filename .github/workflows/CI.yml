@@ -18,6 +18,14 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_15.2.app
     steps:
+      # https://github.com/actions/runner-images/issues/10559
+      - name: Download visionOS SDK
+        run: |
+            sudo xcodebuild -runFirstLaunch
+            sudo xcrun simctl list
+            sudo xcodebuild -downloadPlatform visionOS
+            sudo xcodebuild -runFirstLaunch
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -52,6 +60,14 @@ jobs:
       watchOSDestination: platform=watchOS Simulator,name=Apple Watch Ultra (49mm)
       visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
     steps:
+      # https://github.com/actions/runner-images/issues/10559
+      - name: Download visionOS SDK
+        run: |
+            sudo xcodebuild -runFirstLaunch
+            sudo xcrun simctl list
+            sudo xcodebuild -downloadPlatform visionOS
+            sudo xcodebuild -runFirstLaunch
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -122,6 +138,14 @@ jobs:
             scheme: Vision
             flag: visionos
     steps:
+      # https://github.com/actions/runner-images/issues/10559
+      - name: Download visionOS SDK
+        run: |
+            sudo xcodebuild -runFirstLaunch
+            sudo xcrun simctl list
+            sudo xcodebuild -downloadPlatform visionOS
+            sudo xcodebuild -runFirstLaunch
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -166,6 +190,14 @@ jobs:
       PROJECT_NAME: SDWebImage.xcodeproj
       SCHEME_NAME: SDWebImage
     steps:
+      # https://github.com/actions/runner-images/issues/10559
+      - name: Download visionOS SDK
+        run: |
+            sudo xcodebuild -runFirstLaunch
+            sudo xcrun simctl list
+            sudo xcodebuild -downloadPlatform visionOS
+            sudo xcodebuild -runFirstLaunch
+            
       - name: Checkout
         uses: actions/checkout@v3
 
