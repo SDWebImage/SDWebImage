@@ -91,7 +91,7 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
 - (void)removeExpiredData {
     NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.config.maxDiskAge];
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.cachePath isDirectory:YES];
-    NSArray<NSString *> *resourceKeys = @[NSURLIsDirectoryKey, NSURLAttributeModificationDateKey];
+    NSArray<NSString *> *resourceKeys = @[NSURLIsDirectoryKey, NSURLAttributeContentAccessDateKey];
     NSDirectoryEnumerator<NSURL *> *fileEnumerator = [self.fileManager enumeratorAtURL:diskCacheURL
                                                    includingPropertiesForKeys:resourceKeys
                                                                       options:NSDirectoryEnumerationSkipsHiddenFiles
@@ -108,8 +108,8 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
             }
             
             // Remove files that are older than the expiration date;
-            NSDate *modifiedDate = resourceValues[NSURLAttributeModificationDateKey];
-            if (expirationDate && [[modifiedDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
+            NSDate *accessDate = resourceValues[NSURLAttributeContentAccessDateKey];
+            if (expirationDate && [[accessDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
                 [self.fileManager removeItemAtURL:fileURL error:nil];
             }
         }

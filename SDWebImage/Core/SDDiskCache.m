@@ -152,11 +152,8 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
     
     // Compute content date key to be used for tests
-    NSURLResourceKey cacheContentDateKey = NSURLContentModificationDateKey;
+    NSURLResourceKey cacheContentDateKey;
     switch (self.config.diskCacheExpireType) {
-        case SDImageCacheConfigExpireTypeAccessDate:
-            cacheContentDateKey = NSURLContentAccessDateKey;
-            break;
         case SDImageCacheConfigExpireTypeModificationDate:
             cacheContentDateKey = NSURLContentModificationDateKey;
             break;
@@ -166,7 +163,9 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         case SDImageCacheConfigExpireTypeChangeDate:
             cacheContentDateKey = NSURLAttributeModificationDateKey;
             break;
+        case SDImageCacheConfigExpireTypeAccessDate:
         default:
+            cacheContentDateKey = NSURLContentAccessDateKey;
             break;
     }
     
