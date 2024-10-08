@@ -23,14 +23,6 @@ jobs:
           - linkage: static
             MACH_O_TYPE: staticlib
     steps:
-      # https://github.com/actions/runner-images/issues/10559
-      - name: Download visionOS SDK
-        run: |
-            sudo xcodebuild -runFirstLaunch
-            sudo xcrun simctl list
-            sudo xcodebuild -downloadPlatform visionOS
-            sudo xcodebuild -runFirstLaunch
-            
       - name: Checkout
         uses: actions/checkout@v3
 
