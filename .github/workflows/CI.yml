@@ -14,9 +14,9 @@ permissions:
 jobs:
   Lint:
     name: Cocoapods Lint
-    runs-on: macos-14
+    runs-on: macos-15
     env:
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,16 +40,16 @@ jobs:
           
   Demo:
     name: Cocoapods Demo
-    runs-on: macos-14
+    runs-on: macos-15
     env:
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      iosDestination: platform=iOS Simulator,name=iPhone 15 Pro
+      iosDestination: platform=iOS Simulator,name=iPhone 16 Pro
       macOSDestination: platform=macOS,arch=x86_64
       macCatalystDestination: platform=macOS,arch=x86_64,variant=Mac Catalyst
       tvOSDestination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
-      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Ultra (49mm)
+      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Ultra 2 (49mm)
       visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
     steps:
       - name: Checkout
@@ -94,9 +94,9 @@ jobs:
 
   Test:
     name: Unit Test
-    runs-on: macos-14
+    runs-on: macos-15
     env:
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     # use matrix to generate jobs for each platform
@@ -106,7 +106,7 @@ jobs:
         platform: [iOS, macOS, tvOS, visionOS]
         include:
           - platform: iOS
-            destination: platform=iOS Simulator,name=iPhone 15 Pro
+            destination: platform=iOS Simulator,name=iPhone 16 Pro
             scheme: iOS
             flag: ios
           - platform: macOS
@@ -160,9 +160,9 @@ jobs:
           
   Build:
     name: Build Library
-    runs-on: macos-14
+    runs-on: macos-15
     env:
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app
       PROJECT_NAME: SDWebImage.xcodeproj
       SCHEME_NAME: SDWebImage
     steps:

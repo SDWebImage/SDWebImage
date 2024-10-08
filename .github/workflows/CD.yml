@@ -9,10 +9,10 @@ on:
 jobs:
   Release:
     name: Release XCFramework
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       CODESIGN_KEY_BASE64: "${{ secrets.CODESIGN_KEY_BASE64 }}"
-      DEVELOPER_DIR: /Applications/Xcode_15.2.app
+      DEVELOPER_DIR: /Applications/Xcode_16.0.app
     strategy:
       fail-fast: true
       matrix:
