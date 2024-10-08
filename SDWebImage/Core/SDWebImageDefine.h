@@ -304,12 +304,20 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageS
 /**
  A Boolean value indicating whether to keep the original aspect ratio when generating thumbnail images (or bitmap images from vector format).
  Defaults to YES. (NSNumber)
+ @deprecated This was deprecated after 5.19.0 and translate into `SDWebImageContextImageScaleMode`. `YES` translate to `.aspectFit` and `NO` translate to `.fill`. If you need the `.aspectFill` use the new options instead.
  */
-FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImagePreserveAspectRatio;
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImagePreserveAspectRatio  API_DEPRECATED("Use SDWebImageContextImageScaleMode instead", macos(10.10, 10.10), ios(8.0, 8.0), tvos(9.0, 9.0), watchos(2.0, 2.0));
 
 /**
- A CGSize raw value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.imagePreserveAspectRatio`) the value size.
- @note When you pass `.preserveAspectRatio == NO`, the thumbnail image is stretched to match each dimension. When `.preserveAspectRatio == YES`, the thumbnail image's width is limited to pixel size's width, the thumbnail image's height is limited to pixel size's height. For common cases, you can just pass a square size to limit both.
+ A `SDImageScale` value (NSNumber) indicating the scale mode during thumbnail decoding. The scaled size will use the `
+ Defaults to `.aspectFit`.
+ @note works for `SDImageCoder`, `SDProgressiveImageCoder`, `SDAnimatedImageCoder`.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageScaleMode;
+
+/**
+ A CGSize raw value indicating whether or not to generate the thumbnail images (or bitmap images from vector format). When this value is provided, the decoder will generate a thumbnail image which pixel size is smaller than or equal to (depends the `.imageScaleMode`) the value size.
+ @note When you pass `.aspectFit` or `.aspectFill`, the thumbnail image is stretched to match each dimension. When `.fill`, the thumbnail image's width is limited to pixel size's width, the thumbnail image's height is limited to pixel size's height. Note in `.aspectFill` the image size may be larger than pixel size.
  Defaults to CGSizeZero, which means no thumbnail generation at all. (NSValue)
  @note When this value is used, we will trigger thumbnail decoding for url, and the callback's data **will be nil** (because this time the data saved to disk does not match the image return to you. If you need full size data, query the cache with full size url key)
  */

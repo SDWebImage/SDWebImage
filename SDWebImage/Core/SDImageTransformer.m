@@ -38,8 +38,8 @@ NSString * _Nullable SDTransformedKeyForKey(NSString * _Nullable key, NSString *
     }
 }
 
-NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, BOOL preserveAspectRatio) {
-    NSString *thumbnailKey = [NSString stringWithFormat:@"Thumbnail({%f,%f},%d)", thumbnailPixelSize.width, thumbnailPixelSize.height, preserveAspectRatio];
+NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thumbnailPixelSize, SDImageScaleMode scaleMode) {
+    NSString *thumbnailKey = [NSString stringWithFormat:@"Thumbnail({%f,%f},%d)", thumbnailPixelSize.width, thumbnailPixelSize.height, (unsigned int)scaleMode];
     return SDTransformedKeyForKey(key, thumbnailKey);
 }
 

@@ -25,8 +25,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGImageSourceRef _imageSource;
     CGFloat _scale;
     BOOL _finished;
-    BOOL _preserveAspectRatio;
     CGSize _thumbnailSize;
+    SDImageScaleMode _scaleMode;
     BOOL _lazyDecode;
 }
 
@@ -57,7 +57,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 }
 
 #pragma mark - Bitmap PDF representation
-+ (UIImage *)createBitmapPDFWithData:(nonnull NSData *)data pageNumber:(NSUInteger)pageNumber targetSize:(CGSize)targetSize preserveAspectRatio:(BOOL)preserveAspectRatio {
++ (UIImage *)createBitmapPDFWithData:(nonnull NSData *)data pageNumber:(NSUInteger)pageNumber targetSize:(CGSize)targetSize scaleMode:(SDImageScaleMode)scaleMode {
     NSParameterAssert(data);
     UIImage *image;
     
@@ -87,8 +87,22 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     
     CGFloat xRatio = targetRect.size.width / rect.size.width;
     CGFloat yRatio = targetRect.size.height / rect.size.height;
-    CGFloat xScale = preserveAspectRatio ? MIN(xRatio, yRatio) : xRatio;
-    CGFloat yScale = preserveAspectRatio ? MIN(xRatio, yRatio) : yRatio;
+    // Calculate the actual transform
+    CGFloat xScale, yScale;
+    BOOL preserveAspectRatio;
+    if (scaleMode == SDImageScaleModeAspectFit) {
+        preserveAspectRatio = YES;
+        xScale = MIN(xRatio, yRatio);
+        yScale = MIN(xRatio, yRatio);
+    } else if (scaleMode == SDImageScaleModeAspectFill) {
+        preserveAspectRatio = YES;
+        xScale = MAX(xRatio, yRatio);
+        yScale = MAX(xRatio, yRatio);
+    } else {
+        preserveAspectRatio = NO;
+        xScale = xRatio;
+        yScale = yRatio;
+    }
     
     // `CGPDFPageGetDrawingTransform` will only scale down, but not scale up, so we need calculate the actual scale again
     CGRect drawRect = CGRectMake( 0, 0, targetRect.size.width / xScale, targetRect.size.height / yScale);
@@ -142,11 +156,19 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
 #endif
     }
     
-    BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
     NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
     if (preserveAspectRatioValue != nil) {
-        preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+        scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
     }
+    NSNumber *scaleModeValue = options[SDImageCoderDecodeScaleMode];
+    if (scaleModeValue != nil) {
+        scaleMode = scaleModeValue.unsignedIntegerValue;
+    }
+#pragma clang diagnostic pop
     
     // Check vector format
     if ([NSData sd_imageFormatForImageData:data] == SDImageFormatPDF) {
@@ -168,7 +190,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             }
         }
 #endif
-        image = [self.class createBitmapPDFWithData:data pageNumber:pageNumber targetSize:thumbnailSize preserveAspectRatio:preserveAspectRatio];
+        image = [self.class createBitmapPDFWithData:data pageNumber:pageNumber targetSize:thumbnailSize scaleMode:scaleMode];
         image.sd_imageFormat = SDImageFormatPDF;
         return image;
     }
@@ -211,7 +233,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CFStringRef uttype = CGImageSourceGetType(source);
     SDImageFormat imageFormat = [NSData sd_imageFormatFromUTType:uttype];
     
-    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale thumbnailSize:thumbnailSize scaleMode:scaleMode lazyDecode:lazyDecode animatedImage:NO];
     CFRelease(source);
     
     image.sd_imageFormat = imageFormat;
@@ -244,12 +266,20 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     #endif
         }
         _thumbnailSize = thumbnailSize;
-        BOOL preserveAspectRatio = YES;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        SDImageScaleMode scaleMode = SDImageScaleModeAspectFit;
         NSNumber *preserveAspectRatioValue = options[SDImageCoderDecodePreserveAspectRatio];
         if (preserveAspectRatioValue != nil) {
-            preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            BOOL preserveAspectRatio = preserveAspectRatioValue.boolValue;
+            scaleMode = preserveAspectRatio ? SDImageScaleModeAspectFit : SDImageScaleModeFill;
         }
-        _preserveAspectRatio = preserveAspectRatio;
+        NSNumber *scaleModeValue = options[SDImageCoderDecodeScaleMode];
+        if (scaleModeValue != nil) {
+            scaleMode = scaleModeValue.unsignedIntegerValue;
+        }
+#pragma clang diagnostic pop
+        _scaleMode = scaleMode;
         BOOL lazyDecode = YES; // Defaults YES for static image coder
         NSNumber *lazyDecodeValue = options[SDImageCoderDecodeUseLazyDecoding];
         if (lazyDecodeValue != nil) {
@@ -306,7 +336,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale thumbnailSize:_thumbnailSize scaleMode:_scaleMode lazyDecode:_lazyDecode animatedImage:NO];
         if (image) {
             CFStringRef uttype = CGImageSourceGetType(_imageSource);
             image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];

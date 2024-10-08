@@ -11,6 +11,7 @@
 SDImageCoderOption const SDImageCoderDecodeFirstFrameOnly = @"decodeFirstFrameOnly";
 SDImageCoderOption const SDImageCoderDecodeScaleFactor = @"decodeScaleFactor";
 SDImageCoderOption const SDImageCoderDecodePreserveAspectRatio = @"decodePreserveAspectRatio";
+SDImageCoderOption const SDImageCoderDecodeScaleMode = @"decodeScaleMode";
 SDImageCoderOption const SDImageCoderDecodeThumbnailPixelSize = @"decodeThumbnailPixelSize";
 SDImageCoderOption const SDImageCoderDecodeFileExtensionHint = @"decodeFileExtensionHint";
 SDImageCoderOption const SDImageCoderDecodeTypeIdentifierHint = @"decodeTypeIdentifierHint";
