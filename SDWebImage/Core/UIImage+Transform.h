@@ -98,7 +98,8 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 #pragma mark - Image Blending
 
 /**
- Return a tinted image with the given color. This actually use `sourceAtop` blend mode.
+ Return a tinted image with the given color. This actually use `sourceIn` blend mode.
+ @note Before 5.20, this API actually use `sourceAtop` and cause naming confusing. After 5.20, we match UIKit's behavior using `sourceIn`.
  
  @param tintColor  The tint color.
  @return The new image with the tint color.
@@ -107,7 +108,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
 
 /**
  Return a tinted image with the given color and blend mode.
- @note The blend mode treat `self` as background image (destination), treat `tintColor` as input image (source). So mostly you need `source` variant blend mode (use `sourceAtop` not `destinationAtop`).
+ @note The blend mode treat `self` as background image (destination), treat `tintColor` as input image (source). So mostly you need `source` variant blend mode (use `sourceIn` not `destinationIn`), which is different from UIKit's `+[UIImage imageWithTintColor:]`.
  
  @param tintColor  The tint color.
  @param blendMode The blend mode.

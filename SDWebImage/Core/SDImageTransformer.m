@@ -252,7 +252,7 @@ NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thu
 @implementation SDImageTintTransformer
 
 + (instancetype)transformerWithColor:(UIColor *)tintColor {
-    return [self transformerWithColor:tintColor blendMode:kCGBlendModeSourceAtop];
+    return [self transformerWithColor:tintColor blendMode:kCGBlendModeSourceIn];
 }
 
 + (instancetype)transformerWithColor:(UIColor *)tintColor blendMode:(CGBlendMode)blendMode {

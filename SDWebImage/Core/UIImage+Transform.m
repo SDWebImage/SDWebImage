@@ -627,7 +627,7 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
 }
 
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
-    return [self sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceAtop];
+    return [self sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceIn];
 }
 
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor blendMode:(CGBlendMode)blendMode {
@@ -694,7 +694,7 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
                 // MAX
                 ciImage = [ciImage imageByApplyingFilter:@"CIColorClamp" withInputParameters:nil];
             } else {
-                SD_LOG("UIImage+Transform error: Unsupported blend mode: %zu", blendMode);
+                SD_LOG("UIImage+Transform error: Unsupported blend mode: %d", blendMode);
                 ciImage = nil;
             }
         }
