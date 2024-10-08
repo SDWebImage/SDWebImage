@@ -536,37 +536,183 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
 
 #pragma mark - Image Blending
 
+static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode) {
+    // CGBlendMode: https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-CJBIJEFG
+    // CIFilter: https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP30000136-SW71
+    NSString *filterName;
+    switch (blendMode) {
+        case kCGBlendModeMultiply:
+            filterName = @"CIMultiplyBlendMode";
+            break;
+        case kCGBlendModeScreen:
+            filterName = @"CIScreenBlendMode";
+            break;
+        case kCGBlendModeOverlay:
+            filterName = @"CIOverlayBlendMode";
+            break;
+        case kCGBlendModeDarken:
+            filterName = @"CIDarkenBlendMode";
+            break;
+        case kCGBlendModeLighten:
+            filterName = @"CILightenBlendMode";
+            break;
+        case kCGBlendModeColorDodge:
+            filterName = @"CIColorDodgeBlendMode";
+            break;
+        case kCGBlendModeColorBurn:
+            filterName = @"CIColorBurnBlendMode";
+            break;
+        case kCGBlendModeSoftLight:
+            filterName = @"CISoftLightBlendMode";
+            break;
+        case kCGBlendModeHardLight:
+            filterName = @"CIHardLightBlendMode";
+            break;
+        case kCGBlendModeDifference:
+            filterName = @"CIDifferenceBlendMode";
+            break;
+        case kCGBlendModeExclusion:
+            filterName = @"CIExclusionBlendMode";
+            break;
+        case kCGBlendModeHue:
+            filterName = @"CIHueBlendMode";
+            break;
+        case kCGBlendModeSaturation:
+            filterName = @"CISaturationBlendMode";
+            break;
+        case kCGBlendModeColor:
+            // Color blend mode uses the luminance values of the background with the hue and saturation values of the source image.
+            filterName = @"CIColorBlendMode";
+            break;
+        case kCGBlendModeLuminosity:
+            filterName = @"CILuminosityBlendMode";
+            break;
+            
+        // macOS 10.5+
+        case kCGBlendModeSourceAtop:
+        case kCGBlendModeDestinationAtop:
+            filterName = @"CISourceAtopCompositing";
+            break;
+        case kCGBlendModeSourceIn:
+        case kCGBlendModeDestinationIn:
+            filterName = @"CISourceInCompositing";
+            break;
+        case kCGBlendModeSourceOut:
+        case kCGBlendModeDestinationOut:
+            filterName = @"CISourceOutCompositing";
+            break;
+        case kCGBlendModeNormal: // SourceOver
+        case kCGBlendModeDestinationOver:
+            filterName = @"CISourceOverCompositing";
+            break;
+        
+        // need special handling
+        case kCGBlendModeClear:
+            // use clear color instead
+            break;
+        case kCGBlendModeCopy:
+            // use input color instead
+            break;
+        case kCGBlendModeXOR:
+            // unsupported
+            break;
+        case kCGBlendModePlusDarker:
+            // chain filters
+            break;
+        case kCGBlendModePlusLighter:
+            // chain filters
+            break;
+    }
+    return filterName;
+}
+
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
+    return [self sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceIn];
+}
+
+- (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor blendMode:(CGBlendMode)blendMode {
     BOOL hasTint = CGColorGetAlpha(tintColor.CGColor) > __FLT_EPSILON__;
     if (!hasTint) {
         return self;
     }
     
+    // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
 #if SD_UIKIT || SD_MAC
     // CIImage shortcut
-    if (self.CIImage) {
-        CIImage *ciImage = self.CIImage;
+    CIImage *ciImage = self.CIImage;
+    if (ciImage) {
         CIImage *colorImage = [CIImage imageWithColor:[[CIColor alloc] initWithColor:tintColor]];
         colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
-        CIFilter *filter = [CIFilter filterWithName:@"CISourceAtopCompositing"];
-        [filter setValue:colorImage forKey:kCIInputImageKey];
-        [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
-        ciImage = filter.outputImage;
+        NSString *filterName = SDGetCIFilterNameFromBlendMode(blendMode);
+        // Some blend mode is not nativelly supported
+        if (filterName) {
+            CIFilter *filter = [CIFilter filterWithName:filterName];
+            [filter setValue:colorImage forKey:kCIInputImageKey];
+            [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
+            ciImage = filter.outputImage;
+        } else {
+            if (blendMode == kCGBlendModeClear) {
+                // R = 0
+                CIColor *clearColor;
+                if (@available(iOS 10.0, macOS 10.12, tvOS 10.0, *)) {
+                    clearColor = CIColor.clearColor;
+                } else {
+                    clearColor = [[CIColor alloc] initWithColor:UIColor.clearColor];
+                }
+                colorImage = [CIImage imageWithColor:clearColor];
+                colorImage = [colorImage imageByCroppingToRect:ciImage.extent];
+                ciImage = colorImage;
+            } else if (blendMode == kCGBlendModeCopy) {
+                // R = S
+                ciImage = colorImage;
+            } else if (blendMode == kCGBlendModePlusLighter) {
+                // R = MIN(1, S + D)
+                // S + D
+                CIFilter *filter = [CIFilter filterWithName:@"CIAdditionCompositing"];
+                [filter setValue:colorImage forKey:kCIInputImageKey];
+                [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
+                ciImage = filter.outputImage;
+                // MIN
+                ciImage = [ciImage imageByApplyingFilter:@"CIColorClamp" withInputParameters:nil];
+            } else if (blendMode == kCGBlendModePlusDarker) {
+                // R = MAX(0, (1 - D) + (1 - S))
+                // (1 - D)
+                CIFilter *filter1 = [CIFilter filterWithName:@"CIColorControls"];
+                [filter1 setValue:ciImage forKey:kCIInputImageKey];
+                [filter1 setValue:@(-0.5) forKey:kCIInputBrightnessKey];
+                ciImage = filter1.outputImage;
+                // (1 - S)
+                CIFilter *filter2 = [CIFilter filterWithName:@"CIColorControls"];
+                [filter2 setValue:colorImage forKey:kCIInputImageKey];
+                [filter2 setValue:@(-0.5) forKey:kCIInputBrightnessKey];
+                colorImage = filter2.outputImage;
+                // +
+                CIFilter *filter = [CIFilter filterWithName:@"CIAdditionCompositing"];
+                [filter setValue:colorImage forKey:kCIInputImageKey];
+                [filter setValue:ciImage forKey:kCIInputBackgroundImageKey];
+                ciImage = filter.outputImage;
+                // MAX
+                ciImage = [ciImage imageByApplyingFilter:@"CIColorClamp" withInputParameters:nil];
+            } else {
+                SD_LOG("UIImage+Transform error: Unsupported blend mode: %d", blendMode);
+                ciImage = nil;
+            }
+        }
+        
+        if (ciImage) {
 #if SD_UIKIT
         UIImage *image = [UIImage imageWithCIImage:ciImage scale:self.scale orientation:self.imageOrientation];
 #else
         UIImage *image = [[UIImage alloc] initWithCIImage:ciImage scale:self.scale orientation:kCGImagePropertyOrientationUp];
 #endif
         return image;
+        }
     }
 #endif
     
     CGSize size = self.size;
     CGRect rect = { CGPointZero, size };
     CGFloat scale = self.scale;
-    
-    // blend mode, see https://en.wikipedia.org/wiki/Alpha_compositing
-    CGBlendMode blendMode = kCGBlendModeSourceAtop;
     
     SDGraphicsImageRendererFormat *format = [[SDGraphicsImageRendererFormat alloc] init];
     format.scale = scale;

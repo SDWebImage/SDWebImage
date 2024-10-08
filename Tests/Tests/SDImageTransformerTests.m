@@ -242,7 +242,35 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
     // Check rounded corner operation not inversion the image
     UIColor *topCenterColor = [tintedImage sd_colorAtPoint:CGPointMake(150, 20)];
     expect([topCenterColor.sd_hexString isEqualToString:[UIColor blackColor].sd_hexString]).beTruthy();
+    
+    UIImage *tintedSourceInImage = [testImage sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceIn];
+    topCenterColor = [tintedSourceInImage sd_colorAtPoint:CGPointMake(150, 20)];
+#if SD_UIKIT
+    // Test UIKit's tint color behavior
+    if (@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)) {
+        UIImage *tintedSystemImage = [testImage imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIGraphicsImageRendererFormat *format = UIGraphicsImageRendererFormat.preferredFormat;
+        format.scale = tintedSourceInImage.scale;
+        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:tintedSystemImage.size format:format];
+        // Draw template image
+        tintedSystemImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+                [tintedSystemImage drawInRect:CGRectMake(0, 0, tintedSystemImage.size.width, tintedSystemImage.size.height)];
+        }];
+        UIColor *testColor1 = [tintedSourceInImage sd_colorAtPoint:CGPointMake(150, 20)];
+        UIColor *testColor2 = [tintedSystemImage sd_colorAtPoint:CGPointMake(150, 20)];
+        CGFloat r1, g1, b1, a1;
+        CGFloat r2, g2, b2, a2;
+        [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+        [testColor2 getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
+        expect(r1).beCloseToWithin(r2, 0.01);
+        expect(g1).beCloseToWithin(g2, 0.01);
+        expect(b1).beCloseToWithin(b2, 0.01);
+        expect(a1).beCloseToWithin(a2, 0.01);
+    }
+#endif
+    expect([topCenterColor.sd_hexString isEqualToString:tintColor.sd_hexString]).beTruthy();
 }
+#pragma clang diagnostic pop
 
 - (void)test07UIImageTransformBlurCG {
     [self test07UIImageTransformBlurWithImage:self.testImageCG];
@@ -353,7 +381,7 @@ static void SDAssertCGImageFirstComponentWhite(CGImageRef image, OSType pixelTyp
                       @"SDImageRoundCornerTransformer(50.000000,18446744073709551615,1.000000,#ff000000)",
                       @"SDImageFlippingTransformer(1,1)",
                       @"SDImageCroppingTransformer({0.000000,0.000000,50.000000,50.000000})",
-                      @"SDImageTintTransformer(#00000000)",
+                      @"SDImageTintTransformer(#00000000,18)",
                       @"SDImageBlurTransformer(5.000000)",
                       @"SDImageFilterTransformer(CIColorInvert)"
                       ];

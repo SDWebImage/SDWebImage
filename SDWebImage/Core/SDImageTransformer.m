@@ -245,20 +245,26 @@ NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thu
 @interface SDImageTintTransformer ()
 
 @property (nonatomic, strong, nonnull) UIColor *tintColor;
+@property (nonatomic, assign) CGBlendMode blendMode;
 
 @end
 
 @implementation SDImageTintTransformer
 
 + (instancetype)transformerWithColor:(UIColor *)tintColor {
+    return [self transformerWithColor:tintColor blendMode:kCGBlendModeSourceIn];
+}
+
++ (instancetype)transformerWithColor:(UIColor *)tintColor blendMode:(CGBlendMode)blendMode {
     SDImageTintTransformer *transformer = [SDImageTintTransformer new];
     transformer.tintColor = tintColor;
+    transformer.blendMode = blendMode;
     
     return transformer;
 }
 
 - (NSString *)transformerKey {
-    return [NSString stringWithFormat:@"SDImageTintTransformer(%@)", self.tintColor.sd_hexString];
+    return [NSString stringWithFormat:@"SDImageTintTransformer(%@,%d)", self.tintColor.sd_hexString, self.blendMode];
 }
 
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
