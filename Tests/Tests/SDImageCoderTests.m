@@ -563,7 +563,12 @@
     UIImage *systemImage = [[UIImage alloc] initWithData:data];
 #if SD_UIKIT
     orientation = systemImage.imageOrientation;
-    expect(orientation).equal(UIImageOrientationDown);
+    if (@available(iOS 18.0, tvOS 18.0, watchOS 11.0, *)) {
+        // Apple fix/hack this kind of JFIF on iOS 18
+        expect(orientation).equal(UIImageOrientationUp);
+    } else {
+        expect(orientation).equal(UIImageOrientationDown);
+    }
 #endif
     
     // Check bitmap color equal, between our usage of ImageIO decoder and Apple system API behavior
