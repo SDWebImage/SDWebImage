@@ -34,7 +34,7 @@ static const NSInteger kDefaultCacheMaxDiskAge = 60 * 60 * 24 * 7; // 1 week
         _diskCacheWritingOptions = NSDataWritingAtomic;
         _maxDiskAge = kDefaultCacheMaxDiskAge;
         _maxDiskSize = 0;
-        _diskCacheExpireType = SDImageCacheConfigExpireTypeModificationDate;
+        _diskCacheExpireType = SDImageCacheConfigExpireTypeAccessDate;
         _fileManager = nil;
         if (@available(iOS 10.0, tvOS 10.0, macOS 10.12, watchOS 3.0, *)) {
             _ioQueueAttributes = DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL; // DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM
