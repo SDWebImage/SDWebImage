@@ -108,7 +108,7 @@ static NSString * const SDWebImageTestDiskCacheExtendedAttributeName = @"com.hac
             }
             
             // Remove files that are older than the expiration date;
-            NSDate *accessDate = resourceValues[NSURLAttributeContentAccessDateKey];
+            NSDate *accessDate = resourceValues[NSURLContentAccessDateKey];
             if (expirationDate && [[accessDate laterDate:expirationDate] isEqualToDate:expirationDate]) {
                 [self.fileManager removeItemAtURL:fileURL error:nil];
             }
