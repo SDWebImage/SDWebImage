@@ -71,13 +71,16 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     }
     NSData *data = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
+        [[NSURL fileURLWithPath:filePath] setResourceValue:[NSDate date] forKey:NSURLContentAccessDateKey error:nil];
         return data;
     }
     
     // fallback because of https://github.com/rs/SDWebImage/pull/976 that added the extension to the disk file name
     // checking the key with and without the extension
-    data = [NSData dataWithContentsOfFile:filePath.stringByDeletingPathExtension options:self.config.diskCacheReadingOptions error:nil];
+    filePath = filePath.stringByDeletingPathExtension;
+    data = [NSData dataWithContentsOfFile:filePath options:self.config.diskCacheReadingOptions error:nil];
     if (data) {
+        [[NSURL fileURLWithPath:filePath] setResourceValue:[NSDate date] forKey:NSURLContentAccessDateKey error:nil];
         return data;
     }
     
@@ -149,11 +152,8 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
     
     // Compute content date key to be used for tests
-    NSURLResourceKey cacheContentDateKey = NSURLContentModificationDateKey;
+    NSURLResourceKey cacheContentDateKey;
     switch (self.config.diskCacheExpireType) {
-        case SDImageCacheConfigExpireTypeAccessDate:
-            cacheContentDateKey = NSURLContentAccessDateKey;
-            break;
         case SDImageCacheConfigExpireTypeModificationDate:
             cacheContentDateKey = NSURLContentModificationDateKey;
             break;
@@ -163,7 +163,9 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         case SDImageCacheConfigExpireTypeChangeDate:
             cacheContentDateKey = NSURLAttributeModificationDateKey;
             break;
+        case SDImageCacheConfigExpireTypeAccessDate:
         default:
+            cacheContentDateKey = NSURLContentAccessDateKey;
             break;
     }
     
