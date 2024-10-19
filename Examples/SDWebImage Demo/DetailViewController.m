@@ -12,6 +12,7 @@
 @interface DetailViewController ()
 
 @property (strong, nonatomic) IBOutlet SDAnimatedImageView *imageView;
+@property (assign) BOOL tintApplied;
 
 @end
 
@@ -37,6 +38,39 @@
                                                                             style:UIBarButtonItemStylePlain
                                                                            target:self
                                                                            action:@selector(toggleAnimation:)];
+    // Add a secret title click action to apply tint color
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    [button addTarget:self
+               action:@selector(toggleTint:)
+     forControlEvents:UIControlEventTouchUpInside];
+    [button setTitle:@"Tint" forState:UIControlStateNormal];
+    self.navigationItem.titleView = button;
+}
+
+- (void)toggleTint:(UIResponder *)sender {
+    // tint for non-opaque animation
+    if (!self.imageView.isAnimating) {
+        return;
+    }
+    SDAnimatedImage *animatedImage = (SDAnimatedImage *)self.imageView.image;
+    if (animatedImage.sd_imageFormat == SDImageFormatGIF) {
+        // GIF is opaque
+        return;
+    }
+    BOOL containsAlpha = [SDImageCoderHelper CGImageContainsAlpha:animatedImage.CGImage];
+    if (!containsAlpha) {
+        return;
+    }
+    if (self.tintApplied) {
+        self.imageView.animationTransformer = nil;
+    } else {
+        self.imageView.animationTransformer = [SDImageTintTransformer transformerWithColor:UIColor.blackColor];
+    }
+    self.tintApplied = !self.tintApplied;
+    // refresh
+    UIImage *image = self.imageView.image;
+    self.imageView.image = nil;
+    self.imageView.image = image;
 }
 
 - (void)toggleAnimation:(UIResponder *)sender {
