@@ -182,6 +182,8 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
 #else
         self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:image.imageOrientation];
 #endif
+        // Defines the associated object that holds the format for static images
+        super.sd_imageFormat = format;
         return self;
     }
 }
@@ -372,10 +374,6 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     } else {
         return [super sd_imageFormat];
     }
-}
-
-- (void)setSd_imageFormat:(SDImageFormat)sd_imageFormat {
-    return;
 }
 
 - (BOOL)sd_isVector {
