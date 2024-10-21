@@ -376,11 +376,6 @@ static CGFloat SDImageScaleFromPath(NSString *string) {
     }
 }
 
-- (void)setSd_imageFormat:(SDImageFormat)sd_imageFormat {
-    // Sets the image format for static images
-    super.sd_imageFormat = sd_imageFormat;
-}
-
 - (BOOL)sd_isVector {
     return NO;
 }
