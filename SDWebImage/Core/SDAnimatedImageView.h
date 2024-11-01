@@ -32,13 +32,13 @@ NS_SWIFT_UI_ACTOR
 /**
  The transformer for each decoded animated image frame.
  We supports post-transform on animated image frame from version 5.20.
- When you configure the transformer on `SDAnimatedImageView` and animation is playing, the `transformedImageWithImage:forKey:` will be called just after the frame is decoded. (The `key` arg is always empty for backward-compatible)
+ When you configure the transformer on `SDAnimatedImageView` and animation is playing, the `transformedImageWithImage:forKey:` will be called just after the frame is decoded. (note: The `key` arg is always empty for backward-compatible and may be removed in the future)
  
- Example to tint the animated image with alpha channel into template:
+ Example to tint the alpha animated image frame with a black color:
  * @code
  imageView.animationTransformer = [SDImageTintTransformer transformerWithColor:UIColor.blackColor];
  * @endcode
- @note The `transformerKey` property is used to ensure the buffer cache available. So make sure it's correct value match the actual logic on transformer.
+ @note The `transformerKey` property is used to ensure the buffer cache available. So make sure it's correct value match the actual logic on transformer. Which means, for the `same frame index + same transformer key`, the transformed image should always be the same.
  */
 @property (nonatomic, strong, nullable) id<SDImageTransformer> animationTransformer;
 

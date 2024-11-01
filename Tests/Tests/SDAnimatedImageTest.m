@@ -10,6 +10,7 @@
 #import "SDTestCase.h"
 #import "SDInternalMacros.h"
 #import "SDImageFramePool.h"
+#import "SDWebImageTestTransformer.h"
 #import <KVOController/KVOController.h>
 
 static const NSUInteger kTestGIFFrameCount = 5; // local TestImage.gif loop count
@@ -806,6 +807,40 @@ static BOOL _isCalled;
     // SDWebImageDefine.h
     UIImage *scaledImage = SDScaledImageForScaleFactor(2.0, image);
     expect(scaledImage).notTo.equal(image);
+}
+
+- (void)testAnimationTransformerWorks {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView animationTransformer works"];
+    SDAnimatedImageView *imageView = [SDAnimatedImageView new];
+    // Setup transformer, showing which hook all frames into the test image
+    UIImage *testImage = [[UIImage alloc] initWithData:[self testJPEGData]];
+    SDWebImageTestTransformer *transformer = [SDWebImageTestTransformer new];
+    transformer.testImage = testImage;
+    imageView.animationTransformer = transformer;
+    
+#if SD_UIKIT
+    [self.window addSubview:imageView];
+#else
+    [self.window.contentView addSubview:imageView];
+#endif
+    SDAnimatedImage *image = [SDAnimatedImage imageWithData:[self testGIFData]];
+    imageView.image = image;
+#if SD_UIKIT
+    [imageView startAnimating];
+#else
+    imageView.animates = YES;
+#endif
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 0.5s is not finished, frame index should not be 0
+        expect(imageView.player.framePool.currentFrameCount).beGreaterThan(0);
+        expect(imageView.currentFrameIndex).beGreaterThan(0);
+        // Test the current frame image is hooked by transformer
+        expect(imageView.currentFrame).equal(testImage);
+        
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectationsWithCommonTimeout];
 }
 
 #pragma mark - Helper
