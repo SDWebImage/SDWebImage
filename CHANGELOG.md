@@ -1,3 +1,25 @@
+## [5.20.0 - Animation Transformer with tint color, on Nov 1st, 2024](https://github.com/rs/SDWebImage/releases/tag/5.20.0)
+See [all tickets marked for the 5.20.0 release](https://github.com/SDWebImage/SDWebImage/milestone/139)
+
+### Features
+#### Animation Transformer
+- SDAniamtedImageView now supports to apply transformer (post-processing of frame), with the SDAnimatedImage. #3761
+- You can apply transform like blurs, tint, CIFilters on animation frames.
+- - Detailed behavior: Transform is applied just after the frame been decoded, on the global decode queue.
+- - Detailed behavior: The transformed image replace the original decoded one, and re-use the design of `maxBufferSize` on SDAnimatedImageView
+
+#### Disk Cache
+- Supports LRU eviction on disk cache, change the default expire type to accessDate instead of modificationDate #3759
+- - In previous versions, the disk cache does not actually supports LRU (The NSFileManager read API does not update the `accessDate`), this version fix this issue and change the default behavior to use `accessDate`
+
+#### Tint Color
+- Add blend mode to UIImage+Transform tint color API, default blend mode changed to sourceIn #3749
+- - In previous versions, the blend mode use `sourceAtop` and does not match UIKit's `tintColor` naming. We now use `sourceIn` to match it.
+- - Due to this changes, the `SDWebImageTintTransformer` defaults to use `sourceIn` blend mode as well. You can use transformer to tint SDAnimatedImageView as well
+
+### Fixes
+- Fix sd_imageFormat sometimes returns undefined on static image #3760
+
 ## [5.19.7 - 5.19 fix, on Sep 22th, 2024](https://github.com/rs/SDWebImage/releases/tag/5.19.7)
 See [all tickets marked for the 5.19.7 release](https://github.com/SDWebImage/SDWebImage/milestone/139)
 
