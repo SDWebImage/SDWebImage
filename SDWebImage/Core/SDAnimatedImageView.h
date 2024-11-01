@@ -12,6 +12,7 @@
 
 #import "SDAnimatedImage.h"
 #import "SDAnimatedImagePlayer.h"
+#import "SDImageTransformer.h"
 
 /**
  A drop-in replacement for UIImageView/NSImageView, you can use this for animated image rendering.
@@ -27,6 +28,19 @@ NS_SWIFT_UI_ACTOR
  @warning Pay attention if you directly update the player's property like `totalFrameCount`, `totalLoopCount`, the same property on `SDAnimatedImageView` may not get synced.
  */
 @property (nonatomic, strong, readonly, nullable) SDAnimatedImagePlayer *player;
+
+/**
+ The transformer for each decoded animated image frame.
+ We supports post-transform on animated image frame from version 5.20.
+ When you configure the transformer on `SDAnimatedImageView` and animation is playing, the `transformedImageWithImage:forKey:` will be called just after the frame is decoded. (note: The `key` arg is always empty for backward-compatible and may be removed in the future)
+ 
+ Example to tint the alpha animated image frame with a black color:
+ * @code
+ imageView.animationTransformer = [SDImageTintTransformer transformerWithColor:UIColor.blackColor];
+ * @endcode
+ @note The `transformerKey` property is used to ensure the buffer cache available. So make sure it's correct value match the actual logic on transformer. Which means, for the `same frame index + same transformer key`, the transformed image should always be the same.
+ */
+@property (nonatomic, strong, nullable) id<SDImageTransformer> animationTransformer;
 
 /**
  Current display frame image. This value is KVO Compliance.
