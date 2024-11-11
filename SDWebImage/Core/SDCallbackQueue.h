@@ -16,7 +16,9 @@ typedef NS_ENUM(NSUInteger, SDCallbackPolicy) {
     /// Follow async/sync using the correspond `dispatch_async`/`dispatch_sync` to dispatch block on queue
     SDCallbackPolicyDispatch = 1,
     /// Ignore any async/sync and just directly invoke `block` in current queue (without `dispatch_async`/`dispatch_sync`)
-    SDCallbackPolicyInvoke = 2
+    SDCallbackPolicyInvoke = 2,
+    /// Ensure callback in main queue and main thread, will do `dispatch_async` if the current queue is not main queue; else do invoke `block`. Never use `dispatch_sync`, suitable for UI-related work
+    SDCallbackPolicyMainAsyncSafe = 3
 };
 
 /// SDCallbackQueue is a wrapper used to control how the completionBlock should perform on queues, used by our `Cache`/`Manager`/`Loader`.
@@ -32,7 +34,7 @@ typedef NS_ENUM(NSUInteger, SDCallbackPolicy) {
 /// The global concurrent queue (user-initiated QoS). Using `dispatch_get_global_queue`.
 @property (nonnull, class, readonly) SDCallbackQueue *globalQueue;
 
-/// The current queue's callback policy, defaults to `SDCallbackPolicySafeExecute`, which behaves like the old macro  `dispatch_main_async_safe`
+/// The current queue's callback policy, defaults to `SDCallbackPolicyMainAsyncSafe`, which behaves like the old macro  `dispatch_main_async_safe`
 @property (assign, readwrite) SDCallbackPolicy policy;
 
 - (nonnull instancetype)init NS_UNAVAILABLE;
