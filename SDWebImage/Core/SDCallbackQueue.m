@@ -21,7 +21,7 @@ static void SDReleaseBlock(void *context) {
     CFRelease(context);
 }
 
-static inline void SDSafeMainAsync(dispatch_block_t _Nonnull block) {
+static inline void SDSafeMainQueueAsync(dispatch_block_t _Nonnull block) {
     if (NSThread.isMainThread) {
         // Match exists `dispatch_main_async_safe` behavior
         const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
@@ -32,6 +32,14 @@ static inline void SDSafeMainAsync(dispatch_block_t _Nonnull block) {
         }
     }
     dispatch_async(dispatch_get_main_queue(), block);
+}
+
+static inline void SDSafeMainThreadAsync(dispatch_block_t _Nonnull block) {
+    if (NSThread.isMainThread) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
 }
 
 static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonnull block, BOOL async) {
@@ -71,7 +79,7 @@ static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonn
         CFUUIDRef UUID = CFUUIDCreate(kCFAllocatorDefault);
         dispatch_queue_set_specific(queue, SDCallbackQueueKey, (void *)UUID, SDReleaseBlock);
         _queue = queue;
-        _policy = SDCallbackPolicyMainAsyncSafe;
+        _policy = SDCallbackPolicySafeAsyncMainQueue;
         // global queue can execute on main thread, like call `dispatch_sync(globalQueue)` in main thread
         _thread = NSThread.currentThread;
     }
@@ -111,8 +119,11 @@ static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonn
         case SDCallbackPolicyInvoke:
             block();
             break;
-        case SDCallbackPolicyMainAsyncSafe:
-            SDSafeMainAsync(block);
+        case SDCallbackPolicySafeAsyncMainQueue:
+            SDSafeMainQueueAsync(block);
+            break;
+        case SDCallbackPolicySafeAsyncMainThread:
+            SDSafeMainThreadAsync(block);
             break;
         default:
             SDSafeExecute(self, block, NO);
@@ -131,8 +142,11 @@ static void SDSafeExecute(SDCallbackQueue *callbackQueue, dispatch_block_t _Nonn
         case SDCallbackPolicyInvoke:
             block();
             break;
-        case SDCallbackPolicyMainAsyncSafe:
-            SDSafeMainAsync(block);
+        case SDCallbackPolicySafeAsyncMainQueue:
+            SDSafeMainQueueAsync(block);
+            break;
+        case SDCallbackPolicySafeAsyncMainThread:
+            SDSafeMainThreadAsync(block);
             break;
         default:
             SDSafeExecute(self, block, YES);
