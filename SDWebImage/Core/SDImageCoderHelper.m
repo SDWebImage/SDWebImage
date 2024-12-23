@@ -438,8 +438,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     
     // Check image format requirements
     BOOL noTransformNeeded = (orientation == kCGImagePropertyOrientationUp);
-    BOOL hasProperBitDepth = (CGImageGetBitsPerComponent(cgImage) == kBitsPerComponent && 
-                             CGImageGetBitsPerPixel(cgImage) == kBytesPerPixel * kBitsPerComponent);
     BOOL hasProperAlpha = hasAlpha ? 
         ((bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaPremultipliedFirst ||  // ARGB, premultiplied
          (bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaFirst ||               // ARGB, non-premultiplied
@@ -452,8 +450,7 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     size_t minimumBytesPerRow = CGImageGetWidth(cgImage) * 4;
     BOOL hasProperAlignment = (bytesPerRow >= minimumBytesPerRow);
     
-    BOOL canSkipDecode = hasProperBitDepth && 
-                        hasProperAlpha && 
+    BOOL canSkipDecode = hasProperAlpha && 
                         hasProperAlignment && 
                         noTransformNeeded;
     
