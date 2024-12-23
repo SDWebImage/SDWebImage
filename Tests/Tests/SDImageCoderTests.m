@@ -158,19 +158,13 @@
     NSData *testImageData = [NSData dataWithContentsOfFile:testImagePath];
     
     // Check that animated image rendering should not use lazy decoding (performance related)
-    CFAbsoluteTime begin = CFAbsoluteTimeGetCurrent();
     SDImageAPNGCoder *coder = [[SDImageAPNGCoder alloc] initWithAnimatedImageData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(NO)}];
     UIImage *imageWithoutLazyDecoding = [coder animatedImageFrameAtIndex:0];
-    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
-    CFAbsoluteTime duration = end - begin;
     expect(imageWithoutLazyDecoding.sd_isDecoded).beTruthy();
     
     // Check that static image rendering should use lazy decoding
-    CFAbsoluteTime begin2 = CFAbsoluteTimeGetCurrent();
     SDImageAPNGCoder *coder2 = SDImageAPNGCoder.sharedCoder;
     UIImage *imageWithLazyDecoding = [coder2 decodedImageWithData:testImageData options:@{SDImageCoderDecodeFirstFrameOnly : @(YES)}];
-    CFAbsoluteTime end2 = CFAbsoluteTimeGetCurrent();
-    CFAbsoluteTime duration2 = end2 - begin2;
     expect(imageWithLazyDecoding.sd_isDecoded).beFalsy();
 }
 
