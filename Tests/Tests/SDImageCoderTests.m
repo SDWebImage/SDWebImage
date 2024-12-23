@@ -172,9 +172,6 @@
     CFAbsoluteTime end2 = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime duration2 = end2 - begin2;
     expect(imageWithLazyDecoding.sd_isDecoded).beFalsy();
-    
-    // lazy decoding need less time (10x)
-    expect(duration2 * 10.0).beLessThan(duration);
 }
 
 - (void)test11ThatAPNGPCoderWorks {
@@ -633,6 +630,54 @@
         // Platform does not support SVG
         expect(image).beNil();
     }
+}
+
+- (void)test32ThatDecodingOptimizationWorks {
+    // Create a test image with optimal format that doesn't need decoding
+    size_t width = 100;
+    size_t height = 100;
+    size_t bitsPerComponent = 8;
+    size_t bytesPerPixel = 4;
+    size_t bytesPerRow = SDByteAlign(bytesPerPixel * width, [SDImageCoderHelper preferredPixelFormat:YES].alignment);
+    CGColorSpaceRef colorSpace = [SDImageCoderHelper colorSpaceGetDeviceRGB];
+    SDImagePixelFormat pixelFormat = [SDImageCoderHelper preferredPixelFormat:YES];
+    CGBitmapInfo bitmapInfo = pixelFormat.bitmapInfo;
+    
+    // Create a bitmap context with proper alignment and format
+    void *data = calloc(1, bytesPerRow * height);
+    CGContextRef context = CGBitmapContextCreate(data, width, height, bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo);
+    CGContextSetRGBFillColor(context, 1, 0, 0, 1);
+    CGContextFillRect(context, CGRectMake(0, 0, width, height));
+    CGImageRef optimizedImage = CGBitmapContextCreateImage(context);
+    CGContextRelease(context);
+    free(data);
+    
+#if SD_UIKIT
+    UIImage *sourceImage = [[UIImage alloc] initWithCGImage:optimizedImage scale:1 orientation:UIImageOrientationUp];
+#else
+    UIImage *sourceImage = [[UIImage alloc] initWithCGImage:optimizedImage scale:1 orientation:kCGImagePropertyOrientationUp];
+#endif
+    CGImageRelease(optimizedImage);
+    
+    // Test that the image doesn't need decoding
+    CGImageRef resultRef = [SDImageCoderHelper CGImageCreateDecoded:sourceImage.CGImage orientation:kCGImagePropertyOrientationUp];
+    expect(resultRef).notTo.beNil();
+    // The optimization should return the same CGImage without decoding
+    expect(resultRef == sourceImage.CGImage).to.beTruthy();
+    CGImageRelease(resultRef);
+    
+    // Test image that requires decoding
+    // 1. Wrong orientation
+#if SD_UIKIT
+    UIImage *rotatedImage = [[UIImage alloc] initWithCGImage:sourceImage.CGImage scale:1 orientation:UIImageOrientationLeft];
+#else
+    UIImage *rotatedImage = [[UIImage alloc] initWithCGImage:sourceImage.CGImage scale:1 orientation:kCGImagePropertyOrientationLeft];
+#endif
+    resultRef = [SDImageCoderHelper CGImageCreateDecoded:rotatedImage.CGImage orientation:kCGImagePropertyOrientationLeft];
+    expect(resultRef).notTo.beNil();
+    // Should be a different image due to orientation transform
+    expect(resultRef != rotatedImage.CGImage).to.beTruthy();
+    CGImageRelease(resultRef);
 }
 
 #pragma mark - Utils

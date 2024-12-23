@@ -428,6 +428,40 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!cgImage) {
         return NULL;
     }
+    
+    // Get image properties
+    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
+    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
+    // Check #3330 for more detail about why this bitmap is choosen.
+    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
+    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
+    
+    // Check image format requirements
+    BOOL noTransformNeeded = (orientation == kCGImagePropertyOrientationUp);
+    BOOL hasProperBitDepth = (CGImageGetBitsPerComponent(cgImage) == kBitsPerComponent && 
+                             CGImageGetBitsPerPixel(cgImage) == kBytesPerPixel * kBitsPerComponent);
+    BOOL hasProperAlpha = hasAlpha ? 
+        ((bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaPremultipliedFirst ||  // ARGB, premultiplied
+         (bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaFirst ||               // ARGB, non-premultiplied
+         (bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaPremultipliedLast ||   // RGBA, premultiplied
+         (bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaLast) :                // RGBA, non-premultiplied
+        ((bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaNone ||                // RGB, no alpha
+         (bitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaNoneSkipLast);         // RGB, skip last byte
+    
+    size_t bytesPerRow = CGImageGetBytesPerRow(cgImage);
+    size_t minimumBytesPerRow = CGImageGetWidth(cgImage) * 4;
+    BOOL hasProperAlignment = (bytesPerRow >= minimumBytesPerRow);
+    
+    BOOL canSkipDecode = hasProperBitDepth && 
+                        hasProperAlpha && 
+                        hasProperAlignment && 
+                        noTransformNeeded;
+    
+    if (canSkipDecode) {
+        CGImageRetain(cgImage);
+        return cgImage;
+    }
+
     size_t width = CGImageGetWidth(cgImage);
     size_t height = CGImageGetHeight(cgImage);
     if (width == 0 || height == 0) return NULL;
@@ -450,11 +484,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
             break;
     }
     
-    BOOL hasAlpha = [self CGImageContainsAlpha:cgImage];
-    // kCGImageAlphaNone is not supported in CGBitmapContextCreate.
-    // Check #3330 for more detail about why this bitmap is choosen.
-    // From v5.17.0, use runtime detection of bitmap info instead of hardcode.
-    CGBitmapInfo bitmapInfo = [SDImageCoderHelper preferredPixelFormat:hasAlpha].bitmapInfo;
     CGContextRef context = CGBitmapContextCreate(NULL, newWidth, newHeight, 8, 0, [self colorSpaceGetDeviceRGB], bitmapInfo);
     if (!context) {
         return NULL;

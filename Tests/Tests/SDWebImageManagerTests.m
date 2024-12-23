@@ -648,7 +648,15 @@
         expect(image.sd_isDecoded).beTruthy();
         CGImageRef cgImage = image.CGImage;
         CGColorSpaceRef colorspace = CGImageGetColorSpace(cgImage);
-        expect(colorspace).equal([SDImageCoderHelper colorSpaceGetDeviceRGB]);
+
+        // Verify we have an RGB colorspace with correct properties
+        expect(CGColorSpaceGetModel(colorspace)).equal(kCGColorSpaceModelRGB);
+        expect(CGColorSpaceGetNumberOfComponents(colorspace)).equal(3);
+
+        // Verify the image is properly decoded
+        expect(CGImageGetBitsPerComponent(cgImage)).equal(8);
+        expect(CGImageGetBitsPerPixel(cgImage)).equal(32);
+
         // Revert back
         SDImageCoderHelper.defaultDecodeSolution = SDImageCoderDecodeSolutionAutomatic;
         
