@@ -27,13 +27,18 @@
         self.imageView.preferredImageDynamicRange = isHDR ? UIImageDynamicRangeHigh : UIImageDynamicRangeUnspecified;
     }
     SDWebImageContext *context = @{
-        SDWebImageContextImageDecodeToHDR: @(isHDR),
-        SDWebImageContextImageForceDecodePolicy: @(isHDR ? SDImageForceDecodePolicyAutomatic : SDImageForceDecodePolicyNever)
+        SDWebImageContextImageDecodeToHDR: @(isHDR)
     };
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
-                               options:SDWebImageProgressiveLoad | SDWebImageScaleDownLargeImages
-                               context:context];
+                               options:SDWebImageFromLoaderOnly | SDWebImageProgressiveLoad | SDWebImageScaleDownLargeImages
+                               context:context
+                              progress:nil
+                             completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+        if (@available(iOS 17.0, *)) {
+            NSLog(@"isHighDynamicRange %@", @(image.isHighDynamicRange));
+        }
+    }];
     self.imageView.shouldCustomLoopCount = YES;
     self.imageView.animationRepeatCount = 0;
 }
