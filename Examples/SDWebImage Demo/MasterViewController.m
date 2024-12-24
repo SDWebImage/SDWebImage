@@ -58,7 +58,12 @@
         [[SDWebImageDownloader sharedDownloader] setValue:@"SDWebImage Demo" forHTTPHeaderField:@"AppName"];
         [SDWebImageDownloader sharedDownloader].config.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
         
+        NSURL *HDR1 = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestHDR1" withExtension:@"heic"];
+        NSURL *HDR2 = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestHDR2" withExtension:@"JPG"];
+        
         self.objects = [NSMutableArray arrayWithObjects:
+                    HDR1.absoluteString,
+                    HDR2.absoluteString,
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
                     @"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif",

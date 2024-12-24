@@ -278,6 +278,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     CGSize _thumbnailSize;
     NSUInteger _limitBytes;
     BOOL _lazyDecode;
+    BOOL _decodeToHDR;
 }
 
 - (void)dealloc
@@ -421,7 +422,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     return frameDuration;
 }
 
-+ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage {
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage decodeToHDR:(BOOL)decodeToHDR {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
     NSDictionary *options;
     if (animatedImage) {
@@ -453,6 +454,12 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     } else {
         decodingOptions = [NSMutableDictionary dictionary];
     }
+    if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
+        if (decodeToHDR) {
+            decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
+        }
+    }
+  
     CGImageRef imageRef;
     BOOL createFullImage = thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height);
     if (createFullImage) {
@@ -591,6 +598,12 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         limitBytes = limitBytesValue.unsignedIntegerValue;
     }
     
+    BOOL decodeToHDR = NO;
+    NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
+    if (decodeToHDRValue != nil) {
+        decodeToHDR = decodeToHDRValue.boolValue;
+    }
+    
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
     // Which decode frames in time and reduce memory usage
@@ -655,12 +668,12 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || frameCount <= 1) {
-        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO decodeToHDR:decodeToHDR];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:frameCount];
         
         for (size_t i = 0; i < frameCount; i++) {
-            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO decodeToHDR:decodeToHDR];
             if (!image) {
                 continue;
             }
@@ -728,6 +741,12 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
+        BOOL decodeToHDR = NO;
+        NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
+        if (decodeToHDRValue != nil) {
+            decodeToHDR = decodeToHDRValue.boolValue;
+        }
+        _decodeToHDR = decodeToHDR;
         SD_LOCK_INIT(_lock);
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -788,7 +807,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_decodeToHDR];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -993,6 +1012,13 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
+        BOOL decodeToHDR = NO;
+        NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
+        if (decodeToHDRValue != nil) {
+            decodeToHDR = decodeToHDRValue.boolValue;
+        }
+        _decodeToHDR = decodeToHDR;
+        
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -1083,7 +1109,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 }
 
 - (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES];
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES decodeToHDR:_decodeToHDR];
     if (!image) {
         return nil;
     }

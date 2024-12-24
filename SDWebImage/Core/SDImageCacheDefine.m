@@ -40,6 +40,8 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
             fileExtensionHint = nil;
         }
     }
+    // to HDR
+    NSNumber *decodeToHDR = context[SDWebImageContextImageDecodeToHDR];
     
     // First check if user provided decode options
     SDImageCoderMutableOptions *mutableCoderOptions;
@@ -57,6 +59,7 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
     mutableCoderOptions[SDImageCoderDecodeTypeIdentifierHint] = typeIdentifierHint;
     mutableCoderOptions[SDImageCoderDecodeFileExtensionHint] = fileExtensionHint;
     mutableCoderOptions[SDImageCoderDecodeScaleDownLimitBytes] = scaleDownLimitBytesValue;
+    mutableCoderOptions[SDImageCoderDecodeToHDR] = decodeToHDR;
     
     return [mutableCoderOptions copy];
 }
@@ -72,6 +75,7 @@ void SDSetDecodeOptionsToContext(SDWebImageMutableContext * _Nonnull mutableCont
     mutableContext[SDWebImageContextImagePreserveAspectRatio] = decodeOptions[SDImageCoderDecodePreserveAspectRatio];
     mutableContext[SDWebImageContextImageThumbnailPixelSize] = decodeOptions[SDImageCoderDecodeThumbnailPixelSize];
     mutableContext[SDWebImageContextImageScaleDownLimitBytes] = decodeOptions[SDImageCoderDecodeScaleDownLimitBytes];
+    mutableContext[SDWebImageContextImageDecodeToHDR] = decodeOptions[SDImageCoderDecodeToHDR];
     
     NSString *typeIdentifierHint = decodeOptions[SDImageCoderDecodeTypeIdentifierHint];
     if (!typeIdentifierHint) {
@@ -127,6 +131,10 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         NSNumber *policyValue = context[SDWebImageContextImageForceDecodePolicy];
         if (policyValue != nil) {
             policy = policyValue.unsignedIntegerValue;
+        }
+        BOOL decodeToHDR = [coderOptions[SDImageCoderDecodeToHDR] boolValue];
+        if (decodeToHDR) {
+            policy = SDImageForceDecodePolicyNever;
         }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push

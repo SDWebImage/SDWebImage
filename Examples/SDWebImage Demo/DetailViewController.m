@@ -22,11 +22,18 @@
     if (!self.imageView.sd_imageIndicator) {
         self.imageView.sd_imageIndicator = SDWebImageProgressIndicator.defaultIndicator;
     }
+    BOOL isHDR = [self.imageURL.absoluteString containsString:@"HDR"];
+    if (@available(iOS 17.0, *)) {
+        self.imageView.preferredImageDynamicRange = isHDR ? UIImageDynamicRangeHigh : UIImageDynamicRangeUnspecified;
+    }
+    SDWebImageContext *context = @{
+        SDWebImageContextImageDecodeToHDR: @(isHDR),
+        SDWebImageContextImageForceDecodePolicy: @(isHDR ? SDImageForceDecodePolicyAutomatic : SDImageForceDecodePolicyNever)
+    };
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
                                options:SDWebImageProgressiveLoad | SDWebImageScaleDownLargeImages
-                               context:@{SDWebImageContextImageForceDecodePolicy: @(SDImageForceDecodePolicyNever)}
-    ];
+                               context:context];
     self.imageView.shouldCustomLoopCount = YES;
     self.imageView.animationRepeatCount = 0;
 }
