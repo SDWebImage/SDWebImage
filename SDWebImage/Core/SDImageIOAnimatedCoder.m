@@ -598,11 +598,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         limitBytes = limitBytesValue.unsignedIntegerValue;
     }
     
-    BOOL decodeToHDR = NO;
-    NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
-    if (decodeToHDRValue != nil) {
-        decodeToHDR = decodeToHDRValue.boolValue;
-    }
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
     
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
@@ -741,12 +737,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
-        BOOL decodeToHDR = NO;
-        NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
-        if (decodeToHDRValue != nil) {
-            decodeToHDR = decodeToHDRValue.boolValue;
-        }
-        _decodeToHDR = decodeToHDR;
+
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+        
         SD_LOCK_INIT(_lock);
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -807,7 +800,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_decodeToHDR];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_finished ? _decodeToHDR : NO];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -1012,12 +1005,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
-        BOOL decodeToHDR = NO;
-        NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
-        if (decodeToHDRValue != nil) {
-            decodeToHDR = decodeToHDRValue.boolValue;
-        }
-        _decodeToHDR = decodeToHDR;
+
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
         
         _imageSource = imageSource;
         _imageData = data;

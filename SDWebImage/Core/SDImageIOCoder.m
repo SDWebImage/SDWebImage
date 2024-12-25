@@ -180,11 +180,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         lazyDecode = lazyDecodeValue.boolValue;
     }
     
-    BOOL decodeToHDR = NO;
-    NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
-    if (decodeToHDRValue != nil) {
-        decodeToHDR = decodeToHDRValue.boolValue;
-    }
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
     
     NSString *typeIdentifierHint = options[SDImageCoderDecodeTypeIdentifierHint];
     if (!typeIdentifierHint) {
@@ -264,12 +260,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         }
         _lazyDecode = lazyDecode;
         
-        BOOL decodeToHDR = NO;
-        NSNumber *decodeToHDRValue = options[SDImageCoderDecodeToHDR];
-        if (decodeToHDRValue != nil) {
-            decodeToHDR = decodeToHDRValue.boolValue;
-        }
-        _decodeToHDR = decodeToHDR;
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+        
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -320,7 +312,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_decodeToHDR];
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_finished ? _decodeToHDR : NO];
         if (image) {
             CFStringRef uttype = CGImageSourceGetType(_imageSource);
             image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];
