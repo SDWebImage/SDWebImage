@@ -48,8 +48,6 @@
 		537612B3155AB74D005750A4 /* MasterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B1155AB74D005750A4 /* MasterViewController.xib */; };
 		537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 537612B4155AB74D005750A4 /* DetailViewController.xib */; };
 		7714B28A46A2E07B6714BC0F /* Pods_SDWebImage_OSX_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18242F3D24D6BE93D067E4E8 /* Pods_SDWebImage_OSX_Demo.framework */; };
-		7A6463B72D1AA4D600BC89C1 /* TestHDR1.heic in Resources */ = {isa = PBXBuildFile; fileRef = 7A6463B52D1AA4D600BC89C1 /* TestHDR1.heic */; };
-		7A6463B82D1AA4D600BC89C1 /* TestHDR2.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 7A6463B62D1AA4D600BC89C1 /* TestHDR2.JPG */; };
 		A6EC2DCD5EB62AAEBD5C1345 /* Pods_SDWebImage_TV_Demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56FF116D6E7696F07957CE40 /* Pods_SDWebImage_TV_Demo.framework */; };
 		DA248D44195470FD00390AB0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537612E3155ABA3C005750A4 /* MapKit.framework */; };
 		E221F54F71FEE9884D7C51FE /* Pods_SDWebImage_Watch_Demo_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D99CEC262035CE49117E77D /* Pods_SDWebImage_Watch_Demo_Extension.framework */; };
@@ -210,8 +208,6 @@
 		5A56E15AF819F64FBF1F65A9 /* Pods-SDWebImage TV Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage TV Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage TV Demo/Pods-SDWebImage TV Demo.debug.xcconfig"; sourceTree = "<group>"; };
 		7527DE20028C49345CF3C72F /* Pods_SDWebImage_iOS_Demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SDWebImage_iOS_Demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		789EDF4244C66933FDF3E181 /* Pods-SDWebImage iOS Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage iOS Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage iOS Demo/Pods-SDWebImage iOS Demo.debug.xcconfig"; sourceTree = "<group>"; };
-		7A6463B52D1AA4D600BC89C1 /* TestHDR1.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestHDR1.heic; sourceTree = "<group>"; };
-		7A6463B62D1AA4D600BC89C1 /* TestHDR2.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TestHDR2.JPG; sourceTree = "<group>"; };
 		80C26B77F46D9332F328204E /* Pods-SDWebImage OSX Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage OSX Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage OSX Demo/Pods-SDWebImage OSX Demo.debug.xcconfig"; sourceTree = "<group>"; };
 		87F946759088F4E41FDC806A /* Pods-SDWebImage Vision Demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SDWebImage Vision Demo.debug.xcconfig"; path = "../Pods/Target Support Files/Pods-SDWebImage Vision Demo/Pods-SDWebImage Vision Demo.debug.xcconfig"; sourceTree = "<group>"; };
 		8D99CEC262035CE49117E77D /* Pods_SDWebImage_Watch_Demo_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SDWebImage_Watch_Demo_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -442,7 +438,6 @@
 		5376129F155AB74D005750A4 /* SDWebImage Demo */ = {
 			isa = PBXGroup;
 			children = (
-				7A6463B42D1AA4C900BC89C1 /* Images */,
 				3E75A9851742DBE700DA412D /* CustomPathImages */,
 				537612A8155AB74D005750A4 /* AppDelegate.h */,
 				537612A9155AB74D005750A4 /* AppDelegate.m */,
@@ -483,15 +478,6 @@
 				11FB3839400DA48480ABA6BB /* Pods-SDWebImage Vision Demo.release.xcconfig */,
 			);
 			name = Pods;
-			sourceTree = "<group>";
-		};
-		7A6463B42D1AA4C900BC89C1 /* Images */ = {
-			isa = PBXGroup;
-			children = (
-				7A6463B52D1AA4D600BC89C1 /* TestHDR1.heic */,
-				7A6463B62D1AA4D600BC89C1 /* TestHDR2.JPG */,
-			);
-			path = Images;
 			sourceTree = "<group>";
 		};
 		EA9E0C73219598B400AFB434 /* Configs */ = {
@@ -736,8 +722,6 @@
 				537612B6155AB74D005750A4 /* DetailViewController.xib in Resources */,
 				32892E311FAE898C00BE8320 /* Assets.xcassets in Resources */,
 				32892E351FAE89FE00BE8320 /* LaunchScreen.storyboard in Resources */,
-				7A6463B72D1AA4D600BC89C1 /* TestHDR1.heic in Resources */,
-				7A6463B82D1AA4D600BC89C1 /* TestHDR2.JPG in Resources */,
 				3E75A9861742DBE700DA412D /* CustomPathImages in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -457,6 +457,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
         if (decodeToHDR) {
             decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
+#if TARGET_OS_SIMULATOR
+            SD_LOG("the simulator does not support HDR, will generate some exception information or crash, here: %s", __func__);
+#endif
         }
     }
   
