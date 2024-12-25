@@ -1098,7 +1098,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 }
 
 - (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES decodeToHDR:_decodeToHDR];
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES decodeToHDR:!_incremental || _finished ? _decodeToHDR : NO];
     if (!image) {
         return nil;
     }
