@@ -489,13 +489,6 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (!imageRef) {
         return nil;
     }
-    if (decodeToHDR) {
-        CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
-        if (hdrImageRef) {
-            CGImageRelease(imageRef);
-            imageRef = hdrImageRef;
-        }
-    }
     // Thumbnail image post-process
     if (!createFullImage) {
         if (preserveAspectRatio) {
@@ -511,7 +504,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         }
     }
     // Check whether output CGImage is decoded
-    BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
+    BOOL isLazy = decodeToHDR ? NO : [SDImageCoderHelper CGImageIsLazy:imageRef];
     if (!lazyDecode) {
         if (isLazy) {
             // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
