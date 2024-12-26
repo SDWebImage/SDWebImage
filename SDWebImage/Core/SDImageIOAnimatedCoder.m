@@ -859,7 +859,6 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             }
             CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
             if (hdrImageRef) {
-                CGImageRelease(imageRef);
                 imageRef = hdrImageRef;
             }
         }

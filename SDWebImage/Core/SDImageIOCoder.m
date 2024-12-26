@@ -344,7 +344,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             }
             CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
             if (hdrImageRef) {
-                CGImageRelease(imageRef);
                 imageRef = hdrImageRef;
             }
         }
