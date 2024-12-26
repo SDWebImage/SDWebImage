@@ -336,6 +336,19 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         // Earily return, supports CGImage only
         return nil;
     }
+    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
+        if (image.isHighDynamicRange) {
+            if (![NSData sd_isSupportHDRForImageFormat:format]) {
+                // other types do not support HDR and will cause crashes
+                return nil;
+            }
+            CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
+            if (hdrImageRef) {
+                CGImageRelease(imageRef);
+                imageRef = hdrImageRef;
+            }
+        }
+    }
     
     if (format == SDImageFormatUndefined) {
         BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
@@ -345,7 +358,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             format = SDImageFormatJPEG;
         }
     }
-    
+
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
     

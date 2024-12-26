@@ -18,6 +18,7 @@
 #import "SDGraphicsImageRenderer.h"
 #import "SDInternalMacros.h"
 #import "SDDeviceHelper.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 #import <Accelerate/Accelerate.h>
 
 #define kCGColorSpaceDeviceRGB CFSTR("kCGColorSpaceDeviceRGB")
@@ -468,6 +469,34 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     CGContextRelease(context);
     
     return newImageRef;
+}
+
++ (CGImageRef _Nullable)CGImageCreateHDRDecoded:(_Nonnull CGImageRef)cgImage {
+    if (!cgImage) return nil;
+#if SD_UIKIT || SD_MAC
+    // For HDR, after decoding, the image contains the heic type. If JPEG encoding is used, HDR information will be lost.
+    // After conversion using CIImage, it can be encoded as JPEG, and HDR is still there
+    if (@available(macOS 14, iOS 17, *)) {
+        CFStringRef uttype = CGImageGetUTType(cgImage);
+        if (!uttype) {
+            return nil;
+        }
+        SDImageFormat imageFormat = [NSData sd_imageFormatFromUTType:uttype];
+        if ([NSData sd_isSupportHDRForImageFormat:imageFormat]) {
+            CIImage *ciImage = [CIImage imageWithCGImage:cgImage];
+            CIContext *context = [CIContext context];
+            CIFormat format = kCIFormatRGB10;
+            CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage) ? : CGColorSpaceCreateWithName(kCGColorSpaceITUR_2100_PQ);
+            CGImageRef imageRef = [context createCGImage:ciImage
+                                                fromRect:ciImage.extent
+                                                  format:format
+                                              colorSpace:colorSpace
+                                                deferred:YES];
+            return imageRef;
+        }
+    }
+#endif
+    return nil;
 }
 
 + (CGImageRef)CGImageCreateScaled:(CGImageRef)cgImage size:(CGSize)size {

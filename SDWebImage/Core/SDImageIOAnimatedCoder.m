@@ -16,9 +16,6 @@
 #import "UIImage+ForceDecode.h"
 #import "SDInternalMacros.h"
 
-#if SD_UIKIT || SD_MAC
-#import <CoreImage/CoreImage.h>
-#endif
 #import <ImageIO/ImageIO.h>
 #import <CoreServices/CoreServices.h>
 
@@ -257,27 +254,6 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     return isBuggy;
 }
 
-static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nullable image) {
-    if (!image) return nil;
-#if SD_UIKIT || SD_MAC
-    // For HDR, after decoding, the image contains the heic type. If JPEG encoding is used, HDR information will be lost.
-    // After conversion using CIImage, it can be encoded as JPEG, and HDR is still there
-    if (@available(macOS 14, iOS 17, *)) {
-        CIImage *ciImage = [CIImage imageWithCGImage:image];
-        CIContext *context = [CIContext context];
-        CIFormat format = kCIFormatRGB10;
-        CGColorSpaceRef colorSpace = CGImageGetColorSpace(image) ? : CGColorSpaceCreateWithName(kCGColorSpaceITUR_2100_PQ);
-        CGImageRef imageRef = [context createCGImage:ciImage
-                                            fromRect:ciImage.extent
-                                              format:format
-                                          colorSpace:colorSpace
-                                            deferred:YES];
-        return imageRef;
-    }
-#endif
-    return nil;
-}
-
 @interface SDImageIOCoderFrame : NSObject
 
 @property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
@@ -513,6 +489,13 @@ static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nu
     if (!imageRef) {
         return nil;
     }
+    if (decodeToHDR) {
+        CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
+        if (hdrImageRef) {
+            CGImageRelease(imageRef);
+            imageRef = hdrImageRef;
+        }
+    }
     // Thumbnail image post-process
     if (!createFullImage) {
         if (preserveAspectRatio) {
@@ -525,13 +508,6 @@ static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nu
                 CGImageRelease(imageRef);
                 imageRef = scaledImageRef;
             }
-        }
-    }
-    if (decodeToHDR) {
-        CGImageRef hdrImageRef = SDCGImageCreateHDRImageCopy(imageRef);
-        if (hdrImageRef) {
-            CGImageRelease(imageRef);
-            imageRef = hdrImageRef;
         }
     }
     // Check whether output CGImage is decoded
@@ -875,6 +851,20 @@ static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nu
         // Earily return, supports CGImage only
         return nil;
     }
+    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
+        if (image.isHighDynamicRange) {
+            if (![NSData sd_isSupportHDRForImageFormat:format]) {
+                // other types do not support HDR and will cause crashes
+                return nil;
+            }
+            CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
+            if (hdrImageRef) {
+                CGImageRelease(imageRef);
+                imageRef = hdrImageRef;
+            }
+        }
+    }
+    
     BOOL onlyEncodeOnce = [options[SDImageCoderEncodeFirstFrameOnly] boolValue] || frames.count <= 1;
     
     NSMutableData *imageData = [NSMutableData data];
@@ -882,7 +872,7 @@ static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nu
     
     // For HDR, kSDUTTypeHEICS loses HDR information after encoding, so convert it to kSDUTTypeHEIC here
     if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
-        if (onlyEncodeOnce && image.isHighDynamicRange && (__bridge CFStringRef)imageUTType == kSDUTTypeHEICS) {
+        if (onlyEncodeOnce && image.isHighDynamicRange && imageUTType && CFEqual((__bridge CFStringRef)imageUTType, kSDUTTypeHEICS)) {
             imageUTType = (__bridge NSString *)kSDUTTypeHEIC;
         }
     }
