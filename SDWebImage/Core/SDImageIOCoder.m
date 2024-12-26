@@ -336,6 +336,14 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         // Earily return, supports CGImage only
         return nil;
     }
+    if (format == SDImageFormatUndefined) {
+        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
+        if (hasAlpha) {
+            format = SDImageFormatPNG;
+        } else {
+            format = SDImageFormatJPEG;
+        }
+    }
     if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
         if (image.isHighDynamicRange) {
             if (![NSData sd_isSupportHDRForImageFormat:format]) {
@@ -346,15 +354,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             if (hdrImageRef) {
                 imageRef = hdrImageRef;
             }
-        }
-    }
-    
-    if (format == SDImageFormatUndefined) {
-        BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
-        if (hasAlpha) {
-            format = SDImageFormatPNG;
-        } else {
-            format = SDImageFormatJPEG;
         }
     }
 
