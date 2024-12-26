@@ -7,6 +7,7 @@
 */
 
 #import "SDImageIOAnimatedCoder.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+Metadata.h"
 #import "NSData+ImageContentType.h"
@@ -15,6 +16,9 @@
 #import "UIImage+ForceDecode.h"
 #import "SDInternalMacros.h"
 
+#if SD_UIKIT || SD_MAC
+#import <CoreImage/CoreImage.h>
+#endif
 #import <ImageIO/ImageIO.h>
 #import <CoreServices/CoreServices.h>
 
@@ -253,6 +257,27 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     return isBuggy;
 }
 
+static inline CGImageRef __nullable SDCGImageCreateHDRImageCopy(CGImageRef cg_nullable image) {
+    if (!image) return nil;
+#if SD_UIKIT || SD_MAC
+    // For HDR, after decoding, the image contains the heic type. If JPEG encoding is used, HDR information will be lost.
+    // After conversion using CIImage, it can be encoded as JPEG, and HDR is still there
+    if (@available(macOS 14, iOS 17, *)) {
+        CIImage *ciImage = [CIImage imageWithCGImage:image];
+        CIContext *context = [CIContext context];
+        CIFormat format = kCIFormatRGB10;
+        CGColorSpaceRef colorSpace = CGImageGetColorSpace(image) ? : CGColorSpaceCreateWithName(kCGColorSpaceITUR_2100_PQ);
+        CGImageRef imageRef = [context createCGImage:ciImage
+                                            fromRect:ciImage.extent
+                                              format:format
+                                          colorSpace:colorSpace
+                                            deferred:YES];
+        return imageRef;
+    }
+#endif
+    return nil;
+}
+
 @interface SDImageIOCoderFrame : NSObject
 
 @property (nonatomic, assign) NSUInteger index; // Frame index (zero based)
@@ -458,7 +483,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         if (decodeToHDR) {
             decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
 #if TARGET_OS_SIMULATOR
-            SD_LOG("the simulator does not support HDR, will generate some exception information or crash, here: %s", __func__);
+            NSAssert(NO, @"the simulator does not support HDR, will generate some exception information or crash");
 #endif
         }
     }
@@ -502,8 +527,15 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             }
         }
     }
+    if (decodeToHDR) {
+        CGImageRef hdrImageRef = SDCGImageCreateHDRImageCopy(imageRef);
+        if (hdrImageRef) {
+            CGImageRelease(imageRef);
+            imageRef = hdrImageRef;
+        }
+    }
     // Check whether output CGImage is decoded
-    BOOL isLazy = !decodeToHDR ? [SDImageCoderHelper CGImageIsLazy:imageRef] : NO;
+    BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
     if (!lazyDecode) {
         if (isLazy) {
             // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
@@ -843,9 +875,17 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         // Earily return, supports CGImage only
         return nil;
     }
+    BOOL onlyEncodeOnce = [options[SDImageCoderEncodeFirstFrameOnly] boolValue] || frames.count <= 1;
     
     NSMutableData *imageData = [NSMutableData data];
     NSString *imageUTType = self.class.imageUTType;
+    
+    // For HDR, kSDUTTypeHEICS loses HDR information after encoding, so convert it to kSDUTTypeHEIC here
+    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
+        if (onlyEncodeOnce && image.isHighDynamicRange && (__bridge CFStringRef)imageUTType == kSDUTTypeHEICS) {
+            imageUTType = (__bridge NSString *)kSDUTTypeHEIC;
+        }
+    }
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
     // The `CGImageDestinationCreateWithData` will log a warning when count is 0, use 1 instead.
@@ -909,8 +949,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     }
     properties[(__bridge NSString *)kCGImageDestinationEmbedThumbnail] = @(embedThumbnail);
     
-    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
-    if (encodeFirstFrame || frames.count <= 1) {
+    if (onlyEncodeOnce) {
         // for static single images
         CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {

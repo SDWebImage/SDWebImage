@@ -31,12 +31,18 @@
     };
     [self.imageView sd_setImageWithURL:self.imageURL
                       placeholderImage:nil
-                               options:SDWebImageFromLoaderOnly | SDWebImageProgressiveLoad | SDWebImageScaleDownLargeImages
+                               options:SDWebImageFromLoaderOnly | SDWebImageScaleDownLargeImages
                                context:context
                               progress:nil
                              completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         if (@available(iOS 17.0, *)) {
             NSLog(@"isHighDynamicRange %@", @(image.isHighDynamicRange));
+            
+            NSData *encodedData = [SDImageCodersManager.sharedManager encodedDataWithImage:image format:image.sd_imageFormat options:nil];
+            NSLog(@"encoded - imageFormat %@", @([NSData sd_imageFormatForImageData:encodedData]));
+            
+            UIImage *decodedImage = [SDImageCodersManager.sharedManager decodedImageWithData:encodedData options:@{SDImageCoderDecodeToHDR: @(isHDR)}];
+            NSLog(@"decoded - isHighDynamicRange %@", @(decodedImage.isHighDynamicRange));
         }
     }];
     self.imageView.shouldCustomLoopCount = YES;
