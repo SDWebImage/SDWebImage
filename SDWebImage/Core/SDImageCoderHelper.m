@@ -421,6 +421,19 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
 }
 
++ (BOOL)CGImageIsHDR:(_Nonnull CGImageRef)cgImage {
+    if (!cgImage) {
+        return NO;
+    }
+    if (@available(macOS 10.15, iOS 13, *)) {
+        CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
+        if (colorSpace) {
+            return CGColorSpaceIsHDR(colorSpace);
+        }
+    }
+    return NO;
+}
+
 + (CGImageRef)CGImageCreateDecoded:(CGImageRef)cgImage {
     return [self CGImageCreateDecoded:cgImage orientation:kCGImagePropertyOrientationUp];
 }

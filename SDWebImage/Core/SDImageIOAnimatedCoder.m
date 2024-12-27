@@ -489,6 +489,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (!imageRef) {
         return nil;
     }
+    BOOL isHDRImage = [SDImageCoderHelper CGImageIsHDR:imageRef];
+    
     // Thumbnail image post-process
     if (!createFullImage) {
         if (preserveAspectRatio) {
@@ -503,10 +505,11 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             }
         }
     }
+    
     // Check whether output CGImage is decoded
     BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
-    if (!lazyDecode) {
-        if (isLazy && !decodeToHDR) {
+    if (!lazyDecode && !isHDRImage) {
+        if (isLazy) {
             // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
             if (decodedImageRef) {
@@ -515,7 +518,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
                 isLazy = NO;
             }
         }
-    } else if (animatedImage) {
+    } else if (animatedImage && !isHDRImage) {
         // iOS 15+, CGImageRef now retains CGImageSourceRef internally. To workaround its thread-safe issue, we have to strip CGImageSourceRef, using Force-Decode (or have to use SPI `CGImageSetImageSource`), See: https://github.com/SDWebImage/SDWebImage/issues/3273
         if (@available(iOS 15, tvOS 15, *)) {
             // User pass `lazyDecode == YES`, but we still have to strip the CGImageSourceRef
@@ -849,6 +852,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         if (image.isHighDynamicRange) {
             if (![NSData sd_isSupportHDRForImageFormat:format]) {
                 // other types do not support HDR and will cause crashes
+                return nil;
+            }
+            if (![SDImageCoderHelper CGImageIsLazy:imageRef]) {
+                // HDR image must be lazy decode
                 return nil;
             }
             CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
