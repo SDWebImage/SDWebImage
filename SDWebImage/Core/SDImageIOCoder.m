@@ -351,8 +351,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
                 // other types do not support HDR and will cause crashes
                 return nil;
             }
-            if (![SDImageCoderHelper CGImageIsLazy:imageRef]) {
-                // HDR image must be lazy decode, otherwise it will crash
+            if (format == SDImageFormatJPEG && ![SDImageCoderHelper CGImageIsLazy:imageRef]) {
+                // JEPG HDR image must be lazy decode, otherwise it will crash
                 return nil;
             }
             CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
