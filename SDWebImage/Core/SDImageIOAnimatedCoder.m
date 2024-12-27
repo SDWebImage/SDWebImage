@@ -844,6 +844,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         // Earily return, supports CGImage only
         return nil;
     }
+    BOOL createdImageRef = NO;
     if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
         if (image.isHighDynamicRange) {
             if (![NSData sd_isSupportHDRForImageFormat:format]) {
@@ -853,6 +854,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
             if (hdrImageRef) {
                 imageRef = hdrImageRef;
+                createdImageRef = YES;
             }
         }
     }
@@ -874,6 +876,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, (__bridge CFStringRef)imageUTType, frames.count ?: 1, NULL);
     if (!imageDestination) {
         // Handle failure.
+        if (createdImageRef) {
+            CGImageRelease(imageRef);
+        }
         return nil;
     }
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
@@ -957,6 +962,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     }
     
     CFRelease(imageDestination);
+    if (createdImageRef) {
+        CGImageRelease(imageRef);
+    }
     
     // In some beta version, ImageIO `CGImageDestinationFinalize` returns success, but the data buffer is 0 bytes length.
     if (imageData.length == 0) {
