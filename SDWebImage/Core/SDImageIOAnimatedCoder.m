@@ -427,7 +427,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
     NSDictionary *options;
     if (animatedImage) {
-        if (!lazyDecode) {
+        if (!lazyDecode && !decodeToHDR) {
             options = @{
                 // image decoding and caching should happen at image creation time.
                 (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
@@ -504,9 +504,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         }
     }
     // Check whether output CGImage is decoded
-    BOOL isLazy = decodeToHDR ? NO : [SDImageCoderHelper CGImageIsLazy:imageRef];
+    BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
     if (!lazyDecode) {
-        if (isLazy) {
+        if (isLazy && !decodeToHDR) {
             // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
             if (decodedImageRef) {
