@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workspace
-   version = "1.0">
+   version="1.0">
    <FileRef
-      location = "group:Examples/SDWebImage Demo.xcodeproj">
+      location="group:Examples/SDWebImage Demo.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Tests/SDWebImage Tests.xcodeproj">
+      location="group:Tests/SDWebImage Tests.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:LICENSE">
+      location="group:LICENSE">
    </FileRef>
    <FileRef
-      location = "group:README.md">
+      location="group:README.md">
    </FileRef>
    <FileRef
-      location = "group:SDWebImage.podspec">
+      location="group:CHANGELOG.md">
    </FileRef>
    <FileRef
-      location = "group:CHANGELOG.md">
+      location="group:Docs">
    </FileRef>
    <FileRef
-      location = "group:Docs">
-   </FileRef>
-   <FileRef
-      location = "group:Pods/Pods.xcodeproj">
+      location="group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>
