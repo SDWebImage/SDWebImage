@@ -1,7 +1,7 @@
 # Number of days of inactivity before an issue becomes stale
-daysUntilStale: 60
+daysUntilStale: 90
 # Number of days of inactivity before a stale issue is closed
-daysUntilClose: 7
+daysUntilClose: 14
 # Issues with these labels will never be considered stale
 exemptLabels:
   - important
@@ -19,7 +19,7 @@ closeComment: false
 
 # Optionally, specify configuration settings that are specific to just 'issues' or 'pulls':
 pulls:
-  daysUntilStale: 60
+  daysUntilStale: 90
   markComment: >
     This pull request has been automatically marked as stale because it has not had
      recent activity. It will be closed if no further activity occurs.
