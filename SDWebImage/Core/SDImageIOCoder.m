@@ -377,6 +377,11 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     }
     
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    if (@available(macOS 15, iOS 18, tvOS 18.0, watchOS 18.0, *)) {
+        if (image.isHighDynamicRange) {
+            properties[(__bridge NSString *)kCGImageDestinationEncodeRequest] = (__bridge NSString *)kCGImageDestinationEncodeToISOGainmap;
+        }
+    }
 #if SD_UIKIT || SD_WATCH
     CGImagePropertyOrientation exifOrientation = [SDImageCoderHelper exifOrientationFromImageOrientation:image.imageOrientation];
 #else
