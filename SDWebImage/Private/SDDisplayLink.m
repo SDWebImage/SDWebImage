@@ -269,22 +269,24 @@ static BOOL kSDDisplayLinkUseTargetTimestamp = NO; // Use `next` fire time, or `
 
 #if SD_MAC
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *inNow, const CVTimeStamp *inOutputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
-    // CVDisplayLink callback is not on main queue
-    // Actually `SDWeakProxy` but not `SDDisplayLink`
-    SDDisplayLink *object = (__bridge SDDisplayLink *)displayLinkContext;
-    if (!object) return kCVReturnSuccess;
-    // CVDisplayLink does not use runloop, but we can provide similar behavior for modes
-    // May use `default` runloop to avoid extra callback when in `eventTracking` (mouse drag, scroll) or `modalPanel` (modal panel)
-    NSString *runloopMode = object.runloopMode;
-    if (![runloopMode isEqualToString:NSRunLoopCommonModes] && ![runloopMode isEqualToString:NSRunLoop.mainRunLoop.currentMode]) {
+    @autoreleasepool {
+        // CVDisplayLink callback is not on main queue
+        // Actually `SDWeakProxy` but not `SDDisplayLink`
+        SDDisplayLink *object = (__bridge SDDisplayLink *)displayLinkContext;
+        if (!object) return kCVReturnSuccess;
+        // CVDisplayLink does not use runloop, but we can provide similar behavior for modes
+        // May use `default` runloop to avoid extra callback when in `eventTracking` (mouse drag, scroll) or `modalPanel` (modal panel)
+        NSString *runloopMode = object.runloopMode;
+        if (![runloopMode isEqualToString:NSRunLoopCommonModes] && ![runloopMode isEqualToString:NSRunLoop.mainRunLoop.currentMode]) {
+            return kCVReturnSuccess;
+        }
+        CVTimeStamp outputTime = inOutputTime ? *inOutputTime : *inNow;
+        // `SDWeakProxy` is weak, so it's safe to dispatch to main queue without leak
+        dispatch_async(dispatch_get_main_queue(), ^{
+            object.outputTime = outputTime;
+            [object displayLinkDidRefresh:(__bridge id)(displayLink)];
+        });
         return kCVReturnSuccess;
     }
-    CVTimeStamp outputTime = inOutputTime ? *inOutputTime : *inNow;
-    // `SDWeakProxy` is weak, so it's safe to dispatch to main queue without leak
-    dispatch_async(dispatch_get_main_queue(), ^{
-        object.outputTime = outputTime;
-        [object displayLinkDidRefresh:(__bridge id)(displayLink)];
-    });
-    return kCVReturnSuccess;
 }
 #endif
