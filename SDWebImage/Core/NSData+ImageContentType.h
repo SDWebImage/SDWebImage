@@ -60,4 +60,9 @@ static const SDImageFormat SDImageFormatRAW       = 10;
  */
 + (SDImageFormat)sd_imageFormatFromUTType:(nonnull CFStringRef)uttype;
 
+/**
+ *  Check if HDR is supported
+ */
++ (BOOL)sd_isSupportHDRForImageFormat:(SDImageFormat)imageFormat;
+
 @end
