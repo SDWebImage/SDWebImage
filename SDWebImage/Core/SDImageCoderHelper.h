@@ -114,6 +114,11 @@ typedef struct SDImagePixelFormat {
 + (BOOL)CGImageIsLazy:(_Nonnull CGImageRef)cgImage;
 
 /**
+ Check if the image is HDR
+ */
++ (BOOL)CGImageIsHDR:(_Nonnull CGImageRef)cgImage;
+
+/**
  Create a decoded CGImage by the provided CGImage. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
  @note This actually call `CGImageCreateDecoded:orientation:` with the Up orientation.
@@ -132,6 +137,12 @@ typedef struct SDImagePixelFormat {
  @return A new created decoded image
  */
 + (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation CF_RETURNS_RETAINED;
+
+/**
+ Create a decoded CGImage by HDR
+ @return A new created decoded image
+ */
++ (CGImageRef _Nullable)CGImageCreateHDRDecoded:(_Nonnull CGImageRef)cgImage CF_RETURNS_RETAINED;
 
 /**
  Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.

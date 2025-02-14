@@ -32,7 +32,7 @@
 
 + (NSTimeInterval)frameDurationAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source;
 + (NSUInteger)imageLoopCountWithSource:(nonnull CGImageSourceRef)source;
-+ (nullable UIImage *)createFrameAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage;
++ (nullable UIImage *)createFrameAtIndex:(NSUInteger)index source:(nonnull CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage decodeToHDR:(BOOL)decodeToHDR;
 + (BOOL)canEncodeToFormat:(SDImageFormat)format;
 + (BOOL)canDecodeFromFormat:(SDImageFormat)format;
 

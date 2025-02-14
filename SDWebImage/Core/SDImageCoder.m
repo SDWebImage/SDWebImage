@@ -16,6 +16,7 @@ SDImageCoderOption const SDImageCoderDecodeFileExtensionHint = @"decodeFileExten
 SDImageCoderOption const SDImageCoderDecodeTypeIdentifierHint = @"decodeTypeIdentifierHint";
 SDImageCoderOption const SDImageCoderDecodeUseLazyDecoding = @"decodeUseLazyDecoding";
 SDImageCoderOption const SDImageCoderDecodeScaleDownLimitBytes = @"decodeScaleDownLimitBytes";
+SDImageCoderOption const SDImageCoderDecodeToHDR = @"decodeToHDR";
 
 SDImageCoderOption const SDImageCoderEncodeFirstFrameOnly = @"encodeFirstFrameOnly";
 SDImageCoderOption const SDImageCoderEncodeCompressionQuality = @"encodeCompressionQuality";
