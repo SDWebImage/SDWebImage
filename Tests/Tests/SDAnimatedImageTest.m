@@ -316,7 +316,8 @@ static BOOL _isCalled;
     NSURL *testURL = [NSURL URLWithString:@"https://media.giphy.com/media/3oeji6siihbdrxxi40/giphy.gif"];
     [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
     [SDImageCache.sharedImageCache removeImageFromDiskForKey:testURL.absoluteString];
-    [imageView sd_setImageWithURL:testURL completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+    // I don't know why, but `fromLoaderOnly` is need for iOS Unit Test on GitHub Action
+    [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageFromLoaderOnly completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
