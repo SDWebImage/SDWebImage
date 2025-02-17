@@ -344,24 +344,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             format = SDImageFormatJPEG;
         }
     }
-    BOOL createdImageRef = NO;
-    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
-        if (image.isHighDynamicRange) {
-            if (![NSData sd_isSupportHDRForImageFormat:format]) {
-                // other types do not support HDR and will cause crashes
-                return nil;
-            }
-            if (format == SDImageFormatJPEG && ![SDImageCoderHelper CGImageIsLazy:imageRef]) {
-                // JEPG HDR image must be lazy decode, otherwise it will crash
-                return nil;
-            }
-            CGImageRef hdrImageRef = [SDImageCoderHelper CGImageCreateHDRDecoded:imageRef];
-            if (hdrImageRef) {
-                imageRef = hdrImageRef;
-                createdImageRef = YES;
-            }
-        }
-    }
 
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
@@ -370,9 +352,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CGImageDestinationRef imageDestination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)imageData, imageUTType, 1, NULL);
     if (!imageDestination) {
         // Handle failure.
-        if (createdImageRef) {
-            CGImageRelease(imageRef);
-        }
         return nil;
     }
     
@@ -444,9 +423,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     }
     
     CFRelease(imageDestination);
-    if (createdImageRef) {
-        CGImageRelease(imageRef);
-    }
     
     return [imageData copy];
 }

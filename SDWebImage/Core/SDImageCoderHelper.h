@@ -139,12 +139,6 @@ typedef struct SDImagePixelFormat {
 + (CGImageRef _Nullable)CGImageCreateDecoded:(_Nonnull CGImageRef)cgImage orientation:(CGImagePropertyOrientation)orientation CF_RETURNS_RETAINED;
 
 /**
- Create a decoded CGImage by HDR
- @return A new created decoded image
- */
-+ (CGImageRef _Nullable)CGImageCreateHDRDecoded:(_Nonnull CGImageRef)cgImage CF_RETURNS_RETAINED;
-
-/**
  Create a scaled CGImage by the provided CGImage and size. This follows The Create Rule and you are response to call release after usage.
  It will detect whether the image size matching the scale size, if not, stretch the image to the target size.
  @note If you need to keep aspect ratio, you can calculate the scale size by using `scaledSizeWithImageSize` first.

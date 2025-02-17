@@ -164,17 +164,4 @@
     return imageFormat;
 }
 
-+ (BOOL)sd_isSupportHDRForImageFormat:(SDImageFormat)imageFormat {
-    if (imageFormat == SDImageFormatJPEG) {
-        if (@available(macOS 15, iOS 18, *)) {
-            return YES;
-        }
-    } else if (imageFormat == SDImageFormatHEIC) {
-        if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
 @end
