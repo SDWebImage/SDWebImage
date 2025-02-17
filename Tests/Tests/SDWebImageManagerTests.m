@@ -377,16 +377,22 @@
     NSURL *url = [NSURL URLWithString:@"https://placehold.co/101x101.png"];
     NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url];
     NSData *testImageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    UIImage *testImage = [UIImage sd_imageWithData:testImageData];
     [SDImageCache.sharedImageCache storeImageDataToDisk:testImageData forKey:key];
     
     // Query memory first
     [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeMemory)} progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(image).beNil();
         expect(cacheType).equal(SDImageCacheTypeNone);
+        // Store the image to memory
+        [SDImageCache.sharedImageCache storeImageToMemory:testImage forKey:key];
         // Query disk secondly
         [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageFromCacheOnly context:@{SDWebImageContextQueryCacheType : @(SDImageCacheTypeDisk)} progress:nil completed:^(UIImage * _Nullable image2, NSData * _Nullable data2, NSError * _Nullable error2, SDImageCacheType cacheType2, BOOL finished2, NSURL * _Nullable imageURL2) {
             expect(image2).notTo.beNil();
             expect(cacheType2).equal(SDImageCacheTypeDisk);
+            // We should ensure that this disk image is not the same one in-memory
+            expect(image2 != testImage).beTruthy();
+            [SDImageCache.sharedImageCache removeImageFromMemoryForKey:key];
             [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
             [expectation fulfill];
         }];

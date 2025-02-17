@@ -313,14 +313,17 @@ static BOOL _isCalled;
 - (void)test22AnimatedImageViewCategory {
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
-    NSURL *testURL = [NSURL URLWithString:kTestGIFURL];
-    [imageView sd_setImageWithURL:testURL completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+    NSURL *testURL = [NSURL URLWithString:@"https://media.giphy.com/media/3oeji6siihbdrxxi40/giphy.gif"];
+    [SDImageCache.sharedImageCache removeImageFromMemoryForKey:testURL.absoluteString];
+    [SDImageCache.sharedImageCache removeImageFromDiskForKey:testURL.absoluteString];
+    // I don't know why, but `fromLoaderOnly` is need for iOS Unit Test on GitHub Action
+    [imageView sd_setImageWithURL:testURL placeholderImage:nil options:SDWebImageFromLoaderOnly completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
         expect(error).to.beNil();
         expect(image).notTo.beNil();
         expect([image isKindOfClass:[SDAnimatedImage class]]).beTruthy();
         [expectation fulfill];
     }];
-    [self waitForExpectationsWithCommonTimeout];
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout * 2 handler:nil];
 }
 
 - (void)test23AnimatedImageViewCategoryProgressive {

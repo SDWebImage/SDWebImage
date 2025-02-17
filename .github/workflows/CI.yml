@@ -45,12 +45,12 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      iosDestination: platform=iOS Simulator,name=iPhone 16 Pro
+      iosDestination: generic/platform=iOS Simulator
       macOSDestination: platform=macOS,arch=x86_64
       macCatalystDestination: platform=macOS,arch=x86_64,variant=Mac Catalyst
-      tvOSDestination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
-      watchOSDestination: platform=watchOS Simulator,name=Apple Watch Ultra 2 (49mm)
-      visionOSDestination: platform=visionOS Simulator,name=Apple Vision Pro
+      tvOSDestination: generic/platform=tvOS Simulator
+      watchOSDestination: generic/platform=watchOS Simulator
+      visionOSDestination: generic/platform=visionOS Simulator
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -106,7 +106,7 @@ jobs:
         platform: [iOS, macOS, tvOS, visionOS]
         include:
           - platform: iOS
-            destination: platform=iOS Simulator,name=iPhone 16 Pro
+            destination: platform=iOS Simulator,name=iPhone 16 Pro Max
             scheme: iOS
             flag: ios
           - platform: macOS
