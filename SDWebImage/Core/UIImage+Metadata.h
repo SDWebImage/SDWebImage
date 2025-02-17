@@ -95,4 +95,9 @@
  */
 @property (nonatomic, copy) SDImageCoderOptions *sd_decodeOptions;
 
+/**
+ A bool value indicating that the image is using HDR
+ */
+@property (nonatomic, assign, readonly) BOOL sd_isHighDynamicRange;
+
 @end

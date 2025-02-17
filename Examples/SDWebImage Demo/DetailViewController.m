@@ -35,9 +35,7 @@
                                context:context
                               progress:nil
                              completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-        if (@available(iOS 17.0, *)) {
-            NSLog(@"isHighDynamicRange %@", @(image.isHighDynamicRange));
-        }
+        NSLog(@"isHighDynamicRange %@", @(image.sd_isHighDynamicRange));
     }];
     self.imageView.shouldCustomLoopCount = YES;
     self.imageView.animationRepeatCount = 0;

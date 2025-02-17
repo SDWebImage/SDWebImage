@@ -458,9 +458,6 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
         if (decodeToHDR) {
             decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
-#if TARGET_OS_SIMULATOR
-            NSAssert(NO, @"the simulator does not support HDR, will generate some exception information or crash");
-#endif
         }
     }
   
@@ -853,10 +850,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     NSString *imageUTType = self.class.imageUTType;
     
     // For HDR, kSDUTTypeHEICS loses HDR information after encoding, so convert it to kSDUTTypeHEIC here
-    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
-        if (onlyEncodeOnce && image.isHighDynamicRange && imageUTType && CFEqual((__bridge CFStringRef)imageUTType, kSDUTTypeHEICS)) {
-            imageUTType = (__bridge NSString *)kSDUTTypeHEIC;
-        }
+    if (onlyEncodeOnce && image.sd_isHighDynamicRange && imageUTType && CFEqual((__bridge CFStringRef)imageUTType, kSDUTTypeHEICS)) {
+        imageUTType = (__bridge NSString *)kSDUTTypeHEIC;
     }
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
