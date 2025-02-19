@@ -316,6 +316,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
                                  userInfo:nil];
 }
 
++ (NSString *)animatedImageUTType {
+    return [self imageUTType];
+}
+
 + (NSString *)dictionaryProperty {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
@@ -427,7 +431,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
     NSDictionary *options;
     if (animatedImage) {
-        if (!lazyDecode && !decodeToHDR) {
+        if (!lazyDecode) {
             options = @{
                 // image decoding and caching should happen at image creation time.
                 (__bridge NSString *)kCGImageSourceShouldCacheImmediately : @(YES),
@@ -847,11 +851,11 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     BOOL onlyEncodeOnce = [options[SDImageCoderEncodeFirstFrameOnly] boolValue] || frames.count <= 1;
     
     NSMutableData *imageData = [NSMutableData data];
-    NSString *imageUTType = self.class.imageUTType;
-    
-    // For HDR, kSDUTTypeHEICS loses HDR information after encoding, so convert it to kSDUTTypeHEIC here
-    if (onlyEncodeOnce && image.sd_isHighDynamicRange && imageUTType && CFEqual((__bridge CFStringRef)imageUTType, kSDUTTypeHEICS)) {
-        imageUTType = (__bridge NSString *)kSDUTTypeHEIC;
+    NSString *imageUTType;
+    if (onlyEncodeOnce) {
+        imageUTType = self.class.imageUTType;
+    } else {
+        imageUTType = self.class.animatedImageUTType;
     }
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
