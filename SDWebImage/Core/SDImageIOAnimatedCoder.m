@@ -462,6 +462,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
         if (decodeToHDR) {
             decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
+        } else {
+            decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToSDR;
         }
     }
   
