@@ -97,6 +97,7 @@
 
 /**
  A bool value indicating that the image is using HDR
+ @note Only valid for CGImage based, for CIImage based, the returned value is not correct.
  */
 @property (nonatomic, assign, readonly) BOOL sd_isHighDynamicRange;
 

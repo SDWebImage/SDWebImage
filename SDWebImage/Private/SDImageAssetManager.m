@@ -8,26 +8,13 @@
 
 #import "SDImageAssetManager.h"
 #import "SDInternalMacros.h"
+#import "SDDeviceHelper.h"
 
 static NSArray *SDBundlePreferredScales(void) {
     static NSArray *scales;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-#if SD_VISION
-        CGFloat screenScale = UITraitCollection.currentTraitCollection.displayScale;
-#elif SD_WATCH
-        CGFloat screenScale = [WKInterfaceDevice currentDevice].screenScale;
-#elif SD_UIKIT
-        CGFloat screenScale = [UIScreen mainScreen].scale;
-#elif SD_MAC
-      NSScreen *mainScreen = nil;
-      if (@available(macOS 10.12, *)) {
-          mainScreen = [NSScreen mainScreen];
-      } else {
-          mainScreen = [NSScreen screens].firstObject;
-      }
-      CGFloat screenScale = mainScreen.backingScaleFactor ?: 1.0f;
-#endif
+        CGFloat screenScale = SDDeviceHelper.screenScale;
         if (screenScale <= 1) {
             scales = @[@1,@2,@3];
         } else if (screenScale <= 2) {

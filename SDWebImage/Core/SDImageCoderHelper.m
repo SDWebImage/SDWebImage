@@ -425,10 +425,11 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (!cgImage) {
         return NO;
     }
-    if (@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6.0, *)) {
+    if (@available(macOS 11.0, iOS 14, tvOS 14, watchOS 7.0, *)) {
         CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
         if (colorSpace) {
-            return CGColorSpaceIsHDR(colorSpace);
+            // Actually `CGColorSpaceIsHDR` use the same impl, but deprecated
+            return CGColorSpaceUsesITUR_2100TF(colorSpace);
         }
     }
     return NO;
