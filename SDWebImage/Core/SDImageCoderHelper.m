@@ -977,6 +977,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     if (image.sd_isVector) {
         return NO;
     }
+    // FIXME: currently our force decode solution is buggy on HDR CGImage
+    if (image.sd_isHighDynamicRange) {
+        return NO;
+    }
     // Check policy (always)
     if (policy == SDImageForceDecodePolicyAlways) {
         return YES;

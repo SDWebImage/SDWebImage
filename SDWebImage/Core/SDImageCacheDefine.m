@@ -12,6 +12,7 @@
 #import "SDAnimatedImage.h"
 #import "UIImage+Metadata.h"
 #import "SDInternalMacros.h"
+#import "SDDeviceHelper.h"
 
 #import <CoreServices/CoreServices.h>
 
@@ -40,8 +41,6 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
             fileExtensionHint = nil;
         }
     }
-    // to HDR
-    NSNumber *decodeToHDR = context[SDWebImageContextImageDecodeToHDR];
     
     // First check if user provided decode options
     SDImageCoderMutableOptions *mutableCoderOptions;
@@ -49,6 +48,12 @@ SDImageCoderOptions * _Nonnull SDGetDecodeOptionsFromContext(SDWebImageContext *
         mutableCoderOptions = [NSMutableDictionary dictionaryWithDictionary:context[SDWebImageContextImageDecodeOptions]];
     } else {
         mutableCoderOptions = [NSMutableDictionary dictionaryWithCapacity:6];
+    }
+    
+    // Some options need preserve the custom decode options
+    NSNumber *decodeToHDR = context[SDWebImageContextImageDecodeToHDR];
+    if (decodeToHDR == nil) {
+        decodeToHDR = mutableCoderOptions[SDImageCoderDecodeToHDR];
     }
     
     // Override individual options
@@ -131,10 +136,6 @@ UIImage * _Nullable SDImageCacheDecodeImageData(NSData * _Nonnull imageData, NSS
         NSNumber *policyValue = context[SDWebImageContextImageForceDecodePolicy];
         if (policyValue != nil) {
             policy = policyValue.unsignedIntegerValue;
-        }
-        BOOL decodeToHDR = [coderOptions[SDImageCoderDecodeToHDR] boolValue];
-        if (decodeToHDR) {
-            policy = SDImageForceDecodePolicyNever;
         }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push

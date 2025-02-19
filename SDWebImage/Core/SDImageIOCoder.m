@@ -180,7 +180,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         lazyDecode = lazyDecodeValue.boolValue;
     }
     
-    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
     
     NSString *typeIdentifierHint = options[SDImageCoderDecodeTypeIdentifierHint];
     if (!typeIdentifierHint) {
@@ -260,7 +260,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         }
         _lazyDecode = lazyDecode;
         
-        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
         
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];

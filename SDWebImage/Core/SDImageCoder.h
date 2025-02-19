@@ -89,7 +89,8 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeUseLazyDec
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleDownLimitBytes;
 
 /**
- A Boolean value to provide converting to HDR during decoding, Supported by iOS 17 and above
+ A Boolean value to provide converting to HDR during decoding.
+ @note Supported by iOS 17 and above when using ImageIO coder (third-party coder can support lower firmware)
  Defaults to NO, decoder will automatically convert SDR.
  @note works for `SDImageCoder`
  */

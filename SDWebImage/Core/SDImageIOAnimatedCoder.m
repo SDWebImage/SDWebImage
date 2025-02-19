@@ -606,7 +606,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         limitBytes = limitBytesValue.unsignedIntegerValue;
     }
     
-    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
     
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
@@ -746,7 +746,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         }
         _lazyDecode = lazyDecode;
 
-        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
         
         SD_LOCK_INIT(_lock);
 #if SD_UIKIT
@@ -1019,7 +1019,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         }
         _lazyDecode = lazyDecode;
 
-        _decodeToHDR = [options[SDImageCoderDecodeToHDR] doubleValue];
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
         
         _imageSource = imageSource;
         _imageData = data;

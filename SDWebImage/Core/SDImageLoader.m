@@ -79,10 +79,6 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
         if (policyValue != nil) {
             policy = policyValue.unsignedIntegerValue;
         }
-        BOOL decodeToHDR = [coderOptions[SDImageCoderDecodeToHDR] boolValue];
-        if (decodeToHDR) {
-            policy = SDImageForceDecodePolicyNever;
-        }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -163,10 +159,6 @@ UIImage * _Nullable SDImageLoaderDecodeProgressiveImageData(NSData * _Nonnull im
         NSNumber *policyValue = context[SDWebImageContextImageForceDecodePolicy];
         if (policyValue != nil) {
             policy = policyValue.unsignedIntegerValue;
-        }
-        BOOL decodeToHDR = [coderOptions[SDImageCoderDecodeToHDR] boolValue];
-        if (decodeToHDR) {
-            policy = SDImageForceDecodePolicyNever;
         }
         // TODO: Deprecated, remove in SD 6.0...
 #pragma clang diagnostic push
