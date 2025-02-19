@@ -34,6 +34,11 @@ typedef NS_ENUM(NSInteger, SDGraphicsImageRendererFormatRange) {
 /// A set of drawing attributes that represent the configuration of an image renderer context.
 @interface SDGraphicsImageRendererFormat : NSObject
 
+#if SD_UIKIT
+/// The underlying uiformat for UIKit. This usage of this API should be careful, which may cause out of sync.
+@property (nonatomic, strong, nonnull) UIGraphicsImageRendererFormat *uiformat API_AVAILABLE(ios(10.0), tvos(10.0));
+#endif
+
 /// The display scale of the image renderer context.
 /// The default value is equal to the scale of the main screen.
 @property (nonatomic) CGFloat scale;

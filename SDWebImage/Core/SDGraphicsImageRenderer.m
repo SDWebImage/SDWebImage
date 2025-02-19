@@ -10,12 +10,6 @@
 #import "SDImageGraphics.h"
 #import "SDDeviceHelper.h"
 
-@interface SDGraphicsImageRendererFormat ()
-#if SD_UIKIT
-@property (nonatomic, strong) UIGraphicsImageRendererFormat *uiformat API_AVAILABLE(ios(10.0), tvos(10.0));
-#endif
-@end
-
 @implementation SDGraphicsImageRendererFormat
 @synthesize scale = _scale;
 @synthesize opaque = _opaque;

@@ -695,12 +695,20 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
         CGImageRelease(decodedImageRef);
     } else {
-        BOOL hasAlpha = [self CGImageContainsAlpha:imageRef];
         // Prefer to use new Image Renderer to re-draw image, instead of low-level CGBitmapContext and CGContextDrawImage
         // This can keep both OS compatible and don't fight with Apple's performance optimization
         SDGraphicsImageRendererFormat *format = SDGraphicsImageRendererFormat.preferredFormat;
-        format.opaque = !hasAlpha;
-        format.scale = image.scale;
+        // To support most OS compatible like Dynamic Range, prefer the image level format
+#if SD_UIKIT
+        if (@available(iOS 10.0, tvOS 10.0, *)) {
+            format.uiformat = image.imageRendererFormat;
+        } else {
+#endif
+            format.opaque = ![self CGImageContainsAlpha:imageRef];;
+            format.scale = image.scale;
+#if SD_UIKIT
+        }
+#endif
         CGSize imageSize = image.size;
         SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:imageSize format:format];
         decodedImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
