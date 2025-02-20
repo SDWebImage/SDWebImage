@@ -1,3 +1,11 @@
+## [5.20.1 - 5.20 Patch on Feb 20th, 2025]
+See [all tickets marked for the 5.20.1 release](https://github.com/SDWebImage/SDWebImage/milestone/141)
+
+### Fixes
+- (macOS) Fix SDAnimatedImagePlayer leaking SDDisplayLink instances and leaving CVDisplayLink threads running #3776
+- (macOS) Add autoreleasepool to DisplayLinkCallback to release objects #3779
+- Fix the issue that previous optimization for special case (multiple same URL in prefetcher list) breaks the queryCacheType option sematic #3788
+
 ## [5.20.0 - Animation Transformer with tint color, on Nov 1st, 2024](https://github.com/rs/SDWebImage/releases/tag/5.20.0)
 See [all tickets marked for the 5.20.0 release](https://github.com/SDWebImage/SDWebImage/milestone/139)
 
