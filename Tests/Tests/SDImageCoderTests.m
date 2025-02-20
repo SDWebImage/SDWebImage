@@ -650,9 +650,12 @@
             expect(SDRImage).notTo.beNil();
             
             expect([SDImageCoderHelper CGImageIsHDR:HDRImage.CGImage]).beTruthy();
-            expect([SDImageCoderHelper CGImageIsHDR:SDRImage.CGImage]).beFalsy();
             expect(HDRImage.sd_isHighDynamicRange).beTruthy();
+            // FIXME: on Simulator, the SDR decode options will not take effect, so SDR is the same as HDR
+#if !TARGET_OS_SIMULATOR
+            expect([SDImageCoderHelper CGImageIsHDR:SDRImage.CGImage]).beFalsy();
             expect(SDRImage.sd_isHighDynamicRange).beFalsy();
+#endif
             // FIXME: Encoding need iOS 18+/macOS 15+
             // And need test both GainMap HDR or ISO HDR, TODO
         }
