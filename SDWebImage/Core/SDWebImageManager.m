@@ -512,6 +512,7 @@ static id<SDImageLoader> _defaultImageLoader;
             if (transformedImage) {
                 // We need keep some metadata from the full size image when needed
                 // Because most of our transformer does not care about these information
+                // So we add a **post-process** logic here, not a good design :(
                 BOOL preserveImageMetadata = YES;
                 if ([transformer respondsToSelector:@selector(preserveImageMetadata)]) {
                     preserveImageMetadata = transformer.preserveImageMetadata;

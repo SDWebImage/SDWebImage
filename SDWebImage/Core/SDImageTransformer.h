@@ -40,7 +40,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 @optional
 
 /**
- Defaults to YES.
+ Defaults to YES if you don't implements this method.
  We keep some metadata like Image Format (`sd_imageFormat`)/ Animated Loop Count (`sd_imageLoopCount`) via associated object on UIImage instance.
  When transformer generate a new UIImage instance, in most cases you still want to keep these information. So this is what for during the image loading pipeline.
  If the value is YES, we will keep and override the metadata **After you generate the UIImage**
@@ -74,8 +74,9 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
  Pipeline transformer. Which you can bind multiple transformers together to let the image to be transformed one by one in order and generate the final image.
  @note Because transformers are lightweight, if you want to append or arrange transformers, create another pipeline transformer instead. This class is considered as immutable.
  */
-@interface SDImagePipelineTransformer : NSObject <SDImageTransformer>
-
+@interface SDImagePipelineTransformer : NSObject<SDImageTransformer>
+/// For pipeline transformer, this property is readonly and always return NO. We handle each transformer's choice inside implementation
+@property (nonatomic, assign, readonly) BOOL preserveImageMetadata;
 /**
  All transformers in pipeline
  */
@@ -88,6 +89,13 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 
 @end
 
+#pragma mark - Base
+/// This is the base class for our built-in concrete transformers. You should not use this class directlly, use cconcrete subclass (like `SDImageRoundCornerTransformer`) instead.
+@interface SDImageBaseTransformer : NSObject<SDImageTransformer>
+/// For concrete transformer, this property is readwrite and defaults to YES. You can choose whether to preserve image metadata **After you generate the UIImage**
+@property (nonatomic, assign, readwrite) BOOL preserveImageMetadata;
+@end
+
 // There are some built-in transformers based on the `UIImage+Transformer` category to provide the common image geometry, image blending and image effect process. Those transform are useful for static image only but you can create your own to support animated image as well.
 // Because transformers are lightweight, these class are considered as immutable.
 #pragma mark - Image Geometry
@@ -95,7 +103,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image round corner transformer
  */
-@interface SDImageRoundCornerTransformer: NSObject <SDImageTransformer>
+@interface SDImageRoundCornerTransformer: SDImageBaseTransformer
 
 /**
  The radius of each corner oval. Values larger than half the
@@ -133,7 +141,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image resizing transformer
  */
-@interface SDImageResizingTransformer : NSObject <SDImageTransformer>
+@interface SDImageResizingTransformer : SDImageBaseTransformer
 
 /**
  The new size to be resized, values should be positive.
@@ -155,7 +163,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image cropping transformer
  */
-@interface SDImageCroppingTransformer : NSObject <SDImageTransformer>
+@interface SDImageCroppingTransformer : SDImageBaseTransformer
 
 /**
  Image's inner rect.
@@ -172,7 +180,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image flipping transformer
  */
-@interface SDImageFlippingTransformer : NSObject <SDImageTransformer>
+@interface SDImageFlippingTransformer : SDImageBaseTransformer
 
 /**
  YES to flip the image horizontally. ⇋
@@ -194,7 +202,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image rotation transformer
  */
-@interface SDImageRotationTransformer : NSObject <SDImageTransformer>
+@interface SDImageRotationTransformer : SDImageBaseTransformer
 
 /**
  Rotated radians in counterclockwise.⟲
@@ -219,7 +227,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image tint color transformer
  */
-@interface SDImageTintTransformer : NSObject <SDImageTransformer>
+@interface SDImageTintTransformer : SDImageBaseTransformer
 
 /**
  The tint color.
@@ -241,7 +249,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Image blur effect transformer
  */
-@interface SDImageBlurTransformer : NSObject <SDImageTransformer>
+@interface SDImageBlurTransformer : SDImageBaseTransformer
 
 /**
  The radius of the blur in points, 0 means no blur effect.
@@ -259,7 +267,7 @@ FOUNDATION_EXPORT NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullab
 /**
  Core Image filter transformer
  */
-@interface SDImageFilterTransformer: NSObject <SDImageTransformer>
+@interface SDImageFilterTransformer: SDImageBaseTransformer
 
 /**
  The CIFilter to be applied to the image.
