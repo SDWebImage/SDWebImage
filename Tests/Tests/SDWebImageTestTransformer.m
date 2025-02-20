@@ -11,14 +11,6 @@
 
 @implementation SDWebImageTestTransformer
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _preserveImageMetadata = YES;
-    }
-    return self;
-}
-
 - (NSString *)transformerKey {
     return @"SDWebImageTestTransformer";
 }

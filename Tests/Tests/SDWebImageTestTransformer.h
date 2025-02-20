@@ -9,9 +9,7 @@
 
 #import <SDWebImage/SDImageTransformer.h>
 
-@interface SDWebImageTestTransformer : NSObject <SDImageTransformer>
-
-@property (nonatomic, assign) BOOL preserveImageMetadata;
+@interface SDWebImageTestTransformer : SDImageBaseTransformer
 
 @property (nonatomic, strong, nullable) UIImage *testImage;
 
