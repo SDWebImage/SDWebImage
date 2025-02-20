@@ -636,7 +636,8 @@
 }
 
 - (void)test32ThatHDRDecodeWorks {
-    // Only test for iOS 17+/macOS 14+, or ImageIO decoder does not support HDR
+    // Only test for iOS 17+/macOS 14+/visionOS 1+, or ImageIO decoder does not support HDR
+#if SD_MAC || SD_IOS || SD_VISION
     if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
         NSArray *formats = @[@"heic", @"avif", @"jxl"];
         for (NSString *format in formats) {
@@ -660,6 +661,7 @@
             // And need test both GainMap HDR or ISO HDR, TODO
         }
     }
+#endif
 }
 
 #pragma mark - Utils

@@ -114,7 +114,8 @@ typedef struct SDImagePixelFormat {
 + (BOOL)CGImageIsLazy:(_Nonnull CGImageRef)cgImage;
 
 /**
- Check if the image is HDR
+ Check if the CGImage is using HDR color space.
+ @note This use the same implementation like Apple, to checkl if color space uses transfer functions defined in ITU Rec.2100
  */
 + (BOOL)CGImageIsHDR:(_Nonnull CGImageRef)cgImage;
 
