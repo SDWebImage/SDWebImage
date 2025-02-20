@@ -228,7 +228,7 @@
     if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
         return self.isHighDynamicRange;
     } else {
-        return NO;
+        return [SDImageCoderHelper CGImageIsHDR:self.CGImage];
     }
 #endif
 }
