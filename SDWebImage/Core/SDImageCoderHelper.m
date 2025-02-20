@@ -18,6 +18,7 @@
 #import "SDGraphicsImageRenderer.h"
 #import "SDInternalMacros.h"
 #import "SDDeviceHelper.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 #import <Accelerate/Accelerate.h>
 
 #define kCGColorSpaceDeviceRGB CFSTR("kCGColorSpaceDeviceRGB")
@@ -420,6 +421,20 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
 }
 
++ (BOOL)CGImageIsHDR:(_Nonnull CGImageRef)cgImage {
+    if (!cgImage) {
+        return NO;
+    }
+    if (@available(macOS 11.0, iOS 14, tvOS 14, watchOS 7.0, *)) {
+        CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgImage);
+        if (colorSpace) {
+            // Actually `CGColorSpaceIsHDR` use the same impl, but deprecated
+            return CGColorSpaceUsesITUR_2100TF(colorSpace);
+        }
+    }
+    return NO;
+}
+
 + (CGImageRef)CGImageCreateDecoded:(CGImageRef)cgImage {
     return [self CGImageCreateDecoded:cgImage orientation:kCGImagePropertyOrientationUp];
 }
@@ -680,12 +695,20 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
 #endif
         CGImageRelease(decodedImageRef);
     } else {
-        BOOL hasAlpha = [self CGImageContainsAlpha:imageRef];
         // Prefer to use new Image Renderer to re-draw image, instead of low-level CGBitmapContext and CGContextDrawImage
         // This can keep both OS compatible and don't fight with Apple's performance optimization
         SDGraphicsImageRendererFormat *format = SDGraphicsImageRendererFormat.preferredFormat;
-        format.opaque = !hasAlpha;
-        format.scale = image.scale;
+        // To support most OS compatible like Dynamic Range, prefer the image level format
+#if SD_UIKIT
+        if (@available(iOS 10.0, tvOS 10.0, *)) {
+            format.uiformat = image.imageRendererFormat;
+        } else {
+#endif
+            format.opaque = ![self CGImageContainsAlpha:imageRef];;
+            format.scale = image.scale;
+#if SD_UIKIT
+        }
+#endif
         CGSize imageSize = image.size;
         SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:imageSize format:format];
         decodedImage = [renderer imageWithActions:^(CGContextRef  _Nonnull context) {
@@ -960,6 +983,10 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     // do not decode vector images
     if (image.sd_isVector) {
+        return NO;
+    }
+    // FIXME: currently our force decode solution is buggy on HDR CGImage
+    if (image.sd_isHighDynamicRange) {
         return NO;
     }
     // Check policy (always)

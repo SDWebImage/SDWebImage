@@ -635,6 +635,35 @@
     }
 }
 
+- (void)test32ThatHDRDecodeWorks {
+    // Only test for iOS 17+/macOS 14+/visionOS 1+, or ImageIO decoder does not support HDR
+#if SD_MAC || SD_IOS || SD_VISION
+    if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
+        NSArray *formats = @[@"heic", @"avif", @"jxl"];
+        for (NSString *format in formats) {
+            NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestHDR" withExtension:format];
+            NSData *data = [NSData dataWithContentsOfURL:url];
+            // Decoding
+            UIImage *HDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(YES)}];
+            UIImage *SDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(NO)}];
+            
+            expect(HDRImage).notTo.beNil();
+            expect(SDRImage).notTo.beNil();
+            
+            expect([SDImageCoderHelper CGImageIsHDR:HDRImage.CGImage]).beTruthy();
+            expect(HDRImage.sd_isHighDynamicRange).beTruthy();
+            // FIXME: on Simulator, the SDR decode options will not take effect, so SDR is the same as HDR
+#if !TARGET_OS_SIMULATOR
+            expect([SDImageCoderHelper CGImageIsHDR:SDRImage.CGImage]).beFalsy();
+            expect(SDRImage.sd_isHighDynamicRange).beFalsy();
+#endif
+            // FIXME: Encoding need iOS 18+/macOS 15+
+            // And need test both GainMap HDR or ISO HDR, TODO
+        }
+    }
+#endif
+}
+
 #pragma mark - Utils
 
 - (void)verifyCoder:(id<SDImageCoder>)coder

@@ -337,6 +337,13 @@ FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageT
  */
 FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageScaleDownLimitBytes;
 
+/**
+ A Boolean value to provide converting to HDR during decoding.
+ @note Supported by iOS 17 and above when using ImageIO coder (third-party coder can support lower firmware)
+ Defaults to NO, decoder will automatically convert SDR.
+ */
+FOUNDATION_EXPORT SDWebImageContextOption _Nonnull const SDWebImageContextImageDecodeToHDR;
+
 #pragma mark - Cache Context Options
 
 /**

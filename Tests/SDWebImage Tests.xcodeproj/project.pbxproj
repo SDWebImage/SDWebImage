@@ -77,6 +77,18 @@
 		32515F9E24AF1919005E8F79 /* TestImageAnimated.webp in Resources */ = {isa = PBXBuildFile; fileRef = 32515F9824AF1919005E8F79 /* TestImageAnimated.webp */; };
 		3254C32020641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
 		3254C32120641077008D1022 /* SDImageTransformerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3254C31F20641077008D1022 /* SDImageTransformerTests.m */; };
+		3261EC8B2D66235D00F2702E /* TestHDR.avif in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC882D66235D00F2702E /* TestHDR.avif */; };
+		3261EC8C2D66235D00F2702E /* TestHDR.jxl in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC8A2D66235D00F2702E /* TestHDR.jxl */; };
+		3261EC8D2D66235D00F2702E /* TestHDR.heic in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC892D66235D00F2702E /* TestHDR.heic */; };
+		3261EC8E2D66235D00F2702E /* TestHDR.avif in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC882D66235D00F2702E /* TestHDR.avif */; };
+		3261EC8F2D66235D00F2702E /* TestHDR.jxl in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC8A2D66235D00F2702E /* TestHDR.jxl */; };
+		3261EC902D66235D00F2702E /* TestHDR.heic in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC892D66235D00F2702E /* TestHDR.heic */; };
+		3261EC912D66235D00F2702E /* TestHDR.avif in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC882D66235D00F2702E /* TestHDR.avif */; };
+		3261EC922D66235D00F2702E /* TestHDR.jxl in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC8A2D66235D00F2702E /* TestHDR.jxl */; };
+		3261EC932D66235D00F2702E /* TestHDR.heic in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC892D66235D00F2702E /* TestHDR.heic */; };
+		3261EC942D66235D00F2702E /* TestHDR.avif in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC882D66235D00F2702E /* TestHDR.avif */; };
+		3261EC952D66235D00F2702E /* TestHDR.jxl in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC8A2D66235D00F2702E /* TestHDR.jxl */; };
+		3261EC962D66235D00F2702E /* TestHDR.heic in Resources */ = {isa = PBXBuildFile; fileRef = 3261EC892D66235D00F2702E /* TestHDR.heic */; };
 		32648067250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		32648068250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
 		32648069250232F7004FA0FC /* 1@2x.gif in Resources */ = {isa = PBXBuildFile; fileRef = 32648066250232F7004FA0FC /* 1@2x.gif */; };
@@ -199,6 +211,9 @@
 		32515F9724AF1919005E8F79 /* TestImageStatic.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageStatic.webp; sourceTree = "<group>"; };
 		32515F9824AF1919005E8F79 /* TestImageAnimated.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestImageAnimated.webp; sourceTree = "<group>"; };
 		3254C31F20641077008D1022 /* SDImageTransformerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDImageTransformerTests.m; sourceTree = "<group>"; };
+		3261EC882D66235D00F2702E /* TestHDR.avif */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestHDR.avif; sourceTree = "<group>"; };
+		3261EC892D66235D00F2702E /* TestHDR.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestHDR.heic; sourceTree = "<group>"; };
+		3261EC8A2D66235D00F2702E /* TestHDR.jxl */ = {isa = PBXFileReference; lastKnownFileType = file; path = TestHDR.jxl; sourceTree = "<group>"; };
 		32648066250232F7004FA0FC /* 1@2x.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "1@2x.gif"; sourceTree = "<group>"; };
 		3264CD162AAB1E23001E338B /* TestJFIF.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = TestJFIF.jpg; sourceTree = "<group>"; };
 		3264FF2D205D42CB00F6BD48 /* SDWebImageTestTransformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDWebImageTestTransformer.h; sourceTree = "<group>"; };
@@ -351,6 +366,9 @@
 				433BBBBA1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg */,
 				324047432271956F007C53E1 /* TestEXIF.png */,
 				3264CD162AAB1E23001E338B /* TestJFIF.jpg */,
+				3261EC882D66235D00F2702E /* TestHDR.avif */,
+				3261EC892D66235D00F2702E /* TestHDR.heic */,
+				3261EC8A2D66235D00F2702E /* TestHDR.jxl */,
 				321F310D27D0DC490042B274 /* TestImage.bmp */,
 				433BBBB61D7EF8200086B6E9 /* TestImage.gif */,
 				326E69462334C0C200B7252C /* TestLoopCount.gif */,
@@ -616,6 +634,9 @@
 				32464AA12B7B1833006BE70E /* MonochromeTestImage.jpg in Resources */,
 				32464AA42B7B1833006BE70E /* TestImageLarge.png in Resources */,
 				32464A962B7B1833006BE70E /* TestImage.gif in Resources */,
+				3261EC8B2D66235D00F2702E /* TestHDR.avif in Resources */,
+				3261EC8C2D66235D00F2702E /* TestHDR.jxl in Resources */,
+				3261EC8D2D66235D00F2702E /* TestHDR.heic in Resources */,
 				32464A952B7B1833006BE70E /* TestImageStatic.webp in Resources */,
 				32464A982B7B1833006BE70E /* TestLoopCount.gif in Resources */,
 			);
@@ -647,6 +668,9 @@
 				32515F9E24AF1919005E8F79 /* TestImageAnimated.webp in Resources */,
 				3299228E2365DC6C00EAFD97 /* TestImageAnimated.heics in Resources */,
 				32515F9B24AF1919005E8F79 /* TestImageStatic.webp in Resources */,
+				3261EC912D66235D00F2702E /* TestHDR.avif in Resources */,
+				3261EC922D66235D00F2702E /* TestHDR.jxl in Resources */,
+				3261EC932D66235D00F2702E /* TestHDR.heic in Resources */,
 				329922862365DC6C00EAFD97 /* TestImage.gif in Resources */,
 				329922852365DC6C00EAFD97 /* TestEXIF.png in Resources */,
 			);
@@ -678,6 +702,9 @@
 				32515F9D24AF1919005E8F79 /* TestImageAnimated.webp in Resources */,
 				327A418D211D660600495442 /* TestImage.heic in Resources */,
 				32515F9A24AF1919005E8F79 /* TestImageStatic.webp in Resources */,
+				3261EC8E2D66235D00F2702E /* TestHDR.avif in Resources */,
+				3261EC8F2D66235D00F2702E /* TestHDR.jxl in Resources */,
+				3261EC902D66235D00F2702E /* TestHDR.heic in Resources */,
 				326E69482334C0C300B7252C /* TestLoopCount.gif in Resources */,
 				32B99EA5203B31360017FD66 /* TestImageLarge.jpg in Resources */,
 			);
@@ -709,6 +736,9 @@
 				32515F9C24AF1919005E8F79 /* TestImageAnimated.webp in Resources */,
 				326E69472334C0C300B7252C /* TestLoopCount.gif in Resources */,
 				32515F9924AF1919005E8F79 /* TestImageStatic.webp in Resources */,
+				3261EC942D66235D00F2702E /* TestHDR.avif in Resources */,
+				3261EC952D66235D00F2702E /* TestHDR.jxl in Resources */,
+				3261EC962D66235D00F2702E /* TestHDR.heic in Resources */,
 				433BBBBB1D7EFA8B0086B6E9 /* MonochromeTestImage.jpg in Resources */,
 				324047442271956F007C53E1 /* TestEXIF.png in Resources */,
 			);

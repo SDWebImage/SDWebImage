@@ -10,6 +10,7 @@
 #import "NSImage+Compatibility.h"
 #import "SDInternalMacros.h"
 #import "objc/runtime.h"
+#import "SDImageCoderHelper.h"
 
 @implementation UIImage (Metadata)
 
@@ -218,6 +219,18 @@
         return value;
     }
     return nil;
+}
+
+- (BOOL)sd_isHighDynamicRange {
+#if SD_MAC
+    return [SDImageCoderHelper CGImageIsHDR:self.CGImage];
+#else
+    if (@available(iOS 17, tvOS 17, watchOS 10, *)) {
+        return self.isHighDynamicRange;
+    } else {
+        return [SDImageCoderHelper CGImageIsHDR:self.CGImage];
+    }
+#endif
 }
 
 @end

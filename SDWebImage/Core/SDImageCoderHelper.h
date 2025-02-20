@@ -114,6 +114,12 @@ typedef struct SDImagePixelFormat {
 + (BOOL)CGImageIsLazy:(_Nonnull CGImageRef)cgImage;
 
 /**
+ Check if the CGImage is using HDR color space.
+ @note This use the same implementation like Apple, to checkl if color space uses transfer functions defined in ITU Rec.2100
+ */
++ (BOOL)CGImageIsHDR:(_Nonnull CGImageRef)cgImage;
+
+/**
  Create a decoded CGImage by the provided CGImage. This follows The Create Rule and you are response to call release after usage.
  It will detect whether image contains alpha channel, then create a new bitmap context with the same size of image, and draw it. This can ensure that the image do not need extra decoding after been set to the imageView.
  @note This actually call `CGImageCreateDecoded:orientation:` with the Up orientation.

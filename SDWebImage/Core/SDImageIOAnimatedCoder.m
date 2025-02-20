@@ -7,6 +7,7 @@
 */
 
 #import "SDImageIOAnimatedCoder.h"
+#import "SDImageIOAnimatedCoderInternal.h"
 #import "NSImage+Compatibility.h"
 #import "UIImage+Metadata.h"
 #import "NSData+ImageContentType.h"
@@ -278,6 +279,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     CGSize _thumbnailSize;
     NSUInteger _limitBytes;
     BOOL _lazyDecode;
+    BOOL _decodeToHDR;
 }
 
 - (void)dealloc
@@ -312,6 +314,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:[NSString stringWithFormat:@"For `SDImageIOAnimatedCoder` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
                                  userInfo:nil];
+}
+
++ (NSString *)animatedImageUTType {
+    return [self imageUTType];
 }
 
 + (NSString *)dictionaryProperty {
@@ -421,7 +427,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     return frameDuration;
 }
 
-+ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage {
++ (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage decodeToHDR:(BOOL)decodeToHDR {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
     NSDictionary *options;
     if (animatedImage) {
@@ -453,6 +459,14 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     } else {
         decodingOptions = [NSMutableDictionary dictionary];
     }
+    if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
+        if (decodeToHDR) {
+            decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToHDR;
+        } else {
+            decodingOptions[(__bridge NSString *)kCGImageSourceDecodeRequest] = (__bridge NSString *)kCGImageSourceDecodeToSDR;
+        }
+    }
+  
     CGImageRef imageRef;
     BOOL createFullImage = thumbnailSize.width == 0 || thumbnailSize.height == 0 || pixelWidth == 0 || pixelHeight == 0 || (pixelWidth <= thumbnailSize.width && pixelHeight <= thumbnailSize.height);
     if (createFullImage) {
@@ -478,6 +492,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     if (!imageRef) {
         return nil;
     }
+    BOOL isHDRImage = [SDImageCoderHelper CGImageIsHDR:imageRef];
+    
     // Thumbnail image post-process
     if (!createFullImage) {
         if (preserveAspectRatio) {
@@ -492,9 +508,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             }
         }
     }
+    
     // Check whether output CGImage is decoded
     BOOL isLazy = [SDImageCoderHelper CGImageIsLazy:imageRef];
-    if (!lazyDecode) {
+    if (!lazyDecode && !isHDRImage) {
         if (isLazy) {
             // Use CoreGraphics to trigger immediately decode to drop lazy CGImage
             CGImageRef decodedImageRef = [SDImageCoderHelper CGImageCreateDecoded:imageRef];
@@ -504,7 +521,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
                 isLazy = NO;
             }
         }
-    } else if (animatedImage) {
+    } else if (animatedImage && !isHDRImage) {
         // iOS 15+, CGImageRef now retains CGImageSourceRef internally. To workaround its thread-safe issue, we have to strip CGImageSourceRef, using Force-Decode (or have to use SPI `CGImageSetImageSource`), See: https://github.com/SDWebImage/SDWebImage/issues/3273
         if (@available(iOS 15, tvOS 15, *)) {
             // User pass `lazyDecode == YES`, but we still have to strip the CGImageSourceRef
@@ -591,6 +608,8 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         limitBytes = limitBytesValue.unsignedIntegerValue;
     }
     
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
+    
 #if SD_MAC
     // If don't use thumbnail, prefers the built-in generation of frames (GIF/APNG)
     // Which decode frames in time and reduce memory usage
@@ -655,12 +674,12 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     
     BOOL decodeFirstFrame = [options[SDImageCoderDecodeFirstFrameOnly] boolValue];
     if (decodeFirstFrame || frameCount <= 1) {
-        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+        animatedImage = [self.class createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO decodeToHDR:decodeToHDR];
     } else {
         NSMutableArray<SDImageFrame *> *frames = [NSMutableArray arrayWithCapacity:frameCount];
         
         for (size_t i = 0; i < frameCount; i++) {
-            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+            UIImage *image = [self.class createFrameAtIndex:i source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO decodeToHDR:decodeToHDR];
             if (!image) {
                 continue;
             }
@@ -728,6 +747,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
+
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
+        
         SD_LOCK_INIT(_lock);
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -788,7 +810,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
+        image = [self.class createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_finished ? _decodeToHDR : NO];
         if (image) {
             image.sd_imageFormat = self.class.imageFormat;
         }
@@ -828,9 +850,15 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         // Earily return, supports CGImage only
         return nil;
     }
+    BOOL onlyEncodeOnce = [options[SDImageCoderEncodeFirstFrameOnly] boolValue] || frames.count <= 1;
     
     NSMutableData *imageData = [NSMutableData data];
-    NSString *imageUTType = self.class.imageUTType;
+    NSString *imageUTType;
+    if (onlyEncodeOnce) {
+        imageUTType = self.class.imageUTType;
+    } else {
+        imageUTType = self.class.animatedImageUTType;
+    }
     
     // Create an image destination. Animated Image does not support EXIF image orientation TODO
     // The `CGImageDestinationCreateWithData` will log a warning when count is 0, use 1 instead.
@@ -894,8 +922,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
     }
     properties[(__bridge NSString *)kCGImageDestinationEmbedThumbnail] = @(embedThumbnail);
     
-    BOOL encodeFirstFrame = [options[SDImageCoderEncodeFirstFrameOnly] boolValue];
-    if (encodeFirstFrame || frames.count <= 1) {
+    if (onlyEncodeOnce) {
         // for static single images
         CGImageDestinationAddImage(imageDestination, imageRef, (__bridge CFDictionaryRef)properties);
     } else {
@@ -993,6 +1020,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
+
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
+        
         _imageSource = imageSource;
         _imageData = data;
 #if SD_UIKIT
@@ -1083,7 +1113,7 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 }
 
 - (UIImage *)safeAnimatedImageFrameAtIndex:(NSUInteger)index {
-    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES];
+    UIImage *image = [self.class createFrameAtIndex:index source:_imageSource scale:_scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:YES decodeToHDR:!_incremental || _finished ? _decodeToHDR : NO];
     if (!image) {
         return nil;
     }

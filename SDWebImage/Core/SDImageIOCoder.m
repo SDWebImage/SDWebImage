@@ -28,6 +28,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     BOOL _preserveAspectRatio;
     CGSize _thumbnailSize;
     BOOL _lazyDecode;
+    BOOL _decodeToHDR;
 }
 
 - (void)dealloc {
@@ -179,6 +180,8 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         lazyDecode = lazyDecodeValue.boolValue;
     }
     
+    BOOL decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
+    
     NSString *typeIdentifierHint = options[SDImageCoderDecodeTypeIdentifierHint];
     if (!typeIdentifierHint) {
         // Check file extension and convert to UTI, from: https://stackoverflow.com/questions/1506251/getting-an-uniform-type-identifier-for-a-given-extension
@@ -211,7 +214,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     CFStringRef uttype = CGImageSourceGetType(source);
     SDImageFormat imageFormat = [NSData sd_imageFormatFromUTType:uttype];
     
-    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO];
+    UIImage *image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:source scale:scale preserveAspectRatio:preserveAspectRatio thumbnailSize:thumbnailSize lazyDecode:lazyDecode animatedImage:NO decodeToHDR:decodeToHDR];
     CFRelease(source);
     
     image.sd_imageFormat = imageFormat;
@@ -256,6 +259,9 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             lazyDecode = lazyDecodeValue.boolValue;
         }
         _lazyDecode = lazyDecode;
+        
+        _decodeToHDR = [options[SDImageCoderDecodeToHDR] boolValue];
+        
 #if SD_UIKIT
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 #endif
@@ -306,7 +312,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         if (scaleFactor != nil) {
             scale = MAX([scaleFactor doubleValue], 1);
         }
-        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO];
+        image = [SDImageIOAnimatedCoder createFrameAtIndex:0 source:_imageSource scale:scale preserveAspectRatio:_preserveAspectRatio thumbnailSize:_thumbnailSize lazyDecode:_lazyDecode animatedImage:NO decodeToHDR:_finished ? _decodeToHDR : NO];
         if (image) {
             CFStringRef uttype = CGImageSourceGetType(_imageSource);
             image.sd_imageFormat = [NSData sd_imageFormatFromUTType:uttype];
@@ -330,7 +336,6 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         // Earily return, supports CGImage only
         return nil;
     }
-    
     if (format == SDImageFormatUndefined) {
         BOOL hasAlpha = [SDImageCoderHelper CGImageContainsAlpha:imageRef];
         if (hasAlpha) {
@@ -339,7 +344,7 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
             format = SDImageFormatJPEG;
         }
     }
-    
+
     NSMutableData *imageData = [NSMutableData data];
     CFStringRef imageUTType = [NSData sd_UTTypeFromImageFormat:format];
     

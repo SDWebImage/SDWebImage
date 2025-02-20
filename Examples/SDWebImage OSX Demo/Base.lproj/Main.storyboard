@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23094"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -677,35 +677,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="480" height="400"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nbD-Cx-g7b">
-                                <rect key="frame" x="20" y="252" width="204" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="vAn-1d-apO"/>
-                            </imageView>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kv0-67-hkh">
-                                <rect key="frame" x="256" y="252" width="204" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="f0P-c9-GMe"/>
-                            </imageView>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JIp-Or-vBM" customClass="SDAnimatedImageView">
-                                <rect key="frame" x="20" y="116" width="204" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="NJq-m3-LlB"/>
-                            </imageView>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="khI-tY-l0M" customClass="SDAnimatedImageView">
-                                <rect key="frame" x="256" y="116" width="204" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="WbV-Do-9qy"/>
-                            </imageView>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="NqE-Zi-qhY">
-                                <rect key="frame" x="212" y="17" width="56" height="31"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="26" id="WoQ-RY-bSV"/>
-                                </constraints>
+                                <rect key="frame" x="211" y="16" width="58" height="33"/>
                                 <buttonCell key="cell" type="bevel" title="Clear" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyUpOrDown" inset="2" id="OYN-fG-Plb">
                                     <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="26" id="WoQ-RY-bSV"/>
+                                </constraints>
                             </button>
                         </subviews>
                         <constraints>
@@ -715,10 +695,6 @@
                     </view>
                     <connections>
                         <outlet property="clearCacheButton" destination="NqE-Zi-qhY" id="eoz-cU-wWs"/>
-                        <outlet property="imageView1" destination="nbD-Cx-g7b" id="t2R-8w-ybH"/>
-                        <outlet property="imageView2" destination="kv0-67-hkh" id="i4k-5c-bno"/>
-                        <outlet property="imageView3" destination="JIp-Or-vBM" id="Qcf-og-59T"/>
-                        <outlet property="imageView4" destination="khI-tY-l0M" id="STy-c1-ihV"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

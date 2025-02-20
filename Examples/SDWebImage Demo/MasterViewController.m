@@ -59,6 +59,9 @@
         [SDWebImageDownloader sharedDownloader].config.executionOrder = SDWebImageDownloaderLIFOExecutionOrder;
         
         self.objects = [NSMutableArray arrayWithObjects:
+                    @"https://raw.githubusercontent.com/CloudlessMoon/SuperResources/master/Images/HEIC/TestHDR1.heic",
+                    @"https://raw.githubusercontent.com/CloudlessMoon/SuperResources/master/Images/JPG/TestHDR1.JPG",
+                    @"https://raw.githubusercontent.com/CloudlessMoon/SuperResources/master/Images/JPG/TestHDR2.JPG",
                     @"http://www.httpwatch.com/httpgallery/authentication/authenticatedimage/default.aspx?0.35786508303135633",     // requires HTTP auth, used to demo the NTLM auth
                     @"http://assets.sbnation.com/assets/2512203/dogflops.gif",
                     @"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif",

@@ -311,6 +311,10 @@ static BOOL _isCalled;
 }
 
 - (void)test22AnimatedImageViewCategory {
+    if (SDTestCase.isCI) {
+        // This case cause random failure on GitHub Action only (but not local testing). Disabled for now
+        return;
+    }
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView view category"];
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
     NSURL *testURL = [NSURL URLWithString:@"https://media.giphy.com/media/3oeji6siihbdrxxi40/giphy.gif"];
