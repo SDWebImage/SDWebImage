@@ -666,9 +666,6 @@
             expect(SDRBPC).beLessThanOrEqualTo(8);
             expect([SDRImage sd_colorAtPoint:CGPointMake(1, 1)]).notTo.beNil();
 #endif
-            
-            // FIXME: Encoding need iOS 18+/macOS 15+
-            // And need test both GainMap HDR or ISO HDR, TODO
         }
     }
 #endif
@@ -704,6 +701,63 @@
         }
     }
 #endif
+}
+
+- (void)test34ThatHDREncodeWorks {
+    // FIXME: Encoding need iOS 18+/macOS 15+
+    // GitHub Action virtualization framework contains issue for Gain Map HDR convert:
+    if (SDTestCase.isCI) {
+        return;
+    }
+    // Actually we test 4 cases, because decoded CGImage can contains gain map or not
+    // heic -> heic / heic -> jpeg / jpeg(gain map) -> heic / jpeg(gain map) -> jpeg
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        NSArray *decodeFormats = @[@"heic", @"jpeg"];
+        for (NSString *decodeFormat in decodeFormats) {
+            NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestHDR" withExtension:decodeFormat];
+            NSData *data = [NSData dataWithContentsOfURL:url];
+            // Decoding
+            UIImage *HDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(YES)}];
+            float headroom = CGImageGetContentHeadroom(HDRImage.CGImage);
+            expect(headroom).beGreaterThan(1);
+            
+            NSArray *encodeFormats = @[@"heic", @"jpeg"];
+            for (NSString *encodeFormat in encodeFormats) {
+                NSLog(@"Testing HDR encodde from original : %@ to %@", decodeFormat, encodeFormat);
+                // HEIC with ISO Gain Map
+                SDImageFormat format = SDImageFormatHEIC;
+                if ([encodeFormat isEqualToString:@"jpeg"]) {
+                    // JPEG with XMP Gain Map
+                    format = SDImageFormatJPEG;
+                }
+                NSData *SDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(0)}];
+                NSData *HDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(1)}];
+                NSData *HDRGainMapData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(2)}];
+                expect(SDRData).notTo.beNil();
+                expect(HDRData).notTo.beNil();
+                expect(HDRGainMapData).notTo.beNil();
+                // JPEG has no built-in support Gain Map, so it stored in XMP and be larger
+                if ([encodeFormat isEqualToString:@"jpeg"]) {
+                    expect(HDRGainMapData.length).beGreaterThan(HDRData.length);
+                }
+                
+                // Check gain map information
+                CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)HDRGainMapData, NULL);
+                NSDictionary *gainMap = [self gainMapFromImageSource:source];
+                expect(gainMap.count).beGreaterThan(0);
+                // At least gain map contains `kCGImageAuxiliaryDataInfoMetadata`
+                CGImageMetadataRef meta = (__bridge CGImageMetadataRef)(gainMap[(__bridge NSString *)kCGImageAuxiliaryDataInfoMetadata]);
+                expect(meta).notTo.beNil();
+                
+                // A check for redecoded CGImage
+                CGImageRef redecodeSDRImage = CGImageSourceCreateImageAtIndex(source, 0, nil);
+                expect(redecodeSDRImage).notTo.beNil();
+                headroom = CGImageGetContentHeadroom(redecodeSDRImage);
+                expect(headroom).equal(1);
+                CFRelease(source);
+            }
+        }
+    }
 }
 
 #pragma mark - Utils
@@ -833,6 +887,17 @@ withLocalImageURL:(NSURL *)imageUrl
     NSArray *thumbnailImages = imageProperties[(__bridge NSString *)kCGImagePropertyThumbnailImages];
     
     return thumbnailImages;
+}
+
+- (NSDictionary *)gainMapFromImageSource:(CGImageSourceRef)source {
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        CFDictionaryRef HDRGainMap = CGImageSourceCopyAuxiliaryDataInfoAtIndex(source, 0, kCGImageAuxiliaryDataTypeHDRGainMap);
+        CFDictionaryRef ISOGainMap = CGImageSourceCopyAuxiliaryDataInfoAtIndex(source, 0, kCGImageAuxiliaryDataTypeISOGainMap);
+        NSDictionary *result = ISOGainMap ? (__bridge_transfer NSDictionary *)ISOGainMap : (__bridge_transfer NSDictionary *)HDRGainMap;
+        return result;
+    } else {
+        return nil;
+    }
 }
 
 #pragma mark - Utils
