@@ -807,7 +807,7 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
         // Convert to color
         return SDGetColorFromRGBA8(pixel, bitmapInfo, colorSpace);
     } else {
-        SD_LOG("Unsupported components: %zu", components);
+        SD_LOG("Unsupported components: %zu for CGImage: %@", components, imageRef);
         CFRelease(data);
         CGImageRelease(imageRef);
         return nil;
@@ -904,6 +904,7 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
                 color = SDGetColorFromRGBA8(pixel, bitmapInfo, colorSpace);
             } else {
                 SD_LOG("Unsupported components: %zu for CGImage: %@", components, imageRef);
+                break;
             }
         }
         if (color) {
