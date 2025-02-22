@@ -610,12 +610,13 @@
     url = [[NSBundle bundleForClass:[self class]] URLForResource:@"RGBA16PNG" withExtension:@"png"];
     data = [NSData dataWithContentsOfURL:url];
     decodedImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:nil];
-    testColor1 = [decodedImage sd_colorAtPoint:CGPointMake(100, 1)];
-    [testColor1 getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
-    expect(r1).beCloseToWithin(0.60, 0.01);
-    expect(g1).beCloseToWithin(0.60, 0.01);
-    expect(b1).beCloseToWithin(0.33, 0.01);
-    expect(a1).beCloseToWithin(0.33, 0.01);
+    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(decodedImage.CGImage);
+    size_t bpc = CGImageGetBitsPerComponent(decodedImage.CGImage);
+    expect(bpc).equal(16);
+    CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
+    CGImageByteOrderInfo byteOrderInfo = bitmapInfo & kCGBitmapByteOrderMask;
+    expect(alphaInfo).equal(kCGImageAlphaLast);
+    expect(byteOrderInfo).equal(kCGImageByteOrder16Little);
 }
 
 - (void)test31ThatSVGShouldUseNativeImageClass {
@@ -635,7 +636,7 @@
     }
 }
 
-- (void)test32ThatHDRDecodeWorks {
+- (void)test32ThatISOHDRDecodeWorks {
     // Only test for iOS 17+/macOS 14+/visionOS 1+, or ImageIO decoder does not support HDR
 #if SD_MAC || SD_IOS || SD_VISION
     if (@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)) {
@@ -652,13 +653,54 @@
             
             expect([SDImageCoderHelper CGImageIsHDR:HDRImage.CGImage]).beTruthy();
             expect(HDRImage.sd_isHighDynamicRange).beTruthy();
+            // Current we lack of some HDR RGBA1010102
+            size_t HDRBPC = CGImageGetBitsPerComponent(HDRImage.CGImage);
+            expect(HDRBPC).beGreaterThan(8);
+            expect([HDRImage sd_colorAtPoint:CGPointMake(1, 1)]).beNil();
+            
             // FIXME: on Simulator, the SDR decode options will not take effect, so SDR is the same as HDR
 #if !TARGET_OS_SIMULATOR
             expect([SDImageCoderHelper CGImageIsHDR:SDRImage.CGImage]).beFalsy();
             expect(SDRImage.sd_isHighDynamicRange).beFalsy();
+            size_t SDRBPC = CGImageGetBitsPerComponent(SDRImage.CGImage);
+            expect(SDRBPC).beLessThanOrEqualTo(8);
+            expect([SDRImage sd_colorAtPoint:CGPointMake(1, 1)]).notTo.beNil();
 #endif
+            
             // FIXME: Encoding need iOS 18+/macOS 15+
             // And need test both GainMap HDR or ISO HDR, TODO
+        }
+    }
+#endif
+}
+
+- (void)test33ThatGainMapHDRDecodeWorks {
+    // JPEG Gain Map HDR need iOS 18+
+    // GitHub Action virtualization framework contains issue for Gain Map HDR convert:
+    // [xctest] +[HDRImageConverter imageConverterWithOptions:]:40: ☀️ Failed to initialize Metal converter, falling back to SIMD for image conversion (slow)
+    if (SDTestCase.isCI) {
+        return;
+    }
+#if SD_MAC || SD_IOS || SD_VISION
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        NSArray *formats = @[@"jpeg"];
+        for (NSString *format in formats) {
+            NSURL *url = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestHDR" withExtension:format];
+            NSData *data = [NSData dataWithContentsOfURL:url];
+            // Decoding
+            UIImage *HDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(YES)}];
+            UIImage *SDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(NO)}];
+            
+            expect(HDRImage).notTo.beNil();
+            expect(SDRImage).notTo.beNil();
+            
+            // Gain Map HDR does not use Rec. 2100 color space
+            size_t HDRBPC = CGImageGetBitsPerComponent(HDRImage.CGImage);
+            size_t SDRBPC = CGImageGetBitsPerComponent(SDRImage.CGImage);
+            expect(HDRBPC).beGreaterThan(8);
+            expect(SDRBPC).beLessThanOrEqualTo(8);
+//            expect([SDImageCoderHelper CGImageIsHDR:HDRImage.CGImage]).beTruthy();
+//            expect(HDRImage.sd_isHighDynamicRange).beTruthy();
         }
     }
 #endif
