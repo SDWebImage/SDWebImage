@@ -123,6 +123,7 @@ typedef NS_OPTIONS(NSUInteger, SDRectCorner) {
  @note The overhead of object creation means this method is best suited for infrequent color sampling. For heavy image processing, grab the raw bitmap data and process yourself.
 
  @param point The position of pixel
+ @warning This API currently support 8 bits per component only (RGBA8888 etc), not RGBA16U/RGBA10
  @return The color for specify pixel, or nil if any error occur
  */
 - (nullable UIColor *)sd_colorAtPoint:(CGPoint)point;
