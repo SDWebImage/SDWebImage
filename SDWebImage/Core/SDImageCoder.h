@@ -15,7 +15,7 @@ typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
 typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;
 
-#pragma mark - Coder Options
+#pragma mark - Image Decoding Options
 // These options are for image decoding
 /**
  A Boolean value indicating whether to decode the first frame only for animated image during decoding. (NSNumber). If not provide, decode animated image if need.
@@ -96,7 +96,18 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleDownL
  */
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeToHDR;
 
-// These options are for image encoding
+#pragma mark - Image Encoding Options
+/**
+ A NSUInteger value (NSNumber) to provide converting to HDR during encoding. Read the below carefully to choose the value.
+ @note 0 means SDR; 1 means ISO HDR (at least using 10 bits per components or above, supported by AVIF/HEIF/JPEG-XL); 2 means ISO Gain Map Image (may use 8 bits per components, supported AVIF/HEIF/JPEG-XL, as well as traditional JPEG)
+ @note Gain Map like a mask image with metadata, which contains the depth/bright information for each pixel (or smaller, 1/4 resolution), which used to convert between HDR and SDR.
+ @note If you use CIImage as HDR pipeline, you can export as CGImage for encoding. (But it's also recommanded to use CIImage's `JPEGRepresentationOfImage` or `HEIFRepresentationOfImage`)
+ @note Supported by iOS 18 and above when using ImageIO coder (third-party coder can support lower firmware)
+ Defaults to @(0), encoder will automatically convert SDR.
+ @note works for `SDImageCoder`
+ */
+FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderEncodeToHDR;
+
 /**
  A Boolean value indicating whether to encode the first frame only for animated image during encoding. (NSNumber). If not provide, encode animated image if need.
  @note works for `SDImageCoder`.

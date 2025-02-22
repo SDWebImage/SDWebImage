@@ -381,6 +381,21 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         maxPixelSize = maxPixelSizeValue.CGSizeValue;
 #endif
     }
+    // HDR Encoding
+    NSUInteger encodeToHDR = 0;
+    if (options[SDImageCoderEncodeToHDR]) {
+        encodeToHDR = [options[SDImageCoderEncodeToHDR] unsignedIntegerValue];
+    }
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        if (encodeToHDR == 1) {
+            properties[(__bridge NSString *)kCGImageDestinationEncodeRequest] = (__bridge NSString *)kCGImageDestinationEncodeToISOHDR;
+        } else if (encodeToHDR == 2) {
+            properties[(__bridge NSString *)kCGImageDestinationEncodeRequest] = (__bridge NSString *)kCGImageDestinationEncodeToISOGainmap;
+        } else {
+            properties[(__bridge NSString *)kCGImageDestinationEncodeRequest] = (__bridge NSString *)kCGImageDestinationEncodeToSDR;
+        }
+    }
+    
     CGFloat pixelWidth = (CGFloat)CGImageGetWidth(imageRef);
     CGFloat pixelHeight = (CGFloat)CGImageGetHeight(imageRef);
     CGFloat finalPixelSize = 0;
