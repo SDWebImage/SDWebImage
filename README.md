@@ -122,7 +122,7 @@ You can use those directly, or create similar components of your own, by using t
 - watchOS 2.0 or later
 - macOS 10.11 or later (10.15 for Catalyst)
 - visionOS 1.0 or later
-- Xcode 14.0 or later (visionOS requires Xcode 15.0)
+- Xcode 15.0 or later
 
 #### Backwards compatibility
 
