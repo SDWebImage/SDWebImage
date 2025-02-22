@@ -15,20 +15,7 @@
 
 @end
 
-static inline void SDSafeMainQueueAsync(dispatch_block_t _Nonnull block) {
-    if (NSThread.isMainThread) {
-        // Match exists `dispatch_main_async_safe` behavior
-        const char *currentLabel = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-        const char *mainLabel = dispatch_queue_get_label(dispatch_get_main_queue());
-        if (mainLabel == currentLabel) {
-            block();
-            return;
-        }
-    }
-    dispatch_async(dispatch_get_main_queue(), block);
-}
-
-static inline void SDSafeMainThreadAsync(dispatch_block_t _Nonnull block) {
+static inline void SDSafeAsyncMainThread(dispatch_block_t _Nonnull block) {
     if (NSThread.isMainThread) {
         block();
     } else {
@@ -71,7 +58,7 @@ static void SDSafeExecute(dispatch_queue_t queue, dispatch_block_t _Nonnull bloc
 
 + (SDCallbackQueue *)mainQueue {
     SDCallbackQueue *queue = [[SDCallbackQueue alloc] initWithDispatchQueue:dispatch_get_main_queue()];
-    queue->_policy = SDCallbackPolicySafeAsyncMainQueue;
+    queue->_policy = SDCallbackPolicySafeAsyncMainThread;
     return queue;
 }
 
@@ -99,11 +86,8 @@ static void SDSafeExecute(dispatch_queue_t queue, dispatch_block_t _Nonnull bloc
         case SDCallbackPolicyInvoke:
             block();
             break;
-        case SDCallbackPolicySafeAsyncMainQueue:
-            SDSafeMainQueueAsync(block);
-            break;
         case SDCallbackPolicySafeAsyncMainThread:
-            SDSafeMainThreadAsync(block);
+            SDSafeAsyncMainThread(block);
             break;
         default:
             NSCAssert(NO, @"unexpected policy %tu", self.policy);
@@ -122,11 +106,8 @@ static void SDSafeExecute(dispatch_queue_t queue, dispatch_block_t _Nonnull bloc
         case SDCallbackPolicyInvoke:
             block();
             break;
-        case SDCallbackPolicySafeAsyncMainQueue:
-            SDSafeMainQueueAsync(block);
-            break;
         case SDCallbackPolicySafeAsyncMainThread:
-            SDSafeMainThreadAsync(block);
+            SDSafeAsyncMainThread(block);
             break;
         default:
             NSCAssert(NO, @"unexpected policy %tu", self.policy);

@@ -171,9 +171,12 @@
     dispatch_queue_t queue = dispatch_queue_create("testSDCallbackQueue", NULL);
     SDCallbackQueue *callbackQueue = [[SDCallbackQueue alloc] initWithDispatchQueue:queue];
     __block BOOL called = NO;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [callbackQueue sync:^{
         called = YES;
     }];
+#pragma clang diagnostic pop
     expect(called).beTruthy();
     
     __block BOOL called1 = NO;
