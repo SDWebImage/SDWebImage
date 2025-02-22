@@ -8,6 +8,7 @@
 
 #import "SDImageTransformer.h"
 #import "UIColor+SDHexString.h"
+#import "SDAssociatedObject.h"
 #if SD_UIKIT || SD_MAC
 #import <CoreImage/CoreImage.h>
 #endif
@@ -73,15 +74,52 @@ NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thu
     return [cacheKeys componentsJoinedByString:SDImageTransformerKeySeparator];
 }
 
+- (BOOL)preserveImageMetadata {
+    return NO; // We handle this logic inside `transformedImageWithImage` below
+}
+
 - (UIImage *)transformedImageWithImage:(UIImage *)image forKey:(NSString *)key {
     if (!image) {
         return nil;
     }
     UIImage *transformedImage = image;
     for (id<SDImageTransformer> transformer in self.transformers) {
-        transformedImage = [transformer transformedImageWithImage:transformedImage forKey:key];
+        UIImage *newImage = [transformer transformedImageWithImage:transformedImage forKey:key];
+        // Handle each transformer's preserveImageMetadata choice
+        BOOL preserveImageMetadata = YES;
+        if ([transformer respondsToSelector:@selector(preserveImageMetadata)]) {
+            preserveImageMetadata = transformer.preserveImageMetadata;
+        }
+        if (preserveImageMetadata) {
+            SDImageCopyAssociatedObject(transformedImage, newImage);
+        }
+        transformedImage = newImage;
     }
     return transformedImage;
+}
+
+@end
+
+@implementation SDImageBaseTransformer
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _preserveImageMetadata = YES;
+    }
+    return self;
+}
+
+- (NSString *)transformerKey {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:[NSString stringWithFormat:@"For `SDImageBaseTransformer` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
+                                 userInfo:nil];
+}
+
+- (nullable UIImage *)transformedImageWithImage:(nonnull UIImage *)image forKey:(nonnull NSString *)key {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:[NSString stringWithFormat:@"For `SDImageBaseTransformer` subclass, you must override %@ method", NSStringFromSelector(_cmd)]
+                                 userInfo:nil];
 }
 
 @end
