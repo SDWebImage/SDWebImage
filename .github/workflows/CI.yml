@@ -16,6 +16,7 @@ jobs:
     name: Cocoapods Lint
     runs-on: macos-15
     env:
+      LC_ALL: en_US.UTF-8
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
     steps:
       - name: Checkout
@@ -42,6 +43,7 @@ jobs:
     name: Cocoapods Demo
     runs-on: macos-15
     env:
+      LC_ALL: en_US.UTF-8
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -96,6 +98,7 @@ jobs:
     name: Unit Test
     runs-on: macos-15
     env:
+      LC_ALL: en_US.UTF-8
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -162,6 +165,7 @@ jobs:
     name: Build Library
     runs-on: macos-15
     env:
+      LC_ALL: en_US.UTF-8
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
       PROJECT_NAME: SDWebImage.xcodeproj
       SCHEME_NAME: SDWebImage
