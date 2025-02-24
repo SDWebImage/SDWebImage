@@ -89,7 +89,7 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeUseLazyDec
 FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeScaleDownLimitBytes;
 
 /**
- A Boolean value (NSNumber) to provide converting to HDR during decoding. Currently if number is 0, use SDR, else use HDR. But we may extend this option to use `NSUInteger` in the future (means, think this options as int number, but not actual boolean)
+ A Boolean (`SDImageHDRType.rawValue`) value (stored inside NSNumber) to provide converting to HDR during decoding. Currently if number is 0 (`SDImageHDRTypeSDR`), use SDR, else use HDR. But we may extend this option to represent `SDImageHDRType` all cases in the future (means, think this options as uint number, but not actual boolean)
  @note Supported by iOS 17 and above when using ImageIO coder (third-party coder can support lower firmware)
  Defaults to @(NO), decoder will automatically convert SDR.
  @note works for `SDImageCoder`
@@ -98,9 +98,9 @@ FOUNDATION_EXPORT SDImageCoderOption _Nonnull const SDImageCoderDecodeToHDR;
 
 #pragma mark - Image Encoding Options
 /**
- A NSUInteger value (NSNumber) to provide converting to HDR during encoding. Read the below carefully to choose the value.
- @note 0 means SDR; 1 means ISO HDR (at least using 10 bits per components or above, supported by AVIF/HEIF/JPEG-XL); 2 means ISO Gain Map HDR (may use 8 bits per components, supported by AVIF/HEIF/JPEG-XL, as well as traditional JPEG)
- @note Gain Map like a mask image with metadata, which contains the depth/bright information for each pixel (or smaller, 1/4 resolution), which used to convert between HDR and SDR.
+ A NSUInteger (`SDImageHDRType.rawValue`) value (stored inside NSNumber) to provide converting to HDR during encoding. Read the below carefully to choose the value.
+ @note 0(`SDImageHDRTypeSDR`) means SDR; 1(`SDImageHDRTypeISOHDR`) means ISO HDR (at least using 10 bits per components or above, supported by AVIF/HEIF/JPEG-XL); 2(`SDImageHDRTypeISOGainMap`) means ISO Gain Map HDR (may use 8 bits per components, supported by AVIF/HEIF/JPEG-XL, as well as traditional JPEG)
+ @note Gain Map like a mask image with metadata, which contains the depth/bright information for pixels (1/4 resolution), which used to convert between HDR and SDR.
  @note If you use CIImage as HDR pipeline, you can export as CGImage for encoding. (But it's also recommanded to use CIImage's `JPEGRepresentationOfImage` or `HEIFRepresentationOfImage`)
  @note Supported by iOS 18 and above when using ImageIO coder (third-party coder can support lower firmware)
  Defaults to @(0), encoder will automatically convert SDR.

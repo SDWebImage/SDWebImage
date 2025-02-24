@@ -919,9 +919,9 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
         encodeToHDR = [options[SDImageCoderEncodeToHDR] unsignedIntegerValue];
     }
     if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
-        if (encodeToHDR == 1) {
+        if (encodeToHDR == SDImageHDRTypeISOHDR) {
             properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToISOHDR;
-        } else if (encodeToHDR == 2) {
+        } else if (encodeToHDR == SDImageHDRTypeISOGainMap) {
             properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToISOGainmap;
         } else {
             properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToSDR;

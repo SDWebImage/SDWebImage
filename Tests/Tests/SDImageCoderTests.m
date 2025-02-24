@@ -704,7 +704,7 @@
 }
 
 - (void)test34ThatHDREncodeWorks {
-    // FIXME: Encoding need iOS 18+/macOS 15+
+    // FIXME: Encoding need iOS 18+/macOS 15+, No simulator
     // GitHub Action virtualization framework contains issue for Gain Map HDR convert:
     if (SDTestCase.isCI) {
         return;
@@ -720,7 +720,7 @@
             UIImage *HDRImage = [SDImageIOCoder.sharedCoder decodedImageWithData:data options:@{SDImageCoderDecodeToHDR : @(YES)}];
             float headroom = CGImageGetContentHeadroom(HDRImage.CGImage);
             expect(headroom).beGreaterThan(1);
-            
+#if !TARGET_OS_SIMULATOR
             NSArray *encodeFormats = @[@"heic", @"jpeg"];
             for (NSString *encodeFormat in encodeFormats) {
                 NSLog(@"Testing HDR encodde from original : %@ to %@", decodeFormat, encodeFormat);
@@ -730,9 +730,9 @@
                     // JPEG with XMP Gain Map
                     format = SDImageFormatJPEG;
                 }
-                NSData *SDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(0)}];
-                NSData *HDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(1)}];
-                NSData *HDRGainMapData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(2)}];
+                NSData *SDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(SDImageHDRTypeSDR)}];
+                NSData *HDRData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(SDImageHDRTypeISOHDR)}];
+                NSData *HDRGainMapData = [SDImageIOCoder.sharedCoder encodedDataWithImage:HDRImage format:format options:@{SDImageCoderEncodeToHDR : @(SDImageHDRTypeISOGainMap)}];
                 expect(SDRData).notTo.beNil();
                 expect(HDRData).notTo.beNil();
                 expect(HDRGainMapData).notTo.beNil();
@@ -756,6 +756,7 @@
                 expect(headroom).equal(1);
                 CFRelease(source);
             }
+#endif
         }
     }
 }
