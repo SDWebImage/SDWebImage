@@ -3,16 +3,25 @@
 set -e
 set -o pipefail
 
-XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')
-XCODE_VERSION_MAJOR=$(echo $XCODE_VERSION | awk -F '.' '{print $1}')
-XCODE_VERSION_MINOR=$(echo $XCODE_VERSION | awk -F '.' '{print $2}')
-XCODE_VERSION_PATCH=$(echo $XCODE_VERSION | awk -F '.' '{print $3}')
+if [[ -z "$XCODE_VERSION_MAJOR" ]]
+then
+    XCODE_VERSION_MAJOR=$(xcodebuild -showBuildSettings | awk -F= '/XCODE_VERSION_MAJOR/{x=$NF; gsub(/[^0-9]/,"",x); print int(x)}')
+fi
+if [[ -z "$XCODE_VERSION_MINOR" ]]  
+then
+    XCODE_VERSION_MINOR=$(xcodebuild -showBuildSettings | awk -F= '/XCODE_VERSION_MINOR/{x=$NF; gsub(/[^0-9]/,"",x); print int(x)}')
+fi
+XCODE_MAJOR=$(($XCODE_VERSION_MAJOR / 100))
+XCODE_MINOR=$(($XCODE_VERSION_MINOR / 10))
+XCODE_MINOR=$(($XCODE_MINOR % 10))
+echo "XCODE_MAJOR=$XCODE_MAJOR"
+echo "XCODE_MINOR=$XCODE_MINOR"
 if [ -z "$SRCROOT" ]
 then
     SRCROOT=$(pwd)
 fi
 
-if [ $XCODE_VERSION_MAJOR -lt 11 ]
+if [ $XCODE_MAJOR -lt 11 ]
 then
     echo "Xcode 10 does not support xcframework. You can still use the individual framework for each platform."
     open -a Finder "${SRCROOT}/build/"
@@ -22,12 +31,12 @@ fi
 mkdir -p "${SRCROOT}/build"
 PLATFORMS=("iOS" "iOSSimulator" "macOS" "tvOS" "tvOSSimulator" "watchOS" "watchOSSimulator")
 
-if [ $XCODE_VERSION_MAJOR -ge 11 ]
+if [ $XCODE_MAJOR -ge 11 ]
 then
     PLATFORMS+=("macCatalyst")
 fi
 
-if [[ ($XCODE_VERSION_MAJOR -gt 15) || ($XCODE_VERSION_MAJOR -eq 15 && $XCODE_VERSION_MINOR -ge 2) ]]
+if [[ ($XCODE_MAJOR -gt 15) || ($XCODE_MAJOR -eq 15 && $XCODE_MINOR -ge 2) ]]
 then
     PLATFORMS+=("visionOS")
     PLATFORMS+=("visionOSSimulator")
