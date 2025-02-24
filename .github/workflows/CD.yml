@@ -5,14 +5,20 @@ on:
     # Pattern matched against refs/tags
     tags:        
       - '*'
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
   Release:
     name: Release XCFramework
     runs-on: macos-15
     env:
+      LC_ALL: en_US.UTF-8
       CODESIGN_KEY_BASE64: "${{ secrets.CODESIGN_KEY_BASE64 }}"
       DEVELOPER_DIR: /Applications/Xcode_16.0.app
+      XCODE_VERSION_MAJOR: 1600
+      XCODE_VERSION_MINOR: 1600
     strategy:
       fail-fast: true
       matrix:
@@ -29,6 +35,7 @@ jobs:
       - name: Build XCFramework
         run: |
           set -o pipefail
+          set -x
           export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
           ./Scripts/build-frameworks.sh
           rm -rf ~/Library/Developer/Xcode/DerivedData/
@@ -36,6 +43,7 @@ jobs:
       - name: Create XCFramework
         run: |
           set -o pipefail
+          set -x
           export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
           ./Scripts/create-xcframework.sh
           ./Scripts/sign-xcframework.sh
