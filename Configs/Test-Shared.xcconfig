@@ -2,6 +2,7 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 #include "Module-Shared.xcconfig"
+#include "Codesign.xcconfig"
 
 // This is a list of paths to folders to be searched by the compiler for included or imported header files when compiling C, Objective-C, C++, or Objective-C++. Paths are delimited by whitespace, so any paths with spaces in them need to be properly quoted.
 HEADER_SEARCH_PATHS = $(inherited) "$(SRCROOT)/../SDWebImage/Private"

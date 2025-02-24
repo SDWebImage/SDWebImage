@@ -2,6 +2,7 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 #include "Module-Shared.xcconfig"
+#include "Codesign.xcconfig"
 
 // Name of an asset catalog app icon set whose contents will be merged into the `Info.plist`.
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
