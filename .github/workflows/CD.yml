@@ -5,9 +5,6 @@ on:
     # Pattern matched against refs/tags
     tags:        
       - '*'
-  pull_request:
-    branches:
-      - '*'
 
 jobs:
   Release:
@@ -35,7 +32,6 @@ jobs:
       - name: Build XCFramework
         run: |
           set -o pipefail
-          set -x
           export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
           ./Scripts/build-frameworks.sh
           rm -rf ~/Library/Developer/Xcode/DerivedData/
@@ -43,7 +39,6 @@ jobs:
       - name: Create XCFramework
         run: |
           set -o pipefail
-          set -x
           export MACH_O_TYPE="${{ matrix.MACH_O_TYPE }}"
           ./Scripts/create-xcframework.sh
           ./Scripts/sign-xcframework.sh
