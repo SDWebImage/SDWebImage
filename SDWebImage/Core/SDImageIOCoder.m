@@ -18,6 +18,12 @@
 
 // Specify File Size for lossy format encoding, like JPEG
 static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestinationRequestedFileSize";
+// Support Xcode 15 SDK, use raw value instead of symbol
+static NSString * kSDCGImageDestinationEncodeRequest = @"kCGImageDestinationEncodeRequest";
+static NSString * kSDCGImageDestinationEncodeToSDR = @"kCGImageDestinationEncodeToSDR";
+static NSString * kSDCGImageDestinationEncodeToISOHDR = @"kCGImageDestinationEncodeToISOHDR";
+static NSString * kSDCGImageDestinationEncodeToISOGainmap = @"kCGImageDestinationEncodeToISOGainmap";
+
 
 @implementation SDImageIOCoder {
     size_t _width, _height;
@@ -30,6 +36,18 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
     BOOL _lazyDecode;
     BOOL _decodeToHDR;
 }
+
+#if SD_IMAGEIO_HDR_ENCODING
++ (void)initialize {
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        // Use SDK instead of raw value
+        kSDCGImageDestinationEncodeRequest = (__bridge NSString *)kCGImageDestinationEncodeRequest;
+        kSDCGImageDestinationEncodeToSDR = (__bridge NSString *)kCGImageDestinationEncodeToSDR;
+        kSDCGImageDestinationEncodeToISOHDR = (__bridge NSString *)kCGImageDestinationEncodeToISOHDR;
+        kSDCGImageDestinationEncodeToISOGainmap = (__bridge NSString *)kCGImageDestinationEncodeToISOGainmap;
+    }
+}
+#endif
 
 - (void)dealloc {
     if (_imageSource) {
@@ -381,6 +399,21 @@ static NSString * kSDCGImageDestinationRequestedFileSize = @"kCGImageDestination
         maxPixelSize = maxPixelSizeValue.CGSizeValue;
 #endif
     }
+    // HDR Encoding
+    NSUInteger encodeToHDR = 0;
+    if (options[SDImageCoderEncodeToHDR]) {
+        encodeToHDR = [options[SDImageCoderEncodeToHDR] unsignedIntegerValue];
+    }
+    if (@available(macOS 15, iOS 18, tvOS 18, watchOS 11, *)) {
+        if (encodeToHDR == SDImageHDRTypeISOHDR) {
+            properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToISOHDR;
+        } else if (encodeToHDR == SDImageHDRTypeISOGainMap) {
+            properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToISOGainmap;
+        } else {
+            properties[kSDCGImageDestinationEncodeRequest] = kSDCGImageDestinationEncodeToSDR;
+        }
+    }
+    
     CGFloat pixelWidth = (CGFloat)CGImageGetWidth(imageRef);
     CGFloat pixelHeight = (CGFloat)CGImageGetHeight(imageRef);
     CGFloat finalPixelSize = 0;
