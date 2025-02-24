@@ -62,3 +62,4 @@ jobs:
           GITHUB_REPOSITORY: "${{ github.repository }}"
         with:
           files: "SDWebImage-${{ matrix.linkage }}.xcframework.zip"
+          tag_name: 5.20.1
