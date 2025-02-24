@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 set -o pipefail
 
 XCODE_VERSION=$(xcodebuild -version | head -n 1| awk -F ' ' '{print $2}')
