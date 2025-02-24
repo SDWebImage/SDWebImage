@@ -1,3 +1,28 @@
+## [5.21.0 - HDR Support on Feb 24th, 2025]
+See [all tickets marked for the 5.21.0 release](https://github.com/SDWebImage/SDWebImage/milestone/142)
+
+### Features
+#### HDR Decoding
+- Supports HDR decoding on Apple ImageIO coder (avif/heic/jpeg-xl, etc) #3778
+- - Note: Defaults to always use SDR, if you want HDR decoding, pass `SDWebImageContextDecodeToHDR: @(YES)` to context option. Pay attention even decoded CGImage is HDR ready, full rendering require display hardware support and per-image-view level control, it's recommended to read [WWDC23](https://developer.apple.com/videos/play/wwdc2023/10181/) and use proper API to check for current display headroom to turn on HDR.
+- - Note: Apple ImageIO coder requires macOS 14/iOS 17+ for HDR decoding. For lower firmware you can consider AVIF/HEIF/JPEG-XL [third-party codec](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+
+#### HDR Encoding
+- Supports HDR encoding on Apple ImageIO coder #3799
+- - Note: Defaults to always use SDR, if you want HDR dencoding, pass `SDImageCoderEncodeToHDR: @(SDImageHDRTypeISOHDR)` for ISO HDR encoding. And `SDImageHDRTypeISOGainMap` for ISO Gain Map based HDR encoding (like JPEG for compatibility)
+- - Note: Apple ImageIO coder requires macOS 15/iOS 18+ for HDR encoding. For lower firmware you can consider AVIF/HEIF/JPEG-XL [third-party codec](https://github.com/SDWebImage/SDWebImage/wiki/Coder-Plugin-List)
+
+### Transformer
+- Allows user to directly customize preserveImageMetadata for our built-in transformers #3796
+
+### UI Category
+- Change the default callback queue policy to SafeAsyncMainThread, don't need main queue check at all #3797
+- - Note: This should make `sd_setImageWithURL` related UI API to work on case like `UICollectionViewDiffableDataSource` , which is running on main thread but not main queue.
+
+### Fixes
+- fix: sd_colorAtPoint/sd_colorsWithRect should early return when pixel format is not supported #3798
+- - Note: In history this may return a wrong color for RGB10/RGB16 pixel format. Now it just return nil, which may supported in the future.
+
 ## [5.20.1 - 5.20 Patch on Feb 20th, 2025]
 See [all tickets marked for the 5.20.1 release](https://github.com/SDWebImage/SDWebImage/milestone/141)
 
