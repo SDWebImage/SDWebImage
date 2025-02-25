@@ -17,6 +17,19 @@
 
 #define kSVGTagEnd @"</svg>"
 
+const SDImageFormat SDImageFormatUndefined = -1;
+const SDImageFormat SDImageFormatJPEG      = 0;
+const SDImageFormat SDImageFormatPNG       = 1;
+const SDImageFormat SDImageFormatGIF       = 2;
+const SDImageFormat SDImageFormatTIFF      = 3;
+const SDImageFormat SDImageFormatWebP      = 4;
+const SDImageFormat SDImageFormatHEIC      = 5;
+const SDImageFormat SDImageFormatHEIF      = 6;
+const SDImageFormat SDImageFormatPDF       = 7;
+const SDImageFormat SDImageFormatSVG       = 8;
+const SDImageFormat SDImageFormatBMP       = 9;
+const SDImageFormat SDImageFormatRAW       = 10;
+
 @implementation NSData (ImageContentType)
 
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data {
