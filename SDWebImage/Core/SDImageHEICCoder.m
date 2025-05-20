@@ -39,15 +39,15 @@ static NSString * kSDCGImagePropertyHEICSUnclampedDelayTime = @"UnclampedDelayTi
 #pragma mark - SDImageCoder
 
 - (BOOL)canDecodeFromData:(nullable NSData *)data {
-    switch ([NSData sd_imageFormatForImageData:data]) {
-        case SDImageFormatHEIC:
-            // Check HEIC decoding compatibility
-            return [self.class canDecodeFromFormat:SDImageFormatHEIC];
-        case SDImageFormatHEIF:
-            // Check HEIF decoding compatibility
-            return [self.class canDecodeFromFormat:SDImageFormatHEIF];
-        default:
-            return NO;
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    if (format == SDImageFormatHEIC) {
+        // Check HEIC decoding compatibility
+        return [self.class canDecodeFromFormat:SDImageFormatHEIC];
+    } else if (format == SDImageFormatHEIF) {
+        // Check HEIF decoding compatibility
+        return [self.class canDecodeFromFormat:SDImageFormatHEIF];
+    } else {
+        return NO;
     }
 }
 
@@ -56,15 +56,14 @@ static NSString * kSDCGImagePropertyHEICSUnclampedDelayTime = @"UnclampedDelayTi
 }
 
 - (BOOL)canEncodeToFormat:(SDImageFormat)format {
-    switch (format) {
-        case SDImageFormatHEIC:
-            // Check HEIC encoding compatibility
-            return [self.class canEncodeToFormat:SDImageFormatHEIC];
-        case SDImageFormatHEIF:
-            // Check HEIF encoding compatibility
-            return [self.class canEncodeToFormat:SDImageFormatHEIF];
-        default:
-            return NO;
+    if (format == SDImageFormatHEIC) {
+        // Check HEIC encoding compatibility
+        return [self.class canEncodeToFormat:SDImageFormatHEIC];
+    } else if (format == SDImageFormatHEIF) {
+        // Check HEIF encoding compatibility
+        return [self.class canEncodeToFormat:SDImageFormatHEIF];
+    } else {
+        return NO;
     }
 }
 
