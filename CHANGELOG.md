@@ -1,3 +1,12 @@
+## [5.21.1 - Xcode 26 Compatible on Jun 10th, 2025]
+See [all tickets marked for the 5.21.1 release](https://github.com/SDWebImage/SDWebImage/milestone/143)
+
+### Projects
+- [Xcode 26] - Fix watchOS build error with UITraitCollection in the new SDK #3819
+
+### Performance
+- Reduce memory peak when playing the GIF on SDAnimatedImageView #3813
+
 ## [5.21.0 - HDR Support on Feb 24th, 2025]
 See [all tickets marked for the 5.21.0 release](https://github.com/SDWebImage/SDWebImage/milestone/142)
 
