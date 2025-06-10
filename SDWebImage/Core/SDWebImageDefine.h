@@ -9,6 +9,7 @@
 #import "SDWebImageCompat.h"
 
 typedef void(^SDWebImageNoParamsBlock)(void);
+/// Image Loading context option
 typedef NSString * SDWebImageContextOption NS_EXTENSIBLE_STRING_ENUM;
 typedef NSDictionary<SDWebImageContextOption, id> SDWebImageContext;
 typedef NSMutableDictionary<SDWebImageContextOption, id> SDWebImageMutableContext;

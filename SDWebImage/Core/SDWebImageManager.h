@@ -162,7 +162,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  @note If you use `transformer`, `cacheKeyFilter` or `cacheSerializer` property of manager, the input context option already apply those properties before passed. This options processor is a better replacement for those property in common usage.
  For example, you can control the global options, based on the URL or original context option like the below code.
  
- @code
+ * @code
  SDWebImageManager.sharedManager.optionsProcessor = [SDWebImageOptionsProcessor optionsProcessorWithBlock:^SDWebImageOptionsResult * _Nullable(NSURL * _Nullable url, SDWebImageOptions options, SDWebImageContext * _Nullable context) {
      // Only do animation on `SDAnimatedImageView`
      if (!context[SDWebImageContextAnimatedImageClass]) {
@@ -179,7 +179,7 @@ SDWebImageManager *manager = [SDWebImageManager sharedManager];
  
      return [[SDWebImageOptionsResult alloc] initWithOptions:options context:context];
  }];
- @endcode
+ * @endcode
  */
 @property (nonatomic, strong, nullable) id<SDWebImageOptionsProcessor> optionsProcessor;
 

@@ -11,10 +11,11 @@
 
 /**
  A loading state to manage View Category which contains multiple states. Like UIImgeView.image && UIImageView.highlightedImage
- @code
+
+ * @code
  SDWebImageLoadState *loadState = [self sd_imageLoadStateForKey:@keypath(self, highlitedImage)];
  NSProgress *highlitedImageProgress = loadState.progress;
- @endcode
+ * @endcode
  */
 @interface SDWebImageLoadState : NSObject
 

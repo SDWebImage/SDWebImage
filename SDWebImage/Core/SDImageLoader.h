@@ -59,7 +59,7 @@ FOUNDATION_EXPORT id<SDProgressiveImageCoder> _Nullable SDImageLoaderGetProgress
 
 /**
  This function set the progressive decoder for current loading operation. If no progressive decoding is happended, pass nil.
- @param operation The loading operation to associate the progerssive decoder.
+ @param progressiveCoder The loading operation to associate the progerssive decoder.
  */
 FOUNDATION_EXPORT void SDImageLoaderSetProgressiveCoder(id<SDWebImageOperation> _Nonnull operation, id<SDProgressiveImageCoder> _Nullable progressiveCoder);
 

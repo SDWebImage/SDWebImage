@@ -536,6 +536,7 @@ static inline CGImageRef _Nullable SDCreateCGImageFromCIImage(CIImage * _Nonnull
 
 #pragma mark - Image Blending
 
+#if SD_UIKIT || SD_MAC
 static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode) {
     // CGBlendMode: https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-CJBIJEFG
     // CIFilter: https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP30000136-SW71
@@ -625,6 +626,7 @@ static NSString * _Nullable SDGetCIFilterNameFromBlendMode(CGBlendMode blendMode
     }
     return filterName;
 }
+#endif
 
 - (nullable UIImage *)sd_tintedImageWithColor:(nonnull UIColor *)tintColor {
     return [self sd_tintedImageWithColor:tintColor blendMode:kCGBlendModeSourceIn];

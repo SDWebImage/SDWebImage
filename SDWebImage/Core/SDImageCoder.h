@@ -11,6 +11,7 @@
 #import "NSData+ImageContentType.h"
 #import "SDImageFrame.h"
 
+/// Image Decoding/Encoding Options
 typedef NSString * SDImageCoderOption NS_STRING_ENUM;
 typedef NSDictionary<SDImageCoderOption, id> SDImageCoderOptions;
 typedef NSMutableDictionary<SDImageCoderOption, id> SDImageCoderMutableOptions;

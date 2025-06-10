@@ -6,3 +6,4 @@
 
 // Name of an asset catalog app icon set whose contents will be merged into the `Info.plist`.
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+_EXPERIMENTAL_SWIFT_EXPLICIT_MODULES = NO
