@@ -23,10 +23,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Cocoapods
-        run: ruby install cocoapods --no-document --quiet
+        run: gem install cocoapods --no-document --quiet
         
       - name: Install Xcpretty
-        run: ruby install xcpretty --no-document --quiet
+        run: gem install xcpretty --no-document --quiet
         
       - name: Pod Update
         run: pod repo update --silent
@@ -58,10 +58,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Cocoapods
-        run: ruby install cocoapods --no-document --quiet
+        run: gem install cocoapods --no-document --quiet
         
       - name: Install Xcpretty
-        run: ruby install xcpretty --no-document --quiet
+        run: gem install xcpretty --no-document --quiet
         
       - name: Pod Update
         run: pod repo update --silent
@@ -69,7 +69,7 @@ jobs:
       - name: Pod Install
         run: pod install
 
-      - name: Run demo for OSX
+      - name: Run demo     OSX
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage OSX Demo" -destination "${{ env.macOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
@@ -79,17 +79,17 @@ jobs:
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage iOS Demo" -destination "${{ env.iosDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
           
-      - name: Run demo for TV
+      - name: Run demo     TV
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage TV Demo" -destination "${{ env.tvOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
           
-      - name: Run demo for Watch
+      - name: Run demo     Watch
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage Watch Demo" -destination "${{ env.watchOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
 
-      - name: Run demo for Vision
+      - name: Run demo     Vision
         run: |
           set -o pipefail
           xcodebuild build -workspace "${{ env.WORKSPACE_NAME }}" -scheme "SDWebImage Vision Demo" -destination "${{ env.visionOSDestination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
@@ -104,7 +104,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     # use matrix to generate jobs for each platform
     strategy:
-      fail-fast: true
+           -fast: 
       matrix:
         platform: [iOS, macOS, tvOS, visionOS]
         include:
