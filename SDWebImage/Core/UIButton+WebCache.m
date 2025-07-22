@@ -73,6 +73,9 @@
                              context:mutableContext
                        setImageBlock:^(UIImage * _Nullable image, NSData * _Nullable imageData, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                            @strongify(self);
+                           if (!self) {
+                               return;
+                           }
                            [self setImage:image forState:state];
                        }
                             progress:progressBlock

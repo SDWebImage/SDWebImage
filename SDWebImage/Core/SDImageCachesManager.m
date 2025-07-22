@@ -444,6 +444,9 @@
     @weakify(self);
     [cache queryImageForKey:key options:options context:context cacheType:queryCacheType completion:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         @strongify(self);
+        if (!self) {
+            return;
+        }
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -479,6 +482,9 @@
     @weakify(self);
     [cache storeImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:^{
         @strongify(self);
+        if (!self) {
+            return;
+        }
         // Next
         [self serialStoreImage:image imageData:imageData forKey:key options:options context:context cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
@@ -497,6 +503,9 @@
     @weakify(self);
     [cache removeImageForKey:key cacheType:cacheType completion:^{
         @strongify(self);
+        if (!self) {
+            return;
+        }
         // Next
         [self serialRemoveImageForKey:key cacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];
@@ -517,6 +526,9 @@
     @weakify(self);
     [cache containsImageForKey:key cacheType:cacheType completion:^(SDImageCacheType containsCacheType) {
         @strongify(self);
+        if (!self) {
+            return;
+        }
         if (operation.isCancelled) {
             // Cancelled
             return;
@@ -552,6 +564,9 @@
     @weakify(self);
     [cache clearWithCacheType:cacheType completion:^{
         @strongify(self);
+        if (!self) {
+            return;
+        }
         // Next
         [self serialClearWithCacheType:cacheType completion:completionBlock enumerator:enumerator];
     }];

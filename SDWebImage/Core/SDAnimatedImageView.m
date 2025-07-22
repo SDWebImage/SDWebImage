@@ -242,12 +242,18 @@
         @weakify(self);
         self.player.animationFrameHandler = ^(NSUInteger index, UIImage * frame) {
             @strongify(self);
+            if (!self) {
+                return;
+            }
             self.currentFrameIndex = index;
             self.currentFrame = frame;
             [self.imageViewLayer setNeedsDisplay];
         };
         self.player.animationLoopHandler = ^(NSUInteger loopCount) {
             @strongify(self);
+            if (!self) {
+                return;
+            }
             // Progressive image reach the current last frame index. Keep the state and pause animating. Wait for later restart
             if (self.isProgressive) {
                 NSUInteger lastFrameIndex = self.player.totalFrameCount - 1;
