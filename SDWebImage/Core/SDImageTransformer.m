@@ -309,7 +309,7 @@ NSString * _Nullable SDThumbnailedKeyForKey(NSString * _Nullable key, CGSize thu
     if (!image) {
         return nil;
     }
-    return [image sd_tintedImageWithColor:self.tintColor];
+    return [image sd_tintedImageWithColor:self.tintColor blendMode:self.blendMode];
 }
 
 @end
