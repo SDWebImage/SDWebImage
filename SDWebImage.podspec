@@ -29,7 +29,8 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     'SUPPORTS_MACCATALYST' => 'YES',
-    'DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER' => 'NO'
+    'DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER' => 'NO',
+    'DEFINES_MODULE' => 'YES'
   }
 
   s.subspec 'Core' do |core|
