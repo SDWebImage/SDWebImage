@@ -17,7 +17,7 @@ jobs:
     runs-on: macos-15
     env:
       LC_ALL: en_US.UTF-8
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app
+      DEVELOPER_DIR: /Applications/Xcode_16.3.app
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
     runs-on: macos-15
     env:
       LC_ALL: en_US.UTF-8
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app
+      DEVELOPER_DIR: /Applications/Xcode_16.3.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       iosDestination: generic/platform=iOS Simulator
@@ -99,7 +99,7 @@ jobs:
     runs-on: macos-15
     env:
       LC_ALL: en_US.UTF-8
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app
+      DEVELOPER_DIR: /Applications/Xcode_16.3.app
       WORKSPACE_NAME: SDWebImage.xcworkspace
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     # use matrix to generate jobs for each platform
@@ -121,7 +121,7 @@ jobs:
             scheme: TV
             flag: tvos
           - platform: visionOS
-            destination: platform=visionOS Simulator,name=Apple Vision Pro
+            destination: platform=visionOS Simulator,name=Apple Vision Pro,OS=2.4
             scheme: Vision
             flag: visionos
     steps:
@@ -166,7 +166,7 @@ jobs:
     runs-on: macos-15
     env:
       LC_ALL: en_US.UTF-8
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app
+      DEVELOPER_DIR: /Applications/Xcode_16.3.app
       PROJECT_NAME: SDWebImage.xcodeproj
       SCHEME_NAME: SDWebImage
     steps:
