@@ -1,3 +1,9 @@
+## [5.21.3 - 5.21 Patch on Sep 9th 2025]
+See [all tickets marked for the 5.21.3 release](https://github.com/SDWebImage/SDWebImage/milestone/145)
+
+### Fixes
+- Switched image encoding to a context-aware approach with a safe fallback, allowing per-request encoder selection without changing the public API. #3844 @CloudlessMoon
+
 ## [5.21.2 - 5.21 Patch on Aug 29th 2025]
 See [all tickets marked for the 5.21.2 release](https://github.com/SDWebImage/SDWebImage/milestone/144)
 
