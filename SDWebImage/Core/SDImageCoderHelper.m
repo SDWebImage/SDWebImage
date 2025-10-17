@@ -478,7 +478,31 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     // Apply transform
     CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(newWidth, newHeight));
     CGContextConcatCTM(context, transform);
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage); // The rect is bounding box of CGImage, don't swap width & height
+    // CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage); // The rect is bounding box of CGImage, don't swap width & height
+
+ // iOS 16.7 has CGContextDrawImage multithreading crash issue, use safe copy approach
+    if (@available(iOS 16.7, *)) {
+        // Check if it's version 16.7 (excluding versions above 16.7)
+        NSOperatingSystemVersion currentVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
+        if (currentVersion.majorVersion == 16 && currentVersion.minorVersion == 7) {
+            // iOS 16.7: Use safe copy to prevent multithreading CGImage crash
+            CGImageRef safeImage = CGImageCreateCopy(cgImage);
+            if (safeImage) {
+                CGContextDrawImage(context, CGRectMake(0, 0, width, height), safeImage);
+                CGImageRelease(safeImage);
+            } else {
+                // If copy fails, fallback to original approach
+                CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+            }
+        } else {
+            // Other versions: Use original approach
+            CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+        }
+    } else {
+        // Versions below iOS 16.7: Use original approach
+        CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+    }
+
     CGImageRef newImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     
