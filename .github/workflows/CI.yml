@@ -150,8 +150,42 @@ jobs:
       - name: Run test
         run: |
           set -o pipefail
-          xcodebuild build-for-testing -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests ${{ matrix.scheme }}" -destination "${{ matrix.destination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO | xcpretty -c
-          xcodebuild test-without-building -workspace "${{ env.WORKSPACE_NAME }}" -scheme "Tests ${{ matrix.scheme }}" -destination "${{ matrix.destination }}" -configuration Debug CODE_SIGNING_ALLOWED=NO
+          # build-for-testing
+          xcodebuild build-for-testing \
+            -workspace "${{ env.WORKSPACE_NAME }}" \
+            -scheme "Tests ${{ matrix.scheme }}" \
+            -destination "${{ matrix.destination }}" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            -parallel-testing-enabled NO \
+            | xcpretty -c
+
+          # run tests without building; disable parallel testing and limit workers
+          # For Vision Pro, add additional timeout and retry configuration
+          if [ "${{ matrix.platform }}" = "visionOS" ]; then
+            xcodebuild test-without-building \
+              -workspace "${{ env.WORKSPACE_NAME }}" \
+              -scheme "Tests ${{ matrix.scheme }}" \
+              -destination "${{ matrix.destination }}" \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO \
+              -parallel-testing-enabled NO \
+              -parallel-testing-worker-count 1 \
+              -test-timeouts-enabled YES \
+              -default-test-execution-time-allowance 30 \
+              | xcpretty -c
+          else
+            xcodebuild test-without-building \
+              -workspace "${{ env.WORKSPACE_NAME }}" \
+              -scheme "Tests ${{ matrix.scheme }}" \
+              -destination "${{ matrix.destination }}" \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO \
+              -parallel-testing-enabled NO \
+              -parallel-testing-worker-count 1 \
+              | xcpretty -c
+          fi
+
           mv ~/Library/Developer/Xcode/DerivedData/ "./DerivedData/${{ matrix.platform }}"
           
       - name: Code Coverage
