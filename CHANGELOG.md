@@ -1,3 +1,9 @@
+## [5.21.4- 5.21 Patch on Nov 28th 2025]
+See [all tickets marked for the 5.21.4 release](https://github.com/SDWebImage/SDWebImage/milestone/146)
+
+### Fixes
+- Using @synchronized to always lock the cache/loader operation to ensure thread-safe. Fix crash issue on iOS 26 #3855 #3849
+
 ## [5.21.3 - 5.21 Patch on Sep 9th 2025]
 See [all tickets marked for the 5.21.3 release](https://github.com/SDWebImage/SDWebImage/milestone/145)
 
