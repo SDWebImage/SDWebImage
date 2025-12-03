@@ -478,7 +478,25 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     // Apply transform
     CGAffineTransform transform = SDCGContextTransformFromOrientation(orientation, CGSizeMake(newWidth, newHeight));
     CGContextConcatCTM(context, transform);
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage); // The rect is bounding box of CGImage, don't swap width & height
+    // iOS 16.7 has a multithreading crash in CGContextDrawImage; use copy-on-draw as workaround.
+    // For iOS 17+, use direct CGContextDrawImage without copy.
+    // The rect is bounding box of CGImage, don't swap width & height
+    CGImageRef imageToRender = cgImage;
+    CGImageRef safeCopy = NULL;
+#if SD_UIKIT || SD_WATCH
+    NSOperatingSystemVersion currentVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (currentVersion.majorVersion < 17) {
+        safeCopy = CGImageCreateCopy(cgImage);
+        if (safeCopy) {
+            imageToRender = safeCopy;
+        }
+    }
+#endif
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageToRender);
+    if (safeCopy) {
+        CGImageRelease(safeCopy);
+    }
+
     CGImageRef newImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     

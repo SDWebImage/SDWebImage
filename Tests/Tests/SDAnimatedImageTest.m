@@ -636,6 +636,11 @@ static BOOL _isCalled;
 #endif
 
 - (void)test33AnimatedImagePlaybackModeReverse {
+    if ([SDTestCase shouldSkipNetworkTestsOnVisionPro]) {
+        NSLog(@"Skipping test33AnimatedImagePlaybackModeReverse on Vision Pro in CI");
+        return;
+    }
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -674,6 +679,11 @@ static BOOL _isCalled;
 }
 
 - (void)test34AnimatedImagePlaybackModeBounce {
+    if ([SDTestCase shouldSkipNetworkTestsOnVisionPro]) {
+        NSLog(@"Skipping test34AnimatedImagePlaybackModeBounce on Vision Pro in CI");
+        return;
+    }
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback bounce mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
@@ -727,6 +737,11 @@ static BOOL _isCalled;
 }
 
 - (void)test35AnimatedImagePlaybackModeReversedBounce {
+    if ([SDTestCase shouldSkipNetworkTestsOnVisionPro]) {
+        NSLog(@"Skipping test35AnimatedImagePlaybackModeReversedBounce on Vision Pro in CI");
+        return;
+    }
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"test SDAnimatedImageView playback reverse bounce mode"];
     
     SDAnimatedImageView *imageView = [SDAnimatedImageView new];
