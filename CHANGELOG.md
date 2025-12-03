@@ -1,4 +1,10 @@
-## [5.21.4- 5.21 Patch on Nov 28th 2025]
+## [5.21.5 - 5.21 Patch on Dec 3rd 2025]
+See [all tickets marked for the 5.21.5 release](https://github.com/SDWebImage/SDWebImage/milestone/147)
+
+### Fixes
+- Try to move the SDWebImageDownloaderOperation dataTask property initialization into synchronized lock to avoid thread-safe issue #3856 #3842
+
+## [5.21.4 - 5.21 Patch on Nov 28th 2025]
 See [all tickets marked for the 5.21.4 release](https://github.com/SDWebImage/SDWebImage/milestone/146)
 
 ### Fixes
