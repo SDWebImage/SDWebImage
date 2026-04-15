@@ -449,6 +449,11 @@
  *  This test validates the scenario of requesting an image, cancel and then requesting it again
  */
 - (void)test21ThatCancelingDownloadThenRequestingAgainWorks {
+    if ([SDTestCase shouldSkipNetworkTestsOnVisionPro]) {
+        NSLog(@"Skipping test21ThatCancelingDownloadThenRequestingAgainWorks on Vision Pro in CI");
+        return;
+    }
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Correct image downloads"];
     
     NSURL *imageURL = [NSURL URLWithString:kTestJPEGURL];

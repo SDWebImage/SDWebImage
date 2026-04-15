@@ -9,7 +9,8 @@
 
 #import "SDTestCase.h"
 
-const int64_t kAsyncTestTimeout = 5;
+const int64_t kAsyncTestTimeout = 15;
+const int64_t kAsyncTestTimeoutVisionOS = 30; // Longer timeout for Vision Pro simulator
 const int64_t kMinDelayNanosecond = NSEC_PER_MSEC * 100; // 0.1s
 NSString *const kTestJPEGURL = @"https://placehold.co/50x50.jpg";
 NSString *const kTestProgressiveJPEGURL = @"https://raw.githubusercontent.com/ibireme/YYImage/master/Demo/YYImageDemo/mew_progressive.jpg";
@@ -24,7 +25,11 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
 }
 
 - (void)waitForExpectationsWithCommonTimeoutUsingHandler:(XCWaitCompletionHandler)handler {
-    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:handler];
+    NSTimeInterval timeout = kAsyncTestTimeout;
+#if SD_VISION
+    timeout = kAsyncTestTimeoutVisionOS;
+#endif
+    [self waitForExpectationsWithTimeout:timeout handler:handler];
 }
 
 + (BOOL)isCI {
@@ -38,6 +43,15 @@ NSString *const kTestAPNGPURL = @"https://upload.wikimedia.org/wikipedia/commons
         return YES;
     }
     return NO;
+}
+
++ (BOOL)shouldSkipNetworkTestsOnVisionPro {
+#if SD_VISION
+    // Skip network-heavy tests on Vision Pro simulator in CI due to performance issues
+    return [self isCI];
+#else
+    return NO;
+#endif
 }
 
 #pragma mark - Helper

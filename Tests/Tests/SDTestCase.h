@@ -20,6 +20,7 @@
 #endif
 
 FOUNDATION_EXPORT const int64_t kAsyncTestTimeout;
+FOUNDATION_EXPORT const int64_t kAsyncTestTimeoutVisionOS;
 FOUNDATION_EXPORT const int64_t kMinDelayNanosecond;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestJPEGURL;
 FOUNDATION_EXPORT NSString * _Nonnull const kTestProgressiveJPEGURL;
@@ -33,6 +34,8 @@ FOUNDATION_EXPORT NSString * _Nonnull const kTestAPNGPURL;
 @property (nonatomic, readonly, class, getter=isCI) BOOL CI; // Check if GitHub CI
 
 - (void)waitForExpectationsWithCommonTimeout;
-- (void)waitForExpectationsWithCommonTimeoutUsingHandler:(nullable XCWaitCompletionHandler)handler; 
+- (void)waitForExpectationsWithCommonTimeoutUsingHandler:(nullable XCWaitCompletionHandler)handler;
+
++ (BOOL)shouldSkipNetworkTestsOnVisionPro; 
 
 @end
