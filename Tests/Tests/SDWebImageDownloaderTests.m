@@ -194,6 +194,38 @@
     [self waitForExpectationsWithCommonTimeout];
 }
 
+- (void)testThatSynchronouslyCancellingFromCompletionCallsCompletionOnce {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Synchronous cancel does not call completion again"];
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] init];
+    downloader.downloadQueue.suspended = YES;
+    SDCallbackQueue *callbackQueue = [[SDCallbackQueue alloc] initWithDispatchQueue:dispatch_get_main_queue()];
+    callbackQueue.policy = SDCallbackPolicyInvoke;
+    NSURL *imageURL = [NSURL fileURLWithPath:self.testPNGPath];
+    __block NSUInteger callbackCount = 0;
+    __block SDWebImageDownloadToken *token;
+    token = [downloader downloadImageWithURL:imageURL
+                                     options:0
+                                     context:@{SDWebImageContextCallbackQueue : callbackQueue}
+                                    progress:nil
+                                   completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        callbackCount++;
+        if (callbackCount == 1) {
+            expect(image).notTo.beNil();
+            expect(data).notTo.beNil();
+            expect(error).to.beNil();
+            expect(finished).to.beTruthy();
+            [token cancel];
+            [expectation fulfill];
+        }
+    }];
+    downloader.downloadQueue.suspended = NO;
+
+    [self waitForExpectationsWithCommonTimeoutUsingHandler:^(NSError * _Nullable error) {
+        expect(callbackCount).equal(1);
+        [downloader invalidateSessionAndCancel:YES];
+    }];
+}
+
 - (void)test11ThatCancelAllDownloadWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"CancelAllDownloads"];
     // Previous test case download may not finished, so we just check the download count should + 1 after new request
