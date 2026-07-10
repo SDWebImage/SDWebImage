@@ -735,13 +735,7 @@ didReceiveResponse:(NSURLResponse *)response
         tokens = [self.callbackTokens copy];
     }
     for (SDWebImageDownloaderOperationToken *token in tokens) {
-        SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
-        if (completedBlock) {
-            SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
-            [(queue ?: SDCallbackQueue.mainQueue) async:^{
-                completedBlock(image, imageData, error, finished);
-            }];
-        }
+        [self callCompletionBlockWithToken:token image:image imageData:imageData error:error finished:finished];
     }
 }
 
@@ -750,7 +744,14 @@ didReceiveResponse:(NSURLResponse *)response
                            imageData:(nullable NSData *)imageData
                                error:(nullable NSError *)error
                             finished:(BOOL)finished {
-    SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
+    SDWebImageDownloaderCompletedBlock completedBlock;
+    @synchronized (self) {
+        completedBlock = token.completedBlock;
+        // A terminal callback consumes the block so a synchronous cancel cannot call it again.
+        if (finished) {
+            token.completedBlock = nil;
+        }
+    }
     if (completedBlock) {
         SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
         [(queue ?: SDCallbackQueue.mainQueue) async:^{
