@@ -353,7 +353,7 @@ static inline NSString *SDSanitizeFileNameString(NSString * _Nullable fileName) 
     return [[fileName componentsSeparatedByCharactersInSet:illegalFileNameCharacters] componentsJoinedByString:@""];
 }
 
-#define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_MD5_DIGEST_LENGTH * 2 - 1)
+#define SD_MAX_FILE_EXTENSION_LENGTH (NAME_MAX - CC_SHA256_DIGEST_LENGTH * 2 - 1)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -362,8 +362,8 @@ static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable
     if (str == NULL) {
         str = "";
     }
-    unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, (CC_LONG)strlen(str), r);
+    unsigned char r[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(str, (CC_LONG)strlen(str), r);
     NSString *ext;
     // 1. Use URL path extname if valid
     NSURL *keyURL = [NSURL URLWithString:key];
@@ -380,9 +380,11 @@ static inline NSString * _Nonnull SDDiskCacheFileNameForKey(NSString * _Nullable
     if (ext.length > SD_MAX_FILE_EXTENSION_LENGTH) {
         ext = nil;
     }
-    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
-                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
-                          r[11], r[12], r[13], r[14], r[15], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
+    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
+                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15], r[16], r[17], r[18], r[19], r[20],
+                          r[21], r[22], r[23], r[24], r[25], r[26], r[27], r[28], r[29], r[30],
+                          r[31], ext.length == 0 ? @"" : [NSString stringWithFormat:@".%@", ext]];
+    
     return filename;
 }
 #pragma clang diagnostic pop
