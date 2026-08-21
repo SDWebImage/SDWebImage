@@ -13,6 +13,59 @@
 
 static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDiskCache";
 
+/// One cache file candidate for the size-based cleanup pass in `removeExpiredData`.
+/// `url` is owned by the `cacheFiles` dictionary, which outlives every heap operation below,
+/// so it's held unretained to keep the heap a cheap-to-swap POD array. The content date is
+/// unboxed once into a primitive so the heap comparisons don't pay for `-[NSDate compare:]`
+/// message sends (ordering is unchanged: `-[NSDate compare:]` orders by this very value).
+typedef struct {
+    __unsafe_unretained NSURL *url;
+    NSTimeInterval date;
+    NSUInteger size;
+} SDDiskCacheEntry;
+
+/// Restore the min-heap invariant (oldest content date at the root) for the subtree rooted at `index`. O(log n).
+static void SDDiskCacheHeapSiftDown(SDDiskCacheEntry * _Nonnull heap, NSUInteger count, NSUInteger index) {
+    while (YES) {
+        NSUInteger oldest = index;
+        NSUInteger left = index * 2 + 1;
+        NSUInteger right = left + 1;
+        if (left < count && heap[left].date < heap[oldest].date) {
+            oldest = left;
+        }
+        if (right < count && heap[right].date < heap[oldest].date) {
+            oldest = right;
+        }
+        if (oldest == index) {
+            break;
+        }
+        SDDiskCacheEntry temp = heap[index];
+        heap[index] = heap[oldest];
+        heap[oldest] = temp;
+        index = oldest;
+    }
+}
+
+/// Heapify an unordered array in place using Floyd's bottom-up algorithm. O(n), no comparison for the leaf half.
+static void SDDiskCacheHeapBuild(SDDiskCacheEntry * _Nonnull heap, NSUInteger count) {
+    // Iterate the internal nodes backwards. `count / 2` is one past the last internal node,
+    // so the loop counter is kept 1-based to stay safe on the unsigned type.
+    for (NSUInteger i = count / 2; i > 0; i--) {
+        SDDiskCacheHeapSiftDown(heap, count, i - 1);
+    }
+}
+
+/// Remove and return the entry with the oldest content date, shrinking `count` by one. O(log n).
+static SDDiskCacheEntry SDDiskCacheHeapPopOldest(SDDiskCacheEntry * _Nonnull heap, NSUInteger * _Nonnull count) {
+    SDDiskCacheEntry oldest = heap[0];
+    *count -= 1;
+    if (*count > 0) {
+        heap[0] = heap[*count];
+        SDDiskCacheHeapSiftDown(heap, *count, 0);
+    }
+    return oldest;
+}
+
 @interface SDDiskCache ()
 
 @property (nonatomic, copy) NSString *diskCachePath;
@@ -221,21 +274,53 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
         // Target half of our maximum cache size for this cleanup pass.
         const NSUInteger desiredCacheSize = maxDiskSize / 2;
         
-        // Sort the remaining cache files by their last modification time or last access time (oldest first).
-        NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
-                                                                 usingComparator:^NSComparisonResult(id obj1, id obj2) {
-                                                                     return [obj1[cacheContentDateKey] compare:obj2[cacheContentDateKey]];
-                                                                 }];
-        
-        // Delete files until we fall below our desired cache size.
-        for (NSURL *fileURL in sortedFiles) {
-            if ([self.fileManager removeItemAtURL:fileURL error:nil]) {
-                NSDictionary<NSString *, id> *resourceValues = cacheFiles[fileURL];
-                NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
-                currentCacheSize -= totalAllocatedSize.unsignedIntegerValue;
-                
-                if (currentCacheSize < desiredCacheSize) {
-                    break;
+        // A full sort of every remaining cache file is more work than we need: we only ever
+        // consume the oldest `k` entries, so heapify in O(n) and pop just those in O(k log n)
+        // instead of ordering all n in O(n log n). The content date is also unboxed to a
+        // primitive up front, so the heap comparisons are plain double compares rather than
+        // `-[NSDate compare:]` message sends.
+        NSUInteger heapCount = cacheFiles.count;
+        SDDiskCacheEntry *heap = heapCount > 0 ? malloc(heapCount * sizeof(SDDiskCacheEntry)) : NULL;
+        if (heap) {
+            __block NSUInteger index = 0;
+            [cacheFiles enumerateKeysAndObjectsUsingBlock:^(NSURL *fileURL, NSDictionary<NSString *, id> *resourceValues, BOOL *stop) {
+                heap[index].url = fileURL;
+                heap[index].date = [(NSDate *)resourceValues[cacheContentDateKey] timeIntervalSinceReferenceDate];
+                heap[index].size = [(NSNumber *)resourceValues[NSURLTotalFileAllocatedSizeKey] unsignedIntegerValue];
+                index++;
+            }];
+            SDDiskCacheHeapBuild(heap, heapCount);
+
+            // Delete files, oldest first, until we fall below our desired cache size.
+            while (heapCount > 0) {
+                SDDiskCacheEntry entry = SDDiskCacheHeapPopOldest(heap, &heapCount);
+                if ([self.fileManager removeItemAtURL:entry.url error:nil]) {
+                    currentCacheSize -= entry.size;
+
+                    if (currentCacheSize < desiredCacheSize) {
+                        break;
+                    }
+                }
+            }
+            free(heap);
+        } else {
+            // Allocation failed, fall back to sorting the remaining cache files by their
+            // last modification time or last access time (oldest first).
+            NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
+                                                                     usingComparator:^NSComparisonResult(id obj1, id obj2) {
+                                                                         return [obj1[cacheContentDateKey] compare:obj2[cacheContentDateKey]];
+                                                                     }];
+
+            // Delete files until we fall below our desired cache size.
+            for (NSURL *fileURL in sortedFiles) {
+                if ([self.fileManager removeItemAtURL:fileURL error:nil]) {
+                    NSDictionary<NSString *, id> *resourceValues = cacheFiles[fileURL];
+                    NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];
+                    currentCacheSize -= totalAllocatedSize.unsignedIntegerValue;
+
+                    if (currentCacheSize < desiredCacheSize) {
+                        break;
+                    }
                 }
             }
         }

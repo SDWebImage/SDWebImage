@@ -634,6 +634,82 @@ static NSString *kTestImageKeyPNG = @"TestImageKey.png";
     [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
+- (void)test45DiskCacheRemoveExpiredDataEvictsExactlyTheOldestFiles {
+    // Pins the size-based eviction contract of `-removeExpiredData`: the files deleted are
+    // exactly the oldest ones, and no more of them than needed to drop below maxDiskSize / 2.
+    // This is algorithm-independent, so it holds for the full-sort and the partial-selection
+    // (heap) implementation alike.
+    NSString *cachePath = [[self userCacheDirectory] stringByAppendingPathComponent:@"disk-eviction-order"];
+    // Use a dedicated config rather than the shared `defaultCacheConfig` singleton
+    SDImageCacheConfig *config = [[SDImageCacheConfig alloc] init];
+    config.maxDiskAge = -1; // disable the age-based pass, we only exercise the size-based one
+    config.diskCacheExpireType = SDImageCacheConfigExpireTypeModificationDate;
+    SDDiskCache *diskCache = [[SDDiskCache alloc] initWithCachePath:cachePath config:config];
+    [diskCache removeAllData];
+    expect(diskCache.totalCount).equal(0);
+
+    // Seed `fileCount` equally sized files. Keys are written in a shuffled order and each key's
+    // modification date is derived from its index, so neither the on-disk enumeration order nor
+    // the insertion order matches the date order -- an implementation that leaked input order
+    // instead of ordering by date would fail below.
+    const NSUInteger fileCount = 64;
+    NSMutableArray<NSNumber *> *insertionOrder = [NSMutableArray arrayWithCapacity:fileCount];
+    for (NSUInteger i = 0; i < fileCount; i++) {
+        [insertionOrder addObject:@(i)];
+    }
+    for (NSUInteger i = fileCount; i > 1; i--) {
+        [insertionOrder exchangeObjectAtIndex:(i - 1) withObjectAtIndex:(arc4random_uniform((uint32_t)i))];
+    }
+
+    NSUInteger length = 16;
+    void *bytes = calloc(length, 1);
+    NSData *data = [NSData dataWithBytes:bytes length:length];
+    free(bytes);
+
+    NSDate *baseDate = [NSDate dateWithTimeIntervalSinceNow:-3600];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    for (NSNumber *boxedIndex in insertionOrder) {
+        NSUInteger i = boxedIndex.unsignedIntegerValue;
+        NSString *key = [NSString stringWithFormat:@"evict-%02lu", (unsigned long)i];
+        [diskCache setData:data forKey:key];
+        // index 0 is the oldest, index fileCount-1 the newest, all dates distinct
+        NSDate *modificationDate = [baseDate dateByAddingTimeInterval:(NSTimeInterval)i];
+        NSError *error = nil;
+        [fileManager setAttributes:@{NSFileModificationDate : modificationDate}
+                     ofItemAtPath:[diskCache cachePathForKey:key]
+                            error:&error];
+        expect(error).beNil();
+    }
+    expect(diskCache.totalCount).equal(fileCount);
+
+    // `removeExpiredData` accounts for the *allocated* size of each file, which is block
+    // granular, so read it back from the filesystem rather than assuming the byte length.
+    NSURL *probeURL = [NSURL fileURLWithPath:[diskCache cachePathForKey:@"evict-00"]];
+    NSNumber *allocatedSize = nil;
+    [probeURL getResourceValue:&allocatedSize forKey:NSURLTotalFileAllocatedSizeKey error:nil];
+    NSUInteger fileSize = allocatedSize.unsignedIntegerValue;
+    expect(fileSize).beGreaterThan(0);
+
+    // Trigger the size pass with maxDiskSize = 16 files, so the target is 8 files worth of
+    // bytes. Deleting oldest-first stops as soon as the remainder is *below* the target, which
+    // leaves 7 files -- the 7 newest.
+    config.maxDiskSize = 16 * fileSize;
+    const NSUInteger expectedRemaining = 7;
+    [diskCache removeExpiredData];
+
+    expect(diskCache.totalCount).equal(expectedRemaining);
+    for (NSUInteger i = 0; i < fileCount; i++) {
+        NSString *key = [NSString stringWithFormat:@"evict-%02lu", (unsigned long)i];
+        if (i >= fileCount - expectedRemaining) {
+            expect([diskCache containsDataForKey:key]).beTruthy();
+        } else {
+            expect([diskCache containsDataForKey:key]).beFalsy();
+        }
+    }
+
+    [diskCache removeAllData];
+}
+
 #if SD_UIKIT
 - (void)test46MemoryCacheWeakCache {
     SDMemoryCache *memoryCache = [[SDMemoryCache alloc] init];
