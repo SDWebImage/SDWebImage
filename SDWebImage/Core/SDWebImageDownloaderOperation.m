@@ -20,6 +20,7 @@
 @property (nonatomic, copy, nullable) SDWebImageDownloaderCompletedBlock completedBlock;
 @property (nonatomic, copy, nullable) SDWebImageDownloaderProgressBlock progressBlock;
 @property (nonatomic, copy, nullable) SDImageCoderOptions *decodeOptions;
+@property (nonatomic, assign, getter=isCompleted) BOOL completed;
 
 @end
 
@@ -735,13 +736,7 @@ didReceiveResponse:(NSURLResponse *)response
         tokens = [self.callbackTokens copy];
     }
     for (SDWebImageDownloaderOperationToken *token in tokens) {
-        SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
-        if (completedBlock) {
-            SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
-            [(queue ?: SDCallbackQueue.mainQueue) async:^{
-                completedBlock(image, imageData, error, finished);
-            }];
-        }
+        [self callCompletionBlockWithToken:token image:image imageData:imageData error:error finished:finished];
     }
 }
 
@@ -751,12 +746,21 @@ didReceiveResponse:(NSURLResponse *)response
                                error:(nullable NSError *)error
                             finished:(BOOL)finished {
     SDWebImageDownloaderCompletedBlock completedBlock = token.completedBlock;
-    if (completedBlock) {
-        SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
-        [(queue ?: SDCallbackQueue.mainQueue) async:^{
-            completedBlock(image, imageData, error, finished);
-        }];
+    if (!completedBlock) {
+        return;
     }
+    @synchronized (token) {
+        if (token.isCompleted) {
+            return;
+        }
+        if (finished) {
+            token.completed = YES;
+        }
+    }
+    SDCallbackQueue *queue = self.context[SDWebImageContextCallbackQueue];
+    [(queue ?: SDCallbackQueue.mainQueue) async:^{
+        completedBlock(image, imageData, error, finished);
+    }];
 }
 
 @end
