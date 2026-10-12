@@ -856,6 +856,59 @@
     [self waitForExpectations:expectations timeout:kAsyncTestTimeout * 2];
 }
 
+- (void)test32ThatRequestWithHigherPriorityRaisesTheReusedOperationQueuePriority {
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:nil];
+    // Keep the operation in the queue
+    downloader.suspended = YES;
+    NSURL *url = [NSURL URLWithString:kTestJPEGURL];
+    // Prefetch
+    SDWebImageDownloadToken *token = [downloader downloadImageWithURL:url options:SDWebImageDownloaderLowPriority progress:nil completed:nil];
+    NSOperation<SDWebImageDownloaderOperation> *operation = token.downloadOperation;
+    expect(operation.queuePriority).equal(NSOperationQueuePriorityLow);
+    // The image view requests the same URL
+    token = [downloader downloadImageWithURL:url options:0 progress:nil completed:nil];
+    expect(token.downloadOperation).equal(operation);
+    expect(operation.queuePriority).equal(NSOperationQueuePriorityNormal);
+    token = [downloader downloadImageWithURL:url options:SDWebImageDownloaderHighPriority progress:nil completed:nil];
+    expect(token.downloadOperation).equal(operation);
+    expect(operation.queuePriority).equal(NSOperationQueuePriorityHigh);
+    // A request with a lower priority doesn't lower it
+    token = [downloader downloadImageWithURL:url options:SDWebImageDownloaderLowPriority progress:nil completed:nil];
+    expect(token.downloadOperation).equal(operation);
+    expect(operation.queuePriority).equal(NSOperationQueuePriorityHigh);
+
+    [downloader invalidateSessionAndCancel:YES];
+}
+
+- (void)test33ThatReusedOperationWithRaisedPriorityStartsFirst {
+    SDWebImageDownloaderConfig *config = [[SDWebImageDownloaderConfig alloc] init];
+    config.maxConcurrentDownloads = 1;
+    SDWebImageDownloader *downloader = [[SDWebImageDownloader alloc] initWithConfig:config];
+    downloader.suspended = YES;
+    NSURL *url1 = [NSURL URLWithString:@"https://placehold.co/50x51.png"];
+    NSURL *url2 = [NSURL URLWithString:@"https://placehold.co/50x52.png"];
+    [downloader downloadImageWithURL:url1 options:0 progress:nil completed:nil];
+    [downloader downloadImageWithURL:url2 options:0 progress:nil completed:nil];
+    // url2 again, with high priority: it starts before url1, which was queued before it
+    [downloader downloadImageWithURL:url2 options:SDWebImageDownloaderHighPriority progress:nil completed:nil];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"The operation with raised priority starts first"];
+    __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:SDWebImageDownloadStartNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        SDWebImageDownloaderOperation *operation = note.object;
+        NSURL *url = operation.request.URL;
+        if (![url isEqual:url1] && ![url isEqual:url2]) {
+            return;
+        }
+        [[NSNotificationCenter defaultCenter] removeObserver:observer];
+        expect(url).equal(url2);
+        [expectation fulfill];
+    }];
+    downloader.suspended = NO;
+
+    [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
+    [downloader invalidateSessionAndCancel:YES];
+}
+
 #pragma mark - SDWebImageLoader
 - (void)testCustomImageLoaderWorks {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Custom image not works"];

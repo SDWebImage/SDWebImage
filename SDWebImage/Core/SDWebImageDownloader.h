@@ -20,6 +20,7 @@
 typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
     /**
      * Put the download in the low queue priority and task priority.
+     * If a download of the same URL is already queued with a higher priority, it keeps that priority.
      */
     SDWebImageDownloaderLowPriority = 1 << 0,
     
@@ -61,6 +62,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
 
     /**
      * Put the download in the high queue priority and task priority.
+     * If a download of the same URL is already queued, this request reuses it and raises its queue priority to high.
      */
     SDWebImageDownloaderHighPriority = 1 << 7,
     

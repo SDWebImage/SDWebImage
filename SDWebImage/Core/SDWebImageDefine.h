@@ -99,7 +99,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     
     /**
      * By default, images are loaded in the order in which they were queued. This flag moves them to
-     * the front of the queue.
+     * the front of the queue, also when a download of the same URL is already queued.
      */
     SDWebImageHighPriority = 1 << 7,
     

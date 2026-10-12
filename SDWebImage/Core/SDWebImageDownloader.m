@@ -261,6 +261,16 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         @synchronized (operation) {
             downloadOperationCancelToken = [operation addHandlersForProgress:progressBlock completed:completedBlock decodeOptions:decodeOptions];
         }
+        // A request with a higher priority raises the queue priority of the operation it reuses, so it doesn't wait behind operations with a lower priority. Never lower it, the earlier requests still wait for this operation.
+        NSOperationQueuePriority queuePriority = NSOperationQueuePriorityNormal;
+        if (options & SDWebImageDownloaderHighPriority) {
+            queuePriority = NSOperationQueuePriorityHigh;
+        } else if (options & SDWebImageDownloaderLowPriority) {
+            queuePriority = NSOperationQueuePriorityLow;
+        }
+        if (queuePriority > operation.queuePriority) {
+            operation.queuePriority = queuePriority;
+        }
     }
     SD_UNLOCK(_operationsLock);
     
