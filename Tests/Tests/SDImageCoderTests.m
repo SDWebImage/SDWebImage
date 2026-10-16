@@ -203,6 +203,74 @@
     expect(image.sd_imageLoopCount).equal(1);
 }
 
+- (void)test12ThatGIFDataIntegrityValidationWorks {
+    NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
+    NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
+    
+    // Valid GIF data
+    expect([NSData sd_isValidGIFData:gifData]).to.beTruthy();
+    // Valid GIF data with trailing garbage after the trailer (ImageIO tolerates this, e.g. bytes appended by proxies)
+    NSMutableData *trailingGarbageData = [gifData mutableCopy];
+    [trailingGarbageData appendData:[@"\r\n</script>" dataUsingEncoding:NSUTF8StringEncoding]];
+    expect([NSData sd_isValidGIFData:trailingGarbageData]).to.beTruthy();
+    // Valid GIF data with trailing NUL padding
+    NSMutableData *paddedData = [gifData mutableCopy];
+    uint8_t zero = 0x00;
+    [paddedData appendBytes:&zero length:1];
+    expect([NSData sd_isValidGIFData:paddedData]).to.beTruthy();
+    // Truncated GIF data (missing the 0x3B trailer)
+    NSData *truncatedData = [gifData subdataWithRange:NSMakeRange(0, gifData.length / 2)];
+    expect([NSData sd_isValidGIFData:truncatedData]).to.beFalsy();
+    // Truncated right before the trailer (a syntactically almost-complete stream)
+    NSData *missingTrailerData = [gifData subdataWithRange:NSMakeRange(0, gifData.length - 1)];
+    expect([NSData sd_isValidGIFData:missingTrailerData]).to.beFalsy();
+    // Corrupted GIF header
+    NSMutableData *corruptedHeaderData = [gifData mutableCopy];
+    uint8_t badByte = 0x58; // 'X', overwrite 'G'
+    [corruptedHeaderData replaceBytesInRange:NSMakeRange(0, 1) withBytes:&badByte length:1];
+    expect([NSData sd_isValidGIFData:corruptedHeaderData]).to.beFalsy();
+    // Garbage input
+    expect([NSData sd_isValidGIFData:nil]).to.beFalsy();
+    expect([NSData sd_isValidGIFData:[NSData data]]).to.beFalsy();
+}
+
+- (void)test12ThatCorruptedGIFDataDoesNotCrashAndReturnsNil {
+    // Corrupted/truncated GIF data may crash inside ImageIO during decoding, the coder should refuse to decode it. See #3882
+    NSURL *gifURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"gif"];
+    NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
+    NSData *truncatedData = [gifData subdataWithRange:NSMakeRange(0, gifData.length / 2)];
+    
+    // 1. Static decode path (used by thumbnail/scale-down decoding)
+    UIImage *image = [SDImageGIFCoder.sharedCoder decodedImageWithData:truncatedData options:nil];
+    expect(image).to.beNil();
+    
+    // 2. Animated image decode path (used by SDImageCache disk decoding)
+    SDImageGIFCoder *animatedCoder = [[SDImageGIFCoder alloc] initWithAnimatedImageData:truncatedData options:nil];
+    expect(animatedCoder).to.beNil();
+    
+    // 3. Incremental decode path (used by progressive download and SDAnimatedImage)
+    SDImageGIFCoder *incrementalCoder = [[SDImageGIFCoder alloc] initIncrementalWithOptions:nil];
+    [incrementalCoder updateIncrementalData:truncatedData finished:YES];
+    expect(incrementalCoder.animatedImageFrameCount).to.equal(0);
+    expect([incrementalCoder animatedImageFrameAtIndex:0]).to.beNil();
+    expect([incrementalCoder incrementalDecodedImageWithOptions:nil]).to.beNil();
+    
+    // 4. SDAnimatedImage should fail gracefully with corrupted data
+    UIImage *animatedImage = [[SDAnimatedImage alloc] initWithData:truncatedData];
+    expect(animatedImage).to.beNil();
+    
+    // 5. Valid GIF data still decodes correctly through all the paths above
+    image = [SDImageGIFCoder.sharedCoder decodedImageWithData:gifData options:nil];
+    expect(image).toNot.beNil();
+    animatedCoder = [[SDImageGIFCoder alloc] initWithAnimatedImageData:gifData options:nil];
+    expect(animatedCoder).toNot.beNil();
+    expect(animatedCoder.animatedImageFrameCount).to.beGreaterThan(0);
+    incrementalCoder = [[SDImageGIFCoder alloc] initIncrementalWithOptions:nil];
+    [incrementalCoder updateIncrementalData:gifData finished:YES];
+    expect(incrementalCoder.animatedImageFrameCount).to.beGreaterThan(0);
+    expect([incrementalCoder animatedImageFrameAtIndex:0]).toNot.beNil();
+}
+
 - (void)test13ThatHEICWorks {
     if (@available(iOS 11, tvOS 11, macOS 10.13, *)) {
         NSURL *heicURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"TestImage" withExtension:@"heic"];

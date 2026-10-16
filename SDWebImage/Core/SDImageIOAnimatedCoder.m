@@ -456,6 +456,16 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 
 + (UIImage *)createFrameAtIndex:(NSUInteger)index source:(CGImageSourceRef)source scale:(CGFloat)scale preserveAspectRatio:(BOOL)preserveAspectRatio thumbnailSize:(CGSize)thumbnailSize lazyDecode:(BOOL)lazyDecode animatedImage:(BOOL)animatedImage decodeToHDR:(BOOL)decodeToHDR {
     // `animatedImage` means called from `SDAnimatedImageProvider.animatedImageFrameAtIndex`
+    // Guard against corrupted GIF data reported by ImageIO, decoding such frame may crash inside ImageIO. See #3882
+    // Only apply this status check to GIF sources: ImageIO may report `kCGImageStatusInvalidData` for
+    // formats it can still partially decode (e.g. some HDR codecs), where bailing out would regress decoding.
+    CFStringRef sourceType = CGImageSourceGetType(source);
+    if (sourceType && CFStringCompare(sourceType, kSDUTTypeGIF, 0) == kCFCompareEqualTo) {
+        CGImageSourceStatus imageStatus = CGImageSourceGetStatusAtIndex(source, index);
+        if (imageStatus == kCGImageStatusInvalidData) {
+            return nil;
+        }
+    }
     NSDictionary *options;
     if (animatedImage) {
         if (!lazyDecode) {
@@ -599,6 +609,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 
 - (UIImage *)decodedImageWithData:(NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
+        return nil;
+    }
+    // Guard against corrupted/truncated GIF data, which may crash inside ImageIO during decoding. See #3882
+    if (self.class.imageFormat == SDImageFormatGIF && ![NSData sd_isValidGIFData:data]) {
         return nil;
     }
     CGFloat scale = 1;
@@ -788,6 +802,17 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 - (void)updateIncrementalData:(NSData *)data finished:(BOOL)finished {
     NSCParameterAssert(_incremental);
     if (_finished) {
+        return;
+    }
+    // Guard against corrupted/truncated GIF data when the download finished, feeding it into ImageIO may crash during decoding. See #3882
+    if (finished && self.class.imageFormat == SDImageFormatGIF && ![NSData sd_isValidGIFData:data]) {
+        SD_LOCK(_lock);
+        _imageData = data;
+        _finished = YES;
+        // Drop all previously scanned frames so any frame query safely returns nil
+        _frameCount = 0;
+        _frames = nil;
+        SD_UNLOCK(_lock);
         return;
     }
     // The following code is from http://www.cocoaintheshell.com/2011/05/progressive-images-download-imageio/
@@ -1009,6 +1034,10 @@ static BOOL SDImageIOPNGPluginBuggyNeedWorkaround(void) {
 #pragma mark - SDAnimatedImageCoder
 - (nullable instancetype)initWithAnimatedImageData:(nullable NSData *)data options:(nullable SDImageCoderOptions *)options {
     if (!data) {
+        return nil;
+    }
+    // Guard against corrupted/truncated GIF data, which may crash inside ImageIO during decoding. See #3882
+    if (self.class.imageFormat == SDImageFormatGIF && ![NSData sd_isValidGIFData:data]) {
         return nil;
     }
     self = [super init];

@@ -87,6 +87,94 @@
     return SDImageFormatUndefined;
 }
 
+// Walk the GIF data stream to find the trailer byte 0x3B, skipping variable-length blocks.
+// Returns YES if the trailer is reached, NO if the stream ends prematurely (truncated) or is malformed.
+// See: https://www.w3.org/Graphics/GIF/spec-gif89a.txt
+static BOOL SDGIFStreamReachTrailer(const uint8_t *bytes, NSUInteger length, NSUInteger offset) {
+    while (offset < length) {
+        uint8_t sentinel = bytes[offset];
+        offset++;
+        if (sentinel == 0x3B) {
+            // Trailer reached, any trailing garbage after it is ignored like ImageIO does
+            return YES;
+        } else if (sentinel == 0x21) {
+            // Extension block: label byte + data sub-blocks
+            if (offset >= length) {
+                return NO;
+            }
+            offset++; // skip label
+            // Skip data sub-blocks (each prefixed by a size byte, terminated by a zero size)
+            while (offset < length) {
+                uint8_t subBlockSize = bytes[offset];
+                offset++;
+                if (subBlockSize == 0) {
+                    break;
+                }
+                offset += subBlockSize;
+            }
+        } else if (sentinel == 0x2C) {
+            // Image Descriptor: 9 bytes, packed field at relative offset 8
+            if (offset + 9 > length) {
+                return NO;
+            }
+            uint8_t packed = bytes[offset + 8];
+            offset += 9;
+            // Local Color Table Flag, size is 2^(N+1) entries of 3 bytes
+            if (packed & 0x80) {
+                NSUInteger lctSize = 3 * (1 << ((packed & 0x07) + 1));
+                offset += lctSize;
+            }
+            // LZW minimum code size byte
+            if (offset >= length) {
+                return NO;
+            }
+            offset++;
+            // Skip image data sub-blocks
+            while (offset < length) {
+                uint8_t subBlockSize = bytes[offset];
+                offset++;
+                if (subBlockSize == 0) {
+                    break;
+                }
+                offset += subBlockSize;
+            }
+        } else {
+            // Unknown block identifier, malformed GIF
+            return NO;
+        }
+    }
+    // Stream ended before trailer, truncated GIF
+    return NO;
+}
+
++ (BOOL)sd_isValidGIFData:(nullable NSData *)data {
+    if (!data) {
+        return NO;
+    }
+    // Minimal GIF: 6 bytes header + 7 bytes LSD + 1 byte trailer
+    if (data.length < 14) {
+        return NO;
+    }
+    const uint8_t *bytes = data.bytes;
+    // Magic header: GIF87a or GIF89a
+    if (memcmp(bytes, "GIF87a", 6) != 0 && memcmp(bytes, "GIF89a", 6) != 0) {
+        return NO;
+    }
+    // Logical Screen Descriptor: 7 bytes, packed field at relative offset 4 (absolute 10)
+    uint8_t packed = bytes[10];
+    NSUInteger offset = 13;
+    // Global Color Table Flag, size is 2^(N+1) entries of 3 bytes
+    if (packed & 0x80) {
+        NSUInteger gctSize = 3 * (1 << ((packed & 0x07) + 1));
+        offset += gctSize;
+    }
+    if (offset >= data.length) {
+        return NO;
+    }
+    // Walk the block stream to verify the trailer 0x3B is present (a truncated GIF never reaches it)
+    return SDGIFStreamReachTrailer(bytes, data.length, offset);
+}
+
 + (nonnull CFStringRef)sd_UTTypeFromImageFormat:(SDImageFormat)format {
     CFStringRef UTType;
     switch (format) {

@@ -43,6 +43,20 @@ static const SDImageFormat SDImageFormatRAW       = 10;
 + (SDImageFormat)sd_imageFormatForImageData:(nullable NSData *)data;
 
 /**
+ *  Check whether the data is a structurally complete GIF image.
+ *  A valid GIF must start with the `GIF87a`/`GIF89a` magic header and contain the trailer byte `0x3B`
+ *  which terminates the GIF block stream. Corrupted or truncated GIF data may crash inside ImageIO
+ *  during decoding, callers can use this to guard before passing GIF data to any decoder.
+ *  Like ImageIO, trailing garbage after the trailer is tolerated.
+ *  See https://github.com/SDWebImage/SDWebImage/issues/3882
+ *
+ *  @param data the input image data
+ *
+ *  @return YES if the data has a valid GIF header and a complete block stream, NO otherwise
+ */
++ (BOOL)sd_isValidGIFData:(nullable NSData *)data;
+
+/**
  *  Convert SDImageFormat to UTType
  *
  *  @param format Format as SDImageFormat
