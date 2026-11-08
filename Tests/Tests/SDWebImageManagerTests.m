@@ -603,9 +603,11 @@
 
 - (void)test21ThatQueryOriginalDiskCacheFromThumbnailShouldNotWriteBackDiskCache {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Using original disk cache to do thumbnail decoding or transformer, should not save back disk data again"];
-    
+
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:NSUUID.UUID.UUIDString];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
     NSURL *url = [NSURL URLWithString:@"https://placehold.co/503x503.png"];
-    NSString *originalKey = url.absoluteString;
+    NSString *originalKey = [manager cacheKeyForURL:url];
     // 1. Store the disk data to original cache
     CGSize fullSize = CGSizeMake(503, 503);
     SDGraphicsImageRenderer *renderer = [[SDGraphicsImageRenderer alloc] initWithSize:fullSize];
@@ -615,7 +617,7 @@
         CGContextFillRect(context, CGRectMake(0, 0, fullSize.width, fullSize.height));
     }];
     NSData *fullSizeData = fullSizeImage.sd_imageData;
-    [SDImageCache.sharedImageCache storeImageDataToDisk:fullSizeData forKey:originalKey];
+    [cache storeImageDataToDisk:fullSizeData forKey:originalKey];
     
     // 2. Query thumbnail size, should hit full disk cache instead of download
     SDWebImageContext *context = @{
@@ -623,26 +625,27 @@
         SDWebImageContextOriginalQueryCacheType: @(SDImageCacheTypeAll),
         SDWebImageContextOriginalStoreCacheType: @(SDImageCacheTypeDisk),
         SDWebImageContextQueryCacheType: @(SDImageCacheTypeAll),
-        SDWebImageContextStoreCacheType: @(SDImageCacheTypeAll) // these 4 are all default values
+        SDWebImageContextStoreCacheType: @(SDImageCacheTypeAll)
     };
-    NSString *key = [SDWebImageManager.sharedManager cacheKeyForURL:url context:context]; // Thumbnail key
-    [SDImageCache.sharedImageCache removeImageFromDiskForKey:key];
-    [SDWebImageManager.sharedManager loadImageWithURL:url options:SDWebImageWaitStoreCache context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+    NSString *key = [manager cacheKeyForURL:url context:context]; // Thumbnail key
+    [manager loadImageWithURL:url options:SDWebImageWaitStoreCache | SDWebImageFromCacheOnly context:context progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
         expect(cacheType).equal(SDImageCacheTypeDisk);
         expect(data).beNil(); // Currently, the thumbnailed and transformed image always data is nil, to avoid confuse user (the image and data represent no longer match)
         expect(image.size.width).equal(100);
         expect(image.size.height).equal(100);
-        // 3. Check full size disk cache again, should equal to original stored one
-        NSData *currentFullSizeData = [SDImageCache.sharedImageCache diskImageDataForKey:originalKey];
+        // The original stays disk-only even though the thumbnail may use memory.
+        NSData *currentFullSizeData = [cache diskImageDataForKey:originalKey];
         expect(currentFullSizeData).equal(fullSizeData);
-        // 4. Some extra check that thumbnailed image should store to disk/memory as well to wait for next time query
-        expect([SDImageCache.sharedImageCache diskImageDataExistsWithKey:key]).beTruthy();
-        expect([SDImageCache.sharedImageCache imageFromMemoryCacheForKey:key]).beTruthy();
+        expect([cache imageFromMemoryCacheForKey:originalKey]).beNil();
+        expect([cache diskImageDataExistsWithKey:key]).beTruthy();
+        expect([cache imageFromMemoryCacheForKey:key]).beTruthy();
         
         [expectation fulfill];
     }];
     
     [self waitForExpectationsWithCommonTimeout];
+    [cache removeImageFromDiskForKey:originalKey];
+    [cache removeImageFromDiskForKey:key];
 }
 
 - (void)test22ThatForceDecodePolicyAutomatic {
@@ -662,6 +665,41 @@
         [expectation fulfill];
     }];
     [self waitForExpectationsWithCommonTimeout];
+}
+
+- (void)test23ThatDiskCacheHitRespectsStoreCacheType {
+    [self assertDiskCacheHitWithStoreCacheType:@(SDImageCacheTypeDisk) writesToMemory:NO];
+    [self assertDiskCacheHitWithStoreCacheType:@(SDImageCacheTypeNone) writesToMemory:NO];
+    [self assertDiskCacheHitWithStoreCacheType:@(SDImageCacheTypeAll) writesToMemory:YES];
+    [self assertDiskCacheHitWithStoreCacheType:@(SDImageCacheTypeMemory) writesToMemory:YES];
+    [self assertDiskCacheHitWithStoreCacheType:nil writesToMemory:YES];
+}
+
+- (void)assertDiskCacheHitWithStoreCacheType:(nullable NSNumber *)storeCacheType writesToMemory:(BOOL)writesToMemory {
+    SDImageCache *cache = [[SDImageCache alloc] initWithNamespace:NSUUID.UUID.UUIDString];
+    SDWebImageManager *manager = [[SDWebImageManager alloc] initWithCache:cache loader:SDWebImageDownloader.sharedDownloader];
+    NSURL *url = [NSURL URLWithString:@"https://example.com/image.jpg"];
+    NSString *key = [manager cacheKeyForURL:url];
+    NSData *imageData = [NSData dataWithContentsOfFile:[self testJPEGPath]];
+    [cache storeImageDataToDisk:imageData forKey:key];
+    expect([cache imageFromMemoryCacheForKey:key]).beNil();
+
+    NSMutableDictionary *context = [@{SDWebImageContextQueryCacheType: @(SDImageCacheTypeDisk)} mutableCopy];
+    if (storeCacheType) {
+        context[SDWebImageContextStoreCacheType] = storeCacheType;
+    }
+    NSString *description = [NSString stringWithFormat:@"Disk cache hit with store cache type %@", storeCacheType.stringValue ?: @"default"];
+    XCTestExpectation *expectation = [self expectationWithDescription:description];
+    [manager loadImageWithURL:url options:SDWebImageFromCacheOnly context:context progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        expect(image).notTo.beNil();
+        expect(error).beNil();
+        expect(cacheType).equal(SDImageCacheTypeDisk);
+        expect([cache imageFromMemoryCacheForKey:key] != nil).equal(writesToMemory);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithCommonTimeout];
+    [cache removeImageFromDiskForKey:key];
 }
 
 - (NSString *)testJPEGPath {
