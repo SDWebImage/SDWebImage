@@ -18,6 +18,11 @@
 static id<SDImageCache> _defaultImageCache;
 static id<SDImageLoader> _defaultImageLoader;
 
+static BOOL SDShouldStoreDiskHitInMemory(NSNumber *storeCacheType) {
+    SDImageCacheType cacheType = storeCacheType ? storeCacheType.integerValue : SDImageCacheTypeAll;
+    return cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory;
+}
+
 @interface SDWebImageCombinedOperation ()
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
@@ -321,7 +326,7 @@ static id<SDImageLoader> _defaultImageLoader;
                 }
             } else {
                 // Write back the disk image into memory cache, with the correct key
-                if (cacheType == SDImageCacheTypeDisk) {
+                if (cacheType == SDImageCacheTypeDisk && SDShouldStoreDiskHitInMemory(context[SDWebImageContextStoreCacheType])) {
                     // Sync
                     [imageCache storeImage:cachedImage imageData:nil forKey:key cacheType:SDImageCacheTypeMemory completion:nil];
                 }
@@ -379,7 +384,9 @@ static id<SDImageLoader> _defaultImageLoader;
                 return;
             } else {
                 // Write back the disk image into memory cache, with the correct key
-                if (cacheType == SDImageCacheTypeDisk) {
+                // Honor an explicit original policy and otherwise use the regular query's policy.
+                NSNumber *storeCacheType = context[SDWebImageContextOriginalStoreCacheType] ?: context[SDWebImageContextStoreCacheType];
+                if (cacheType == SDImageCacheTypeDisk && SDShouldStoreDiskHitInMemory(storeCacheType)) {
                     // Sync
                     [imageCache storeImage:cachedImage imageData:nil forKey:key cacheType:SDImageCacheTypeMemory completion:nil];
                 }

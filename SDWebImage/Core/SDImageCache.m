@@ -656,11 +656,6 @@ static NSString * _defaultDiskCacheDirectory;
             diskImage = image;
         } else if (diskData) {
             // the image memory cache miss, need image data and image
-            BOOL shouldCacheToMemory = YES;
-            if (context[SDWebImageContextStoreCacheType]) {
-                SDImageCacheType cacheType = [context[SDWebImageContextStoreCacheType] integerValue];
-                shouldCacheToMemory = (cacheType == SDImageCacheTypeAll || cacheType == SDImageCacheTypeMemory);
-            }
             // Special case: If user query image in list for the same URL, to avoid decode and write **same** image object into disk cache multiple times, we query and check memory cache here again. See: #3523
             // This because disk operation can be async, previous sync check of `memory cache miss`, does not gurantee current check of `memory cache miss`
             if (!shouldQueryDiskSync) {
